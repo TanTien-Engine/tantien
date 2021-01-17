@@ -8,6 +8,7 @@
 #include <unirender/ComponentDataType.h>
 #include <unirender/VertexInputAttribute.h>
 #include <unirender/DrawState.h>
+#include <unirender/ClearState.h>
 #include <shadertrans/ShaderTrans.h>
 
 #include <assert.h>
@@ -132,6 +133,48 @@ static void draw()
     RENDER.ctx->Draw(prim_type, ds, nullptr);
 }
 
+static void clear()
+{
+    prepare();
+
+    ur::ClearState clear;
+
+    int clear_mask = 0;
+    int mask_num = vessel_get_list_count(1);
+    for (int i = 0; i < mask_num; ++i)
+    {
+        vessel_get_list_element(1, i, 0);
+        auto mask_str = vessel_get_slot_string(0);
+        if (strcmp(mask_str, "color") == 0) {
+            clear_mask |= static_cast<int>(ur::ClearBuffers::ColorBuffer);
+        } else if (strcmp(mask_str, "depth") == 0) {
+            clear_mask |= static_cast<int>(ur::ClearBuffers::DepthBuffer);
+        } else if (strcmp(mask_str, "stencil") == 0) {
+            clear_mask |= static_cast<int>(ur::ClearBuffers::StencilBuffer);
+        } else {
+            assert(0);
+        }
+    }
+    clear.buffers = static_cast<ur::ClearBuffers>(clear_mask);
+
+    vessel_get_map_value(2, "color", 0);
+    if (vessel_get_slot_type(0) == VESSEL_TYPE_LIST)
+    {
+        assert(vessel_get_list_count(0) == 4);
+        // fixme: ensure capacity
+        vessel_get_list_element(0, 0, 1);
+        clear.color.r = static_cast<uint8_t>(vessel_get_slot_double(1));
+        vessel_get_list_element(0, 1, 1);
+        clear.color.g = static_cast<uint8_t>(vessel_get_slot_double(1));
+        vessel_get_list_element(0, 2, 1);
+        clear.color.b = static_cast<uint8_t>(vessel_get_slot_double(1));
+        vessel_get_list_element(0, 3, 1);
+        clear.color.a = static_cast<uint8_t>(vessel_get_slot_double(1));
+    }
+
+    RENDER.ctx->Clear(clear);
+}
+
 }
 
 namespace tt
@@ -142,6 +185,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.newShader(_,_)") == 0) return new_shader;
     if (strcmp(signature, "static Render.newVertexArray(_,_)") == 0) return new_vertex_array;
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return draw;
+    if (strcmp(signature, "static Render.clear(_,_)") == 0) return clear;
 
     assert(0);
 

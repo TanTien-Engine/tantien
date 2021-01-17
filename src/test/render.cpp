@@ -122,12 +122,12 @@ var prog = Render.newShader(vs, fs)
 
 var va = Render.newVertexArray([
     //  X    Y    Z          R    G    B
-       1.0, 1.0, 0.0,       1.0, 0.0, 0.0, // vertex 0
-      -1.0, 1.0, 0.0,       0.0, 1.0, 0.0, // vertex 1
-       1.0,-1.0, 0.0,       0.0, 0.0, 1.0, // vertex 2
-       1.0,-1.0, 0.0,       0.0, 0.0, 1.0, // vertex 3
-      -1.0, 1.0, 0.0,       0.0, 1.0, 0.0, // vertex 4
-      -1.0,-1.0, 0.0,       1.0, 0.0, 0.0, // vertex 5
+       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
+      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
+       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
+       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
+      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
+      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
 ], [3, 3])
 
 )");
@@ -138,6 +138,7 @@ var va = Render.newVertexArray([
 
     vessel_interpret("test", R"(
 import "render" for Render
+Render.clear(["color"], { "color" : [255,255,0,0] })
 Render.draw("triangles", 0, 0, { "depth_test" : false })
 )");
 

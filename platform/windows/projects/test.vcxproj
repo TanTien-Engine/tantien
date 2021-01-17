@@ -145,9 +145,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\test\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\thirdparty\shadertrans\platform\msvc\projects\shadertrans_new.vcxproj">
       <Project>{0af51930-759c-4389-8420-2bf6cb10beff}</Project>
     </ProjectReference>
@@ -163,6 +160,9 @@
     <ProjectReference Include="tantien.vcxproj">
       <Project>{8d617a32-04c2-4b1c-b932-60eab5ccba04}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\test\render.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
