@@ -2,5 +2,10 @@
 
 #include <vessel.h>
 
-VesselForeignClassMethods RenderBindClass(const char* module, const char* class_name);
-VesselForeignMethodFn RenderBindMethod(const char* class_name, bool is_static, const char* signature);
+namespace tt
+{
+
+VesselForeignMethodFn RenderBindMethod(const char* signature);
+void RenderBindClass(const char* className, VesselForeignClassMethods* methods);
+
+}

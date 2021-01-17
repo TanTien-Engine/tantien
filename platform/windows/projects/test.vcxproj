@@ -114,9 +114,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,9 +131,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,8 +154,14 @@
     <ProjectReference Include="..\..\..\thirdparty\unirender\platform\msvc\projects\unirender_new.vcxproj">
       <Project>{637a0e9c-1867-459d-8611-65a064e3b2c2}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\vessel\build\msvc\projects\vessel.vcxproj">
+      <Project>{956bf94f-151c-42a5-a699-16949a4c8a54}</Project>
+    </ProjectReference>
     <ProjectReference Include="gl3w.vcxproj">
       <Project>{db280160-0076-49c1-9bc6-2dff820bd61c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="tantien.vcxproj">
+      <Project>{8d617a32-04c2-4b1c-b932-60eab5ccba04}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

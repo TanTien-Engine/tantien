@@ -1,27 +1,61 @@
-﻿#include <unirender/Factory.h>
-#include <unirender/Device.h>
-#include <unirender/Context.h>
-#include <unirender/ShaderProgram.h>
-#include <unirender/VertexBuffer.h>
-#include <unirender/VertexArray.h>
-#include <unirender/ComponentDataType.h>
-#include <unirender/VertexInputAttribute.h>
-#include <shadertrans/ShaderTrans.h>
+﻿#include "../modules/render/Render.h"
+#include "../modules/render/render.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <string>
-#include <vector>
 
-#if DrawState
-#undef DrawState
-#endif
-#include <unirender/DrawState.h>
+#include <assert.h>
 
 static void error_callback(int error, const char *msg) {
     std::cerr << "GLWT error " << error << ": " << msg << std::endl;
+}
+
+VesselLoadModuleResult read_module(const char* module)
+{
+    const char* source = nullptr;
+    if (strcmp(module, "render") == 0) {
+        source = renderModuleSource;
+    }
+
+    VesselLoadModuleResult result;
+    result.source = source;
+    result.on_complete = NULL;
+    return result;
+
+}
+
+VesselForeignClassMethods bind_foreign_class(const char* module, const char* className)
+{
+    VesselForeignClassMethods methods = { NULL, NULL };
+
+    tt::RenderBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    //assert(0);
+    return methods;
+}
+
+VesselForeignMethodFn bind_foreign_method(const char* module, const char* className, bool isStatic, const char* signature)
+{
+    // For convenience, concatenate all of the method qualifiers into a single
+    // signature string.
+    char fullName[256];
+    fullName[0] = '\0';
+    if (isStatic) strcat(fullName, "static ");
+    strcat(fullName, className);
+    strcat(fullName, ".");
+    strcat(fullName, signature);
+
+    VesselForeignMethodFn method = NULL;
+
+    method = tt::RenderBindMethod(fullName);
+    if (method != NULL) return method;
+
+    assert(0);
+
+    return NULL;
 }
 
 int main()
@@ -56,70 +90,56 @@ int main()
         return 1;
     }
 
-    std::shared_ptr<ur::Device> dev = ur::CreateDevice(ur::APIType::OpenGL);
-    dev->Init();
+    vessel_init_vm();
 
-    auto ctx = ur::CreateContext(ur::APIType::OpenGL, *dev, nullptr);
+    VesselConfiguration* vm_cfg = vessel_get_config();
+    vm_cfg->load_module_fn = read_module;
+    vm_cfg->bind_foreign_class_fn = bind_foreign_class;
+    vm_cfg->bind_foreign_method_fn = bind_foreign_method;
 
-    std::string vertex_source =
-        "#version 330\n"
-        "layout(location = 0) in vec4 vposition;\n"
-        "layout(location = 1) in vec4 vcolor;\n"
-        "out vec4 fcolor;\n"
-        "void main() {\n"
-        "   fcolor = vcolor;\n"
-        "   gl_Position = vposition;\n"
-        "}\n";
+    vessel_interpret("test", R"(
+import "render" for Render
 
-    std::string fragment_source =
-        "#version 330\n"
-        "in vec4 fcolor;\n"
-        "layout(location = 0) out vec4 FragColor;\n"
-        "void main() {\n"
-        "   FragColor = fcolor;\n"
-        "}\n";
+var vs = "
+#version 330
+layout(location = 0) in vec4 vposition;
+layout(location = 1) in vec4 vcolor;
+out vec4 fcolor;
+void main() {
+   fcolor = vcolor;
+   gl_Position = vposition;
+}
+"
+var fs = "
+#version 330
+in vec4 fcolor;
+layout(location = 0) out vec4 FragColor;
+void main() {
+   FragColor = fcolor;
+}
+"
+var prog = Render.newShader(vs, fs)
 
-    std::vector<unsigned int> vs, fs;
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vertex_source, vs);
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fragment_source, fs);
-    auto prog = dev->CreateShaderProgram(vs, fs);
+var va = Render.newVertexArray([
+    //  X    Y    Z          R    G    B
+       1.0, 1.0, 0.0,       1.0, 0.0, 0.0, // vertex 0
+      -1.0, 1.0, 0.0,       0.0, 1.0, 0.0, // vertex 1
+       1.0,-1.0, 0.0,       0.0, 0.0, 1.0, // vertex 2
+       1.0,-1.0, 0.0,       0.0, 0.0, 1.0, // vertex 3
+      -1.0, 1.0, 0.0,       0.0, 1.0, 0.0, // vertex 4
+      -1.0,-1.0, 0.0,       1.0, 0.0, 0.0, // vertex 5
+], [3, 3])
 
-    GLfloat vertexData[] = {
-    //  X     Y     Z           R     G     B
-       1.0f, 1.0f, 0.0f,       1.0f, 0.0f, 0.0f, // vertex 0
-      -1.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f, // vertex 1
-       1.0f,-1.0f, 0.0f,       0.0f, 0.0f, 1.0f, // vertex 2
-       1.0f,-1.0f, 0.0f,       0.0f, 0.0f, 1.0f, // vertex 3
-      -1.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f, // vertex 4
-      -1.0f,-1.0f, 0.0f,       1.0f, 0.0f, 0.0f, // vertex 5
-    };
-
-    auto va = dev->CreateVertexArray();
-
-    auto vbuf_sz = sizeof(float) * 6 * 6;
-    auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, vbuf_sz);
-    vbuf->ReadFromMemory(vertexData, vbuf_sz, 0);
-    va->SetVertexBuffer(vbuf);
-
-    int stride_in_bytes = 4 * 3 + 4 * 3;
-    std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;
-    vbuf_attrs.push_back(std::make_shared<ur::VertexInputAttribute>(
-        0, ur::ComponentDataType::Float, 3, 0, stride_in_bytes
-    ));
-    vbuf_attrs.push_back(std::make_shared<ur::VertexInputAttribute>(
-        1, ur::ComponentDataType::Float, 3, 4 * 3, stride_in_bytes
-    ));
-    va->SetVertexBufferAttrs(vbuf_attrs);
+)");
 
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        ur::DrawState ds;
-        ds.program = prog;
-        ds.vertex_array = va;
-        ds.render_state.depth_test.enabled = false;
-        ctx->Draw(ur::PrimitiveType::Triangles, ds, nullptr);
+    vessel_interpret("test", R"(
+import "render" for Render
+Render.draw("triangles", 0, 0, { "depth_test" : false })
+)");
 
         glfwSwapBuffers(window);
     }
