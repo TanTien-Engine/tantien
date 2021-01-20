@@ -2,12 +2,12 @@ import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.port" for Port
 
-class Clear is Node
+class Draw is Node
 {
-	init() 
+	init()
 	{
-		super.init(Clear.name)
-	
+		super.init(Draw.name)
+
 		this.imports = [
 			Port(this, "prev", "port")
 		]
@@ -15,13 +15,15 @@ class Clear is Node
 			Port(this, "next", "port")
 		]
 
-		// "color", "depth", "stencil"
-		this.masks = []
+		this.prim_type = "triangles"
 
-		this.values = {}
+		this.prog = 0
+		this.va = 0
+
+		this.render_state = {}
 	}
 
 	execute() {
-		Render.clear(this.masks, this.values)
+		Render.draw(this.prim_type, this.prog, this.va, this.render_state)
 	}
 }

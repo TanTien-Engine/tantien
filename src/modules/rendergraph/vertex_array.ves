@@ -1,0 +1,22 @@
+import "render" for Render
+import "blueprint.node" for Node
+import "blueprint.port" for Port
+
+class VertexArray is Node
+{
+	init() 
+	{
+		super.init(VertexArray.name)
+
+		this.exports = [
+			Port(this, "out", "va")
+		]
+
+		this.data = nil
+		this.attrs = nil
+	}
+
+	execute() {
+		this.prog = Render.newVertexArray(this.data, this.attrs)
+	}
+}

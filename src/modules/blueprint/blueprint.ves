@@ -1,0 +1,58 @@
+class Blueprint
+{
+	static topoSort(nodes)
+	{
+		// prepare
+		var in_deg = List.filled(nodes.count, 0)
+		var empty_list = []
+		var out_nodes = List.filled(nodes.count, empty_list)
+		for (var i = 0; i < nodes.count; i = i + 1)
+		{
+			for (var port in nodes[i].imports)
+			{
+				for (var conn in port.conns)
+				{
+					for (var j = 0; j < nodes.count; j = j + 1)
+					{
+						if (nodes[j] == conn) {
+							in_deg[i] = in_deg[i] + 1
+							out_nodes[j].add(i)
+							// break;
+						}
+					}
+				}
+			}
+		}
+
+		// sort
+		var st = []
+		for (var i = 0; i < in_deg.count; i = i + 1)
+		{
+			if (in_deg[i] == 0) {
+				st.add(i)
+			}
+		}
+		var ret = []
+		while (st.count > 0)
+		{
+			var v = st[st.count - 1]
+			st.removeAt(st.count - 1)
+			ret.add(nodes[v])
+			for (var i in out_nodes[v])
+			{
+				in_deg[i] = in_deg[i] - 1
+				if (in_deg[i] == 0) {
+					st.add(i)
+				}
+			}
+		}
+
+		return ret
+	}
+
+	static connect(from, to)
+	{
+		from.conns.add(to)
+		to.conns.add(from)
+	}
+}

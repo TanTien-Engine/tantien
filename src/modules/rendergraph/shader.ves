@@ -1,0 +1,22 @@
+import "render" for Render
+import "blueprint.node" for Node
+import "blueprint.port" for Port
+
+class Shader is Node
+{
+	init() 
+	{
+		super.init(Shader.name)
+
+		this.exports = [
+			Port(this, "out", "shader")
+		]
+
+		this.vs = ""
+		this.fs = ""
+	}
+
+	execute() {
+		this.prog = Render.newShader(this.vs, this.fs)
+	}
+}
