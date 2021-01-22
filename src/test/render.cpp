@@ -92,10 +92,11 @@ int main()
 
     vessel_init_vm();
 
-    VesselConfiguration* vm_cfg = vessel_get_config();
-    vm_cfg->load_module_fn = read_module;
-    vm_cfg->bind_foreign_class_fn = bind_foreign_class;
-    vm_cfg->bind_foreign_method_fn = bind_foreign_method;
+    VesselConfiguration cfg;
+    cfg.load_module_fn = read_module;
+    cfg.bind_foreign_class_fn = bind_foreign_class;
+    cfg.bind_foreign_method_fn = bind_foreign_method;
+    vessel_set_config(&cfg);
 
     vessel_interpret("test", R"(
 import "render" for Render
@@ -132,6 +133,12 @@ var va = Render.newVertexArray([
 
 )");
 
+//    void* closure = vessel_compile("test", R"(
+//import "render" for Render
+//Render.clear(["color"], { "color" : [255,255,0,0] })
+//Render.draw("triangles", 0, 0, { "depth_test" : false })
+//)");
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -141,6 +148,7 @@ import "render" for Render
 Render.clear(["color"], { "color" : [255,255,0,0] })
 Render.draw("triangles", 0, 0, { "depth_test" : false })
 )");
+        //vessel_run(closure);
 
         glfwSwapBuffers(window);
     }
