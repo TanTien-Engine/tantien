@@ -18,11 +18,61 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_ConvexHull.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_CosineSmooth.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\sm_c_calc.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\sm_c_matrix.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\sm_c_vector.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_DouglasPeucker.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_Matrix2D.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_RayIntersect.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_Test.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_Triangulation.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\thirdparty\sm\external\sm_config.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Calc.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\sm_const.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_ConvexHull.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_CosineSmooth.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Cube.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\sm_c_calc.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\sm_c_matrix.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\sm_c_vector.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_DouglasPeucker.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Ease.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Math.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix2D.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Plane.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Process.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Quaternion.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Ray.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_RayIntersect.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Rect.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Test.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Triangulation.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\thirdparty\sm\SM_Calc.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Cube.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Math.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Matrix.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Matrix2D.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Plane.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Process.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Quaternion.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Rect.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Test.inl" />
+    <None Include="..\..\..\thirdparty\sm\SM_Vector.inl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4f58cd67-0aa8-4fe9-acb8-cda1bdf88e14}</ProjectGuid>
-    <RootNamespace>test</RootNamespace>
+    <ProjectGuid>{381EFBED-A988-4A2D-82C9-07900F0AE7E8}</ProjectGuid>
+    <RootNamespace>glfw3</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -40,13 +90,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -78,6 +128,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -116,15 +167,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;spirv-cross-cored.lib;spirv-cross-utild.lib;spirv-cross-glsld.lib;LLVMDxcSupportd.lib;glfw3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,39 +183,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\thirdparty\shadertrans\platform\msvc\projects\shadertrans_new.vcxproj">
-      <Project>{0af51930-759c-4389-8420-2bf6cb10beff}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\thirdparty\unirender\platform\msvc\projects\unirender_new.vcxproj">
-      <Project>{637a0e9c-1867-459d-8611-65a064e3b2c2}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\thirdparty\vessel\build\msvc\projects\vessel.vcxproj">
-      <Project>{956bf94f-151c-42a5-a699-16949a4c8a54}</Project>
-    </ProjectReference>
-    <ProjectReference Include="gl3w.vcxproj">
-      <Project>{db280160-0076-49c1-9bc6-2dff820bd61c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="tantien.vcxproj">
-      <Project>{8d617a32-04c2-4b1c-b932-60eab5ccba04}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\src\test\graphics.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
