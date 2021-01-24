@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,8 +147,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\thirdparty\primitive\platform\msvc\projects\primitive_new.vcxproj">
+      <Project>{58617bd0-9ac3-4d6c-bf12-3c9c7cb79946}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\shadertrans\platform\msvc\projects\shadertrans_new.vcxproj">
       <Project>{0af51930-759c-4389-8420-2bf6cb10beff}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\tessellation\platform\msvc\projects\tessellation_new.vcxproj">
+      <Project>{a9af029b-59cb-45ad-b4fb-5cf528d5e5fa}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\unirender\platform\msvc\projects\unirender_new.vcxproj">
       <Project>{637a0e9c-1867-459d-8611-65a064e3b2c2}</Project>

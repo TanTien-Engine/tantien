@@ -20,17 +20,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\Painter.cpp" />
+    <ClCompile Include="..\..\..\src\modules\graphics\SpriteRenderer.cpp" />
     <ClCompile Include="..\..\..\src\modules\render\Render.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\core\macro.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\Graphics.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\Painter.h" />
+    <ClInclude Include="..\..\..\src\modules\graphics\RenderBuffer.h" />
+    <ClInclude Include="..\..\..\src\modules\graphics\SpriteRenderer.h" />
     <ClInclude Include="..\..\..\src\modules\render\Render.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\graphics\graphics.ves.inc" />
-    <None Include="..\..\..\src\modules\graphics\Painter.ves.inc" />
     <None Include="..\..\..\src\modules\render\render.ves.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -141,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/sm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/sm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,7 +157,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/sm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/sm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
