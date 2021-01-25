@@ -1,7 +1,5 @@
-﻿#include "../modules/render/Render.h"
-#include "../modules/render/render.ves.inc"
-#include "../modules/graphics/Graphics.h"
-#include "../modules/graphics/graphics.ves.inc"
+﻿#include "modules/render/Render.h"
+#include "modules/render/render.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -17,12 +15,8 @@ static void error_callback(int error, const char *msg) {
 VesselLoadModuleResult read_module(const char* module)
 {
     const char* source = nullptr;
-
     if (strcmp(module, "render") == 0) {
         source = renderModuleSource;
-    }
-    if (strcmp(module, "graphics") == 0) {
-        source = graphicsModuleSource;
     }
 
     VesselLoadModuleResult result;
@@ -37,9 +31,6 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     VesselForeignClassMethods methods = { NULL, NULL };
 
     tt::RenderBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GraphicsBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     //assert(0);
@@ -60,9 +51,6 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     VesselForeignMethodFn method = NULL;
 
     method = tt::RenderBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GraphicsBindMethod(fullName);
     if (method != NULL) return method;
 
     assert(0);
@@ -110,19 +98,57 @@ int main()
     cfg.bind_foreign_method_fn = bind_foreign_method;
     vessel_set_config(&cfg);
 
+    vessel_interpret("test", R"(
+import "render" for Render
+
+var vs = "
+#version 330
+layout(location = 0) in vec4 vposition;
+layout(location = 1) in vec4 vcolor;
+out vec4 fcolor;
+void main() {
+   fcolor = vcolor;
+   gl_Position = vposition;
+}
+"
+var fs = "
+#version 330
+in vec4 fcolor;
+layout(location = 0) out vec4 FragColor;
+void main() {
+   FragColor = fcolor;
+}
+"
+var prog = Render.newShader(vs, fs)
+
+var va = Render.newVertexArray([
+    //  X    Y    Z          R    G    B
+       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
+      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
+       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
+       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
+      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
+      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
+], [3, 3])
+
+)");
+
+//    void* closure = vessel_compile("test", R"(
+//import "render" for Render
+//Render.clear(["color"], { "color" : [255,255,0,0] })
+//Render.draw("triangles", 0, 0, { "depth_test" : false })
+//)");
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
     vessel_interpret("test", R"(
-import "graphics" for Painter, Graphics
-
-var pt = Painter.init()
-pt.addRectFilled([0, 0, 100, 50], [255, 0, 0])
-Graphics.drawPainter(pt)
-
-Graphics.flush()
+import "render" for Render
+Render.clear(["color"], { "color" : [255,255,0,0] })
+Render.draw("triangles", 0, 0, { "depth_test" : false })
 )");
+        //vessel_run(closure);
 
         glfwSwapBuffers(window);
     }
