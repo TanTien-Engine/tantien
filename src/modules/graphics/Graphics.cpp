@@ -15,40 +15,42 @@ std::shared_ptr<tt::SpriteRenderer> SPR_RD = nullptr;
 
 static void painter_allocate()
 {
-    tess::Painter* pt = (tess::Painter*)vessel_set_slot_new_foreign(0, 0, sizeof(tess::Painter));
+    tess::Painter* pt = (tess::Painter*)ves_set_newforeign(0, 0, sizeof(tess::Painter));
     *pt = tess::Painter();
 }
 
 static void add_rect_filled()
 {
-    tess::Painter* pt = (tess::Painter*)vessel_get_slot_foreign(0);
+    tess::Painter* pt = (tess::Painter*)ves_toforeign(0);
 
     float x, y, w, h;
-    assert(vessel_get_list_count(1) == 4);
-    vessel_get_list_element(1, 0, 0);
-    x = vessel_get_slot_double(0);
-    vessel_get_list_element(1, 1, 0);
-    y = vessel_get_slot_double(0);
-    vessel_get_list_element(1, 2, 0);
-    w = vessel_get_slot_double(0);
-    vessel_get_list_element(1, 3, 0);
-    h = vessel_get_slot_double(0);
+    assert(ves_len(1) == 4);
+    ves_geti(1, 0);
+    x = ves_tonumber(-1);
+    ves_geti(1, 1);
+    y = ves_tonumber(-1);
+    ves_geti(1, 2);
+    w = ves_tonumber(-1);
+    ves_geti(1, 3);
+    h = ves_tonumber(-1);
+    ves_pop(4);
 
     int r, g, b, a;
-    const int col_n = vessel_get_list_count(2);
+    const int col_n = ves_len(2);
     assert(col_n == 3 || col_n == 4);
-    vessel_get_list_element(2, 0, 0);
-    r = static_cast<int>(vessel_get_slot_double(0));
-    vessel_get_list_element(2, 1, 0);
-    g = static_cast<int>(vessel_get_slot_double(0));
-    vessel_get_list_element(2, 2, 0);
-    b = static_cast<int>(vessel_get_slot_double(0));
+    ves_geti(2, 0);
+    r = ves_tonumber(-1);
+    ves_geti(2, 1);
+    g = ves_tonumber(-1);
+    ves_geti(2, 2);
+    b = ves_tonumber(-1);
     if (col_n == 4) {
-        vessel_get_list_element(2, 3, 0);
-        a = static_cast<int>(vessel_get_slot_double(0));
+        ves_geti(2, 3);
+        a = ves_tonumber(-1);
     } else {
         a = 255;
     }
+    ves_pop(col_n);
 
     const uint32_t col = r << 24 | g << 16 | b << 8 | a;
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
@@ -60,7 +62,7 @@ static void draw_painter()
         SPR_RD = std::make_shared<tt::SpriteRenderer>();
     }
 
-    tess::Painter* pt = (tess::Painter*)vessel_get_slot_foreign(1);
+    tess::Painter* pt = (tess::Painter*)ves_toforeign(1);
     SPR_RD->DrawPainter(*tt::Render::Instance()->Context(), ur::DefaultRenderState2D(), *pt);
 }
 

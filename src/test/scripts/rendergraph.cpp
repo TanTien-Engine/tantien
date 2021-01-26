@@ -118,15 +118,15 @@ int main()
         return 1;
     }
 
-    vessel_init_vm();
+    ves_init_vm();
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
     cfg.bind_foreign_class_fn = bind_foreign_class;
     cfg.bind_foreign_method_fn = bind_foreign_method;
-    vessel_set_config(&cfg);
+    ves_set_config(&cfg);
 
-    vessel_interpret("test", R"(
+    ves_interpret("test", R"(
 import "render" for Render
 
 var vs = "
@@ -174,7 +174,7 @@ va.execute()
     {
         glfwPollEvents();
 
-    vessel_interpret("test", R"(
+    ves_interpret("test", R"(
 var nodes = []
 
 import "rendergraph.clear" for Clear
@@ -201,6 +201,8 @@ for (var node in sorted) {
 
         glfwSwapBuffers(window);
     }
+
+    ves_free_vm();
 
     glfwDestroyWindow(window);
     glfwTerminate();
