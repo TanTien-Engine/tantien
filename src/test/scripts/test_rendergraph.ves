@@ -1,0 +1,80 @@
+import "render" for Render
+import "rendergraph.shader" for Shader
+import "rendergraph.vertex_array" for VertexArray
+import "rendergraph.clear" for Clear
+import "rendergraph.draw" for Draw
+import "blueprint.Blueprint" for Blueprint
+
+class Test
+{
+	load()
+	{
+		// init shader
+		var vs = "
+		#version 330
+		layout(location = 0) in vec4 vposition;
+		layout(location = 1) in vec4 vcolor;
+		out vec4 fcolor;
+		void main() {
+		   fcolor = vcolor;
+		   gl_Position = vposition;
+		}
+		"
+		var fs = "
+		#version 330
+		in vec4 fcolor;
+		layout(location = 0) out vec4 FragColor;
+		void main() {
+		   FragColor = fcolor;
+		}
+		"
+
+		var shader = Shader()
+		shader.vs = vs
+		shader.fs = fs
+		shader.execute()
+
+		// init va
+		var va = VertexArray()
+		va.data = [
+		    //  X    Y    Z          R    G    B
+		       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
+		      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
+		       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
+		       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
+		      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
+		      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
+		]
+		va.attrs = [3, 3]
+		va.execute()
+
+		// prepare drawlist
+
+		var drawlist = []
+
+		var clear = Clear()
+		clear.masks = ["color"]
+		clear.values = { "color" : [255,255,0,0] }
+
+		var draw = Draw()
+		draw.render_state = { "depth_test" : false }
+
+		Blueprint.connect(clear.exports[0], draw.imports[0])
+
+		drawlist.add(draw)
+		drawlist.add(clear)
+
+		this.drawlist = Blueprint.topoSort(drawlist)
+	}
+
+	update()
+	{
+	}
+
+	draw()
+	{
+		for (var node in this.drawlist) {
+			node.execute()
+		}
+	}
+}

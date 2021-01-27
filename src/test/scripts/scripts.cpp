@@ -1,5 +1,7 @@
 ﻿#include "modules/render/Render.h"
 #include "modules/render/render.ves.inc"
+#include "modules/graphics/Graphics.h"
+#include "modules/graphics/graphics.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -13,38 +15,41 @@ static void error_callback(int error, const char *msg) {
     std::cerr << "GLWT error " << error << ": " << msg << std::endl;
 }
 
-static void read_module_complete(const char* name, struct VesselLoadModuleResult result)
+const char* file_search(const char* module, const char* dir)
 {
-    if (result.source) {
-        free((void*)result.source);
-        result.source = NULL;
+    const char* ret = nullptr;
+
+    std::string path = module;
+    for (auto& c : path) {
+        if (c == '.') {
+            c = '/';
+        }
     }
+    path.insert(0, dir);
+    path.append(".ves");
+    std::ifstream fin(path.c_str());
+    if (!fin.fail()) {
+        std::string str((std::istreambuf_iterator<char>(fin)),
+            std::istreambuf_iterator<char>());
+        ret = _strdup(str.c_str());
+    }
+    fin.close();
+
+    return ret;
 }
 
 VesselLoadModuleResult read_module(const char* module)
 {
     const char* source = nullptr;
-    if (strcmp(module, "render") == 0)
-    {
-        source = _strdup(renderModuleSource);
-    }
-    else
-    {
-        std::string path = module;
-        for (auto& c : path) {
-            if (c == '.') {
-                c = '/';
-            }
+    if (strcmp(module, "render") == 0) {
+        source = renderModuleSource;
+    } else if (strcmp(module, "graphics") == 0) {
+        source = graphicsModuleSource;
+    } else {
+        source = file_search(module, "src/script/");
+        if (!source) {
+            source = file_search(module, "src/test/scripts/");
         }
-        path.insert(0, "src/script/");
-        path.append(".ves");
-        std::ifstream fin(path.c_str());
-        if (!fin.fail()) {
-            std::string str((std::istreambuf_iterator<char>(fin)),
-                std::istreambuf_iterator<char>());
-            source = _strdup(str.c_str());
-        }
-        fin.close();
     }
 
     VesselLoadModuleResult result;
@@ -59,6 +64,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     VesselForeignClassMethods methods = { NULL, NULL };
 
     tt::RenderBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    tt::GraphicsBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     //assert(0);
@@ -79,6 +87,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     VesselForeignMethodFn method = NULL;
 
     method = tt::RenderBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::GraphicsBindMethod(fullName);
     if (method != NULL) return method;
 
     assert(0);
@@ -127,77 +138,22 @@ int main()
     ves_set_config(&cfg);
 
     ves_interpret("test", R"(
-import "render" for Render
-
-var vs = "
-#version 330
-layout(location = 0) in vec4 vposition;
-layout(location = 1) in vec4 vcolor;
-out vec4 fcolor;
-void main() {
-   fcolor = vcolor;
-   gl_Position = vposition;
-}
-"
-var fs = "
-#version 330
-in vec4 fcolor;
-layout(location = 0) out vec4 FragColor;
-void main() {
-   FragColor = fcolor;
-}
-"
-
-import "rendergraph.shader" for Shader
-var shader = Shader()
-shader.vs = vs
-shader.fs = fs
-shader.execute()
-
-import "rendergraph.vertex_array" for VertexArray
-var va = VertexArray()
-va.data = [
-    //  X    Y    Z          R    G    B
-       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
-      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
-       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
-       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
-      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
-      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
-]
-va.attrs = [3, 3]
-va.execute()
-
+//import "test_render" for Test
+import "test_rendergraph" for Test
+//import "test_graphics" for Test
+var test = Test()
 )");
+
+    ves_getglobal("test");
+    ves_pushstring("load()");
+    ves_call(0, 0);
 
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-    ves_interpret("test", R"(
-var nodes = []
-
-import "rendergraph.clear" for Clear
-var clear = Clear()
-clear.masks = ["color"]
-clear.values = { "color" : [255,255,0,0] }
-
-import "rendergraph.draw" for Draw
-var draw = Draw()
-draw.render_state = { "depth_test" : false }
-
-import "blueprint.Blueprint" for Blueprint
-Blueprint.connect(clear.exports[0], draw.imports[0])
-
-nodes.add(draw)
-nodes.add(clear)
-
-var sorted = Blueprint.topoSort(nodes)
-for (var node in sorted) {
-	node.execute()
-}
-
-)");
+        ves_pushstring("draw()");
+        ves_call(0, 0);
 
         glfwSwapBuffers(window);
     }

@@ -1,0 +1,47 @@
+import "render" for Render
+
+class Test
+{
+	load()
+	{
+		var vs = "
+			#version 330
+			layout(location = 0) in vec4 vposition;
+			layout(location = 1) in vec4 vcolor;
+			out vec4 fcolor;
+			void main() {
+			   fcolor = vcolor;
+			   gl_Position = vposition;
+			}
+		"
+		var fs = "
+			#version 330
+			in vec4 fcolor;
+			layout(location = 0) out vec4 FragColor;
+			void main() {
+			   FragColor = fcolor;
+			}
+		"
+		var prog = Render.newShader(vs, fs)
+
+		var va = Render.newVertexArray([
+			//  X    Y    Z          R    G    B
+			   0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
+			  -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
+			   0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
+			   0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
+			  -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
+			  -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
+		], [3, 3])
+	}
+
+	update()
+	{
+	}
+
+	draw()
+	{
+		Render.clear(["color"], { "color" : [0,255,0,0] })
+		Render.draw("triangles", 0, 0, { "depth_test" : false })
+	}
+}

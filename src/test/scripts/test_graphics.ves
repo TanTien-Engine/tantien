@@ -1,0 +1,21 @@
+import "graphics" for Painter, Graphics
+
+class Test
+{
+	load()
+	{
+		this.pt = Painter.init()
+		this.pt.addRectFilled([0, 0, 100, 50], [255, 128, 0])	
+	}
+
+	update()
+	{
+	}
+
+	draw()
+	{
+		Graphics.drawPainter(this.pt)
+
+		Graphics.flush()
+	}
+}
