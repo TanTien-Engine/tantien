@@ -1,0 +1,33 @@
+import "math.vector" for Vector2
+
+class OrthoCamera
+{
+	init() 
+	{
+		this.pos = Vector2()
+		this.scale = 1.0
+
+		this.size = Vector2()
+	}
+
+	on_size(w, h)
+	{
+		this.size.set(w, h)
+	}
+
+	screen2project(screen) 
+	{
+		var proj = Vector2()
+		proj.x = (screen.x - this.size.x * 0.5)  * this.scale + this.pos.x
+		proj.y = (this.size.y * 0.5 - screen.y) * this.scale + this.pos.y
+		return proj
+	}
+
+	project2screen(project)
+	{
+		var screen = Vector2()
+		screen.x = (project.x - this.pos.x) / this.scale + this.size.x * 0.5
+		screen.y = this.size.y * 0.5 - (project.y - this.pos.y) / this.scale
+		return screen
+	}
+}

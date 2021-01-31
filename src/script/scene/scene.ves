@@ -1,0 +1,16 @@
+class Scene
+{
+	init() {
+		this.nodes = []
+	}
+
+	add(node) {
+		this.nodes.add(node)
+	}
+
+	draw() {
+		for (var node in this.nodes) {
+			node.draw()
+		}
+	}
+}

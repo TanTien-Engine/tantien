@@ -19,7 +19,7 @@ static void painter_allocate()
     *pt = tess::Painter();
 }
 
-static void add_rect_filled()
+static void add_rect()
 {
     tess::Painter* pt = (tess::Painter*)ves_toforeign(0);
 
@@ -34,6 +34,10 @@ static void add_rect_filled()
     ves_geti(1, 3);
     h = ves_tonumber(-1);
     ves_pop(4);
+
+    if (w <= 0 || h <= 0) {
+        return;
+    }
 
     int r, g, b, a;
     const int col_n = ves_len(2);
@@ -52,7 +56,50 @@ static void add_rect_filled()
     }
     ves_pop(col_n);
 
-    const uint32_t col = r << 24 | g << 16 | b << 8 | a;
+    const float width = ves_tonumber(3);
+
+    const uint32_t col = a << 24 | b << 16 | g << 8 | r;
+    pt->AddRect(sm::vec2(x, y), sm::vec2(x + w, y + h), col, width);
+}
+
+static void add_rect_filled()
+{
+    tess::Painter* pt = (tess::Painter*)ves_toforeign(0);
+
+    float x, y, w, h;
+    assert(ves_len(1) == 4);
+    ves_geti(1, 0);
+    x = ves_tonumber(-1);
+    ves_geti(1, 1);
+    y = ves_tonumber(-1);
+    ves_geti(1, 2);
+    w = ves_tonumber(-1);
+    ves_geti(1, 3);
+    h = ves_tonumber(-1);
+    ves_pop(4);
+
+    if (w <= 0 || h <= 0) {
+        return;
+    }
+
+    int r, g, b, a;
+    const int col_n = ves_len(2);
+    assert(col_n == 3 || col_n == 4);
+    ves_geti(2, 0);
+    r = ves_tonumber(-1);
+    ves_geti(2, 1);
+    g = ves_tonumber(-1);
+    ves_geti(2, 2);
+    b = ves_tonumber(-1);
+    if (col_n == 4) {
+        ves_geti(2, 3);
+        a = ves_tonumber(-1);
+    } else {
+        a = 255;
+    }
+    ves_pop(col_n);
+
+    const uint32_t col = a << 24 | b << 16 | g << 8 | r;
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
 }
 
@@ -82,6 +129,7 @@ namespace tt
 
 VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return add_rect;
     if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return add_rect_filled;
     if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return draw_painter;
     if (strcmp(signature, "static Graphics.flush()") == 0) { return flush; }

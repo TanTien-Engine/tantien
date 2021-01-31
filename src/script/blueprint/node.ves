@@ -1,6 +1,21 @@
+import "graphics" for Painter, Graphics
+
 class Node
 {
-	init(name) {
+	init(name) 
+	{
 		this.name = name
+
+		this.pos = [0, 0, 100, 50]
+		this.color = [255, 128, 0]
+	}
+
+	draw()
+	{
+		var pt = Painter.init()
+
+		pt.addRectFilled(this.pos, this.color)
+
+		Graphics.drawPainter(pt)
 	}
 }

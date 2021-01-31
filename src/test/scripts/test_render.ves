@@ -22,9 +22,9 @@ class Test
 			   FragColor = fcolor;
 			}
 		"
-		var prog = Render.newShader(vs, fs)
+		this.prog = Render.newShader(vs, fs)
 
-		var va = Render.newVertexArray([
+		this.va = Render.newVertexArray([
 			//  X    Y    Z          R    G    B
 			   0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
 			  -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
@@ -42,6 +42,6 @@ class Test
 	draw()
 	{
 		Render.clear(["color"], { "color" : [0,255,0,0] })
-		Render.draw("triangles", 0, 0, { "depth_test" : false })
+		Render.draw("triangles", this.prog, this.va, { "depth_test" : false })
 	}
 }

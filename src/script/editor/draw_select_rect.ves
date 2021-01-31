@@ -1,0 +1,68 @@
+import "math" for Math
+import "graphics" for Painter, Graphics
+import "math.vector" for Vector2
+import "editor.colors" for Colors
+
+class DrawSelectRect
+{
+	init(cam) 
+	{
+		this.camera = cam
+
+		this.first_pos = nil
+		this.last_pos = nil
+	}
+
+	on_mouse_press(x, y)
+	{
+		this.first_pos = Vector2(x, y)
+		this.last_pos = Vector2(x, y)
+	}
+
+	on_mouse_release(x, y)
+	{
+		this.first_pos = nil
+		this.last_pos = nil
+	}
+
+	on_mouse_drag(x, y)
+	{
+		if (this.first_pos) {
+			this.last_pos.set(x, y)
+		}
+	}
+
+	draw()
+	{
+		if (!this.first_pos or !this.last_pos) {
+			return
+		}
+
+		var pt = Painter.init()
+
+		var p0 = this.camera.screen2project(this.first_pos)
+		var p1 = this.camera.screen2project(this.last_pos)
+
+		var color
+		if (p1.x > p0.x) {
+			color = Colors.light_green()
+		} else {
+			color = Colors.light_blue()
+		}
+
+		var x = Math.min(p0.x, p1.x)
+		var y = Math.min(p0.y, p1.y)
+		var w = Math.abs(p0.x - p1.x)
+		var h = Math.abs(p0.y - p1.y)
+		pt.addRectFilled([x, y, w, h], color)
+		pt.addRect([x, y, w, h], Colors.select_red(), 2 * this.camera.scale)
+
+		Graphics.drawPainter(pt)
+	}
+
+	clear()
+	{
+		this.first_pos = nil
+		this.last_pos = nil
+	}
+}

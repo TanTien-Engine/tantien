@@ -11,8 +11,16 @@
 
 #include <assert.h>
 
-static void error_callback(int error, const char *msg) {
+namespace
+{
+
+void error_callback(int error, const char *msg) {
     std::cerr << "GLWT error " << error << ": " << msg << std::endl;
+}
+
+void write(const char* text)
+{
+    printf("%s", text);
 }
 
 const char* file_search(const char* module, const char* dir)
@@ -92,9 +100,148 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::GraphicsBindMethod(fullName);
     if (method != NULL) return method;
 
-    assert(0);
-
     return NULL;
+}
+
+void call_sizechanged(int w, int h)
+{
+    ves_pushnumber(w);
+    ves_pushnumber(h);
+    ves_pushstring("sizechanged(_,_)");
+    ves_call(2, 0);
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+    call_sizechanged(width, height);
+}
+
+void call_keypressed(char c)
+{
+    ves_pushlstring(&c, 1);
+    ves_pushstring("keypressed(_)");
+    ves_call(1, 0);
+}
+
+void call_mousemoved(double x, double y, int button)
+{
+    ves_pushnumber(x);
+    ves_pushnumber(y);
+    ves_pushnumber(button);
+    ves_pushstring("mousemoved(_,_,_)");
+    ves_call(3, 0);
+}
+
+void call_mousedragged(double x, double y, int button)
+{
+    ves_pushnumber(x);
+    ves_pushnumber(y);
+    ves_pushnumber(button);
+    ves_pushstring("mousedragged(_,_,_)");
+    ves_call(3, 0);
+}
+
+void call_mousepressed(double x, double y, int button)
+{
+    ves_pushnumber(x);
+    ves_pushnumber(y);
+    ves_pushnumber(button);
+    ves_pushstring("mousepressed(_,_,_)");
+    ves_call(3, 0);
+}
+
+void call_mousereleased(double x, double y, int button)
+{
+    ves_pushnumber(x);
+    ves_pushnumber(y);
+    ves_pushnumber(button);
+    ves_pushstring("mousereleased(_,_,_)");
+    ves_call(3, 0);
+}
+
+enum class MouseButton
+{
+    None   = 0,
+    Left   = 1,
+    Right  = 2,
+    Middle = 3,
+};
+
+enum class MouseStatus
+{
+    Default,
+    LeftPressed,
+    RightPressed,
+    MiddlePressed,
+};
+
+MouseStatus mouse_status = MouseStatus::Default;
+
+void process_input(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        call_keypressed('w');
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        call_keypressed('s');
+    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        call_keypressed('a');
+    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        call_keypressed('d');
+    }
+
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    switch (mouse_status)
+    {
+    case MouseStatus::Default:
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            mouse_status = MouseStatus::LeftPressed;
+            call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
+        } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+            mouse_status = MouseStatus::RightPressed;
+            call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
+        } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+            mouse_status = MouseStatus::MiddlePressed;
+            call_mousepressed(x, y, static_cast<int>(MouseButton::Middle));
+        } else {
+            call_mousemoved(x, y, static_cast<int>(MouseButton::None));
+        }
+        break;
+    case MouseStatus::LeftPressed:
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+            mouse_status = MouseStatus::Default;
+            call_mousereleased(x, y, static_cast<int>(MouseButton::Left));
+        } else {
+            call_mousedragged(x, y, static_cast<int>(MouseButton::Left));
+        }
+        break;
+    case MouseStatus::RightPressed:
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+            mouse_status = MouseStatus::Default;
+            call_mousereleased(x, y, static_cast<int>(MouseButton::Right));
+        } else {
+            call_mousedragged(x, y, static_cast<int>(MouseButton::Right));
+        }
+        break;
+    case MouseStatus::MiddlePressed:
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE) {
+            mouse_status = MouseStatus::Default;
+            call_mousereleased(x, y, static_cast<int>(MouseButton::Middle));
+        } else {
+            call_mousedragged(x, y, static_cast<int>(MouseButton::Middle));
+        }
+        break;
+    default:
+        assert(0);
+    }
+}
+
 }
 
 int main()
@@ -121,6 +268,8 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
 
     if(gl3wInit()) {
         std::cerr << "failed to init GL3W" << std::endl;
@@ -135,12 +284,14 @@ int main()
     cfg.load_module_fn = read_module;
     cfg.bind_foreign_class_fn = bind_foreign_class;
     cfg.bind_foreign_method_fn = bind_foreign_method;
+    cfg.write_fn = write;
     ves_set_config(&cfg);
 
     ves_interpret("test", R"(
 //import "test_render" for Test
-import "test_rendergraph" for Test
+//import "test_rendergraph" for Test
 //import "test_graphics" for Test
+import "test_blueprint" for Test
 var test = Test()
 )");
 
@@ -148,14 +299,17 @@ var test = Test()
     ves_pushstring("load()");
     ves_call(0, 0);
 
+    call_sizechanged(width, height);
+
     while(!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
+        process_input(window);
 
         ves_pushstring("draw()");
         ves_call(0, 0);
 
         glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     ves_free_vm();

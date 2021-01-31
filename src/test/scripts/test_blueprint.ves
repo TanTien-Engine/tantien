@@ -1,0 +1,73 @@
+import "scene.node" for Node as SceneNode
+import "scene.scene" for Scene
+import "blueprint.node" for Node as BlueprintNode
+import "editor.draw_select_rect" for DrawSelectRect
+import "graphics" for Graphics
+import "render" for Render
+import "graphics.ortho_camera" for OrthoCamera
+
+class Test
+{
+	load()
+	{
+		this.scene = Scene()
+		this.camera = OrthoCamera()
+
+		var node = SceneNode()
+
+		var bp_node = BlueprintNode("test")
+		node.components["bp"] = bp_node
+
+		this.scene.add(node)
+
+		this.editop = DrawSelectRect(this.camera)
+	}
+
+	update()
+	{
+	}
+
+	draw()
+	{
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		this.scene.draw()
+
+		this.editop.draw()
+
+		Graphics.flush()
+	}
+
+	sizechanged(w, h)
+	{
+		this.camera.on_size(w, h)
+	}
+
+	keypressed(c)
+	{
+	}
+
+	keyreleased(c)
+	{
+	}
+
+	mousemoved(x, y, btn)
+	{
+		//System.print("moved %(x) %(y)")
+	}
+
+	mousedragged(x, y, btn)
+	{
+		this.editop.on_mouse_drag(x, y)
+	}
+
+	mousepressed(x, y, btn)
+	{
+		this.editop.on_mouse_press(x, y)
+	}
+
+	mousereleased(x, y, btn)
+	{
+		this.editop.on_mouse_release(x, y)
+	}
+}

@@ -7,6 +7,10 @@ foreign class Painter
 
 	// rect: list [x, y, width, height]
 	// color: list [r, g, b, a]
+	foreign addRect(rect, color, line_width)
+
+	// rect: list [x, y, width, height]
+	// color: list [r, g, b, a]
 	foreign addRectFilled(rect, color)
 }
 
