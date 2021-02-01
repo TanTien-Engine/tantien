@@ -1,0 +1,38 @@
+import "editgraph.editop" for EditOP
+import "editgraph.operators.draw_select_rect" for DrawSelectRect
+
+class Select2d is EditOP
+{
+	init(cam, scene)
+	{
+		this.scene = scene
+		this.draw_op = DrawSelectRect(cam, scene)
+	}
+
+	on_mouse_press(x, y)
+	{
+		this.draw_op.on_mouse_press(x, y)
+
+		
+	}
+
+	on_mouse_release(x, y)
+	{
+		this.draw_op.on_mouse_release(x, y)
+	}
+
+	on_mouse_drag(x, y)
+	{
+		this.draw_op.on_mouse_drag(x, y)
+	}
+
+	draw()
+	{
+		this.draw_op.draw()
+	}
+
+	clear()
+	{
+		this.draw_op.clear()
+	}
+}

@@ -1,3 +1,5 @@
+import "math" for Math
+
 class Vector2
 {
 	init() {
@@ -12,5 +14,15 @@ class Vector2
 	set(x, y) {
 		this.x = x
 		this.y = y	
+	}
+
+	rotate(rad)
+	{
+		var s = Math.sin(rad)
+		var c = Math.cos(rad)
+		var x = this.x * c - this.y * s
+		var y = this.x * s + this.y * c
+		this.x = x
+		this.y = y
 	}
 }

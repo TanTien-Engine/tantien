@@ -6,8 +6,14 @@ class Node
 
 	draw() 
 	{
+		var mt = nil
+		var trans = this.components["transform"]
+		if (trans) {
+			mt = trans.get_matrix()
+		}
+
 		for (var entry in this.components) {
-			entry.value.draw()
+			entry.value.draw(mt)
 		}
 	}
 }

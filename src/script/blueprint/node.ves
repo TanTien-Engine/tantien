@@ -1,4 +1,18 @@
 import "graphics" for Painter, Graphics
+import "math.vector" for Vector2
+
+class Style
+{
+	init()
+	{
+		this.width = 0
+		this.height = 0
+
+		this.line_num = 0
+
+		this.panel_bg_col = [25, 25, 25, 196]
+	}
+}
 
 class Node
 {
@@ -6,16 +20,38 @@ class Node
 	{
 		this.name = name
 
-		this.pos = [0, 0, 100, 50]
-		this.color = [255, 128, 0]
+		this.style = Style()
+
+		this.pos = Vector2(0, 0)
+
+		this.layout()
 	}
 
-	draw()
+	get_size()
+	{
+		return Vector2(this.style.width, this.style.height)
+	}
+
+	draw(mt)
+	{
+		this.draw_panel(mt)
+	}
+
+	draw_panel(mt)
 	{
 		var pt = Painter.init()
 
-		pt.addRectFilled(this.pos, this.color)
+		var hw = this.style.width * 0.5
+		var hh = this.style.height * 0.5
+		var pos = mt.mul_vec(this.pos)
+		pt.addRectFilled([pos.x - hw, pos.y - hh, this.style.width, this.style.height], this.style.panel_bg_col)
 
 		Graphics.drawPainter(pt)
+	}
+
+	layout()
+	{
+		this.style.width = 100
+		this.style.height = 50
 	}
 }

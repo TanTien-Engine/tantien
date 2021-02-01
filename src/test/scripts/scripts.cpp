@@ -121,6 +121,19 @@ void window_size_callback(GLFWwindow* window, int width, int height)
     call_sizechanged(width, height);
 }
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    ves_pushnumber(x);
+    ves_pushnumber(y);
+    ves_pushnumber(xoffset);
+    ves_pushnumber(yoffset);
+    ves_pushstring("mousescrolled(_,_,_,_)");
+    ves_call(4, 0);
+}
+
 void call_keypressed(char c)
 {
     ves_pushlstring(&c, 1);
@@ -205,7 +218,7 @@ void process_input(GLFWwindow *window)
             call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
             mouse_status = MouseStatus::RightPressed;
-            call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
+            call_mousepressed(x, y, static_cast<int>(MouseButton::Right));
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
             mouse_status = MouseStatus::MiddlePressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Middle));
@@ -270,6 +283,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     if(gl3wInit()) {
         std::cerr << "failed to init GL3W" << std::endl;

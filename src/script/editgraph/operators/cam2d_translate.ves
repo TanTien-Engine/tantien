@@ -1,0 +1,31 @@
+import "editgraph.editop" for EditOP
+import "math.vector" for Vector2
+
+class Cam2dTranslate is EditOP
+{
+	init(cam, scene)
+	{
+		this.camera = cam
+
+		this.last_pos = nil
+	}
+
+	on_mouse_press(x, y) 
+	{
+		this.last_pos = Vector2(x, y)
+	}
+
+	on_mouse_release(x, y) 
+	{
+		this.last_pos = nil
+	}
+
+	on_mouse_drag(x, y) 
+	{
+		var dx = this.last_pos.x - x
+		var dy = this.last_pos.y - y
+		this.camera.translate_cam(Vector2(dx, -dy))
+
+		this.last_pos.set(x, y)
+	}
+}

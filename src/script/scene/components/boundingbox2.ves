@@ -1,0 +1,25 @@
+import "scene.component" for Component
+import "math.rect" for Rect
+import "math.vector" for Vector2
+import "graphics" for Painter, Graphics
+
+class BoundingBox2 is Component
+{
+	init(size)
+	{
+		this.rect = Rect()
+		this.rect.w = size.x
+		this.rect.h = size.y
+
+		this.pos = Vector2()
+	}
+
+	draw(mt)
+	{
+		//var pt = Painter.init()
+
+		//pt.addRectFilled([this.rect.x, this.rect.y, this.rect.w, this.rect.h], [255, 128, 0])
+
+		//Graphics.drawPainter(pt)
+	}
+}

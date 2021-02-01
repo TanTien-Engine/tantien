@@ -1,10 +1,13 @@
-import "scene.node" for Node as SceneNode
-import "scene.scene" for Scene
-import "blueprint.node" for Node as BlueprintNode
-import "editor.draw_select_rect" for DrawSelectRect
 import "graphics" for Graphics
 import "render" for Render
+import "scene.node" for Node as SceneNode
+import "scene.scene" for Scene
+import "scene.components.boundingbox2" for BoundingBox2
+import "scene.components.transform2" for Transform2
+import "blueprint.node" for Node as BlueprintNode
+import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "graphics.ortho_camera" for OrthoCamera
+import "math.vector" for Vector2
 
 class Test
 {
@@ -13,14 +16,9 @@ class Test
 		this.scene = Scene()
 		this.camera = OrthoCamera()
 
-		var node = SceneNode()
+		this.scene.add(this.new_node())
 
-		var bp_node = BlueprintNode("test")
-		node.components["bp"] = bp_node
-
-		this.scene.add(node)
-
-		this.editop = DrawSelectRect(this.camera)
+		this.editop = BlueprintEditOP(this.camera, this.scene)
 	}
 
 	update()
@@ -40,34 +38,59 @@ class Test
 
 	sizechanged(w, h)
 	{
+		Graphics.onSize(w, h)
 		this.camera.on_size(w, h)
 	}
 
 	keypressed(c)
 	{
+		this.editop.on_key_pressed(c)
 	}
 
 	keyreleased(c)
 	{
+		this.editop.on_key_released(c)
 	}
 
 	mousemoved(x, y, btn)
 	{
-		//System.print("moved %(x) %(y)")
+		this.editop.on_mouse_moved(x, y, btn)
 	}
 
 	mousedragged(x, y, btn)
 	{
-		this.editop.on_mouse_drag(x, y)
+		this.editop.on_mouse_dragged(x, y, btn)
 	}
 
 	mousepressed(x, y, btn)
 	{
-		this.editop.on_mouse_press(x, y)
+		this.editop.on_mouse_pressed(x, y, btn)
 	}
 
 	mousereleased(x, y, btn)
 	{
-		this.editop.on_mouse_release(x, y)
+		this.editop.on_mouse_released(x, y, btn)
+	}
+
+	mousescrolled(x, y, dx, dy)
+	{
+		this.editop.on_mouse_scrolled(x, y, dx, dy)
+	}
+
+	new_node()
+	{
+		var node = SceneNode()
+
+		var bp_node = BlueprintNode("test")
+		node.components["bp"] = bp_node
+
+		var bb = BoundingBox2(bp_node.get_size())
+		node.components["bounding"] = bb
+
+		var trans = Transform2()
+		trans.set_position(Vector2(100, 50))
+		node.components["transform"] = trans
+
+		return node
 	}
 }

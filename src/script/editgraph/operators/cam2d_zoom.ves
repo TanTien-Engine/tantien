@@ -1,0 +1,21 @@
+import "editgraph.editop" for EditOP
+import "math.vector" for Vector2
+
+class Cam2dZoom is EditOP
+{
+	init(cam, scene) 
+	{
+		this.camera = cam
+	}
+
+	on_mouse_scroll(x, y, dx, dy)
+	{
+		var scale = 1
+		if (dy > 0) {
+			scale = scale / 1.1
+		} else {
+			scale = scale * 1.1
+		}
+		this.camera.scale_cam(scale, Vector2(x, y))
+	}
+}

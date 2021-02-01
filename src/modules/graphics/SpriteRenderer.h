@@ -33,6 +33,9 @@ public:
     SpriteRenderer();
     ~SpriteRenderer();
 
+    void OnSize(float width, float height);
+    void OnCameraUpdate(const sm::vec2& offset, float scale);
+
     void DrawPainter(ur::Context& ctx, const ur::RenderState& rs, const tess::Painter& pt,
         const sm::mat4& mat = sm::mat4());
 

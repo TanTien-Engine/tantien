@@ -1,0 +1,61 @@
+import "editgraph.operators.select2d" for Select2d
+import "editgraph.operators.cam2d_zoom" for Cam2dZoom
+import "editgraph.operators.cam2d_translate" for Cam2dTranslate
+
+class EditOP
+{
+	init(cam, scene)
+	{
+		this.sel_op   = Select2d(cam, scene)
+		this.zoom_op  = Cam2dZoom(cam, scene)
+		this.trans_op = Cam2dTranslate(cam, scene)
+
+		this.curr_op = this.zoom_op
+	}
+
+	draw()
+	{
+		this.curr_op.draw()
+	}
+
+	on_key_pressed(c)
+	{
+	}
+
+	on_key_released(c)
+	{
+	}
+
+	on_mouse_pressed(x, y, btn)
+	{
+		if (btn == 1) {
+			this.curr_op = this.sel_op
+		} else if (btn == 2) {
+			this.curr_op = this.trans_op
+		}
+
+		this.curr_op.on_mouse_press(x, y)
+	}
+
+	on_mouse_released(x, y, btn)
+	{
+		this.curr_op = this.zoom_op
+
+		this.curr_op.on_mouse_release(x, y)
+	}
+
+	on_mouse_moved(x, y, btn)
+	{
+		this.curr_op.on_mouse_move(x, y)
+	}
+
+	on_mouse_dragged(x, y, btn)
+	{
+		this.curr_op.on_mouse_drag(x, y)
+	}
+
+	on_mouse_scrolled(x, y, dx, dy)
+	{
+		this.curr_op.on_mouse_scroll(x, y, dx, dy)
+	}
+}

@@ -1,0 +1,98 @@
+import "scene.component" for Component
+import "math.vector" for Vector2
+import "math.matrix" for Matrix2D
+
+class Transform2 is Component
+{
+	init() 
+	{
+		this.position = Vector2()
+		this.angle = 0
+		this.scale = Vector2(1, 1)
+		this.shear = Vector2()
+
+		this.offset = Vector2()
+		this.center = Vector2()
+
+		this.mat = Matrix2D()
+	}
+
+	get_matrix() {
+		return this.mat
+	}
+
+	set_position(pos)
+	{
+		if (pos.x == this.position.x and pos.y == this.position.y) {
+			return
+		}
+
+		this.position.x = pos.x
+		this.position.y = pos.y
+
+		this.update_srt()
+		this.update_matrix()
+	}
+
+	set_angle(angle)
+	{
+		if (angle == this.angle) {
+			return
+		}
+
+		this.angle = angle
+
+		this.update_srt()
+		this.update_matrix()	
+	}
+
+	set_scale(scale)
+	{
+		if (scale.x == this.scale.x and scale.y == this.scale.y) {
+			return
+		}
+
+		this.scale.x = scale.x
+		this.scale.y = scale.y
+
+		this.update_matrix()
+	}
+
+	set_shear(shear)
+	{
+		if (shear.x == this.shear.x and shear.y == this.shear.y) {
+			return
+		}
+
+		this.shear.x = shear.x
+		this.shear.y = shear.y
+
+		this.update_matrix()
+	}
+
+	set_offset(offset)
+	{
+		if (offset.x == this.offset.x and offset.y == this.offset.y) {
+			return
+		}
+
+		this.offset.x = offset.x
+		this.offset.y = offset.y
+
+		this.update_srt()
+		this.update_matrix()
+	}
+
+	update_srt()
+	{
+		var rot_offset = Vector2(-this.offset.x, -this.offset.y)
+		rot_offset.rotate(this.angle)
+		this.center.x = this.position.x + rot_offset.x + this.offset.x
+		this.center.y = this.position.y + rot_offset.y + this.offset.y
+	}
+
+	update_matrix()
+	{	
+		this.mat.set_transformation(this.center.x, this.center.y, this.angle, this.scale.x, this.scale.y, 0, 0, this.shear.x, this.shear.y)
+	}
+}

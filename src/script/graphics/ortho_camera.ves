@@ -1,4 +1,5 @@
 import "math.vector" for Vector2
+import "graphics" for Graphics
 
 class OrthoCamera
 {
@@ -29,5 +30,27 @@ class OrthoCamera
 		screen.x = (project.x - this.pos.x) / this.scale + this.size.x * 0.5
 		screen.y = this.size.y * 0.5 - (project.y - this.pos.y) / this.scale
 		return screen
+	}
+
+	translate_cam(offset)
+	{
+		this.pos.x = this.pos.x + offset.x * this.scale
+		this.pos.y = this.pos.y + offset.y * this.scale
+
+		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)	
+	}
+
+	scale_cam(scale, pos)
+	{
+		var x = pos.x
+		var y = this.size.y - pos.y
+		var hw = this.size.x * 0.5
+		var hh = this.size.y * 0.5
+		var new_scale = this.scale * scale
+		this.pos.x = (x - hw) * this.scale + this.pos.x - (x - hw) * new_scale
+		this.pos.y = (y - hh) * this.scale + this.pos.y - (y - hh) * new_scale
+		this.scale = new_scale
+
+		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)
 	}
 }

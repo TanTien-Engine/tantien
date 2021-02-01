@@ -2,6 +2,8 @@
 #include "modules/graphics/SpriteRenderer.h"
 #include "modules/render/Render.h"
 
+#include <unirender/Context.h>
+#include <unirender/ShaderProgram.h>
 #include <unirender/RenderState.h>
 #include <unirender/Factory.h>
 #include <tessellation/Painter.h>
@@ -103,6 +105,34 @@ static void add_rect_filled()
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
 }
 
+static void on_size()
+{
+    float w = ves_tonumber(1);
+    float h = ves_tonumber(2);
+
+    auto ctx = tt::Render::Instance()->Context();
+    ctx->SetViewport(0, 0, w, h);
+
+    if (!SPR_RD) {
+        SPR_RD = std::make_shared<tt::SpriteRenderer>();
+    }
+
+    SPR_RD->OnSize(w, h);
+}
+
+static void on_cam_update()
+{
+    float dx = ves_tonumber(1);
+    float dy = ves_tonumber(2);
+    float scale = ves_tonumber(3);
+
+    if (!SPR_RD) {
+        SPR_RD = std::make_shared<tt::SpriteRenderer>();
+    }
+
+    SPR_RD->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0/scale);
+}
+
 static void draw_painter()
 {
     if (!SPR_RD) {
@@ -131,6 +161,8 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
     if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return add_rect;
     if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return add_rect_filled;
+    if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return on_size;
+    if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return on_cam_update;
     if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return draw_painter;
     if (strcmp(signature, "static Graphics.flush()") == 0) { return flush; }
 

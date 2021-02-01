@@ -150,7 +150,6 @@ public:
 
 	virtual void Update(const ur::Context& ctx,
 		const ur::DrawState& draw, const void* scene = nullptr) override {
-		Update(sm::vec2(0, 0), 1.0f);
 	}
 
 	void Update(const sm::vec2& offset, float scale) {
@@ -204,7 +203,6 @@ public:
 
 	virtual void Update(const ur::Context& ctx,
 		const ur::DrawState& draw, const void* scene = nullptr) override {
-		Update(640, 480);
 	}
 
 	void Update(float width, float height) {
@@ -255,10 +253,28 @@ SpriteRenderer::SpriteRenderer()
 
 	InitShader(*dev);
 	InitRenderer(*dev, *ctx);
+
+	OnCameraUpdate(sm::vec2(0, 0), 1.0f);
 }
 
 SpriteRenderer::~SpriteRenderer()
 {
+}
+
+void SpriteRenderer::OnSize(float width, float height)
+{
+	auto proj_updater = m_shader->QueryUniformUpdater(ur::GetUpdaterTypeID<ProjectMatUpdater>());
+	if (proj_updater) {
+		std::static_pointer_cast<ProjectMatUpdater>(proj_updater)->Update(width, height);
+	}
+}
+
+void SpriteRenderer::OnCameraUpdate(const sm::vec2& offset, float scale)
+{
+	auto view_updater = m_shader->QueryUniformUpdater(ur::GetUpdaterTypeID<ViewMatUpdater>());
+	if (view_updater) {
+		std::static_pointer_cast<ViewMatUpdater>(view_updater)->Update(offset, scale);
+	}
 }
 
 void SpriteRenderer::DrawPainter(ur::Context& ctx, const ur::RenderState& rs,

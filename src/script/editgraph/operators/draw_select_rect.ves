@@ -1,11 +1,12 @@
+import "editgraph.editop" for EditOP
+import "editgraph.colors" for Colors
 import "math" for Math
 import "graphics" for Painter, Graphics
 import "math.vector" for Vector2
-import "editor.colors" for Colors
 
-class DrawSelectRect
+class DrawSelectRect is EditOP
 {
-	init(cam) 
+	init(cam, scene) 
 	{
 		this.camera = cam
 
