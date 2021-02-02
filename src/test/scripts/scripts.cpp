@@ -257,8 +257,14 @@ void process_input(GLFWwindow *window)
 
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc < 2) {
+        std::cerr << "Need test file name!" << std::endl;
+        glfwTerminate();
+        return 1;
+    }
+
     int width = 640;
     int height = 480;
 
@@ -301,13 +307,9 @@ int main()
     cfg.write_fn = write;
     ves_set_config(&cfg);
 
-    ves_interpret("test", R"(
-//import "test_render" for Test
-//import "test_rendergraph" for Test
-//import "test_graphics" for Test
-import "test_blueprint" for Test
-var test = Test()
-)");
+    char code[255];
+    sprintf(code, "import \"%s\" for Test\nvar test = Test()", argv[1]);
+    ves_interpret("test", code);
 
     ves_getglobal("test");
     ves_pushstring("load()");
