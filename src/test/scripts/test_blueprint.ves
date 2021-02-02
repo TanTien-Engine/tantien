@@ -7,7 +7,7 @@ import "scene.components.transform2" for Transform2
 import "blueprint.node" for Node as BlueprintNode
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "graphics.ortho_camera" for OrthoCamera
-import "math.vector" for Vector2
+import "maths.vector" for Vector2
 
 class Test
 {
@@ -84,11 +84,14 @@ class Test
 		var bp_node = BlueprintNode("test")
 		node.components["bp"] = bp_node
 
+		var pos = Vector2(100, 50)
+
 		var bb = BoundingBox2(bp_node.get_size())
+		bb.transform(pos, 0, Vector2())
 		node.components["bounding"] = bb
 
 		var trans = Transform2()
-		trans.set_position(Vector2(100, 50))
+		trans.set_position(pos)
 		node.components["transform"] = trans
 
 		return node

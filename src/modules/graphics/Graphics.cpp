@@ -114,6 +114,46 @@ static void add_rect_filled()
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
 }
 
+static void add_polygon()
+{
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+
+    const int num = ves_len(1);
+    std::vector<sm::vec2> vertices;
+    vertices.reserve(num / 2);
+    for (int i = 0; i < num;)
+    {
+        ves_geti(1, i++);
+        float x = (float)ves_tonumber(-1);
+        ves_geti(1, i++);
+        float y = (float)ves_tonumber(-1);
+        vertices.emplace_back(x, y);
+    }
+    ves_pop(num);
+
+    int r, g, b, a;
+    const int col_n = ves_len(2);
+    assert(col_n == 3 || col_n == 4);
+    ves_geti(2, 0);
+    r = (int)ves_tonumber(-1);
+    ves_geti(2, 1);
+    g = (int)ves_tonumber(-1);
+    ves_geti(2, 2);
+    b = (int)ves_tonumber(-1);
+    if (col_n == 4) {
+        ves_geti(2, 3);
+        a = (int)ves_tonumber(-1);
+    } else {
+        a = 255;
+    }
+    ves_pop(col_n);
+
+    const float width = (float)ves_tonumber(3);
+
+    const uint32_t col = a << 24 | b << 16 | g << 8 | r;
+    pt->AddPolygon(vertices.data(), vertices.size(), col, width);
+}
+
 static void on_size()
 {
     float w = (float)ves_tonumber(1);
@@ -170,12 +210,13 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
     if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return add_rect;
     if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return add_rect_filled;
+    if (strcmp(signature, "Painter.addPolygon(_,_,_)") == 0) return add_polygon;
     if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return on_size;
     if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return on_cam_update;
     if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return draw_painter;
     if (strcmp(signature, "static Graphics.flush()") == 0) { return flush; }
 
-    return NULL;
+    return nullptr;
 }
 
 void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods)

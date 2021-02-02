@@ -12,6 +12,10 @@ foreign class Painter
 	// rect: list [x, y, width, height]
 	// color: list [r, g, b, a]
 	foreign addRectFilled(rect, color)
+
+	// vertices: list [x0, y0, x1, y1 ...]
+	// color: list [r, g, b, a]
+	foreign addPolygon(vertices, color, line_width)
 }
 
 foreign class Graphics

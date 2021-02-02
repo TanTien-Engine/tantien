@@ -1,6 +1,6 @@
 import "scene.component" for Component
-import "math.rect" for Rect
-import "math.vector" for Vector2
+import "maths.rect" for Rect
+import "maths.vector" for Vector2
 import "graphics" for Painter, Graphics
 
 class BoundingBox2 is Component
@@ -8,10 +8,13 @@ class BoundingBox2 is Component
 	init(size)
 	{
 		this.rect = Rect()
+		this.rect.x = -size.x * 0.5
+		this.rect.y = -size.y * 0.5		
 		this.rect.w = size.x
 		this.rect.h = size.y
 
 		this.pos = Vector2()
+		this.angle = 0
 	}
 
 	draw(mt)
@@ -21,5 +24,26 @@ class BoundingBox2 is Component
 		//pt.addRectFilled([this.rect.x, this.rect.y, this.rect.w, this.rect.h], [255, 128, 0])
 
 		//Graphics.drawPainter(pt)
+	}
+
+	is_contain(pos)
+	{
+		pos.x = pos.x - this.pos.x
+		pos.y = pos.y - this.pos.y
+		pos.rotate(-this.angle)
+		return pos.x > this.rect.x and pos.x < this.rect.x + this.rect.w and
+		       pos.y > this.rect.y and pos.y < this.rect.y + this.rect.h
+	}
+
+	transform(pos, angle, offset)
+	{
+		// todo: scale and shear rect
+
+		var rot_offset = Vector2(-offset.x, -offset.y)
+		rot_offset.rotate(angle)
+		this.pos.x = pos.x + rot_offset.x + offset.x
+		this.pos.y = pos.y + rot_offset.y + offset.y
+
+		this.angle = angle
 	}
 }

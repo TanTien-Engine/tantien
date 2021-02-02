@@ -16,6 +16,10 @@ class EditOP
 	draw()
 	{
 		this.curr_op.draw()
+
+		if (this.curr_op != this.sel_op) {
+			this.sel_op.draw()		
+		}
 	}
 
 	on_key_pressed(c)
@@ -39,6 +43,7 @@ class EditOP
 
 	on_mouse_released(x, y, btn)
 	{
+		this.curr_op.clear()		
 		this.curr_op = this.zoom_op
 
 		this.curr_op.on_mouse_release(x, y)

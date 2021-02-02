@@ -2,6 +2,8 @@
 #include "modules/render/render.ves.inc"
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/graphics.ves.inc"
+#include "modules/maths/Maths.h"
+#include "modules/maths/Maths.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -53,10 +55,14 @@ VesselLoadModuleResult read_module(const char* module)
         source = renderModuleSource;
     } else if (strcmp(module, "graphics") == 0) {
         source = graphicsModuleSource;
+    } else if (strcmp(module, "maths") == 0) {
+        source = mathsModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
             source = file_search(module, "src/test/scripts/");
+        } else if (!source) {
+            source = file_search(module, "src/modules/");
         }
     }
 
@@ -77,7 +83,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::GraphicsBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    //assert(0);
+    tt::MathsBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -98,6 +106,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::GraphicsBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::MathsBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;

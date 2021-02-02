@@ -1,5 +1,6 @@
 import "graphics" for Painter, Graphics
-import "math.vector" for Vector2
+import "maths.vector" for Vector2
+import "maths" for Float2
 
 class Style
 {
@@ -22,13 +23,12 @@ class Node
 
 		this.style = Style()
 
-		this.pos = Vector2(0, 0)
+		this.pos = Vector2()
 
 		this.layout()
 	}
 
-	get_size()
-	{
+	get_size() {
 		return Vector2(this.style.width, this.style.height)
 	}
 
@@ -41,10 +41,12 @@ class Node
 	{
 		var pt = Painter.init()
 
+		var pos = Float2.init(this.pos.x, this.pos.y)
+		pos.transform(mt)
+
 		var hw = this.style.width * 0.5
 		var hh = this.style.height * 0.5
-		var pos = mt.mul_vec(this.pos)
-		pt.addRectFilled([pos.x - hw, pos.y - hh, this.style.width, this.style.height], this.style.panel_bg_col)
+		pt.addRectFilled([pos.x() - hw, pos.y() - hh, this.style.width, this.style.height], this.style.panel_bg_col)
 
 		Graphics.drawPainter(pt)
 	}

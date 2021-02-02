@@ -1,6 +1,6 @@
 import "scene.component" for Component
-import "math.vector" for Vector2
-import "math.matrix" for Matrix2D
+import "maths.vector" for Vector2
+import "maths" for Matrix2D
 
 class Transform2 is Component
 {
@@ -14,7 +14,7 @@ class Transform2 is Component
 		this.offset = Vector2()
 		this.center = Vector2()
 
-		this.mat = Matrix2D()
+		this.mat = Matrix2D.init()
 	}
 
 	get_matrix() {
@@ -93,6 +93,6 @@ class Transform2 is Component
 
 	update_matrix()
 	{	
-		this.mat.set_transformation(this.center.x, this.center.y, this.angle, this.scale.x, this.scale.y, 0, 0, this.shear.x, this.shear.y)
+		this.mat.transform(this.center.x, this.center.y, this.angle, this.scale.x, this.scale.y, 0, 0, this.shear.x, this.shear.y)
 	}
 }

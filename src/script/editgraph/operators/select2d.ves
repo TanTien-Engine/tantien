@@ -1,11 +1,17 @@
+import "graphics" for Painter, Graphics
 import "editgraph.editop" for EditOP
 import "editgraph.operators.draw_select_rect" for DrawSelectRect
+import "editgraph.colors" for Colors
+import "maths.vector" for Vector2
+import "maths" for Float2
 
 class Select2d is EditOP
 {
 	init(cam, scene)
 	{
-		this.scene = scene
+		this.camera = cam
+		this.scene  = scene
+
 		this.draw_op = DrawSelectRect(cam, scene)
 	}
 
@@ -13,7 +19,13 @@ class Select2d is EditOP
 	{
 		this.draw_op.on_mouse_press(x, y)
 
-		
+		var p = this.camera.screen2project(Vector2(x, y))
+		var sel = this.query_by_pos(p)
+		if (sel) {
+			this.scene.selection.add(sel)
+		} else {
+			this.scene.selection.clear()
+		}
 	}
 
 	on_mouse_release(x, y)
@@ -29,10 +41,45 @@ class Select2d is EditOP
 	draw()
 	{
 		this.draw_op.draw()
+
+		var pt = Painter.init()
+		for (var node in this.scene.selection)
+		{
+			var mt = nil
+			var trans = node.components["transform"]
+			if (trans) {
+				mt = trans.get_matrix()
+			}
+
+			var bb = node.components["bounding"]
+			var v0 = Float2.init(bb.rect.x, bb.rect.y)
+			v0.transform(mt)
+			var v1 = Float2.init(bb.rect.x + bb.rect.w, bb.rect.y)
+			v1.transform(mt)
+			var v2 = Float2.init(bb.rect.x + bb.rect.w, bb.rect.y + bb.rect.h)
+			v2.transform(mt)
+			var v3 = Float2.init(bb.rect.x, bb.rect.y + bb.rect.h)
+			v3.transform(mt)
+			var vertices = [v0.x(), v0.y(), v1.x(), v1.y(), v2.x(), v2.y(), v3.x(), v3.y()]
+			pt.addPolygon(vertices, Colors.select_red(), this.camera.scale)
+		}
+		Graphics.drawPainter(pt)
 	}
 
 	clear()
 	{
 		this.draw_op.clear()
 	}
+
+	query_by_pos(pos)
+	{
+		for (var node in this.scene.nodes)
+		{
+			var bb = node.components["bounding"]
+			if (bb.is_contain(pos)) {
+				return node
+			}
+		}
+		return nil
+	}	
 }
