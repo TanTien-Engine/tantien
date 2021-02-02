@@ -17,13 +17,22 @@ std::shared_ptr<tt::SpriteRenderer> SPR_RD = nullptr;
 
 static void painter_allocate()
 {
-    tess::Painter* pt = (tess::Painter*)ves_set_newforeign(0, 0, sizeof(tess::Painter));
-    *pt = tess::Painter();
+    auto pt = new tess::Painter();
+    tess::Painter** ptr = (tess::Painter**)ves_set_newforeign(0, 0, sizeof(pt));
+    *ptr = pt;
+}
+
+static int painter_finalize(void* data)
+{
+    tess::Painter** ptr = static_cast<tess::Painter**>(data);
+    int ret = sizeof(*ptr);
+    delete *ptr;
+    return ret;
 }
 
 static void add_rect()
 {
-    tess::Painter* pt = (tess::Painter*)ves_toforeign(0);
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
     float x, y, w, h;
     assert(ves_len(1) == 4);
@@ -66,7 +75,7 @@ static void add_rect()
 
 static void add_rect_filled()
 {
-    tess::Painter* pt = (tess::Painter*)ves_toforeign(0);
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
     float x, y, w, h;
     assert(ves_len(1) == 4);
@@ -139,7 +148,7 @@ static void draw_painter()
         SPR_RD = std::make_shared<tt::SpriteRenderer>();
     }
 
-    tess::Painter* pt = (tess::Painter*)ves_toforeign(1);
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(1);
     SPR_RD->DrawPainter(*tt::Render::Instance()->Context(), ur::DefaultRenderState2D(), *pt);
 }
 
@@ -174,6 +183,7 @@ void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods
     if (strcmp(className, "Painter") == 0)
     {
         methods->allocate = painter_allocate;
+        methods->finalize = painter_finalize;
         return;
     }
 }
