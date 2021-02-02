@@ -28,13 +28,13 @@ static void add_rect()
     float x, y, w, h;
     assert(ves_len(1) == 4);
     ves_geti(1, 0);
-    x = ves_tonumber(-1);
+    x = (float)ves_tonumber(-1);
     ves_geti(1, 1);
-    y = ves_tonumber(-1);
+    y = (float)ves_tonumber(-1);
     ves_geti(1, 2);
-    w = ves_tonumber(-1);
+    w = (float)ves_tonumber(-1);
     ves_geti(1, 3);
-    h = ves_tonumber(-1);
+    h = (float)ves_tonumber(-1);
     ves_pop(4);
 
     if (w <= 0 || h <= 0) {
@@ -45,20 +45,20 @@ static void add_rect()
     const int col_n = ves_len(2);
     assert(col_n == 3 || col_n == 4);
     ves_geti(2, 0);
-    r = ves_tonumber(-1);
+    r = (int)ves_tonumber(-1);
     ves_geti(2, 1);
-    g = ves_tonumber(-1);
+    g = (int)ves_tonumber(-1);
     ves_geti(2, 2);
-    b = ves_tonumber(-1);
+    b = (int)ves_tonumber(-1);
     if (col_n == 4) {
         ves_geti(2, 3);
-        a = ves_tonumber(-1);
+        a = (int)ves_tonumber(-1);
     } else {
         a = 255;
     }
     ves_pop(col_n);
 
-    const float width = ves_tonumber(3);
+    const float width = (float)ves_tonumber(3);
 
     const uint32_t col = a << 24 | b << 16 | g << 8 | r;
     pt->AddRect(sm::vec2(x, y), sm::vec2(x + w, y + h), col, width);
@@ -71,13 +71,13 @@ static void add_rect_filled()
     float x, y, w, h;
     assert(ves_len(1) == 4);
     ves_geti(1, 0);
-    x = ves_tonumber(-1);
+    x = (float)ves_tonumber(-1);
     ves_geti(1, 1);
-    y = ves_tonumber(-1);
+    y = (float)ves_tonumber(-1);
     ves_geti(1, 2);
-    w = ves_tonumber(-1);
+    w = (float)ves_tonumber(-1);
     ves_geti(1, 3);
-    h = ves_tonumber(-1);
+    h = (float)ves_tonumber(-1);
     ves_pop(4);
 
     if (w <= 0 || h <= 0) {
@@ -88,14 +88,14 @@ static void add_rect_filled()
     const int col_n = ves_len(2);
     assert(col_n == 3 || col_n == 4);
     ves_geti(2, 0);
-    r = ves_tonumber(-1);
+    r = (int)ves_tonumber(-1);
     ves_geti(2, 1);
-    g = ves_tonumber(-1);
+    g = (int)ves_tonumber(-1);
     ves_geti(2, 2);
-    b = ves_tonumber(-1);
+    b = (int)ves_tonumber(-1);
     if (col_n == 4) {
         ves_geti(2, 3);
-        a = ves_tonumber(-1);
+        a = (int)ves_tonumber(-1);
     } else {
         a = 255;
     }
@@ -107,11 +107,11 @@ static void add_rect_filled()
 
 static void on_size()
 {
-    float w = ves_tonumber(1);
-    float h = ves_tonumber(2);
+    float w = (float)ves_tonumber(1);
+    float h = (float)ves_tonumber(2);
 
     auto ctx = tt::Render::Instance()->Context();
-    ctx->SetViewport(0, 0, w, h);
+    ctx->SetViewport(0, 0, (int)w, (int)h);
 
     if (!SPR_RD) {
         SPR_RD = std::make_shared<tt::SpriteRenderer>();
@@ -122,15 +122,15 @@ static void on_size()
 
 static void on_cam_update()
 {
-    float dx = ves_tonumber(1);
-    float dy = ves_tonumber(2);
-    float scale = ves_tonumber(3);
+    float dx = (float)ves_tonumber(1);
+    float dy = (float)ves_tonumber(2);
+    float scale = (float)ves_tonumber(3);
 
     if (!SPR_RD) {
         SPR_RD = std::make_shared<tt::SpriteRenderer>();
     }
 
-    SPR_RD->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0/scale);
+    SPR_RD->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0f / scale);
 }
 
 static void draw_painter()
