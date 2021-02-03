@@ -35,6 +35,23 @@ class BoundingBox2 is Component
 		       pos.y > this.rect.y and pos.y < this.rect.y + this.rect.h
 	}
 
+	get_border_points()
+	{
+		var pts = [
+			Vector2(this.rect.x, this.rect.y),
+			Vector2(this.rect.x + this.rect.w, this.rect.y),
+			Vector2(this.rect.x + this.rect.w, this.rect.y + this.rect.h),
+			Vector2(this.rect.x, this.rect.y + this.rect.h)
+		]
+		for (var p in pts)
+		{
+			p.rotate(this.angle)
+			p.x = p.x + this.pos.x
+			p.y = p.y + this.pos.y
+		}
+		return pts		
+	}
+
 	transform(pos, angle, offset)
 	{
 		// todo: scale and shear rect

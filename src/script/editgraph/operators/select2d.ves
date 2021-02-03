@@ -3,7 +3,7 @@ import "editgraph.editop" for EditOP
 import "editgraph.operators.draw_select_rect" for DrawSelectRect
 import "editgraph.colors" for Colors
 import "maths.vector" for Vector2
-import "maths" for Float2
+import "maths.rect" for Rect
 
 class Select2d is EditOP
 {
@@ -13,6 +13,8 @@ class Select2d is EditOP
 		this.scene  = scene
 
 		this.draw_op = DrawSelectRect(cam, scene)
+
+		this.first_pos = nil
 	}
 
 	on_mouse_press(x, y)
@@ -26,11 +28,26 @@ class Select2d is EditOP
 		} else {
 			this.scene.selection.clear()
 		}
+
+		this.first_pos = Vector2(x, y)
 	}
 
 	on_mouse_release(x, y)
 	{
 		this.draw_op.on_mouse_release(x, y)
+
+		if (this.first_pos.x == x and this.first_pos.y == y) {
+			return
+		}
+
+		var p0 = this.camera.screen2project(this.first_pos)
+		var p1 = this.camera.screen2project(Vector2(x, y))
+		var selected = this.query_by_rect(p0, p1, this.first_pos.x < x)
+		for (var node in selected) {
+			this.scene.selection.add(node)
+		}
+
+		this.first_pos = nil
 	}
 
 	on_mouse_drag(x, y)
@@ -45,22 +62,9 @@ class Select2d is EditOP
 		var pt = Painter.init()
 		for (var node in this.scene.selection)
 		{
-			var mt = nil
-			var trans = node.components["transform"]
-			if (trans) {
-				mt = trans.get_matrix()
-			}
-
 			var bb = node.components["bounding"]
-			var v0 = Float2.init(bb.rect.x, bb.rect.y)
-			v0.transform(mt)
-			var v1 = Float2.init(bb.rect.x + bb.rect.w, bb.rect.y)
-			v1.transform(mt)
-			var v2 = Float2.init(bb.rect.x + bb.rect.w, bb.rect.y + bb.rect.h)
-			v2.transform(mt)
-			var v3 = Float2.init(bb.rect.x, bb.rect.y + bb.rect.h)
-			v3.transform(mt)
-			var vertices = [v0.x(), v0.y(), v1.x(), v1.y(), v2.x(), v2.y(), v3.x(), v3.y()]
+			var borders = bb.get_border_points()
+			var vertices = [borders[0].x, borders[0].y, borders[1].x, borders[1].y, borders[2].x, borders[2].y, borders[3].x, borders[3].y]
 			pt.addPolygon(vertices, Colors.select_red(), this.camera.scale)
 		}
 		Graphics.drawPainter(pt)
@@ -81,5 +85,31 @@ class Select2d is EditOP
 			}
 		}
 		return nil
-	}	
+	}
+
+	query_by_rect(p0, p1, contain)
+	{
+		var selected = []
+		var outer = Rect(p0, p1)
+		for (var node in this.scene.nodes)
+		{
+			var bb = node.components["bounding"]
+			var inner_border = bb.get_border_points()
+			if (contain) 
+			{
+				var inner = Rect()
+				inner.combine_points(inner_border)
+				if (outer.is_contain_rect(inner)) {
+					selected.add(node)
+				}
+			} 
+			else 
+			{
+				if (outer.is_intersect_polygon(inner_border)) {
+					selected.add(node)
+				}
+			}
+		}
+		return selected
+	}
 }

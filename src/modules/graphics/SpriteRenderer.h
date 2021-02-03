@@ -38,6 +38,8 @@ public:
 
     void DrawPainter(ur::Context& ctx, const ur::RenderState& rs, const tess::Painter& pt,
         const sm::mat4& mat = sm::mat4());
+    void DrawQuad(ur::Context& ctx, const ur::RenderState& rs, const float* positions, 
+        const float* texcoords, const ur::TexturePtr& tex, uint32_t color);
 
     void Flush(ur::Context& ctx);
 

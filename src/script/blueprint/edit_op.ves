@@ -43,10 +43,10 @@ class EditOP
 
 	on_mouse_released(x, y, btn)
 	{
-		this.curr_op.clear()		
-		this.curr_op = this.zoom_op
-
 		this.curr_op.on_mouse_release(x, y)
+		this.curr_op.clear()
+
+		this.curr_op = this.zoom_op
 	}
 
 	on_mouse_moved(x, y, btn)

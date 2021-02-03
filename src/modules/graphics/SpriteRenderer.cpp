@@ -349,6 +349,57 @@ void SpriteRenderer::DrawPainter(ur::Context& ctx, const ur::RenderState& rs,
 	}
 }
 
+void SpriteRenderer::DrawQuad(ur::Context& ctx, const ur::RenderState& rs, const float* positions,
+	                          const float* texcoords, const ur::TexturePtr& tex, uint32_t color)
+{
+    if (m_buf.vertices.empty())
+    {
+        m_tex = tex;
+        m_rs  = rs;
+        m_fbo = ctx.GetFramebuffer();
+    }
+    else
+    {
+        if (m_tex != tex || m_rs != rs || m_fbo != ctx.GetFramebuffer())
+        {
+            Flush(ctx);
+
+            m_tex = tex;
+            m_rs  = rs;
+            m_fbo = ctx.GetFramebuffer();
+        }
+
+        if (m_buf.vertices.size() + 4 >= RenderBuffer<SpriteVertex, unsigned short>::MAX_VERTEX_NUM) {
+            Flush(ctx);
+        }
+    }
+
+	m_buf.Reserve(6, 4);
+
+	m_buf.index_ptr[0] = m_buf.curr_index;
+	m_buf.index_ptr[1] = m_buf.curr_index + 1;
+	m_buf.index_ptr[2] = m_buf.curr_index + 2;
+	m_buf.index_ptr[3] = m_buf.curr_index;
+	m_buf.index_ptr[4] = m_buf.curr_index + 2;
+	m_buf.index_ptr[5] = m_buf.curr_index + 3;
+	m_buf.index_ptr += 6;
+
+	int ptr = 0;
+	for (int i = 0; i < 4; ++i)
+	{
+		auto& v = m_buf.vert_ptr[i];
+		v.pos.x = positions[ptr];
+		v.pos.y = positions[ptr + 1];
+		v.uv.x = texcoords[ptr];
+		v.uv.y = texcoords[ptr + 1];
+		v.col = color;
+		ptr += 2;
+	}
+	m_buf.vert_ptr += 4;
+
+	m_buf.curr_index += 4;
+}
+
 void SpriteRenderer::Flush(ur::Context& ctx)
 {
 	// ubo

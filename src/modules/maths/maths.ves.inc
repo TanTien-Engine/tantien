@@ -31,4 +31,10 @@ foreign class Matrix2D
 	foreign transform(x, y, angle, sx, sy, ox, oy, kx, ky)
 }
 
+foreign class Maths
+{
+	// conv0, conv1: float list
+	foreign static isConvexIntersectConvex(conv0, conv1)
+}
+
 );

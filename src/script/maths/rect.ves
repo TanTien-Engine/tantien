@@ -1,9 +1,70 @@
+import "math" for Math
+import "maths" for Maths
+
 class Rect
 {
 	init() {
 		this.x = 0
 		this.y = 0
-		this.w = 0
-		this.h = 0
+		this.w = -1
+		this.h = -1
+	}
+
+	init(p0, p1) {
+		this.x = Math.min(p0.x, p1.x)
+		this.y = Math.min(p0.y, p1.y)
+		this.w = Math.abs(p0.x - p1.x)
+		this.h = Math.abs(p0.y - p1.y)
+	}
+
+	is_contain_pos(pos) {
+		return pos.x > this.x and pos.x < this.x + this.w and
+		       pos.y > this.y and pos.y < this.y + this.h
+	}
+
+	is_contain_rect(rect) {
+		return rect.x > this.x and rect.x + rect.w < this.x + this.w and
+			   rect.y > this.y and rect.y + rect.h < this.y + this.h
+	}
+
+	is_intersect_polygon(polygon) 
+	{
+		var c0 = [this.x, this.y, this.x + this.w, this.y, this.x + this.w, this.y + this.h, this.x, this.y + this.h]
+		var c1 = []
+		for (var p in polygon) {
+			c1.add(p.x)
+			c1.add(p.y)			
+		}
+		return Maths.isConvexIntersectConvex(c0, c1)
+	}
+
+	combine_pos(pos) 
+	{
+		if (this.w < 0 or this.h < 0) 
+		{
+			this.x = pos.x
+			this.y = pos.y
+			this.w = 0
+			this.h = 0
+			return
+		}
+
+		if (pos.x < this.x) {
+			this.x = pos.x
+		} else if (pos.x > this.x + this.w) {
+			this.w = pos.x - this.x
+		}
+		if (pos.y < this.y) {
+			this.y = pos.y
+		} else if (pos.y > this.y + this.h) {
+			this.h = pos.y - this.y
+		}
+	}
+
+	combine_points(pts)
+	{
+		for (var p in pts) {
+			this.combine_pos(p)
+		}
 	}
 }

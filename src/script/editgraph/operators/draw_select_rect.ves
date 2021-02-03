@@ -1,8 +1,8 @@
 import "editgraph.editop" for EditOP
 import "editgraph.colors" for Colors
-import "math" for Math
 import "graphics" for Painter, Graphics
 import "maths.vector" for Vector2
+import "maths.rect" for Rect
 
 class DrawSelectRect is EditOP
 {
@@ -51,12 +51,9 @@ class DrawSelectRect is EditOP
 			color = Colors.light_blue()
 		}
 
-		var x = Math.min(p0.x, p1.x)
-		var y = Math.min(p0.y, p1.y)
-		var w = Math.abs(p0.x - p1.x)
-		var h = Math.abs(p0.y - p1.y)
-		pt.addRectFilled([x, y, w, h], color)
-		pt.addRect([x, y, w, h], Colors.select_red(), 2 * this.camera.scale)
+		var r = Rect(p0, p1)
+		pt.addRectFilled([r.x, r.y, r.w, r.h], color)
+		pt.addRect([r.x, r.y, r.w, r.h], Colors.select_red(), 2 * this.camera.scale)
 
 		Graphics.drawPainter(pt)
 	}

@@ -1,8 +1,8 @@
-﻿#include "modules/render/Render.h"
+﻿#include "modules/render/wrap_Render.h"
 #include "modules/render/render.ves.inc"
-#include "modules/graphics/Graphics.h"
+#include "modules/graphics/wrap_Graphics.h"
 #include "modules/graphics/graphics.ves.inc"
-#include "modules/maths/Maths.h"
+#include "modules/maths/wrap_Maths.h"
 #include "modules/maths/Maths.ves.inc"
 
 #include <GL/gl3w.h>

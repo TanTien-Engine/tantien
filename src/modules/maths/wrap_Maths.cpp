@@ -1,6 +1,8 @@
-#include "modules/maths/Maths.h"
+#include "modules/maths/wrap_Maths.h"
+#include "modules/script/TransHelper.h"
 
 #include <SM_Matrix2D.h>
+#include <SM_Test.h>
 
 #include <string.h>
 
@@ -76,6 +78,14 @@ void f2_transform()
     *v2 = *mt * *v2;
 }
 
+void maths_is_conv_intersect_conv()
+{
+    auto c0 = tt::list_to_vec2_array(1);
+    auto c1 = tt::list_to_vec2_array(2);
+    bool ret = sm::is_convex_intersect_convex(c0, c1);
+    ves_set_boolean(0, ret);
+}
+
 }
 
 namespace tt
@@ -92,6 +102,8 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Float2.setY(_)") == 0) return f2_set_y;
     if (strcmp(signature, "Float2.y()") == 0) return f2_get_y;
     if (strcmp(signature, "Float2.transform(_)") == 0) return f2_transform;
+
+    if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return maths_is_conv_intersect_conv;
 
 	return nullptr;
 }

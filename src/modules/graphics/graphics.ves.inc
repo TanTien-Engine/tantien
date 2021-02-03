@@ -23,6 +23,7 @@ foreign class Graphics
 	foreign static onSize(w, h)
 	foreign static onCamUpdate(dx, dy, scale)
 	foreign static drawPainter(pt)
+	foreign static drawText(text)
 	foreign static flush()
 }
 
