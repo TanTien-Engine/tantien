@@ -1,0 +1,31 @@
+import "maths.vector" for Vector2
+
+var DEFAULT_WIDTH  = 100
+var DEFAULT_HEIGHT = 20
+var TITLE_HEIGHT   = 20
+var PIN_RADIUS     = 5
+var CONNECTING_BEZIER_DIST = 0.3
+
+var PIN_TEXT_OFFSET = 130
+
+class NodeLayout
+{
+	static calc_pin_pos(node, is_input, index)
+	{
+		var PIN_RADIUS = 5
+
+		var ret = Vector2()
+
+		var hw = node.style.width * 0.5
+		var hh = node.style.height * 0.5
+		if (is_input) {
+			ret.x = -hw + PIN_RADIUS * 2
+		} else {
+			ret.x = hw - PIN_RADIUS * 2
+		}
+
+		ret.y = hh - DEFAULT_HEIGHT - (index + 0.5) * DEFAULT_HEIGHT
+
+		return ret
+	}
+}

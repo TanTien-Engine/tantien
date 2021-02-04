@@ -1,6 +1,6 @@
 import "render" for Render
 import "blueprint.node" for Node
-import "blueprint.port" for Port
+import "blueprint.pin" for Pin
 
 class Clear is Node
 {
@@ -9,10 +9,10 @@ class Clear is Node
 		super.init(Clear.name)
 	
 		this.imports = [
-			Port(this, "prev", "port")
+			Pin(this, "prev", "port")
 		]
 		this.exports = [
-			Port(this, "next", "port")
+			Pin(this, "next", "port")
 		]
 
 		// "color", "depth", "stencil"

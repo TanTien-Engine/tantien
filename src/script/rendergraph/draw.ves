@@ -1,6 +1,6 @@
 import "render" for Render
 import "blueprint.node" for Node
-import "blueprint.port" for Port
+import "blueprint.pin" for Pin
 
 class Draw is Node
 {
@@ -9,10 +9,10 @@ class Draw is Node
 		super.init(Draw.name)
 
 		this.imports = [
-			Port(this, "prev", "port")
+			Pin(this, "prev", "port")
 		]
 		this.exports = [
-			Port(this, "next", "port")
+			Pin(this, "next", "port")
 		]
 
 		this.prim_type = "triangles"

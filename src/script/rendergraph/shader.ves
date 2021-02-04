@@ -1,6 +1,6 @@
 import "render" for Render
 import "blueprint.node" for Node
-import "blueprint.port" for Port
+import "blueprint.pin" for Pin
 
 class Shader is Node
 {
@@ -9,7 +9,7 @@ class Shader is Node
 		super.init(Shader.name)
 
 		this.exports = [
-			Port(this, "out", "shader")
+			Pin(this, "out", "shader")
 		]
 
 		this.vs = ""

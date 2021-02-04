@@ -51,23 +51,9 @@ void Graphics::DrawPainter(const tess::Painter& pt) const
     m_spr_rd->DrawPainter(*Render::Instance()->Context(), ur::DefaultRenderState2D(), pt);
 }
 
-void Graphics::DrawText(const char* text) const
+void Graphics::DrawText(const char* text, const sm::Matrix2D& mt, const gtxt_label_style& style) const
 {
-    gtxt_label_style st;
-    st.width = 100;
-    st.height = 20;
-    st.align_h = 0;
-    st.align_v = 0;
-    st.space_h = 1;
-    st.space_v = 1;
-    st.over_label = 0;
-    st.gs.font = 0;
-    st.gs.font_size = 16;
-    st.gs.font_color.mode_type = 0;
-    st.gs.font_color.mode.ONE.color.integer = 0xffff00ff;
-    st.gs.edge = false;
-
-    GTxt::Draw(*Render::Instance()->Context(), text, st, sm::Matrix2D(), 0xffffffff, 0, 0, false);
+    GTxt::Draw(*Render::Instance()->Context(), text, style, mt, 0xffffffff, 0, 0, false);
 }
 
 void Graphics::DrawTexQuad(const float* positions, const float* texcoords,

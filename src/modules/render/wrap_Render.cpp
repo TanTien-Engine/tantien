@@ -124,6 +124,7 @@ void clear()
     {
         ves_geti(1, i);
         auto mask_str = ves_tostring(-1);
+        ves_pop(1);
         if (strcmp(mask_str, "color") == 0) {
             clear_mask |= static_cast<int>(ur::ClearBuffers::ColorBuffer);
         } else if (strcmp(mask_str, "depth") == 0) {
@@ -134,7 +135,6 @@ void clear()
             assert(0);
         }
     }
-    ves_pop(mask_num);
     clear.buffers = static_cast<ur::ClearBuffers>(clear_mask);
 
     int type = ves_getfield(2, "color");

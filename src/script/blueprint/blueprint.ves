@@ -8,9 +8,9 @@ class Blueprint
 		var out_nodes = List.filled(nodes.count, empty_list)
 		for (var i = 0; i < nodes.count; i = i + 1)
 		{
-			for (var port in nodes[i].imports)
+			for (var pin in nodes[i].imports)
 			{
-				for (var conn in port.conns)
+				for (var conn in pin.conns)
 				{
 					for (var j = 0; j < nodes.count; j = j + 1)
 					{

@@ -1,6 +1,6 @@
 import "render" for Render
 import "blueprint.node" for Node
-import "blueprint.port" for Port
+import "blueprint.pin" for Pin
 
 class VertexArray is Node
 {
@@ -9,7 +9,7 @@ class VertexArray is Node
 		super.init(VertexArray.name)
 
 		this.exports = [
-			Port(this, "out", "va")
+			Pin(this, "out", "va")
 		]
 
 		this.data = nil
