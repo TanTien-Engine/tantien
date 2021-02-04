@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <assert.h>
 
@@ -120,11 +121,6 @@ void call_sizechanged(int w, int h)
     ves_pushnumber(h);
     ves_pushstring("sizechanged(_,_)");
     ves_call(2, 0);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height)
@@ -266,6 +262,41 @@ void process_input(GLFWwindow *window)
     }
 }
 
+void show_fps(GLFWwindow* window)
+{
+    static double last_time = 0;
+    static int frames = 0;
+
+    double curr_time = glfwGetTime();
+    double delta = curr_time - last_time;
+    frames++;
+    if (delta >= 1.0)
+    {
+        //std::cout << 1000.0/double(frames) << std::endl;
+
+        double fps = double(frames) / delta;
+
+        std::stringstream ss;
+        ss << "zz " << " [" << fps << " FPS]";
+
+        glfwSetWindowTitle(window, ss.str().c_str());
+
+        frames = 0;
+        last_time = curr_time;
+    }
+}
+
+void limit_fps(int fps)
+{
+    static double last_time = 0;
+    double curr_time = glfwGetTime();
+    double delta = curr_time - last_time;
+    if (delta < 1.0f / fps) {
+        Sleep((1.0f / fps - delta) * 1000);
+    }
+    last_time = glfwGetTime();
+}
+
 }
 
 int main(int argc, char* argv[])
@@ -298,7 +329,6 @@ int main(int argc, char* argv[])
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
@@ -337,6 +367,9 @@ int main(int argc, char* argv[])
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        //show_fps(window);
+        limit_fps(60);
     }
 
     ves_free_vm();
