@@ -1,0 +1,52 @@
+import "editgraph.editop" for EditOP
+import "maths.vector" for Vector2
+
+class Node2dTranslate is EditOP
+{
+	init(cam, scene)
+	{
+		this.camera = cam
+		this.scene  = scene
+
+		this.last_pos = nil
+	}
+
+	on_mouse_press(x, y)
+	{
+		this.last_pos = Vector2(x, y)
+	}
+
+	on_mouse_release(x, y)
+	{
+		this.last_pos = nil
+	}
+
+	on_mouse_drag(x, y)
+	{
+		if (this.last_pos.x == x and this.last_pos.y == y) {
+			return
+		}
+
+		var p0 = this.camera.screen2project(this.last_pos)
+		var p1 = this.camera.screen2project(Vector2(x, y))
+ 		this.translate(Vector2(p1.x - p0.x, p1.y - p0.y))
+
+		this.last_pos.set(x, y)
+	}
+
+	translate(offset)
+	{
+		for (var node in this.scene.selection)
+		{
+			var bb = node.components["bounding"]
+			if (bb) {
+				bb.translate(offset)
+			}
+
+			var trans = node.components["transform"]
+			if (trans) {
+				trans.translate(offset)
+			}
+		}
+	}
+}

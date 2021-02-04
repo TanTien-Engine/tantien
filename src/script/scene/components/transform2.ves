@@ -95,4 +95,12 @@ class Transform2 is Component
 	{	
 		this.mat.transform(this.center.x, this.center.y, this.angle, this.scale.x, this.scale.y, 0, 0, this.shear.x, this.shear.y)
 	}
+
+	translate(offset)
+	{
+		var pos = Vector2()
+		pos.x = this.position.x + offset.x
+		pos.y = this.position.y + offset.y
+		this.set_position(pos)
+	}
 }
