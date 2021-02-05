@@ -13,10 +13,14 @@ foreign class Painter
 	// vertices: list [x0, y0, x1, y1 ...]
 	// color: list [r, g, b, a]
 	foreign addPolygon(vertices, color, line_width)
+	foreign addPolyline(vertices, color, line_width)
 
 	// color: list [r, g, b, a]
 	foreign addCircle(x, y, radius, color)
 	foreign addCircleFilled(x, y, radius, color)
+
+	// 
+	foreign addBezier(bezier, color, line_width)
 }
 
 class Textbox

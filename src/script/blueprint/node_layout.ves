@@ -10,21 +10,24 @@ var PIN_TEXT_OFFSET = 130
 
 class NodeLayout
 {
-	static calc_pin_pos(node, is_input, index)
+	static calc_pin_pos(pin)
 	{
 		var PIN_RADIUS = 5
 
 		var ret = Vector2()
 
-		var hw = node.style.width * 0.5
-		var hh = node.style.height * 0.5
-		if (is_input) {
+		var hw = pin.node.style.width * 0.5
+		var hh = pin.node.style.height * 0.5
+		if (pin.is_input) {
 			ret.x = -hw + PIN_RADIUS * 2
 		} else {
 			ret.x = hw - PIN_RADIUS * 2
 		}
 
-		ret.y = hh - DEFAULT_HEIGHT - (index + 0.5) * DEFAULT_HEIGHT
+		ret.y = hh - DEFAULT_HEIGHT - (pin.slot_idx + 0.5) * DEFAULT_HEIGHT
+
+		ret.x = ret.x + pin.node.pos.x
+		ret.y = ret.y + pin.node.pos.y
 
 		return ret
 	}

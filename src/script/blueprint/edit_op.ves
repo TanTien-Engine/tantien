@@ -2,17 +2,20 @@ import "editgraph.operators.node2d_select" for Node2dSelect
 import "editgraph.operators.node2d_translate" for Node2dTranslate
 import "editgraph.operators.cam2d_zoom" for Cam2dZoom
 import "editgraph.operators.cam2d_translate" for Cam2dTranslate
+import "blueprint.connect_pins" for ConnectPins
 
 class EditOP
 {
 	init(cam, scene)
 	{
+		this.camera = cam
 		this.scene = scene
 
 		this.node_sel_op   = Node2dSelect(cam, scene)
 		this.node_trans_op = Node2dTranslate(cam, scene)
 		this.cam_zoom_op   = Cam2dZoom(cam, scene)
 		this.cam_trans_op  = Cam2dTranslate(cam, scene)
+		this.connect_op    = ConnectPins(cam, scene)
 
 		this.curr_op = this.cam_zoom_op
 	}
@@ -44,9 +47,15 @@ class EditOP
 
 		this.curr_op.on_mouse_press(x, y)
 
-		if (btn == 1 and !this.scene.selection.isEmpty) {
-			this.curr_op = this.node_trans_op
-			this.curr_op.on_mouse_press(x, y)
+		if (btn == 1 and !this.scene.selection.isEmpty) 
+		{
+			this.connect_op.on_mouse_press(x, y)
+			if (this.connect_op.selected_pin) {
+				this.curr_op = this.connect_op
+			} else {
+				this.curr_op = this.node_trans_op
+				this.curr_op.on_mouse_press(x, y)			
+			}
 		}
 	}
 
@@ -72,4 +81,6 @@ class EditOP
 	{
 		this.curr_op.on_mouse_scroll(x, y, dx, dy)
 	}
+
+
 }

@@ -21,6 +21,8 @@ class Node2dSelect is EditOP
 	{
 		this.draw_op.on_mouse_press(x, y)
 
+		this.scene.selection.clear()
+
 		var p = this.camera.screen2project(Vector2(x, y))
 		var sel = this.query_by_pos(p)
 		if (sel) {

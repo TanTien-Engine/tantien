@@ -4,6 +4,8 @@
 #include "modules/graphics/graphics.ves.inc"
 #include "modules/maths/wrap_Maths.h"
 #include "modules/maths/Maths.ves.inc"
+#include "modules/geometry/wrap_Geometry.h"
+#include "modules/geometry/Geometry.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -58,6 +60,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = graphicsModuleSource;
     } else if (strcmp(module, "maths") == 0) {
         source = mathsModuleSource;
+    } else if (strcmp(module, "geometry") == 0) {
+        source = geometryModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -87,6 +91,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::MathsBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::GeometryBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -110,6 +117,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::MathsBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::GeometryBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
@@ -277,7 +287,7 @@ void show_fps(GLFWwindow* window)
         double fps = double(frames) / delta;
 
         std::stringstream ss;
-        ss << "zz " << " [" << fps << " FPS]";
+        ss << " [" << fps << " FPS]";
 
         glfwSetWindowTitle(window, ss.str().c_str());
 
@@ -361,6 +371,9 @@ int main(int argc, char* argv[])
     while(!glfwWindowShouldClose(window))
     {
         process_input(window);
+
+        ves_pushstring("update()");
+        ves_call(0, 0);
 
         ves_pushstring("draw()");
         ves_call(0, 0);

@@ -4,6 +4,19 @@ class Node
 		this.components = {}
 	}
 
+	update()
+	{
+		var mt = nil
+		var trans = this.components["transform"]
+		if (trans) {
+			mt = trans.get_matrix()
+		}
+
+		for (var entry in this.components) {
+			entry.value.update(mt)
+		}
+	}
+
 	draw() 
 	{
 		var mt = nil

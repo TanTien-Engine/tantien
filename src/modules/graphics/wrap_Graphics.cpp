@@ -3,6 +3,7 @@
 #include "modules/script/TransHelper.h"
 
 #include <tessellation/Painter.h>
+#include <geoshape/Bezier.h>
 
 namespace
 {
@@ -90,6 +91,17 @@ void painter_add_polygon()
     pt->AddPolygon(vertices.data(), vertices.size(), col, width);
 }
 
+void painter_add_polyline()
+{
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+
+    auto vertices = tt::list_to_vec2_array(1);
+    uint32_t col = tt::list_to_abgr(2);
+    const float width = (float)ves_tonumber(3);
+
+    pt->AddPolyline(vertices.data(), vertices.size(), col, width);
+}
+
 void painter_add_circle()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
@@ -112,6 +124,18 @@ void painter_add_circle_filled()
     uint32_t col = tt::list_to_abgr(4);
 
     pt->AddCircleFilled(sm::vec2(x, y), r, col);
+}
+
+void painter_add_bezier()
+{
+    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+
+    gs::Bezier* bezier = *(gs::Bezier**)ves_toforeign(1);
+    uint32_t col = tt::list_to_abgr(2);
+    const float width = (float)ves_tonumber(3);
+
+    auto& vertices = bezier->GetVertices();
+    pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
 void graphics_on_size()
@@ -209,8 +233,10 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return painter_add_rect;
     if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return painter_add_rect_filled;
     if (strcmp(signature, "Painter.addPolygon(_,_,_)") == 0) return painter_add_polygon;
+    if (strcmp(signature, "Painter.addPolyline(_,_,_)") == 0) return painter_add_polyline;
     if (strcmp(signature, "Painter.addCircle(_,_,_,_)") == 0) return painter_add_circle;
     if (strcmp(signature, "Painter.addCircleFilled(_,_,_,_)") == 0) return painter_add_circle_filled;
+    if (strcmp(signature, "Painter.addBezier(_,_,_)") == 0) return painter_add_bezier;
 
     if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return graphics_on_size;
     if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return graphics_on_cam_update;

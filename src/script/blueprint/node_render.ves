@@ -1,0 +1,78 @@
+import "graphics" for Painter, Graphics
+import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
+import "blueprint.node_style" for COL_PANEL_BG, TB_TITLE, TB_LEFT, TB_RIGHT
+import "blueprint.node_layout" for NodeLayout, PIN_TEXT_OFFSET
+
+class NodeRender
+{
+	static draw_node(node)
+	{
+		this.draw_node_panel(node)
+		this.draw_node_pins(node)
+		this.draw_node_conns(node)
+	}
+
+	static draw_node_panel(node)
+	{
+		var pt = Painter.init()
+
+		var hw = node.style.width * 0.5
+		var hh = node.style.height * 0.5
+		pt.addRectFilled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], COL_PANEL_BG)
+
+		Graphics.drawPainter(pt)
+
+		Graphics.drawText(node.name, node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+	}
+
+	static draw_node_pins(node)
+	{
+		for (var pin in node.imports)
+		{
+			var p_pos = NodeLayout.calc_pin_pos(pin)
+			this.draw_pin(p_pos.x, p_pos.y, pin)
+		}
+		for (var pin in node.exports)
+		{
+			var p_pos = NodeLayout.calc_pin_pos(pin)
+			this.draw_pin(p_pos.x, p_pos.y, pin)
+		}
+	}
+
+	static draw_node_conns(node)
+	{
+		var pt = Painter.init()
+
+		for (var o in node.exports) {
+			for (var c in o.conns) {
+				this.draw_conn(pt, c)
+			}
+		}
+
+		Graphics.drawPainter(pt)
+	}
+
+	static draw_pin(x, y, pin)
+	{
+		var pt = Painter.init()
+		pt.addCircle(x, y, PIN_RADIUS, [224, 224, 224, 255])
+		Graphics.drawPainter(pt)
+
+		var dx = 0
+		var tb
+		if (pin.is_input) {
+			dx = PIN_TEXT_OFFSET
+			tb = TB_LEFT
+		} else {
+			dx = -PIN_TEXT_OFFSET
+			tb = TB_RIGHT		
+		}
+
+		Graphics.drawText(pin.name, x + dx, y, 0.5, tb)
+	}
+
+	static draw_conn(pt, conn)
+	{
+		pt.addBezier(conn.curve, [255,0,0,255], 1)
+	}
+}

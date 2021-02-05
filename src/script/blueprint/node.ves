@@ -1,9 +1,6 @@
-import "graphics" for Painter, Graphics
 import "maths.vector" for Vector2
 import "maths" for Float2
-import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
-import "blueprint.node_style" for COL_PANEL_BG, TB_TITLE, TB_LEFT, TB_RIGHT
-import "blueprint.node_layout" for NodeLayout, PIN_TEXT_OFFSET
+import "blueprint.node_render" for NodeRender
 
 class Style
 {
@@ -36,61 +33,45 @@ class Node
 		return Vector2(this.style.width, this.style.height)
 	}
 
+	update(mt)
+	{
+		var pos = Float2.init()
+		pos.transform(mt)
+		if (this.pos.x == pos.x() and this.pos.y == pos.y()) {
+			return
+		}
+		this.pos.x = pos.x()
+		this.pos.y = pos.y()
+
+		for (var p in this.imports) {
+			for (var c in p.conns) {
+				c.update()
+			}
+		}
+		for (var p in this.exports) {
+			for (var c in p.conns) {
+				c.update()
+			}
+		}		
+	}
+
 	draw(mt)
 	{
-		var pos = Float2.init(this.pos.x, this.pos.y)
-		pos.transform(mt)
-
-		this.draw_panel(pos.x(), pos.y())
-
-		for (var i = 0; i < this.imports.count; i = i + 1) 
-		{
-			var p_pos = NodeLayout.calc_pin_pos(this, true, i)
-			this.draw_pin(pos.x() + p_pos.x, pos.y() + p_pos.y, this.imports[i], true)
-		}
-
-		for (var i = 0; i < this.exports.count; i = i + 1) 
-		{
-			var p_pos = NodeLayout.calc_pin_pos(this, false, i)
-			this.draw_pin(pos.x() + p_pos.x, pos.y() + p_pos.y, this.exports[i], false)
-		}
-	}
-
-	draw_panel(x, y)
-	{
-		var pt = Painter.init()
-
-		var hw = this.style.width * 0.5
-		var hh = this.style.height * 0.5
-		pt.addRectFilled([x - hw, y - hh, this.style.width, this.style.height], COL_PANEL_BG)
-
-		Graphics.drawPainter(pt)
-
-		Graphics.drawText(this.name, x, y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
-	}
-
-	draw_pin(x, y, pin, is_input)
-	{
-		var pt = Painter.init()
-		pt.addCircle(x, y, PIN_RADIUS, [224, 224, 224, 255])
-		Graphics.drawPainter(pt)
-
-		var dx = 0
-		var tb
-		if (is_input) {
-			dx = PIN_TEXT_OFFSET
-			tb = TB_LEFT
-		} else {
-			dx = -PIN_TEXT_OFFSET
-			tb = TB_RIGHT		
-		}
-
-		Graphics.drawText(pin.name, x + dx, y, 0.5, tb)
+		NodeRender.draw_node(this)
 	}
 
 	layout()
 	{
 		this.style.width = 100
 		this.style.height = 50
+
+		for (var i = 0; i < this.imports.count; i = i + 1) {
+			this.imports[i].is_input = true
+			this.imports[i].slot_idx = i
+		}
+		for (var i = 0; i < this.exports.count; i = i + 1) {
+			this.exports[i].is_input = false
+			this.exports[i].slot_idx = i
+		}
 	}
 }

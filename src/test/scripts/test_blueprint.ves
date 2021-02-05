@@ -7,6 +7,7 @@ import "scene.components.transform2" for Transform2
 import "blueprint.node" for Node as BlueprintNode
 import "blueprint.pin" for Pin as BlueprintPin
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
+import "blueprint.blueprint" for Blueprint
 import "graphics.ortho_camera" for OrthoCamera
 import "maths.vector" for Vector2
 
@@ -17,13 +18,20 @@ class Test
 		this.scene = Scene()
 		this.camera = OrthoCamera()
 
-		this.scene.add(this.new_node())
+		var n0 = this.new_node("node0", 0, 50)
+		var n1 = this.new_node("node1", 150, 0)
+		var n2 = this.new_node("node2", 100, -100)		
+		//Blueprint.connect(n0.components["bp"].exports[0], n1.components["bp"].imports[0])
+		this.scene.add(n0)
+		this.scene.add(n1)
+		this.scene.add(n2)
 
 		this.editop = BlueprintEditOP(this.camera, this.scene)
 	}
 
 	update()
 	{
+		this.scene.update()
 	}
 
 	draw()
@@ -78,20 +86,21 @@ class Test
 		this.editop.on_mouse_scrolled(x, y, dx, dy)
 	}
 
-	new_node()
+	new_node(name, x, y)
 	{
 		var node = SceneNode()
 
-		var bp_node = BlueprintNode("test")
+		var bp_node = BlueprintNode(name)
 		bp_node.imports = [
 			BlueprintPin(bp_node, "prev", "port")
 		]
 		bp_node.exports = [
 			BlueprintPin(bp_node, "next", "port")
 		]
+		bp_node.layout()
 		node.components["bp"] = bp_node
 
-		var pos = Vector2(100, 50)
+		var pos = Vector2(x, y)
 
 		var bb = BoundingBox2(bp_node.get_size())
 		bb.transform(pos, 0, Vector2())

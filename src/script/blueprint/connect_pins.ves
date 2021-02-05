@@ -1,0 +1,139 @@
+import "editgraph.editop" for EditOP
+import "maths.calc" for Calc
+import "maths.vector" for Vector2
+import "blueprint.node_layout" for NodeLayout, PIN_RADIUS
+import "blueprint.connecting" for Connecting
+import "blueprint.blueprint" for Blueprint
+import "geometry" for Bezier
+import "graphics" for Painter, Graphics
+
+class ConnectPins is EditOP
+{
+	init(cam, scene)
+	{
+		this.camera = cam
+		this.scene = scene
+
+		this.selected_pin = nil
+		this.curve = Bezier.init()
+	}
+
+	on_mouse_press(x, y) 
+	{
+		var pos = this.camera.screen2project(Vector2(x, y))
+		var pin = this.query_pin_by_pos(pos, true)
+		if (pin) {
+			this.selected_pin = pin
+			this.curve = Bezier.init()
+		}
+	}
+
+	on_mouse_release(x, y) 
+	{
+		if (this.selected_pin)
+		{
+			var pos = this.camera.screen2project(Vector2(x, y))
+			var pin = this.query_pin_by_pos(pos, false)
+			if (pin) 
+			{
+				// add new conn
+				if (pin != this.selected_pin and pin.node != this.selected_pin.node)
+				{
+					var last_pin = this.selected_pin
+					if (!last_pin.is_input and pin.is_input) {
+						Blueprint.connect(last_pin, pin)
+					} else if (last_pin.is_input and !pin.is_input) {
+						Blueprint.connect(pin, last_pin)
+					}
+				}
+			}
+			else
+			{
+				// remove conns
+				if (this.selected_pin.is_input) {
+					while (!this.selected_pin.conns.isEmpty) {
+						Blueprint.disconnect(this.selected_pin.conns.front())
+					}
+				}
+			}
+		}
+
+		this.clear()
+	}
+
+	on_mouse_drag(x, y) 
+	{
+		if (!this.selected_pin) {
+			return
+		}
+
+		// new temp conn
+		if (this.selected_pin.conns.isEmpty or !this.selected_pin.is_input)
+		{
+			var p0 = NodeLayout.calc_pin_pos(this.selected_pin)
+			var p1 = this.camera.screen2project(Vector2(x, y))
+			if (this.selected_pin.is_input) {
+				Connecting.build_curve(p1, p0, this.curve)
+			} else {
+				Connecting.build_curve(p0, p1, this.curve)
+			}
+		}
+		// change exist conns
+		else
+		{
+			var p = this.camera.screen2project(Vector2(x, y))
+			for (var conn in this.selected_pin.conns) {
+				var f_pos = NodeLayout.calc_pin_pos(conn.from)
+				Connecting.build_curve(f_pos, p, conn.curve)
+			}
+		}
+	}
+
+	draw()
+	{
+		if (!this.curve) {
+			return
+		}
+		
+		var pt = Painter.init()
+
+		pt.addBezier(this.curve, [255,0,0,255], 1)
+
+		Graphics.drawPainter(pt)
+	}
+
+	clear()
+	{
+		this.selected_pin = nil
+		this.curve = nil
+	}
+
+	query_pin_by_pos(pos, only_selection)
+	{
+		var nodes
+		if (only_selection) {
+			nodes = this.scene.selection
+		} else {
+			nodes = this.scene.nodes
+		}
+		for (var node in nodes) 
+		{
+			var bp_node = node.components["bp"]
+			for (var pin in bp_node.imports) 
+			{
+				var p_pos = NodeLayout.calc_pin_pos(pin)
+				if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+					return pin
+				}
+			}
+			for (var pin in bp_node.exports) 
+			{
+				var p_pos = NodeLayout.calc_pin_pos(pin)
+				if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+					return pin
+				}
+			}
+		}
+		return nil
+	}
+}

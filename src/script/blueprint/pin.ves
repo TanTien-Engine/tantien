@@ -5,9 +5,10 @@ class Pin
 		this.node = node
 		this.name = name
 		this.type = type
-		this.conns = []
+		this.conns = Set.new()
 
-		// for draw
-		this.pos = 0
+		// for calc pos
+		this.is_input = false
+		this.slot_idx = 0
 	}
 }

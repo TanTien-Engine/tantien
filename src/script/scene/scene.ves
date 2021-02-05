@@ -9,6 +9,13 @@ class Scene
 		this.nodes.add(node)
 	}
 
+	update()
+	{
+		for (var node in this.nodes) {
+			node.update()
+		}	
+	}
+
 	draw() 
 	{
 		for (var node in this.nodes) {

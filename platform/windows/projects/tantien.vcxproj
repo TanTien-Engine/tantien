@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\filesystem\ResourceUID.cpp" />
+    <ClCompile Include="..\..\..\src\modules\geometry\wrap_Geometry.cpp" />
     <ClCompile Include="..\..\..\src\modules\graphics\DTex.cpp" />
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp" />
     <ClCompile Include="..\..\..\src\modules\graphics\GTxt.cpp" />
@@ -34,6 +35,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\core\macro.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\ResourceUID.h" />
+    <ClInclude Include="..\..\..\src\modules\geometry\wrap_Geometry.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\DTex.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\Graphics.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\GTxt.h" />
@@ -47,6 +49,7 @@
     <ClInclude Include="..\..\..\src\modules\script\TransHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\src\modules\geometry\geometry.ves.inc" />
     <None Include="..\..\..\src\modules\graphics\graphics.ves.inc" />
     <None Include="..\..\..\src\modules\maths\maths.ves.inc" />
     <None Include="..\..\..\src\modules\render\render.ves.inc" />
@@ -157,9 +160,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/sm;../../../thirdparty/gtxt</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/sm;../../../thirdparty/gtxt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,9 +175,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/sm;../../../thirdparty/gtxt</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/sm;../../../thirdparty/gtxt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

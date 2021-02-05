@@ -1,10 +1,35 @@
+import "math" for Math
+import "geometry" for Bezier
+import "maths.vector" for Vector2
+import "blueprint.node_layout" for NodeLayout, CONNECTING_BEZIER_DIST
+
 class Connecting
 {
-	init()
+	init(from, to)
 	{
-		this.from = nil
-		this.to   = nil
+		this.from = from
+		this.to   = to
 		
-		this.curve = nil
+		this.curve = Bezier.init()
+	}
+
+	update()
+	{
+		this.update_curve()
+	}
+
+	update_curve()
+	{
+		var f_pos = NodeLayout.calc_pin_pos(this.from)
+		var t_pos = NodeLayout.calc_pin_pos(this.to)
+		Connecting.build_curve(f_pos, t_pos, this.curve)
+	}
+
+	static build_curve(p0, p1, curve)
+	{
+		var d = Math.abs(p1.x - p0.x) * CONNECTING_BEZIER_DIST
+		var v1 = Vector2(p0.x + d, p0.y)
+		var v2 = Vector2(p1.x - d, p1.y)
+		curve.setCtrlPos([p0.x, p0.y, v1.x, v1.y, v2.x, v2.y, p1.x, p1.y])
 	}
 }

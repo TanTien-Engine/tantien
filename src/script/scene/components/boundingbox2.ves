@@ -21,18 +21,19 @@ class BoundingBox2 is Component
 	{
 		//var pt = Painter.init()
 
-		//pt.addRectFilled([this.rect.x, this.rect.y, this.rect.w, this.rect.h], [255, 128, 0])
+		//pt.addRectFilled([this.rect.x + this.pos.x, this.rect.y + this.pos.y, this.rect.w, this.rect.h], [255, 128, 0])
 
 		//Graphics.drawPainter(pt)
 	}
 
 	is_contain(pos)
 	{
-		pos.x = pos.x - this.pos.x
-		pos.y = pos.y - this.pos.y
-		pos.rotate(-this.angle)
-		return pos.x > this.rect.x and pos.x < this.rect.x + this.rect.w and
-		       pos.y > this.rect.y and pos.y < this.rect.y + this.rect.h
+		var p = Vector2()
+		p.x = pos.x - this.pos.x
+		p.y = pos.y - this.pos.y
+		p.rotate(-this.angle)
+		return p.x > this.rect.x and p.x < this.rect.x + this.rect.w and
+		       p.y > this.rect.y and p.y < this.rect.y + this.rect.h
 	}
 
 	get_border_points()
