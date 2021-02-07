@@ -28,8 +28,8 @@ public:
 	void LoadGlyph(ur::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key);
 	bool QueryGlyph(uint64_t key, float* texcoords, ur::TexturePtr& texture) const;
 	bool ExistGlyph(uint64_t key) const;
-	void GetGlyphTexInfo(int& id, size_t& w, size_t& h) const;
-
+	ur::TexturePtr GetGlyphFirstPageTex() const;
+	
 	void Clear();
 
 	bool Flush(ur::Context& ctx);
@@ -38,7 +38,7 @@ public:
 
 private:
     std::unique_ptr<dtex::TextureBuffer> m_texture_buffer = nullptr;
-	bool m_c2_enable;
+	bool m_c2_enable = true;
 
     std::unique_ptr<dtex::PixelBuffer> m_glyph_buffer = nullptr;
     std::unique_ptr<dtex::TexRenderer> m_tex_renderer = nullptr;

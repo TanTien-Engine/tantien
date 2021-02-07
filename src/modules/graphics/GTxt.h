@@ -27,7 +27,9 @@ public:
 	static void Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
 		uint32_t mul, uint32_t add, int time, bool richtext, tess::Painter* pt = nullptr, bool texcoords_relocate = true);
 
-	//static sm::vec2 CalcLabelSize(const std::string& text, const gtxt_label_style& style);
+	static sm::vec2 CalcLabelSize(const std::string& text, const gtxt_label_style& style);
+
+	static void InitLabelStype(gtxt_label_style& st);
 
 private:
 	void LoadFont(const std::string& name, const std::string& filepath);

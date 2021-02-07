@@ -29,6 +29,8 @@ public:
 
 	void Flush();
 
+	auto GetSpriteRenderer() { return m_spr_rd; }
+
 private:
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
 

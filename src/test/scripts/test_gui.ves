@@ -1,0 +1,44 @@
+import "render" for Render
+import "gui" for GUI
+import "graphics" for Graphics
+import "render" for Render
+
+class Test
+{
+	load()
+	{
+	}
+
+	update()
+	{
+		GUI.update()
+	}
+
+	draw()
+	{
+		Render.clear(["color"], { "color" : [128,128,128,255] })
+
+		GUI.begin()
+
+		GUI.button("zztest", 0, 0, 100, 50)
+
+		GUI.end()
+
+		Graphics.flush()
+
+		Graphics.dtexDebugDraw()
+	}
+
+	sizechanged(w, h)
+	{
+		Graphics.onSize(w, h)
+	}
+
+	keypressed(c) {}
+	keyreleased(c) {}
+	mousemoved(x, y, btn) {}
+	mousedragged(x, y, btn) {}
+	mousepressed(x, y, btn) {}
+	mousereleased(x, y, btn) {}
+	mousescrolled(x, y, dx, dy) {}
+}

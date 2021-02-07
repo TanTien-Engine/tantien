@@ -6,6 +6,10 @@
 #include "modules/maths/Maths.ves.inc"
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/Geometry.ves.inc"
+#include "modules/gui/wrap_GUI.h"
+#include "modules/gui/gui.ves.inc"
+#include "modules/image/wrap_Image.h"
+#include "modules/image/image.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -62,6 +66,10 @@ VesselLoadModuleResult read_module(const char* module)
         source = mathsModuleSource;
     } else if (strcmp(module, "geometry") == 0) {
         source = geometryModuleSource;
+    } else if (strcmp(module, "gui") == 0) {
+        source = guiModuleSource;
+    } else if (strcmp(module, "image") == 0) {
+        source = imageModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -94,6 +102,12 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::GeometryBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::GUIBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    tt::ImageBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -120,6 +134,12 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::GeometryBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::GUIBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::ImageBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;

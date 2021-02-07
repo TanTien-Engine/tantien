@@ -1,9 +1,18 @@
 #include "modules/graphics/wrap_Graphics.h"
 #include "modules/graphics/Graphics.h"
+#include "modules/graphics/GTxt.h"
+#include "modules/graphics/DTex.h"
+#include "modules/graphics/SpriteRenderer.h"
 #include "modules/script/TransHelper.h"
+#include "modules/render/Render.h"
+#include "modules/image/ImageData.h"
 
 #include <tessellation/Painter.h>
 #include <geoshape/Bezier.h>
+#include <unirender/Texture.h>
+#include <unirender/Device.h>
+#include <unirender/Factory.h>
+#include <gimg_typedef.h>
 
 namespace
 {
@@ -138,6 +147,85 @@ void painter_add_bezier()
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
+void texture_allocate()
+{
+    tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
+
+    ur::TextureFormat tf;
+    int channels = 0;
+	bool is_flt = false;
+	switch (img->format)
+	{
+	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
+		tf =  ur::TextureFormat::A8;
+        channels = 1;
+		break;
+    case GPF_RED:
+        tf =  ur::TextureFormat::RED;
+        channels = 1;
+        break;
+	case GPF_RGB:
+		tf =  ur::TextureFormat::RGB;
+        channels = 3;
+		break;
+	case GPF_RGBA8:
+		tf =  ur::TextureFormat::RGBA8;
+        channels = 4;
+		break;
+	case GPF_BGRA_EXT:
+		tf =  ur::TextureFormat::BGRA_EXT;
+        channels = 4;
+		break;
+	case GPF_BGR_EXT:
+		tf =  ur::TextureFormat::BGR_EXT;
+        channels = 3;
+		break;
+    case GPF_RGBA16F:
+        tf =  ur::TextureFormat::RGBA16F;
+        channels = 4;
+		is_flt = true;
+        break;
+    case GPF_RGB16F:
+        tf =  ur::TextureFormat::RGB16F;
+        channels = 3;
+		is_flt = true;
+        break;
+    case GPF_RGB32F:
+        tf =  ur::TextureFormat::RGB32F;
+        channels = 3;
+		is_flt = true;
+        break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        channels = 4;
+		break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        channels = 4;
+		break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        channels = 4;
+		break;
+	default:
+		assert(0);
+	}
+
+    size_t buf_sz = img->width * img->height * channels;
+    if (is_flt) {
+        buf_sz *= 4;
+    }
+    ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+    *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
+}
+
+static int texture_finalize(void* data)
+{
+    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(data);
+    (*tex)->~Texture();
+    return sizeof(ur::TexturePtr);
+}
+
 void graphics_on_size()
 {
     float w = (float)ves_tonumber(1);
@@ -172,18 +260,7 @@ void graphics_draw_text()
     mt.Translate(x, y);
 
     gtxt_label_style st;
-    st.width = 100;
-    st.height = 20;
-    st.align_h = 0;
-    st.align_v = 0;
-    st.space_h = 1;
-    st.space_v = 1;
-    st.over_label = 0;
-    st.gs.font = 0;
-    st.gs.font_size = 18;
-    st.gs.font_color.mode_type = 0;
-    st.gs.font_color.mode.ONE.color.integer = 0xffffffff;
-    st.gs.edge = false;
+    tt::GTxt::InitLabelStype(st);
 
     if (ves_getfield(5, "width") == VES_TYPE_NUM) {
         st.width = (int)ves_tonumber(-1);
@@ -218,9 +295,130 @@ void graphics_draw_text()
     tt::Graphics::Instance()->DrawText(text, mt, st);
 }
 
+bool calc_vertices(const sm::rect& pos, const sm::Matrix2D& mat, float* vertices)
+{
+    float xmin = FLT_MAX, ymin = FLT_MAX,
+        xmax = -FLT_MAX, ymax = -FLT_MAX;
+
+    const float* mt = mat.x;
+
+    // Vertices are ordered for use with triangle strips:
+    // 3----2
+    // |  / |
+    // | /  |
+    // 0----1
+
+    float x, y;
+
+    float* ptr_dst = &vertices[0];
+
+    x = (pos.xmin * mt[0] + pos.ymin * mt[2]) + mt[4];
+    y = (pos.xmin * mt[1] + pos.ymin * mt[3]) + mt[5];
+    if (x < xmin) xmin = x;
+    if (x > xmax) xmax = x;
+    if (y < ymin) ymin = y;
+    if (y > ymax) ymax = y;
+    *ptr_dst++ = x;
+    *ptr_dst++ = y;
+
+    x = (pos.xmax * mt[0] + pos.ymin * mt[2]) + mt[4];
+    y = (pos.xmax * mt[1] + pos.ymin * mt[3]) + mt[5];
+    if (x < xmin) xmin = x;
+    if (x > xmax) xmax = x;
+    if (y < ymin) ymin = y;
+    if (y > ymax) ymax = y;
+    *ptr_dst++ = x;
+    *ptr_dst++ = y;
+
+    x = (pos.xmax * mt[0] + pos.ymax * mt[2]) + mt[4];
+    y = (pos.xmax * mt[1] + pos.ymax * mt[3]) + mt[5];
+    if (x < xmin) xmin = x;
+    if (x > xmax) xmax = x;
+    if (y < ymin) ymin = y;
+    if (y > ymax) ymax = y;
+    *ptr_dst++ = x;
+    *ptr_dst++ = y;
+
+    x = (pos.xmin * mt[0] + pos.ymax * mt[2]) + mt[4];
+    y = (pos.xmin * mt[1] + pos.ymax * mt[3]) + mt[5];
+    if (x < xmin) xmin = x;
+    if (x > xmax) xmax = x;
+    if (y < ymin) ymin = y;
+    if (y > ymax) ymax = y;
+    *ptr_dst++ = x;
+    *ptr_dst++ = y;
+
+    //if (rp.IsViewRegionValid()) {
+    //	const sm::rect& vr = rp.GetViewRegion();
+    //	if (xmax <= vr.xmin || xmin >= vr.xmax ||
+    //		ymax <= vr.ymin || ymin >= vr.ymax) {
+    //		return false;
+    //	}
+    //}
+
+    return true;
+}
+
+void graphics_draw_texture()
+{
+    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(1));
+
+    const float x = (float)ves_tonumber(2);
+    const float y = (float)ves_tonumber(3);
+    const float scale = (float)ves_tonumber(4);
+
+    sm::Matrix2D mt;
+    mt.Scale(scale, scale);
+    mt.Translate(x, y);
+
+	float vertices[8];
+    float w = static_cast<float>((*tex)->GetWidth());
+    float h = static_cast<float>((*tex)->GetHeight());
+    calc_vertices(sm::rect(w, h), mt, vertices);
+
+	auto draw_without_dtex = [&](std::shared_ptr<tt::SpriteRenderer>& rd, const float* vertices, const ur::TexturePtr& tex)
+	{
+		float txmin, txmax, tymin, tymax;
+		txmin = tymin = 0;
+		txmax = tymax = 1;
+		float texcoords[8] = {
+			txmin, tymin,
+			txmax, tymin,
+			txmax, tymax,
+			txmin, tymax,
+		};
+        auto ctx = tt::Render::Instance()->Context();
+        auto rs = ur::DefaultRenderState2D();
+		rd->DrawQuad(*ctx, rs, vertices, texcoords, tex, 0xffffffff);
+	};
+
+    auto rd = tt::Graphics::Instance()->GetSpriteRenderer();
+	//if (use_dtex)
+	//{
+	//	sm::irect qr(0, 0, tex_w, tex_h);
+ //       ur::TexturePtr cached_tex = nullptr;
+	//	auto cached_texcoords = Callback::QueryCachedTexQuad(tex->GetTexID(), qr, cached_tex);
+	//	if (cached_texcoords) {
+	//		std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(ctx, rs, vertices, cached_texcoords, cached_tex, 0xffffffff);
+	//	} else {
+	//		draw_without_dtex(rd, vertices, tex);
+	//		Callback::AddCacheSymbol(tex, qr);
+	//	}
+	//}
+	//else
+	{
+		draw_without_dtex(rd, vertices, *tex);
+	}
+}
+
 void graphics_flush()
 {
     tt::Graphics::Instance()->Flush();
+}
+
+void graphics_dtex_debug_draw()
+{
+    tt::DTex::Instance()->DebugDraw(*tt::Render::Instance()->Context());
 }
 
 }
@@ -242,7 +440,9 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return graphics_on_cam_update;
     if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return graphics_draw_painter;
     if (strcmp(signature, "static Graphics.drawText(_,_,_,_,_)") == 0) return graphics_draw_text;
+    if (strcmp(signature, "static Graphics.drawTexture(_,_,_,_)") == 0) return graphics_draw_texture;
     if (strcmp(signature, "static Graphics.flush()") == 0) { return graphics_flush; }
+    if (strcmp(signature, "static Graphics.dtexDebugDraw()") == 0) { return graphics_dtex_debug_draw; }
 
     return nullptr;
 }
@@ -253,6 +453,13 @@ void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods
     {
         methods->allocate = painter_allocate;
         methods->finalize = painter_finalize;
+        return;
+    }
+
+    if (strcmp(className, "Texture") == 0)
+    {
+        methods->allocate = texture_allocate;
+        methods->finalize = texture_finalize;
         return;
     }
 }

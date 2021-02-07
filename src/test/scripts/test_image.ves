@@ -1,0 +1,35 @@
+import "image" for ImageData
+import "graphics" for Texture, Graphics
+
+class Test
+{
+	load()
+	{
+		var img = ImageData.init("assets/textures/awesomeface.png")
+		this.tex = Texture.init(img)
+	}
+
+	update()
+	{
+	}
+
+	draw()
+	{
+		Graphics.drawTexture(this.tex, 0, 0, 1)
+
+		Graphics.flush()
+	}
+
+	sizechanged(w, h)
+	{
+		Graphics.onSize(w, h)
+	}
+
+	keypressed(c) {}
+	keyreleased(c) {}
+	mousemoved(x, y, btn) {}
+	mousedragged(x, y, btn) {}
+	mousepressed(x, y, btn) {}
+	mousereleased(x, y, btn) {}
+	mousescrolled(x, y, dx, dy) {}
+}

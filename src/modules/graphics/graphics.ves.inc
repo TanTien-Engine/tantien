@@ -23,6 +23,11 @@ foreign class Painter
 	foreign addBezier(bezier, color, line_width)
 }
 
+foreign class Texture
+{
+	init(img_data) {}
+}
+
 class Textbox
 {
 	init() 
@@ -47,7 +52,9 @@ foreign class Graphics
 	foreign static onCamUpdate(dx, dy, scale)
 	foreign static drawPainter(pt)
 	foreign static drawText(text, x, y, scale, textbox)
+	foreign static drawTexture(texture, x, y, scale)
 	foreign static flush()
+	foreign static dtexDebugDraw()
 }
 
 );

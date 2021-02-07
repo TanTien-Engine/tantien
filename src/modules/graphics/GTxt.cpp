@@ -368,16 +368,28 @@ void GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_styl
 	}
 }
 
-//sm::vec2 GTxt::CalcLabelSize(const std::string& text, const pt2::Textbox& style)
-//{
-//	gtxt_label_style gtxt_style;
-//	LoadLabelStyle(gtxt_style, style);
-//
-//	sm::vec2 sz;
-//	gtxt_get_label_size(text.c_str(), &gtxt_style, &sz.x, &sz.y);
-//
-//	return sz;
-//}
+sm::vec2 GTxt::CalcLabelSize(const std::string& text, const gtxt_label_style& style)
+{
+	sm::vec2 sz;
+	gtxt_get_label_size(text.c_str(), &style, &sz.x, &sz.y);
+	return sz;
+}
+
+void GTxt::InitLabelStype(gtxt_label_style& st)
+{
+	st.width = 100;
+	st.height = 20;
+	st.align_h = HA_LEFT;
+	st.align_v = VA_TOP;
+	st.space_h = 1;
+	st.space_v = 1;
+	st.over_label = 0;
+	st.gs.font = 0;
+	st.gs.font_size = 18;
+	st.gs.font_color.mode_type = 0;
+	st.gs.font_color.mode.ONE.color.integer = 0xffffffff;
+	st.gs.edge = false;
+}
 
 void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
 	                 const std::vector<std::pair<std::string, std::string>>& user_fonts)

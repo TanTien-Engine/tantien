@@ -43,6 +43,11 @@ public:
 
     void Flush(ur::Context& ctx);
 
+    auto& GetPalette() const { return *m_palette; }
+
+    auto GetShader() const { return m_shader; }
+    auto GetTexture() const { return m_tex; }
+
 private:
     void InitShader(const ur::Device& dev);
     void InitRenderer(const ur::Device& dev, const ur::Context& ctx);

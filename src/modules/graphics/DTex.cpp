@@ -67,9 +67,11 @@ void DTex::Init(const ur::Device& dev)
 {
     UR_DEV = &dev;
 
-    m_glyph_buffer = std::make_unique<dtex::PixelBuffer>(*UR_DEV, 1024, 512);
+    //m_glyph_buffer = std::make_unique<dtex::PixelBuffer>(*UR_DEV, 1024, 512);
+    m_glyph_buffer = std::make_unique<dtex::PixelBuffer>(*UR_DEV, 64, 64);
 
-    m_texture_buffer = std::make_unique<dtex::TextureBuffer>(*UR_DEV, 1024, 1024);
+    //m_texture_buffer = std::make_unique<dtex::TextureBuffer>(*UR_DEV, 1024, 1024);
+    m_texture_buffer = std::make_unique<dtex::TextureBuffer>(*UR_DEV, 128, 128);
     m_tex_renderer = std::make_unique<dtex::TexRenderer>(*UR_DEV);
 
     std::vector<unsigned int> _vs, _fs;
@@ -165,9 +167,9 @@ bool DTex::ExistGlyph(uint64_t key) const
 	return m_glyph_buffer->Exist(key);
 }
 
-void DTex::GetGlyphTexInfo(int& id, size_t& w, size_t& h) const
+ur::TexturePtr DTex::GetGlyphFirstPageTex() const
 {
-	//m_glyph_buffer->GetFirstPageTexInfo(id, w, h);
+    return m_glyph_buffer->GetFirstPageTex();
 }
 
 void DTex::Clear()
