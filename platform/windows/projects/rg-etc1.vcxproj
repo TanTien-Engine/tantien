@@ -19,65 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\modules\filesystem\ResourceUID.cpp" />
-    <ClCompile Include="..\..\..\src\modules\geometry\wrap_Geometry.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\DTex.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\GTxt.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\LoadingList.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\SpriteRenderer.cpp" />
-    <ClCompile Include="..\..\..\src\modules\graphics\wrap_Graphics.cpp" />
-    <ClCompile Include="..\..\..\src\modules\gui\GUI.cpp" />
-    <ClCompile Include="..\..\..\src\modules\gui\wrap_GUI.cpp" />
-    <ClCompile Include="..\..\..\src\modules\image\wrap_Image.cpp" />
-    <ClCompile Include="..\..\..\src\modules\maths\wrap_Maths.cpp" />
-    <ClCompile Include="..\..\..\src\modules\render\Render.cpp" />
-    <ClCompile Include="..\..\..\src\modules\render\wrap_Render.cpp" />
-    <ClCompile Include="..\..\..\src\modules\script\TransHelper.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\rg-etc1\rg_etc1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\core\macro.h" />
-    <ClInclude Include="..\..\..\src\modules\filesystem\ResourceUID.h" />
-    <ClInclude Include="..\..\..\src\modules\geometry\wrap_Geometry.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\DTex.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\Graphics.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\GTxt.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\LoadingList.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\RenderBuffer.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\SpriteRenderer.h" />
-    <ClInclude Include="..\..\..\src\modules\graphics\wrap_Graphics.h" />
-    <ClInclude Include="..\..\..\src\modules\gui\GUI.h" />
-    <ClInclude Include="..\..\..\src\modules\gui\wrap_GUI.h" />
-    <ClInclude Include="..\..\..\src\modules\image\wrap_Image.h" />
-    <ClInclude Include="..\..\..\src\modules\maths\wrap_Maths.h" />
-    <ClInclude Include="..\..\..\src\modules\render\Render.h" />
-    <ClInclude Include="..\..\..\src\modules\render\wrap_Render.h" />
-    <ClInclude Include="..\..\..\src\modules\script\TransHelper.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\src\modules\geometry\geometry.ves.inc" />
-    <None Include="..\..\..\src\modules\graphics\graphics.ves.inc" />
-    <None Include="..\..\..\src\modules\gui\gui.ves.inc" />
-    <None Include="..\..\..\src\modules\image\image.ves.inc" />
-    <None Include="..\..\..\src\modules\maths\maths.ves.inc" />
-    <None Include="..\..\..\src\modules\render\render.ves.inc" />
+    <ClInclude Include="..\..\..\thirdparty\rg-etc1\rg_etc1.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8D617A32-04C2-4B1C-B932-60EAB5CCBA04}</ProjectGuid>
-    <RootNamespace>tantien</RootNamespace>
+    <ProjectGuid>{F3AC52E3-014E-4F76-853F-6BF9B71B47F3}</ProjectGuid>
+    <RootNamespace>glfw3</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -116,13 +78,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\tantien\x86\Debug\</OutDir>
-    <IntDir>..\tantien\x86\Debug\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\tantien\x86\Debug\</OutDir>
-    <IntDir>..\tantien\x86\Debug\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -131,16 +89,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,9 +109,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;NO_BOOST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,9 +123,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\thirdparty\rg-etc1</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -183,9 +138,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\thirdparty\rg-etc1</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
