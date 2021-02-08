@@ -152,69 +152,66 @@ void texture_allocate()
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
 
     ur::TextureFormat tf;
-    int channels = 0;
-	bool is_flt = false;
+    size_t bpp = 0; // bytes per pixel
 	switch (img->format)
 	{
 	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
 		tf =  ur::TextureFormat::A8;
-        channels = 1;
+        bpp = 1;
 		break;
     case GPF_RED:
         tf =  ur::TextureFormat::RED;
-        channels = 1;
+        bpp = 1;
         break;
 	case GPF_RGB:
 		tf =  ur::TextureFormat::RGB;
-        channels = 3;
+        bpp = 3;
 		break;
+    case GPF_RGB565:
+        tf = ur::TextureFormat::RGB565;
+        bpp = 2;
+        break;
 	case GPF_RGBA8:
 		tf =  ur::TextureFormat::RGBA8;
-        channels = 4;
+        bpp = 4;
 		break;
 	case GPF_BGRA_EXT:
 		tf =  ur::TextureFormat::BGRA_EXT;
-        channels = 4;
+        bpp = 4;
 		break;
 	case GPF_BGR_EXT:
 		tf =  ur::TextureFormat::BGR_EXT;
-        channels = 3;
+        bpp = 3;
 		break;
     case GPF_RGBA16F:
         tf =  ur::TextureFormat::RGBA16F;
-        channels = 4;
-		is_flt = true;
+        bpp = 4 * 4;
         break;
     case GPF_RGB16F:
         tf =  ur::TextureFormat::RGB16F;
-        channels = 3;
-		is_flt = true;
+        bpp = 3 * 4;
         break;
     case GPF_RGB32F:
         tf =  ur::TextureFormat::RGB32F;
-        channels = 3;
-		is_flt = true;
+        bpp = 3 * 4;
         break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
 		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        channels = 4;
+        bpp = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
 		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        channels = 4;
+        bpp = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
 		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
-        channels = 4;
+        bpp = 4;
 		break;
 	default:
 		assert(0);
 	}
 
-    size_t buf_sz = img->width * img->height * channels;
-    if (is_flt) {
-        buf_sz *= 4;
-    }
+    size_t buf_sz = img->width * img->height * bpp;
     ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
     *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
 }
