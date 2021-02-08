@@ -247,7 +247,7 @@ SpriteRenderer::SpriteRenderer()
 	auto dev = Render::Instance()->Device();
 	auto ctx = Render::Instance()->Context();
 
-	m_palette = std::make_unique<tess::Palette>(*dev);
+	m_palette = std::make_shared<tess::Palette>(*dev);
 	m_va = CreateVertexArray(*Render::Instance()->Device());
 	m_rs = ur::DefaultRenderState2D();
 

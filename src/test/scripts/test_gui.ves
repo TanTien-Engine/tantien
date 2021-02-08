@@ -21,6 +21,7 @@ class Test
 		GUI.begin()
 
 		GUI.button("zztest", 0, 0, 100, 50)
+		GUI.button("1234554321", 30, 50, 150, 50)
 
 		GUI.end()
 
@@ -32,13 +33,22 @@ class Test
 	sizechanged(w, h)
 	{
 		Graphics.onSize(w, h)
+		GUI.onSize(w, h)
 	}
 
 	keypressed(c) {}
 	keyreleased(c) {}
 	mousemoved(x, y, btn) {}
 	mousedragged(x, y, btn) {}
-	mousepressed(x, y, btn) {}
-	mousereleased(x, y, btn) {}
+
+	mousepressed(x, y, btn) 
+	{
+		GUI.mouseInput(btn, 0, x, y)
+	}
+	mousereleased(x, y, btn) 
+	{
+		GUI.mouseInput(btn, 1, x, y)
+	}
+
 	mousescrolled(x, y, dx, dy) {}
 }

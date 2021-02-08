@@ -43,7 +43,7 @@ public:
 
     void Flush(ur::Context& ctx);
 
-    auto& GetPalette() const { return *m_palette; }
+    auto GetPalette() const { return m_palette; }
 
     auto GetShader() const { return m_shader; }
     auto GetTexture() const { return m_tex; }
@@ -60,7 +60,7 @@ private:
     RenderBuffer<SpriteVertex, unsigned short> m_buf;
     std::shared_ptr<ur::VertexArray> m_va = nullptr;
 
-    std::unique_ptr<tess::Palette> m_palette = nullptr;
+    std::shared_ptr<tess::Palette> m_palette = nullptr;
 
     ur::TexturePtr m_tex = nullptr;
 
