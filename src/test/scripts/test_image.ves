@@ -6,7 +6,10 @@ class Test
 	load()
 	{
 		var img = ImageData.init("assets/textures/awesomeface.png")
-		this.tex = Texture.init(img)
+		img.toRGB565()
+		img.storeToFile("assets/textures/test.bmp")
+
+		this.tex = Texture.init(img)		
 	}
 
 	update()
