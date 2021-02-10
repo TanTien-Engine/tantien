@@ -1,6 +1,7 @@
 import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.Blueprint" for Blueprint
 
 class Draw is Node
 {
@@ -9,7 +10,9 @@ class Draw is Node
 		super.init(Draw.name)
 
 		this.imports = [
-			Pin(this, "prev", "port")
+			Pin(this, "prev", "port"),
+			Pin(this, "shader", "shader"),
+			Pin(this, "va", "va")				
 		]
 		this.exports = [
 			Pin(this, "next", "port")
@@ -18,13 +21,15 @@ class Draw is Node
 
 		this.prim_type = "triangles"
 
-		this.prog = 0
-		this.va = 0
-
 		this.render_state = {}
 	}
 
-	execute() {
-		Render.draw(this.prim_type, this.prog, this.va, this.render_state)
+	execute() 
+	{
+		var shader = Blueprint.getInputNode(this, 1)
+		var va = Blueprint.getInputNode(this, 2)
+		if (shader and va) {
+			Render.draw(this.prim_type, shader.prog, va.va, this.render_state)
+		}
 	}
 }

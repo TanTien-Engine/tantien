@@ -1,4 +1,4 @@
-import "render" for Render
+import "render" for Render, Shader, VertexArray
 
 class Test
 {
@@ -22,9 +22,9 @@ class Test
 			   FragColor = fcolor;
 			}
 		"
-		this.prog = Render.newShader(vs, fs)
+		this.prog = Shader.init(vs, fs)
 
-		this.va = Render.newVertexArray([
+		this.va = VertexArray.init([
 			//  X    Y    Z          R    G    B
 			   0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
 			  -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1

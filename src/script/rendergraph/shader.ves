@@ -1,4 +1,4 @@
-import "render" for Render
+import "render" for Shader as r_Shader
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 
@@ -18,6 +18,6 @@ class Shader is Node
 	}
 
 	execute() {
-		this.prog = Render.newShader(this.vs, this.fs)
+		this.prog = r_Shader.init(this.vs, this.fs)
 	}
 }

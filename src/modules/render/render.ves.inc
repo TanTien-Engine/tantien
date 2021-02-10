@@ -1,15 +1,22 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* renderModuleSource = QUOTE(
 
-foreign class Render
+foreign class Shader
 {
 	// vs: string
 	// fs: string
-	foreign static newShader(vs, fs)
+	init(vs, fs) {}
+}
+
+foreign class VertexArray
+{
 	// data: float list
 	// attrs: number of components
-	foreign static newVertexArray(data, attrs)
+	init(data, attrs) {}
+}
 
+foreign class Render
+{
 	// prim_type: "triangles"
 	// prog: program index
 	// va: vertex array index

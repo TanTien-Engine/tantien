@@ -71,4 +71,14 @@ class Blueprint
 		conn.to.conns.remove(conn)
 		conn.update()
 	}
+
+	static getInputNode(curr_node, input_slot)
+	{
+		var pin = curr_node.imports[input_slot]
+		if (pin.conns.isEmpty) {
+			return nil
+		} else {
+			return pin.conns.front().from.node
+		}
+	}
 }

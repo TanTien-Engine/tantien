@@ -10,6 +10,7 @@
 #include <unirender/DrawState.h>
 #include <unirender/ClearState.h>
 #include <unirender/PrimitiveType.h>
+#include <unirender/ShaderProgram.h>
 #include <shadertrans/ShaderTrans.h>
 
 #include <assert.h>
@@ -17,11 +18,7 @@
 namespace
 {
 
-// fixme: move to script
-std::vector<std::shared_ptr<ur::ShaderProgram>> PROGRAMS;
-std::vector<std::shared_ptr<ur::VertexArray>>   VERTEX_ARRAIES;
-
-void new_shader()
+void shader_allocate()
 {
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
@@ -29,14 +26,19 @@ void new_shader()
     std::vector<unsigned int> vs, fs;
     shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs_str, vs);
     shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs_str, fs);
-    auto prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
 
-    size_t ret = PROGRAMS.size();
-    PROGRAMS.push_back(prog);
-    ves_set_number(0, static_cast<double>(ret));
+    std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
+    *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
 }
 
-void new_vertex_array()
+static int shader_finalize(void* data)
+{
+    std::shared_ptr<ur::ShaderProgram>* prog = static_cast<std::shared_ptr<ur::ShaderProgram>*>(data);
+    (*prog)->~ShaderProgram();
+    return sizeof(std::shared_ptr<ur::ShaderProgram>);
+}
+
+void vertex_array_allocate()
 {
     std::vector<float> data;
     int data_num = ves_len(1);
@@ -59,12 +61,14 @@ void new_vertex_array()
     }
 
     auto dev = tt::Render::Instance()->Device();
-    auto va = dev->CreateVertexArray();
+
+    std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::VertexArray>));
+    *va = dev->CreateVertexArray();
 
     int vbuf_sz = sizeof(float) * data_num;
     auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, vbuf_sz);
     vbuf->ReadFromMemory(data.data(), vbuf_sz, 0);
-    va->SetVertexBuffer(vbuf);
+    (*va)->SetVertexBuffer(vbuf);
 
     int stride_in_bytes = 0;
     for (auto& attr : attrs) {
@@ -81,11 +85,14 @@ void new_vertex_array()
         );
         offset_in_bytes += attrs[i] * sizeof(float);
     }
-    va->SetVertexBufferAttrs(vbuf_attrs);
+    (*va)->SetVertexBufferAttrs(vbuf_attrs);
+}
 
-    size_t ret = VERTEX_ARRAIES.size();
-    VERTEX_ARRAIES.push_back(va);
-    ves_set_number(0, static_cast<double>(ret));
+static int vertex_array_finalize(void* data)
+{
+    std::shared_ptr<ur::VertexArray>* va = static_cast<std::shared_ptr<ur::VertexArray>*>(data);
+    (*va)->~VertexArray();
+    return sizeof(std::shared_ptr<ur::VertexArray>);
 }
 
 void draw()
@@ -99,11 +106,8 @@ void draw()
         prim_type = ur::PrimitiveType::Triangles;
     }
 
-    int prog = static_cast<int>(ves_tonumber(2));
-    int va = static_cast<int>(ves_tonumber(3));
-
-    ds.program = PROGRAMS[prog];
-    ds.vertex_array = VERTEX_ARRAIES[va];
+    ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(2));
+    ds.vertex_array = *static_cast<std::shared_ptr<ur::VertexArray>*>(ves_toforeign(3));
 
     int type = ves_getfield(4, "depth_test");
     if (type == VES_TYPE_BOOL) {
@@ -165,8 +169,6 @@ namespace tt
 
 VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
-    if (strcmp(signature, "static Render.newShader(_,_)") == 0) return new_shader;
-    if (strcmp(signature, "static Render.newVertexArray(_,_)") == 0) return new_vertex_array;
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return draw;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return clear;
 
@@ -175,6 +177,19 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 
 void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
 {
+    if (strcmp(className, "Shader") == 0)
+    {
+        methods->allocate = shader_allocate;
+        methods->finalize = shader_finalize;
+        return;
+    }
+
+    if (strcmp(className, "VertexArray") == 0)
+    {
+        methods->allocate = vertex_array_allocate;
+        methods->finalize = vertex_array_finalize;
+        return;
+    }
 }
 
 }
