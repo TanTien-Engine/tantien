@@ -6,8 +6,10 @@ class Blueprint
 	{
 		// prepare
 		var in_deg = List.filled(nodes.count, 0)
-		var empty_list = []
-		var out_nodes = List.filled(nodes.count, empty_list)
+		var out_nodes = []
+		for (var i = 0; i < nodes.count; i = i + 1) {
+			out_nodes.add([])
+		}	
 		for (var i = 0; i < nodes.count; i = i + 1)
 		{
 			for (var pin in nodes[i].imports)
