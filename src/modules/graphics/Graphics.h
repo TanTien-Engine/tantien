@@ -32,6 +32,9 @@ public:
 	auto GetSpriteRenderer() { return m_spr_rd; }
 
 private:
+	void RelocatePaletteUV();
+
+private:
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
 
 	TT_SINGLETON_DECLARATION(Graphics)

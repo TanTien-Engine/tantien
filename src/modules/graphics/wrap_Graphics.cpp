@@ -20,6 +20,7 @@ namespace
 void painter_allocate()
 {
     auto pt = new tess::Painter();
+    pt->SetPalette(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
     tess::Painter** ptr = (tess::Painter**)ves_set_newforeign(0, 0, sizeof(pt));
     *ptr = pt;
 }
