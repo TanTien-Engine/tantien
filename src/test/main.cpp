@@ -76,7 +76,7 @@ VesselLoadModuleResult read_module(const char* module)
             source = file_search(module, "src/modules/");
         }
         if (!source) {
-            source = file_search(module, "src/test/scripts/");
+            source = file_search(module, "src/");
         }
     }
 
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
     ves_set_config(&cfg);
 
     char code[255];
-    sprintf(code, "import \"%s\" for Test\nvar test = Test()", argv[1]);
+    sprintf(code, "import \"test.%s\" for Test\nvar test = Test()", argv[1]);
     ves_interpret("test", code);
 
     ves_getglobal("test");
