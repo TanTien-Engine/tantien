@@ -60,9 +60,13 @@ class Test
 		draw.render_state = { "depth_test" : false }
 
 		Blueprint.connect(clear.exports[0], draw.imports[0])
+		Blueprint.connect(shader.exports[0], draw.imports[1])
+		Blueprint.connect(va.exports[0], draw.imports[2])
 
 		drawlist.add(draw)
 		drawlist.add(clear)
+		drawlist.add(shader)
+		drawlist.add(va)
 
 		this.drawlist = Blueprint.topoSort(drawlist)
 	}

@@ -73,9 +73,10 @@ VesselLoadModuleResult read_module(const char* module)
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
-            source = file_search(module, "src/test/scripts/");
-        } else if (!source) {
             source = file_search(module, "src/modules/");
+        }
+        if (!source) {
+            source = file_search(module, "src/test/scripts/");
         }
     }
 
