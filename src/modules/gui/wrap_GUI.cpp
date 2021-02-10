@@ -122,6 +122,17 @@ void w_GUI_mouseInput()
 	}
 }
 
+void w_GUI_frame()
+{
+	const float x = (float)ves_tonumber(1);
+	const float y = (float)ves_tonumber(2);
+	const float w = (float)ves_tonumber(3);
+	const float h = (float)ves_tonumber(4);
+
+	auto& ctx = tt::GUI::Instance()->GetContext();
+	egui::frame(tt::GUI::Instance()->NextUID(), x, y, w, h, ctx, true);
+}
+
 void w_GUI_button()
 {
 	const char* label = ves_tostring(1);
@@ -265,6 +276,7 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 	if (strcmp(signature, "static GUI.transScrPosToProj(_,_)") == 0) return w_GUI_transScrPosToProj;
 	if (strcmp(signature, "static GUI.mouseInput(_,_,_,_)") == 0) return w_GUI_mouseInput;
 
+	if (strcmp(signature, "static GUI.frame(_,_,_,_)") == 0) return w_GUI_frame;
 	if (strcmp(signature, "static GUI.button(_,_,_,_,_)") == 0) return w_GUI_button;
 	if (strcmp(signature, "static GUI.slider(_,_,_,_,_,_,_)") == 0) return w_GUI_slider;
 	if (strcmp(signature, "static GUI.label(_,_,_)") == 0) return w_GUI_label;

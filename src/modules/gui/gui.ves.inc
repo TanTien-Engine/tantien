@@ -30,6 +30,7 @@ foreign class GUI
 	// action: MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
 	foreign static mouseInput(btn, action, x, y)
 
+	foreign static frame(x, y, width, height)
 	foreign static button(label, x, y, width, height)
 	foreign static slider(label, val, x, y, height, max, verticle)
 	foreign static label(label, x, y)
