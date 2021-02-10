@@ -19,12 +19,21 @@ public:
 	void ResetUID() { m_next_uid = 1; }
 	uint32_t NextUID() { return m_next_uid++; }
 
+	void OnSize(float width, float height) {
+		m_screen_width = width;
+		m_screen_height = height;
+	}
+
+	sm::vec2 TransScreenToProj(const sm::vec2& screen) const;
+
 private:
 	egui::Context       ctx;
 	egui::EntityFactory factory;
 	egui::CompStorage   storage;
 
 	uint32_t m_next_uid = 1;
+
+	float m_screen_width = 0, m_screen_height = 0;
 
 	TT_SINGLETON_DECLARATION(GUI)
 

@@ -1,12 +1,28 @@
 import "render" for Render
-import "gui" for GUI
+import "gui" for GUI, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG, ARROW_LEFT, ARROW_RIGHT
 import "graphics" for Graphics
 import "render" for Render
+import "maths.vector" for Vector2
 
 class Test
 {
 	load()
 	{
+		this.sval0 = 0
+		this.sval1 = 0
+		this.sval2 = 0
+
+		this.checkbox = false
+
+		this.radio_button = 0
+
+		this.sel0 = true
+		this.sel1 = false
+
+		this.items = ["AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO"]
+		this.curr_item = 0
+
+		this.popup_pos = nil
 	}
 
 	update()
@@ -20,8 +36,86 @@ class Test
 
 		GUI.begin()
 
-		GUI.button("zztest", 0, 0, 100, 50)
-		GUI.button("1234554321", 30, 50, 150, 50)
+		if (GUI.button("btn0", 200, 300, 100, 50)) {
+			System.print("on click one")
+		}
+		if (GUI.button("btn1", 50, 300, 100, 50)) {
+			System.print("on click two")
+		}
+
+		var sval0 = GUI.slider("slider 0", this.sval0, 100, -50, 255, 255, false)
+		if (sval0 != this.sval0) {
+			this.sval0 = sval0
+			System.print("slider 0: %(this.sval0)")
+		}
+		var sval1 = GUI.slider("slider 1", this.sval1, 100, 50, 255, 63, false)
+		if (sval1 != this.sval1) {
+			this.sval1 = sval1
+			System.print("slider 1: %(this.sval1)")
+		}
+		var sval2 = GUI.slider("slider 2", this.sval2, 50, -100, 255, 15, true)
+		if (sval2 != this.sval2) {
+			this.sval2 = sval2
+			System.print("slider 2: %(this.sval2)")
+		}
+
+		GUI.label("hello world.", -200, 0)
+
+		var checkbox = GUI.checkbox("checkbox", this.checkbox, -200, 100)
+		if (checkbox != this.checkbox) {
+			this.checkbox = checkbox
+			System.print("checkbox: %(this.checkbox)")
+		}
+
+		if (GUI.radio_button("radio button 0", this.radio_button == 0, -200, 250)) {
+			this.radio_button = 0
+			System.print("radio_button 0")	
+		}
+		if (GUI.radio_button("radio button 1", this.radio_button == 1, -200, 220)) {
+			this.radio_button = 1
+			System.print("radio_button 1")	
+		}
+		if (GUI.radio_button("radio button 2", this.radio_button == 2, -200, 190)) {
+			this.radio_button = 2
+			System.print("radio_button 2")	
+		}
+
+		if (GUI.arrow_button(ARROW_LEFT, -200, 280, 20, true)) {
+			System.print("arrow left")
+		}
+		if (GUI.arrow_button(ARROW_RIGHT, -170, 280, 20, false)) {
+			System.print("arrow right")
+		}
+
+		var sel0 = GUI.selectable("selectable 0", this.sel0, -200, 160, 100)
+		if (sel0 != this.sel0) {
+			this.sel0 = sel0
+			System.print("sel0: %(this.sel0)")
+		}
+		var sel1 = GUI.selectable("selectable 1", this.sel1, -200, 140, 100)
+		if (sel1 != this.sel1) {
+			this.sel1 = sel1
+			System.print("sel1: %(this.sel1)")
+		}
+
+		var curr_item = GUI.combo("combo", this.curr_item, this.items, -200, 50, 100)
+		if (curr_item != this.curr_item) {
+			this.curr_item = curr_item
+			System.print("curr_item: %(this.curr_item)")
+		}
+
+		if (this.popup_pos)
+		{
+			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y)
+			for (var i in 1..5) {
+				if (GUI.selectable("popup%(i)", false, pos[0], pos[1] - 25 * i, 80)) {
+					System.print("popup select %(i)")
+					this.popup_pos = nil
+				}
+			}
+		}
+		// fixme
+		GUI.button("btn0", 0, 0, 100, 50)
 
 		GUI.end()
 
@@ -38,17 +132,28 @@ class Test
 
 	keypressed(c) {}
 	keyreleased(c) {}
-	mousemoved(x, y, btn) {}
-	mousedragged(x, y, btn) {}
 
+	mousemoved(x, y, btn) 
+	{
+		GUI.mouseInput(btn, MOUSE_MOVE, x, y)
+	}
+	mousedragged(x, y, btn) 
+	{
+		GUI.mouseInput(btn, MOUSE_DRAG, x, y)
+	}
 	mousepressed(x, y, btn) 
 	{
-		GUI.mouseInput(btn, 0, x, y)
+		GUI.mouseInput(btn, MOUSE_DOWN, x, y)
+
+		if (btn == MOUSE_RIGHT) {
+			this.popup_pos = Vector2(x, y)
+		} else if (btn == MOUSE_LEFT) {
+			//this.popup_pos = nil
+		}
 	}
 	mousereleased(x, y, btn) 
 	{
-		GUI.mouseInput(btn, 1, x, y)
+		GUI.mouseInput(btn, MOUSE_UP, x, y)
 	}
-
 	mousescrolled(x, y, dx, dy) {}
 }
