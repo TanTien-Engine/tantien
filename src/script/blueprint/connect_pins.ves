@@ -42,8 +42,10 @@ class ConnectPins is EditOP
 					var last_pin = this.selected_pin
 					if (!last_pin.is_input and pin.is_input) {
 						Blueprint.connect(last_pin, pin)
+						this.scene.bp_dirty = true
 					} else if (last_pin.is_input and !pin.is_input) {
 						Blueprint.connect(pin, last_pin)
+						this.scene.bp_dirty = true
 					}
 				}
 			}
@@ -53,6 +55,7 @@ class ConnectPins is EditOP
 				if (this.selected_pin.is_input) {
 					while (!this.selected_pin.conns.isEmpty) {
 						Blueprint.disconnect(this.selected_pin.conns.front())
+						this.scene.bp_dirty = true
 					}
 				}
 			}
