@@ -9,13 +9,15 @@ import "graphics" for Painter, Graphics
 
 class ConnectPins is EditOP
 {
-	init(cam, scene)
+	init(cam, scene, popup_cb)
 	{
 		this.camera = cam
 		this.scene = scene
 
 		this.selected_pin = nil
 		this.curve = Bezier.init()
+
+		this.popup_cb = popup_cb
 	}
 
 	on_mouse_press(x, y) 
@@ -58,6 +60,10 @@ class ConnectPins is EditOP
 						this.scene.bp_dirty = true
 					}
 				}
+			}
+
+			if (this.popup_cb) {
+				this.popup_cb(x, y)
 			}
 		}
 

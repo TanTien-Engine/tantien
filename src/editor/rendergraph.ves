@@ -24,7 +24,7 @@ class Test
 		this.scene = Scene()
 		this.camera = OrthoCamera()
 
-		this.editop = BlueprintEditOP(this.camera, this.scene)
+		this.editop = BlueprintEditOP(this.camera, this.scene, this.popupCB)
 
 		this.popup_pos = nil
 
@@ -160,6 +160,11 @@ void main() {
 		GUI.end()
 
 		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
+	}
+
+	popupCB(x, y)
+	{
+		this.popup_pos = Vector2(x, y)
 	}
 
 	sizechanged(w, h)

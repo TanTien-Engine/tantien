@@ -6,7 +6,7 @@ import "blueprint.connect_pins" for ConnectPins
 
 class EditOP
 {
-	init(cam, scene)
+	init(cam, scene, popup_cb)
 	{
 		this.camera = cam
 		this.scene = scene
@@ -15,7 +15,7 @@ class EditOP
 		this.node_trans_op = Node2dTranslate(cam, scene)
 		this.cam_zoom_op   = Cam2dZoom(cam, scene)
 		this.cam_trans_op  = Cam2dTranslate(cam, scene)
-		this.connect_op    = ConnectPins(cam, scene)
+		this.connect_op    = ConnectPins(cam, scene, popup_cb)
 
 		this.curr_op = this.cam_zoom_op
 	}
