@@ -27,6 +27,7 @@ class Test
 		this.editop = BlueprintEditOP(this.camera, this.scene, this.popupCB)
 
 		this.popup_pos = nil
+		this.prev_pin = nil
 
 		this.drawlist = []
 	}
@@ -81,12 +82,14 @@ class Test
 
 		if (this.popup_pos)
 		{
-			var WIDTH = 80
+			var WIDTH = 120
 			var HEIGHT = 25
 			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y)
 
 			var x = pos[0]
 			var y = pos[1] - HEIGHT
+
+			var new_node = nil
 
 			var NUM = 4
 			GUI.frame(x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
@@ -95,18 +98,14 @@ class Test
 				var clear = Clear()
 				clear.masks = ["color"]
 				clear.values = { "color" : [255,255,0,0] }
-
-				this.add_node(clear, x, y)
-				this.popup_pos = nil
+				new_node = clear
 			}
 			y = y - HEIGHT
 			if (GUI.selectable("Draw", false, x, y, WIDTH)) 
 			{
 				var draw = Draw()
 				draw.render_state = { "depth_test" : false }
-
-				this.add_node(draw, x, y)
-				this.popup_pos = nil
+				new_node = draw
 			}
 			y = y - HEIGHT
 			if (GUI.selectable("Shader", false, x, y, WIDTH)) 
@@ -130,8 +129,7 @@ void main() {
    FragColor = fcolor;
 }
 				"
-				this.add_node(shader, x, y)
-				this.popup_pos = nil
+				new_node = shader
 			}
 			y = y - HEIGHT
 			if (GUI.selectable("VertexArray", false, x, y, WIDTH)) 
@@ -147,11 +145,30 @@ void main() {
 				      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
 				]
 				va.attrs = [3, 3]
-
-				this.add_node(va, x, y)
-				this.popup_pos = nil
+				new_node = va
 			}
 			y = y - HEIGHT
+
+			if (new_node)
+			{
+				this.add_node(new_node, x, y)
+				this.popup_pos = nil
+
+				if (this.prev_pin)
+				{
+					if (this.prev_pin.is_input) {
+						if (!new_node.exports.isEmpty) {
+							Blueprint.connect(new_node.exports[0], this.prev_pin)
+							this.scene.bp_dirty = true
+						}
+					} else {
+						if (!new_node.imports.isEmpty) {
+							Blueprint.connect(this.prev_pin, new_node.imports[0])
+							this.scene.bp_dirty = true
+						}
+					}
+				}
+			}
 		}
 
 		// fixme
@@ -162,9 +179,12 @@ void main() {
 		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}
 
-	popupCB(x, y)
+	popupCB(x, y, prev_pin)
 	{
 		this.popup_pos = Vector2(x, y)
+		if (prev_pin) {
+			this.prev_pin = prev_pin
+		}
 	}
 
 	sizechanged(w, h)

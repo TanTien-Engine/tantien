@@ -54,16 +54,18 @@ class ConnectPins is EditOP
 			else
 			{
 				// remove conns
+				var disconn = false
 				if (this.selected_pin.is_input) {
 					while (!this.selected_pin.conns.isEmpty) {
 						Blueprint.disconnect(this.selected_pin.conns.front())
 						this.scene.bp_dirty = true
+						disconn = true
 					}
 				}
-			}
 
-			if (this.popup_cb) {
-				this.popup_cb(x, y)
+				if (this.popup_cb and !disconn) {
+					this.popup_cb(x, y, this.selected_pin)
+				}
 			}
 		}
 
