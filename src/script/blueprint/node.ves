@@ -1,6 +1,8 @@
+import "math" for Math
 import "maths.vector" for Vector2
 import "maths" for Float2
 import "blueprint.node_render" for NodeRender
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Style
 {
@@ -62,8 +64,8 @@ class Node
 
 	layout()
 	{
-		this.style.width = 100
-		this.style.height = 50
+		this.style.width = 120
+		this.style.height = DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
 
 		for (var i = 0; i < this.imports.count; i = i + 1) {
 			this.imports[i].is_input = true
