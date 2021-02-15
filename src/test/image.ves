@@ -6,10 +6,19 @@ class Test
 	load()
 	{
 		var img = ImageData.init("assets/textures/awesomeface.png")
-		img.toRGB565()
-		img.storeToFile("assets/textures/test.bmp")
+		//img.toRGB565()
+		//img.storeToFile("assets/textures/test.bmp")
 
-		this.tex = Texture.init(img)		
+		var dst_size = 512
+		var dst_img = ImageData.init(dst_size, dst_size, "rgba")
+
+		var w = img.getWidth()
+		var h = img.getHeight()
+		var sub_img = img.cropping(w * 0.5, h * 0.5, 100, 200)
+
+		dst_img.copyFrom(sub_img, dst_size/2, dst_size/2)
+
+		this.tex = Texture.init(dst_img)
 	}
 
 	update()
