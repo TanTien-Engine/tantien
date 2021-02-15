@@ -172,6 +172,20 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     ves_call(4, 0);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    const bool ctrl_pressed =
+        glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
+    if (key == GLFW_KEY_O && action == GLFW_PRESS && ctrl_pressed) {
+        ves_pushstring("loadfromfile()");
+        ves_call(0, 0);
+    } else if (key == GLFW_KEY_S && action == GLFW_PRESS && ctrl_pressed) {
+        ves_pushstring("savetofile()");
+        ves_call(0, 0);
+    }
+}
+
 void call_keypressed(char c)
 {
     ves_pushlstring(&c, 1);
@@ -244,7 +258,7 @@ void process_input(GLFWwindow *window)
         call_keypressed('a');
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         call_keypressed('d');
-    }
+    } 
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
@@ -362,6 +376,7 @@ int main(int argc, char* argv[])
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetKeyCallback(window, key_callback);
 
     if(gl3wInit()) {
         std::cerr << "failed to init GL3W" << std::endl;
