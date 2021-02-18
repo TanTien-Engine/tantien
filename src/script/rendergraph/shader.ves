@@ -13,11 +13,22 @@ class Shader is Node
 		]
 		this.layout()
 
-		this.vs = ""
-		this.fs = ""
+		this.vs = nil
+		this.fs = nil
+
+		this.prog = nil
 	}
 
 	execute() {
-		this.prog = r_Shader.init(this.vs, this.fs)
+		if (this.vs and this.fs) {
+			this.prog = r_Shader.init(this.vs, this.fs)		
+		}
+	}
+
+	toString(name) {
+		return "
+%(name).vs = \"%(this.vs)\"
+%(name).fs = \"%(this.fs)\"
+"
 	}
 }

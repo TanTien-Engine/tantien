@@ -15,9 +15,20 @@ class VertexArray is Node
 
 		this.data = nil
 		this.attrs = nil
+
+		this.va = nil
 	}
 
 	execute() {
-		this.va = r_VertexArray.init(this.data, this.attrs)		
+		if (this.data and this.attrs) {
+			this.va = r_VertexArray.init(this.data, this.attrs)		
+		}
+	}
+
+	toString(name) {
+		return "
+%(name).data = %(this.data)
+%(name).attrs = %(this.attrs)
+"
 	}
 }

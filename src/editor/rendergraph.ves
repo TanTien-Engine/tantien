@@ -1,3 +1,5 @@
+import "io" for IO
+
 import "graphics" for Graphics
 import "render" for Render
 import "gui" for GUI, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
@@ -30,6 +32,9 @@ class Test
 		this.prev_pin = nil
 
 		this.drawlist = []
+
+		//this.filepath = "assets/scene/render/tmp.tt"
+		this.filepath = "assets/scene/render/test2.tt"
 	}
 
 	update()
@@ -246,6 +251,77 @@ void main() {
 	mousescrolled(x, y, dx, dy)
 	{
 		this.editop.on_mouse_scrolled(x, y, dx, dy)
+	}
+
+	loadfromfile()
+	{
+		var str = "
+import \"test\" for test
+import \"rendergraph.clear\" for Clear
+import \"rendergraph.draw\" for Draw
+import \"rendergraph.shader\" for Shader
+import \"rendergraph.vertex_array\" for VertexArray
+import \"blueprint.blueprint\" for Blueprint
+"
+
+		var file = IO.open(this.filepath, "r")
+		str = str + file.read()
+		IO.close(file)
+
+		Basic.loadstring(str)
+
+		this.scene.bp_dirty = true
+	}
+
+	savetofile()
+	{
+		var file = IO.open(this.filepath, "w")
+
+		// nodes
+		var index = 0
+		for (var node in this.scene.nodes) 
+		{
+			var bp = node.components["bp"]
+			var trans = node.components["transform"]
+
+			var name = "node%(index)"
+
+			file.write("var %(name) = %(bp.name)()\n")
+			file.write("test.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n")
+
+			var node_str = bp.toString(name)
+			file.write("%(node_str)\n")
+
+			index = index + 1
+		}
+
+		// connections
+		var f_idx = 0
+		for (var f_node in this.scene.nodes) 
+		{
+			var f_name = "node%(f_idx)"
+
+			var f_bp = f_node.components["bp"]
+			for (var f_pin in f_bp.exports)
+			{
+				for (var f_conn in f_pin.conns)
+				{
+					var t_pin
+					var t_name
+					for (var t_idx = 0; t_idx < this.scene.nodes.count; t_idx = t_idx + 1) {
+						var t_bp = this.scene.nodes[t_idx].components["bp"]
+						if (t_bp == f_conn.to.node) {
+							t_name = "node%(t_idx)"
+						}
+					}
+					file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
+				}
+			}
+
+			f_idx = f_idx + 1
+		}
+			
+		IO.close(file)
 	}
 
 	add_node(bp_node, x, y)

@@ -32,4 +32,11 @@ class Draw is Node
 			Render.draw(this.prim_type, shader.prog, va.va, this.render_state)
 		}
 	}
+
+	toString(name) {
+		return "
+%(name).prim_type = \"%(this.prim_type)\"
+%(name).render_state = %(this.render_state)
+"
+	}
 }

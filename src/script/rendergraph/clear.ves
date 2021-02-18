@@ -25,4 +25,11 @@ class Clear is Node
 	execute() {
 		Render.clear(this.masks, this.values)
 	}
+
+	toString(name) {
+		return "
+%(name).masks = %(this.masks)
+%(name).values = %(this.values)
+"
+	}
 }
