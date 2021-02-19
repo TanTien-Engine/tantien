@@ -17,7 +17,7 @@ foreign class ImageData
 	foreign setPixel(x, y, r, g, b)
 	
 	foreign cropping(x, y, w, h)
-	foreign copyFrom(sub_img, x, y)
+	foreign copyFrom(sub_img, x, y, debug_border)
 
 	foreign isEmpty()
 }

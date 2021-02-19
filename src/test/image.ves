@@ -16,7 +16,7 @@ class Test
 		var h = img.getHeight()
 		var sub_img = img.cropping(w * 0.5, h * 0.5, 100, 200)
 
-		dst_img.copyFrom(sub_img, dst_size/2, dst_size/2)
+		dst_img.copyFrom(sub_img, dst_size/2, dst_size/2, true)
 
 		this.tex = Texture.init(dst_img)
 	}

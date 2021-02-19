@@ -211,6 +211,9 @@ void w_ImageData_copyFrom()
 
     const int x = (int)ves_tonumber(2);
     const int y = (int)ves_tonumber(3);
+
+    const bool debug_border = ves_toboolean(4);
+
     const int new_w = std::max(0, std::min(sub_img->width,  img->width  - 1 - x));
     const int new_h = std::max(0, std::min(sub_img->height, img->height - 1 - y));
     if (new_w == 0 || new_h == 0) {
@@ -220,8 +223,18 @@ void w_ImageData_copyFrom()
     const int channels = get_format_channels(img->format);
     for (int _x = 0; _x < new_w; ++_x) {
         for (int _y = 0; _y < new_h; ++_y) {
-            for (int i = 0; i < channels; ++i) {
-                img->pixels[((y + _y) * img->width + (x + _x)) * channels + i] = sub_img->pixels[(_y * sub_img->width + _x) * channels + i];
+            if (debug_border && (_x == 0 || _x == new_w - 1 || _y == 0 || _y == new_h - 1)) {
+                for (int i = 0; i < channels; ++i) {
+                    img->pixels[((y + _y) * img->width + (x + _x)) * channels + i] = 0;
+                }
+                img->pixels[((y + _y) * img->width + (x + _x)) * channels] = 255;
+                if (channels == 4) {
+                    img->pixels[((y + _y) * img->width + (x + _x)) * channels + 3] = 255;
+                }
+            } else {
+                for (int i = 0; i < channels; ++i) {
+                    img->pixels[((y + _y) * img->width + (x + _x)) * channels + i] = sub_img->pixels[(_y * sub_img->width + _x) * channels + i];
+                }
             }
         }
     }
@@ -259,7 +272,7 @@ VesselForeignMethodFn ImageBindMethod(const char* signature)
     if (strcmp(signature, "ImageData.getPixel(_,_)") == 0) return w_ImageData_getPixel;
     if (strcmp(signature, "ImageData.setPixel(_,_,_,_,_)") == 0) return w_ImageData_setPixel;
     if (strcmp(signature, "ImageData.cropping(_,_,_,_)") == 0) return w_ImageData_cropping;
-    if (strcmp(signature, "ImageData.copyFrom(_,_,_)") == 0) return w_ImageData_copyFrom;
+    if (strcmp(signature, "ImageData.copyFrom(_,_,_,_)") == 0) return w_ImageData_copyFrom;
     if (strcmp(signature, "ImageData.isEmpty()") == 0) return w_ImageData_isEmpty;
 
     return nullptr;
