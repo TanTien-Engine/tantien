@@ -183,8 +183,13 @@ void w_ImageData_cropping()
     memset(sub_pixels, 0, size);
     for (int _x = 0; _x < new_w; ++_x) {
         for (int _y = 0; _y < new_h; ++_y) {
+            const int x_f = x + _x;
+            const int y_f = y + _y;
+            if (x_f < 0 || x_f >= img->width || y_f < 0 || y_f >= img->height) {
+                continue;
+            }
             for (int i = 0; i < channels; ++i) {
-                sub_pixels[(_y * new_w + _x) * channels + i] = img->pixels[((y + _y) * img->width + (x + _x)) * channels + i];
+                sub_pixels[(_y * new_w + _x) * channels + i] = img->pixels[(y_f * img->width + x_f) * channels + i];
             }
         }
     }
