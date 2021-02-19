@@ -31,6 +31,8 @@ class Test
 		this.popup_pos = nil
 		this.prev_pin = nil
 
+		this.right_press_pos = nil
+
 		this.drawlist = []
 
 		//this.filepath = "assets/scene/render/tmp.tt"
@@ -246,7 +248,7 @@ void main() {
 	{
 		GUI.mouseInput(btn, MOUSE_DOWN, x, y)
 		if (btn == MOUSE_RIGHT) {
-			this.popup_pos = Vector2(x, y)
+			this.right_press_pos = Vector2(x, y)
 		}
 
 		if (!this.is_gui_active()) {
@@ -257,6 +259,10 @@ void main() {
 	mousereleased(x, y, btn)
 	{
 		GUI.mouseInput(btn, MOUSE_UP, x, y)
+		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
+			this.right_press_pos = nil
+			this.popup_pos = Vector2(x, y)
+		}
 
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_released(x, y, btn)
