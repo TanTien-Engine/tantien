@@ -1,6 +1,8 @@
 import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "gui" for GUI
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Clear is Node
 {
@@ -16,9 +18,10 @@ class Clear is Node
 		]
 		this.layout()
 		
-		// "color", "depth", "stencil"
+		// [ "color", "depth", "stencil" ]
 		this.masks = []
 
+		// { "color" : [r,g,b,a] }
 		this.values = {}
 	}
 
@@ -31,5 +34,66 @@ class Clear is Node
 %(name).masks = %(this.masks)
 %(name).values = %(this.values)
 "
+	}
+
+	drawGUI() 
+	{
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y - this.style.height
+
+		var mask_color = this.masks.contains("color")
+		var _mask_color = GUI.checkbox("color", mask_color, x, y)
+		if (_mask_color != mask_color) {
+			if (_mask_color) {
+				this.masks.add("color")
+			} else {
+				this.masks.remove("color")
+			}
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var mask_depth = this.masks.contains("depth")
+		var _mask_depth = GUI.checkbox("depth", mask_depth, x, y)
+		if (_mask_depth != mask_depth) {
+			if (_mask_depth) {
+				this.masks.add("depth")
+			} else {
+				this.masks.remove("depth")
+			}
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var mask_stencil = this.masks.contains("stencil")
+		var _mask_stencil = GUI.checkbox("stencil", mask_stencil, x, y)
+		if (_mask_stencil != mask_stencil) {
+			if (_mask_stencil) {
+				this.masks.add("stencil")
+			} else {
+				this.masks.remove("stencil")
+			}
+		}
+
+		if (this.values.containsKey("color"))
+		{
+			var color = this.values["color"]
+
+			y = y - DEFAULT_HEIGHT
+		    var r = GUI.slider("r", color[0], x, y, this.style.width, 255, false)
+		    if (r != color[0]) {
+		    	color[0] = r
+		    }
+
+			y = y - DEFAULT_HEIGHT
+		    var g = GUI.slider("g", color[1], x, y, this.style.width, 255, false)
+		    if (g != color[1]) {
+		    	color[1] = g
+		    }
+
+			y = y - DEFAULT_HEIGHT
+		    var b = GUI.slider("b", color[2], x, y, this.style.width, 255, false)
+		    if (b != color[2]) {
+		    	color[2] = b
+		    }
+		}
 	}
 }

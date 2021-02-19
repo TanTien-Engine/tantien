@@ -48,9 +48,8 @@ class Test
 	{
 		this.drawPreview()
 
-		this.scene.draw()
-
-		this.editop.draw()
+		this.drawScene()
+		this.editop.draw()		
 
 		Graphics.flush()
 
@@ -77,6 +76,22 @@ class Test
 		for (var node in this.drawlist) {
 			node.execute()
 		}
+	}
+
+	drawScene()
+	{
+		this.scene.draw()
+
+		GUI.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
+
+		GUI.begin()
+		for (var node in this.scene.nodes) {
+			var bp_node = node.components["bp"]
+			bp_node.drawGUI()
+		}
+		GUI.end()
+
+		//GUI.onCamUpdate(0, 0, 1)
 	}
 
 	drawGUI()

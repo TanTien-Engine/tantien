@@ -2,6 +2,8 @@ import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.Blueprint" for Blueprint
+import "gui" for GUI
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Draw is Node
 {
@@ -19,8 +21,10 @@ class Draw is Node
 		]
 		this.layout()
 
+		// [ "triangles" ]
 		this.prim_type = "triangles"
 
+		// { "depth_test" : false }
 		this.render_state = {}
 	}
 
@@ -38,5 +42,20 @@ class Draw is Node
 %(name).prim_type = \"%(this.prim_type)\"
 %(name).render_state = %(this.render_state)
 "
+	}
+
+	drawGUI() 
+	{
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y - this.style.height
+
+		if (this.render_state.containsKey("depth_test"))
+		{
+			var depth_test = this.render_state["depth_test"]
+			var _depth_test = GUI.checkbox("depth test", depth_test, x, y)
+			if (_depth_test != depth_test) {
+				this.render_state["depth_test"] = _depth_test
+			}
+		}
 	}
 }
