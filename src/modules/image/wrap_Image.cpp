@@ -114,7 +114,7 @@ void w_ImageData_storeToFile()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     const char* filepath = ves_tostring(1);
-    gimg_export(filepath, img->pixels, img->width, img->height, img->format, 0);
+    gimg_export(filepath, img->pixels, img->width, img->height, img->format, 1);
 }
 
 void w_ImageData_getPixel()
