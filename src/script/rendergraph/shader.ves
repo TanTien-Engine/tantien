@@ -17,11 +17,13 @@ class Shader is Node
 		this.fs = nil
 
 		this.prog = nil
+		this.dirty = true
 	}
 
 	execute() {
-		if (this.vs and this.fs) {
-			this.prog = r_Shader.init(this.vs, this.fs)		
+		if (this.vs and this.fs and this.dirty) {
+			this.prog = r_Shader.init(this.vs, this.fs)
+			this.dirty = false
 		}
 	}
 

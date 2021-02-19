@@ -17,11 +17,13 @@ class VertexArray is Node
 		this.attrs = nil
 
 		this.va = nil
+		this.dirty = true
 	}
 
 	execute() {
-		if (this.data and this.attrs) {
-			this.va = r_VertexArray.init(this.data, this.attrs)		
+		if (this.data and this.attrs and this.dirty) {
+			this.va = r_VertexArray.init(this.data, this.attrs)
+			this.dirty = false
 		}
 	}
 
