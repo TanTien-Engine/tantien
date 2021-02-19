@@ -44,6 +44,14 @@ void w_GUI_onSize()
 	tt::GUI::Instance()->OnSize(w, h);
 }
 
+void w_GUI_onCamUpdate()
+{
+	float dx = (float)ves_tonumber(1);
+	float dy = (float)ves_tonumber(2);
+	float scale = (float)ves_tonumber(3);
+	tt::GUI::Instance()->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0f / scale);
+}
+
 void w_GUI_transScrPosToProj()
 {
 	const float x = (float)ves_tonumber(1);
@@ -273,6 +281,7 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 	if (strcmp(signature, "static GUI.update()") == 0) return update;
 
 	if (strcmp(signature, "static GUI.onSize(_,_)") == 0) return w_GUI_onSize;
+	if (strcmp(signature, "static GUI.onCamUpdate(_,_,_)") == 0) return w_GUI_onCamUpdate;
 	if (strcmp(signature, "static GUI.transScrPosToProj(_,_)") == 0) return w_GUI_transScrPosToProj;
 	if (strcmp(signature, "static GUI.mouseInput(_,_,_,_)") == 0) return w_GUI_mouseInput;
 

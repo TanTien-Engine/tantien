@@ -57,10 +57,9 @@ GUI::~GUI()
 
 sm::vec2 GUI::TransScreenToProj(const sm::vec2& screen) const
 {
-	return sm::vec2(
-		screen.x - m_screen_width * 0.5f, 
-		m_screen_height * 0.5f - screen.y
-	);
+	float x = (screen.x - m_screen_width * 0.5f) / m_cam_scale - m_cam_offset.x;
+	float y = (m_screen_height * 0.5f - screen.y) / m_cam_scale - m_cam_offset.y;
+	return sm::vec2(x, y);
 }
 
 }

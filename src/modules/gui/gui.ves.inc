@@ -25,6 +25,7 @@ foreign class GUI
 	foreign static update()
 
 	foreign static onSize(w, h)
+	foreign static onCamUpdate(dx, dy, scale)
 	foreign static transScrPosToProj(x, y)
 	// btn: MOUSE_LEFT, MOUSE_RIGHT
 	// action: MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
