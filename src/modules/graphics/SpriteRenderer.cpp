@@ -380,13 +380,14 @@ void SpriteRenderer::Flush(ur::Context& ctx)
     if (ibuf)
     {
         auto ibuf_sz = sizeof(unsigned short) * m_buf.indices.size();
-        ibuf->Reset(ibuf_sz);
+		ibuf->SetCount(m_buf.indices.size());
+        ibuf->Reserve(ibuf_sz);
         ibuf->ReadFromMemory(m_buf.indices.data(), ibuf_sz, 0);
     }
 
     auto vbuf_sz = sizeof(SpriteVertex) * m_buf.vertices.size();
     auto vbuf = m_va->GetVertexBuffer();
-    vbuf->Reset(vbuf_sz);
+    vbuf->Reserve(vbuf_sz);
     vbuf->ReadFromMemory(m_buf.vertices.data(), vbuf_sz, 0);
 
     // todo

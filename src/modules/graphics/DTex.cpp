@@ -84,13 +84,14 @@ void DTex::Init(const ur::Device& dev)
     auto ibuf = dev.CreateIndexBuffer(usage, 0);
     auto ibuf_sz = sizeof(unsigned short) * 6;
     const unsigned short indices[] = { 0, 1, 2, 0, 2, 3 };
-    ibuf->Reset(ibuf_sz);
+    ibuf->SetCount(6);
+    ibuf->Reserve(ibuf_sz);
     ibuf->ReadFromMemory(indices, ibuf_sz, 0);
     m_debug_va->SetIndexBuffer(ibuf);
 
     auto vbuf = dev.CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, 0);
     auto vbuf_sz = sizeof(float) * 4 * 4;
-    vbuf->Reset(vbuf_sz);
+    vbuf->Reserve(vbuf_sz);
     sm::vec2 min(-1, -1);
     sm::vec2 max(1, 1);
     float vertices[] = {
