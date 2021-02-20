@@ -46,6 +46,8 @@ class Draw is Node
 
 	drawGUI() 
 	{
+		var dirty = false
+
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y - this.style.height
 
@@ -55,7 +57,10 @@ class Draw is Node
 			var _depth_test = GUI.checkbox("depth test", depth_test, x, y)
 			if (_depth_test != depth_test) {
 				this.render_state["depth_test"] = _depth_test
+				dirty = true
 			}
 		}
+
+		return dirty
 	}
 }

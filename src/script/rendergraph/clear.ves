@@ -38,6 +38,8 @@ class Clear is Node
 
 	drawGUI() 
 	{
+		var dirty = false
+
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y - this.style.height
 
@@ -49,6 +51,7 @@ class Clear is Node
 			} else {
 				this.masks.remove("color")
 			}
+			dirty = true
 		}
 
 		y = y - DEFAULT_HEIGHT
@@ -60,6 +63,7 @@ class Clear is Node
 			} else {
 				this.masks.remove("depth")
 			}
+			dirty = true
 		}
 
 		y = y - DEFAULT_HEIGHT
@@ -71,6 +75,7 @@ class Clear is Node
 			} else {
 				this.masks.remove("stencil")
 			}
+			dirty = true
 		}
 
 		if (this.values.containsKey("color"))
@@ -81,19 +86,24 @@ class Clear is Node
 		    var r = GUI.slider("r", color[0], x, y, this.style.width, 255, false)
 		    if (r != color[0]) {
 		    	color[0] = r
+		    	dirty = true
 		    }
 
 			y = y - DEFAULT_HEIGHT
 		    var g = GUI.slider("g", color[1], x, y, this.style.width, 255, false)
 		    if (g != color[1]) {
 		    	color[1] = g
+		    	dirty = true
 		    }
 
 			y = y - DEFAULT_HEIGHT
 		    var b = GUI.slider("b", color[2], x, y, this.style.width, 255, false)
 		    if (b != color[2]) {
 		    	color[2] = b
+		    	dirty = true
 		    }
 		}
+
+		return dirty
 	}
 }
