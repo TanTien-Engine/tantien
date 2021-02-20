@@ -38,9 +38,9 @@ private:
 	uint32_t m_next_uid = 1;
 
 	float m_screen_width = 0, m_screen_height = 0;
-
+	 
 	sm::vec2 m_cam_offset;
-	float m_cam_scale = 0;
+	float m_cam_scale = 1.0f;
 
 	TT_SINGLETON_DECLARATION(GUI)
 
