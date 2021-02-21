@@ -173,12 +173,9 @@ class Editor
 
 		if (this.popup_pos)
 		{
-			var WIDTH = 120
-			var HEIGHT = 25
 			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
-
 			var x = pos[0]
-			var y = pos[1] - HEIGHT
+			var y = pos[1] - 25
 
 			var new_node = this.drawPopup(x, y)
 			if (new_node)
