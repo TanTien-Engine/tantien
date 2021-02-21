@@ -18,7 +18,7 @@
 namespace
 {
 
-void shader_allocate()
+void w_Shader_allocate()
 {
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
@@ -31,14 +31,14 @@ void shader_allocate()
     *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
 }
 
-static int shader_finalize(void* data)
+static int w_Shader_finalize(void* data)
 {
     std::shared_ptr<ur::ShaderProgram>* prog = static_cast<std::shared_ptr<ur::ShaderProgram>*>(data);
     (*prog)->~ShaderProgram();
     return sizeof(std::shared_ptr<ur::ShaderProgram>);
 }
 
-void vertex_array_allocate()
+void w_VertexArray_allocate()
 {
     std::vector<float> data;
     int data_num = ves_len(1);
@@ -88,14 +88,14 @@ void vertex_array_allocate()
     (*va)->SetVertexBufferAttrs(vbuf_attrs);
 }
 
-static int vertex_array_finalize(void* data)
+static int w_VertexArray_finalize(void* data)
 {
     std::shared_ptr<ur::VertexArray>* va = static_cast<std::shared_ptr<ur::VertexArray>*>(data);
     (*va)->~VertexArray();
     return sizeof(std::shared_ptr<ur::VertexArray>);
 }
 
-void draw()
+void w_Render_draw()
 {
     ur::DrawState ds;
 
@@ -118,7 +118,7 @@ void draw()
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
 
-void clear()
+void w_Render_clear()
 {
     ur::ClearState clear;
 
@@ -169,8 +169,8 @@ namespace tt
 
 VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
-    if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return draw;
-    if (strcmp(signature, "static Render.clear(_,_)") == 0) return clear;
+    if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
+    if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
 
     return NULL;
 }
@@ -179,15 +179,15 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
 {
     if (strcmp(className, "Shader") == 0)
     {
-        methods->allocate = shader_allocate;
-        methods->finalize = shader_finalize;
+        methods->allocate = w_Shader_allocate;
+        methods->finalize = w_Shader_finalize;
         return;
     }
 
     if (strcmp(className, "VertexArray") == 0)
     {
-        methods->allocate = vertex_array_allocate;
-        methods->finalize = vertex_array_finalize;
+        methods->allocate = w_VertexArray_allocate;
+        methods->finalize = w_VertexArray_finalize;
         return;
     }
 }

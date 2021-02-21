@@ -9,18 +9,18 @@
 namespace
 {
 
-void mat2_allocate()
+void w_Matrix2D_allocate()
 {
     sm::Matrix2D* mt = (sm::Matrix2D*)ves_set_newforeign(0, 0, sizeof(sm::Matrix2D));
     mt->Identity();
 }
 
-int mat2_finalize(void* data)
+int w_Matrix2D_finalize(void* data)
 {
     return sizeof(sm::Matrix2D);
 }
 
-void mat2_transform()
+void w_Matrix2D_transform()
 {
     sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
     const float x = (float)ves_tonumber(1);
@@ -35,50 +35,50 @@ void mat2_transform()
     mt->SetTransformation(x, y, angle, sx, sy, ox, oy, kx, ky);
 }
 
-void f2_allocate()
+void w_Float2_allocate()
 {
     sm::vec2* v2 = (sm::vec2*)ves_set_newforeign(0, 0, sizeof(sm::vec2));
     v2->x = 0;
     v2->y = 0;
 }
 
-int f2_finalize(void* data)
+int w_Float2_finalize(void* data)
 {
     return sizeof(sm::vec2);
 }
 
-void f2_set_x()
+void w_Float2_setX()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     v2->x = (float)ves_tonumber(1);
 }
 
-void f2_get_x()
+void w_Float2_getX()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     ves_set_number(0, static_cast<double>(v2->x));
 }
 
-void f2_set_y()
+void w_Float2_setY()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     v2->y = (float)ves_tonumber(1);
 }
 
-void f2_get_y()
+void w_Float2_getY()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     ves_set_number(0, static_cast<double>(v2->y));
 }
 
-void f2_transform()
+void w_Float2_transform()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(1);
     *v2 = *mt * *v2;
 }
 
-void maths_is_conv_intersect_conv()
+void w_Maths_isConvexIntersectConvex()
 {
     auto c0 = tt::list_to_vec2_array(1);
     auto c1 = tt::list_to_vec2_array(2);
@@ -93,17 +93,17 @@ namespace tt
 
 VesselForeignMethodFn MathsBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return mat2_transform;
+    if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
 
-    //if (strcmp(signature, "Float2.x=(_)") == 0) return f2_set_x;
-    //if (strcmp(signature, "Float2.x()") == 0) return f2_get_x;
-    if (strcmp(signature, "Float2.setX(_)") == 0) return f2_set_x;
-    if (strcmp(signature, "Float2.x()") == 0) return f2_get_x;
-    if (strcmp(signature, "Float2.setY(_)") == 0) return f2_set_y;
-    if (strcmp(signature, "Float2.y()") == 0) return f2_get_y;
-    if (strcmp(signature, "Float2.transform(_)") == 0) return f2_transform;
+    //if (strcmp(signature, "Float2.x=(_)") == 0) return w_Float2_setX;
+    //if (strcmp(signature, "Float2.x()") == 0) return w_Float2_getX;
+    if (strcmp(signature, "Float2.setX(_)") == 0) return w_Float2_setX;
+    if (strcmp(signature, "Float2.x()") == 0) return w_Float2_getX;
+    if (strcmp(signature, "Float2.setY(_)") == 0) return w_Float2_setY;
+    if (strcmp(signature, "Float2.y()") == 0) return w_Float2_getY;
+    if (strcmp(signature, "Float2.transform(_)") == 0) return w_Float2_transform;
 
-    if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return maths_is_conv_intersect_conv;
+    if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return w_Maths_isConvexIntersectConvex;
 
 	return nullptr;
 }
@@ -112,15 +112,15 @@ void MathsBindClass(const char* className, VesselForeignClassMethods* methods)
 {
     if (strcmp(className, "Float2") == 0)
     {
-        methods->allocate = f2_allocate;
-        methods->finalize = f2_finalize;
+        methods->allocate = w_Float2_allocate;
+        methods->finalize = w_Float2_finalize;
         return;
     }
 
     if (strcmp(className, "Matrix2D") == 0)
     {
-        methods->allocate = mat2_allocate;
-        methods->finalize = mat2_finalize;
+        methods->allocate = w_Matrix2D_allocate;
+        methods->finalize = w_Matrix2D_finalize;
         return;
     }
 }

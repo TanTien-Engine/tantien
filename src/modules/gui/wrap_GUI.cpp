@@ -30,7 +30,7 @@ int w_Context_finalize(void* data)
 	return ret;
 }
 
-void begin()
+void w_GUI_begin()
 {
 	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
 
@@ -39,7 +39,7 @@ void begin()
 	ctx->BeginDraw(*tt::Render::Instance()->Device());
 }
 
-void end()
+void w_GUI_end()
 {
 	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
 	ctx->EndDraw(
@@ -49,7 +49,7 @@ void end()
 	);
 }
 
-void update()
+void w_GUI_update()
 {
 	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
 	ctx->Update(0.03f);
@@ -293,9 +293,9 @@ namespace tt
 
 VesselForeignMethodFn GUIBindMethod(const char* signature)
 {
-	if (strcmp(signature, "static GUI.begin(_)") == 0) return begin;
-	if (strcmp(signature, "static GUI.end(_)") == 0) return end;
-	if (strcmp(signature, "static GUI.update(_)") == 0) return update;
+	if (strcmp(signature, "static GUI.begin(_)") == 0) return w_GUI_begin;
+	if (strcmp(signature, "static GUI.end(_)") == 0) return w_GUI_end;
+	if (strcmp(signature, "static GUI.update(_)") == 0) return w_GUI_update;
 
 	if (strcmp(signature, "static GUI.onSize(_,_)") == 0) return w_GUI_onSize;
 	if (strcmp(signature, "static GUI.transScrPosToProj(_,_,_,_,_)") == 0) return w_GUI_transScrPosToProj;

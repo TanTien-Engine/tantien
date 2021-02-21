@@ -17,7 +17,7 @@
 namespace
 {
 
-void painter_allocate()
+void w_Painter_allocate()
 {
     auto pt = new tess::Painter();
     pt->SetPalette(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
@@ -25,7 +25,7 @@ void painter_allocate()
     *ptr = pt;
 }
 
-static int painter_finalize(void* data)
+static int w_Painter_finalize(void* data)
 {
     tess::Painter** ptr = static_cast<tess::Painter**>(data);
     int ret = sizeof(*ptr);
@@ -33,7 +33,7 @@ static int painter_finalize(void* data)
     return ret;
 }
 
-void painter_add_rect()
+void w_Painter_addRect()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -62,7 +62,7 @@ void painter_add_rect()
     pt->AddRect(sm::vec2(x, y), sm::vec2(x + w, y + h), col, width);
 }
 
-void painter_add_rect_filled()
+void w_Painter_addRectFilled()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -90,7 +90,7 @@ void painter_add_rect_filled()
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
 }
 
-void painter_add_polygon()
+void w_Painter_addPolygon()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -101,7 +101,7 @@ void painter_add_polygon()
     pt->AddPolygon(vertices.data(), vertices.size(), col, width);
 }
 
-void painter_add_polyline()
+void w_Painter_addPolyline()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -112,7 +112,7 @@ void painter_add_polyline()
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
-void painter_add_circle()
+void w_Painter_addCircle()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -124,7 +124,7 @@ void painter_add_circle()
     pt->AddCircle(sm::vec2(x, y), r, col);
 }
 
-void painter_add_circle_filled()
+void w_Painter_addCircleFilled()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -136,7 +136,7 @@ void painter_add_circle_filled()
     pt->AddCircleFilled(sm::vec2(x, y), r, col);
 }
 
-void painter_add_bezier()
+void w_Painter_addBezier()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
 
@@ -148,7 +148,7 @@ void painter_add_bezier()
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
-void texture_allocate()
+void w_Texture_allocate()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
 
@@ -217,21 +217,21 @@ void texture_allocate()
     *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
 }
 
-static int texture_finalize(void* data)
+static int w_Texture_finalize(void* data)
 {
     ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(data);
     (*tex)->~Texture();
     return sizeof(ur::TexturePtr);
 }
 
-void graphics_on_size()
+void w_Graphics_onSize()
 {
     float w = (float)ves_tonumber(1);
     float h = (float)ves_tonumber(2);
     tt::Graphics::Instance()->OnSize(w, h);
 }
 
-void graphics_on_cam_update()
+void w_Graphics_onCamUpdate()
 {
     float dx = (float)ves_tonumber(1);
     float dy = (float)ves_tonumber(2);
@@ -239,13 +239,13 @@ void graphics_on_cam_update()
     tt::Graphics::Instance()->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0f / scale);
 }
 
-void graphics_draw_painter()
+void w_Graphics_drawPainter()
 {
     tess::Painter* pt = *(tess::Painter**)ves_toforeign(1);
     tt::Graphics::Instance()->DrawPainter(*pt);
 }
 
-void graphics_draw_text()
+void w_Graphics_drawText()
 {
     const char* text = ves_tostring(1);
 
@@ -357,7 +357,7 @@ bool calc_vertices(const sm::rect& pos, const sm::Matrix2D& mat, float* vertices
     return true;
 }
 
-void graphics_draw_texture()
+void w_Graphics_drawTexture()
 {
     ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(1));
 
@@ -409,12 +409,12 @@ void graphics_draw_texture()
 	}
 }
 
-void graphics_flush()
+void w_Graphics_flush()
 {
     tt::Graphics::Instance()->Flush();
 }
 
-void graphics_dtex_debug_draw()
+void w_Graphics_dtexDebugDraw()
 {
     tt::DTex::Instance()->DebugDraw(*tt::Render::Instance()->Context());
 }
@@ -426,21 +426,21 @@ namespace tt
 
 VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return painter_add_rect;
-    if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return painter_add_rect_filled;
-    if (strcmp(signature, "Painter.addPolygon(_,_,_)") == 0) return painter_add_polygon;
-    if (strcmp(signature, "Painter.addPolyline(_,_,_)") == 0) return painter_add_polyline;
-    if (strcmp(signature, "Painter.addCircle(_,_,_,_)") == 0) return painter_add_circle;
-    if (strcmp(signature, "Painter.addCircleFilled(_,_,_,_)") == 0) return painter_add_circle_filled;
-    if (strcmp(signature, "Painter.addBezier(_,_,_)") == 0) return painter_add_bezier;
+    if (strcmp(signature, "Painter.addRect(_,_,_)") == 0) return w_Painter_addRect;
+    if (strcmp(signature, "Painter.addRectFilled(_,_)") == 0) return w_Painter_addRectFilled;
+    if (strcmp(signature, "Painter.addPolygon(_,_,_)") == 0) return w_Painter_addPolygon;
+    if (strcmp(signature, "Painter.addPolyline(_,_,_)") == 0) return w_Painter_addPolyline;
+    if (strcmp(signature, "Painter.addCircle(_,_,_,_)") == 0) return w_Painter_addCircle;
+    if (strcmp(signature, "Painter.addCircleFilled(_,_,_,_)") == 0) return w_Painter_addCircleFilled;
+    if (strcmp(signature, "Painter.addBezier(_,_,_)") == 0) return w_Painter_addBezier;
 
-    if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return graphics_on_size;
-    if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return graphics_on_cam_update;
-    if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return graphics_draw_painter;
-    if (strcmp(signature, "static Graphics.drawText(_,_,_,_,_)") == 0) return graphics_draw_text;
-    if (strcmp(signature, "static Graphics.drawTexture(_,_,_,_)") == 0) return graphics_draw_texture;
-    if (strcmp(signature, "static Graphics.flush()") == 0) { return graphics_flush; }
-    if (strcmp(signature, "static Graphics.dtexDebugDraw()") == 0) { return graphics_dtex_debug_draw; }
+    if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return w_Graphics_onSize;
+    if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return w_Graphics_onCamUpdate;
+    if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return w_Graphics_drawPainter;
+    if (strcmp(signature, "static Graphics.drawText(_,_,_,_,_)") == 0) return w_Graphics_drawText;
+    if (strcmp(signature, "static Graphics.drawTexture(_,_,_,_)") == 0) return w_Graphics_drawTexture;
+    if (strcmp(signature, "static Graphics.flush()") == 0) return w_Graphics_flush;
+    if (strcmp(signature, "static Graphics.dtexDebugDraw()") == 0) return w_Graphics_dtexDebugDraw;
 
     return nullptr;
 }
@@ -449,15 +449,15 @@ void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods
 {
     if (strcmp(className, "Painter") == 0)
     {
-        methods->allocate = painter_allocate;
-        methods->finalize = painter_finalize;
+        methods->allocate = w_Painter_allocate;
+        methods->finalize = w_Painter_finalize;
         return;
     }
 
     if (strcmp(className, "Texture") == 0)
     {
-        methods->allocate = texture_allocate;
-        methods->finalize = texture_finalize;
+        methods->allocate = w_Texture_allocate;
+        methods->finalize = w_Texture_finalize;
         return;
     }
 }

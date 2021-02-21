@@ -8,14 +8,14 @@
 namespace
 {
 
-void bezier_allocate()
+void w_Bezier_allocate()
 {
     auto b = new gs::Bezier();
     gs::Bezier** ptr = (gs::Bezier**)ves_set_newforeign(0, 0, sizeof(b));
     *ptr = b;
 }
 
-static int bezier_finalize(void* data)
+static int w_Bezier_finalize(void* data)
 {
     gs::Bezier** ptr = static_cast<gs::Bezier**>(data);
     int ret = sizeof(*ptr);
@@ -23,7 +23,7 @@ static int bezier_finalize(void* data)
     return ret;
 }
 
-void bezier_set_ctrlpos()
+void w_Bezier_setCtrlPos()
 {
     gs::Bezier* b = *(gs::Bezier**)ves_toforeign(0);
     auto vertices = tt::list_to_vec2_array(1);
@@ -38,7 +38,7 @@ namespace tt
 
 VesselForeignMethodFn GeometryBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Bezier.setCtrlPos(_)") == 0) return bezier_set_ctrlpos;
+    if (strcmp(signature, "Bezier.setCtrlPos(_)") == 0) return w_Bezier_setCtrlPos;
 
     return nullptr;
 }
@@ -47,8 +47,8 @@ void GeometryBindClass(const char* className, VesselForeignClassMethods* methods
 {
     if (strcmp(className, "Bezier") == 0)
     {
-        methods->allocate = bezier_allocate;
-        methods->finalize = bezier_finalize;
+        methods->allocate = w_Bezier_allocate;
+        methods->finalize = w_Bezier_finalize;
         return;
     }
 }

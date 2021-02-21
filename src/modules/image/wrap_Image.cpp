@@ -31,7 +31,7 @@ int get_format_channels(int format)
     return channels;
 }
 
-void image_data_allocate()
+void w_ImageData_allocate()
 {
     tt::ImageData* img = (tt::ImageData*)ves_set_newforeign(0, 0, sizeof(tt::ImageData));
     if (ves_type(1) == VES_TYPE_STRING)
@@ -68,7 +68,7 @@ void image_data_allocate()
     }
 }
 
-static int image_data_finalize(void* data)
+static int w_ImageData_finalize(void* data)
 {
     tt::ImageData* img = static_cast<tt::ImageData*>(data);
     delete[] img->pixels;
@@ -282,8 +282,8 @@ void ImageBindClass(const char* className, VesselForeignClassMethods* methods)
 {
     if (strcmp(className, "ImageData") == 0)
     {
-        methods->allocate = image_data_allocate;
-        methods->finalize = image_data_finalize;
+        methods->allocate = w_ImageData_allocate;
+        methods->finalize = w_ImageData_finalize;
         return;
     }
 }
