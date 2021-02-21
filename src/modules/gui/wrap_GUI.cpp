@@ -4,7 +4,9 @@
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/SpriteRenderer.h"
 
+#include <easygui/Context.h>
 #include <easygui/ImGui.h>
+#include <easygui/RenderBuffer.h>
 #include <tessellation/Palette.h>
 #include <unirender/Context.h>
 
@@ -13,18 +15,34 @@
 namespace
 {
 
+void w_Context_allocate()
+{
+	auto ctx = new egui::Context(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
+	egui::Context** ptr = (egui::Context**)ves_set_newforeign(0, 0, sizeof(ctx));
+	*ptr = ctx;
+}
+
+int w_Context_finalize(void* data)
+{
+	egui::Context** ptr = static_cast<egui::Context**>(data);
+	int ret = sizeof(*ptr);
+	delete* ptr;
+	return ret;
+}
+
 void begin()
 {
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+
 	tt::GUI::Instance()->ResetUID();
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ctx.BeginDraw(*tt::Render::Instance()->Device());
+	ctx->BeginDraw(*tt::Render::Instance()->Device());
 }
 
 void end()
 {
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ctx.EndDraw(
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	ctx->EndDraw(
 		*tt::Render::Instance()->Device(),
 		*tt::Render::Instance()->Context(),
 		tt::Graphics::Instance()->GetSpriteRenderer()->GetShader()
@@ -33,8 +51,8 @@ void end()
 
 void update()
 {
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ctx.Update(0.03f);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	ctx->Update(0.03f);
 }
 
 void w_GUI_onSize()
@@ -44,20 +62,15 @@ void w_GUI_onSize()
 	tt::GUI::Instance()->OnSize(w, h);
 }
 
-void w_GUI_onCamUpdate()
-{
-	float dx = (float)ves_tonumber(1);
-	float dy = (float)ves_tonumber(2);
-	float scale = (float)ves_tonumber(3);
-	tt::GUI::Instance()->OnCameraUpdate(sm::vec2(-dx, -dy), 1.0f / scale);
-}
-
 void w_GUI_transScrPosToProj()
 {
 	const float x = (float)ves_tonumber(1);
 	const float y = (float)ves_tonumber(2);
-	auto proj = tt::GUI::Instance()->TransScreenToProj({ x, y });
-	ves_pop(3);
+	const float cam_x = (float)ves_tonumber(3);
+	const float cam_y = (float)ves_tonumber(4);
+	const float cam_scale = (float)ves_tonumber(5);
+	auto proj = tt::GUI::Instance()->TransScreenToProj({ x, y }, { cam_x, cam_y }, cam_scale);
+	ves_pop(6);
 	ves_newlist(2);
 	ves_pushnumber(proj.x);
 	ves_seti(-2, 0);
@@ -83,13 +96,16 @@ enum MouseAction
 
 void w_GUI_mouseInput()
 {
-	const int btn = (int)ves_tonumber(1);
-	const int action = (int)ves_tonumber(2);
-	const float x = (float)ves_tonumber(3);
-	const float y = (float)ves_tonumber(4);
-	const auto pos = tt::GUI::Instance()->TransScreenToProj({ x, y });
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const int btn = (int)ves_tonumber(2);
+	const int action = (int)ves_tonumber(3);
+	const float x = (float)ves_tonumber(4);
+	const float y = (float)ves_tonumber(5);
+	const float cam_x = (float)ves_tonumber(6);
+	const float cam_y = (float)ves_tonumber(7);
+	const float cam_scale = (float)ves_tonumber(8);
+	const auto pos = tt::GUI::Instance()->TransScreenToProj({ x, y }, { cam_x, cam_y }, cam_scale);
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
 	switch (btn)
 	{
 	case MOUSE_LEFT:
@@ -97,10 +113,10 @@ void w_GUI_mouseInput()
 		switch (action)
 		{
 		case MOUSE_DOWN:
-			ctx.input_events.emplace_back(egui::InputType::MOUSE_LEFT_DOWN, (int)pos.x, (int)pos.y);
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_LEFT_DOWN, (int)pos.x, (int)pos.y);
 			break;
 		case MOUSE_UP:
-			ctx.input_events.emplace_back(egui::InputType::MOUSE_LEFT_UP, (int)pos.x, (int)pos.y);
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_LEFT_UP, (int)pos.x, (int)pos.y);
 			break;
 		}
 	}
@@ -110,10 +126,10 @@ void w_GUI_mouseInput()
 		switch (action)
 		{
 		case MOUSE_DOWN:
-			ctx.input_events.emplace_back(egui::InputType::MOUSE_RIGHT_DOWN, (int)pos.x, (int)pos.y);
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_RIGHT_DOWN, (int)pos.x, (int)pos.y);
 			break;
 		case MOUSE_UP:
-			ctx.input_events.emplace_back(egui::InputType::MOUSE_RIGHT_UP, (int)pos.x, (int)pos.y);
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_RIGHT_UP, (int)pos.x, (int)pos.y);
 			break;
 		}
 		break;
@@ -122,88 +138,89 @@ void w_GUI_mouseInput()
 	switch (action)
 	{
 	case MOUSE_MOVE:
-		ctx.input_events.emplace_back(egui::InputType::MOUSE_MOVE, (int)pos.x, (int)pos.y);
+		ctx->input_events.emplace_back(egui::InputType::MOUSE_MOVE, (int)pos.x, (int)pos.y);
 		break;
 	case MOUSE_DRAG:
-		ctx.input_events.emplace_back(egui::InputType::MOUSE_DRAG, (int)pos.x, (int)pos.y);
+		ctx->input_events.emplace_back(egui::InputType::MOUSE_DRAG, (int)pos.x, (int)pos.y);
 		break;
 	}
 }
 
 void w_GUI_frame()
 {
-	const float x = (float)ves_tonumber(1);
-	const float y = (float)ves_tonumber(2);
-	const float w = (float)ves_tonumber(3);
-	const float h = (float)ves_tonumber(4);
-
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::frame(tt::GUI::Instance()->NextUID(), x, y, w, h, ctx, true);
-}
-
-void w_GUI_button()
-{
-	const char* label = ves_tostring(1);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
 	const float x = (float)ves_tonumber(2);
 	const float y = (float)ves_tonumber(3);
 	const float w = (float)ves_tonumber(4);
 	const float h = (float)ves_tonumber(5);
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ves_set_boolean(0, egui::button(tt::GUI::Instance()->NextUID(), label, x, y, w, h, ctx, true));
+	egui::frame(tt::GUI::Instance()->NextUID(), x, y, w, h, *ctx, true);
+}
+
+void w_GUI_button()
+{
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label = ves_tostring(2);
+	const float x = (float)ves_tonumber(3);
+	const float y = (float)ves_tonumber(4);
+	const float w = (float)ves_tonumber(5);
+	const float h = (float)ves_tonumber(6);
+
+	ves_set_boolean(0, egui::button(tt::GUI::Instance()->NextUID(), label, x, y, w, h, *ctx, true));
 }
 
 void w_GUI_slider()
 {
-	const char* label   = ves_tostring(1);
-	const float val     = (float)ves_tonumber(2);
-	const float x       = (float)ves_tonumber(3);
-	const float y       = (float)ves_tonumber(4);
-	const float height  = (float)ves_tonumber(5);
-	const float max     = (float)ves_tonumber(6);
-	const bool verticle = ves_toboolean(7);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label   = ves_tostring(2);
+	const float val     = (float)ves_tonumber(3);
+	const float x       = (float)ves_tonumber(4);
+	const float y       = (float)ves_tonumber(5);
+	const float height  = (float)ves_tonumber(6);
+	const float max     = (float)ves_tonumber(7);
+	const bool verticle = ves_toboolean(8);
 
 	float ret = val;
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::slider(tt::GUI::Instance()->NextUID(), label, &ret, x, y, height, max, verticle, ctx, true);
+	egui::slider(tt::GUI::Instance()->NextUID(), label, &ret, x, y, height, max, verticle, *ctx, true);
 
 	ves_set_number(0, ret);
 }
 
 void w_GUI_label()
 {
-	const char* text = ves_tostring(1);
-	const float x = (float)ves_tonumber(2);
-	const float y = (float)ves_tonumber(3);
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::label(tt::GUI::Instance()->NextUID(), text, x, y, ctx, true);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* text = ves_tostring(2);
+	const float x = (float)ves_tonumber(3);
+	const float y = (float)ves_tonumber(4);
+
+	egui::label(tt::GUI::Instance()->NextUID(), text, x, y, *ctx, true);
 }
 
 void w_GUI_checkbox()
 {
-	const char* label = ves_tostring(1);
-	const bool  val   = ves_toboolean(2);
-	const float x     = (float)ves_tonumber(3);
-	const float y     = (float)ves_tonumber(4);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label = ves_tostring(2);
+	const bool  val   = ves_toboolean(3);
+	const float x     = (float)ves_tonumber(4);
+	const float y     = (float)ves_tonumber(5);
 	
 	bool ret = val;
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::checkbox(tt::GUI::Instance()->NextUID(), label, &ret, x, y, ctx, true);
+	egui::checkbox(tt::GUI::Instance()->NextUID(), label, &ret, x, y, *ctx, true);
 
 	ves_set_boolean(0, ret);
 }
 
 void w_GUI_radio_button()
 {
-	const char* label = ves_tostring(1);
-	const bool  val   = ves_toboolean(2);
-	const float x     = (float)ves_tonumber(3);
-	const float y     = (float)ves_tonumber(4);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label = ves_tostring(2);
+	const bool  val   = ves_toboolean(3);
+	const float x     = (float)ves_tonumber(4);
+	const float y     = (float)ves_tonumber(5);
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ves_set_boolean(0, egui::radio_button(tt::GUI::Instance()->NextUID(), label, val, x, y, ctx, true));
+	ves_set_boolean(0, egui::radio_button(tt::GUI::Instance()->NextUID(), label, val, x, y, *ctx, true));
 }
 
 enum ArrowDir
@@ -217,53 +234,53 @@ enum ArrowDir
 
 void w_GUI_arrow_button()
 {
-	const ArrowDir dir    = (ArrowDir)ves_tonumber(1);
-	const float    x      = (float)ves_tonumber(2);
-	const float    y      = (float)ves_tonumber(3);
-	const float    height = (float)ves_tonumber(4);
-	const bool     repeat = ves_toboolean(5);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const ArrowDir dir    = (ArrowDir)ves_tonumber(2);
+	const float    x      = (float)ves_tonumber(3);
+	const float    y      = (float)ves_tonumber(4);
+	const float    height = (float)ves_tonumber(5);
+	const bool     repeat = ves_toboolean(6);
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	ves_set_boolean(0, egui::arrow_button(tt::GUI::Instance()->NextUID(), egui::Direction(dir), x, y, height, repeat, ctx, true));
+	ves_set_boolean(0, egui::arrow_button(tt::GUI::Instance()->NextUID(), egui::Direction(dir), x, y, height, repeat, *ctx, true));
 }
 
 void w_GUI_selectable()
 {
-	const char* label  = ves_tostring(1);
-	const bool  val    = ves_toboolean(2);
-	const float x      = (float)ves_tonumber(3);
-	const float y      = (float)ves_tonumber(4);
-	const float length = (float)ves_tonumber(5);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label  = ves_tostring(2);
+	const bool  val    = ves_toboolean(3);
+	const float x      = (float)ves_tonumber(4);
+	const float y      = (float)ves_tonumber(5);
+	const float length = (float)ves_tonumber(6);
 
 	bool ret = val;
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::selectable(tt::GUI::Instance()->NextUID(), label, &ret, x, y, length, ctx, true);
+	egui::selectable(tt::GUI::Instance()->NextUID(), label, &ret, x, y, length, *ctx, true);
 
 	ves_set_boolean(0, ret);
 }
 
 void w_GUI_combo()
 {
-	const char* label     = ves_tostring(1);
-	const int   curr_item = (int)ves_tonumber(2);
-	const float x         = (float)ves_tonumber(4);
-	const float y         = (float)ves_tonumber(5);
-	const float length    = (float)ves_tonumber(6);
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	const char* label     = ves_tostring(2);
+	const int   curr_item = (int)ves_tonumber(3);
+	const float x         = (float)ves_tonumber(5);
+	const float y         = (float)ves_tonumber(6);
+	const float length    = (float)ves_tonumber(7);
 
 	std::vector<const char*> items;
-	assert(ves_type(3) == VES_TYPE_LIST);
-	const int num = ves_len(3);
+	assert(ves_type(4) == VES_TYPE_LIST);
+	const int num = ves_len(4);
 	items.resize(num);
 	for (int i = 0; i < num; ++i) {
-		ves_geti(3, i);
+		ves_geti(4, i);
 		items[i] = ves_tostring(-1);
 	}
 
 	int ret = curr_item;
 
-	auto& ctx = tt::GUI::Instance()->GetContext();
-	egui::combo(tt::GUI::Instance()->NextUID(), label, &ret, items.data(), (int)items.size(), x, y, length, ctx, true);
+	egui::combo(tt::GUI::Instance()->NextUID(), label, &ret, items.data(), (int)items.size(), x, y, length, *ctx, true);
 	ves_pop(num);
 
 	ves_set_number(0, ret);
@@ -276,30 +293,35 @@ namespace tt
 
 VesselForeignMethodFn GUIBindMethod(const char* signature)
 {
-	if (strcmp(signature, "static GUI.begin()") == 0) return begin;
-	if (strcmp(signature, "static GUI.end()") == 0) return end;
-	if (strcmp(signature, "static GUI.update()") == 0) return update;
+	if (strcmp(signature, "static GUI.begin(_)") == 0) return begin;
+	if (strcmp(signature, "static GUI.end(_)") == 0) return end;
+	if (strcmp(signature, "static GUI.update(_)") == 0) return update;
 
 	if (strcmp(signature, "static GUI.onSize(_,_)") == 0) return w_GUI_onSize;
-	if (strcmp(signature, "static GUI.onCamUpdate(_,_,_)") == 0) return w_GUI_onCamUpdate;
-	if (strcmp(signature, "static GUI.transScrPosToProj(_,_)") == 0) return w_GUI_transScrPosToProj;
-	if (strcmp(signature, "static GUI.mouseInput(_,_,_,_)") == 0) return w_GUI_mouseInput;
+	if (strcmp(signature, "static GUI.transScrPosToProj(_,_,_,_,_)") == 0) return w_GUI_transScrPosToProj;
+	if (strcmp(signature, "static GUI.mouseInput(_,_,_,_,_,_,_,_)") == 0) return w_GUI_mouseInput;
 
-	if (strcmp(signature, "static GUI.frame(_,_,_,_)") == 0) return w_GUI_frame;
-	if (strcmp(signature, "static GUI.button(_,_,_,_,_)") == 0) return w_GUI_button;
-	if (strcmp(signature, "static GUI.slider(_,_,_,_,_,_,_)") == 0) return w_GUI_slider;
-	if (strcmp(signature, "static GUI.label(_,_,_)") == 0) return w_GUI_label;
-	if (strcmp(signature, "static GUI.checkbox(_,_,_,_)") == 0) return w_GUI_checkbox;
-	if (strcmp(signature, "static GUI.radio_button(_,_,_,_)") == 0) return w_GUI_radio_button;
-	if (strcmp(signature, "static GUI.arrow_button(_,_,_,_,_)") == 0) return w_GUI_arrow_button;
-	if (strcmp(signature, "static GUI.selectable(_,_,_,_,_)") == 0) return w_GUI_selectable;
-	if (strcmp(signature, "static GUI.combo(_,_,_,_,_,_)") == 0) return w_GUI_combo;
+	if (strcmp(signature, "static GUI.frame(_,_,_,_,_)") == 0) return w_GUI_frame;
+	if (strcmp(signature, "static GUI.button(_,_,_,_,_,_)") == 0) return w_GUI_button;
+	if (strcmp(signature, "static GUI.slider(_,_,_,_,_,_,_,_)") == 0) return w_GUI_slider;
+	if (strcmp(signature, "static GUI.label(_,_,_,_)") == 0) return w_GUI_label;
+	if (strcmp(signature, "static GUI.checkbox(_,_,_,_,_)") == 0) return w_GUI_checkbox;
+	if (strcmp(signature, "static GUI.radio_button(_,_,_,_,_)") == 0) return w_GUI_radio_button;
+	if (strcmp(signature, "static GUI.arrow_button(_,_,_,_,_,_)") == 0) return w_GUI_arrow_button;
+	if (strcmp(signature, "static GUI.selectable(_,_,_,_,_,_)") == 0) return w_GUI_selectable;
+	if (strcmp(signature, "static GUI.combo(_,_,_,_,_,_,_)") == 0) return w_GUI_combo;
 
 	return nullptr;
 }
 
 void GUIBindClass(const char* className, VesselForeignClassMethods* methods)
 {
+	if (strcmp(className, "Context") == 0)
+	{
+		methods->allocate = w_Context_allocate;
+		methods->finalize = w_Context_finalize;
+		return;
+	}
 }
 
 }

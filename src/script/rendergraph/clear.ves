@@ -36,7 +36,7 @@ class Clear is Node
 "
 	}
 
-	drawGUI() 
+	drawGUI(ctx) 
 	{
 		var dirty = false
 
@@ -44,7 +44,7 @@ class Clear is Node
 		var y = this.pos.y - this.style.height
 
 		var mask_color = this.masks.contains("color")
-		var _mask_color = GUI.checkbox("color", mask_color, x, y)
+		var _mask_color = GUI.checkbox(ctx, "color", mask_color, x, y)
 		if (_mask_color != mask_color) {
 			if (_mask_color) {
 				this.masks.add("color")
@@ -56,7 +56,7 @@ class Clear is Node
 
 		y = y - DEFAULT_HEIGHT
 		var mask_depth = this.masks.contains("depth")
-		var _mask_depth = GUI.checkbox("depth", mask_depth, x, y)
+		var _mask_depth = GUI.checkbox(ctx, "depth", mask_depth, x, y)
 		if (_mask_depth != mask_depth) {
 			if (_mask_depth) {
 				this.masks.add("depth")
@@ -68,7 +68,7 @@ class Clear is Node
 
 		y = y - DEFAULT_HEIGHT
 		var mask_stencil = this.masks.contains("stencil")
-		var _mask_stencil = GUI.checkbox("stencil", mask_stencil, x, y)
+		var _mask_stencil = GUI.checkbox(ctx, "stencil", mask_stencil, x, y)
 		if (_mask_stencil != mask_stencil) {
 			if (_mask_stencil) {
 				this.masks.add("stencil")
@@ -83,21 +83,21 @@ class Clear is Node
 			var color = this.values["color"]
 
 			y = y - DEFAULT_HEIGHT
-		    var r = GUI.slider("r", color[0], x, y, this.style.width, 255, false)
+		    var r = GUI.slider(ctx, "r", color[0], x, y, this.style.width, 255, false)
 		    if (r != color[0]) {
 		    	color[0] = r
 		    	dirty = true
 		    }
 
 			y = y - DEFAULT_HEIGHT
-		    var g = GUI.slider("g", color[1], x, y, this.style.width, 255, false)
+		    var g = GUI.slider(ctx, "g", color[1], x, y, this.style.width, 255, false)
 		    if (g != color[1]) {
 		    	color[1] = g
 		    	dirty = true
 		    }
 
 			y = y - DEFAULT_HEIGHT
-		    var b = GUI.slider("b", color[2], x, y, this.style.width, 255, false)
+		    var b = GUI.slider(ctx, "b", color[2], x, y, this.style.width, 255, false)
 		    if (b != color[2]) {
 		    	color[2] = b
 		    	dirty = true

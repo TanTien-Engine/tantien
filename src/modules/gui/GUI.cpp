@@ -15,15 +15,11 @@ TT_SINGLETON_DEFINITION(GUI)
 
 GUI::GUI()
 {
-	egui::style_colors_dark(ctx.style);
-
-	ctx.SetPalette(Graphics::Instance()->GetSpriteRenderer()->GetPalette());
-
 	gtxt_label_style st;
 	tt::GTxt::InitLabelStype(st);
 
 	st.width = 300;
-	st.gs.font_size = ctx.style.font_sz;
+	st.gs.font_size = 18;
 	st.align_v = VA_CENTER;
 	egui::Callback::Funs cb;
 	cb.get_label_sz = [st](const char* label)->sm::vec2 {
@@ -55,10 +51,10 @@ GUI::~GUI()
 {
 }
 
-sm::vec2 GUI::TransScreenToProj(const sm::vec2& screen) const
+sm::vec2 GUI::TransScreenToProj(const sm::vec2& screen, const sm::vec2& cam_offset, float cam_scale) const
 {
-	float x = (screen.x - m_screen_width * 0.5f) / m_cam_scale - m_cam_offset.x;
-	float y = (m_screen_height * 0.5f - screen.y) / m_cam_scale - m_cam_offset.y;
+	float x = (screen.x - m_screen_width * 0.5f) / cam_scale - cam_offset.x;
+	float y = (m_screen_height * 0.5f - screen.y) / cam_scale - cam_offset.y;
 	return sm::vec2(x, y);
 }
 

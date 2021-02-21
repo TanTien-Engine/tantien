@@ -44,7 +44,7 @@ class Draw is Node
 "
 	}
 
-	drawGUI() 
+	drawGUI(ctx) 
 	{
 		var dirty = false
 
@@ -54,7 +54,7 @@ class Draw is Node
 		if (this.render_state.containsKey("depth_test"))
 		{
 			var depth_test = this.render_state["depth_test"]
-			var _depth_test = GUI.checkbox("depth test", depth_test, x, y)
+			var _depth_test = GUI.checkbox(ctx, "depth test", depth_test, x, y)
 			if (_depth_test != depth_test) {
 				this.render_state["depth_test"] = _depth_test
 				dirty = true

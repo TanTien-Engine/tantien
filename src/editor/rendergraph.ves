@@ -100,13 +100,13 @@ class Test
 	{
 		Graphics.onCamUpdate(0, 0, 1)
 
-		GUI.begin()
+		GUI.begin(this.gui_top)
 
 		if (this.popup_pos)
 		{
 			var WIDTH = 120
 			var HEIGHT = 25
-			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y)
+			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
 
 			var x = pos[0]
 			var y = pos[1] - HEIGHT
@@ -114,8 +114,8 @@ class Test
 			var new_node = nil
 
 			var NUM = 4
-			GUI.frame(x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
-			if (GUI.selectable("Clear", false, x, y, WIDTH)) 
+			GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
+			if (GUI.selectable(this.gui_top, "Clear", false, x, y, WIDTH)) 
 			{
 				var clear = Clear()
 				clear.masks = ["color"]
@@ -123,14 +123,14 @@ class Test
 				new_node = clear
 			}
 			y = y - HEIGHT
-			if (GUI.selectable("Draw", false, x, y, WIDTH)) 
+			if (GUI.selectable(this.gui_top, "Draw", false, x, y, WIDTH)) 
 			{
 				var draw = Draw()
 				draw.render_state = { "depth_test" : false }
 				new_node = draw
 			}
 			y = y - HEIGHT
-			if (GUI.selectable("Shader", false, x, y, WIDTH)) 
+			if (GUI.selectable(this.gui_top, "Shader", false, x, y, WIDTH)) 
 			{
 				var shader = Shader()
 				shader.vs = "
@@ -154,7 +154,7 @@ void main() {
 				new_node = shader
 			}
 			y = y - HEIGHT
-			if (GUI.selectable("VertexArray", false, x, y, WIDTH)) 
+			if (GUI.selectable(this.gui_top, "VertexArray", false, x, y, WIDTH)) 
 			{
 				var va = VertexArray()
 				va.data = [
@@ -193,10 +193,10 @@ void main() {
 			}
 		}
 
-		// fixme
-		GUI.button("btn0", 0, 0, 100, 50)
+		// fixme: dummy
+		GUI.button(this.gui_top, ".", 9999, 9999, 0, 0)
 
-		GUI.end()
+		GUI.end(this.gui_top)
 
 		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}

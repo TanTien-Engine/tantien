@@ -18,28 +18,32 @@ var ARROW_RIGHT = 2
 var ARROW_UP    = 3
 var ARROW_DOWN  = 4
 
+foreign class Context
+{
+	init() {}
+}
+
 foreign class GUI
 {
-	foreign static begin()
-	foreign static end()
-	foreign static update()
+	foreign static begin(ctx)
+	foreign static end(ctx)
+	foreign static update(ctx)
 
 	foreign static onSize(w, h)
-	foreign static onCamUpdate(dx, dy, scale)
-	foreign static transScrPosToProj(x, y)
+	foreign static transScrPosToProj(x, y, cam_x, cam_y, cam_scale)
 	// btn: MOUSE_LEFT, MOUSE_RIGHT
 	// action: MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
-	foreign static mouseInput(btn, action, x, y)
+	foreign static mouseInput(ctx, btn, action, x, y, cam_x, cam_y, cam_scale)
 
-	foreign static frame(x, y, width, height)
-	foreign static button(label, x, y, width, height)
-	foreign static slider(label, val, x, y, height, max, verticle)
-	foreign static label(label, x, y)
-	foreign static checkbox(label, val, x, y)
-	foreign static radio_button(label, val, x, y)
-	foreign static arrow_button(dir, x, y, height, repeat)
-	foreign static selectable(label, val, x, y, length)
-	foreign static combo(label, curr_item, items, x, y, length)
+	foreign static frame(ctx, x, y, width, height)
+	foreign static button(ctx, label, x, y, width, height)
+	foreign static slider(ctx, label, val, x, y, height, max, verticle)
+	foreign static label(ctx, label, x, y)
+	foreign static checkbox(ctx, label, val, x, y)
+	foreign static radio_button(ctx, label, val, x, y)
+	foreign static arrow_button(ctx, dir, x, y, height, repeat)
+	foreign static selectable(ctx, label, val, x, y, length)
+	foreign static combo(ctx, label, curr_item, items, x, y, length)
 }
 
 );

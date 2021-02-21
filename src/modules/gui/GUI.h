@@ -14,8 +14,6 @@ namespace tt
 class GUI
 {
 public:
-	auto& GetContext() { return ctx; }
-
 	void ResetUID() { m_next_uid = 1; }
 	uint32_t NextUID() { return m_next_uid++; }
 
@@ -24,14 +22,9 @@ public:
 		m_screen_height = height;
 	}
 
-	sm::vec2 TransScreenToProj(const sm::vec2& screen) const;
-	void OnCameraUpdate(const sm::vec2& offset, float scale) {
-		m_cam_offset = offset;
-		m_cam_scale = scale;
-	}
+	sm::vec2 TransScreenToProj(const sm::vec2& screen, const sm::vec2& cam_offset, float cam_scale) const;
 
 private:
-	egui::Context       ctx;
 	egui::EntityFactory factory;
 	egui::CompStorage   storage;
 
@@ -39,9 +32,6 @@ private:
 
 	float m_screen_width = 0, m_screen_height = 0;
 	 
-	sm::vec2 m_cam_offset;
-	float m_cam_scale = 1.0f;
-
 	TT_SINGLETON_DECLARATION(GUI)
 
 }; // GUI

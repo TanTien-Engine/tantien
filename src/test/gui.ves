@@ -1,5 +1,5 @@
 import "render" for Render
-import "gui" for GUI, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG, ARROW_LEFT, ARROW_RIGHT
+import "gui" for GUI, Context, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG, ARROW_LEFT, ARROW_RIGHT
 import "graphics" for Graphics
 import "render" for Render
 import "maths.vector" for Vector2
@@ -23,82 +23,84 @@ class Test
 		this.curr_item = 0
 
 		this.popup_pos = nil
+
+		this.gui = Context.init()
 	}
 
 	update()
 	{
-		GUI.update()
+		GUI.update(this.gui)
 	}
 
 	draw()
 	{
 		Render.clear(["color"], { "color" : [128,128,128,255] })
 
-		GUI.begin()
+		GUI.begin(this.gui)
 
-		if (GUI.button("btn0", 200, 300, 100, 50)) {
+		if (GUI.button(this.gui, "btn0", 200, 300, 100, 50)) {
 			System.print("on click one")
 		}
-		if (GUI.button("btn1", 50, 300, 100, 50)) {
+		if (GUI.button(this.gui, "btn1", 50, 300, 100, 50)) {
 			System.print("on click two")
 		}
 
-		var sval0 = GUI.slider("slider 0", this.sval0, 100, -50, 255, 255, false)
+		var sval0 = GUI.slider(this.gui, "slider 0", this.sval0, 100, -50, 255, 255, false)
 		if (sval0 != this.sval0) {
 			this.sval0 = sval0
 			System.print("slider 0: %(this.sval0)")
 		}
-		var sval1 = GUI.slider("slider 1", this.sval1, 100, 50, 255, 63, false)
+		var sval1 = GUI.slider(this.gui, "slider 1", this.sval1, 100, 50, 255, 63, false)
 		if (sval1 != this.sval1) {
 			this.sval1 = sval1
 			System.print("slider 1: %(this.sval1)")
 		}
-		var sval2 = GUI.slider("slider 2", this.sval2, 50, -100, 255, 15, true)
+		var sval2 = GUI.slider(this.gui, "slider 2", this.sval2, 50, -100, 255, 15, true)
 		if (sval2 != this.sval2) {
 			this.sval2 = sval2
 			System.print("slider 2: %(this.sval2)")
 		}
 
-		GUI.label("hello world.", -200, 0)
+		GUI.label(this.gui, "hello world.", -200, 0)
 
-		var checkbox = GUI.checkbox("checkbox", this.checkbox, -200, 100)
+		var checkbox = GUI.checkbox(this.gui, "checkbox", this.checkbox, -200, 100)
 		if (checkbox != this.checkbox) {
 			this.checkbox = checkbox
 			System.print("checkbox: %(this.checkbox)")
 		}
 
-		if (GUI.radio_button("radio button 0", this.radio_button == 0, -200, 250)) {
+		if (GUI.radio_button(this.gui, "radio button 0", this.radio_button == 0, -200, 250)) {
 			this.radio_button = 0
 			System.print("radio_button 0")	
 		}
-		if (GUI.radio_button("radio button 1", this.radio_button == 1, -200, 220)) {
+		if (GUI.radio_button(this.gui, "radio button 1", this.radio_button == 1, -200, 220)) {
 			this.radio_button = 1
 			System.print("radio_button 1")	
 		}
-		if (GUI.radio_button("radio button 2", this.radio_button == 2, -200, 190)) {
+		if (GUI.radio_button(this.gui, "radio button 2", this.radio_button == 2, -200, 190)) {
 			this.radio_button = 2
-			System.print("radio_button 2")	
+			System.print(this.gui, "radio_button 2")	
 		}
 
-		if (GUI.arrow_button(ARROW_LEFT, -200, 280, 20, true)) {
+		if (GUI.arrow_button(this.gui, ARROW_LEFT, -200, 280, 20, true)) {
 			System.print("arrow left")
 		}
-		if (GUI.arrow_button(ARROW_RIGHT, -170, 280, 20, false)) {
+		if (GUI.arrow_button(this.gui, ARROW_RIGHT, -170, 280, 20, false)) {
 			System.print("arrow right")
 		}
 
-		var sel0 = GUI.selectable("selectable 0", this.sel0, -200, 160, 100)
+		var sel0 = GUI.selectable(this.gui, "selectable 0", this.sel0, -200, 160, 100)
 		if (sel0 != this.sel0) {
 			this.sel0 = sel0
 			System.print("sel0: %(this.sel0)")
 		}
-		var sel1 = GUI.selectable("selectable 1", this.sel1, -200, 140, 100)
+		var sel1 = GUI.selectable(this.gui, "selectable 1", this.sel1, -200, 140, 100)
 		if (sel1 != this.sel1) {
 			this.sel1 = sel1
 			System.print("sel1: %(this.sel1)")
 		}
 
-		var curr_item = GUI.combo("combo", this.curr_item, this.items, -200, 50, 100)
+		var curr_item = GUI.combo(this.gui, "combo", this.curr_item, this.items, -200, 50, 100)
 		if (curr_item != this.curr_item) {
 			this.curr_item = curr_item
 			System.print("curr_item: %(this.curr_item)")
@@ -106,18 +108,18 @@ class Test
 
 		if (this.popup_pos)
 		{
-			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y)
+			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
 			for (var i in 1..5) {
-				if (GUI.selectable("popup%(i)", false, pos[0], pos[1] - 25 * i, 80)) {
+				if (GUI.selectable(this.gui, "popup%(i)", false, pos[0], pos[1] - 25 * i, 80)) {
 					System.print("popup select %(i)")
 					this.popup_pos = nil
 				}
 			}
 		}
 		// fixme
-		GUI.button("btn0", 0, 0, 100, 50)
+		GUI.button(this.gui, "btn0", 0, 0, 100, 50)
 
-		GUI.end()
+		GUI.end(this.gui)
 
 		Graphics.flush()
 
@@ -135,15 +137,15 @@ class Test
 
 	mousemoved(x, y, btn) 
 	{
-		GUI.mouseInput(btn, MOUSE_MOVE, x, y)
+		GUI.mouseInput(this.gui, btn, MOUSE_MOVE, x, y, 0, 0, 1)
 	}
 	mousedragged(x, y, btn) 
 	{
-		GUI.mouseInput(btn, MOUSE_DRAG, x, y)
+		GUI.mouseInput(this.gui, btn, MOUSE_DRAG, x, y, 0, 0, 1)
 	}
 	mousepressed(x, y, btn) 
 	{
-		GUI.mouseInput(btn, MOUSE_DOWN, x, y)
+		GUI.mouseInput(this.gui, btn, MOUSE_DOWN, x, y, 0, 0, 1)
 
 		if (btn == MOUSE_RIGHT) {
 			this.popup_pos = Vector2(x, y)
@@ -153,7 +155,7 @@ class Test
 	}
 	mousereleased(x, y, btn) 
 	{
-		GUI.mouseInput(btn, MOUSE_UP, x, y)
+		GUI.mouseInput(this.gui, btn, MOUSE_UP, x, y, 0, 0, 1)
 	}
 	mousescrolled(x, y, dx, dy) {}
 }
