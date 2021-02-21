@@ -1,371 +1,66 @@
-import "io" for IO
-
-import "graphics" for Graphics
-import "render" for Render
-import "gui" for GUI, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
-import "scene.node" for Node as SceneNode
-import "scene.scene" for Scene
-import "scene.components.boundingbox2" for BoundingBox2
-import "scene.components.transform2" for Transform2
-import "blueprint.node" for Node as BlueprintNode
-import "blueprint.pin" for Pin as BlueprintPin
-import "blueprint.edit_op" for EditOP as BlueprintEditOP
-import "blueprint.blueprint" for Blueprint
-import "graphics.ortho_camera" for OrthoCamera
-import "maths.vector" for Vector2
+import "editor.editor" for Editor
+import "gui" for GUI
 
 import "rendergraph.clear" for Clear
 import "rendergraph.draw" for Draw
 import "rendergraph.shader" for Shader
 import "rendergraph.vertex_array" for VertexArray
 
-class Test
+class Test is Editor
 {
 	load()
 	{
-		this.scene = Scene()
-		this.camera = OrthoCamera()
-
-		this.editop = BlueprintEditOP(this.camera, this.scene, this.popupCB)
-
-		this.popup_pos = nil
-		this.prev_pin = nil
-
-		this.right_press_pos = nil
-
-		this.drawlist = []
+		super.load()
 
 		//this.filepath = "assets/scene/render/tmp.tt"
 		this.filepath = "assets/scene/render/test2.tt"
 	}
 
-	update()
+	drawPopup(x, y)
 	{
-		this.scene.update()
+		var new_node = nil
 
-		GUI.update()
-	}
-
-	draw()
-	{
-		this.drawPreview()
-
-		this.drawScene()
-		this.editop.draw()		
-
-		Graphics.flush()
-
-		this.drawGUI()
-
-		//Graphics.dtexDebugDraw()		
-	}
-
-	drawPreview()
-	{
-		if (this.scene.bp_dirty)
+		var NUM = 4
+		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
+		if (GUI.selectable(this.gui_top, "Clear", false, x, y, WIDTH)) {
+			new_node = Clear()
+		}
+		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "Draw", false, x, y, WIDTH)) {
+			new_node = Draw()
+		}
+		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "Shader", false, x, y, WIDTH)) {
+			new_node = Shader()
+		}
+		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "VertexArray", false, x, y, WIDTH)) 
 		{
-			var drawlist = []
-			for (var node in this.scene.nodes) {
-				var bp_node = node.components["bp"]
-				drawlist.add(bp_node)
-			}
-			this.drawlist = Blueprint.topoSort(drawlist)
-			this.scene.bp_dirty = false
+			var va = VertexArray()
+			va.data = [
+			    //  X    Y    Z          R    G    B
+			       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
+			      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
+			       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
+			       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
+			      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
+			      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
+			]
+			va.attrs = [3, 3]
+			new_node = va
 		}
+		y = y - HEIGHT
 
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		for (var node in this.drawlist) {
-			node.execute()
-		}
+		return new_node
 	}
 
-	drawScene()
+	loadFileImports()
 	{
-		this.scene.draw()
-
-		GUI.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
-
-		GUI.begin()
-		for (var node in this.scene.nodes) {
-			var bp_node = node.components["bp"]
-			bp_node.drawGUI()
-		}
-		GUI.end()
-
-		//GUI.onCamUpdate(0, 0, 1)
-	}
-
-	drawGUI()
-	{
-		Graphics.onCamUpdate(0, 0, 1)
-
-		GUI.begin(this.gui_top)
-
-		if (this.popup_pos)
-		{
-			var WIDTH = 120
-			var HEIGHT = 25
-			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
-
-			var x = pos[0]
-			var y = pos[1] - HEIGHT
-
-			var new_node = nil
-
-			var NUM = 4
-			GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
-			if (GUI.selectable(this.gui_top, "Clear", false, x, y, WIDTH)) 
-			{
-				var clear = Clear()
-				clear.masks = ["color"]
-				clear.values = { "color" : [255,255,0,0] }
-				new_node = clear
-			}
-			y = y - HEIGHT
-			if (GUI.selectable(this.gui_top, "Draw", false, x, y, WIDTH)) 
-			{
-				var draw = Draw()
-				draw.render_state = { "depth_test" : false }
-				new_node = draw
-			}
-			y = y - HEIGHT
-			if (GUI.selectable(this.gui_top, "Shader", false, x, y, WIDTH)) 
-			{
-				var shader = Shader()
-				shader.vs = "
-#version 330
-layout(location = 0) in vec4 vposition;
-layout(location = 1) in vec4 vcolor;
-out vec4 fcolor;
-void main() {
-   fcolor = vcolor;
-   gl_Position = vposition;
-}
-				"
-				shader.fs = "
-#version 330
-in vec4 fcolor;
-layout(location = 0) out vec4 FragColor;
-void main() {
-   FragColor = fcolor;
-}
-				"
-				new_node = shader
-			}
-			y = y - HEIGHT
-			if (GUI.selectable(this.gui_top, "VertexArray", false, x, y, WIDTH)) 
-			{
-				var va = VertexArray()
-				va.data = [
-				    //  X    Y    Z          R    G    B
-				       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
-				      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
-				       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
-				       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
-				      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
-				      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
-				]
-				va.attrs = [3, 3]
-				new_node = va
-			}
-			y = y - HEIGHT
-
-			if (new_node)
-			{
-				this.add_node(new_node, x, y)
-				this.popup_pos = nil
-
-				if (this.prev_pin)
-				{
-					if (this.prev_pin.is_input) {
-						if (!new_node.exports.isEmpty) {
-							Blueprint.connect(new_node.exports[0], this.prev_pin)
-							this.scene.bp_dirty = true
-						}
-					} else {
-						if (!new_node.imports.isEmpty) {
-							Blueprint.connect(this.prev_pin, new_node.imports[0])
-							this.scene.bp_dirty = true
-						}
-					}
-				}
-			}
-		}
-
-		// fixme: dummy
-		GUI.button(this.gui_top, ".", 9999, 9999, 0, 0)
-
-		GUI.end(this.gui_top)
-
-		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
-	}
-
-	popupCB(x, y, prev_pin)
-	{
-		this.popup_pos = Vector2(x, y)
-		if (prev_pin) {
-			this.prev_pin = prev_pin
-		}
-	}
-
-	sizechanged(w, h)
-	{
-		Graphics.onSize(w, h)
-		GUI.onSize(w, h)
-		this.camera.on_size(w, h)
-	}
-
-	keypressed(c)
-	{
-		this.editop.on_key_pressed(c)
-	}
-
-	keyreleased(c)
-	{
-		this.editop.on_key_released(c)
-	}
-
-	mousemoved(x, y, btn)
-	{
-		GUI.mouseInput(btn, MOUSE_MOVE, x, y)
-
-		if (!this.is_gui_active()) {
-			this.editop.on_mouse_moved(x, y, btn)
-		}
-	}
-
-	mousedragged(x, y, btn)
-	{
-		GUI.mouseInput(btn, MOUSE_DRAG, x, y)
-
-		if (!this.is_gui_active()) {
-			this.editop.on_mouse_dragged(x, y, btn)
-		}
-	}
-
-	mousepressed(x, y, btn)
-	{
-		GUI.mouseInput(btn, MOUSE_DOWN, x, y)
-		if (btn == MOUSE_RIGHT) {
-			this.right_press_pos = Vector2(x, y)
-		}
-
-		if (!this.is_gui_active()) {
-			this.editop.on_mouse_pressed(x, y, btn)
-		}
-	}
-
-	mousereleased(x, y, btn)
-	{
-		GUI.mouseInput(btn, MOUSE_UP, x, y)
-		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
-			this.right_press_pos = nil
-			this.popup_pos = Vector2(x, y)
-		}
-
-		if (!this.is_gui_active()) {
-			this.editop.on_mouse_released(x, y, btn)
-		}
-	}
-
-	mousescrolled(x, y, dx, dy)
-	{
-		this.editop.on_mouse_scrolled(x, y, dx, dy)
-	}
-
-	loadfromfile()
-	{
-		var str = "
-import \"test\" for test
+		return "
 import \"rendergraph.clear\" for Clear
 import \"rendergraph.draw\" for Draw
 import \"rendergraph.shader\" for Shader
 import \"rendergraph.vertex_array\" for VertexArray
-import \"blueprint.blueprint\" for Blueprint
 "
-
-		var file = IO.open(this.filepath, "r")
-		str = str + file.read()
-		IO.close(file)
-
-		Basic.loadstring(str)
-
-		this.scene.bp_dirty = true
-	}
-
-	savetofile()
-	{
-		var file = IO.open(this.filepath, "w")
-
-		// nodes
-		var index = 0
-		for (var node in this.scene.nodes) 
-		{
-			var bp = node.components["bp"]
-			var trans = node.components["transform"]
-
-			var name = "node%(index)"
-
-			file.write("var %(name) = %(bp.name)()\n")
-			file.write("test.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n")
-
-			var node_str = bp.toString(name)
-			file.write("%(node_str)\n")
-
-			index = index + 1
-		}
-
-		// connections
-		var f_idx = 0
-		for (var f_node in this.scene.nodes) 
-		{
-			var f_name = "node%(f_idx)"
-
-			var f_bp = f_node.components["bp"]
-			for (var f_pin in f_bp.exports)
-			{
-				for (var f_conn in f_pin.conns)
-				{
-					var t_pin
-					var t_name
-					for (var t_idx = 0; t_idx < this.scene.nodes.count; t_idx = t_idx + 1) {
-						var t_bp = this.scene.nodes[t_idx].components["bp"]
-						if (t_bp == f_conn.to.node) {
-							t_name = "node%(t_idx)"
-						}
-					}
-					file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
-				}
-			}
-
-			f_idx = f_idx + 1
-		}
-			
-		IO.close(file)
-	}
-
-	add_node(bp_node, x, y)
-	{
-		var node = SceneNode()
-
-		node.components["bp"] = bp_node
-
-		var pos = Vector2(x, y)
-
-		var bb = BoundingBox2(bp_node.get_size())
-		bb.transform(pos, 0, Vector2())
-		node.components["bounding"] = bb
-
-		var trans = Transform2()
-		trans.set_position(pos)
-		node.components["transform"] = trans
-
-		this.scene.add(node)
-	}
-
-	is_gui_active()
-	{
-		return this.popup_pos != nil
 	}
 }

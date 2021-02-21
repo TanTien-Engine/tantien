@@ -19,10 +19,10 @@ class Clear is Node
 		this.layout()
 		
 		// [ "color", "depth", "stencil" ]
-		this.masks = []
+		this.masks = ["color"]
 
 		// { "color" : [r,g,b,a] }
-		this.values = {}
+		this.values = { "color" : [255,255,255,255] }
 	}
 
 	execute() {
