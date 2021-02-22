@@ -27,8 +27,6 @@ class Node
 		this.style = Style()
 
 		this.pos = Vector2()
-
-		this.layout()
 	}
 
 	get_size() {
@@ -65,7 +63,7 @@ class Node
 	layout()
 	{
 		this.style.width = 120
-		this.style.height = DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
+		this.style.height = this.calcPanelHeight()
 
 		for (var i = 0; i < this.imports.count; i = i + 1) {
 			this.imports[i].is_input = true
@@ -82,4 +80,8 @@ class Node
 	}
 
 	drawGUI(ctx) {}
+
+	calcPanelHeight() {
+		return DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
+	}
 }

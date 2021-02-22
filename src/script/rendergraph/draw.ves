@@ -19,7 +19,6 @@ class Draw is Node
 		this.exports = [
 			Pin(this, "next", "port")
 		]
-		this.layout()
 
 		// [ "triangles" ]
 		this.prim_type = "triangles"
@@ -34,6 +33,7 @@ class Draw is Node
 		this.cull_items = ["disable", "front", "back", "front_and_back"]
 		this.cull_selected = 0
 
+		this.layout()
 	}
 
 	execute() 
@@ -43,6 +43,17 @@ class Draw is Node
 		if (shader and va) {
 			Render.draw(this.prim_type, shader.prog, va.va, this.render_state)
 		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		// depth_test
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+
+		// cull
+		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
 	toString(name) {
@@ -57,7 +68,7 @@ class Draw is Node
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y - this.style.height
+		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
 		if (this.render_state.containsKey("depth_test"))
 		{

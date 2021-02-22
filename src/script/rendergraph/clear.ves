@@ -16,17 +16,30 @@ class Clear is Node
 		this.exports = [
 			Pin(this, "next", "port")
 		]
-		this.layout()
 		
 		// [ "color", "depth", "stencil" ]
 		this.masks = ["color"]
 
 		// { "color" : [r,g,b,a] }
 		this.values = { "color" : [255,255,255,255] }
+
+		this.layout()
 	}
 
 	execute() {
 		Render.clear(this.masks, this.values)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		// masks
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
+		// color
+		if (this.values.containsKey("color")) {
+			this.style.height = this.style.height + DEFAULT_HEIGHT * 3
+		}
 	}
 
 	toString(name) {
@@ -34,14 +47,14 @@ class Clear is Node
 %(name).masks = %(this.masks)
 %(name).values = %(this.values)
 "
-	}
+	}	
 
 	drawGUI(ctx) 
 	{
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y - this.style.height
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
 		var mask_color = this.masks.contains("color")
 		var _mask_color = GUI.checkbox(ctx, "color", mask_color, x, y)

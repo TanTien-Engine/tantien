@@ -11,7 +11,6 @@ class VertexArray is Node
 		this.exports = [
 			Pin(this, "out", "va")
 		]
-		this.layout()
 
 		this.data = nil
 		this.attrs = nil
@@ -20,6 +19,8 @@ class VertexArray is Node
 
 		this.va = nil
 		this.dirty = true
+
+		this.layout()
 	}
 
 	execute() {

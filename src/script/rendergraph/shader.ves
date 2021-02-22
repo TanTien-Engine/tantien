@@ -11,13 +11,14 @@ class Shader is Node
 		this.exports = [
 			Pin(this, "out", "shader")
 		]
-		this.layout()
 
 		this.vs = nil
 		this.fs = nil
 
 		this.prog = nil
 		this.dirty = true
+
+		this.layout()
 	}
 
 	execute() {
