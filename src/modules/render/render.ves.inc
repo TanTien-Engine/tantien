@@ -12,7 +12,8 @@ foreign class VertexArray
 {
 	// data: float list
 	// attrs: number of components
-	init(data, attrs) {}
+	// ibuf: index buffer
+	init(data, attrs, ibuf) {}
 }
 
 foreign class Render

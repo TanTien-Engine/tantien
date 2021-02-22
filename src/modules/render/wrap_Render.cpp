@@ -5,6 +5,7 @@
 #include <unirender/Context.h>
 #include <unirender/VertexArray.h>
 #include <unirender/VertexBuffer.h>
+#include <unirender/IndexBuffer.h>
 #include <unirender/ComponentDataType.h>
 #include <unirender/VertexInputAttribute.h>
 #include <unirender/DrawState.h>
@@ -60,6 +61,19 @@ void w_VertexArray_allocate()
         ves_pop(1);
     }
 
+    std::vector<unsigned short> index_data;
+    if (ves_type(3) != VES_TYPE_NULL)
+    {
+        int num = ves_len(3);
+        index_data.resize(num);
+        for (int i = 0; i < num; ++i)
+        {
+            ves_geti(3, i);
+            index_data[i] = static_cast<unsigned short>(ves_tonumber(-1));
+            ves_pop(1);
+        }
+    }
+
     auto dev = tt::Render::Instance()->Device();
 
     std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::VertexArray>));
@@ -86,6 +100,15 @@ void w_VertexArray_allocate()
         offset_in_bytes += attrs[i] * sizeof(float);
     }
     (*va)->SetVertexBufferAttrs(vbuf_attrs);
+
+    if (!index_data.empty())
+    {
+        auto ibuf_sz = sizeof(unsigned short) * index_data.size();
+        auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, ibuf_sz);
+        ibuf->ReadFromMemory(index_data.data(), ibuf_sz, 0);
+        ibuf->SetCount(index_data.size());
+        (*va)->SetIndexBuffer(ibuf);
+    }
 }
 
 static int w_VertexArray_finalize(void* data)
