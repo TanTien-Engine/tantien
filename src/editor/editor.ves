@@ -150,6 +150,9 @@ class Editor
 	{
 		this.scene.draw()
 
+		// fixme
+		Graphics.flush()
+
 		GUI.begin(this.gui_nodes)
 		var dirty = false
 		for (var node in this.scene.nodes) {
@@ -200,7 +203,7 @@ class Editor
 			}
 		}
 
-		// fixme: dummy
+		// fixme:
 		GUI.button(this.gui_top, ".", 9999, 9999, 0, 0)
 
 		GUI.end(this.gui_top)
