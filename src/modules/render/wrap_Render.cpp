@@ -144,19 +144,34 @@ void w_Render_clear()
     int type = ves_getfield(2, "color");
     if (type == VES_TYPE_LIST)
     {
+        bool is01 = true;
+        double rgba[4];
         assert(ves_len(-1) == 4);
-        ves_geti(-1, 0);
-        clear.color.r = static_cast<uint8_t>(ves_tonumber(-1));
-        ves_pop(1);
-        ves_geti(-1, 1);
-        clear.color.g = static_cast<uint8_t>(ves_tonumber(-1));
-        ves_pop(1);
-        ves_geti(-1, 2);
-        clear.color.b = static_cast<uint8_t>(ves_tonumber(-1));
-        ves_pop(1);
-        ves_geti(-1, 3);
-        clear.color.a = static_cast<uint8_t>(ves_tonumber(-1));
-        ves_pop(1);
+        for (int i = 0; i < 4; ++i) 
+        {
+            ves_geti(-1, i);
+            rgba[i] = ves_tonumber(-1);
+            ves_pop(1);
+
+            if (rgba[i] > 1.0) {
+                is01 = false;
+            }
+        }
+
+        if (is01)
+        {
+            clear.color.r = static_cast<uint8_t>(rgba[0] * 255);
+            clear.color.g = static_cast<uint8_t>(rgba[1] * 255);
+            clear.color.b = static_cast<uint8_t>(rgba[2] * 255);
+            clear.color.a = static_cast<uint8_t>(rgba[3] * 255);
+        }
+        else
+        {
+            clear.color.r = static_cast<uint8_t>(rgba[0]);
+            clear.color.g = static_cast<uint8_t>(rgba[1]);
+            clear.color.b = static_cast<uint8_t>(rgba[2]);
+            clear.color.a = static_cast<uint8_t>(rgba[3]);
+        }
     }
 
     tt::Render::Instance()->Context()->Clear(clear);
