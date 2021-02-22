@@ -24,8 +24,16 @@ class Draw is Node
 		// [ "triangles" ]
 		this.prim_type = "triangles"
 
-		// { "depth_test" : false }
-		this.render_state = { "depth_test" : false }
+		// { "depth_test" : bool, "cull" : string }
+		this.render_state = { 
+			"depth_test" : false, 
+			"cull" : "disable"
+		}
+
+		// for gui
+		this.cull_items = ["disable", "front", "back", "front_and_back"]
+		this.cull_selected = 0
+
 	}
 
 	execute() 
@@ -59,6 +67,20 @@ class Draw is Node
 				this.render_state["depth_test"] = _depth_test
 				dirty = true
 			}
+
+			y = y - DEFAULT_HEIGHT
+		}
+
+		if (this.render_state.containsKey("cull"))
+		{
+			var item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
+			if (item != this.cull_selected) {
+				this.cull_selected = item
+				this.render_state["cull"] = this.cull_items[this.cull_selected]
+				dirty = true				
+			}
+
+			y = y - DEFAULT_HEIGHT
 		}
 
 		return dirty

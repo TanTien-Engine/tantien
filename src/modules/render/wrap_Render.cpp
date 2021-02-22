@@ -109,9 +109,26 @@ void w_Render_draw()
     ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(2));
     ds.vertex_array = *static_cast<std::shared_ptr<ur::VertexArray>*>(ves_toforeign(3));
 
-    int type = ves_getfield(4, "depth_test");
-    if (type == VES_TYPE_BOOL) {
+    if (ves_getfield(4, "depth_test") == VES_TYPE_BOOL) {
         ds.render_state.depth_test.enabled = ves_toboolean(-1);
+    }
+    ves_pop(1);
+
+    if (ves_getfield(4, "cull") == VES_TYPE_STRING) 
+    {
+        const char* mode = ves_tostring(-1);
+        if (strcmp(mode, "disable") == 0) {
+            ds.render_state.facet_culling.enabled = false;
+        } else if (strcmp(mode, "front") == 0) {
+            ds.render_state.facet_culling.enabled = true;
+            ds.render_state.facet_culling.face = ur::CullFace::Front;
+        } else if (strcmp(mode, "back") == 0) {
+            ds.render_state.facet_culling.enabled = true;
+            ds.render_state.facet_culling.face = ur::CullFace::Back;
+        } else if (strcmp(mode, "front_and_back") == 0) {
+            ds.render_state.facet_culling.enabled = true;
+            ds.render_state.facet_culling.face = ur::CullFace::FrontAndBack;
+        }
     }
     ves_pop(1);
 

@@ -20,7 +20,10 @@ foreign class Render
 	// prim_type: "triangles"
 	// prog: program index
 	// va: vertex array index
-	// render_state: map { "depth_test" : bool }
+	// render_state: map { 
+	//   "depth_test" : bool,
+	//   "cull" : <"disable", "front", "back", "front_and_back">
+	// }
 	foreign static draw(prim_type, prog, va, render_state)
 
 	// masks: list ["color", "depth", "stencil"]
