@@ -307,4 +307,10 @@ import \"blueprint.blueprint\" for Blueprint
 			
 		IO.close(file)
 	}
+
+	refresh()
+	{
+		this.scene.nodes.clear()
+		this.loadfromfile()
+	}
 }
