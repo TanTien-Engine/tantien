@@ -40,7 +40,7 @@ class Draw is Node
 	{
 		var shader = Blueprint.getInputNode(this, 1)
 		var va = Blueprint.getInputNode(this, 2)
-		if (shader and va) {
+		if (shader and shader.prog and va and va.va) {
 			Render.draw(this.prim_type, shader.prog, va.va, this.render_state)
 		}
 	}
