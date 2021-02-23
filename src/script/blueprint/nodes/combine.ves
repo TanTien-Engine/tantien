@@ -1,0 +1,48 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "maths.vector" for Vector2, Vector3, Vector4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+
+class Combine is Node
+{
+	init() 
+	{
+		super.init(Combine.name)
+
+		this.imports = [
+			Pin(this, "x", VAR_TYPE_NUMBER),
+			Pin(this, "y", VAR_TYPE_NUMBER),
+			Pin(this, "z", VAR_TYPE_NUMBER),
+			Pin(this, "w", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "xyzw", VAR_TYPE_NUMBER4),
+			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
+			Pin(this, "xy",   VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+
+		this.value = Vector4()
+	}
+
+	calc(idx)
+	{
+		var ret = [0, 0, 0, 0]
+		for (var i in 0..4) 
+		{
+			var conns = this.imports[i].conns
+			if (!conns.isEmpty) {
+				var f_pin = conns.front().from
+				ret[i] = f_pin.node.calc(f_pin.slot_idx).value
+			}
+		}
+		if (idx == 0) {
+			return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
+		} else if (idx == 1) {
+			return Variant(VAR_TYPE_NUMBER3, Vector3(ret[0], ret[1], ret[2]))
+		} else if (idx == 2) {
+			return Variant(VAR_TYPE_NUMBER2, Vector2(ret[0], ret[1]))
+		}
+	}	
+}

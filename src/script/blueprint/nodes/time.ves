@@ -1,0 +1,22 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+
+class Time is Node
+{
+	init() 
+	{
+		super.init(Time.name)
+
+		this.exports = [
+			Pin(this, "time", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_NUMBER, System.clock())
+	}
+}

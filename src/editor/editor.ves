@@ -11,6 +11,15 @@ import "scene.components.boundingbox2" for BoundingBox2
 import "scene.components.transform2" for Transform2
 import "io" for IO
 
+import "blueprint.nodes.number" for Number
+import "blueprint.nodes.combine" for Combine
+import "blueprint.nodes.time" for Time
+import "blueprint.nodes.sin" for Sin
+import "blueprint.nodes.add" for Add
+import "blueprint.nodes.subtract" for Subtract
+import "blueprint.nodes.multiply" for Multiply
+import "blueprint.nodes.divide" for Divide
+
 class Editor
 {
 	load()
@@ -211,6 +220,50 @@ class Editor
 		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}
 
+	getPopupNum()
+	{
+		return 8
+	}
+
+	drawPopup(x, y, w, h)
+	{
+		var new_node = nil
+
+		if (GUI.selectable(this.gui_top, "Number", false, x, y, w)) {
+			new_node = Number()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Combine", false, x, y, w)) {
+			new_node = Combine()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Time", false, x, y, w)) {
+			new_node = Time()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Sin", false, x, y, w)) {
+			new_node = Sin()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Add", false, x, y, w)) {
+			new_node = Add()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Subtract", false, x, y, w)) {
+			new_node = Subtract()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Multiply", false, x, y, w)) {
+			new_node = Multiply()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Divide", false, x, y, w)) {
+			new_node = Divide()
+		}
+		y = y - h
+
+		return new_node
+	}
 	popupCB(x, y, prev_pin)
 	{
 		this.popup_pos = Vector2(x, y)
@@ -248,6 +301,14 @@ class Editor
 		var str = "
 import \"test\" for test
 import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.number\" for Number
+import \"blueprint.nodes.combine\" for Combine
+import \"blueprint.nodes.time\" for Time
+import \"blueprint.nodes.sin\" for Sin
+import \"blueprint.nodes.add\" for Add
+import \"blueprint.nodes.subtract\" for Subtract
+import \"blueprint.nodes.multiply\" for Multiply
+import \"blueprint.nodes.divide\" for Divide
 "
 		str = str + this.loadFileImports()
 

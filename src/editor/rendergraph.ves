@@ -23,8 +23,12 @@ class Test is Editor
 		var WIDTH = 120
 		var HEIGHT = 25
 
-		var NUM = 4
+		var NUM = super.getPopupNum() + 4
 		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
+
+		new_node = super.drawPopup(x, y, WIDTH, HEIGHT)
+		y = y - HEIGHT * super.getPopupNum()
+
 		if (GUI.selectable(this.gui_top, "Clear", false, x, y, WIDTH)) {
 			new_node = Clear()
 		}
