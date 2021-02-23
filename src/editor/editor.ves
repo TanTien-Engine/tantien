@@ -161,7 +161,9 @@ class Editor
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
 		for (var node in this.drawlist) {
-			node.execute()
+			if (node.execute) {
+				node.execute()
+			}
 		}
 	}
 
