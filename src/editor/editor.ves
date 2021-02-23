@@ -44,6 +44,16 @@ class Editor
 	{
 		this.scene.update()
 
+		// update aabb
+		for (var node in this.scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node.aabb_dirty) {
+				node.components["bounding"].set_size(bp_node.get_size())
+				bp_node.aabb_dirty = false
+			}
+		}	
+
 		GUI.update(this.gui_top)
 		GUI.update(this.gui_nodes)
 	}
@@ -288,6 +298,7 @@ class Editor
 		var bb = BoundingBox2(bp_node.get_size())
 		bb.transform(pos, 0, Vector2())
 		node.components["bounding"] = bb
+		bp_node.aabb_dirty = false
 
 		var trans = Transform2()
 		trans.set_position(pos)

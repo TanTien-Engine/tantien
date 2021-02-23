@@ -27,6 +27,9 @@ class Node
 		this.style = Style()
 
 		this.pos = Vector2()
+
+		// for aabb update
+		this.aabb_dirty = false
 	}
 
 	get_size() {
@@ -73,6 +76,8 @@ class Node
 			this.exports[i].is_input = false
 			this.exports[i].slot_idx = i
 		}
+
+		this.aabb_dirty = true
 	}
 
 	toString(name) {
