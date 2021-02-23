@@ -71,29 +71,21 @@ class Draw is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
-		if (this.render_state.containsKey("depth_test"))
-		{
-			var depth_test = this.render_state["depth_test"]
-			var _depth_test = GUI.checkbox(ctx, "depth test", depth_test, x, y)
-			if (_depth_test != depth_test) {
-				this.render_state["depth_test"] = _depth_test
-				dirty = true
-			}
-
-			y = y - DEFAULT_HEIGHT
+		var depth_test = this.render_state["depth_test"]
+		var _depth_test = GUI.checkbox(ctx, "depth test", depth_test, x, y)
+		if (_depth_test != depth_test) {
+			this.render_state["depth_test"] = _depth_test
+			dirty = true
 		}
+		y = y - DEFAULT_HEIGHT
 
-		if (this.render_state.containsKey("cull"))
-		{
-			var item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
-			if (item != this.cull_selected) {
-				this.cull_selected = item
-				this.render_state["cull"] = this.cull_items[this.cull_selected]
-				dirty = true				
-			}
-
-			y = y - DEFAULT_HEIGHT
+		var item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
+		if (item != this.cull_selected) {
+			this.cull_selected = item
+			this.render_state["cull"] = this.cull_items[this.cull_selected]
+			dirty = true				
 		}
+		y = y - DEFAULT_HEIGHT
 
 		return dirty
 	}
