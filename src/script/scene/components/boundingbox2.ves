@@ -8,14 +8,19 @@ class BoundingBox2 is Component
 	init(size)
 	{
 		this.rect = Rect()
-		this.rect.x = -size.x * 0.5
-		this.rect.y = -size.y * 0.5		
-		this.rect.w = size.x
-		this.rect.h = size.y
+		this.set_size(size)
 
 		this.pos = Vector2()
 		this.angle = 0
 	}
+
+	set_size(size)
+	{
+		this.rect.x = -size.x * 0.5
+		this.rect.y = -size.y * 0.5
+		this.rect.w = size.x
+		this.rect.h = size.y
+	}	
 
 	draw(mt)
 	{

@@ -1,6 +1,8 @@
-import "render" for Shader as r_Shader
+import "render" for Shader as r_Shader, Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "gui" for GUI
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Shader is Node
 {
@@ -18,13 +20,39 @@ class Shader is Node
 		this.prog = nil
 		this.dirty = true
 
+		this.uniforms = []
+
 		this.layout()
 	}
 
-	execute() {
-		if (this.vs and this.fs and this.dirty) {
-			this.prog = r_Shader.init(this.vs, this.fs)
-			this.dirty = false
+	execute() 
+	{	
+		if (!this.vs or !this.fs or !this.dirty) {
+			return
+		}
+
+		// todo
+		this.uniforms = Render.getShaderUniforms("pixel", this.fs, "glsl")
+		for (var unif in this.uniforms) {
+			this.imports.add(Pin(this, unif[0], unif[1]))
+		}
+
+		this.layout()
+
+		this.prog = r_Shader.init(this.vs, this.fs)
+		this.dirty = false
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		// uniforms
+		for (var unif in this.uniforms)
+		{
+			if (unif[1] == "float4") {
+				this.style.height = this.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 4
+			}	
 		}
 	}
 
@@ -32,6 +60,82 @@ class Shader is Node
 		return "
 %(name).vs = \"%(this.vs)\"
 %(name).fs = \"%(this.fs)\"
+%(name).execute()
 "
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight()
+
+		for (var unif in this.uniforms)
+		{
+			y = y - DEFAULT_HEIGHT
+		    GUI.label(ctx, unif[0], x, y)
+
+			if (unif[1] == "float4")
+			{
+				var unif_dirty = false
+
+				y = y - DEFAULT_HEIGHT
+			    var r = GUI.slider(ctx, "x", unif[2], x, y, this.style.width - 20, 1, false)
+			    if (r != unif[2]) {
+			    	unif[2] = r
+			    	unif_dirty = true
+			    }
+
+				y = y - DEFAULT_HEIGHT
+			    var g = GUI.slider(ctx, "y", unif[3], x, y, this.style.width - 20, 1, false)
+			    if (g != unif[3]) {
+			    	unif[3] = g
+			    	unif_dirty = true
+			    }
+
+				y = y - DEFAULT_HEIGHT
+			    var b = GUI.slider(ctx, "z", unif[4], x, y, this.style.width - 20, 1, false)
+			    if (b != unif[4]) {
+			    	unif[4] = b
+			    	unif_dirty = true
+			    }
+
+				y = y - DEFAULT_HEIGHT
+			    var a = GUI.slider(ctx, "w", unif[5], x, y, this.style.width - 20, 1, false)
+			    if (b != unif[4]) {
+			    	unif[5] = b
+			    	unif_dirty = true
+			    }
+
+			    if (unif_dirty) {
+			    	this.prog.setUniformValue(unif)
+			    	dirty = true
+			    }
+			}
+		}		
+
+		return dirty
+	}
+
+	updateUniforms()
+	{
+		for (var i = 0; i < this.uniforms.count; i = i + 1)
+		{
+			var unif = this.uniforms[i]
+			var conns = this.imports[i].conns
+			if (!conns.isEmpty)
+			{
+				var f_pin = conns.front().from
+				var val = f_pin.node.calc(f_pin.slot_idx)
+				if (unif[1] == "float4") {
+					unif[2] = val.value.x
+					unif[3] = val.value.y
+					unif[4] = val.value.z
+					unif[5] = val.value.w
+				}
+				this.prog.setUniformValue(unif)
+			}
+		}
 	}
 }
