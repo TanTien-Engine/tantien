@@ -110,9 +110,9 @@ void w_VertexArray_allocate()
     if (!index_data.empty())
     {
         auto ibuf_sz = sizeof(unsigned short) * index_data.size();
-        auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, ibuf_sz);
-        ibuf->ReadFromMemory(index_data.data(), ibuf_sz, 0);
-        ibuf->SetCount(index_data.size());
+        auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, static_cast<int>(ibuf_sz));
+        ibuf->ReadFromMemory(index_data.data(), static_cast<int>(ibuf_sz), 0);
+        ibuf->SetCount(static_cast<int>(index_data.size()));
         (*va)->SetIndexBuffer(ibuf);
     }
 }
