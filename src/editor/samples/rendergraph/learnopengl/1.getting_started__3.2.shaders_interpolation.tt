@@ -1,0 +1,46 @@
+var node0 = Clear()
+test.add_node(node0, -212.26346315436, 26.44591538003)
+
+node0.masks = [ "color" ]
+node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
+
+var node1 = Draw()
+test.add_node(node1, 134, 19)
+
+node1.prim_type = "triangles"
+node1.render_state = { "depth_test" : false, "cull" : "disable" }
+
+var node2 = Shader()
+test.add_node(node2, -25.557495656879, 22.304991313759)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+out vec3 ourColor;
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+in vec3 ourColor;
+void main()
+{
+    FragColor = vec4(ourColor, 1.0f);
+}
+"
+node2.execute()
+
+var node3 = VertexArray()
+test.add_node(node3, -20.53, -31.25)
+
+node3.data = [ 0.5, -0.5, 0, 1, 0, 0, -0.5, -0.5, 0, 0, 1, 0, 0, 0.5, 0, 0, 0, 1 ]
+node3.attrs = [ 3, 3 ]
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node1.imports[2])
