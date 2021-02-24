@@ -25,7 +25,7 @@ class Perspective is Node
 
 	calc(idx) {
 		var mat = Matrix44.init()
-		mat.perspective(this.fovy * 3.14 / 180, this.aspect, this.znear, this.zfar)
+		mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
