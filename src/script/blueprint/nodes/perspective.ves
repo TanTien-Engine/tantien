@@ -1,0 +1,85 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths" for Matrix44
+
+class Perspective is Node
+{
+	init() 
+	{
+		super.init(Perspective.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+
+		this.layout()
+
+		this.fovy   = 45
+		this.aspect = 1
+		this.znear  = 0.1
+		this.zfar   = 100
+	}
+
+	calc(idx) {
+		var mat = Matrix44.init()
+		mat.perspective(this.fovy * 3.14 / 180, this.aspect, this.znear, this.zfar)
+		return Variant(VAR_TYPE_MATRIX4, mat)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+	}
+
+	toString(name) {
+		return "
+%(name).fovy = %(this.fovy)
+%(name).aspect = %(this.aspect)
+%(name).znear = %(this.znear)
+%(name).zfar = %(this.zfar)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var fovy = GUI.slider(ctx, "fovy", this.fovy, x, y, this.style.width - 20, 180, false)
+		if (fovy != this.fovy) {
+			this.fovy = fovy
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var aspect = GUI.slider(ctx, "aspect", this.aspect, x, y, this.style.width - 20, 1, false)
+		if (aspect != this.aspect) {
+			this.aspect = aspect
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var znear = GUI.slider(ctx, "znear", this.znear, x, y, this.style.width - 20, 0.1, false)
+		if (znear != this.znear) {
+			this.znear = znear
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var zfar = GUI.slider(ctx, "zfar", this.zfar, x, y, this.style.width - 20, 1000, false)
+		if (zfar != this.zfar) {
+			this.zfar = zfar
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+}

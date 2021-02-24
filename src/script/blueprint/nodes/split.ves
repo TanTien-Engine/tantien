@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+
+class Split is Node
+{
+	init() 
+	{
+		super.init(Split.name)
+
+		this.imports = [
+			Pin(this, "xyzw", "float4"),
+			Pin(this, "xyz", "float3"),
+			Pin(this, "xy", "float2"),
+		]
+		this.exports = [
+			Pin(this, "x", "float"),
+			Pin(this, "y", "float"),
+			Pin(this, "z", "float"),
+			Pin(this, "w", "float"),
+		]
+
+		this.layout()
+	}
+}

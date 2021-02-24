@@ -20,6 +20,11 @@ import "blueprint.nodes.add" for Add
 import "blueprint.nodes.subtract" for Subtract
 import "blueprint.nodes.multiply" for Multiply
 import "blueprint.nodes.divide" for Divide
+import "blueprint.nodes.texture" for Texture
+import "blueprint.nodes.matrix" for Matrix
+import "blueprint.nodes.translate" for Translate
+import "blueprint.nodes.rotate" for Rotate
+import "blueprint.nodes.perspective" for Perspective
 
 class Editor
 {
@@ -235,7 +240,7 @@ class Editor
 
 	getPopupNum()
 	{
-		return 8
+		return 13
 	}
 
 	drawPopup(x, y, w, h)
@@ -272,6 +277,26 @@ class Editor
 		y = y - h
 		if (GUI.selectable(this.gui_top, "Divide", false, x, y, w)) {
 			new_node = Divide()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Texture", false, x, y, w)) {
+			new_node = Texture()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Matrix", false, x, y, w)) {
+			new_node = Matrix()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Translate", false, x, y, w)) {
+			new_node = Translate()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Rotate", false, x, y, w)) {
+			new_node = Rotate()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Perspective", false, x, y, w)) {
+			new_node = Perspective()
 		}
 		y = y - h
 
@@ -325,6 +350,11 @@ import \"blueprint.nodes.add\" for Add
 import \"blueprint.nodes.subtract\" for Subtract
 import \"blueprint.nodes.multiply\" for Multiply
 import \"blueprint.nodes.divide\" for Divide
+import \"blueprint.nodes.texture\" for Texture
+import \"blueprint.nodes.matrix\" for Matrix
+import \"blueprint.nodes.translate\" for Translate
+import \"blueprint.nodes.rotate\" for Rotate
+import \"blueprint.nodes.perspective\" for Perspective
 "
 		str = str + this.loadFileImports()
 

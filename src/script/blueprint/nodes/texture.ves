@@ -1,0 +1,86 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_TEXTURE
+import "image" for ImageData
+import "graphics" for Texture as tt_Texture, Graphics
+import "render" for SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+
+class Texture is Node
+{
+	init() 
+	{
+		super.init(Texture.name)
+
+		this.exports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE)
+		]
+
+		this.layout()
+
+		this.tex = nil
+		this.tex_filepath = ""
+
+		// for gui
+		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
+		this.sampler_selected = 3
+	}
+
+	calc(idx)
+	{
+		var sampler
+		if (this.sampler_selected == 0) {
+			sampler = SAMPLER_NEAREST_CLAMP
+		} else if (this.sampler_selected == 1) {
+			sampler = SAMPLER_LINEAR_CLAMP
+		} else if (this.sampler_selected == 2) {
+			sampler = SAMPLER_NEAREST_REPEAT
+		} else if (this.sampler_selected == 3) {
+			sampler = SAMPLER_LINEAR_REPEAT
+		}
+
+		return Variant(VAR_TYPE_TEXTURE, [this.tex, sampler])
+	}
+
+	layout()
+	{
+		super.layout()
+
+		// sampler
+		this.style.width = 200
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	toString(name) {
+		return "
+%(name).initTexture(\"%(this.tex_filepath)\")
+%(name).sampler_selected = %(this.sampler_selected)
+"
+	}
+
+	drawGUI(ctx)
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var item = GUI.combo(ctx, "sampler", this.sampler_selected, this.sampler_items, x, y, 130)
+		if (item != this.sampler_selected) {
+			this.sampler_selected = item
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+
+	initTexture(filepath)
+	{
+		this.tex_filepath = filepath
+
+		var img = ImageData.init(filepath)
+		this.tex = tt_Texture.init(img)
+	}
+}
