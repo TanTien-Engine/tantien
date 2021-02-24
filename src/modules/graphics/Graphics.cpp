@@ -37,6 +37,9 @@ Graphics::~Graphics()
 
 void Graphics::OnSize(float width, float height)
 {
+    m_width = width;
+    m_height = height;
+
     auto ctx = tt::Render::Instance()->Context();
     ctx->SetViewport(0, 0, (int)width, (int)height);
 

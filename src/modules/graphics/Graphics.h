@@ -31,10 +31,15 @@ public:
 
 	auto GetSpriteRenderer() { return m_spr_rd; }
 
+	auto GetWidth() const { return m_width; }
+	auto GetHeight() const { return m_height; }
+
 private:
 	void RelocatePaletteUV();
 
 private:
+	float m_width = 0, m_height = 0;
+
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
 
 	TT_SINGLETON_DECLARATION(Graphics)
