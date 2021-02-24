@@ -133,21 +133,21 @@ class Shader is Node
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight()
+		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
 		for (var unif in this.uniforms)
 		{
-			y = y - DEFAULT_HEIGHT
 			if (unif[1] != "sampler" and unif[1] != "mat2" and unif[1] != "mat3" and unif[1] != "mat4") {
-		    	GUI.label(ctx, unif[0], x, y)	
+		    	GUI.label(ctx, unif[0], x, y)
+				y = y - DEFAULT_HEIGHT
 			}
 
 			if (unif[1] == "float")
 			{
 				var unif_dirty = false
 
-				y = y - DEFAULT_HEIGHT
 			    var r = GUI.slider(ctx, "x", unif[2], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (r != unif[2]) {
 			    	unif[2] = r
 			    	unif_dirty = true
@@ -162,15 +162,15 @@ class Shader is Node
 			{
 				var unif_dirty = false
 
-				y = y - DEFAULT_HEIGHT
 			    var r = GUI.slider(ctx, "x", unif[2], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (r != unif[2]) {
 			    	unif[2] = r
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var g = GUI.slider(ctx, "y", unif[3], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (g != unif[3]) {
 			    	unif[3] = g
 			    	unif_dirty = true
@@ -185,22 +185,22 @@ class Shader is Node
 			{
 				var unif_dirty = false
 
-				y = y - DEFAULT_HEIGHT
 			    var r = GUI.slider(ctx, "x", unif[2], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (r != unif[2]) {
 			    	unif[2] = r
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var g = GUI.slider(ctx, "y", unif[3], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (g != unif[3]) {
 			    	unif[3] = g
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var b = GUI.slider(ctx, "z", unif[4], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (b != unif[4]) {
 			    	unif[4] = b
 			    	unif_dirty = true
@@ -215,29 +215,29 @@ class Shader is Node
 			{
 				var unif_dirty = false
 
-				y = y - DEFAULT_HEIGHT
 			    var r = GUI.slider(ctx, "x", unif[2], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (r != unif[2]) {
 			    	unif[2] = r
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var g = GUI.slider(ctx, "y", unif[3], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (g != unif[3]) {
 			    	unif[3] = g
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var b = GUI.slider(ctx, "z", unif[4], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (b != unif[4]) {
 			    	unif[4] = b
 			    	unif_dirty = true
 			    }
 
-				y = y - DEFAULT_HEIGHT
 			    var a = GUI.slider(ctx, "w", unif[5], x, y, this.style.width - 20, 1, false)
+				y = y - DEFAULT_HEIGHT
 			    if (a != unif[4]) {
 			    	unif[5] = a
 			    	unif_dirty = true
