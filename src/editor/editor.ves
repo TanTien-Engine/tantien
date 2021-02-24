@@ -10,6 +10,7 @@ import "scene.node" for Node as SceneNode
 import "scene.components.boundingbox2" for BoundingBox2
 import "scene.components.transform2" for Transform2
 import "io" for IO
+import "filesystem" for Filesystem
 
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.combine" for Combine
@@ -311,6 +312,8 @@ class Editor
 
 	loadfromfile()
 	{
+		Filesystem.setAssetBaseDir(this.filepath)
+
 		var str = "
 import \"test\" for test
 import \"blueprint.blueprint\" for Blueprint

@@ -10,6 +10,8 @@
 #include "modules/gui/gui.ves.inc"
 #include "modules/image/wrap_Image.h"
 #include "modules/image/image.ves.inc"
+#include "modules/filesystem/wrap_Filesystem.h"
+#include "modules/filesystem/filesystem.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -70,6 +72,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = guiModuleSource;
     } else if (strcmp(module, "image") == 0) {
         source = imageModuleSource;
+    } else if (strcmp(module, "filesystem") == 0) {
+        source = filesystemModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -109,6 +113,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::ImageBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::FilesystemBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -141,6 +148,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::ImageBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::FilesystemBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;

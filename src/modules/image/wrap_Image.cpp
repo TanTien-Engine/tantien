@@ -1,5 +1,6 @@
 #include "modules/image/wrap_Image.h"
 #include "modules/image/ImageData.h"
+#include "modules/filesystem/Filesystem.h"
 
 #include <gimg_import.h>
 #include <gimg_typedef.h>
@@ -36,11 +37,17 @@ void w_ImageData_allocate()
     tt::ImageData* img = (tt::ImageData*)ves_set_newforeign(0, 0, sizeof(tt::ImageData));
     if (ves_type(1) == VES_TYPE_STRING)
     {
-        const char* filepath = ves_tostring(1);
-
         int width = 0, height = 0;
         int format = 0;
-        uint8_t* pixels = gimg_import(filepath, &width, &height, &format);
+        uint8_t* pixels = nullptr;
+
+        const char* filepath = ves_tostring(1);
+        if (tt::Filesystem::IsExists(filepath)) {
+            pixels = gimg_import(filepath, &width, &height, &format);
+        } else {
+            std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;
+            pixels = gimg_import(path.c_str(), &width, &height, &format);
+        }
 
         img->pixels = pixels;
         img->width  = width;
