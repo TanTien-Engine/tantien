@@ -82,12 +82,50 @@ class Shader is Node
 		}
 	}
 
-	toString(name) {
-		return "
+	setUniform(name, value)
+	{
+		for (var unif in this.uniforms)
+		{
+			if (unif[0] == name)
+			{
+				for (var i in 0..value.count) {
+					unif[2 + i] = value[i]
+				}
+			}
+		}
+	}
+
+	toString(name) 
+	{
+		var code = "
 %(name).vs = \"%(this.vs)\"
 %(name).fs = \"%(this.fs)\"
 %(name).execute()
 "
+		for (var unif in this.uniforms)
+		{
+			var conns_empty = true
+			for (var p in this.imports) {
+				if (p.name == unif[0]) {
+					conns_empty = p.conns.isEmpty
+					// todo break
+				}
+			}
+
+			if (conns_empty)
+			{
+				if (unif[1] == "float") {
+					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]) ])\n"
+				} else if (unif[1] == "float2") {
+					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]) ])\n"
+				} else if (unif[1] == "float3") {
+					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]) ])\n"
+				} else if (unif[1] == "float4") {
+					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]), %(unif[5]) ])\n"
+				}
+			}
+		}
+		return code
 	}
 
 	drawGUI(ctx) 
