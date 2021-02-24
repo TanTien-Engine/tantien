@@ -1,6 +1,11 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* renderModuleSource = QUOTE(
 
+var SAMPLER_NEAREST_CLAMP  = 0
+var SAMPLER_LINEAR_CLAMP   = 1
+var SAMPLER_NEAREST_REPEAT = 2
+var SAMPLER_LINEAR_REPEAT  = 3
+
 foreign class Shader
 {
 	// vs: string
@@ -37,7 +42,7 @@ foreign class Render
 	// stage: <"vertex", "tess_ctrl", "tess_eval", "pixel", "compute">
 	// lang: <"glsl", "hlsl">
 	// return: list, name + type + values
-	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, smapler
+	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler
 	foreign static getShaderUniforms(stage, code, lang)
 }
 

@@ -3,6 +3,7 @@
 
 #include <SM_Matrix2D.h>
 #include <SM_Test.h>
+#include <SM_Matrix.h>
 
 #include <string.h>
 
@@ -20,19 +21,15 @@ int w_Matrix2D_finalize(void* data)
     return sizeof(sm::Matrix2D);
 }
 
-void w_Matrix2D_transform()
+void w_Matrix44_allocate()
 {
-    sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
-    const float x = (float)ves_tonumber(1);
-    const float y = (float)ves_tonumber(2);
-    const float angle = (float)ves_tonumber(3);
-    const float sx = (float)ves_tonumber(4);
-    const float sy = (float)ves_tonumber(5);
-    const float ox = (float)ves_tonumber(6);
-    const float oy = (float)ves_tonumber(7);
-    const float kx = (float)ves_tonumber(8);
-    const float ky = (float)ves_tonumber(9);
-    mt->SetTransformation(x, y, angle, sx, sy, ox, oy, kx, ky);
+    sm::mat4* mt = (sm::mat4*)ves_set_newforeign(0, 0, sizeof(sm::mat4));
+    mt->Identity();
+}
+
+int w_Matrix44_finalize(void* data)
+{
+    return sizeof(sm::mat4);
 }
 
 void w_Float2_allocate()
@@ -78,6 +75,50 @@ void w_Float2_transform()
     *v2 = *mt * *v2;
 }
 
+void w_Matrix2D_transform()
+{
+    sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
+    const float x = (float)ves_tonumber(1);
+    const float y = (float)ves_tonumber(2);
+    const float angle = (float)ves_tonumber(3);
+    const float sx = (float)ves_tonumber(4);
+    const float sy = (float)ves_tonumber(5);
+    const float ox = (float)ves_tonumber(6);
+    const float oy = (float)ves_tonumber(7);
+    const float kx = (float)ves_tonumber(8);
+    const float ky = (float)ves_tonumber(9);
+    mt->SetTransformation(x, y, angle, sx, sy, ox, oy, kx, ky);
+}
+
+void w_Matrix44_translate()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float x = (float)ves_tonumber(1);
+    const float y = (float)ves_tonumber(2);
+    const float z = (float)ves_tonumber(3);
+    mt->Translate(x, y, z);
+}
+
+void w_Matrix44_rotateAxis()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float angle = (float)ves_tonumber(1);
+    const float x = (float)ves_tonumber(2);
+    const float y = (float)ves_tonumber(3);
+    const float z = (float)ves_tonumber(4);
+    *mt = mt->RotatedAxis({ x, y, z }, angle);
+}
+
+void w_Matrix44_perspective()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float fovy   = (float)ves_tonumber(1);
+    const float aspect = (float)ves_tonumber(2);
+    const float znear  = (float)ves_tonumber(3);
+    const float zfar   = (float)ves_tonumber(4);
+    *mt = sm::mat4::Perspective(fovy, aspect, znear, zfar);
+}
+
 void w_Maths_isConvexIntersectConvex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -93,8 +134,6 @@ namespace tt
 
 VesselForeignMethodFn MathsBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
-
     //if (strcmp(signature, "Float2.x=(_)") == 0) return w_Float2_setX;
     //if (strcmp(signature, "Float2.x()") == 0) return w_Float2_getX;
     if (strcmp(signature, "Float2.setX(_)") == 0) return w_Float2_setX;
@@ -102,6 +141,12 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Float2.setY(_)") == 0) return w_Float2_setY;
     if (strcmp(signature, "Float2.y()") == 0) return w_Float2_getY;
     if (strcmp(signature, "Float2.transform(_)") == 0) return w_Float2_transform;
+
+    if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
+
+    if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
+    if (strcmp(signature, "Matrix44.rotateAxis(_,_,_,_)") == 0) return w_Matrix44_rotateAxis;
+    if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
 
     if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return w_Maths_isConvexIntersectConvex;
 
@@ -121,6 +166,13 @@ void MathsBindClass(const char* className, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Matrix2D_allocate;
         methods->finalize = w_Matrix2D_finalize;
+        return;
+    }
+
+    if (strcmp(className, "Matrix44") == 0)
+    {
+        methods->allocate = w_Matrix44_allocate;
+        methods->finalize = w_Matrix44_finalize;
         return;
     }
 }

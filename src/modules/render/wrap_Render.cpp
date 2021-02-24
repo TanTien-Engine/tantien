@@ -14,6 +14,7 @@
 #include <unirender/ShaderProgram.h>
 #include <unirender/Uniform.h>
 #include <shadertrans/ShaderTrans.h>
+#include <SM_Matrix.h>
 
 #include <glslang/glslang/Public/ShaderLang.h>
 
@@ -353,7 +354,7 @@ void get_shader_uniforms(EShLanguage stage, const std::vector<unsigned int>& sha
 		uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 
 		// todo
-        unif.second = "smapler";
+        unif.second = "sampler";
 
 		uniforms.push_back(unif);
 	}
@@ -415,6 +416,27 @@ void get_shader_uniforms(const char* stage_str, const char* shader_str, const ch
     }
 }
 
+int get_value_number_size(const std::string& type)
+{
+    int size = 0;
+    if (type == "float") {
+        size = 1;
+    } else if (type == "float2") {
+        size = 2;
+    } else if (type == "float3") {
+        size = 3;
+    } else if (type == "float4") {
+        size = 4;
+    } else if (type == "mat2") {
+        size = 4;
+    } else if (type == "mat3") {
+        size = 9;
+    } else if (type == "mat4") {
+        size = 16;
+    }
+    return size;
+}
+
 void w_Render_getShaderUniforms()
 {
     const char* stage = ves_tostring(1);
@@ -431,8 +453,12 @@ void w_Render_getShaderUniforms()
         auto& unif = uniforms[i];
 
         int size = 2;
-        if (unif.second == "float4") {
-            size += 4;
+        if (unif.second == "sampler") {
+            size += 2;  // texture and sampler
+        } else if (unif.second == "mat2" || unif.second == "mat3" || unif.second == "mat4") {
+            size += 1;
+        } else {
+            size += get_value_number_size(unif.second);
         }
 
         ves_newlist(size);
@@ -448,8 +474,15 @@ void w_Render_getShaderUniforms()
         ves_pop(1);
 
         // values
-        if (unif.second == "float4") {
-            for (int i = 0; i < 4; ++i) {
+        if (unif.second == "sampler")
+        {
+        }
+        else if (unif.second == "mat2" || unif.second == "mat3" || unif.second == "mat4")
+        {
+        }
+        else
+        {
+            for (int i = 0, n = get_value_number_size(unif.second); i < n; ++i) {
                 ves_pushnumber(0);
                 ves_seti(-2, 2 + i);
                 ves_pop(1);
@@ -475,18 +508,65 @@ void w_Shader_setUniformValue()
     const char* type = ves_tostring(-1);
     ves_pop(1);
 
-    if (strcmp(type, "float4") == 0)
+    if (strcmp(type, "sampler") == 0)
     {
-        float val[4];
-        for (int i = 0; i < 4; ++i)
+        int num = ves_len(1);
+
+        auto slot = prog->QueryTexSlot(name);
+        if (slot >= 0)
         {
-            ves_geti(1, 2 + i);
-            val[i] = (float)ves_tonumber(-1);
+            auto ctx = tt::Render::Instance()->Context();
+
+            ves_geti(1, 2);
+            if (ves_type(-1) != VES_TYPE_NULL)
+            {
+                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, *tex);
+                }
+            }
+            ves_pop(1);
+
+            ves_geti(1, 3);
+            if (ves_type(-1) != VES_TYPE_NULL)
+            {
+                ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
+                auto dev = tt::Render::Instance()->Device();
+                ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
+            }
             ves_pop(1);
         }
-
+    }
+    else if (strcmp(type, "mat4") == 0)
+    {
         auto unif = prog->QueryUniform(name);
-        unif->SetValue(val, 4);
+        if (unif)
+        {
+            int num = ves_len(1);
+
+            ves_geti(1, 2);
+            sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
+            ves_pop(1);
+
+            unif->SetValue(mt->x, 16);
+        }
+    }
+    else
+    {
+        auto unif = prog->QueryUniform(name);
+        if (unif)
+        {
+            const int num = get_value_number_size(type);
+            float val[16];
+            for (int i = 0; i < num; ++i)
+            {
+                ves_geti(1, 2 + i);
+                val[i] = (float)ves_tonumber(-1);
+                ves_pop(1);
+            }
+
+            unif->SetValue(val, num);
+        }
     }
 }
 

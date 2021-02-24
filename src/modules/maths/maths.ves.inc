@@ -31,6 +31,16 @@ foreign class Matrix2D
 	foreign transform(x, y, angle, sx, sy, ox, oy, kx, ky)
 }
 
+foreign class Matrix44
+{
+	init() {}
+
+	foreign translate(x, y, z)
+	foreign rotateAxis(angle, x, y, z)
+
+	foreign perspective(fovy, aspect, znear, zfar)
+}
+
 foreign class Maths
 {
 	// conv0, conv1: float list
