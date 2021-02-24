@@ -1,0 +1,100 @@
+var node0 = Clear()
+test.add_node(node0, -214, 203)
+
+node0.masks = [ "color" ]
+node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
+
+var node1 = Draw()
+test.add_node(node1, 134, 19)
+
+node1.prim_type = "triangles"
+node1.render_state = { "depth_test" : false, "cull" : "disable" }
+
+var node2 = Shader()
+test.add_node(node2, -26.979338842975, -41.082644628099)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+uniform UBO
+{
+	mat4 transform;	
+};
+
+void main()
+{
+	gl_Position = transform * vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+// texture samplers
+uniform sampler2D texture1;
+uniform sampler2D texture2;
+
+void main()
+{
+	// linearly interpolate between both textures (80 container, 20 awesomeface)
+	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+}
+"
+node2.execute()
+
+var node3 = VertexArray()
+test.add_node(node3, -27, -168)
+
+node3.data = [ 0.5, 0.5, 0, 1, 1, 0.5, -0.5, 0, 1, 0, -0.5, -0.5, 0, 0, 0, -0.5, 0.5, 0, 0, 1 ]
+node3.attrs = [ 3, 2 ]
+
+node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
+
+var node4 = Texture()
+test.add_node(node4, -234.36363636364, -72.426545454545)
+
+node4.initTexture("resources/textures/container.jpg")
+node4.sampler_selected = 3
+
+var node5 = Texture()
+test.add_node(node5, -238.60927136125, -150.31219909842)
+
+node5.initTexture("resources/textures/awesomeface.png")
+node5.sampler_selected = 3
+
+var node6 = Matrix()
+test.add_node(node6, -582.06330292888, 153.72707403245)
+
+var node7 = Translate()
+test.add_node(node7, -439.8929531639, 124.22850836071)
+
+node7.dx = 0.88769936561584
+node7.dy = 0.44325494766235
+node7.dz = 0
+
+var node8 = Rotate()
+test.add_node(node8, -234.07080513626, 34.233360562803)
+
+node8.angle = 52.662
+node8.axis_x = 0
+node8.axis_y = 0
+node8.axis_z = 1
+
+//var node9 = Time()
+//test.add_node(node9, -440.34342749812, 37.471825694966)
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node1.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node5.exports[0], node2.imports[2])
+Blueprint.connect(node6.exports[0], node7.imports[0])
+Blueprint.connect(node7.exports[0], node8.imports[0])
+Blueprint.connect(node8.exports[0], node2.imports[0])

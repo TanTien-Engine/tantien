@@ -1,0 +1,86 @@
+var node0 = Clear()
+test.add_node(node0, -191, 110)
+
+node0.masks = [ "color" ]
+node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
+
+var node1 = Draw()
+test.add_node(node1, 134, 19)
+
+node1.prim_type = "triangles"
+node1.render_state = { "depth_test" : false, "cull" : "disable" }
+
+var node2 = Shader()
+test.add_node(node2, -17.564659932996, 3.6547752266409)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	ourColor = aColor;
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec3 ourColor;
+in vec2 TexCoord;
+
+uniform UBO
+{
+	float mixValue;	
+};
+
+// texture samplers
+uniform sampler2D texture1;
+uniform sampler2D texture2;
+
+void main()
+{
+	// linearly interpolate between both textures
+	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), mixValue);
+}
+"
+node2.execute()
+
+var node3 = VertexArray()
+test.add_node(node3, -29, -122)
+
+node3.data = [ 0.5, 0.5, 0, 1, 0, 0, 1, 1, 0.5, -0.5, 0, 0, 1, 0, 1, 0, -0.5, -0.5, 0, 0, 0, 1, 0, 0, -0.5, 0.5, 0, 1, 1, 0, 0, 1 ]
+node3.attrs = [ 3, 3, 2 ]
+
+node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
+
+var node4 = Texture()
+test.add_node(node4, -199.27687977499, -83.690936453009)
+
+node4.initTexture("resources/textures/container.jpg")
+node4.sampler_selected = 0
+
+var node5 = Texture()
+test.add_node(node5, -199.47503100322, -154.71151214546)
+
+node5.initTexture("resources/textures/awesomeface.png")
+node5.sampler_selected = 3
+
+var node6 = Number()
+test.add_node(node6, -184.39788511997, -10.06667077349)
+
+node6.value = 0.2
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node1.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node5.exports[0], node2.imports[2])
+Blueprint.connect(node6.exports[0], node2.imports[0])
