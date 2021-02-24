@@ -25,6 +25,7 @@ import "blueprint.nodes.matrix" for Matrix
 import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
 import "blueprint.nodes.perspective" for Perspective
+import "blueprint.nodes.lookat" for LookAt
 
 class Editor
 {
@@ -240,7 +241,7 @@ class Editor
 
 	getPopupNum()
 	{
-		return 13
+		return 14
 	}
 
 	drawPopup(x, y, w, h)
@@ -299,6 +300,10 @@ class Editor
 			new_node = Perspective()
 		}
 		y = y - h
+		if (GUI.selectable(this.gui_top, "LookAt", false, x, y, w)) {
+			new_node = LookAt()
+		}
+		y = y - h
 
 		return new_node
 	}
@@ -355,6 +360,7 @@ import \"blueprint.nodes.matrix\" for Matrix
 import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
 import \"blueprint.nodes.perspective\" for Perspective
+import \"blueprint.nodes.lookat\" for LookAt
 "
 		str = str + this.loadFileImports()
 

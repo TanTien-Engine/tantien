@@ -39,6 +39,7 @@ foreign class Matrix44
 	foreign rotateAxis(angle, x, y, z)
 
 	foreign perspective(fovy, aspect, znear, zfar)
+	foreign lookat(eye, center, up)
 }
 
 foreign class Maths

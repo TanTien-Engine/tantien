@@ -1,0 +1,89 @@
+var node0 = Draw()
+test.add_node(node0, 157, 414)
+
+node0.prim_type = "triangles"
+node0.render_state = { "depth_test" : false, "cull" : "disable" }
+
+var node1 = Clear()
+test.add_node(node1, -198, 619.5)
+
+node1.masks = [ "color" ]
+node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+var node2 = Shader()
+test.add_node(node2, -53.090909090909, 349.22727272727)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+  
+uniform UBO
+{
+	vec3 objectColor;
+	vec3 lightColor;	
+};
+
+void main()
+{
+    FragColor = vec4(lightColor * objectColor, 1.0);
+}
+"
+node2.execute()
+node2.setUniform("objectColor", [ 1, 0.5, 0.31000000238419 ])
+node2.setUniform("lightColor", [ 1, 1, 1 ])
+
+var node3 = VertexArray()
+test.add_node(node3, 29.784036363636, 169.99683636364)
+
+node3.data = [ -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5 ]
+node3.attrs = [ 3 ]
+
+var node4 = Perspective()
+test.add_node(node4, -233.29969947408, 155.53636363636)
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.10000000149012
+node4.zfar = 102.21896362305
+
+var node5 = LookAt()
+test.add_node(node5, -235.50754100588, 278.85523609615)
+
+node5.eye.set(0, 0, 3)
+node5.center.set(0, 0, 0)
+node5.up.set(0, 1, 0)
+
+var node6 = Rotate()
+test.add_node(node6, -237.5, 431.6)
+
+node6.angle = 1.3397341966629
+node6.axis_x = 0
+node6.axis_y = 0.35777792334557
+node6.axis_z = 1
+
+var node7 = Matrix()
+test.add_node(node7, -417.5, 483.4)
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[2])
+Blueprint.connect(node5.exports[0], node2.imports[1])
+Blueprint.connect(node6.exports[0], node2.imports[0])
+Blueprint.connect(node7.exports[0], node6.imports[0])

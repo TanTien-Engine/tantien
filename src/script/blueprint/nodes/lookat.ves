@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths" for Matrix44
+ import "maths.vector" for Vector3
+
+class LookAt is Node
+{
+	init() 
+	{
+		super.init(LookAt.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+
+		this.layout()
+
+		this.eye    = Vector3(0, 0, 3)
+		this.center = Vector3(0, 0, 0)
+		this.up     = Vector3(0, 1, 0)
+	}
+
+	calc(idx) {
+		var mat = Matrix44.init()
+		mat.lookat(this.eye, this.center, this.up)
+		return Variant(VAR_TYPE_MATRIX4, mat)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		//this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+	}
+
+	toString(name) {
+		return "
+%(name).eye.set(%(this.eye.x), %(this.eye.y), %(this.eye.z))
+%(name).center.set(%(this.center.x), %(this.center.y), %(this.center.z))
+%(name).up.set(%(this.up.x), %(this.up.y), %(this.up.z))
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		return dirty
+	}
+}

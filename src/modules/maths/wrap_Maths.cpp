@@ -124,6 +124,45 @@ void w_Matrix44_perspective()
     *mt = sm::mat4::Perspective(fovy, aspect, znear, zfar);
 }
 
+void w_Matrix44_lookat()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+
+    sm::vec3 eye, center, up;
+
+    ves_getfield(1, "x");
+    eye.x = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(1, "y");
+    eye.y = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(1, "z");
+    eye.z = ves_tonumber(-1);
+    ves_pop(1);
+
+    ves_getfield(2, "x");
+    center.x = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(2, "y");
+    center.y = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(2, "z");
+    center.z = ves_tonumber(-1);
+    ves_pop(1);
+
+    ves_getfield(3, "x");
+    up.x = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(3, "y");
+    up.y = ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(3, "z");
+    up.z = ves_tonumber(-1);
+    ves_pop(1);
+
+    *mt = sm::mat4::LookAt(eye, center, up);
+}
+
 void w_Maths_isConvexIntersectConvex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -152,6 +191,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
     if (strcmp(signature, "Matrix44.rotateAxis(_,_,_,_)") == 0) return w_Matrix44_rotateAxis;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
+    if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
 
     if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return w_Maths_isConvexIntersectConvex;
 
