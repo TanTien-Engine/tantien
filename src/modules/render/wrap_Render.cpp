@@ -23,6 +23,8 @@
 
 #include <assert.h>
 
+//#define SHADER_DEBUG_PRINT
+
 namespace
 {
 
@@ -31,12 +33,36 @@ void w_Shader_allocate()
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
 
-    std::vector<unsigned int> vs, fs;
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs_str, vs);
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs_str, fs);
+    if (strlen(fs_str) == 0)
+    {
+        std::vector<unsigned int> cs;
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::ComputeShader, vs_str, cs);
 
-    std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
-    *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
+#ifdef SHADER_DEBUG_PRINT
+        std::string cs_glsl;
+        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
+        printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
+#endif // SHADER_DEBUG_PRINT
+
+        std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
+        *prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+    }
+    else
+    {
+        std::vector<unsigned int> vs, fs;
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs_str, vs);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs_str, fs);
+
+#ifdef SHADER_DEBUG_PRINT
+        std::string vs_glsl, fs_glsl;
+        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::VertexShader, vs, vs_glsl);
+        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::PixelShader, fs, fs_glsl);
+        printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
+#endif // SHADER_DEBUG_PRINT
+
+        std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
+        *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
+    }
 }
 
 static int w_Shader_finalize(void* data)
