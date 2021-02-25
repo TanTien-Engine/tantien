@@ -1,0 +1,148 @@
+var node0 = Draw()
+test.add_node(node0, 288, 419)
+
+node0.prim_type = "triangles"
+node0.render_state = { "depth_test" : true, "cull" : "disable" }
+
+var node1 = Clear()
+test.add_node(node1, 104.61577275634, 720.28026537048)
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+var node2 = Shader()
+test.add_node(node2, -53.127097378661, 373.1309566719)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec3 FragPos;
+out vec3 Normal;
+out vec2 TexCoords;
+
+uniform UBO
+{
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+} ubo_vs;
+
+void main()
+{
+    FragPos = vec3(ubo_vs.model * vec4(aPos, 1.0));
+    Normal = mat3(transpose(inverse(ubo_vs.model))) * aNormal;  
+    TexCoords = aTexCoords;
+    
+    gl_Position = ubo_vs.projection * ubo_vs.view * vec4(FragPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+struct Material {
+    //sampler2D diffuse;
+    vec3 specular;    
+    float shininess;
+}; 
+
+struct Light {
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+in vec3 FragPos;  
+in vec3 Normal;  
+in vec2 TexCoords;
+
+uniform UBO
+{
+    vec3 viewPos;
+    Material material;
+    Light light;
+} ubo_fs;
+
+uniform sampler2D mat_diffuse;
+
+void main()
+{
+    // ambient
+    vec3 ambient = ubo_fs.light.ambient * texture(mat_diffuse, TexCoords).rgb;
+    
+    // diffuse 
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(ubo_fs.light.position - FragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = ubo_fs.light.diffuse * diff * texture(mat_diffuse, TexCoords).rgb;  
+    
+    // specular
+    vec3 viewDir = normalize(ubo_fs.viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), ubo_fs.material.shininess);
+    vec3 specular = ubo_fs.light.specular * (spec * ubo_fs.material.specular);  
+        
+    vec3 result = ambient + diffuse + specular;
+    FragColor = vec4(result, 1.0);
+} 
+"
+node2.execute()
+node2.setUniform("ubo_fs.viewPos", [ 0.61252337694168, 0.53474563360214, 0.52363449335098 ])
+node2.setUniform("ubo_fs.material.specular", [ 1, 1, 1 ])
+node2.setUniform("ubo_fs.material.shininess", [ 64.0 ])
+node2.setUniform("ubo_fs.light.position", [ 1.2, 1.0, 2.0 ])
+node2.setUniform("ubo_fs.light.ambient", [ 0.2, 0.2, 0.2 ])
+node2.setUniform("ubo_fs.light.diffuse", [ 0.5, 0.5, 0.5 ])
+node2.setUniform("ubo_fs.light.specular", [ 1, 1, 1 ])
+
+var node3 = VertexArray()
+test.add_node(node3, 29.784036363636, 169.99683636364)
+
+node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
+node3.attrs = [ 3, 3, 2 ]
+
+var node4 = Perspective()
+test.add_node(node4, -274.56069947408, 480.30036363636)
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.10000000149012
+node4.zfar = 102.21896362305
+
+var node5 = LookAt()
+test.add_node(node5, -272.50754100588, 581.85523609615)
+
+node5.eye.set(0, 0, 3)
+node5.center.set(0, 0, 0)
+node5.up.set(0, 1, 0)
+
+var node6 = Rotate()
+test.add_node(node6, -252.44235920302, 688.11565368456)
+
+node6.angle = 3.4918446540833
+node6.axis_x = 0
+node6.axis_y = 0.35777792334557
+node6.axis_z = 1
+
+var node7 = Matrix()
+test.add_node(node7, -420.45096522925, 719.9804870222)
+
+var node8 = Texture()
+test.add_node(node8, -283, 367)
+
+node8.initTexture("resources/textures/container2.png")
+node8.sampler_selected = 3
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[2])
+Blueprint.connect(node5.exports[0], node2.imports[1])
+Blueprint.connect(node6.exports[0], node2.imports[0])
+Blueprint.connect(node7.exports[0], node6.imports[0])
+Blueprint.connect(node8.exports[0], node2.imports[10])
