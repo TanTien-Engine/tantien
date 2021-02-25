@@ -4,7 +4,9 @@ static const char* imageModuleSource = QUOTE(
 foreign class ImageData
 {
 	init(filepath) {}
-	init(width,height,format) {}
+	init(texture) {}
+	// format: <"rgb", "rgba">
+	init(width, height, format) {}
 
 	foreign getWidth()
 	foreign getHeight()

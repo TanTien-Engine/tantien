@@ -5,6 +5,9 @@
 #include <gimg_import.h>
 #include <gimg_typedef.h>
 #include <gimg_export.h>
+#include <unirender/typedef.h>
+#include <unirender/Texture.h>
+#include <unirender/TextureUtility.h>
 
 #include <string>
 #include <algorithm>
@@ -53,6 +56,25 @@ void w_ImageData_allocate()
         img->width  = width;
         img->height = height;
         img->format = format;
+    }
+    else if (ves_type(1) == VES_TYPE_FOREIGN)
+    {
+        ur::TexturePtr tex = *static_cast<ur::TexturePtr*>(ves_toforeign(1));
+        const auto w = tex->GetWidth();
+        const auto h = tex->GetHeight();
+        const auto fmt = tex->GetFormat();
+        img->width = w;
+        img->height = h;
+        if (fmt == ur::TextureFormat::RGB) {
+            img->format = GPF_RGB;
+        } else if (fmt == ur::TextureFormat::RGBA8) {
+            img->format = GPF_RGBA8;
+        } else {
+            assert(0);
+            return;
+        }
+        size_t sz = ur::TextureUtility::RequiredSizeInBytes(w, h, fmt, 4);
+        img->pixels = (uint8_t*)tex->WriteToMemory(sz);
     }
     else
     {
