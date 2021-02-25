@@ -1,4 +1,4 @@
-import "render" for VertexArray as r_VertexArray
+import "render" for VertexArray as tt_VertexArray
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 
@@ -25,7 +25,7 @@ class VertexArray is Node
 
 	execute() {
 		if (this.data and this.attrs and this.dirty) {
-			this.va = r_VertexArray.init(this.data, this.attrs, this.ibuf)
+			this.va = tt_VertexArray.init(this.data, this.attrs, this.ibuf)
 			this.dirty = false
 		}
 	}

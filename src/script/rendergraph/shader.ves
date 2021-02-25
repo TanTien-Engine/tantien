@@ -1,4 +1,4 @@
-import "render" for Shader as r_Shader, Render
+import "render" for Shader as tt_Shader, Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "gui" for GUI
@@ -59,7 +59,7 @@ class Shader is Node
 
 		this.layout()
 
-		this.prog = r_Shader.init(this.vs, this.fs)
+		this.prog = tt_Shader.init(this.vs, this.fs)
 		this.dirty = false
 	}
 
