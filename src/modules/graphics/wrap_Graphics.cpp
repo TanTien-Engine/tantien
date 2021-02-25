@@ -5,14 +5,12 @@
 #include "modules/graphics/SpriteRenderer.h"
 #include "modules/script/TransHelper.h"
 #include "modules/render/Render.h"
-#include "modules/image/ImageData.h"
 
 #include <tessellation/Painter.h>
 #include <geoshape/Bezier.h>
 #include <unirender/Texture.h>
 #include <unirender/Device.h>
 #include <unirender/Factory.h>
-#include <gimg_typedef.h>
 
 namespace
 {
@@ -146,118 +144,6 @@ void w_Painter_addBezier()
 
     auto& vertices = bezier->GetVertices();
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
-}
-
-void w_Texture_allocate()
-{
-    if (ves_type(1) == VES_TYPE_FOREIGN)
-    {
-        tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
-
-        ur::TextureFormat tf;
-        size_t bpp = 0; // bytes per pixel
-	    switch (img->format)
-	    {
-	    case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
-		    tf =  ur::TextureFormat::A8;
-            bpp = 1;
-		    break;
-        case GPF_RED:
-            tf =  ur::TextureFormat::RED;
-            bpp = 1;
-            break;
-	    case GPF_RGB:
-		    tf =  ur::TextureFormat::RGB;
-            bpp = 3;
-		    break;
-        case GPF_RGB565:
-            tf = ur::TextureFormat::RGB565;
-            bpp = 2;
-            break;
-	    case GPF_RGBA8:
-		    tf =  ur::TextureFormat::RGBA8;
-            bpp = 4;
-		    break;
-	    case GPF_BGRA_EXT:
-		    tf =  ur::TextureFormat::BGRA_EXT;
-            bpp = 4;
-		    break;
-	    case GPF_BGR_EXT:
-		    tf =  ur::TextureFormat::BGR_EXT;
-            bpp = 3;
-		    break;
-        case GPF_RGBA16F:
-            tf =  ur::TextureFormat::RGBA16F;
-            bpp = 4 * 4;
-            break;
-        case GPF_RGB16F:
-            tf =  ur::TextureFormat::RGB16F;
-            bpp = 3 * 4;
-            break;
-        case GPF_RGB32F:
-            tf =  ur::TextureFormat::RGB32F;
-            bpp = 3 * 4;
-            break;
-	    case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            bpp = 4;
-		    break;
-	    case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
-            bpp = 4;
-		    break;
-	    case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
-            bpp = 4;
-		    break;
-	    default:
-		    assert(0);
-	    }
-
-        size_t buf_sz = img->width * img->height * bpp;
-        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
-        *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
-    }
-    else
-    {
-        int width  = (int)ves_tonumber(1);
-        int height = (int)ves_tonumber(2);
-        const char* format = ves_tostring(3);
-        ur::TextureFormat tf;
-        size_t bpp = 0; // bytes per pixel
-        if (strcmp(format, "rgb") == 0) {
-            tf = ur::TextureFormat::RGB;
-            bpp = 3;
-        } else if (strcmp(format, "rgba") == 0) {
-            tf = ur::TextureFormat::RGBA8;
-            bpp = 4;
-        } else {
-            assert(0);
-        }
-
-        size_t buf_sz = width * height * bpp;
-        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
-        *tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
-    }
-}
-
-static int w_Texture_finalize(void* data)
-{
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(data);
-    (*tex)->~Texture();
-    return sizeof(ur::TexturePtr);
-}
-
-void w_Texture_getWidth()
-{
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
-    ves_set_number(0, (double)(*tex)->GetWidth());
-}
-
-void w_Texture_getHeight()
-{
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
-    ves_set_number(0, (double)(*tex)->GetHeight());
 }
 
 void w_Graphics_onSize()
@@ -470,9 +356,6 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.addCircleFilled(_,_,_,_)") == 0) return w_Painter_addCircleFilled;
     if (strcmp(signature, "Painter.addBezier(_,_,_)") == 0) return w_Painter_addBezier;
 
-    if (strcmp(signature, "Texture.getWidth()") == 0) return w_Texture_getWidth;
-    if (strcmp(signature, "Texture.getHeight()") == 0) return w_Texture_getHeight;
-
     if (strcmp(signature, "static Graphics.onSize(_,_)") == 0) return w_Graphics_onSize;
     if (strcmp(signature, "static Graphics.onCamUpdate(_,_,_)") == 0) return w_Graphics_onCamUpdate;
     if (strcmp(signature, "static Graphics.drawPainter(_)") == 0) return w_Graphics_drawPainter;
@@ -490,13 +373,6 @@ void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods
     {
         methods->allocate = w_Painter_allocate;
         methods->finalize = w_Painter_finalize;
-        return;
-    }
-
-    if (strcmp(className, "Texture") == 0)
-    {
-        methods->allocate = w_Texture_allocate;
-        methods->finalize = w_Texture_finalize;
         return;
     }
 }

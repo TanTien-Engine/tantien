@@ -24,6 +24,16 @@ foreign class VertexArray
 	init(data, attrs, ibuf) {}
 }
 
+foreign class Texture
+{
+	init(img_data) {}
+	// format: <"rgb", "rgba">
+	init(width, height, format) {}
+
+	foreign getWidth()
+	foreign getHeight()
+}
+
 foreign class Render
 {
 	// prim_type: "triangles"

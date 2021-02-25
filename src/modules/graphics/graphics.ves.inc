@@ -23,16 +23,6 @@ foreign class Painter
 	foreign addBezier(bezier, color, line_width)
 }
 
-foreign class Texture
-{
-	init(img_data) {}
-	// format: <"rgb", "rgba">
-	init(width, height, format) {}
-
-	foreign getWidth()
-	foreign getHeight()
-}
-
 class Textbox
 {
 	init() 

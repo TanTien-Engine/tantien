@@ -1,5 +1,6 @@
 #include "modules/render/wrap_Render.h"
 #include "modules/render/Render.h"
+#include "modules/image/ImageData.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -13,8 +14,10 @@
 #include <unirender/PrimitiveType.h>
 #include <unirender/ShaderProgram.h>
 #include <unirender/Uniform.h>
+#include <unirender/Texture.h>
 #include <shadertrans/ShaderTrans.h>
 #include <SM_Matrix.h>
+#include <gimg_typedef.h>
 
 #include <glslang/glslang/Public/ShaderLang.h>
 
@@ -70,6 +73,156 @@ static int w_Shader_finalize(void* data)
     std::shared_ptr<ur::ShaderProgram>* prog = static_cast<std::shared_ptr<ur::ShaderProgram>*>(data);
     (*prog)->~ShaderProgram();
     return sizeof(std::shared_ptr<ur::ShaderProgram>);
+}
+
+int get_value_number_size(const std::string& type)
+{
+    int size = 0;
+    if (type == "float") {
+        size = 1;
+    } else if (type == "float2") {
+        size = 2;
+    } else if (type == "float3") {
+        size = 3;
+    } else if (type == "float4") {
+        size = 4;
+    } else if (type == "mat2") {
+        size = 4;
+    } else if (type == "mat3") {
+        size = 9;
+    } else if (type == "mat4") {
+        size = 16;
+    } else if (type == "int") {
+        size = 1;
+    } else if (type == "int2") {
+        size = 2;
+    } else if (type == "int3") {
+        size = 3;
+    } else if (type == "int4") {
+        size = 4;
+    }
+    return size;
+}
+
+void w_Shader_setUniformValue()
+{
+    std::shared_ptr<ur::ShaderProgram> prog = *(std::shared_ptr<ur::ShaderProgram>*)ves_toforeign(0);
+
+    assert(ves_type(1) == VES_TYPE_LIST);
+
+    ves_geti(1, 0);
+    const char* name = ves_tostring(-1);
+    ves_pop(1);
+
+    ves_geti(1, 1);
+    const char* type = ves_tostring(-1);
+    ves_pop(1);
+    assert(strcmp(type, "unknown") != 0);
+
+    if (strcmp(type, "sampler") == 0)
+    {
+        int num = ves_len(1);
+
+        auto slot = prog->QueryTexSlot(name);
+        if (slot >= 0)
+        {
+            auto ctx = tt::Render::Instance()->Context();
+
+            ves_geti(1, 2);
+            if (ves_type(-1) != VES_TYPE_NULL)
+            {
+                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, *tex);
+                }
+            }
+            ves_pop(1);
+
+            // texture sampler
+            if (ves_len(1) > 3)
+            {
+                ves_geti(1, 3);
+                if (ves_type(-1) != VES_TYPE_NULL)
+                {
+                    ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
+                    auto dev = tt::Render::Instance()->Device();
+                    ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
+                }
+                ves_pop(1);
+            }
+        }
+    }
+    else if (strcmp(type, "image") == 0)
+    {
+        int num = ves_len(1);
+
+        auto slot = prog->QueryImgSlot(name);
+        if (slot >= 0)
+        {
+            auto ctx = tt::Render::Instance()->Context();
+
+            ves_geti(1, 2);
+            if (ves_type(-1) != VES_TYPE_NULL)
+            {
+                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                if (slot >= 0) {
+                    ctx->SetImage(slot, *tex, ur::AccessType::WriteOnly);
+                }
+            }
+            ves_pop(1);
+        }
+    }
+    else if (strcmp(type, "mat4") == 0)
+    {
+        auto unif = prog->QueryUniform(name);
+        if (unif)
+        {
+            int num = ves_len(1);
+
+            ves_geti(1, 2);
+            sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
+            ves_pop(1);
+
+            unif->SetValue(mt->x, 16);
+        }
+    }
+    else
+    {
+        auto unif = prog->QueryUniform(name);
+        if (unif)
+        {
+            auto unif_type = unif->GetType();
+            if (unif_type >= ur::UniformType::Int1 &&
+                unif_type <= ur::UniformType::UInt4) 
+            {
+                const int num = get_value_number_size(type);
+                assert(num <= 4);
+                int val[4];
+                for (int i = 0; i < num; ++i)
+                {
+                    ves_geti(1, 2 + i);
+                    val[i] = (int)ves_tonumber(-1);
+                    ves_pop(1);
+                }
+
+                unif->SetValue(val, num);
+            }
+            else 
+            {
+                const int num = get_value_number_size(type);
+                assert(num <= 16);
+                float val[16];
+                for (int i = 0; i < num; ++i)
+                {
+                    ves_geti(1, 2 + i);
+                    val[i] = (float)ves_tonumber(-1);
+                    ves_pop(1);
+                }
+
+                unif->SetValue(val, num);
+            }
+        }
+    }
 }
 
 void w_VertexArray_allocate()
@@ -149,6 +302,118 @@ static int w_VertexArray_finalize(void* data)
     std::shared_ptr<ur::VertexArray>* va = static_cast<std::shared_ptr<ur::VertexArray>*>(data);
     (*va)->~VertexArray();
     return sizeof(std::shared_ptr<ur::VertexArray>);
+}
+
+void w_Texture_allocate()
+{
+    if (ves_type(1) == VES_TYPE_FOREIGN)
+    {
+        tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
+
+        ur::TextureFormat tf;
+        size_t bpp = 0; // bytes per pixel
+	    switch (img->format)
+	    {
+	    case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
+		    tf =  ur::TextureFormat::A8;
+            bpp = 1;
+		    break;
+        case GPF_RED:
+            tf =  ur::TextureFormat::RED;
+            bpp = 1;
+            break;
+	    case GPF_RGB:
+		    tf =  ur::TextureFormat::RGB;
+            bpp = 3;
+		    break;
+        case GPF_RGB565:
+            tf = ur::TextureFormat::RGB565;
+            bpp = 2;
+            break;
+	    case GPF_RGBA8:
+		    tf =  ur::TextureFormat::RGBA8;
+            bpp = 4;
+		    break;
+	    case GPF_BGRA_EXT:
+		    tf =  ur::TextureFormat::BGRA_EXT;
+            bpp = 4;
+		    break;
+	    case GPF_BGR_EXT:
+		    tf =  ur::TextureFormat::BGR_EXT;
+            bpp = 3;
+		    break;
+        case GPF_RGBA16F:
+            tf =  ur::TextureFormat::RGBA16F;
+            bpp = 4 * 4;
+            break;
+        case GPF_RGB16F:
+            tf =  ur::TextureFormat::RGB16F;
+            bpp = 3 * 4;
+            break;
+        case GPF_RGB32F:
+            tf =  ur::TextureFormat::RGB32F;
+            bpp = 3 * 4;
+            break;
+	    case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+            bpp = 4;
+		    break;
+	    case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            bpp = 4;
+		    break;
+	    case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            bpp = 4;
+		    break;
+	    default:
+		    assert(0);
+	    }
+
+        size_t buf_sz = img->width * img->height * bpp;
+        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+        *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
+    }
+    else
+    {
+        int width  = (int)ves_tonumber(1);
+        int height = (int)ves_tonumber(2);
+        const char* format = ves_tostring(3);
+        ur::TextureFormat tf;
+        size_t bpp = 0; // bytes per pixel
+        if (strcmp(format, "rgb") == 0) {
+            tf = ur::TextureFormat::RGB;
+            bpp = 3;
+        } else if (strcmp(format, "rgba") == 0) {
+            tf = ur::TextureFormat::RGBA8;
+            bpp = 4;
+        } else {
+            assert(0);
+        }
+
+        size_t buf_sz = width * height * bpp;
+        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+        *tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
+    }
+}
+
+static int w_Texture_finalize(void* data)
+{
+    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(data);
+    (*tex)->~Texture();
+    return sizeof(ur::TexturePtr);
+}
+
+void w_Texture_getWidth()
+{
+    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
+    ves_set_number(0, (double)(*tex)->GetWidth());
+}
+
+void w_Texture_getHeight()
+{
+    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
+    ves_set_number(0, (double)(*tex)->GetHeight());
 }
 
 void w_Render_draw()
@@ -494,35 +759,6 @@ void get_shader_uniforms(const char* stage_str, const char* shader_str, const ch
     }
 }
 
-int get_value_number_size(const std::string& type)
-{
-    int size = 0;
-    if (type == "float") {
-        size = 1;
-    } else if (type == "float2") {
-        size = 2;
-    } else if (type == "float3") {
-        size = 3;
-    } else if (type == "float4") {
-        size = 4;
-    } else if (type == "mat2") {
-        size = 4;
-    } else if (type == "mat3") {
-        size = 9;
-    } else if (type == "mat4") {
-        size = 16;
-    } else if (type == "int") {
-        size = 1;
-    } else if (type == "int2") {
-        size = 2;
-    } else if (type == "int3") {
-        size = 3;
-    } else if (type == "int4") {
-        size = 4;
-    }
-    return size;
-}
-
 void w_Render_getShaderUniforms()
 {
     const char* stage = ves_tostring(1);
@@ -580,127 +816,6 @@ void w_Render_getShaderUniforms()
     }
 }
 
-void w_Shader_setUniformValue()
-{
-    std::shared_ptr<ur::ShaderProgram> prog = *(std::shared_ptr<ur::ShaderProgram>*)ves_toforeign(0);
-
-    assert(ves_type(1) == VES_TYPE_LIST);
-
-    ves_geti(1, 0);
-    const char* name = ves_tostring(-1);
-    ves_pop(1);
-
-    ves_geti(1, 1);
-    const char* type = ves_tostring(-1);
-    ves_pop(1);
-    assert(strcmp(type, "unknown") != 0);
-
-    if (strcmp(type, "sampler") == 0)
-    {
-        int num = ves_len(1);
-
-        auto slot = prog->QueryTexSlot(name);
-        if (slot >= 0)
-        {
-            auto ctx = tt::Render::Instance()->Context();
-
-            ves_geti(1, 2);
-            if (ves_type(-1) != VES_TYPE_NULL)
-            {
-                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
-                if (slot >= 0) {
-                    ctx->SetTexture(slot, *tex);
-                }
-            }
-            ves_pop(1);
-
-            // texture sampler
-            if (ves_len(1) > 3)
-            {
-                ves_geti(1, 3);
-                if (ves_type(-1) != VES_TYPE_NULL)
-                {
-                    ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
-                    auto dev = tt::Render::Instance()->Device();
-                    ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
-                }
-                ves_pop(1);
-            }
-        }
-    }
-    else if (strcmp(type, "image") == 0)
-    {
-        int num = ves_len(1);
-
-        auto slot = prog->QueryImgSlot(name);
-        if (slot >= 0)
-        {
-            auto ctx = tt::Render::Instance()->Context();
-
-            ves_geti(1, 2);
-            if (ves_type(-1) != VES_TYPE_NULL)
-            {
-                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
-                if (slot >= 0) {
-                    ctx->SetImage(slot, *tex, ur::AccessType::WriteOnly);
-                }
-            }
-            ves_pop(1);
-        }
-    }
-    else if (strcmp(type, "mat4") == 0)
-    {
-        auto unif = prog->QueryUniform(name);
-        if (unif)
-        {
-            int num = ves_len(1);
-
-            ves_geti(1, 2);
-            sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
-            ves_pop(1);
-
-            unif->SetValue(mt->x, 16);
-        }
-    }
-    else
-    {
-        auto unif = prog->QueryUniform(name);
-        if (unif)
-        {
-            auto unif_type = unif->GetType();
-            if (unif_type >= ur::UniformType::Int1 &&
-                unif_type <= ur::UniformType::UInt4) 
-            {
-                const int num = get_value_number_size(type);
-                assert(num <= 4);
-                int val[4];
-                for (int i = 0; i < num; ++i)
-                {
-                    ves_geti(1, 2 + i);
-                    val[i] = (int)ves_tonumber(-1);
-                    ves_pop(1);
-                }
-
-                unif->SetValue(val, num);
-            }
-            else 
-            {
-                const int num = get_value_number_size(type);
-                assert(num <= 16);
-                float val[16];
-                for (int i = 0; i < num; ++i)
-                {
-                    ves_geti(1, 2 + i);
-                    val[i] = (float)ves_tonumber(-1);
-                    ves_pop(1);
-                }
-
-                unif->SetValue(val, num);
-            }
-        }
-    }
-}
-
 }
 
 namespace tt
@@ -708,12 +823,15 @@ namespace tt
 
 VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Shader.setUniformValue(_)") == 0) return w_Shader_setUniformValue;
+
+    if (strcmp(signature, "Texture.getWidth()") == 0) return w_Texture_getWidth;
+    if (strcmp(signature, "Texture.getHeight()") == 0) return w_Texture_getHeight;
+
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.getShaderUniforms(_,_,_)") == 0) return w_Render_getShaderUniforms;
-
-    if (strcmp(signature, "Shader.setUniformValue(_)") == 0) return w_Shader_setUniformValue;
 
     return NULL;
 }
@@ -731,6 +849,13 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_VertexArray_allocate;
         methods->finalize = w_VertexArray_finalize;
+        return;
+    }
+
+    if (strcmp(className, "Texture") == 0)
+    {
+        methods->allocate = w_Texture_allocate;
+        methods->finalize = w_Texture_finalize;
         return;
     }
 }
