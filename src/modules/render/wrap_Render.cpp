@@ -337,6 +337,39 @@ std::string parse_spir_type(const spirv_cross::SPIRType& type)
 	return ret;
 }
 
+void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler, 
+                         spirv_cross::TypeID base_type_id,
+                         const spirv_cross::SPIRType& type,
+                         std::vector<std::pair<std::string, std::string>>& uniforms,
+                         const std::string& base_name)
+{
+    auto member_count = type.member_types.size();
+    for (int i = 0; i < member_count; i++)
+    {
+        auto name = compiler.get_member_name(base_type_id, i);
+        if (!base_name.empty()) {
+            name.insert(0, base_name + ".");
+        }
+        auto sub_type = compiler.get_type(type.member_types[i]);
+        if (sub_type.basetype == spirv_cross::SPIRType::Struct) 
+        {
+            get_struct_uniforms(compiler, type.member_types[i], sub_type, uniforms, name);
+        } 
+        else 
+        {
+            std::pair<std::string, std::string> unif;
+
+            unif.first = name;
+            unif.second = parse_spir_type(sub_type);
+
+            size_t size = compiler.get_declared_struct_member_size(type, i);
+            size_t offset = compiler.type_struct_member_offset(type, i);
+
+            uniforms.push_back(unif);
+        }
+    }
+}
+
 void get_shader_uniforms(EShLanguage stage, const std::vector<unsigned int>& shader,
                          std::vector<std::pair<std::string, std::string>>& uniforms)
 {
@@ -362,19 +395,8 @@ void get_shader_uniforms(EShLanguage stage, const std::vector<unsigned int>& sha
     {
         auto ubo_name = compiler.get_name(resource.id);;
         spirv_cross::SPIRType type = compiler.get_type(resource.base_type_id);
-
-        auto member_count = type.member_types.size();
-        for (int i = 0; i < member_count; i++)
-        {
-            std::pair<std::string, std::string> unif;
-
-            unif.first = compiler.get_member_name(resource.base_type_id, i);
-            unif.second = parse_spir_type(compiler.get_type(type.member_types[i]));
-
-			size_t size = compiler.get_declared_struct_member_size(type, i);
-            size_t offset = compiler.type_struct_member_offset(type, i);
-
-			uniforms.push_back(unif);
+        if (type.basetype == spirv_cross::SPIRType::Struct) {
+            get_struct_uniforms(compiler, resource.base_type_id, type, uniforms, ubo_name);
         }
 
 		uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
