@@ -8,7 +8,7 @@ var node1 = Draw()
 test.add_node(node1, 134, 19)
 
 node1.prim_type = "triangles"
-node1.render_state = { "depth_test" : false }
+node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
 var node2 = Shader()
 test.add_node(node2, -30, -16)

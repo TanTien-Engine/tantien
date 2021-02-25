@@ -8,6 +8,6 @@ var node1 = Draw()
 test.add_node(node1, 87, 28)
 
 node1.prim_type = "triangles"
-node1.render_state = { "depth_test" : false }
+node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
