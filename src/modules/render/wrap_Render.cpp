@@ -587,7 +587,20 @@ void w_Shader_setUniformValue()
             }
             ves_pop(1);
 
-            ves_geti(1, 3);
+            // texture sampler
+            if (ves_len(1) > 3)
+            {
+                ves_geti(1, 3);
+                if (ves_type(-1) != VES_TYPE_NULL)
+                {
+                    ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
+                    auto dev = tt::Render::Instance()->Device();
+                    ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
+                }
+                ves_pop(1);
+            }
+        }
+    }
     else if (strcmp(type, "image") == 0)
     {
         int num = ves_len(1);
