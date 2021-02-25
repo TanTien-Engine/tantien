@@ -165,6 +165,18 @@ void w_Render_draw()
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
 
+void w_Render_compute()
+{
+    ur::DrawState ds;
+
+    ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(1));
+
+    int x = (int)ves_tonumber(2);
+    int y = (int)ves_tonumber(3);
+    int z = (int)ves_tonumber(4);
+    tt::Render::Instance()->Context()->Compute(ds, x, y, z);
+}
+
 void w_Render_clear()
 {
     ur::ClearState clear;
@@ -578,6 +590,7 @@ namespace tt
 VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
+    if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.getShaderUniforms(_,_,_)") == 0) return w_Render_getShaderUniforms;
 

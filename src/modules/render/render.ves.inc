@@ -27,13 +27,13 @@ foreign class VertexArray
 foreign class Render
 {
 	// prim_type: "triangles"
-	// prog: program index
-	// va: vertex array index
 	// render_state: map { 
 	//   "depth_test" : bool,
 	//   "cull" : <"disable", "front", "back", "front_and_back">
 	// }
 	foreign static draw(prim_type, prog, va, render_state)
+
+	foreign static compute(prog, num_groups_x, num_groups_y, num_groups_z)
 
 	// masks: list ["color", "depth", "stencil"]
 	// values: map { "color" : [r,g,b,a] }
