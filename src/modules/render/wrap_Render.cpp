@@ -588,11 +588,22 @@ void w_Shader_setUniformValue()
             ves_pop(1);
 
             ves_geti(1, 3);
+    else if (strcmp(type, "image") == 0)
+    {
+        int num = ves_len(1);
+
+        auto slot = prog->QueryImgSlot(name);
+        if (slot >= 0)
+        {
+            auto ctx = tt::Render::Instance()->Context();
+
+            ves_geti(1, 2);
             if (ves_type(-1) != VES_TYPE_NULL)
             {
-                ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
-                auto dev = tt::Render::Instance()->Device();
-                ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
+                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                if (slot >= 0) {
+                    ctx->SetImage(slot, *tex, ur::AccessType::WriteOnly);
+                }
             }
             ves_pop(1);
         }
