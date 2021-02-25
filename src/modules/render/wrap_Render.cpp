@@ -292,6 +292,24 @@ std::string parse_spir_type(const spirv_cross::SPIRType& type)
 		}
 		break;
 
+    case spirv_cross::SPIRType::BaseType::UInt:
+        switch (type.vecsize)
+        {
+        case 1:
+            ret = "int";
+            break;
+        case 2:
+            ret = "int2";
+            break;
+        case 3:
+            ret = "int3";
+            break;
+        case 4:
+            ret = "int4";
+            break;
+        }
+        break;
+
 	case spirv_cross::SPIRType::BaseType::Float:
 		switch (type.columns) 
 		{
@@ -333,7 +351,7 @@ std::string parse_spir_type(const spirv_cross::SPIRType& type)
 		}
 		break;
 	}
-
+    assert(ret != "unknown");
 	return ret;
 }
 
@@ -493,6 +511,14 @@ int get_value_number_size(const std::string& type)
         size = 9;
     } else if (type == "mat4") {
         size = 16;
+    } else if (type == "int") {
+        size = 1;
+    } else if (type == "int2") {
+        size = 2;
+    } else if (type == "int3") {
+        size = 3;
+    } else if (type == "int4") {
+        size = 4;
     }
     return size;
 }
@@ -567,6 +593,7 @@ void w_Shader_setUniformValue()
     ves_geti(1, 1);
     const char* type = ves_tostring(-1);
     ves_pop(1);
+    assert(strcmp(type, "unknown") != 0);
 
     if (strcmp(type, "sampler") == 0)
     {
@@ -640,16 +667,36 @@ void w_Shader_setUniformValue()
         auto unif = prog->QueryUniform(name);
         if (unif)
         {
-            const int num = get_value_number_size(type);
-            float val[16];
-            for (int i = 0; i < num; ++i)
+            auto unif_type = unif->GetType();
+            if (unif_type >= ur::UniformType::Int1 &&
+                unif_type <= ur::UniformType::UInt4) 
             {
-                ves_geti(1, 2 + i);
-                val[i] = (float)ves_tonumber(-1);
-                ves_pop(1);
-            }
+                const int num = get_value_number_size(type);
+                assert(num <= 4);
+                int val[4];
+                for (int i = 0; i < num; ++i)
+                {
+                    ves_geti(1, 2 + i);
+                    val[i] = (int)ves_tonumber(-1);
+                    ves_pop(1);
+                }
 
-            unif->SetValue(val, num);
+                unif->SetValue(val, num);
+            }
+            else 
+            {
+                const int num = get_value_number_size(type);
+                assert(num <= 16);
+                float val[16];
+                for (int i = 0; i < num; ++i)
+                {
+                    ves_geti(1, 2 + i);
+                    val[i] = (float)ves_tonumber(-1);
+                    ves_pop(1);
+                }
+
+                unif->SetValue(val, num);
+            }
         }
     }
 }
