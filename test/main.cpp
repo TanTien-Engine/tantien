@@ -78,6 +78,9 @@ VesselLoadModuleResult read_module(const char* module)
         if (!source) {
             source = file_search(module, "src/");
         }
+        if (!source) {
+            source = file_search(module, "");
+        }
     }
 
     VesselLoadModuleResult result;
