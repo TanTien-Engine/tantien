@@ -28,6 +28,7 @@ foreign class GUI
 	foreign static begin(ctx)
 	foreign static end(ctx)
 	foreign static update(ctx)
+	foreign static rebuild(ctx)
 
 	foreign static onSize(w, h)
 	foreign static transScrPosToProj(x, y, cam_x, cam_y, cam_scale)

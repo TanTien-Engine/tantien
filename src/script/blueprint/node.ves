@@ -1,6 +1,7 @@
 import "math" for Math
 import "maths.vector" for Vector2
 import "maths" for Float2
+import "blueprint.blueprint" for Blueprint
 import "blueprint.node_render" for NodeRender
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 
@@ -88,5 +89,19 @@ class Node
 
 	calcPanelHeight() {
 		return DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
+	}
+
+	disconnect()
+	{
+		for (var p in this.imports) {
+			while (!p.conns.isEmpty) {
+				Blueprint.disconnect(p.conns.front())
+			}
+		}
+		for (var p in this.exports) {
+			while (!p.conns.isEmpty) {
+				Blueprint.disconnect(p.conns.front())
+			}
+		}
 	}
 }

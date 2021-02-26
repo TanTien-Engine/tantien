@@ -55,6 +55,12 @@ void w_GUI_update()
 	ctx->Update(0.03f);
 }
 
+void w_GUI_rebuild()
+{
+	egui::Context* ctx = *(egui::Context**)ves_toforeign(1);
+	ctx->rbuf.Rebuild();
+}
+
 void w_GUI_onSize()
 {
 	const float w = (float)ves_tonumber(1);
@@ -300,6 +306,7 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 	if (strcmp(signature, "static GUI.begin(_)") == 0) return w_GUI_begin;
 	if (strcmp(signature, "static GUI.end(_)") == 0) return w_GUI_end;
 	if (strcmp(signature, "static GUI.update(_)") == 0) return w_GUI_update;
+	if (strcmp(signature, "static GUI.rebuild(_)") == 0) return w_GUI_rebuild;
 
 	if (strcmp(signature, "static GUI.onSize(_,_)") == 0) return w_GUI_onSize;
 	if (strcmp(signature, "static GUI.transScrPosToProj(_,_,_,_,_)") == 0) return w_GUI_transScrPosToProj;

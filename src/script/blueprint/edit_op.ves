@@ -34,11 +34,21 @@ class EditOP
 		this.curr_op = this.cam_zoom_op
 	}
 	
-	on_key_pressed(c)
+	on_key_pressed(key)
 	{
+		if (key == "del")
+		{
+			for (var node in this.scene.selection) 
+			{
+				var bp_node = node.components["bp"]
+				bp_node.disconnect()
+				this.scene.delete(node)
+			}
+			this.scene.selection.clear()
+		}
 	}
 
-	on_key_released(c)
+	on_key_released(key)
 	{
 	}
 
@@ -86,6 +96,4 @@ class EditOP
 	{
 		this.curr_op.on_mouse_scroll(x, y, dx, dy)
 	}
-
-
 }

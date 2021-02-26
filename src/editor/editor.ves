@@ -86,14 +86,18 @@ class Editor
 		this.camera.on_size(w, h)
 	}
 
-	keypressed(c)
+	keypressed(key)
 	{
-		this.editop.on_key_pressed(c)
+		this.editop.on_key_pressed(key)
+
+		if (key == "del") {
+			GUI.rebuild(this.gui_nodes)
+		}
 	}
 
-	keyreleased(c)
+	keyreleased(key)
 	{
-		this.editop.on_key_released(c)
+		this.editop.on_key_released(key)
 	}
 
 	mousemoved(x, y, btn)

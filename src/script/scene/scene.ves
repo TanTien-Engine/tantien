@@ -11,6 +11,16 @@ class Scene
 		this.nodes.add(node)
 	}
 
+	delete(node) 
+	{
+		for (var i in 0..this.nodes.count) {
+			if (this.nodes[i] == node) {
+				this.nodes.removeAt(i)
+				return
+			}
+		}
+	}
+
 	update()
 	{
 		for (var node in this.nodes) {

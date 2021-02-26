@@ -199,9 +199,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void call_keypressed(char c)
+void call_keypressed(const char* str)
 {
-    ves_pushlstring(&c, 1);
+    ves_pushstring(str);
     ves_pushstring("keypressed(_)");
     ves_call(1, 0);
 }
@@ -264,14 +264,16 @@ void process_input(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        call_keypressed('w');
+        call_keypressed("w");
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        call_keypressed('s');
+        call_keypressed("s");
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        call_keypressed('a');
+        call_keypressed("a");
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        call_keypressed('d');
-    } 
+        call_keypressed("d");
+    } else if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS) {
+        call_keypressed("del");
+    }
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
