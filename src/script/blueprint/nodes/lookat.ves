@@ -33,7 +33,7 @@ class LookAt is Node
 	{
 		super.layout()
 
-		//this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
 	}
 
 	toString(name) {
@@ -50,6 +50,29 @@ class LookAt is Node
 
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+
+		var eye_x = GUI.slider(ctx, "x", this.eye.x, x, y, this.style.width - 20, REGION, false)
+		if (eye_x != this.eye.x) {
+			this.eye.x = eye_x
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var eye_y = GUI.slider(ctx, "eye_y", this.eye.y, x, y, this.style.width - 20, REGION, false)
+		if (eye_y != this.eye.y) {
+			this.eye.y = eye_y
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var eye_z = GUI.slider(ctx, "eye_z", this.eye.z, x, y, this.style.width - 20, REGION, false)
+		if (eye_z != this.eye.z) {
+			this.eye.z = eye_z
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
 
 		return dirty
 	}
