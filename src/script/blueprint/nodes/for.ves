@@ -1,0 +1,108 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "gui" for GUI
+
+class For is Node
+{
+	init() 
+	{
+		super.init(For.name)
+
+		this.imports = [
+			Pin(this, "prev", "port"),
+			Pin(this, "do", "port")			
+		]
+		this.exports = [
+			Pin(this, "next", "port"),
+			Pin(this, "index", VAR_TYPE_NUMBER)
+		]
+
+		// stop execute path for "do" and "index"
+		this.imports[1].stop_port_pass = true
+		this.exports[1].stop_port_pass = true		
+
+		this.start = 0
+		this.end = 1
+
+		this.index = 0		
+
+		this.layout()
+
+		this.exec_list = []
+	}
+
+	calc(idx) 
+	{
+		if (idx == 1) {
+			return Variant(VAR_TYPE_NUMBER, this.index)
+		}
+	}
+
+	execute() 
+	{
+		for (this.index = this.start; this.index < this.end; this.index = this.index + 1) {
+			for (var node in this.exec_list) {
+				if (node.execute) {
+					node.execute()
+				}
+			}
+		}
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
+	toString(name) {
+		return "
+%(name).start = %(this.start)
+%(name).end = %(this.end)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+
+		var start = GUI.slider(ctx, "start", this.start, x, y, this.style.width - 50, REGION, false)
+		if (start != this.start) {
+			this.start = start
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var end = GUI.slider(ctx, "end", this.end, x, y, this.style.width - 50, REGION, false)
+		if (end != this.end) {
+			this.end = end
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+
+	rebuildExecList()
+	{
+		if (this.imports[1].conns.isEmpty) {
+			return
+		}
+
+		var root = this.imports[1].conns.front().from.node
+
+		var nodes = []
+		Blueprint.getPrecursorNodes(root, nodes)
+
+		this.exec_list = Blueprint.topoSort(nodes)
+	}
+}

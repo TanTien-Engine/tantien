@@ -1,0 +1,65 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths.vector" for Vector2
+
+class Number2 is Node
+{
+	init() 
+	{
+		super.init(Number2.name)
+
+		this.exports = [
+			Pin(this, "v2", VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+
+		this.value = Vector2()
+	}
+
+	calc(idx) {
+		return Variant(VAR_TYPE_NUMBER2, this.value)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
+	toString(name) {
+		return "
+%(name).value.set(%(this.value.x), %(this.value.y))
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+		
+		var vx = GUI.slider(ctx, "x", this.value.x, x, y, this.style.width - 20, REGION, false)
+		if (vx != this.value.x) {
+			this.value.x = vx
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var vy = GUI.slider(ctx, "y", this.value.y, x, y, this.style.width - 20, REGION, false)
+		if (vy != this.value.y) {
+			this.value.y = vy
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+}

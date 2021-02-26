@@ -12,6 +12,8 @@ import "io" for IO
 import "filesystem" for Filesystem
 
 import "blueprint.nodes.number" for Number
+import "blueprint.nodes.number2" for Number2
+import "blueprint.nodes.number3" for Number3
 import "blueprint.nodes.combine" for Combine
 import "blueprint.nodes.time" for Time
 import "blueprint.nodes.sin" for Sin
@@ -25,6 +27,9 @@ import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
 import "blueprint.nodes.perspective" for Perspective
 import "blueprint.nodes.lookat" for LookAt
+import "blueprint.nodes.for" for For
+import "blueprint.nodes.array" for Array
+import "blueprint.nodes.print" for Print
 
 class Editor
 {
@@ -220,7 +225,7 @@ class Editor
 
 	getPopupNum()
 	{
-		return 14
+		return 17
 	}
 
 	drawPopup(x, y, w, h)
@@ -231,6 +236,14 @@ class Editor
 			new_node = Number()
 		}
 		y = y - h
+		if (GUI.selectable(this.gui_top, "Number2", false, x, y, w)) {
+			new_node = Number2()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Number3", false, x, y, w)) {
+			new_node = Number3()
+		}
+		y = y - h				
 		if (GUI.selectable(this.gui_top, "Combine", false, x, y, w)) {
 			new_node = Combine()
 		}
@@ -283,6 +296,18 @@ class Editor
 			new_node = LookAt()
 		}
 		y = y - h
+		if (GUI.selectable(this.gui_top, "For", false, x, y, w)) {
+			new_node = For()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Array", false, x, y, w)) {
+			new_node = Array()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Print", false, x, y, w)) {
+			new_node = Print()
+		}
+		y = y - h
 
 		return new_node
 	}
@@ -327,6 +352,8 @@ class Editor
 import \"test\" for test
 import \"blueprint.blueprint\" for Blueprint
 import \"blueprint.nodes.number\" for Number
+import \"blueprint.nodes.number2\" for Number2
+import \"blueprint.nodes.number3\" for Number3
 import \"blueprint.nodes.combine\" for Combine
 import \"blueprint.nodes.time\" for Time
 import \"blueprint.nodes.sin\" for Sin
@@ -340,6 +367,9 @@ import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
 import \"blueprint.nodes.perspective\" for Perspective
 import \"blueprint.nodes.lookat\" for LookAt
+import \"blueprint.nodes.for\" for For
+import \"blueprint.nodes.array\" for Array
+import \"blueprint.nodes.print\" for Print
 "
 		str = str + this.loadFileImports()
 

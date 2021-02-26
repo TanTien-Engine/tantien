@@ -1,0 +1,31 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+
+class Print is Node
+{
+	init() 
+	{
+		super.init(Print.name)
+
+		this.imports = [
+			Pin(this, "prev", "port"),
+			Pin(this, "value", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "next", "port")
+		]
+
+		this.layout()
+	}
+
+	execute()
+	{
+		var conns = this.imports[1].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			var v = f_pin.node.calc(f_pin.slot_idx).value
+			System.print("%(v)")
+		}
+	}
+}
