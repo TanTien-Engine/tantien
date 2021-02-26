@@ -1,0 +1,16 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+
+class Pass is Node
+{
+	init()
+	{
+		super.init(Pass.name)
+
+		this.imports = [
+			Pin(this, "prev", "port")
+		]
+
+		this.layout()
+	}
+}

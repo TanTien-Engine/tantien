@@ -21,6 +21,7 @@ class Blueprint
 						if (nodes[j] == conn.from.node) {
 							in_deg[i] = in_deg[i] + 1
 							out_nodes[j].add(i)
+							// todo break
 							// break;
 						}
 					}
@@ -52,6 +53,28 @@ class Blueprint
 		}
 
 		return ret
+	}
+
+	static getPrecursorNodes(root, nodes)
+	{
+		var buf = []
+		buf.add(root)
+		while (!buf.isEmpty)
+		{
+			var n = buf[buf.count - 1]
+			buf.removeAt(buf.count - 1)
+
+			nodes.add(n)
+			for (var pin in n.imports) {
+				if (!pin.stop_port_pass) {
+					for (var conn in pin.conns) {
+						if (!conn.from.stop_port_pass) {
+							buf.add(conn.from.node)						
+						}
+					}
+				}
+			}
+		}
 	}
 
 	static connect(from, to)

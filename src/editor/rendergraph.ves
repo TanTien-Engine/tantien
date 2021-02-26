@@ -1,10 +1,14 @@
 import "editor.editor" for Editor
 import "gui" for GUI
+import "render" for Render
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.for" for For
 
 import "rendergraph.clear" for Clear
 import "rendergraph.draw" for Draw
 import "rendergraph.shader" for Shader
 import "rendergraph.vertex_array" for VertexArray
+import "rendergraph.pass" for Pass
 
 class Test is Editor
 {
@@ -12,7 +16,62 @@ class Test is Editor
 	{
 		super.load()
 
-		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__1.advanced_lighting.ves"
+		this.filepath = "samples/rendergraph/learnopengl/2.lighting__6.multiple_lights.ves"
+
+		this.drawlists = []
+	}
+
+	isEndNode(node)
+	{
+		if (!node) {
+			return false
+		}
+
+		if (node is Pass) {
+			return true
+		} else if (node is Draw and node.exports[0].conns.isEmpty) {
+			return true
+		}
+	}
+
+	rebuildDrawlist()
+	{
+		this.drawlists.clear()
+
+		for (var node in this.scene.nodes) 
+		{
+			var bp_node = node.components["bp"]			
+			if (this.isEndNode(bp_node))
+			{
+				var nodes = []
+				Blueprint.getPrecursorNodes(bp_node, nodes)
+
+				var drawlist = Blueprint.topoSort(nodes)
+				this.drawlists.add(drawlist)				
+			}
+			if (bp_node is For) {
+				bp_node.rebuildExecList()
+			}
+		}
+	}
+
+	drawPreview()
+	{
+		if (this.scene.bp_dirty)
+		{
+			this.rebuildDrawlist()
+			this.scene.bp_dirty = false
+		}
+
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		for (var drawlist in this.drawlists) {
+			for (var node in drawlist) {
+				if (node.execute) {
+					node.execute()
+				}
+			}
+		}
 	}
 
 	drawPopup(x, y)
@@ -22,7 +81,7 @@ class Test is Editor
 		var WIDTH = 120
 		var HEIGHT = 25
 
-		var NUM = super.getPopupNum() + 4
+		var NUM = super.getPopupNum() + 5
 		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
 
 		new_node = super.drawPopup(x, y, WIDTH, HEIGHT)
@@ -56,6 +115,10 @@ class Test is Editor
 			new_node = va
 		}
 		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "Pass", false, x, y, WIDTH)) {
+			new_node = Pass()
+		}
+		y = y - HEIGHT
 
 		return new_node
 	}
@@ -67,6 +130,7 @@ import \"rendergraph.clear\" for Clear
 import \"rendergraph.draw\" for Draw
 import \"rendergraph.shader\" for Shader
 import \"rendergraph.vertex_array\" for VertexArray
+import \"rendergraph.pass\" for Pass
 "
 	}
 }

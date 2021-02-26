@@ -1,6 +1,5 @@
 import "scene.scene" for Scene
 import "graphics.ortho_camera" for OrthoCamera
-import "render" for Render
 import "gui" for GUI, Context, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "blueprint.blueprint" for Blueprint
@@ -38,8 +37,6 @@ class Editor
 
 		this.popup_pos = nil
 		this.prev_pin = nil
-
-		this.drawlist = []
 
 		this.gui_top = Context.init()
 		this.gui_nodes = Context.init()
@@ -154,28 +151,6 @@ class Editor
 	mousescrolled(x, y, dx, dy)
 	{
 		this.editop.on_mouse_scrolled(x, y, dx, dy)
-	}
-
-	drawPreview()
-	{
-		if (this.scene.bp_dirty)
-		{
-			var drawlist = []
-			for (var node in this.scene.nodes) {
-				var bp_node = node.components["bp"]
-				drawlist.add(bp_node)
-			}
-			this.drawlist = Blueprint.topoSort(drawlist)
-			this.scene.bp_dirty = false
-		}
-
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		for (var node in this.drawlist) {
-			if (node.execute) {
-				node.execute()
-			}
-		}
 	}
 
 	drawScene()
