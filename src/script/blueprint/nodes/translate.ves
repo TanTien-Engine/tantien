@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths.vector" for Vector3
@@ -14,6 +14,7 @@ class Translate is Node
 
 		this.imports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "offset", VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
@@ -36,6 +37,26 @@ class Translate is Node
 			var f_pin = conns.front().from
 			mat = f_pin.node.calc(f_pin.slot_idx).value
 		}
+
+		conns = this.imports[1].conns
+		if (!conns.isEmpty) 
+		{
+			var f_pin = conns.front().from
+			var offset = f_pin.node.calc(f_pin.slot_idx).value
+			if (offset is Vector3)
+			{
+				this.dx = offset.x
+				this.dy = offset.y
+				this.dz = offset.z
+			}
+			else if (offset is List)
+			{
+				this.dx = offset[0]
+				this.dy = offset[1]
+				this.dz = offset[2]
+			}
+		}
+
 		var offset = this.region * 0.5
 		mat.translate(this.dx - offset, this.dy - offset, this.dz - offset)
 		return Variant(VAR_TYPE_MATRIX4, mat)
