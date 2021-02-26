@@ -43,6 +43,19 @@ class Texture is Node
 		return Variant(VAR_TYPE_TEXTURE, [this.tex, sampler])
 	}
 
+	draw(mt)
+	{
+		super.draw(mt)
+
+		if (this.tex)
+		{
+			var scale = this.style.width / this.tex.getWidth()
+			var x = this.pos.x
+			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.getHeight() * scale * 0.5
+			Graphics.drawTexture(this.tex, x, y, scale)
+		}
+	}
+
 	layout()
 	{
 		super.layout()
