@@ -17,6 +17,8 @@ import "blueprint.nodes.number3" for Number3
 import "blueprint.nodes.combine" for Combine
 import "blueprint.nodes.time" for Time
 import "blueprint.nodes.sin" for Sin
+import "blueprint.nodes.cos" for Cos
+import "blueprint.nodes.radians" for Radians
 import "blueprint.nodes.add" for Add
 import "blueprint.nodes.subtract" for Subtract
 import "blueprint.nodes.multiply" for Multiply
@@ -225,7 +227,7 @@ class Editor
 
 	getPopupNum()
 	{
-		return 17
+		return 19
 	}
 
 	drawPopup(x, y, w, h)
@@ -256,6 +258,14 @@ class Editor
 			new_node = Sin()
 		}
 		y = y - h
+		if (GUI.selectable(this.gui_top, "Cos", false, x, y, w)) {
+			new_node = Cos()
+		}
+		y = y - h
+		if (GUI.selectable(this.gui_top, "Radians", false, x, y, w)) {
+			new_node = Radians()
+		}
+		y = y - h				
 		if (GUI.selectable(this.gui_top, "Add", false, x, y, w)) {
 			new_node = Add()
 		}
@@ -357,6 +367,8 @@ import \"blueprint.nodes.number3\" for Number3
 import \"blueprint.nodes.combine\" for Combine
 import \"blueprint.nodes.time\" for Time
 import \"blueprint.nodes.sin\" for Sin
+import \"blueprint.nodes.cos\" for Cos
+import \"blueprint.nodes.radians\" for Radians
 import \"blueprint.nodes.add\" for Add
 import \"blueprint.nodes.subtract\" for Subtract
 import \"blueprint.nodes.multiply\" for Multiply

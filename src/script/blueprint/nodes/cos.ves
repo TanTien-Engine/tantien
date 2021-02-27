@@ -1,0 +1,32 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "math" for Math
+
+class Cos is Node
+{
+	init() 
+	{
+		super.init(Cos.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		var v = 0
+		var conns = this.imports[0].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			v = f_pin.node.calc(f_pin.slot_idx).value
+		}
+		return Variant(VAR_TYPE_NUMBER, Math.cos(v))
+	}
+}
