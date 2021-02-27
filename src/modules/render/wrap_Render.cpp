@@ -625,30 +625,62 @@ void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler,
                          const spirv_cross::SPIRType& type,
                          std::vector<std::pair<std::string, std::string>>& uniforms,
                          const std::string& base_name)
-{
+{   
     auto member_count = type.member_types.size();
-    for (int i = 0; i < member_count; i++)
+    if (!type.array.empty()) 
     {
-        auto name = compiler.get_member_name(base_type_id, i);
-        if (!base_name.empty()) {
-            name.insert(0, base_name + ".");
+        for (int i = 0, n = type.array[0]; i < n; ++i)
+        {
+            for (int j = 0; j < member_count; j++)
+            {
+                std::string full_name = base_name + "[" + std::to_string(i) + "]";
+                auto name = compiler.get_member_name(type.parent_type, j);
+                full_name.append("." + name);
+                auto sub_type = compiler.get_type(type.member_types[j]);
+                if (sub_type.basetype == spirv_cross::SPIRType::Struct)
+                {
+                    get_struct_uniforms(compiler, type.member_types[j], sub_type, uniforms, full_name);
+                }
+                else
+                {
+                    std::pair<std::string, std::string> unif;
+
+                    unif.first = full_name;
+                    unif.second = parse_spir_type(sub_type);
+
+                    size_t size = compiler.get_declared_struct_member_size(type, j);
+                    size_t offset = compiler.type_struct_member_offset(type, j);
+
+                    uniforms.push_back(unif);
+                }
+            }
         }
-        auto sub_type = compiler.get_type(type.member_types[i]);
-        if (sub_type.basetype == spirv_cross::SPIRType::Struct) 
+    }
+    else
+    {
+        for (int i = 0; i < member_count; i++)
         {
-            get_struct_uniforms(compiler, type.member_types[i], sub_type, uniforms, name);
-        } 
-        else 
-        {
-            std::pair<std::string, std::string> unif;
+            auto name = compiler.get_member_name(base_type_id, i);
+            if (!base_name.empty()) {
+                name.insert(0, base_name + ".");
+            }
+            auto sub_type = compiler.get_type(type.member_types[i]);
+            if (sub_type.basetype == spirv_cross::SPIRType::Struct)
+            {
+                get_struct_uniforms(compiler, type.member_types[i], sub_type, uniforms, name);
+            }
+            else
+            {
+                std::pair<std::string, std::string> unif;
 
-            unif.first = name;
-            unif.second = parse_spir_type(sub_type);
+                unif.first = name;
+                unif.second = parse_spir_type(sub_type);
 
-            size_t size = compiler.get_declared_struct_member_size(type, i);
-            size_t offset = compiler.type_struct_member_offset(type, i);
+                size_t size = compiler.get_declared_struct_member_size(type, i);
+                size_t offset = compiler.type_struct_member_offset(type, i);
 
-            uniforms.push_back(unif);
+                uniforms.push_back(unif);
+            }
         }
     }
 }
