@@ -53,4 +53,12 @@ class OrthoCamera
 
 		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)
 	}
+
+	reset()
+	{
+		this.pos.set(0, 0)
+		this.scale = 1.0
+
+		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)	
+	}
 }

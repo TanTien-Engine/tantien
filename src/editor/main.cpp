@@ -197,6 +197,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
         ves_pushstring("refresh()");
         ves_call(0, 0);
+    } else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        call_keypressed("escape");
     }
 }
 
