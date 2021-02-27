@@ -188,14 +188,25 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
     if (key == GLFW_KEY_O && action == GLFW_PRESS && ctrl_pressed) {
-        ves_pushstring("loadfromfile()");
-        ves_call(0, 0);
+        ves_pushstring("");
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
     } else if (key == GLFW_KEY_S && action == GLFW_PRESS && ctrl_pressed) {
         ves_pushstring("savetofile()");
         ves_call(0, 0);
     } else if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
         ves_pushstring("refresh()");
         ves_call(0, 0);
+    }
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    if (count > 0)
+    {
+        ves_pushstring(paths[0]);
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
     }
 }
 
@@ -392,6 +403,7 @@ int main(int argc, char* argv[])
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetDropCallback(window, drop_callback);
 
     if(gl3wInit()) {
         std::cerr << "failed to init GL3W" << std::endl;

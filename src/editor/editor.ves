@@ -49,6 +49,9 @@ class Editor
 		this.gui_nodes = Context.init()
 
 		this.right_press_pos = nil
+
+		this.filepath = ""
+//		this.filepath = "samples/rendergraph/learnopengl/2.lighting__6.multiple_lights.ves"
 	}
 
 	update()
@@ -354,8 +357,15 @@ class Editor
 		this.scene.add(node)
 	}
 
-	loadfromfile()
+	loadfromfile(filepath)
 	{
+		if (filepath != "") {
+			this.filepath = filepath
+		}
+		if (this.filepath == "") {
+			return
+		}
+
 		Filesystem.setAssetBaseDir(this.filepath)
 
 		var str = "
@@ -448,6 +458,6 @@ import \"blueprint.nodes.print\" for Print
 	refresh()
 	{
 		this.scene.nodes.clear()
-		this.loadfromfile()
+		this.loadfromfile(this.filepath)
 	}
 }
