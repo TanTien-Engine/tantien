@@ -40,7 +40,9 @@ class Editor
 		this.scene = Scene()
 		this.camera = OrthoCamera()
 
-		this.editop = BlueprintEditOP(this.camera, this.scene, this.popupCB)
+		this.nodes_op = BlueprintEditOP(this.camera, this.scene, this.popupCB)
+		this.preview_op = nil
+		this.editop = this.nodes_op
 
 		this.popup_pos = nil
 		this.prev_pin = nil
@@ -52,6 +54,8 @@ class Editor
 
 		this.filepath = ""
 //		this.filepath = "samples/rendergraph/learnopengl/2.lighting__6.multiple_lights.ves"
+
+		this.hide_nodes = false
 	}
 
 	update()
@@ -76,8 +80,13 @@ class Editor
 	{
 		this.drawPreview()
 
-		this.drawScene()
-		this.editop.draw()
+		if (!this.hide_nodes) {
+			this.drawScene()		
+		}
+
+		if (this.editop) {
+			this.editop.draw()
+		}
 
 		Graphics.flush()
 
@@ -95,16 +104,31 @@ class Editor
 
 	keypressed(key)
 	{
-		this.editop.on_key_pressed(key)
+		if (this.editop) {
+			this.editop.on_key_pressed(key)		
+		}
 
-		if (key == "del") {
+		if (key == "delete") 
+		{
+			this.scene.bp_dirty = true
 			GUI.rebuild(this.gui_nodes)
+		} 
+		else if (key == "space") 
+		{
+			this.hide_nodes = !this.hide_nodes
+			if (this.hide_nodes) {
+				this.editop = this.preview_op
+			} else {
+				this.editop = this.nodes_op			
+			}
 		}
 	}
 
 	keyreleased(key)
 	{
-		this.editop.on_key_released(key)
+		if (this.editop) {
+			this.editop.on_key_released(key)		
+		}
 	}
 
 	mousemoved(x, y, btn)
@@ -112,7 +136,7 @@ class Editor
 		GUI.mouseInput(this.gui_top, btn, MOUSE_MOVE, x, y, 0, 0, 1)
 		GUI.mouseInput(this.gui_nodes, btn, MOUSE_MOVE, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
-		if (!this.is_gui_active()) {
+		if (this.editop and !this.is_gui_active()) {
 			this.editop.on_mouse_moved(x, y, btn)
 		}
 	}
@@ -122,7 +146,7 @@ class Editor
 		GUI.mouseInput(this.gui_top, btn, MOUSE_DRAG, x, y, 0, 0, 1)
 		GUI.mouseInput(this.gui_nodes, btn, MOUSE_DRAG, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
-		if (!this.is_gui_active()) {
+		if (this.editop and !this.is_gui_active()) {
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
 	}
@@ -136,7 +160,7 @@ class Editor
 			this.right_press_pos = Vector2(x, y)
 		}
 
-		if (!this.is_gui_active()) {
+		if (this.editop and !this.is_gui_active()) {
 			this.editop.on_mouse_pressed(x, y, btn)
 		}
 	}
@@ -153,14 +177,16 @@ class Editor
 			this.popup_pos = nil
 		}
 
-		if (!this.is_gui_active()) {
+		if (this.editop and !this.is_gui_active()) {
 			this.editop.on_mouse_released(x, y, btn)
 		}
 	}
 
 	mousescrolled(x, y, dx, dy)
 	{
-		this.editop.on_mouse_scrolled(x, y, dx, dy)
+		if (this.editop) {
+			this.editop.on_mouse_scrolled(x, y, dx, dy)		
+		}
 	}
 
 	drawScene()
@@ -180,7 +206,7 @@ class Editor
 		}
 		GUI.end(this.gui_nodes)
 
-		if (dirty) {
+		if (this.editop and dirty) {
 			this.editop.clear()
 		}
 	}

@@ -182,6 +182,13 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     ves_call(4, 0);
 }
 
+void call_keypressed(const char* str)
+{
+    ves_pushstring(str);
+    ves_pushstring("keypressed(_)");
+    ves_call(1, 0);
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     const bool ctrl_pressed =
@@ -197,6 +204,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
         ves_pushstring("refresh()");
         ves_call(0, 0);
+    } else if (key == GLFW_KEY_DELETE && action == GLFW_PRESS) {
+        call_keypressed("delete");
+    } else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        call_keypressed("space");
     } else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         call_keypressed("escape");
     }
@@ -210,13 +221,6 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
         ves_pushstring("loadfromfile(_)");
         ves_call(1, 0);
     }
-}
-
-void call_keypressed(const char* str)
-{
-    ves_pushstring(str);
-    ves_pushstring("keypressed(_)");
-    ves_call(1, 0);
 }
 
 void call_mousemoved(double x, double y, int button)
@@ -284,8 +288,6 @@ void process_input(GLFWwindow *window)
         call_keypressed("a");
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         call_keypressed("d");
-    } else if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS) {
-        call_keypressed("del");
     }
 
     double x, y;
