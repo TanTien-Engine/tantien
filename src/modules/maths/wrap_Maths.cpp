@@ -115,9 +115,14 @@ void w_Matrix44_perspective()
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
     const float fovy   = (float)ves_tonumber(1);
     float aspect = (float)ves_tonumber(2);
-    if (aspect == 0) {
+    if (aspect == 0) 
+    {
         auto g = tt::Graphics::Instance();
-        aspect = g->GetWidth() / g->GetHeight();
+        if (g->GetHeight() == 0) {
+            aspect = 1;
+        } else {
+            aspect = g->GetWidth() / g->GetHeight();
+        }
     }
     const float znear  = (float)ves_tonumber(3);
     const float zfar   = (float)ves_tonumber(4);
