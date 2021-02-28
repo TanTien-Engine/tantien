@@ -11,6 +11,9 @@ class Perspective is Node
 	{
 		super.init(Perspective.name)
 
+		this.imports = [
+			Pin(this, "fovy", VAR_TYPE_NUMBER),
+		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
@@ -23,7 +26,14 @@ class Perspective is Node
 		this.zfar   = 100
 	}
 
-	calc(idx) {
+	calc(idx) 
+	{
+		var conns = this.imports[0].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			this.fovy = f_pin.node.calc(f_pin.slot_idx).value
+		}
+
 		var mat = Matrix44.init()
 		mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
 		return Variant(VAR_TYPE_MATRIX4, mat)

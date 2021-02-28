@@ -1,0 +1,113 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths" for Matrix44
+ import "maths.vector" for Vector3
+
+class Camera3D is Node
+{
+	init() 
+	{
+		super.init(Camera3D.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "zoom", VAR_TYPE_NUMBER),
+		]
+
+		this.layout()
+
+		this.position = Vector3(0, 0, 0)
+		this.front    = Vector3(0, 1, 0)
+		this.up       = Vector3(0, 0, -1)
+
+		this.zoom = 45.0
+	}
+
+	calc(idx) 
+	{
+		if (idx == 0)
+		{
+			var center = Vector3()
+			center.x = this.position.x + this.front.x
+			center.y = this.position.y + this.front.y
+			center.z = this.position.z + this.front.z
+
+			var mat = Matrix44.init()
+			mat.lookat(this.position, center, this.up)
+			return Variant(VAR_TYPE_MATRIX4, mat)
+		}
+		else if (idx == 1)
+		{
+			return Variant(VAR_TYPE_NUMBER, this.zoom)	
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+	}
+
+	toString(name) {
+		return "
+%(name).position.set(%(this.position.x), %(this.position.y), %(this.position.z))
+%(name).front.set(%(this.front.x), %(this.front.y), %(this.front.z))
+%(name).up.set(%(this.up.x), %(this.up.y), %(this.up.z))
+%(name).zoom = %(this.zoom)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+
+		var front_x = GUI.slider(ctx, "front_x", this.front.x, x, y, this.style.width - 20, REGION, false)
+		if (front_x != this.front.x) {
+			this.front.x = front_x
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var front_y = GUI.slider(ctx, "front_y", this.front.y, x, y, this.style.width - 20, REGION, false)
+		if (front_y != this.front.y) {
+			this.front.y = front_y
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var front_z = GUI.slider(ctx, "front_z", this.front.z, x, y, this.style.width - 20, REGION, false)
+		if (front_z != this.front.z) {
+			this.front.z = front_z
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var zoom = GUI.slider(ctx, "zoom", this.zoom, x, y, this.style.width - 40, 180, false)
+		if (zoom != this.zoom) {
+			this.zoom = zoom
+			dirty = true
+		}
+
+		return dirty
+	}
+
+	on_mouse_scrolled(x, y, dx, dy)
+	{
+		this.zoom = this.zoom - dy
+		if (this.zoom < 1.0) {
+			this.zoom = 1.0
+		}
+		if (this.zoom > 45.0) {
+			this.zoom = 45.0 
+		}
+	}
+}
