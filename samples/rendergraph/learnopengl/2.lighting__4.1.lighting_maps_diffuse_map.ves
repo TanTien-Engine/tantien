@@ -7,7 +7,7 @@ node0.render_state = { "depth_test" : true, "cull" : "disable" }
 var node1 = Clear()
 test.add_node(node1, 104.61577275634, 720.28026537048)
 
-node1.masks = [ "color", "depth" ]
+node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 var node2 = Shader()
@@ -94,55 +94,65 @@ void main()
 node2.execute()
 node2.setUniform("ubo_fs.viewPos", [ 0.61252337694168, 0.53474563360214, 0.52363449335098 ])
 node2.setUniform("ubo_fs.material.specular", [ 1, 1, 1 ])
-node2.setUniform("ubo_fs.material.shininess", [ 64.0 ])
-node2.setUniform("ubo_fs.light.position", [ 1.2, 1.0, 2.0 ])
-node2.setUniform("ubo_fs.light.ambient", [ 0.2, 0.2, 0.2 ])
+node2.setUniform("ubo_fs.material.shininess", [ 64 ])
+node2.setUniform("ubo_fs.light.position", [ 1.2, 1, 2 ])
+node2.setUniform("ubo_fs.light.ambient", [ 0.20000000298023, 0.20000000298023, 0.20000000298023 ])
 node2.setUniform("ubo_fs.light.diffuse", [ 0.5, 0.5, 0.5 ])
 node2.setUniform("ubo_fs.light.specular", [ 1, 1, 1 ])
 
 var node3 = VertexArray()
-test.add_node(node3, 29.784036363636, 169.99683636364)
+test.add_node(node3, 142.36267687706, 407.49150265223)
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
 var node4 = Perspective()
-test.add_node(node4, -274.56069947408, 480.30036363636)
+test.add_node(node4, -278.51163020742, 506.32078183062)
 
-node4.fovy = 45
+node4.fovy = 36
 node4.aspect = 0
-node4.znear = 0.10000000149012
-node4.zfar = 102.21896362305
+node4.znear = 0.0061240303330123
+node4.zfar = 194.57363891602
 
 var node5 = LookAt()
-test.add_node(node5, -272.50754100588, 581.85523609615)
+test.add_node(node5, -285.28779525623, 642.42103089521)
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
 node5.up.set(0, 1, 0)
 
 var node6 = Rotate()
-test.add_node(node6, -252.44235920302, 688.11565368456)
+test.add_node(node6, -262.75812027475, 815.24195641983)
 
-node6.angle = 3.4918446540833
+node6.angle = 1.5880110263824
 node6.axis_x = 0
-node6.axis_y = 0.35777792334557
+node6.axis_y = 0
 node6.axis_z = 1
 
 var node7 = Matrix()
-test.add_node(node7, -420.45096522925, 719.9804870222)
+test.add_node(node7, -418.17726423899, 862.68965707053)
 
 var node8 = Texture()
-test.add_node(node8, -283, 367)
+test.add_node(node8, -284.1, 401.1)
 
 node8.initTexture("resources/textures/container2.png")
 node8.sampler_selected = 3
+
+var node9 = Camera3D()
+test.add_node(node9, -486.04661747465, 690.35946552221)
+
+node9.position.set(-1.7209566789003, -1.4264411833142, -0.063775868303267)
+node9.yaw = 13
+node9.pitch = 45.8
+node9.zoom = 36
+node9.update_camera_vectors()
 
 Blueprint.connect(node1.exports[0], node0.imports[0])
 Blueprint.connect(node2.exports[0], node0.imports[1])
 Blueprint.connect(node3.exports[0], node0.imports[2])
 Blueprint.connect(node4.exports[0], node2.imports[2])
-Blueprint.connect(node5.exports[0], node2.imports[1])
 Blueprint.connect(node6.exports[0], node2.imports[0])
 Blueprint.connect(node7.exports[0], node6.imports[0])
 Blueprint.connect(node8.exports[0], node2.imports[10])
+Blueprint.connect(node9.exports[0], node2.imports[1])
+Blueprint.connect(node9.exports[1], node4.imports[0])

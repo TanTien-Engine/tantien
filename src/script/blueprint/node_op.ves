@@ -15,33 +15,57 @@ class NodeOP
 	
 	on_key_pressed(key)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_key_pressed(key)
+		}
 	}
 
 	on_key_released(key)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_key_released(key)
+		}
 	}
 
 	on_mouse_pressed(x, y, btn)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_mouse_pressed(x, y, btn)
+		}
 	}
 
 	on_mouse_released(x, y, btn)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_mouse_released(x, y, btn)
+		}
 	}
 
 	on_mouse_moved(x, y, btn)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_mouse_moved(x, y, btn)
+		}
 	}
 
 	on_mouse_dragged(x, y, btn)
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.on_mouse_dragged(x, y, btn)
+		}
 	}
 
 	on_mouse_scrolled(x, y, dx, dy)
 	{
 		var sel = this.get_selected()
 		if (sel) {
-			sel.on_mouse_scrolled(x, y, dx, dy)		
+			sel.on_mouse_scrolled(x, y, dx, dy)
 		}
 	}
 

@@ -44,6 +44,23 @@ class Vector3
 		this.y = y
 		this.z = z
 	}
+
+	normalize() 
+	{
+		var len = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
+		if (len == 0) {
+			return
+		}
+		var s = 1.0 / len
+		this.x = this.x * s
+		this.y = this.y * s
+		this.z = this.z * s
+	}
+
+	cross(v)
+	{
+		return Vector3(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
+	}
 }
 
 class Vector4
