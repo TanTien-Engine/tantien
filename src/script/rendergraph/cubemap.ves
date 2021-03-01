@@ -1,0 +1,53 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_TEXTURE
+import "render" for Texture
+
+class Cubemap is Node
+{
+	init() 
+	{
+		super.init(Cubemap.name)
+
+		this.imports = [
+			Pin(this, "right",  VAR_TYPE_TEXTURE),
+			Pin(this, "left",   VAR_TYPE_TEXTURE),
+			Pin(this, "top",    VAR_TYPE_TEXTURE),
+			Pin(this, "bottom", VAR_TYPE_TEXTURE),
+			Pin(this, "front",  VAR_TYPE_TEXTURE),
+			Pin(this, "back",   VAR_TYPE_TEXTURE)
+		]
+		this.exports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE)
+		]
+
+		this.layout()
+
+		this.tex = nil
+	}
+
+	calc(idx)
+	{
+		if (!this.tex)
+		{
+			var cube_texs = []
+			for (var p in this.imports) 
+			{
+				var conns = p.conns
+				if (!conns.isEmpty) 
+				{
+					var f_pin = conns.front().from
+					var v = f_pin.node.calc(f_pin.slot_idx)
+					if (v and v.type == VAR_TYPE_TEXTURE) {
+						cube_texs.add(v.value[0])
+					}
+				}
+			}
+			if (cube_texs.count == 6) {
+				this.tex = Texture.init(cube_texs)
+			}
+		}
+
+		return Variant(VAR_TYPE_TEXTURE, [this.tex])
+	}
+}

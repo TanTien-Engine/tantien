@@ -29,6 +29,8 @@ foreign class Texture
 	init(img_data) {}
 	// format: <"rgb", "rgba">
 	init(width, height, format) {}
+	// cubemap, textures: list [ right, left, top, bottom, front, back ]
+	init(textures) {}
 
 	foreign getWidth()
 	foreign getHeight()

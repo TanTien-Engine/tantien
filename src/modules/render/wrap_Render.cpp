@@ -24,6 +24,8 @@
 #include <spirv-cross/spirv.hpp>
 #include <spirv-cross/spirv_glsl.hpp>
 
+#include <array>
+
 #include <assert.h>
 
 //#define SHADER_DEBUG_PRINT
@@ -373,6 +375,20 @@ void w_Texture_allocate()
         size_t buf_sz = img->width * img->height * bpp;
         ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
         *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
+    }
+    else if (ves_type(1) == VES_TYPE_LIST)
+    {
+        assert(ves_len(1) == 6);
+        std::array<ur::TexturePtr, 6> textures;
+        for (int i = 0; i < 6; ++i)
+        {
+            ves_geti(1, i);
+            textures[i] = *static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+            ves_pop(1);
+        }
+
+        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+        *tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
     }
     else
     {

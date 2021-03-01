@@ -9,6 +9,7 @@ import "rendergraph.draw" for Draw
 import "rendergraph.shader" for Shader
 import "rendergraph.vertex_array" for VertexArray
 import "rendergraph.pass" for Pass
+import "rendergraph.cubemap" for Cubemap
 
 class Test is Editor
 {
@@ -79,7 +80,7 @@ class Test is Editor
 		var WIDTH = 120
 		var HEIGHT = 25
 
-		var NUM = super.getPopupNum() + 5
+		var NUM = super.getPopupNum() + 6
 		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
 
 		new_node = super.drawPopup(x, y, WIDTH, HEIGHT)
@@ -117,6 +118,10 @@ class Test is Editor
 			new_node = Pass()
 		}
 		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "Cubemap", false, x, y, WIDTH)) {
+			new_node = Cubemap()
+		}
+		y = y - HEIGHT
 
 		return new_node
 	}
@@ -129,6 +134,7 @@ import \"rendergraph.draw\" for Draw
 import \"rendergraph.shader\" for Shader
 import \"rendergraph.vertex_array\" for VertexArray
 import \"rendergraph.pass\" for Pass
+import \"rendergraph.cubemap\" for Cubemap
 "
 	}
 }
