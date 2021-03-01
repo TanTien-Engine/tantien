@@ -482,7 +482,13 @@ import \"blueprint.nodes.camera3d\" for Camera3D
 
 	refresh()
 	{
-		this.scene.nodes.clear()
+		this.clear()
 		this.loadfromfile(this.filepath)
+	}
+
+	clear()
+	{
+		this.editop.clear()
+		this.scene.clear()
 	}
 }

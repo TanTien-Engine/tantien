@@ -215,12 +215,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
-    if (count > 0)
-    {
-        ves_pushstring(paths[0]);
-        ves_pushstring("loadfromfile(_)");
-        ves_call(1, 0);
+    if (count == 0) {
+        return;
     }
+
+    ves_pushstring("clear()");
+    ves_call(0, 0);
+
+    ves_pushstring(paths[0]);
+    ves_pushstring("loadfromfile(_)");
+    ves_call(1, 0);
 }
 
 void call_mousemoved(double x, double y, int button)
