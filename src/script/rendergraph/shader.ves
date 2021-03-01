@@ -290,7 +290,9 @@ class Shader is Node
 					unif[2] = val.value
 				} else if (unif[1] == "sampler") {
 					unif[2] = val.value[0]
-					unif[3] = val.value[1]
+					if (val.value.count > 1) {
+						unif[3] = val.value[1]
+					}
 				}
 			}
 			this.prog.setUniformValue(unif)
