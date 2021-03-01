@@ -451,6 +451,29 @@ void w_Render_draw()
     }
     ves_pop(1);
 
+    if (ves_getfield(4, "depth_func") == VES_TYPE_STRING) 
+    {
+        const char* func = ves_tostring(-1);
+        if (strcmp(func, "never") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::Never;
+        } else if (strcmp(func, "less") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::Less;
+        } else if (strcmp(func, "equal") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::Equal;
+        } else if (strcmp(func, "lequal") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::LessThanOrEqual;
+        } else if (strcmp(func, "greater") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::Greater;
+        } else if (strcmp(func, "notequal") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::NotEqual;
+        } else if (strcmp(func, "gequal") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::GreaterThanOrEqual;
+        } else if (strcmp(func, "always") == 0) {
+            ds.render_state.depth_test.function = ur::DepthTestFunc::Always;
+        }
+    }
+    ves_pop(1);
+
     if (ves_getfield(4, "cull") == VES_TYPE_STRING) 
     {
         const char* mode = ves_tostring(-1);

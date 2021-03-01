@@ -26,12 +26,15 @@ class Draw is Node
 		// { "depth_test" : bool, "cull" : string }
 		this.render_state = { 
 			"depth_test" : false, 
+			"depth_func" : "never", 
 			"cull" : "disable"
 		}
 
 		// for gui
+		this.depth_func_items = ["never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always"]
+		this.depth_func_selected = -1
 		this.cull_items = ["disable", "front", "back", "front_and_back"]
-		this.cull_selected = 0
+		this.cull_selected = -1
 
 		this.layout()
 	}
@@ -50,11 +53,7 @@ class Draw is Node
 	{
 		super.layout()
 
-		// depth_test
-		this.style.height = this.style.height + DEFAULT_HEIGHT
-
-		// cull
-		this.style.height = this.style.height + DEFAULT_HEIGHT
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
 	}
 
 	toString(name) {
@@ -79,7 +78,24 @@ class Draw is Node
 		}
 		y = y - DEFAULT_HEIGHT
 
-		var item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
+		if (this.depth_func_selected < 0) {
+			var depth_func = this.render_state["depth_func"]
+			this.depth_func_selected = this.query_item_index(this.depth_func_items, depth_func)
+		}
+		var item = GUI.combo(ctx, "depth_func", this.depth_func_selected, this.depth_func_items, x, y, 80)
+		if (item != this.depth_func_selected) {
+			this.depth_func_selected = item
+			this.render_state["depth_func"] = this.depth_func_items[this.depth_func_selected]
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		if (this.cull_selected < 0) {
+			var cull = this.render_state["cull"]
+			this.cull_selected = this.query_item_index(this.cull_items, cull)
+		}
+
+		item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
 		if (item != this.cull_selected) {
 			this.cull_selected = item
 			this.render_state["cull"] = this.cull_items[this.cull_selected]
@@ -88,5 +104,15 @@ class Draw is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
+	}
+
+	query_item_index(items, name)
+	{
+		for (var i in 0..items.count) {
+			if (items[i] == name) {
+				return i
+			}		
+		}
+		return -1
 	}
 }

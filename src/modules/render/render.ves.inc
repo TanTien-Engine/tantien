@@ -41,6 +41,7 @@ foreign class Render
 	// prim_type: "triangles"
 	// render_state: map { 
 	//   "depth_test" : bool,
+	//   "depth_func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">
 	//   "cull" : <"disable", "front", "back", "front_and_back">
 	// }
 	foreign static draw(prim_type, prog, va, render_state)
