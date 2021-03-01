@@ -40,6 +40,8 @@ foreign class Matrix44
 
 	foreign perspective(fovy, aspect, znear, zfar)
 	foreign lookat(eye, center, up)
+
+	foreign fromRotateMat(mat)
 }
 
 foreign class Maths
