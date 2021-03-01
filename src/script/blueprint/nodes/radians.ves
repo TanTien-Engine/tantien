@@ -27,6 +27,6 @@ class Radians is Node
 			var f_pin = conns.front().from
 			v = f_pin.node.calc(f_pin.slot_idx).value
 		}
-		return Variant(VAR_TYPE_NUMBER, v * 180 / Math.pi())
+		return Variant(VAR_TYPE_NUMBER, Math.radians(v))
 	}
 }
