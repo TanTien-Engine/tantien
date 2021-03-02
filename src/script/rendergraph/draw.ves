@@ -20,8 +20,8 @@ class Draw is Node
 			Pin(this, "next", "port")
 		]
 
-		// [ "triangles" ]
-		this.prim_type = "triangles"
+		this.prim_types = [ "triangles", "tri_strip" ]
+		this.prim_selected = 0
 
 		// { "depth_test" : bool, "cull" : string }
 		this.render_state = { 
@@ -41,11 +41,17 @@ class Draw is Node
 
 	execute() 
 	{
+		var va = nil
+		var conns = this.imports[2].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			va = f_pin.node.calc(f_pin.slot_idx).value
+		}
+
 		var shader = Blueprint.getInputNode(this, 1)
-		var va = Blueprint.getInputNode(this, 2)
-		if (shader and shader.prog and va and va.va) {
+		if (shader and shader.prog and va) {
 			shader.updateUniforms()
-			Render.draw(this.prim_type, shader.prog, va.va, this.render_state)
+			Render.draw(this.prim_types[this.prim_selected], shader.prog, va, this.render_state)
 		}
 	}
 
@@ -53,12 +59,12 @@ class Draw is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
 	}
 
 	toString(name) {
 		return "
-%(name).prim_type = \"%(this.prim_type)\"
+%(name).set_prim_type(\"%(this.prim_types[this.prim_selected])\")
 %(name).render_state = %(this.render_state)
 "
 	}
@@ -69,6 +75,13 @@ class Draw is Node
 
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var item = GUI.combo(ctx, "prim", this.prim_selected, this.prim_types, x, y, 80)
+		if (item != this.prim_selected) {
+			this.prim_selected = item
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
 
 		var depth_test = this.render_state["depth_test"]
 		var _depth_test = GUI.checkbox(ctx, "depth test", depth_test, x, y)
@@ -82,7 +95,7 @@ class Draw is Node
 			var depth_func = this.render_state["depth_func"]
 			this.depth_func_selected = this.query_item_index(this.depth_func_items, depth_func)
 		}
-		var item = GUI.combo(ctx, "depth_func", this.depth_func_selected, this.depth_func_items, x, y, 80)
+		item = GUI.combo(ctx, "depth_func", this.depth_func_selected, this.depth_func_items, x, y, 80)
 		if (item != this.depth_func_selected) {
 			this.depth_func_selected = item
 			this.render_state["depth_func"] = this.depth_func_items[this.depth_func_selected]
@@ -114,5 +127,15 @@ class Draw is Node
 			}		
 		}
 		return -1
+	}
+
+	set_prim_type(prim)
+	{
+		for (var i in 0..this.prim_types.count) {
+			if (this.prim_types[i] == prim) {
+				this.prim_selected = i
+				// todo break
+			}		
+		}
 	}
 }

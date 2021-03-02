@@ -12,6 +12,8 @@
 #include "modules/image/image.ves.inc"
 #include "modules/filesystem/wrap_Filesystem.h"
 #include "modules/filesystem/filesystem.ves.inc"
+#include "modules/model/wrap_Model.h"
+#include "modules/model/model.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -74,6 +76,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = imageModuleSource;
     } else if (strcmp(module, "filesystem") == 0) {
         source = filesystemModuleSource;
+    } else if (strcmp(module, "model") == 0) {
+        source = modelModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -116,6 +120,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::FilesystemBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::ModelBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -151,6 +158,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::FilesystemBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::ModelBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;

@@ -10,6 +10,7 @@ import "rendergraph.shader" for Shader
 import "rendergraph.vertex_array" for VertexArray
 import "rendergraph.pass" for Pass
 import "rendergraph.cubemap" for Cubemap
+import "rendergraph.primitive_shape" for PrimitiveShape
 
 class Test is Editor
 {
@@ -80,7 +81,7 @@ class Test is Editor
 		var WIDTH = 120
 		var HEIGHT = 25
 
-		var NUM = super.getPopupNum() + 6
+		var NUM = super.getPopupNum() + 7
 		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
 
 		new_node = super.drawPopup(x, y, WIDTH, HEIGHT)
@@ -122,6 +123,10 @@ class Test is Editor
 			new_node = Cubemap()
 		}
 		y = y - HEIGHT
+		if (GUI.selectable(this.gui_top, "PrimitiveShape", false, x, y, WIDTH)) {
+			new_node = PrimitiveShape()
+		}
+		y = y - HEIGHT
 
 		return new_node
 	}
@@ -135,6 +140,7 @@ import \"rendergraph.shader\" for Shader
 import \"rendergraph.vertex_array\" for VertexArray
 import \"rendergraph.pass\" for Pass
 import \"rendergraph.cubemap\" for Cubemap
+import \"rendergraph.primitive_shape\" for PrimitiveShape
 "
 	}
 }

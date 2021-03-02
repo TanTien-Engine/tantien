@@ -1,6 +1,7 @@
 #include "modules/render/wrap_Render.h"
 #include "modules/render/Render.h"
 #include "modules/image/ImageData.h"
+#include "modules/model/Model.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -18,6 +19,7 @@
 #include <shadertrans/ShaderTrans.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
+#include <guard/check.h>
 
 #include <glslang/glslang/Public/ShaderLang.h>
 
@@ -35,6 +37,8 @@ namespace
 
 void w_Shader_allocate()
 {
+    std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
+
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
 
@@ -49,7 +53,6 @@ void w_Shader_allocate()
         printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
         *prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
     }
     else
@@ -65,7 +68,6 @@ void w_Shader_allocate()
         printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
         *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
     }
 }
@@ -229,73 +231,128 @@ void w_Shader_setUniformValue()
 
 void w_VertexArray_allocate()
 {
-    std::vector<float> data;
-    int data_num = ves_len(1);
-    data.resize(data_num);
-    for (int i = 0; i < data_num; ++i)
+    std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::VertexArray>));
+    if (ves_type(1) == VES_TYPE_LIST)
     {
-        ves_geti(1, i);
-        data[i] = static_cast<float>(ves_tonumber(-1));
-        ves_pop(1);
-    }
-
-    std::vector<int> attrs;
-    int attr_num = ves_len(2);
-    attrs.resize(attr_num);
-    for (int i = 0; i < attr_num; ++i)
-    {
-        ves_geti(2, i);
-        attrs[i] = static_cast<int>(ves_tonumber(-1));
-        ves_pop(1);
-    }
-
-    std::vector<unsigned short> index_data;
-    if (ves_type(3) != VES_TYPE_NULL)
-    {
-        int num = ves_len(3);
-        index_data.resize(num);
-        for (int i = 0; i < num; ++i)
+        std::vector<float> data;
+        int data_num = ves_len(1);
+        data.resize(data_num);
+        for (int i = 0; i < data_num; ++i)
         {
-            ves_geti(3, i);
-            index_data[i] = static_cast<unsigned short>(ves_tonumber(-1));
+            ves_geti(1, i);
+            data[i] = static_cast<float>(ves_tonumber(-1));
             ves_pop(1);
         }
+
+        std::vector<int> attrs;
+        int attr_num = ves_len(2);
+        attrs.resize(attr_num);
+        for (int i = 0; i < attr_num; ++i)
+        {
+            ves_geti(2, i);
+            attrs[i] = static_cast<int>(ves_tonumber(-1));
+            ves_pop(1);
+        }
+
+        std::vector<unsigned short> index_data;
+        if (ves_type(3) != VES_TYPE_NULL)
+        {
+            int num = ves_len(3);
+            index_data.resize(num);
+            for (int i = 0; i < num; ++i)
+            {
+                ves_geti(3, i);
+                index_data[i] = static_cast<unsigned short>(ves_tonumber(-1));
+                ves_pop(1);
+            }
+        }
+
+        auto dev = tt::Render::Instance()->Device();
+
+        *va = dev->CreateVertexArray();
+
+        int vbuf_sz = sizeof(float) * data_num;
+        auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, vbuf_sz);
+        vbuf->ReadFromMemory(data.data(), vbuf_sz, 0);
+        (*va)->SetVertexBuffer(vbuf);
+
+        int stride_in_bytes = 0;
+        for (auto& attr : attrs) {
+            stride_in_bytes += attr * sizeof(float);
+        }
+
+        std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;
+        vbuf_attrs.resize(attrs.size());
+        int offset_in_bytes = 0;
+        for (size_t i = 0, n = attrs.size(); i < n; ++i)
+        {
+            vbuf_attrs[i] = std::make_shared<ur::VertexInputAttribute>(
+                static_cast<int>(i), ur::ComponentDataType::Float, attrs[i], offset_in_bytes, stride_in_bytes
+            );
+            offset_in_bytes += attrs[i] * sizeof(float);
+        }
+        (*va)->SetVertexBufferAttrs(vbuf_attrs);
+
+        if (!index_data.empty())
+        {
+            auto ibuf_sz = sizeof(unsigned short) * index_data.size();
+            auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, static_cast<int>(ibuf_sz));
+            ibuf->ReadFromMemory(index_data.data(), static_cast<int>(ibuf_sz), 0);
+            ibuf->SetCount(static_cast<int>(index_data.size()));
+            (*va)->SetIndexBuffer(ibuf);
+        }
     }
-
-    auto dev = tt::Render::Instance()->Device();
-
-    std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::VertexArray>));
-    *va = dev->CreateVertexArray();
-
-    int vbuf_sz = sizeof(float) * data_num;
-    auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, vbuf_sz);
-    vbuf->ReadFromMemory(data.data(), vbuf_sz, 0);
-    (*va)->SetVertexBuffer(vbuf);
-
-    int stride_in_bytes = 0;
-    for (auto& attr : attrs) {
-        stride_in_bytes += attr * sizeof(float);
-    }
-
-    std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;
-    vbuf_attrs.resize(attrs.size());
-    int offset_in_bytes = 0;
-    for (size_t i = 0, n = attrs.size(); i < n; ++i)
+    else
     {
-        vbuf_attrs[i] = std::make_shared<ur::VertexInputAttribute>(
-            static_cast<int>(i), ur::ComponentDataType::Float, attrs[i], offset_in_bytes, stride_in_bytes
-        );
-        offset_in_bytes += attrs[i] * sizeof(float);
-    }
-    (*va)->SetVertexBufferAttrs(vbuf_attrs);
+        const char* s_type = ves_tostring(1);
+        tt::ShapeType type;
+        if (strcmp(s_type, "quad") == 0) {
+            type = tt::ShapeType::Quad;
+        } else if (strcmp(s_type, "cube") == 0) {
+            type = tt::ShapeType::Cube;
+        } else if (strcmp(s_type, "sphere") == 0) {
+            type = tt::ShapeType::Sphere;
+        } else if (strcmp(s_type, "grids") == 0) {
+            type = tt::ShapeType::Grids;
+        } else {
+            GD_REPORT_ASSERT("unknown type.");
+        }
 
-    if (!index_data.empty())
-    {
-        auto ibuf_sz = sizeof(unsigned short) * index_data.size();
-        auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, static_cast<int>(ibuf_sz));
-        ibuf->ReadFromMemory(index_data.data(), static_cast<int>(ibuf_sz), 0);
-        ibuf->SetCount(static_cast<int>(index_data.size()));
-        (*va)->SetIndexBuffer(ibuf);
+        bool p = false, t = false, n = false, tb = false;
+        for (int i = 0, _n = ves_len(2); i < _n; ++i)
+        {
+            ves_geti(2, i);
+            const char* layout = ves_tostring(-1);
+            ves_pop(1);
+
+            if (strcmp(layout, "position") == 0) {
+                p = true;
+            } else if (strcmp(layout, "texture") == 0) {
+                t = true;
+            } else if (strcmp(layout, "normal") == 0) {
+                n = true;
+            } else if (strcmp(layout, "tangent_bitangent") == 0) {
+                tb = true;
+            }
+        }
+        ur::VertexLayoutType layout;
+        if (p && n && t && tb) {
+            layout = ur::VertexLayoutType::PosNormTexTB;
+        } else if (p && n && t) {
+            layout = ur::VertexLayoutType::PosNormTex;
+        } else if (p && n) {
+            layout = ur::VertexLayoutType::PosNorm;
+        } else if (p && t) {
+            layout = ur::VertexLayoutType::PosTex;
+        } else if (p) {
+            layout = ur::VertexLayoutType::Pos;
+        } else {
+            GD_REPORT_ASSERT("unknown layout.");
+        }
+
+        auto dev = tt::Render::Instance()->Device();
+        ur::PrimitiveType prim_type;
+        *va = tt::Model::Instance()->CreateShape(*dev, type, layout, prim_type);
     }
 }
 
@@ -308,6 +365,7 @@ static int w_VertexArray_finalize(void* data)
 
 void w_Texture_allocate()
 {
+    ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
     if (ves_type(1) == VES_TYPE_FOREIGN)
     {
         tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
@@ -373,7 +431,6 @@ void w_Texture_allocate()
 	    }
 
         size_t buf_sz = img->width * img->height * bpp;
-        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
         *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
     }
     else if (ves_type(1) == VES_TYPE_LIST)
@@ -387,7 +444,7 @@ void w_Texture_allocate()
             ves_pop(1);
         }
 
-        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+        
         *tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
     }
     else
@@ -408,7 +465,6 @@ void w_Texture_allocate()
         }
 
         size_t buf_sz = width * height * bpp;
-        ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
         *tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
     }
 }
@@ -441,6 +497,10 @@ void w_Render_draw()
     const char* prim_type_str = ves_tostring(1);
     if (strcmp(prim_type_str, "triangles") == 0) {
         prim_type = ur::PrimitiveType::Triangles;
+    } else if (strcmp(prim_type_str, "tri_strip") == 0) {
+        prim_type = ur::PrimitiveType::TriangleStrip;
+    } else {
+        GD_REPORT_ASSERT("unknown prim type.");
     }
 
     ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(2));

@@ -1,6 +1,8 @@
 import "render" for VertexArray as tt_VertexArray
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "rendergraph.variant_type" for VAR_TYPE_VA
 
 class VertexArray is Node
 {
@@ -21,6 +23,11 @@ class VertexArray is Node
 		this.dirty = true
 
 		this.layout()
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_VA, this.va)
 	}
 
 	execute() {

@@ -22,6 +22,10 @@ foreign class VertexArray
 	// attrs: number of components
 	// ibuf: index buffer
 	init(data, attrs, ibuf) {}
+
+	// type: "quad", "cube", "sphere", "grids"
+	// layout: [ "position", "texture", "normal", "tangent_bitangent" ]
+	init(type, layout) {}
 }
 
 foreign class Texture

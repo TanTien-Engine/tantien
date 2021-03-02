@@ -1,0 +1,95 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "render" for VertexArray
+import "blueprint.variant" for Variant
+import "rendergraph.variant_type" for VAR_TYPE_VA
+import "gui" for GUI
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+
+class PrimitiveShape is Node
+{
+	init() 
+	{
+		super.init(PrimitiveShape.name)
+
+		this.exports = [
+			Pin(this, "out", "va")
+		]
+
+		this.layout()
+
+		// quad, cube, sphere, grids
+		this.type = "quad"
+		// position, texture, normal, tangent_bitangent
+		this.layout = [ "position", "normal" ]
+
+		this.va = nil
+		this.dirty = true
+
+		// for gui
+		this.type_items = [ "quad", "cube", "sphere", "grids" ]
+		this.type_selected = -1
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_VA, this.va)
+	}
+
+	execute() 
+	{
+		if (this.dirty) {
+			this.va = VertexArray.init(this.type, this.layout)
+			this.dirty = false
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 1
+	}
+
+	toString(name) 
+	{
+		return "
+%(name).type = \"%(this.type)\"
+%(name).layout = %(this.layout)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		if (this.type_selected < 0) {
+			this.type_selected = this.query_item_index(this.type_items, this.type)
+		}
+
+		var item = GUI.combo(ctx, "type", this.type_selected, this.type_items, x, y, 80)
+		if (item != this.type_selected) 
+		{
+			this.type_selected = item
+			this.type = this.type_items[item]
+			this.dirty = true
+			dirty = true		
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+
+	query_item_index(items, name)
+	{
+		for (var i in 0..items.count) {
+			if (items[i] == name) {
+				return i
+			}		
+		}
+		return -1
+	}
+}
