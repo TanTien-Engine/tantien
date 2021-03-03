@@ -25,8 +25,6 @@ class Translate is Node
 		this.dx = 0
 		this.dy = 0
 		this.dz = 0
-
-		this.region = 10
 	}
 
 	calc(idx) 
@@ -57,8 +55,9 @@ class Translate is Node
 			}
 		}
 
-		var offset = this.region * 0.5
-		mat.translate(this.dx - offset, this.dy - offset, this.dz - offset)
+		//var offset = this.region * 0.5
+		//mat.translate(this.dx - offset, this.dy - offset, this.dz - offset)
+		mat.translate(this.dx, this.dy, this.dz)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
@@ -84,21 +83,23 @@ class Translate is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
-		var dx = GUI.slider(ctx, "dx", this.dx, x, y, this.style.width - 20, this.region, false)
+		var REGION = 100
+
+		var dx = GUI.slider(ctx, "dx", this.dx, x, y, this.style.width - 20, REGION, false)
 		if (dx != this.dx) {
 			this.dx = dx
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
 
-		var dy = GUI.slider(ctx, "dy", this.dy, x, y, this.style.width - 20, this.region, false)
+		var dy = GUI.slider(ctx, "dy", this.dy, x, y, this.style.width - 20, REGION, false)
 		if (dy != this.dy) {
 			this.dy = dy
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
 
-		var dz = GUI.slider(ctx, "dz", this.dz, x, y, this.style.width - 20, this.region, false)
+		var dz = GUI.slider(ctx, "dz", this.dz, x, y, this.style.width - 20, REGION, false)
 		if (dz != this.dz) {
 			this.dz = dz
 			dirty = true
