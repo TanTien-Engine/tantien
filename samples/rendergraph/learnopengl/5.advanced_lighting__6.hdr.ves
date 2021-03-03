@@ -1,0 +1,164 @@
+var node0 = Clear()
+test.add_node(node0, -68.183024411294, 1013.7392585871)
+
+node0.masks = [ "depth" ]
+node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+var node1 = Draw()
+test.add_node(node1, 233.21917737572, 673.1720833414)
+
+node1.set_prim_type("triangles")
+node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+
+var node2 = Shader()
+test.add_node(node2, -70.033484051636, 194.72322382351)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;
+
+	bool inverse_normals;	
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.TexCoords = aTexCoords;
+    
+    vec3 n = inverse_normals ? -aNormal : aNormal;
+    
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vs_out.Normal = normalize(normalMatrix * n);
+    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} fs_in;
+
+uniform sampler2D diffuseTexture;
+
+struct Light {
+    vec3 Position;
+    vec3 Color;
+};
+
+uniform UBO
+{
+	Light lights[4];
+	vec3 viewPos;	
+};
+
+void main()
+{           
+    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+    vec3 normal = normalize(fs_in.Normal);
+    // ambient
+    vec3 ambient = 0.0 * color;
+    // lighting
+    vec3 lighting = vec3(0.0);
+    for(int i = 0; i < 16; i++)
+    {
+        // diffuse
+        vec3 lightDir = normalize(lights[i].Position - fs_in.FragPos);
+        float diff = max(dot(lightDir, normal), 0.0);
+        vec3 diffuse = lights[i].Color * diff * color;      
+        vec3 result = diffuse;        
+        // attenuation (use quadratic as we have gamma correction)
+        float distance = length(fs_in.FragPos - lights[i].Position);
+        result *= 1.0 / (distance * distance);
+        lighting += result;
+                
+    }
+    FragColor = vec4(ambient + lighting, 1.0);
+}
+"
+node2.execute()
+node2.setUniform("inverse_normals", [ 1.0037198066711 ])
+node2.setUniform("lights[0].Position", [ 0, 0, 49.5 ])
+node2.setUniform("lights[0].Color", [ 200, 200, 200 ])
+node2.setUniform("lights[1].Position", [ -1.4, -1.9, 9 ])
+node2.setUniform("lights[1].Color", [ 0.10000000149012, 0, 0 ])
+node2.setUniform("lights[2].Position", [ 0, -1.8, 4 ])
+node2.setUniform("lights[2].Color", [ 0, 0, 0.20000000298023 ])
+node2.setUniform("lights[3].Position", [ 0.80000001192093, -1.7, 6 ])
+node2.setUniform("lights[3].Color", [ 0, 0.10000000149012, 0 ])
+
+var node3 = PrimitiveShape()
+test.add_node(node3, 48.662615984639, 638.19008893082)
+
+node3.type = "cube"
+node3.layout = [ "position", "normal", "texture" ]
+
+var node4 = Perspective()
+test.add_node(node4, -290.78383194422, 843.91156899396)
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.10000000149012
+node4.zfar = 100
+
+var node5 = Camera3D()
+test.add_node(node5, -450.10066272342, 719.12246846686)
+
+node5.position.set(0, 0, 3)
+node5.yaw = 96.1
+node5.pitch = -6.3
+node5.zoom = 45
+node5.update_camera_vectors()
+
+var node6 = Texture()
+test.add_node(node6, -287.61171236857, 362.81003968489)
+
+node6.initTexture("resources/textures/wood.png")
+node6.sampler_selected = 3
+
+var node7 = Matrix()
+test.add_node(node7, -637.61472706782, 602.44510982856)
+
+var node8 = Translate()
+test.add_node(node8, -330.28961903423, 566.2941876913)
+
+node8.dx = 0
+node8.dy = 0
+node8.dz = 25
+
+var node9 = Scale()
+test.add_node(node9, -482.33805409467, 573.95135236664)
+
+node9.sx = 2.5
+node9.sy = 2.5
+node9.sz = 27.5
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node1.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[1])
+Blueprint.connect(node5.exports[1], node4.imports[0])
+Blueprint.connect(node5.exports[3], node2.imports[12])
+Blueprint.connect(node6.exports[0], node2.imports[13])
+Blueprint.connect(node7.exports[0], node9.imports[0])
+Blueprint.connect(node8.exports[0], node2.imports[2])
+Blueprint.connect(node9.exports[0], node8.imports[0])
