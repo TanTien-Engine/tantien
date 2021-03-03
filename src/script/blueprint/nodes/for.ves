@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_PORT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
@@ -12,11 +12,11 @@ class For is Node
 		super.init(For.name)
 
 		this.imports = [
-			Pin(this, "prev", "port"),
-			Pin(this, "do", "port")			
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "do",   VAR_TYPE_PORT)			
 		]
 		this.exports = [
-			Pin(this, "next", "port"),
+			Pin(this, "next",  VAR_TYPE_PORT),
 			Pin(this, "index", VAR_TYPE_NUMBER)
 		]
 

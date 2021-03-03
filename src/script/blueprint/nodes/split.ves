@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class Split is Node
 {
@@ -8,15 +9,15 @@ class Split is Node
 		super.init(Split.name)
 
 		this.imports = [
-			Pin(this, "xyzw", "float4"),
-			Pin(this, "xyz", "float3"),
-			Pin(this, "xy", "float2"),
+			Pin(this, "xyzw", VAR_TYPE_NUMBER4),
+			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
+			Pin(this, "xy",   VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
-			Pin(this, "x", "float"),
-			Pin(this, "y", "float"),
-			Pin(this, "z", "float"),
-			Pin(this, "w", "float"),
+			Pin(this, "x", VAR_TYPE_NUMBER),
+			Pin(this, "y", VAR_TYPE_NUMBER),
+			Pin(this, "z", VAR_TYPE_NUMBER),
+			Pin(this, "w", VAR_TYPE_NUMBER),
 		]
 
 		this.layout()

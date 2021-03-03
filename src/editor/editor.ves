@@ -4,6 +4,7 @@ import "gui" for GUI, Context, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MO
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "blueprint.node_op" for NodeOP
 import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ANY
 import "maths.vector" for Vector2
 import "graphics" for Graphics
 import "scene.node" for Node as SceneNode
@@ -57,6 +58,12 @@ class Editor
 		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__6.hdr.ves"
 
 		this.hide_nodes = false
+
+		this.popup_nodes = []
+		this.all_nodes = {}
+		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print ]) {
+			this.add_popup_node(node)
+		}
 	}
 
 	update()
@@ -216,7 +223,7 @@ class Editor
 			var x = pos[0]
 			var y = pos[1] - 25
 
-			var new_node = this.drawPopup(x, y)
+			var new_node = this.drawPopup(x, y, this.prev_pin)
 			if (new_node)
 			{
 				this.add_node(new_node, x, y)
@@ -247,108 +254,72 @@ class Editor
 		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}
 
-	getPopupNum()
+	is_var_type_match(pin, node)
 	{
-		return 20
+		if (pin.is_input) {
+			for (var p in node.exports) {
+				if (p.type == pin.type or pin.type == VAR_TYPE_ANY) {
+					return true
+				}
+			}
+		} else {
+			for (var p in node.imports) {
+				if (p.type == pin.type or pin.type == VAR_TYPE_ANY) {
+					return true
+				}
+			}
+		}
+		return false
+	}	
+
+	drawPopup(x, y, prev_pin)
+	{
+		var num = 0
+		if (prev_pin)
+		{
+			for (var node in this.popup_nodes) {
+				if (this.is_var_type_match(prev_pin, this.all_nodes[node.name])) {
+					num = num + 1
+				}
+			}
+		}
+		else
+		{
+			num = this.popup_nodes.count
+		}
+
+		var ITEM_WIDTH = 120
+		var ITEM_HEIGHT = 25
+		GUI.frame(this.gui_top, x, y - ITEM_HEIGHT * (num - 1), ITEM_WIDTH, ITEM_HEIGHT * num)
+
+		for (var node in this.popup_nodes) 
+		{
+			var show = true
+			if (prev_pin) {
+				show = this.is_var_type_match(prev_pin, this.all_nodes[node.name])
+			}
+			if (show) {
+				if (GUI.selectable(this.gui_top, node.name, false, x, y, ITEM_WIDTH)) {
+					return node()
+				}
+				y = y - ITEM_HEIGHT
+			}
+		}
+		return nil
 	}
 
-	drawPopup(x, y, w, h)
-	{
-		var new_node = nil
-
-		if (GUI.selectable(this.gui_top, "Number", false, x, y, w)) {
-			new_node = Number()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Number2", false, x, y, w)) {
-			new_node = Number2()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Number3", false, x, y, w)) {
-			new_node = Number3()
-		}
-		y = y - h				
-		if (GUI.selectable(this.gui_top, "Combine", false, x, y, w)) {
-			new_node = Combine()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Time", false, x, y, w)) {
-			new_node = Time()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Sin", false, x, y, w)) {
-			new_node = Sin()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Cos", false, x, y, w)) {
-			new_node = Cos()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Radians", false, x, y, w)) {
-			new_node = Radians()
-		}
-		y = y - h				
-		if (GUI.selectable(this.gui_top, "Add", false, x, y, w)) {
-			new_node = Add()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Subtract", false, x, y, w)) {
-			new_node = Subtract()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Multiply", false, x, y, w)) {
-			new_node = Multiply()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Divide", false, x, y, w)) {
-			new_node = Divide()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Matrix", false, x, y, w)) {
-			new_node = Matrix()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Translate", false, x, y, w)) {
-			new_node = Translate()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Rotate", false, x, y, w)) {
-			new_node = Rotate()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Scale", false, x, y, w)) {
-			new_node = Scale()
-		}
-		y = y - h		
-		if (GUI.selectable(this.gui_top, "Perspective", false, x, y, w)) {
-			new_node = Perspective()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "LookAt", false, x, y, w)) {
-			new_node = LookAt()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "For", false, x, y, w)) {
-			new_node = For()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Array", false, x, y, w)) {
-			new_node = Array()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Print", false, x, y, w)) {
-			new_node = Print()
-		}
-		y = y - h
-
-		return new_node
-	}
 	popupCB(x, y, prev_pin)
 	{
 		this.popup_pos = Vector2(x, y)
 		if (prev_pin) {
 			this.prev_pin = prev_pin
 		}
+	}
+
+	add_popup_node(node)
+	{
+		this.popup_nodes.add(node)
+		this.all_nodes[node.name] = node()
 	}
 
 	is_gui_active()

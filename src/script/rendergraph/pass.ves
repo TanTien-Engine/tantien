@@ -1,5 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "rendergraph.variant_type" for VAR_TYPE_RENDER_TARGET
 
 class Pass is Node
 {
@@ -8,7 +10,8 @@ class Pass is Node
 		super.init(Pass.name)
 
 		this.imports = [
-			Pin(this, "prev", "port")
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "rt",   VAR_TYPE_RENDER_TARGET)
 		]
 
 		this.layout()

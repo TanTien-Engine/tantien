@@ -2,8 +2,10 @@ import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.Blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_PORT
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "rendergraph.variant_type" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY
 
 class Draw is Node
 {
@@ -12,12 +14,12 @@ class Draw is Node
 		super.init(Draw.name)
 
 		this.imports = [
-			Pin(this, "prev", "port"),
-			Pin(this, "shader", "shader"),
-			Pin(this, "va", "va")				
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "shader", VAR_TYPE_SHADER),
+			Pin(this, "va", VAR_TYPE_VERTEX_ARRAY)				
 		]
 		this.exports = [
-			Pin(this, "next", "port")
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.prim_types = [ "triangles", "tri_strip" ]

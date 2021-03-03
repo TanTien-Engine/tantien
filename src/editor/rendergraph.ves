@@ -13,6 +13,7 @@ import "rendergraph.cubemap" for Cubemap
 import "rendergraph.primitive_shape" for PrimitiveShape
 import "rendergraph.texture" for Texture
 import "rendergraph.camera3d" for Camera3D
+import "rendergraph.render_target" for RenderTarget
 
 class Test is Editor
 {
@@ -21,6 +22,10 @@ class Test is Editor
 		super.load()
 
 		this.drawlists = []
+
+		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, Camera3D, RenderTarget ]) {
+			super.add_popup_node(node)
+		}
 	}
 
 	isEndNode(node)
@@ -76,71 +81,6 @@ class Test is Editor
 		}
 	}
 
-	drawPopup(x, y)
-	{
-		var new_node = nil
-
-		var WIDTH = 120
-		var HEIGHT = 25
-
-		var NUM = super.getPopupNum() + 9
-		GUI.frame(this.gui_top, x, y - HEIGHT * (NUM - 1), WIDTH, HEIGHT * NUM)
-
-		new_node = super.drawPopup(x, y, WIDTH, HEIGHT)
-		y = y - HEIGHT * super.getPopupNum()
-
-		if (GUI.selectable(this.gui_top, "Clear", false, x, y, WIDTH)) {
-			new_node = Clear()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "Draw", false, x, y, WIDTH)) {
-			new_node = Draw()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "Shader", false, x, y, WIDTH)) {
-			new_node = Shader()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "VertexArray", false, x, y, WIDTH)) 
-		{
-			var va = VertexArray()
-			va.data = [
-			    //  X    Y    Z          R    G    B
-			       0.8, 0.8, 0.0,       1.0, 0.0, 0.0, // vertex 0
-			      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 1
-			       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 2
-			       0.8,-0.8, 0.0,       0.0, 0.0, 1.0, // vertex 3
-			      -0.8, 0.8, 0.0,       0.0, 1.0, 0.0, // vertex 4
-			      -0.8,-0.8, 0.0,       1.0, 0.0, 0.0, // vertex 5
-			]
-			va.attrs = [3, 3]
-			new_node = va
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "Pass", false, x, y, WIDTH)) {
-			new_node = Pass()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "Texture", false, x, y, w)) {
-			new_node = Texture()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Cubemap", false, x, y, WIDTH)) {
-			new_node = Cubemap()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "PrimitiveShape", false, x, y, WIDTH)) {
-			new_node = PrimitiveShape()
-		}
-		y = y - HEIGHT
-		if (GUI.selectable(this.gui_top, "Camera3D", false, x, y, w)) {
-			new_node = Camera3D()
-		}
-		y = y - h
-		
-		return new_node
-	}
-
 	loadFileImports()
 	{
 		return "
@@ -153,6 +93,7 @@ import \"rendergraph.cubemap\" for Cubemap
 import \"rendergraph.primitive_shape\" for PrimitiveShape
 import \"rendergraph.texture\" for Texture
 import \"rendergraph.camera3d\" for Camera3D
+import \"rendergraph.render_target\" for RenderTarget
 "
 	}
 }

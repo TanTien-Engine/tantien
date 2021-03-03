@@ -4,6 +4,7 @@ import "blueprint.pin" for Pin
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "maths" for Matrix44
+import "rendergraph.variant_type" for VAR_TYPE_SHADER
 
 class Shader is Node
 {
@@ -12,7 +13,7 @@ class Shader is Node
 		super.init(Shader.name)
 
 		this.exports = [
-			Pin(this, "out", "shader")
+			Pin(this, "out", VAR_TYPE_SHADER)
 		]
 
 		this.vs = nil

@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_PORT
 
 class Print is Node
 {
@@ -9,11 +9,11 @@ class Print is Node
 		super.init(Print.name)
 
 		this.imports = [
-			Pin(this, "prev", "port"),
+			Pin(this, "prev",  VAR_TYPE_PORT),
 			Pin(this, "value", VAR_TYPE_ANY)
 		]
 		this.exports = [
-			Pin(this, "next", "port")
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.layout()
