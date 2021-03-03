@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "render" for VertexArray
 import "blueprint.variant" for Variant
-import "rendergraph.variant_type" for VAR_TYPE_VA
+import "rendergraph.variant_type" for VAR_TYPE_VERTEX_ARRAY
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 
@@ -33,7 +33,7 @@ class PrimitiveShape is Node
 
 	calc(idx)
 	{
-		return Variant(VAR_TYPE_VA, this.va)
+		return Variant(VAR_TYPE_VERTEX_ARRAY, this.va)
 	}
 
 	execute() 
