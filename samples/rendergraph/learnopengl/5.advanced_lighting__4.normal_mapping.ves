@@ -1,0 +1,155 @@
+var node0 = Draw()
+test.add_node(node0, 99, 671.5)
+
+node0.set_prim_type("tri_strip")
+node0.render_state = { "depth_test" : true, "depth_func" : "never", "cull" : "disable" }
+
+var node1 = Clear()
+test.add_node(node1, -120.72727272727, 850.40909090909)
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+var node2 = Shader()
+test.add_node(node2, -248.48880712761, 503.63505754292)
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+layout (location = 3) in vec3 aTangent;
+layout (location = 4) in vec3 aBitangent;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec2 TexCoords;
+    vec3 TangentLightPos;
+    vec3 TangentViewPos;
+    vec3 TangentFragPos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+
+	vec3 lightPos;
+	vec3 viewPos;
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.TexCoords = aTexCoords;
+    
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 N = normalize(normalMatrix * aNormal);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+    
+    mat3 TBN = transpose(mat3(T, B, N));    
+    vs_out.TangentLightPos = TBN * lightPos;
+    vs_out.TangentViewPos  = TBN * viewPos;
+    vs_out.TangentFragPos  = TBN * vs_out.FragPos;
+        
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec2 TexCoords;
+    vec3 TangentLightPos;
+    vec3 TangentViewPos;
+    vec3 TangentFragPos;
+} fs_in;
+
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
+
+uniform UBO
+{
+	vec3 lightPos;
+	vec3 viewPos;	
+};
+
+void main()
+{           
+     // obtain normal from normal map in range [0,1]
+    vec3 normal = texture(normalMap, fs_in.TexCoords).rgb;
+    // transform normal vector to range [-1,1]
+    normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+   
+    // get diffuse color
+    vec3 color = texture(diffuseMap, fs_in.TexCoords).rgb;
+    // ambient
+    vec3 ambient = 0.1 * color;
+    // diffuse
+    vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * color;
+    // specular
+    vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+    vec3 specular = vec3(0.2) * spec;
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
+}
+"
+node2.execute()
+node2.setUniform("lightPos", [ 0.56098663806915, 0.56098663806915, 0.59431999921799 ])
+node2.setUniform("lightPos", [ 0.56098663806915, 0.67209780216217, 0.40543112158775 ])
+
+var node3 = PrimitiveShape()
+test.add_node(node3, -59.727272727273, 629.59090909091)
+
+node3.type = "quad"
+node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
+
+var node4 = Texture()
+test.add_node(node4, -706.5793, 636.2861)
+
+node4.initTexture("resources/textures/brickwall_normal.jpg")
+node4.sampler_selected = 3
+
+var node5 = Texture()
+test.add_node(node5, -480.7286, 549.5415)
+
+node5.initTexture("resources/textures/brickwall.jpg")
+node5.sampler_selected = 3
+
+var node6 = Perspective()
+test.add_node(node6, -483.5582633908, 944.40210375624)
+
+node6.fovy = 45
+node6.aspect = 0
+node6.znear = 0.10000000149012
+node6.zfar = 100
+
+var node7 = Camera3D()
+test.add_node(node7, -667.78729773559, 795.36301833436)
+
+node7.position.set(0, 0, 0)
+node7.yaw = -90
+node7.pitch = -30.9
+node7.zoom = 45
+node7.update_camera_vectors()
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[7])
+Blueprint.connect(node5.exports[0], node2.imports[8])
+Blueprint.connect(node6.exports[0], node2.imports[0])
+Blueprint.connect(node7.exports[0], node2.imports[1])
+Blueprint.connect(node7.exports[1], node6.imports[0])
+Blueprint.connect(node7.exports[3], node2.imports[4])
+Blueprint.connect(node7.exports[3], node2.imports[6])

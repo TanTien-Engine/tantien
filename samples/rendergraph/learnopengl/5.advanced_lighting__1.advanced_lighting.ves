@@ -11,7 +11,7 @@ node1.prim_type = "triangles"
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
 var node2 = Shader()
-test.add_node(node2, 31.392354250067, -40.131581182307)
+test.add_node(node2, 56.392354250067, -41.131581182307)
 
 node2.vs = "
 #version 330 core
@@ -88,8 +88,8 @@ void main()
 }
 "
 node2.execute()
-node2.setUniform("lightPos", [ 0.16230723261833, 0.15119603276253, 0.10675159096718 ])
-node2.setUniform("viewPos", [ 0.28452935814857, 0.55119603872299, 0.61786270141602 ])
+node2.setUniform("lightPos", [ 0, 0, 0 ])
+node2.setUniform("viewPos", [ 0, 0, 3 ])
 node2.setUniform("blinn", [ 0 ])
 
 var node3 = VertexArray()
