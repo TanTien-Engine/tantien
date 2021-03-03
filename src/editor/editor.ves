@@ -24,7 +24,6 @@ import "blueprint.nodes.add" for Add
 import "blueprint.nodes.subtract" for Subtract
 import "blueprint.nodes.multiply" for Multiply
 import "blueprint.nodes.divide" for Divide
-import "blueprint.nodes.texture" for Texture
 import "blueprint.nodes.matrix" for Matrix
 import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
@@ -34,7 +33,6 @@ import "blueprint.nodes.lookat" for LookAt
 import "blueprint.nodes.for" for For
 import "blueprint.nodes.array" for Array
 import "blueprint.nodes.print" for Print
-import "blueprint.nodes.camera3d" for Camera3D
 
 class Editor
 {
@@ -251,7 +249,7 @@ class Editor
 
 	getPopupNum()
 	{
-		return 22
+		return 20
 	}
 
 	drawPopup(x, y, w, h)
@@ -306,10 +304,6 @@ class Editor
 			new_node = Divide()
 		}
 		y = y - h
-		if (GUI.selectable(this.gui_top, "Texture", false, x, y, w)) {
-			new_node = Texture()
-		}
-		y = y - h
 		if (GUI.selectable(this.gui_top, "Matrix", false, x, y, w)) {
 			new_node = Matrix()
 		}
@@ -344,10 +338,6 @@ class Editor
 		y = y - h
 		if (GUI.selectable(this.gui_top, "Print", false, x, y, w)) {
 			new_node = Print()
-		}
-		y = y - h
-		if (GUI.selectable(this.gui_top, "Camera3D", false, x, y, w)) {
-			new_node = Camera3D()
 		}
 		y = y - h
 
@@ -412,7 +402,6 @@ import \"blueprint.nodes.add\" for Add
 import \"blueprint.nodes.subtract\" for Subtract
 import \"blueprint.nodes.multiply\" for Multiply
 import \"blueprint.nodes.divide\" for Divide
-import \"blueprint.nodes.texture\" for Texture
 import \"blueprint.nodes.matrix\" for Matrix
 import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
@@ -422,7 +411,6 @@ import \"blueprint.nodes.lookat\" for LookAt
 import \"blueprint.nodes.for\" for For
 import \"blueprint.nodes.array\" for Array
 import \"blueprint.nodes.print\" for Print
-import \"blueprint.nodes.camera3d\" for Camera3D
 "
 		str = str + this.loadFileImports()
 
