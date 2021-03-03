@@ -37,6 +37,7 @@ foreign class Matrix44
 
 	foreign translate(x, y, z)
 	foreign rotateAxis(angle, x, y, z)
+	foreign scale(sx, sy, sz)	
 
 	foreign perspective(fovy, aspect, znear, zfar)
 	foreign lookat(eye, center, up)

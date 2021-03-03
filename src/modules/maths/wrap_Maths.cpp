@@ -110,6 +110,15 @@ void w_Matrix44_rotateAxis()
     *mt = mt->RotatedAxis({ x, y, z }, angle);
 }
 
+void w_Matrix44_scale()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float x = (float)ves_tonumber(1);
+    const float y = (float)ves_tonumber(2);
+    const float z = (float)ves_tonumber(3);
+    mt->Scale(x, y, z);
+}
+
 void w_Matrix44_perspective()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
@@ -204,6 +213,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
 
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
     if (strcmp(signature, "Matrix44.rotateAxis(_,_,_,_)") == 0) return w_Matrix44_rotateAxis;
+    if (strcmp(signature, "Matrix44.scale(_,_,_)") == 0) return w_Matrix44_scale;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
     if (strcmp(signature, "Matrix44.fromRotateMat(_)") == 0) return w_Matrix44_fromRotateMat;

@@ -28,6 +28,7 @@ import "blueprint.nodes.texture" for Texture
 import "blueprint.nodes.matrix" for Matrix
 import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
+import "blueprint.nodes.scale" for Scale
 import "blueprint.nodes.perspective" for Perspective
 import "blueprint.nodes.lookat" for LookAt
 import "blueprint.nodes.for" for For
@@ -321,6 +322,10 @@ class Editor
 			new_node = Rotate()
 		}
 		y = y - h
+		if (GUI.selectable(this.gui_top, "Scale", false, x, y, w)) {
+			new_node = Scale()
+		}
+		y = y - h		
 		if (GUI.selectable(this.gui_top, "Perspective", false, x, y, w)) {
 			new_node = Perspective()
 		}
@@ -411,6 +416,7 @@ import \"blueprint.nodes.texture\" for Texture
 import \"blueprint.nodes.matrix\" for Matrix
 import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
+import \"blueprint.nodes.scale\" for Scale
 import \"blueprint.nodes.perspective\" for Perspective
 import \"blueprint.nodes.lookat\" for LookAt
 import \"blueprint.nodes.for\" for For

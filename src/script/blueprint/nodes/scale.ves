@@ -1,0 +1,89 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths.vector" for Vector3
+import "maths" for Matrix44
+
+class Scale is Node
+{
+	init()
+	{
+		super.init(Scale.name)
+
+		this.imports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+
+		this.layout()
+
+		this.sx = 1.0
+		this.sy = 1.0
+		this.sz = 1.0
+	}
+
+	calc(idx) 
+	{
+		var mat = Matrix44.init()
+		var conns = this.imports[0].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			mat = f_pin.node.calc(f_pin.slot_idx).value
+		}
+
+		mat.scale(this.sx, this.sy, this.sz)
+		return Variant(VAR_TYPE_MATRIX4, mat)
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
+	}
+
+	toString(name) {
+		return "
+%(name).sx = %(this.sx)
+%(name).sy = %(this.sy)
+%(name).sz = %(this.sz)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 50
+
+		var sx = GUI.slider(ctx, "sx", this.sx, x, y, this.style.width - 20, REGION, false)
+		if (sx != this.sx) {
+			this.sx = sx
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var sy = GUI.slider(ctx, "sy", this.sy, x, y, this.style.width - 20, REGION, false)
+		if (sy != this.sy) {
+			this.sy = sy
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var sz = GUI.slider(ctx, "sz", this.sz, x, y, this.style.width - 20, REGION, false)
+		if (sz != this.sz) {
+			this.sz = sz
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+}
