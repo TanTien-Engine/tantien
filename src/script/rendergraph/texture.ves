@@ -25,7 +25,7 @@ class Texture is Node
 
 		// for gui
 		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
-		this.sampler_selected = 3
+		this.set_sampler("linear repeat")
 	}
 
 	calc(idx)
@@ -66,11 +66,16 @@ class Texture is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
-	toString(name) {
-		return "
-%(name).initTexture(\"%(this.tex_filepath)\")
-%(name).sampler_selected = %(this.sampler_selected)
-"
+	toString(name) 
+	{
+		var ret = "\n"
+		if (this.width != 0 and this.height != 0) {
+			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
+		} else {
+			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"
+		}
+		ret = ret + "%(name).set_sampler(\"%(this.sampler_items[this.sampler_selected])\")\n"
+		return ret
 	}
 
 	drawGUI(ctx)
@@ -90,11 +95,21 @@ class Texture is Node
 		return dirty
 	}
 
-	initTexture(filepath)
+	init_texture(filepath)
 	{
 		this.tex_filepath = filepath
 
 		var img = ImageData.init(filepath)
 		this.tex = tt_Texture.init(img)
+	}
+
+	set_sampler(name)
+	{
+		for (var i in 0..this.sampler_items.count) {
+			if (this.sampler_items[i] == name) {
+				this.sampler_selected = i
+				return
+			}
+		}
 	}
 }

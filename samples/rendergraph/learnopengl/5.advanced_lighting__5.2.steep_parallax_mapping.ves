@@ -150,14 +150,14 @@ node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
 var node4 = Texture()
 test.add_node(node4, -665.77154359778, 433.17806618088)
 
-node4.initTexture("resources/textures/bricks2_normal.jpg")
-node4.sampler_selected = 3
+node4.init_texture("resources/textures/bricks2_normal.jpg")
+node4.set_sampler("linear repeat")
 
 var node5 = Texture()
 test.add_node(node5, -442.87683262093, 433.50267736584)
 
-node5.initTexture("resources/textures/bricks2.jpg")
-node5.sampler_selected = 3
+node5.init_texture("resources/textures/bricks2.jpg")
+node5.set_sampler("linear repeat")
 
 var node6 = Perspective()
 test.add_node(node6, -448.78666929949, 806.55757003711)
@@ -179,8 +179,8 @@ node7.update_camera_vectors()
 var node8 = Texture()
 test.add_node(node8, -898.23686906632, 435.03630216515)
 
-node8.initTexture("resources/textures/bricks2_disp.jpg")
-node8.sampler_selected = 3
+node8.init_texture("resources/textures/bricks2_disp.jpg")
+node8.set_sampler("linear repeat")
 
 var node9 = Number3()
 test.add_node(node9, -649.35635423969, 631.55999766207)

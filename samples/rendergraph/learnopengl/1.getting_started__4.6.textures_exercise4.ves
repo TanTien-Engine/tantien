@@ -64,14 +64,14 @@ node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
 var node4 = Texture()
 test.add_node(node4, -199.27687977499, -83.690936453009)
 
-node4.initTexture("resources/textures/container.jpg")
-node4.sampler_selected = 0
+node4.init_texture("resources/textures/container.jpg")
+node4.set_sampler("nearest clamp")
 
 var node5 = Texture()
 test.add_node(node5, -199.47503100322, -154.71151214546)
 
-node5.initTexture("resources/textures/awesomeface.png")
-node5.sampler_selected = 3
+node5.init_texture("resources/textures/awesomeface.png")
+node5.set_sampler("linear repeat")
 
 var node6 = Number()
 test.add_node(node6, -184.39788511997, -10.06667077349)

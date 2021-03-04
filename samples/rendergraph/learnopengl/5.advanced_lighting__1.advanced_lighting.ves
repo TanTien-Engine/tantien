@@ -116,8 +116,8 @@ node5.up.set(0, 1, 0)
 var node6 = Texture()
 test.add_node(node6, -224.53483258756, 6.5953025564666)
 
-node6.initTexture("resources/textures/wood.png")
-node6.sampler_selected = 3
+node6.init_texture("resources/textures/wood.png")
+node6.set_sampler("linear repeat")
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])

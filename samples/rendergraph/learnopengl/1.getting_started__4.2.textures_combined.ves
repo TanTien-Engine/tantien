@@ -59,14 +59,14 @@ node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
 var node4 = Texture()
 test.add_node(node4, -459.76408715252, -14.015777610819)
 
-node4.initTexture("resources/textures/container.jpg")
-node4.sampler_selected = 3
+node4.init_texture("resources/textures/container.jpg")
+node4.set_sampler("linear repeat")
 
 var node5 = Texture()
 test.add_node(node5, -224.62195205246, -46.262960180315)
 
-node5.initTexture("resources/textures/awesomeface.png")
-node5.sampler_selected = 3
+node5.init_texture("resources/textures/awesomeface.png")
+node5.set_sampler("linear repeat")
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])
