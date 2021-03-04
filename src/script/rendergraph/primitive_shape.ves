@@ -48,7 +48,11 @@ class PrimitiveShape is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 1
+		// type
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+
+		// layout
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
 	}
 
 	toString(name) 
@@ -67,7 +71,7 @@ class PrimitiveShape is Node
 		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
 		if (this.type_selected < 0) {
-			this.type_selected = this.query_item_index(this.type_items, this.type)
+			this.type_selected = this.type_items.query_index(this.type)
 		}
 
 		var item = GUI.combo(ctx, "type", this.type_selected, this.type_items, x, y, 80)
@@ -76,20 +80,62 @@ class PrimitiveShape is Node
 			this.type_selected = item
 			this.type = this.type_items[item]
 			this.dirty = true
-			dirty = true		
+			dirty = true	
 		}
+
 		y = y - DEFAULT_HEIGHT
+		var layout_pos = this.layout.contains("position")
+		var _layout_pos = GUI.checkbox(ctx, "position", layout_pos, x, y)
+		if (_layout_pos != layout_pos) 
+		{
+			if (_layout_pos) {
+				this.layout.add("position")
+			} else {
+				this.layout.remove("position")
+			}
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var layout_tex = this.layout.contains("texture")
+		var _layout_tex = GUI.checkbox(ctx, "texture", layout_tex, x, y)
+		if (_layout_tex != layout_tex) {
+			if (_layout_tex) {
+				this.layout.add("texture")
+			} else {
+				this.layout.remove("texture")
+			}
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var layout_norm = this.layout.contains("normal")
+		var _layout_norm = GUI.checkbox(ctx, "normal", layout_norm, x, y)
+		if (_layout_norm != layout_norm) {
+			if (_layout_norm) {
+				this.layout.add("normal")
+			} else {
+				this.layout.remove("normal")
+			}
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var layout_bt = this.layout.contains("tangent_bitangent")
+		var _layout_bt = GUI.checkbox(ctx, "tangent_bitangent", layout_bt, x, y)
+		if (_layout_bt != layout_bt) {
+			if (_layout_bt) {
+				this.layout.add("tangent_bitangent")
+			} else {
+				this.layout.remove("tangent_bitangent")
+			}
+			dirty = true
+		}
+
+		if (dirty) {
+			this.dirty = true
+		}
 
 		return dirty
-	}
-
-	query_item_index(items, name)
-	{
-		for (var i in 0..items.count) {
-			if (items[i] == name) {
-				return i
-			}		
-		}
-		return -1
 	}
 }

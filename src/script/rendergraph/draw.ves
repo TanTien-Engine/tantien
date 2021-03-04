@@ -95,7 +95,7 @@ class Draw is Node
 
 		if (this.depth_func_selected < 0) {
 			var depth_func = this.render_state["depth_func"]
-			this.depth_func_selected = this.query_item_index(this.depth_func_items, depth_func)
+			this.depth_func_selected = this.depth_func_items.query_index(depth_func)
 		}
 		item = GUI.combo(ctx, "depth_func", this.depth_func_selected, this.depth_func_items, x, y, 80)
 		if (item != this.depth_func_selected) {
@@ -107,7 +107,7 @@ class Draw is Node
 
 		if (this.cull_selected < 0) {
 			var cull = this.render_state["cull"]
-			this.cull_selected = this.query_item_index(this.cull_items, cull)
+			this.cull_selected = this.cull_items.query_index(cull)
 		}
 
 		item = GUI.combo(ctx, "cull", this.cull_selected, this.cull_items, x, y, 80)
@@ -119,16 +119,6 @@ class Draw is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
-	}
-
-	query_item_index(items, name)
-	{
-		for (var i in 0..items.count) {
-			if (items[i] == name) {
-				return i
-			}		
-		}
-		return -1
 	}
 
 	set_prim_type(prim)
