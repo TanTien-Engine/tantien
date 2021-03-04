@@ -106,4 +106,16 @@ class Blueprint
 			return pin.conns.front().from.node
 		}
 	}
+
+	static get_input_value(curr_node, input_slot)
+	{
+		var pin = curr_node.imports[input_slot]
+		if (pin.conns.isEmpty) {
+			return nil
+		} else {
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			return f_node.calc(f_pin.slot_idx)
+		}	
+	}
 }
