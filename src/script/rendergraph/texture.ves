@@ -21,11 +21,18 @@ class Texture is Node
 		this.layout()
 
 		this.tex = nil
+
 		this.tex_filepath = ""
+
+		this.width  = 0
+		this.height = 0
+		this.format = "rgba8"
 
 		// for gui
 		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
 		this.set_sampler("linear repeat")
+		this.fomat_items = ["rgb", "rgba8", "rgba16f", "r16"]
+		this.format_selected = 0
 	}
 
 	calc(idx)
@@ -101,6 +108,15 @@ class Texture is Node
 
 		var img = ImageData.init(filepath)
 		this.tex = tt_Texture.init(img)
+	}
+
+	init_texture(width, height, format)
+	{
+		this.width  = width
+		this.height = height
+		this.format = format
+
+		this.tex = tt_Texture.init(width, height, format)
 	}
 
 	set_sampler(name)

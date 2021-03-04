@@ -31,7 +31,7 @@ foreign class VertexArray
 foreign class Texture
 {
 	init(img_data) {}
-	// format: <"rgb", "rgba">
+	// format: "rgb", "rgba8", "rgba16f", "r16"
 	init(width, height, format) {}
 	// cubemap, textures: list [ right, left, top, bottom, front, back ]
 	init(textures) {}

@@ -365,87 +365,75 @@ static int w_VertexArray_finalize(void* data)
 
 void w_Texture_allocate()
 {
-    ur::TexturePtr* tex = (ur::TexturePtr*)ves_set_newforeign(0, 0, sizeof(ur::TexturePtr));
+    ur::TexturePtr tex = nullptr;
     if (ves_type(1) == VES_TYPE_FOREIGN)
     {
         tt::ImageData* img = (tt::ImageData*)ves_toforeign(1);
 
         ur::TextureFormat tf;
-        size_t bpp = 0; // bytes per pixel
 	    switch (img->format)
 	    {
+        case GPF_INVALID:
+            tf = ur::TextureFormat::RGBA8;
+            break;
 	    case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
-		    tf =  ur::TextureFormat::A8;
-            bpp = 1;
+		    tf = ur::TextureFormat::A8;
 		    break;
         case GPF_RED:
-            tf =  ur::TextureFormat::RED;
-            bpp = 1;
+            tf = ur::TextureFormat::RED;
             break;
 	    case GPF_RGB:
-		    tf =  ur::TextureFormat::RGB;
-            bpp = 3;
+		    tf = ur::TextureFormat::RGB;
 		    break;
         case GPF_RGB565:
             tf = ur::TextureFormat::RGB565;
-            bpp = 2;
             break;
 	    case GPF_RGBA8:
-		    tf =  ur::TextureFormat::RGBA8;
-            bpp = 4;
+		    tf = ur::TextureFormat::RGBA8;
 		    break;
 	    case GPF_BGRA_EXT:
-		    tf =  ur::TextureFormat::BGRA_EXT;
-            bpp = 4;
+		    tf = ur::TextureFormat::BGRA_EXT;
 		    break;
 	    case GPF_BGR_EXT:
-		    tf =  ur::TextureFormat::BGR_EXT;
-            bpp = 3;
+		    tf = ur::TextureFormat::BGR_EXT;
 		    break;
         case GPF_RGBA16F:
-            tf =  ur::TextureFormat::RGBA16F;
-            bpp = 4 * 4;
+            tf = ur::TextureFormat::RGBA16F;
             break;
         case GPF_RGB16F:
-            tf =  ur::TextureFormat::RGB16F;
-            bpp = 3 * 4;
+            tf = ur::TextureFormat::RGB16F;
             break;
         case GPF_RGB32F:
-            tf =  ur::TextureFormat::RGB32F;
-            bpp = 3 * 4;
+            tf = ur::TextureFormat::RGB32F;
             break;
 	    case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            bpp = 4;
+		    tf = ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		    break;
 	    case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
-            bpp = 4;
+		    tf = ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		    break;
 	    case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-		    tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
-            bpp = 4;
+		    tf = ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		    break;
 	    default:
-		    assert(0);
+            GD_REPORT_ASSERT("unknown type.");
 	    }
 
-        size_t buf_sz = img->width * img->height * bpp;
-        *tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
+        size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(img->width, img->height, tf, 4);
+        tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
     }
     else if (ves_type(1) == VES_TYPE_LIST)
     {
-        assert(ves_len(1) == 6);
+        GD_ASSERT(ves_len(1) == 6, "error number");
         std::array<ur::TexturePtr, 6> textures;
         for (int i = 0; i < 6; ++i)
         {
             ves_geti(1, i);
-            textures[i] = *static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+            textures[i] = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
             ves_pop(1);
         }
 
-        
-        *tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
+        tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
     }
     else
     {
@@ -453,20 +441,24 @@ void w_Texture_allocate()
         int height = (int)ves_tonumber(2);
         const char* format = ves_tostring(3);
         ur::TextureFormat tf;
-        size_t bpp = 0; // bytes per pixel
         if (strcmp(format, "rgb") == 0) {
             tf = ur::TextureFormat::RGB;
-            bpp = 3;
-        } else if (strcmp(format, "rgba") == 0) {
+        } else if (strcmp(format, "rgba8") == 0) {
             tf = ur::TextureFormat::RGBA8;
-            bpp = 4;
+        } else if (strcmp(format, "rgba16f") == 0) {
+            tf = ur::TextureFormat::RGBA16F;
+        } else if (strcmp(format, "r16") == 0) {
+            tf = ur::TextureFormat::R16;
         } else {
-            assert(0);
+            GD_REPORT_ASSERT("unknown type.");
         }
 
-        size_t buf_sz = width * height * bpp;
-        *tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
+        size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(width, height, tf, 4);
+        tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
     }
+
+    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    proxy->obj = tex;
 }
 
 static int w_Texture_finalize(void* data)
