@@ -16,6 +16,8 @@
 #include <unirender/ShaderProgram.h>
 #include <unirender/Uniform.h>
 #include <unirender/Texture.h>
+#include <unirender/Framebuffer.h>
+#include <unirender/TextureUtility.h>
 #include <shadertrans/ShaderTrans.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
@@ -478,6 +480,41 @@ void w_Texture_getHeight()
 {
     ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
     ves_set_number(0, (double)(*tex)->GetHeight());
+
+void w_Framebuffer_allocate()
+{
+    auto fbo = tt::Render::Instance()->Device()->CreateFramebuffer();
+
+    auto proxy = (tt::Proxy<ur::Framebuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Framebuffer>));
+    proxy->obj = fbo;
+}
+
+int w_Framebuffer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::Framebuffer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::Framebuffer>);
+}
+
+void w_Framebuffer_attachment()
+{
+    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    const char* type = ves_tostring(2);
+    ur::AttachmentType atta_type = ur::AttachmentType::Color0;
+    if (type == "depth") {
+        atta_type = ur::AttachmentType::Depth;
+    } else if (type == "stencil") {
+        atta_type = ur::AttachmentType::Stencil;
+    } else {
+        for (int i = 0; i < 16; ++i) {
+            if (type == "col" + std::to_string(i)) {
+                atta_type = static_cast<ur::AttachmentType>((int)ur::AttachmentType::Color0 + i);
+                break;
+            }
+        }
+    }
+    fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, tex, nullptr);
 }
 
 void w_Render_draw()
@@ -616,6 +653,64 @@ void w_Render_clear()
     }
 
     tt::Render::Instance()->Context()->Clear(clear);
+}
+
+void w_Render_get_fbo()
+{
+    std::shared_ptr<ur::Framebuffer>* fbo = (std::shared_ptr<ur::Framebuffer>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::Framebuffer>));
+    *fbo = tt::Render::Instance()->Context()->GetFramebuffer();
+}
+
+void w_Render_set_fbo()
+{
+    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(1))->obj;
+    tt::Render::Instance()->Context()->SetFramebuffer(fbo);
+}
+
+void w_Render_get_viewport()
+{
+    int x, y, w, h;
+    tt::Render::Instance()->Context()->GetViewport(x, y, w, h);
+
+    ves_pop(1);
+    ves_newlist(4);
+
+    ves_pushnumber(x);
+    ves_seti(-2, 0);
+    ves_pop(1);
+
+    ves_pushnumber(y);
+    ves_seti(-2, 1);
+    ves_pop(1);
+
+    ves_pushnumber(w);
+    ves_seti(-2, 2);
+    ves_pop(1);
+
+    ves_pushnumber(h);
+    ves_seti(-2, 3);
+    ves_pop(1);
+}
+
+void w_Render_set_viewport()
+{
+    ves_geti(1, 0);
+    int x = (int)ves_tonumber(-1);
+    ves_pop(1);
+
+    ves_geti(1, 1);
+    int y = (int)ves_tonumber(-1);
+    ves_pop(1);
+
+    ves_geti(1, 2);
+    int w = (int)ves_tonumber(-1);
+    ves_pop(1);
+
+    ves_geti(1, 3);
+    int h = (int)ves_tonumber(-1);
+    ves_pop(1);
+
+    tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
 std::string parse_spir_type(const spirv_cross::SPIRType& type)
@@ -951,10 +1046,16 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Texture.getWidth()") == 0) return w_Texture_getWidth;
     if (strcmp(signature, "Texture.getHeight()") == 0) return w_Texture_getHeight;
 
+    if (strcmp(signature, "Framebuffer.attachment(_,_)") == 0) return w_Framebuffer_attachment;
+
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.getShaderUniforms(_,_,_)") == 0) return w_Render_getShaderUniforms;
+    if (strcmp(signature, "static Render.get_fbo()") == 0) return w_Render_get_fbo;
+    if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
+    if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;
+    if (strcmp(signature, "static Render.set_viewport(_)") == 0) return w_Render_set_viewport;
 
     return NULL;
 }
@@ -979,6 +1080,13 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Texture_allocate;
         methods->finalize = w_Texture_finalize;
+        return;
+    }
+
+    if (strcmp(className, "Framebuffer") == 0)
+    {
+        methods->allocate = w_Framebuffer_allocate;
+        methods->finalize = w_Framebuffer_finalize;
         return;
     }
 }

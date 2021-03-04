@@ -106,7 +106,7 @@ node2.setUniform("lights[3].Position", [ 0.80000001192093, -1.7, 6 ])
 node2.setUniform("lights[3].Color", [ 0, 0.10000000149012, 0 ])
 
 var node3 = PrimitiveShape()
-test.add_node(node3, 48.662615984639, 638.19008893082)
+test.add_node(node3, 68.722433333658, 651.7188029569)
 
 node3.type = "cube"
 node3.layout = [ "position", "normal", "texture" ]
@@ -151,7 +151,98 @@ node9.sx = 2.5
 node9.sy = 2.5
 node9.sz = 27.5
 
+var node10 = Pass()
+test.add_node(node10, 497.59578419333, 628.42354250067)
+
+var node11 = RenderTarget()
+test.add_node(node11, 341.40907932805, 421.02879895375)
+
+node11.width = 1024
+node11.height = 1024
+node11.rbo_depth = false
+node11.rbo_color = false
+
+var node12 = Texture()
+test.add_node(node12, 135.2051316, 482.2948684)
+
+node12.init_texture(1024, 1024, "rgb")
+node12.set_sampler("linear repeat")
+
+var node13 = Clear()
+test.add_node(node13, 611.3767464907, 244.47903657091)
+
+node13.masks = [ "color", "depth" ]
+node13.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+var node14 = Draw()
+test.add_node(node14, 798.2275241, 126.0293269)
+
+node14.set_prim_type("tri_strip")
+node14.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+var node15 = Shader()
+test.add_node(node15, 547.78585808094, 58.012725685842)
+
+node15.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node15.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D hdrBuffer;
+
+uniform UBO
+{
+    bool hdr;
+    float exposure;    
+};
+
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+    if(hdr)
+    {
+        // reinhard
+        // vec3 result = hdrColor / (hdrColor + vec3(1.0));
+        // exposure
+        vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+        // also gamma correct while we're at it       
+        result = pow(result, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+    else
+    {
+        vec3 result = pow(hdrColor, vec3(1.0 / gamma));
+        FragColor = vec4(result, 1.0);
+    }
+}
+"
+node15.execute()
+node15.setUniform("hdr", [ 1 ])
+node15.setUniform("exposure", [ 4 ])
+
+var node16 = PrimitiveShape()
+test.add_node(node16, 551.92925727603, -115.02215628678)
+
+node16.type = "quad"
+node16.layout = [ "position", "texture" ]
+
 Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node1.exports[0], node10.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])
 Blueprint.connect(node3.exports[0], node1.imports[2])
 Blueprint.connect(node4.exports[0], node2.imports[0])
@@ -162,3 +253,9 @@ Blueprint.connect(node6.exports[0], node2.imports[13])
 Blueprint.connect(node7.exports[0], node9.imports[0])
 Blueprint.connect(node8.exports[0], node2.imports[2])
 Blueprint.connect(node9.exports[0], node8.imports[0])
+Blueprint.connect(node11.exports[0], node10.imports[1])
+Blueprint.connect(node12.exports[0], node11.imports[0])
+Blueprint.connect(node12.exports[0], node15.imports[2])
+Blueprint.connect(node13.exports[0], node14.imports[0])
+Blueprint.connect(node15.exports[0], node14.imports[1])
+Blueprint.connect(node16.exports[0], node14.imports[2])

@@ -28,35 +28,23 @@ class Test is Editor
 		}
 	}
 
-	isEndNode(node)
-	{
-		if (!node) {
-			return false
-		}
-
-		if (node is Pass) {
-			return true
-		} else if (node is Draw and node.exports[0].conns.isEmpty) {
-			return true
-		}
-	}
-
 	rebuildDrawlist()
 	{
 		this.drawlists.clear()
 
 		for (var node in this.scene.nodes) 
 		{
-			var bp_node = node.components["bp"]			
-			if (this.isEndNode(bp_node))
-			{
+			var bp_node = node.components["bp"]
+			if (bp_node is Pass) {
+				bp_node.rebuild_drawlist()
+				this.drawlists.add(bp_node)
+			} else if (bp_node is Draw and bp_node.exports[0].conns.isEmpty) {
 				var nodes = []
 				Blueprint.getPrecursorNodes(bp_node, nodes)
 
 				var drawlist = Blueprint.topoSort(nodes)
-				this.drawlists.add(drawlist)				
-			}
-			if (bp_node is For) {
+				this.drawlists.add(drawlist)
+			} else if (bp_node is For) {
 				bp_node.rebuildExecList()
 			}
 		}
@@ -72,11 +60,19 @@ class Test is Editor
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
-		for (var drawlist in this.drawlists) {
-			for (var node in drawlist) {
-				if (node.execute) {
-					node.execute()
+		for (var drawlist in this.drawlists) 
+		{
+			if (drawlist is List) 
+			{
+				for (var node in drawlist) {
+					if (node.execute) {
+						node.execute()
+					}
 				}
+			} 
+			else if (drawlist is Pass) 
+			{
+				drawlist.execute()
 			}
 		}
 	}

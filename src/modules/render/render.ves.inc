@@ -40,6 +40,14 @@ foreign class Texture
 	foreign getHeight()
 }
 
+foreign class Framebuffer
+{
+	init() {}
+
+	// type: "col0", "col1", ... , "col16", "depth", "stencil"
+	foreign attachment(tex, type)
+}
+
 foreign class Render
 {
 	// prim_type: "triangles"
@@ -61,6 +69,13 @@ foreign class Render
 	// return: list, name + type + values
 	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler
 	foreign static getShaderUniforms(stage, code, lang)
+
+	foreign static get_fbo()
+	foreign static set_fbo(fbo)	
+
+	// [x, y, w, h]
+	foreign static get_viewport()
+	foreign static set_viewport(vp)
 }
 
 );

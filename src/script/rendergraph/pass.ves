@@ -1,7 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT
-import "rendergraph.variant_type" for VAR_TYPE_RENDER_TARGET
+import "rendergraph.variant_type" for VAR_TYPE_FRAME_BUFFER
+import "blueprint.blueprint" for Blueprint
+import "render" for Render
 
 class Pass is Node
 {
@@ -11,9 +13,55 @@ class Pass is Node
 
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT),
-			Pin(this, "rt",   VAR_TYPE_RENDER_TARGET)
+			Pin(this, "fbo",  VAR_TYPE_FRAME_BUFFER)
 		]
 
 		this.layout()
+
+		this.drawlist = []
 	}
+
+	execute() 
+	{
+		var prev_fbo = nil
+		var prev_vp = nil
+		var v_fbo = Blueprint.get_input_value(this, 1)
+		var fbo_valid = v_fbo and v_fbo.value[0] and v_fbo.value[1] > 0 and v_fbo.value[2] > 0
+		if (fbo_valid) 
+		{
+			prev_fbo = Render.get_fbo()
+			prev_vp = Render.get_viewport()
+
+			Render.set_fbo(v_fbo.value[0])
+			Render.set_viewport([ 0, 0, v_fbo.value[1], v_fbo.value[2] ])
+		}
+
+		for (var node in this.drawlist) {
+			if (node.execute) {
+				node.execute()
+			}
+		}
+
+		if (fbo_valid) 
+		{
+			Render.set_fbo(prev_fbo)
+			Render.set_viewport(prev_vp)
+		}
+	}
+
+	rebuild_drawlist()
+	{
+		this.drawlist = []
+
+		var prev = Blueprint.getInputNode(this, 0)
+		if (prev)
+		{
+			var nodes = []
+			Blueprint.getPrecursorNodes(prev, nodes)
+
+			this.drawlist = Blueprint.topoSort(nodes)
+		}
+	}
+
+
 }
