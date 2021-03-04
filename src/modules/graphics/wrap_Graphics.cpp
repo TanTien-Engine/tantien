@@ -4,6 +4,7 @@
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/SpriteRenderer.h"
 #include "modules/script/TransHelper.h"
+#include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
 
 #include <tessellation/Painter.h>
@@ -17,23 +18,23 @@ namespace
 
 void w_Painter_allocate()
 {
-    auto pt = new tess::Painter();
+    auto pt = std::make_shared<tess::Painter>();
     pt->SetPalette(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
-    tess::Painter** ptr = (tess::Painter**)ves_set_newforeign(0, 0, sizeof(pt));
-    *ptr = pt;
+
+    auto proxy = (tt::Proxy<tess::Painter>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tess::Painter>));
+    proxy->obj = pt;
 }
 
 static int w_Painter_finalize(void* data)
 {
-    tess::Painter** ptr = static_cast<tess::Painter**>(data);
-    int ret = sizeof(*ptr);
-    delete *ptr;
-    return ret;
+    auto proxy = (tt::Proxy<tess::Painter>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<tess::Painter>);
 }
 
 void w_Painter_addRect()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     float x, y, w, h;
     assert(ves_len(1) == 4);
@@ -62,7 +63,7 @@ void w_Painter_addRect()
 
 void w_Painter_addRectFilled()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     float x, y, w, h;
     assert(ves_len(1) == 4);
@@ -90,7 +91,7 @@ void w_Painter_addRectFilled()
 
 void w_Painter_addPolygon()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     auto vertices = tt::list_to_vec2_array(1);
     uint32_t col = tt::list_to_abgr(2);
@@ -101,7 +102,7 @@ void w_Painter_addPolygon()
 
 void w_Painter_addPolyline()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     auto vertices = tt::list_to_vec2_array(1);
     uint32_t col = tt::list_to_abgr(2);
@@ -112,7 +113,7 @@ void w_Painter_addPolyline()
 
 void w_Painter_addCircle()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     const float x = (float)ves_tonumber(1);
     const float y = (float)ves_tonumber(2);
@@ -124,7 +125,7 @@ void w_Painter_addCircle()
 
 void w_Painter_addCircleFilled()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     const float x = (float)ves_tonumber(1);
     const float y = (float)ves_tonumber(2);
@@ -136,9 +137,8 @@ void w_Painter_addCircleFilled()
 
 void w_Painter_addBezier()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(0);
-
-    gs::Bezier* bezier = *(gs::Bezier**)ves_toforeign(1);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto bezier = ((tt::Proxy<gs::Bezier>*)ves_toforeign(1))->obj;
     uint32_t col = tt::list_to_abgr(2);
     const float width = (float)ves_tonumber(3);
 
@@ -163,7 +163,7 @@ void w_Graphics_onCamUpdate()
 
 void w_Graphics_drawPainter()
 {
-    tess::Painter* pt = *(tess::Painter**)ves_toforeign(1);
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
     tt::Graphics::Instance()->DrawPainter(*pt);
 }
 
@@ -281,7 +281,7 @@ bool calc_vertices(const sm::rect& pos, const sm::Matrix2D& mat, float* vertices
 
 void w_Graphics_drawTexture()
 {
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(1));
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
 
     const float x = (float)ves_tonumber(2);
     const float y = (float)ves_tonumber(3);
@@ -292,8 +292,8 @@ void w_Graphics_drawTexture()
     mt.Translate(x, y);
 
 	float vertices[8];
-    float w = static_cast<float>((*tex)->GetWidth());
-    float h = static_cast<float>((*tex)->GetHeight());
+    float w = static_cast<float>(tex->GetWidth());
+    float h = static_cast<float>(tex->GetHeight());
     calc_vertices(sm::rect(w, h), mt, vertices);
 
 	auto draw_without_dtex = [&](std::shared_ptr<tt::SpriteRenderer>& rd, const float* vertices, const ur::TexturePtr& tex)
@@ -327,7 +327,7 @@ void w_Graphics_drawTexture()
 	//}
 	//else
 	{
-		draw_without_dtex(rd, vertices, *tex);
+		draw_without_dtex(rd, vertices, tex);
 	}
 }
 

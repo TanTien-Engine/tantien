@@ -2,6 +2,7 @@
 #include "modules/render/Render.h"
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
+#include "modules/script/Proxy.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -39,7 +40,7 @@ namespace
 
 void w_Shader_allocate()
 {
-    std::shared_ptr<ur::ShaderProgram>* prog = (std::shared_ptr<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::ShaderProgram>));
+    std::shared_ptr<ur::ShaderProgram> prog = nullptr;
 
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
@@ -55,7 +56,7 @@ void w_Shader_allocate()
         printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        *prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+        prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
     }
     else
     {
@@ -70,15 +71,18 @@ void w_Shader_allocate()
         printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        *prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
+        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
     }
+
+    auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
+    proxy->obj = prog;
 }
 
 static int w_Shader_finalize(void* data)
 {
-    std::shared_ptr<ur::ShaderProgram>* prog = static_cast<std::shared_ptr<ur::ShaderProgram>*>(data);
-    (*prog)->~ShaderProgram();
-    return sizeof(std::shared_ptr<ur::ShaderProgram>);
+    auto proxy = (tt::Proxy<ur::ShaderProgram>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::ShaderProgram>);
 }
 
 int get_value_number_size(const std::string& type)
@@ -112,7 +116,7 @@ int get_value_number_size(const std::string& type)
 
 void w_Shader_setUniformValue()
 {
-    std::shared_ptr<ur::ShaderProgram> prog = *(std::shared_ptr<ur::ShaderProgram>*)ves_toforeign(0);
+    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
 
     assert(ves_type(1) == VES_TYPE_LIST);
 
@@ -137,9 +141,9 @@ void w_Shader_setUniformValue()
             ves_geti(1, 2);
             if (ves_type(-1) != VES_TYPE_NULL)
             {
-                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
                 if (slot >= 0) {
-                    ctx->SetTexture(slot, *tex);
+                    ctx->SetTexture(slot, tex);
                 }
             }
             ves_pop(1);
@@ -170,9 +174,9 @@ void w_Shader_setUniformValue()
             ves_geti(1, 2);
             if (ves_type(-1) != VES_TYPE_NULL)
             {
-                ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(-1));
+                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
                 if (slot >= 0) {
-                    ctx->SetImage(slot, *tex, ur::AccessType::WriteOnly);
+                    ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
                 }
             }
             ves_pop(1);
@@ -233,7 +237,7 @@ void w_Shader_setUniformValue()
 
 void w_VertexArray_allocate()
 {
-    std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::VertexArray>));
+    std::shared_ptr<ur::VertexArray> va = nullptr;
     if (ves_type(1) == VES_TYPE_LIST)
     {
         std::vector<float> data;
@@ -271,12 +275,12 @@ void w_VertexArray_allocate()
 
         auto dev = tt::Render::Instance()->Device();
 
-        *va = dev->CreateVertexArray();
+        va = dev->CreateVertexArray();
 
         int vbuf_sz = sizeof(float) * data_num;
         auto vbuf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, vbuf_sz);
         vbuf->ReadFromMemory(data.data(), vbuf_sz, 0);
-        (*va)->SetVertexBuffer(vbuf);
+        va->SetVertexBuffer(vbuf);
 
         int stride_in_bytes = 0;
         for (auto& attr : attrs) {
@@ -293,7 +297,7 @@ void w_VertexArray_allocate()
             );
             offset_in_bytes += attrs[i] * sizeof(float);
         }
-        (*va)->SetVertexBufferAttrs(vbuf_attrs);
+        va->SetVertexBufferAttrs(vbuf_attrs);
 
         if (!index_data.empty())
         {
@@ -301,7 +305,7 @@ void w_VertexArray_allocate()
             auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, static_cast<int>(ibuf_sz));
             ibuf->ReadFromMemory(index_data.data(), static_cast<int>(ibuf_sz), 0);
             ibuf->SetCount(static_cast<int>(index_data.size()));
-            (*va)->SetIndexBuffer(ibuf);
+            va->SetIndexBuffer(ibuf);
         }
     }
     else
@@ -354,15 +358,18 @@ void w_VertexArray_allocate()
 
         auto dev = tt::Render::Instance()->Device();
         ur::PrimitiveType prim_type;
-        *va = tt::Model::Instance()->CreateShape(*dev, type, layout, prim_type);
+        va = tt::Model::Instance()->CreateShape(*dev, type, layout, prim_type);
     }
+
+    auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::VertexArray>));
+    proxy->obj = va;
 }
 
 static int w_VertexArray_finalize(void* data)
 {
-    std::shared_ptr<ur::VertexArray>* va = static_cast<std::shared_ptr<ur::VertexArray>*>(data);
-    (*va)->~VertexArray();
-    return sizeof(std::shared_ptr<ur::VertexArray>);
+    auto proxy = (tt::Proxy<ur::VertexArray>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::VertexArray>);
 }
 
 void w_Texture_allocate()
@@ -465,21 +472,22 @@ void w_Texture_allocate()
 
 static int w_Texture_finalize(void* data)
 {
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(data);
-    (*tex)->~Texture();
-    return sizeof(ur::TexturePtr);
+    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::Texture>);
 }
 
 void w_Texture_getWidth()
 {
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
-    ves_set_number(0, (double)(*tex)->GetWidth());
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetWidth());
 }
 
 void w_Texture_getHeight()
 {
-    ur::TexturePtr* tex = static_cast<ur::TexturePtr*>(ves_toforeign(0));
-    ves_set_number(0, (double)(*tex)->GetHeight());
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetHeight());
+}
 
 void w_Framebuffer_allocate()
 {
@@ -532,8 +540,8 @@ void w_Render_draw()
         GD_REPORT_ASSERT("unknown prim type.");
     }
 
-    ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(2));
-    ds.vertex_array = *static_cast<std::shared_ptr<ur::VertexArray>*>(ves_toforeign(3));
+    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
+    ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
 
     if (ves_getfield(4, "depth_test") == VES_TYPE_BOOL) {
         ds.render_state.depth_test.enabled = ves_toboolean(-1);
@@ -588,7 +596,7 @@ void w_Render_compute()
 {
     ur::DrawState ds;
 
-    ds.program = *static_cast<std::shared_ptr<ur::ShaderProgram>*>(ves_toforeign(1));
+    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
 
     int x = (int)ves_tonumber(2);
     int y = (int)ves_tonumber(3);

@@ -1,6 +1,7 @@
 #include "modules/image/wrap_Image.h"
 #include "modules/image/ImageData.h"
 #include "modules/filesystem/Filesystem.h"
+#include "modules/script/Proxy.h"
 
 #include <gimg_import.h>
 #include <gimg_typedef.h>
@@ -59,7 +60,7 @@ void w_ImageData_allocate()
     }
     else if (ves_type(1) == VES_TYPE_FOREIGN)
     {
-        ur::TexturePtr tex = *static_cast<ur::TexturePtr*>(ves_toforeign(1));
+        auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
         const auto w = tex->GetWidth();
         const auto h = tex->GetHeight();
         const auto fmt = tex->GetFormat();
