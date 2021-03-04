@@ -1,5 +1,7 @@
 #include "modules/script/TransHelper.h"
 
+#include <guard/check.h>
+
 #include <vessel.h>
 
 namespace tt
@@ -36,7 +38,7 @@ uint32_t list_to_abgr(int index)
 
     int r, g, b, a;
     const int num = ves_len(index);
-    assert(num == 3 || num == 4);
+    GD_ASSERT(num == 3 || num == 4, "error num");
     ves_geti(index, 0);
     r = (int)ves_tonumber(-1);
     ves_pop(1);

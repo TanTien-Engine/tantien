@@ -12,6 +12,7 @@
 #include <unirender/Texture.h>
 #include <unirender/Device.h>
 #include <unirender/Factory.h>
+#include <guard/check.h>
 
 namespace
 {
@@ -37,7 +38,7 @@ void w_Painter_addRect()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     float x, y, w, h;
-    assert(ves_len(1) == 4);
+    GD_ASSERT(ves_len(1) == 4, "error number");
     ves_geti(1, 0);
     x = (float)ves_tonumber(-1);
     ves_pop(1);
@@ -66,7 +67,7 @@ void w_Painter_addRectFilled()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
 
     float x, y, w, h;
-    assert(ves_len(1) == 4);
+    GD_ASSERT(ves_len(1) == 4, "error number");
     ves_geti(1, 0);
     x = (float)ves_tonumber(-1);
     ves_pop(1);

@@ -10,6 +10,7 @@
 #include <easygui/RenderBuffer.h>
 #include <tessellation/Palette.h>
 #include <unirender/Context.h>
+#include <guard/check.h>
 
 #include <string>
 
@@ -280,7 +281,7 @@ void w_GUI_combo()
 	const float length    = (float)ves_tonumber(7);
 
 	std::vector<const char*> items;
-	assert(ves_type(4) == VES_TYPE_LIST);
+	GD_ASSERT(ves_type(4) == VES_TYPE_LIST, "error type");
 	const int num = ves_len(4);
 	items.resize(num);
 	for (int i = 0; i < num; ++i) {

@@ -3,6 +3,7 @@
 #include "modules/script/Proxy.h"
 
 #include <geoshape/Bezier.h>
+#include <guard/check.h>
 
 #include <string>
 
@@ -26,7 +27,7 @@ void w_Bezier_setCtrlPos()
 {
     auto b = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
     auto vertices = tt::list_to_vec2_array(1);
-    assert(vertices.size() == 4);
+    GD_ASSERT(vertices.size() == 4, "error number");
     b->SetCtrlPos({ vertices[0], vertices[1], vertices[2], vertices[3] });
 }
 

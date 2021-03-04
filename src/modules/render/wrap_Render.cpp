@@ -31,8 +31,6 @@
 
 #include <array>
 
-#include <assert.h>
-
 //#define SHADER_DEBUG_PRINT
 
 namespace
@@ -118,7 +116,7 @@ void w_Shader_setUniformValue()
 {
     auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
 
-    assert(ves_type(1) == VES_TYPE_LIST);
+    GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "unknown type");
 
     ves_geti(1, 0);
     const char* name = ves_tostring(-1);
@@ -127,7 +125,7 @@ void w_Shader_setUniformValue()
     ves_geti(1, 1);
     const char* type = ves_tostring(-1);
     ves_pop(1);
-    assert(strcmp(type, "unknown") != 0);
+    GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
 
     if (strcmp(type, "sampler") == 0)
     {
@@ -206,7 +204,7 @@ void w_Shader_setUniformValue()
                 unif_type <= ur::UniformType::UInt4) 
             {
                 const int num = get_value_number_size(type);
-                assert(num <= 4);
+                GD_ASSERT(num <= 4, "error num count");
                 int val[4];
                 for (int i = 0; i < num; ++i)
                 {
@@ -220,7 +218,7 @@ void w_Shader_setUniformValue()
             else 
             {
                 const int num = get_value_number_size(type);
-                assert(num <= 16);
+                GD_ASSERT(num <= 16, "error num count");
                 float val[16];
                 for (int i = 0; i < num; ++i)
                 {
@@ -622,7 +620,7 @@ void w_Render_clear()
         } else if (strcmp(mask_str, "stencil") == 0) {
             clear_mask |= static_cast<int>(ur::ClearBuffers::StencilBuffer);
         } else {
-            assert(0);
+            GD_REPORT_ASSERT("unknown type.");
         }
     }
     clear.buffers = static_cast<ur::ClearBuffers>(clear_mask);
@@ -632,7 +630,7 @@ void w_Render_clear()
     {
         bool is01 = true;
         double rgba[4];
-        assert(ves_len(-1) == 4);
+        GD_ASSERT(ves_len(-1) == 4, "error number");
         for (int i = 0; i < 4; ++i) 
         {
             ves_geti(-1, i);
@@ -810,7 +808,7 @@ std::string parse_spir_type(const spirv_cross::SPIRType& type)
 		}
 		break;
 	}
-    assert(ret != "unknown");
+    GD_ASSERT(ret != "unknown", "unknown type");
 	return ret;
 }
 

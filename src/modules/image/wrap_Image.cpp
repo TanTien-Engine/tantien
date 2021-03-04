@@ -9,11 +9,10 @@
 #include <unirender/typedef.h>
 #include <unirender/Texture.h>
 #include <unirender/TextureUtility.h>
+#include <guard/check.h>
 
 #include <string>
 #include <algorithm>
-
-#include <assert.h>
 
 namespace
 {
@@ -71,7 +70,7 @@ void w_ImageData_allocate()
         } else if (fmt == ur::TextureFormat::RGBA8) {
             img->format = GPF_RGBA8;
         } else {
-            assert(0);
+            GD_REPORT_ASSERT("unknown type.");
             return;
         }
         size_t sz = ur::TextureUtility::RequiredSizeInBytes(w, h, fmt, 4);
@@ -87,7 +86,7 @@ void w_ImageData_allocate()
         } else if (strcmp(format, "rgba") == 0) {
             img->format = GPF_RGBA8;
         } else {
-            assert(0);
+            GD_REPORT_ASSERT("unknown type.");
             return;
         }
 
