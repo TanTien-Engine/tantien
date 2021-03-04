@@ -130,10 +130,9 @@ node5.update_camera_vectors()
 
 var node6 = Texture()
 test.add_node(node6, -287.61171236857, 362.81003968489)
-
+node6.gamma_correction = true
 node6.init_texture("resources/textures/wood.png")
 node6.set_sampler("linear repeat")
-
 var node7 = Matrix()
 test.add_node(node7, -637.61472706782, 602.44510982856)
 
@@ -164,10 +163,9 @@ node11.rbo_color = false
 
 var node12 = Texture()
 test.add_node(node12, 135.2051316, 482.2948684)
-
+node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgb")
 node12.set_sampler("linear repeat")
-
 var node13 = Clear()
 test.add_node(node13, 611.3767464907, 244.47903657091)
 

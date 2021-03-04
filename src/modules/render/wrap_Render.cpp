@@ -426,8 +426,10 @@ void w_Texture_allocate()
             GD_REPORT_ASSERT("unknown type.");
 	    }
 
+        bool gamma_correction = ves_toboolean(2);
+
         size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(img->width, img->height, tf, 4);
-        tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz);
+        tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz, gamma_correction);
     }
     else if (ves_type(1) == VES_TYPE_LIST)
     {

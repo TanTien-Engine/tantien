@@ -28,6 +28,8 @@ class Texture is Node
 		this.height = 0
 		this.format = "rgba8"
 
+		this.gamma_correction = false
+
 		// for gui
 		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
 		this.set_sampler("linear repeat")
@@ -59,7 +61,7 @@ class Texture is Node
 		{
 			var scale = this.style.width / this.tex.getWidth()
 			var x = this.pos.x
-			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.getHeight() * scale * 0.5
+			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.getHeight() * scale * 0.5 - DEFAULT_HEIGHT
 			Graphics.drawTexture(this.tex, x, y, scale)
 		}
 	}
@@ -71,11 +73,14 @@ class Texture is Node
 		// sampler
 		this.style.width = 200
 		this.style.height = this.style.height + DEFAULT_HEIGHT
+
+		// gamma_correction
+		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
 	toString(name) 
 	{
-		var ret = "\n"
+		var ret = "%(name).gamma_correction = %(this.gamma_correction)\n"
 		if (this.width != 0 and this.height != 0) {
 			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
 		} else {
@@ -97,7 +102,15 @@ class Texture is Node
 			this.sampler_selected = item
 			dirty = true
 		}
+
 		y = y - DEFAULT_HEIGHT
+		var _gamma_correction = GUI.checkbox(ctx, "gamma_correction", this.gamma_correction, x, y)
+		if (_gamma_correction != this.gamma_correction) 
+		{
+			this.gamma_correction = _gamma_correction
+			dirty = true
+			this.init_texture(this.tex_filepath)
+		}
 
 		return dirty
 	}
@@ -107,7 +120,7 @@ class Texture is Node
 		this.tex_filepath = filepath
 
 		var img = ImageData.init(filepath)
-		this.tex = tt_Texture.init(img)
+		this.tex = tt_Texture.init(img, this.gamma_correction)
 	}
 
 	init_texture(width, height, format)
