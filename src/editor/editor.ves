@@ -177,6 +177,7 @@ class Editor
 			this.popup_pos = Vector2(x, y)
 		} else if (btn == MOUSE_LEFT) {
 			this.popup_pos = nil
+			this.prev_pin = nil
 		}
 
 		if (!this.is_gui_active()) {
@@ -220,15 +221,11 @@ class Editor
 		if (this.popup_pos)
 		{
 			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
-			var x = pos[0]
-			var y = pos[1] - 25
-
-			var new_node = this.drawPopup(x, y, this.prev_pin)
+			var new_node = this.drawPopup(pos[0], pos[1] - 25, this.prev_pin)
 			if (new_node)
 			{
-				this.add_node(new_node, x, y)
-				this.popup_pos = nil
-
+				var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+				this.add_node(new_node, pos[0], pos[1])
 				if (this.prev_pin)
 				{
 					if (this.prev_pin.is_input) {
@@ -243,6 +240,8 @@ class Editor
 						}
 					}
 				}
+				this.popup_pos = nil
+				this.prev_pin = nil
 			}
 		}
 
