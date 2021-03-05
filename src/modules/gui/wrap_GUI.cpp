@@ -148,7 +148,9 @@ void w_GUI_mouseInput()
 		ctx->input_events.emplace_back(egui::InputType::MOUSE_MOVE, (int)pos.x, (int)pos.y);
 		break;
 	case MOUSE_DRAG:
-		ctx->input_events.emplace_back(egui::InputType::MOUSE_DRAG, (int)pos.x, (int)pos.y);
+		if (ctx->gui.IsDragLocked()) {
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_DRAG, (int)pos.x, (int)pos.y);
+		}
 		break;
 	}
 }
