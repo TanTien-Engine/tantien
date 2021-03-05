@@ -348,6 +348,8 @@ class Editor
 
 	loadfromfile(filepath)
 	{
+		this.clear()
+
 		if (filepath != "") {
 			this.filepath = filepath
 		}
@@ -446,7 +448,6 @@ import \"blueprint.nodes.print\" for Print
 
 	refresh()
 	{
-		this.clear()
 		this.loadfromfile(this.filepath)
 	}
 
