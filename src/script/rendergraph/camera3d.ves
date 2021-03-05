@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_T
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
- import "maths.vector" for Vector2, Vector3
+import "maths.vector" for Vector2, Vector3
 import "math" for Math
 
 class Camera3D is Node
@@ -37,6 +37,8 @@ class Camera3D is Node
 		this.update_camera_vectors()
 
 		this.last_pos = nil
+
+		this.speed = 0.01
 	}
 
 	calc(idx) 
@@ -61,6 +63,13 @@ class Camera3D is Node
 		}
 	}
 
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
 	toString(name) {
 		return "
 %(name).position.set(%(this.position.x), %(this.position.y), %(this.position.z))
@@ -68,35 +77,51 @@ class Camera3D is Node
 %(name).pitch = %(this.pitch)
 %(name).zoom = %(this.zoom)
 %(name).update_camera_vectors()
+%(name).speed = %(this.speed)
 "
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var speed = GUI.slider(ctx, "speed", this.speed, x, y, this.style.width - 40, 0.5, false)
+		if (speed != this.speed) {
+			this.speed = speed
+			dirty = true
+		}
+
+		return dirty
 	}
 
 	on_key_pressed(key) 
 	{
-		var speed = 0.01
 		if (key == "w") 
 		{
-			this.position.x = this.position.x + this.front.x * speed
-			this.position.y = this.position.y + this.front.y * speed
-			this.position.z = this.position.z + this.front.z * speed
+			this.position.x = this.position.x + this.front.x * this.speed
+			this.position.y = this.position.y + this.front.y * this.speed
+			this.position.z = this.position.z + this.front.z * this.speed
 		} 
 		else if (key == "s") 
 		{
-			this.position.x = this.position.x - this.front.x * speed
-			this.position.y = this.position.y - this.front.y * speed
-			this.position.z = this.position.z - this.front.z * speed
+			this.position.x = this.position.x - this.front.x * this.speed
+			this.position.y = this.position.y - this.front.y * this.speed
+			this.position.z = this.position.z - this.front.z * this.speed
 		} 
 		else if (key == "a") 
 		{
-			this.position.x = this.position.x - this.right.x * speed
-			this.position.y = this.position.y - this.right.y * speed
-			this.position.z = this.position.z - this.right.z * speed
+			this.position.x = this.position.x - this.right.x * this.speed
+			this.position.y = this.position.y - this.right.y * this.speed
+			this.position.z = this.position.z - this.right.z * this.speed
 		} 
 		else if (key == "d") 
 		{
-			this.position.x = this.position.x + this.right.x * speed
-			this.position.y = this.position.y + this.right.y * speed
-			this.position.z = this.position.z + this.right.z * speed
+			this.position.x = this.position.x + this.right.x * this.speed
+			this.position.y = this.position.y + this.right.y * this.speed
+			this.position.z = this.position.z + this.right.z * this.speed
 		}
 	}
 
