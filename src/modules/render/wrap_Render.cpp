@@ -19,6 +19,7 @@
 #include <unirender/Texture.h>
 #include <unirender/Framebuffer.h>
 #include <unirender/TextureUtility.h>
+#include <unirender/TextureDescription.h>
 #include <shadertrans/ShaderTrans.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
@@ -487,6 +488,63 @@ void w_Texture_getHeight()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
+}
+
+void w_Cubemap_allocate()
+{
+    ur::TexturePtr tex = nullptr;
+ 
+    if (ves_type(1) == VES_TYPE_LIST)
+    {
+        GD_ASSERT(ves_len(1) == 6, "error number");
+        std::array<ur::TexturePtr, 6> textures;
+        for (int i = 0; i < 6; ++i)
+        {
+            ves_geti(1, i);
+            textures[i] = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+            ves_pop(1);
+        }
+
+        tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
+    }
+    else
+    {
+        int width  = (int)ves_tonumber(1);
+        int height = (int)ves_tonumber(2);
+        const char* format = ves_tostring(3);
+        ur::TextureFormat tf;
+        if (strcmp(format, "rgb") == 0) {
+            tf = ur::TextureFormat::RGB;
+        } else if (strcmp(format, "rgb16f") == 0) {
+            tf = ur::TextureFormat::RGB16F;
+        } else if (strcmp(format, "rgba8") == 0) {
+            tf = ur::TextureFormat::RGBA8;
+        } else if (strcmp(format, "rgba16f") == 0) {
+            tf = ur::TextureFormat::RGBA16F;
+        } else if (strcmp(format, "r16") == 0) {
+            tf = ur::TextureFormat::R16;
+        } else {
+            GD_REPORT_ASSERT("unknown type.");
+        }
+
+        ur::TextureDescription desc;
+        desc.target = ur::TextureTarget::TextureCubeMap;
+        desc.width = width;
+        desc.height = height;
+        desc.format = tf;
+        //desc.gen_mipmaps = true;
+        tex = tt::Render::Instance()->Device()->CreateTexture(desc);
+    }
+
+    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    proxy->obj = tex;
+}
+
+int w_Cubemap_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::Texture>);
 }
 
 void w_Framebuffer_allocate()
@@ -1100,6 +1158,13 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Texture_allocate;
         methods->finalize = w_Texture_finalize;
+        return;
+    }
+
+    if (strcmp(className, "Cubemap") == 0)
+    {
+        methods->allocate = w_Cubemap_allocate;
+        methods->finalize = w_Cubemap_finalize;
         return;
     }
 

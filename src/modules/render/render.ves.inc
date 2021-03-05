@@ -33,11 +33,17 @@ foreign class Texture
 	init(img_data, gamma_correction) {}
 	// format: "rgb", "rgba8", "rgba16f", "r16"
 	init(width, height, format) {}
-	// cubemap, textures: list [ right, left, top, bottom, front, back ]
-	init(textures) {}
 
 	foreign getWidth()
 	foreign getHeight()
+}
+
+foreign class Cubemap
+{
+	// textures [ right, left, top, bottom, front, back ]
+	init(textures) {}
+	// format: "rgb", "rgb16f", "rgba8", "rgba16f", "r16"
+	init(width, height, format) {}
 }
 
 foreign class Framebuffer

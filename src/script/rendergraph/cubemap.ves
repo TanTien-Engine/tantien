@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
-import "render" for Texture
+import "render" for Cubemap as tt_Cubemap
 import "rendergraph.variant_type" for VAR_TYPE_TEXTURE
 
 class Cubemap is Node
@@ -25,6 +25,10 @@ class Cubemap is Node
 		this.layout()
 
 		this.tex = nil
+
+		this.width  = 0
+		this.height = 0
+		this.format = "rgba8"	
 	}
 
 	calc(idx)
@@ -45,10 +49,30 @@ class Cubemap is Node
 				}
 			}
 			if (cube_texs.count == 6) {
-				this.tex = Texture.init(cube_texs)
+				this.tex = tt_Cubemap.init(cube_texs)
 			}
 		}
 
 		return Variant(VAR_TYPE_TEXTURE, [this.tex])
+	}
+
+	toString(name) 
+	{
+		return "
+%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")
+"
+	}
+
+	init_texture(width, height, format)
+	{
+		this.width  = width
+		this.height = height
+		this.format = format
+
+		if (width == 0 or height == 0) {
+			return
+		}
+
+		this.tex = tt_Cubemap.init(width, height, format)
 	}
 }
