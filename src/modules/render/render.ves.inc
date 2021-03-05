@@ -28,7 +28,7 @@ foreign class VertexArray
 	init(type, layout) {}
 }
 
-foreign class Texture
+foreign class Texture2D
 {
 	init(img_data, gamma_correction) {}
 	// format: "rgb", "rgba8", "rgba16f", "r16"

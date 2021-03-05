@@ -371,7 +371,7 @@ int w_VertexArray_finalize(void* data)
     return sizeof(tt::Proxy<ur::VertexArray>);
 }
 
-void w_Texture_allocate()
+void w_Texture2D_allocate()
 {
     ur::TexturePtr tex = nullptr;
     if (ves_type(1) == VES_TYPE_FOREIGN)
@@ -471,20 +471,20 @@ void w_Texture_allocate()
     proxy->obj = tex;
 }
 
-int w_Texture_finalize(void* data)
+int w_Texture2D_finalize(void* data)
 {
     auto proxy = (tt::Proxy<ur::Texture>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<ur::Texture>);
 }
 
-void w_Texture_getWidth()
+void w_Texture2D_getWidth()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetWidth());
 }
 
-void w_Texture_getHeight()
+void w_Texture2D_getHeight()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
@@ -1121,8 +1121,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
     if (strcmp(signature, "Shader.setUniformValue(_)") == 0) return w_Shader_setUniformValue;
 
-    if (strcmp(signature, "Texture.getWidth()") == 0) return w_Texture_getWidth;
-    if (strcmp(signature, "Texture.getHeight()") == 0) return w_Texture_getHeight;
+    if (strcmp(signature, "Texture2D.getWidth()") == 0) return w_Texture2D_getWidth;
+    if (strcmp(signature, "Texture2D.getHeight()") == 0) return w_Texture2D_getHeight;
 
     if (strcmp(signature, "Framebuffer.attachment(_,_)") == 0) return w_Framebuffer_attachment;
 
@@ -1154,10 +1154,10 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
         return;
     }
 
-    if (strcmp(className, "Texture") == 0)
+    if (strcmp(className, "Texture2D") == 0)
     {
-        methods->allocate = w_Texture_allocate;
-        methods->finalize = w_Texture_finalize;
+        methods->allocate = w_Texture2D_allocate;
+        methods->finalize = w_Texture2D_finalize;
         return;
     }
 

@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "image" for ImageData
 import "graphics" for Graphics
-import "render" for Texture as tt_Texture, SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
+import "render" for Texture2D, SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "rendergraph.variant_type" for VAR_TYPE_TEXTURE
@@ -120,7 +120,7 @@ class Texture is Node
 		this.tex_filepath = filepath
 
 		var img = ImageData.init(filepath)
-		this.tex = tt_Texture.init(img, this.gamma_correction)
+		this.tex = Texture2D.init(img, this.gamma_correction)
 	}
 
 	init_texture(width, height, format)
@@ -129,7 +129,7 @@ class Texture is Node
 		this.height = height
 		this.format = format
 
-		this.tex = tt_Texture.init(width, height, format)
+		this.tex = Texture2D.init(width, height, format)
 	}
 
 	set_sampler(name)
