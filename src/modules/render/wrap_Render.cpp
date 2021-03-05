@@ -842,8 +842,8 @@ void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler,
                     unif.first = full_name;
                     unif.second = parse_spir_type(sub_type);
 
-                    size_t size = compiler.get_declared_struct_member_size(type, j);
-                    size_t offset = compiler.type_struct_member_offset(type, j);
+                    //size_t size = compiler.get_declared_struct_member_size(type, j);
+                    //size_t offset = compiler.type_struct_member_offset(type, j);
 
                     uniforms.push_back(unif);
                 }
@@ -863,6 +863,20 @@ void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler,
             {
                 get_struct_uniforms(compiler, type.member_types[i], sub_type, uniforms, name);
             }
+            else if (!sub_type.array.empty())
+            {
+                for (int i = 0, n = sub_type.array[0]; i < n; ++i)
+                {
+                    std::string full_name = name + "[" + std::to_string(i) + "]";
+
+                    std::pair<std::string, std::string> unif;
+
+                    unif.first = full_name;
+                    unif.second = parse_spir_type(sub_type);
+
+                    uniforms.push_back(unif);
+                }
+            }
             else
             {
                 std::pair<std::string, std::string> unif;
@@ -870,8 +884,6 @@ void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler,
                 unif.first = name;
                 unif.second = parse_spir_type(sub_type);
 
-                size_t size = compiler.get_declared_struct_member_size(type, i);
-                size_t offset = compiler.type_struct_member_offset(type, i);
 
                 uniforms.push_back(unif);
             }
