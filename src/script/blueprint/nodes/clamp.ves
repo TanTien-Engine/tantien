@@ -1,0 +1,77 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "math" for Math
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+
+class Clamp is Node
+{
+	init()
+	{
+		super.init(Clamp.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+
+		this.min = 0.0
+		this.max = 1.0
+	}
+
+	calc(idx)
+	{
+		var v = 0
+		var conns = this.imports[0].conns
+		if (!conns.isEmpty) {
+			var f_pin = conns.front().from
+			v = f_pin.node.calc(f_pin.slot_idx).value
+		}
+		return Variant(VAR_TYPE_NUMBER, Math.clamp(v, this.min, this.max))
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
+	toString(name) {
+		return "
+%(name).min = %(this.min)
+%(name).max = %(this.max)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+
+		var min = GUI.slider(ctx, "min", this.min, x, y, this.style.width - 20, REGION, false)
+		if (min != this.min) {
+			this.min = min
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var max = GUI.slider(ctx, "max", this.max, x, y, this.style.width - 20, REGION, false)
+		if (max != this.max) {
+			this.max = max
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+}
