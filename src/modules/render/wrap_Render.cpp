@@ -76,7 +76,7 @@ void w_Shader_allocate()
     proxy->obj = prog;
 }
 
-static int w_Shader_finalize(void* data)
+int w_Shader_finalize(void* data)
 {
     auto proxy = (tt::Proxy<ur::ShaderProgram>*)(data);
     proxy->~Proxy();
@@ -363,7 +363,7 @@ void w_VertexArray_allocate()
     proxy->obj = va;
 }
 
-static int w_VertexArray_finalize(void* data)
+int w_VertexArray_finalize(void* data)
 {
     auto proxy = (tt::Proxy<ur::VertexArray>*)(data);
     proxy->~Proxy();
@@ -470,7 +470,7 @@ void w_Texture_allocate()
     proxy->obj = tex;
 }
 
-static int w_Texture_finalize(void* data)
+int w_Texture_finalize(void* data)
 {
     auto proxy = (tt::Proxy<ur::Texture>*)(data);
     proxy->~Proxy();

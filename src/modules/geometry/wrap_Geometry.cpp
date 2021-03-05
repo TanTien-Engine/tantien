@@ -16,7 +16,7 @@ void w_Bezier_allocate()
     proxy->obj = std::make_shared<gs::Bezier>();
 }
 
-static int w_Bezier_finalize(void* data)
+int w_Bezier_finalize(void* data)
 {
     auto proxy = (tt::Proxy<gs::Bezier>*)(data);
     proxy->~Proxy();

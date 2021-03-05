@@ -26,7 +26,7 @@ void w_Painter_allocate()
     proxy->obj = pt;
 }
 
-static int w_Painter_finalize(void* data)
+int w_Painter_finalize(void* data)
 {
     auto proxy = (tt::Proxy<tess::Painter>*)(data);
     proxy->~Proxy();

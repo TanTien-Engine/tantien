@@ -97,7 +97,7 @@ void w_ImageData_allocate()
     }
 }
 
-static int w_ImageData_finalize(void* data)
+int w_ImageData_finalize(void* data)
 {
     tt::ImageData* img = static_cast<tt::ImageData*>(data);
     delete[] img->pixels;
