@@ -24,7 +24,7 @@ foreign class VertexArray
 	init(data, attrs, ibuf) {}
 
 	// type: "quad", "cube", "sphere", "grids"
-	// layout: [ "position", "texture", "normal", "tangent_bitangent" ]
+	// layout: [ "position", "normal", "texture", "tangent_bitangent" ]
 	init(type, layout) {}
 }
 

@@ -27,6 +27,13 @@
 namespace
 {
 
+bool error = false;
+
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+    error = true;
+    std::cout << "[OpenGL Error](" << type << ") " << message << std::endl;
+}
+
 void error_callback(int error, const char *msg) {
     std::cerr << "GLWT error " << error << ": " << msg << std::endl;
 }
@@ -429,6 +436,10 @@ int main(int argc, char* argv[])
         glfwTerminate();
         return 1;
     }
+
+    // Enable debug output
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
 
     ves_init_vm();
 

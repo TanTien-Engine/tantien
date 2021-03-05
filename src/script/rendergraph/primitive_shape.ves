@@ -20,7 +20,7 @@ class PrimitiveShape is Node
 
 		// quad, cube, sphere, grids
 		this.type = "quad"
-		// position, texture, normal, tangent_bitangent
+		// position, normal, texture, tangent_bitangent
 		this.layout = [ "position", "normal" ]
 
 		this.va = nil
@@ -97,18 +97,6 @@ class PrimitiveShape is Node
 		}
 
 		y = y - DEFAULT_HEIGHT
-		var layout_tex = this.layout.contains("texture")
-		var _layout_tex = GUI.checkbox(ctx, "texture", layout_tex, x, y)
-		if (_layout_tex != layout_tex) {
-			if (_layout_tex) {
-				this.layout.add("texture")
-			} else {
-				this.layout.remove("texture")
-			}
-			dirty = true
-		}
-
-		y = y - DEFAULT_HEIGHT
 		var layout_norm = this.layout.contains("normal")
 		var _layout_norm = GUI.checkbox(ctx, "normal", layout_norm, x, y)
 		if (_layout_norm != layout_norm) {
@@ -120,6 +108,18 @@ class PrimitiveShape is Node
 			dirty = true
 		}
 
+		y = y - DEFAULT_HEIGHT
+		var layout_tex = this.layout.contains("texture")
+		var _layout_tex = GUI.checkbox(ctx, "texture", layout_tex, x, y)
+		if (_layout_tex != layout_tex) {
+			if (_layout_tex) {
+				this.layout.add("texture")
+			} else {
+				this.layout.remove("texture")
+			}
+			dirty = true
+		}
+		
 		y = y - DEFAULT_HEIGHT
 		var layout_bt = this.layout.contains("tangent_bitangent")
 		var _layout_bt = GUI.checkbox(ctx, "tangent_bitangent", layout_bt, x, y)
