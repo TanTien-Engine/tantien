@@ -1,17 +1,17 @@
 var node0 = Clear()
-test.add_node(node0, -191, 110)
+_editor.add_node(node0, -191, 110)
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 var node1 = Draw()
-test.add_node(node1, 134, 19)
+_editor.add_node(node1, 134, 19)
 
 node1.prim_type = "triangles"
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
 
 var node2 = Shader()
-test.add_node(node2, -23.5, -3)
+_editor.add_node(node2, -23.5, -3)
 
 node2.vs = "
 #version 330 core
@@ -47,7 +47,7 @@ void main()
 node2.execute()
 
 var node3 = VertexArray()
-test.add_node(node3, -29, -122)
+_editor.add_node(node3, -29, -122)
 
 node3.data = [ 0.5, 0.5, 0, 1, 0, 0, 1, 1, 0.5, -0.5, 0, 0, 1, 0, 1, 0, -0.5, -0.5, 0, 0, 0, 1, 0, 0, -0.5, 0.5, 0, 1, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
@@ -55,7 +55,7 @@ node3.attrs = [ 3, 3, 2 ]
 node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
 
 var node4 = Texture()
-test.add_node(node4, -166, -5)
+_editor.add_node(node4, -166, -5)
 
 node4.init_texture("resources/textures/container.jpg")
 

@@ -1,17 +1,17 @@
 var node0 = Clear()
-test.add_node(node0, -209.84346315436, 164.38591538003)
+_editor.add_node(node0, -209.84346315436, 164.38591538003)
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 var node1 = Draw()
-test.add_node(node1, 134, 19)
+_editor.add_node(node1, 134, 19)
 
 node1.prim_type = "triangles"
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
 
 var node2 = Shader()
-test.add_node(node2, -38.867495656879, 1.7349913137585)
+_editor.add_node(node2, -38.867495656879, 1.7349913137585)
 
 node2.vs = "
 #version 330 core
@@ -36,30 +36,30 @@ void main()
 node2.execute()
 
 var node3 = VertexArray()
-test.add_node(node3, -29, -122)
+_editor.add_node(node3, -29, -122)
 
 node3.data = [ -0.5, -0.5, 0, 0.5, -0.5, 0, 0, 0.5, 0 ]
 node3.attrs = [ 3 ]
 
 var node4 = Combine()
-test.add_node(node4, -202.79502605872, 8.0418940897648)
+_editor.add_node(node4, -202.79502605872, 8.0418940897648)
 
 var node5 = Number()
-test.add_node(node5, -620.60251550117, -57.83935329285)
+_editor.add_node(node5, -620.60251550117, -57.83935329285)
 
 node5.value = 0.5
 
 var node6 = Time()
-test.add_node(node6, -820.23296146582, 21.5067398287)
+_editor.add_node(node6, -820.23296146582, 21.5067398287)
 
 var node7 = Sin()
-test.add_node(node7, -648.61326741548, 20.362292067618)
+_editor.add_node(node7, -648.61326741548, 20.362292067618)
 
 var node8 = Multiply()
-test.add_node(node8, -499.117803, 14.391165)
+_editor.add_node(node8, -499.117803, 14.391165)
 
 var node9 = Add()
-test.add_node(node9, -345.404976, 8.0852210000001)
+_editor.add_node(node9, -345.404976, 8.0852210000001)
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])

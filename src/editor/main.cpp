@@ -451,10 +451,12 @@ int main(int argc, char* argv[])
     ves_set_config(&cfg);
 
     char code[255];
-    sprintf(code, "import \"editor.%s\" for Test\nvar test = Test()", argv[1]);
-    ves_interpret("test", code);
+    std::string cls = argv[1];
+    cls[0] = std::toupper(cls[0]);
+    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls.c_str(), cls.c_str());
+    ves_interpret("editor", code);
 
-    ves_getglobal("test");
+    ves_getglobal("_editor");
     ves_pushstring("load()");
     ves_call(0, 0);
 

@@ -361,7 +361,7 @@ class Editor
 		Filesystem.setAssetBaseDir(this.filepath)
 
 		var str = "
-import \"test\" for test
+import \"editor\" for _editor
 import \"blueprint.blueprint\" for Blueprint
 import \"blueprint.nodes.number\" for Number
 import \"blueprint.nodes.number2\" for Number2
@@ -392,7 +392,7 @@ import \"blueprint.nodes.clamp\" for Clamp
 		str = str + file.read()
 		IO.close(file)
 
-		Basic.loadstring(str)
+		Basic.loadstring("temp", str)
 
 		this.scene.bp_dirty = true
 	}
@@ -411,7 +411,7 @@ import \"blueprint.nodes.clamp\" for Clamp
 			var name = "node%(index)"
 
 			file.write("var %(name) = %(bp.name)()\n")
-			file.write("test.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n")
+			file.write("_editor.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n")
 
 			var node_str = bp.toString(name)
 			file.write("%(node_str)\n")

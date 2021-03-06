@@ -1,17 +1,17 @@
 var node0 = Draw()
-test.add_node(node0, 112.6602691073, 592.02207064843)
+_editor.add_node(node0, 112.6602691073, 592.02207064843)
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
 
 var node1 = Clear()
-test.add_node(node1, -235.20616450689, 821.44547068941)
+_editor.add_node(node1, -235.20616450689, 821.44547068941)
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 var node2 = Shader()
-test.add_node(node2, -243.84018158955, 504.07397096406)
+_editor.add_node(node2, -243.84018158955, 504.07397096406)
 
 node2.vs = "
 #version 330 core
@@ -102,25 +102,25 @@ node2.execute()
 node2.setUniform("lightPos", [ 0.46489089727402, 0.48630982637405, 0.43075424432755 ])
 
 var node3 = PrimitiveShape()
-test.add_node(node3, -61.59003669645, 571.22430472335)
+_editor.add_node(node3, -61.59003669645, 571.22430472335)
 
 node3.type = "quad"
 node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
 
 var node4 = Texture()
-test.add_node(node4, -668.77680280139, 525.58978669177)
+_editor.add_node(node4, -668.77680280139, 525.58978669177)
 
 node4.init_texture("resources/textures/brickwall_normal.jpg")
 node4.set_sampler("linear repeat")
 
 var node5 = Texture()
-test.add_node(node5, -451.89261023175, 513.14204626141)
+_editor.add_node(node5, -451.89261023175, 513.14204626141)
 
 node5.init_texture("resources/textures/brickwall.jpg")
 node5.set_sampler("linear repeat")
 
 var node6 = Perspective()
-test.add_node(node6, -448.78666929949, 806.55757003711)
+_editor.add_node(node6, -448.78666929949, 806.55757003711)
 
 node6.fovy = 45
 node6.aspect = 0
@@ -128,7 +128,7 @@ node6.znear = 0.10000000149012
 node6.zfar = 100
 
 var node7 = Camera3D()
-test.add_node(node7, -680.71588643819, 779.63233375858)
+_editor.add_node(node7, -680.71588643819, 779.63233375858)
 
 node7.position.set(0, 0, 3)
 node7.yaw = -90

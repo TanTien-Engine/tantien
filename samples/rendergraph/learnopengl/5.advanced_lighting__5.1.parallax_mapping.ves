@@ -1,17 +1,17 @@
 var node0 = Draw()
-test.add_node(node0, 112.6602691073, 592.02207064843)
+_editor.add_node(node0, 112.6602691073, 592.02207064843)
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
 
 var node1 = Clear()
-test.add_node(node1, -235.20616450689, 821.44547068941)
+_editor.add_node(node1, -235.20616450689, 821.44547068941)
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 var node2 = Shader()
-test.add_node(node2, -223.02084396036, 500.98962464862)
+_editor.add_node(node2, -223.02084396036, 500.98962464862)
 
 node2.vs = "
 #version 330 core
@@ -117,25 +117,25 @@ void main()
 node2.execute()
 
 var node3 = PrimitiveShape()
-test.add_node(node3, -61.59003669645, 571.22430472335)
+_editor.add_node(node3, -61.59003669645, 571.22430472335)
 
 node3.type = "quad"
 node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
 
 var node4 = Texture()
-test.add_node(node4, -665.77154359778, 433.17806618088)
+_editor.add_node(node4, -665.77154359778, 433.17806618088)
 
 node4.init_texture("resources/textures/bricks2_normal.jpg")
 node4.set_sampler("linear repeat")
 
 var node5 = Texture()
-test.add_node(node5, -442.87683262093, 433.50267736584)
+_editor.add_node(node5, -442.87683262093, 433.50267736584)
 
 node5.init_texture("resources/textures/bricks2.jpg")
 node5.set_sampler("linear repeat")
 
 var node6 = Perspective()
-test.add_node(node6, -448.78666929949, 806.55757003711)
+_editor.add_node(node6, -448.78666929949, 806.55757003711)
 
 node6.fovy = 45
 node6.aspect = 0
@@ -143,7 +143,7 @@ node6.znear = 0.10000000149012
 node6.zfar = 100
 
 var node7 = Camera3D()
-test.add_node(node7, -680.71588643819, 779.63233375858)
+_editor.add_node(node7, -680.71588643819, 779.63233375858)
 
 node7.position.set(-0.506915840233, 0.39352848904251, 0.62713185965158)
 node7.yaw = -96.1
@@ -152,18 +152,18 @@ node7.zoom = 45
 node7.update_camera_vectors()
 
 var node8 = Texture()
-test.add_node(node8, -898.23686906632, 435.03630216515)
+_editor.add_node(node8, -898.23686906632, 435.03630216515)
 
 node8.init_texture("resources/textures/bricks2_disp.jpg")
 node8.set_sampler("linear repeat")
 
 var node9 = Number3()
-test.add_node(node9, -649.35635423969, 631.55999766207)
+_editor.add_node(node9, -649.35635423969, 631.55999766207)
 
 node9.value.set(0.5, 1, 0.30000001192093)
 
 var node10 = Number()
-test.add_node(node10, -498.15807362937, 577.71171913289)
+_editor.add_node(node10, -498.15807362937, 577.71171913289)
 
 node10.value = 0.10000000149012
 

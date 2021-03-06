@@ -1,17 +1,17 @@
 var node0 = Clear()
-test.add_node(node0, 156.90238929685, 219.18522882334)
+_editor.add_node(node0, 156.90238929685, 219.18522882334)
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 var node1 = Draw()
-test.add_node(node1, 384.35404057273, 85.636402239849)
+_editor.add_node(node1, 384.35404057273, 85.636402239849)
 
 node1.prim_type = "triangles"
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
 var node2 = Shader()
-test.add_node(node2, 56.392354250067, -41.131581182307)
+_editor.add_node(node2, 56.392354250067, -41.131581182307)
 
 node2.vs = "
 #version 330 core
@@ -93,13 +93,13 @@ node2.setUniform("viewPos", [ 0, 0, 3 ])
 node2.setUniform("blinn", [ 0 ])
 
 var node3 = VertexArray()
-test.add_node(node3, 239.2417436206, 54.33978971928)
+_editor.add_node(node3, 239.2417436206, 54.33978971928)
 
 node3.data = [ 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, 10, 0, 1, 0, 0, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, -10, 0, 1, 0, 10, 10 ]
 node3.attrs = [ 3, 3, 2 ]
 
 var node4 = Perspective()
-test.add_node(node4, -232.64462809917, 215.03695102794)
+_editor.add_node(node4, -232.64462809917, 215.03695102794)
 
 node4.fovy = 45
 node4.aspect = 0
@@ -107,14 +107,14 @@ node4.znear = 0.10000000149012
 node4.zfar = 100
 
 var node5 = LookAt()
-test.add_node(node5, -228.16132777816, 123.21180247251)
+_editor.add_node(node5, -228.16132777816, 123.21180247251)
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
 node5.up.set(0, 1, 0)
 
 var node6 = Texture()
-test.add_node(node6, -224.53483258756, 6.5953025564666)
+_editor.add_node(node6, -224.53483258756, 6.5953025564666)
 
 node6.init_texture("resources/textures/wood.png")
 node6.set_sampler("linear repeat")

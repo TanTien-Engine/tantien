@@ -1,17 +1,17 @@
 var node0 = Draw()
-test.add_node(node0, 266, 565)
+_editor.add_node(node0, 266, 565)
 
 node0.prim_type = "triangles"
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
 
 var node1 = Clear()
-test.add_node(node1, 217.93767275634, 791.29866537048)
+_editor.add_node(node1, 217.93767275634, 791.29866537048)
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 var node2 = Shader()
-test.add_node(node2, -49.07563606574, -1181.0663333572)
+_editor.add_node(node2, -49.07563606574, -1181.0663333572)
 
 node2.vs = "
 #version 330 core
@@ -238,13 +238,13 @@ node2.setUniform("spotLight.specular", [ 1, 1, 1 ])
 node2.setUniform("material.shininess", [ 32 ])
 
 var node3 = VertexArray()
-test.add_node(node3, 89.784036363636, 554.99683636364)
+_editor.add_node(node3, 89.784036363636, 554.99683636364)
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
 var node4 = Perspective()
-test.add_node(node4, -266.57469947408, 589.44236363636)
+_editor.add_node(node4, -266.57469947408, 589.44236363636)
 
 node4.fovy = 45
 node4.aspect = 0
@@ -252,14 +252,14 @@ node4.znear = 0.10000000149012
 node4.zfar = 102.21896362305
 
 var node5 = LookAt()
-test.add_node(node5, -270.25359660318, 726.76260649435)
+_editor.add_node(node5, -270.25359660318, 726.76260649435)
 
 node5.eye.set(0.8341708779335, 0.61194866895676, 1.0563931465149)
 node5.center.set(0, 0, 0)
 node5.up.set(0, 1, 0)
 
 var node6 = Rotate()
-test.add_node(node6, -460.42982143452, 846.31688727089)
+_editor.add_node(node6, -460.42982143452, 846.31688727089)
 
 node6.angle = 3.7205390930176
 node6.axis_x = 0
@@ -267,58 +267,58 @@ node6.axis_y = 0.43717923760414
 node6.axis_z = 1
 
 var node7 = Matrix()
-test.add_node(node7, -661.37629885782, 895.82455351986)
+_editor.add_node(node7, -661.37629885782, 895.82455351986)
 
 var node8 = Texture()
-test.add_node(node8, -493.88806912096, -371.21357625846)
+_editor.add_node(node8, -493.88806912096, -371.21357625846)
 
 node8.init_texture("resources/textures/container2.png")
 node8.set_sampler("linear repeat")
 
 var node9 = For()
-test.add_node(node9, 521.5307, 670.6894)
+_editor.add_node(node9, 521.5307, 670.6894)
 
 node9.start = 0
 node9.end = 10
 
 var node10 = Pass()
-test.add_node(node10, 691.78763051496, 702.14751612186)
+_editor.add_node(node10, 691.78763051496, 702.14751612186)
 
 var node11 = Array()
-test.add_node(node11, 665.89317158699, 579.73176966445)
+_editor.add_node(node11, 665.89317158699, 579.73176966445)
 
 node11.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
 
 var node12 = Translate()
-test.add_node(node12, -284.00764496961, 855.27001366027)
+_editor.add_node(node12, -284.00764496961, 855.27001366027)
 
 node12.dx = -1.3
 node12.dy = 1
 node12.dz = -1.5
 
 var node13 = Texture()
-test.add_node(node13, -253.59817387506, -374.8919737293)
+_editor.add_node(node13, -253.59817387506, -374.8919737293)
 
 node13.init_texture("resources/textures/container2_specular.png")
 node13.set_sampler("linear repeat")
 
 var node14 = Number3()
-test.add_node(node14, -263.23846714, 100.11554706)
+_editor.add_node(node14, -263.23846714, 100.11554706)
 
 node14.value.set(5.5820517539978, 4.9153847694397, 5.0264959335327)
 
 var node15 = Number3()
-test.add_node(node15, -260.17581759815, -13.051438985168)
+_editor.add_node(node15, -260.17581759815, -13.051438985168)
 
 node15.value.set(2.6222229003906, 7.5111117362976, 7.5111117362976)
 
 var node16 = Number()
-test.add_node(node16, -369.8, -107.6)
+_editor.add_node(node16, -369.8, -107.6)
 
 node16.value = 0.60888874530792
 
 var node17 = Cos()
-test.add_node(node17, -228.2309951506, -109.47582132368)
+_editor.add_node(node17, -228.2309951506, -109.47582132368)
 
 Blueprint.connect(node0.exports[0], node9.imports[1])
 Blueprint.connect(node1.exports[0], node9.imports[0])

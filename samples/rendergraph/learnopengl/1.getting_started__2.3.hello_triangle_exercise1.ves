@@ -1,17 +1,17 @@
 var node0 = Clear()
-test.add_node(node0, -169, 32)
+_editor.add_node(node0, -169, 32)
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 var node1 = Draw()
-test.add_node(node1, 134, 19)
+_editor.add_node(node1, 134, 19)
 
 node1.prim_type = "triangles"
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
 
 var node2 = Shader()
-test.add_node(node2, -30, -16)
+_editor.add_node(node2, -30, -16)
 
 node2.vs = "
 #version 330 core
@@ -31,7 +31,7 @@ void main()
 "
 
 var node3 = VertexArray()
-test.add_node(node3, -29, -122)
+_editor.add_node(node3, -29, -122)
 
 node3.data = [ -0.9, -0.5, 0, -0, -0.5, 0, -0.45, 0.5, 0, 0, -0.5, 0, 0.9, -0.5, 0, 0.45, 0.5, 0 ]
 node3.attrs = [ 3 ]
