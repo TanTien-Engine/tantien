@@ -1,0 +1,130 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "blueprint.blueprint" for Blueprint
+import "math" for Math
+
+class Custom is Node
+{
+	init() 
+	{
+		super.init(Custom.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.code = ""
+	}
+
+	calc(idx)
+	{
+		this.execute()
+
+		import "editor" for _editor
+		if (idx - 1 < _editor.script_stack.count) {
+			return Variant(VAR_TYPE_ANY, _editor.script_stack[idx - 1])
+		}
+	}
+
+	execute() 
+	{
+		import "editor" for _editor
+		_editor.script_stack.clear()
+		for (var i in 1..this.imports.count) {
+			var v = Blueprint.get_input_value(this, i)
+			_editor.script_stack.add(v.value)
+		}
+		var code = "import \"editor\" for _editor\n" + this.code
+		Basic.loadstring("temp", code)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
+	toString(name) 
+	{
+		var source = this.code.replace("\"", "\\\"")
+		return "
+%(name).code = \"%(source)\"
+%(name).init_ports(%(this.imports.count - 1), %(this.exports.count - 1))
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var REGION = 10
+		
+		var in_num = Math.floor(GUI.slider(ctx, "i", this.imports.count - 1, x, y, this.style.width - 20, REGION, false))
+		if (in_num != this.imports.count - 1) {
+			this.reset_ports_num(true, in_num)
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var out_num = Math.floor(GUI.slider(ctx, "o", this.exports.count - 1, x, y, this.style.width - 20, REGION, false))
+		if (out_num != this.exports.count - 1) {
+			this.reset_ports_num(false, out_num)
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+
+	init_ports(in_num, out_num)
+	{
+		this.reset_ports_num(true, in_num)
+		this.reset_ports_num(false, out_num)		
+	}
+
+	reset_ports_num(is_input, num)
+	{
+		var ports
+		if (is_input) {
+			ports = this.imports
+		} else {
+			ports = this.exports
+		}
+
+		if (ports.count - 1 == num) {
+			return
+		}
+
+		var name
+		if (is_input) {
+			name = "in"
+		} else {
+			name = "out"
+		}
+
+		while (ports.count - 1 < num) {
+			ports.add(Pin(this, name + "%(ports.count - 1)", VAR_TYPE_ANY))
+		}
+		while (ports.count - 1 > num) {
+			var p = ports[ports.count - 1]
+			while (!p.conns.isEmpty) {
+				Blueprint.disconnect(p.conns.front())
+			}
+			ports.removeAt(ports.count - 1)
+		}
+
+		this.layout()
+	}
+}

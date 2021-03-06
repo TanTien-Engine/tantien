@@ -35,6 +35,7 @@ import "blueprint.nodes.for" for For
 import "blueprint.nodes.array" for Array
 import "blueprint.nodes.print" for Print
 import "blueprint.nodes.clamp" for Clamp
+import "blueprint.nodes.custom" for Custom
 
 class Editor
 {
@@ -62,9 +63,11 @@ class Editor
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print, Clamp ]) {
+		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print, Clamp, Custom ]) {
 			this.add_popup_node(node)
 		}
+
+		this.script_stack = []
 	}
 
 	update()
@@ -385,6 +388,7 @@ import \"blueprint.nodes.for\" for For
 import \"blueprint.nodes.array\" for Array
 import \"blueprint.nodes.print\" for Print
 import \"blueprint.nodes.clamp\" for Clamp
+import \"blueprint.nodes.custom\" for Custom
 "
 		str = str + this.loadFileImports()
 
