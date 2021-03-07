@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_PORT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
+import "math" for Math
 
 class For is Node
 {
@@ -75,14 +76,14 @@ class For is Node
 
 		var REGION = 10
 
-		var start = GUI.slider(ctx, "start", this.start, x, y, this.style.width - 50, REGION, false)
+		var start = Math.floor(GUI.slider(ctx, "start", this.start, x, y, this.style.width - 50, REGION, false))
 		if (start != this.start) {
 			this.start = start
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
 
-		var end = GUI.slider(ctx, "end", this.end, x, y, this.style.width - 50, REGION, false)
+		var end = Math.floor(GUI.slider(ctx, "end", this.end, x, y, this.style.width - 50, REGION, false))
 		if (end != this.end) {
 			this.end = end
 			dirty = true
