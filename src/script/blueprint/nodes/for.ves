@@ -18,12 +18,14 @@ class For is Node
 		]
 		this.exports = [
 			Pin(this, "next",  VAR_TYPE_PORT),
-			Pin(this, "index", VAR_TYPE_NUMBER)
+			Pin(this, "index", VAR_TYPE_NUMBER),
+			Pin(this, "num", VAR_TYPE_NUMBER)			
 		]
 
-		// stop execute path for "do" and "index"
+		// stop execute path for "do" and "index" and "num"
 		this.imports[1].stop_port_pass = true
-		this.exports[1].stop_port_pass = true		
+		this.exports[1].stop_port_pass = true
+		this.exports[2].stop_port_pass = true
 
 		this.start = 0
 		this.end = 1
@@ -39,6 +41,8 @@ class For is Node
 	{
 		if (idx == 1) {
 			return Variant(VAR_TYPE_NUMBER, this.index)
+		} else if (idx == 2) {
+			return Variant(VAR_TYPE_NUMBER, this.end - this.start)		
 		}
 	}
 
