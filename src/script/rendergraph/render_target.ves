@@ -1,11 +1,12 @@
 import "render" for Render, Framebuffer
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "rendergraph.variant_type" for VAR_TYPE_TEXTURE, VAR_TYPE_FRAME_BUFFER
+import "rendergraph.variant_type" for VarFrameBuffer, VAR_TYPE_TEXTURE, VAR_TYPE_FRAME_BUFFER
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant
+import "render" for Texture2D, Cubemap
 
 class RenderTarget is Node
 {
@@ -33,29 +34,57 @@ class RenderTarget is Node
 		this.layout()
 
 		this.fbo = nil
+		this.attached = false
+	}
+
+	attach_texture(var_tex, type)
+	{
+		if (!var_tex.tex) {
+			return
+		}
+
+		var tex = var_tex.tex
+		if (tex is Texture2D)
+		{
+			if (this.width == 0) {
+				this.width = tex.getWidth()
+				this.height = tex.getHeight()
+			}
+
+			this.fbo.attachment(tex, type, "tex2d")
+			this.attached = true
+		}
+		else if (tex is Cubemap)
+		{
+			if (this.width == 0) {
+				this.width = tex.get_width()
+				this.height = tex.get_height()
+			}
+
+			this.fbo.attachment(tex, type, "cubemap" + "%(var_tex.cubemap_idx)")
+			this.attached = true
+		}
 	}
 
 	calc(idx)
 	{
-		if (!this.fbo) 
-		{
+		if (!this.fbo) {
 			this.fbo = Framebuffer.init()
+		}
 
-			for (var i in 0..this.imports.count)
-			{
-				var v = Blueprint.get_input_value(this, i)
-				if (v) 
-				{
-					this.fbo.attachment(v.value[0], this.imports[i].name)
-					if (this.width == 0) {
-						this.width = v.value[0].getWidth()
-						this.height = v.value[0].getHeight()
-					}
-				}
+		for (var i in 0..this.imports.count) {
+			var v = Blueprint.get_input_value(this, i)
+			if (v)  {
+				this.attach_texture(v.value, this.imports[i].name)
 			}
 		}
 
-		return Variant(VAR_TYPE_FRAME_BUFFER, [this.fbo, this.width, this.height])
+		var ret = VarFrameBuffer()
+		ret.fbo      = this.fbo
+		ret.width    = this.width
+		ret.height   = this.height
+		ret.attached = this.attached
+		return Variant(VAR_TYPE_FRAME_BUFFER, ret)
 	}
 
 	layout() 

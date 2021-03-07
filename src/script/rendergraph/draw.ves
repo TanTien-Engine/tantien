@@ -5,7 +5,7 @@ import "blueprint.Blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "rendergraph.variant_type" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY
+import "rendergraph.variant_type" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER
 
 class Draw is Node
 {
@@ -14,9 +14,10 @@ class Draw is Node
 		super.init(Draw.name)
 
 		this.imports = [
-			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "prev",   VAR_TYPE_PORT),
 			Pin(this, "shader", VAR_TYPE_SHADER),
-			Pin(this, "va", VAR_TYPE_VERTEX_ARRAY)				
+			Pin(this, "va",     VAR_TYPE_VERTEX_ARRAY),
+			Pin(this, "fbo",    VAR_TYPE_FRAME_BUFFER)
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -51,9 +52,20 @@ class Draw is Node
 		}
 
 		var shader = Blueprint.getInputNode(this, 1)
-		if (shader and shader.prog and va) {
-			shader.updateUniforms()
-			Render.draw(this.prim_types[this.prim_selected], shader.prog, va, this.render_state)
+		if (!shader or !shader.prog or !va) {
+			return
+		}
+
+		var v_fbo = Blueprint.get_input_value(this, 3)
+		if (v_fbo) {
+			v_fbo.value.bind()
+		}
+
+		shader.updateUniforms()
+		Render.draw(this.prim_types[this.prim_selected], shader.prog, va, this.render_state)
+
+		if (v_fbo) {
+			v_fbo.value.unbind()
 		}
 	}
 

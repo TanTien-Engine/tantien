@@ -4,6 +4,8 @@ import "blueprint.variant" for VAR_TYPE_PORT
 import "rendergraph.variant_type" for VAR_TYPE_FRAME_BUFFER
 import "blueprint.blueprint" for Blueprint
 import "render" for Render
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
 
 class Pass is Node
 {
@@ -19,21 +21,22 @@ class Pass is Node
 		this.layout()
 
 		this.drawlist = []
+
+		this.once = false
+		this.executed = false
 	}
 
 	execute() 
 	{
+		if (this.once and this.executed) {
+			return
+		}
+
 		var prev_fbo = nil
 		var prev_vp = nil
 		var v_fbo = Blueprint.get_input_value(this, 1)
-		var fbo_valid = v_fbo and v_fbo.value[0] and v_fbo.value[1] > 0 and v_fbo.value[2] > 0
-		if (fbo_valid) 
-		{
-			prev_fbo = Render.get_fbo()
-			prev_vp = Render.get_viewport()
-
-			Render.set_fbo(v_fbo.value[0])
-			Render.set_viewport([ 0, 0, v_fbo.value[1], v_fbo.value[2] ])
+		if (v_fbo) {
+			v_fbo.value.bind()
 		}
 
 		for (var node in this.drawlist) {
@@ -42,11 +45,40 @@ class Pass is Node
 			}
 		}
 
-		if (fbo_valid) 
-		{
-			Render.set_fbo(prev_fbo)
-			Render.set_viewport(prev_vp)
+		if (v_fbo) {
+			v_fbo.value.unbind()
 		}
+
+		this.executed = true
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	toString(name) {
+		return "
+%(name).once = %(this.once)
+"
+	}	
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var once = GUI.checkbox(ctx, "once", this.once, x, y)
+		if (once != this.once) {
+			this.once = once
+			dirty = true
+		}
+
+		return dirty
 	}
 
 	rebuild_drawlist()

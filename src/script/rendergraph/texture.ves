@@ -6,7 +6,7 @@ import "graphics" for Graphics
 import "render" for Texture2D, SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
-import "rendergraph.variant_type" for VAR_TYPE_TEXTURE
+import "rendergraph.variant_type" for VarTexture, VAR_TYPE_TEXTURE
 
 class Texture is Node
 {
@@ -39,18 +39,18 @@ class Texture is Node
 
 	calc(idx)
 	{
-		var sampler
+		var ret = VarTexture()
+		ret.tex = this.tex
 		if (this.sampler_selected == 0) {
-			sampler = SAMPLER_NEAREST_CLAMP
+			ret.sampler = SAMPLER_NEAREST_CLAMP
 		} else if (this.sampler_selected == 1) {
-			sampler = SAMPLER_LINEAR_CLAMP
+			ret.sampler = SAMPLER_LINEAR_CLAMP
 		} else if (this.sampler_selected == 2) {
-			sampler = SAMPLER_NEAREST_REPEAT
+			ret.sampler = SAMPLER_NEAREST_REPEAT
 		} else if (this.sampler_selected == 3) {
-			sampler = SAMPLER_LINEAR_REPEAT
+			ret.sampler = SAMPLER_LINEAR_REPEAT
 		}
-
-		return Variant(VAR_TYPE_TEXTURE, [this.tex, sampler])
+		return Variant(VAR_TYPE_TEXTURE, ret)
 	}
 
 	draw(mt)

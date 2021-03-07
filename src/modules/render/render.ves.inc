@@ -44,6 +44,9 @@ foreign class Cubemap
 	init(textures) {}
 	// format: "rgb", "rgb16f", "rgba8", "rgba16f", "r16"
 	init(width, height, format) {}
+
+	foreign get_width()
+	foreign get_height()	
 }
 
 foreign class Framebuffer
@@ -51,7 +54,8 @@ foreign class Framebuffer
 	init() {}
 
 	// type: "col0", "col1", ... , "col16", "depth", "stencil"
-	foreign attachment(tex, type)
+	// target: "tex2d", "cubemap0", ... , "cubemap6"
+	foreign attachment(tex, type, target)
 }
 
 foreign class Render

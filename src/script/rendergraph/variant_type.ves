@@ -1,5 +1,57 @@
+import "render" for Render, SAMPLER_NEAREST_REPEAT
+
 var VAR_TYPE_VERTEX_ARRAY  = "va"
 var VAR_TYPE_SHADER        = "shader"
 var VAR_TYPE_TEXTURE       = "texture"
 var VAR_TYPE_FRAME_BUFFER  = "fbo"
 
+class VarTexture
+{
+	init() 
+	{
+		this.tex = nil
+		this.sampler = SAMPLER_NEAREST_REPEAT
+
+		this.cubemap_idx = -1		
+	}
+}
+
+class VarFrameBuffer
+{
+	init()
+	{
+		this.fbo = nil
+		this.width  = 0
+		this.height = 0
+		this.attached = false
+
+		this.prev_fbo = nil
+		this.prev_vp = nil
+	}
+
+	bind()
+	{
+		if (!this.fbo or this.width <= 0 or this.height <= 0 or !this.attached) {
+			return
+		}
+
+		this.prev_fbo = Render.get_fbo()
+		this.prev_vp  = Render.get_viewport()
+
+		Render.set_fbo(this.fbo)
+		Render.set_viewport([ 0, 0, this.width, this.height ])		
+	}
+
+	unbind()
+	{
+		if (!this.prev_fbo) {
+			return
+		}
+
+		Render.set_fbo(this.prev_fbo)
+		Render.set_viewport(this.prev_vp)
+
+		this.prev_fbo = nil
+		this.prev_vp = nil		
+	}
+}

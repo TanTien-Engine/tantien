@@ -490,6 +490,18 @@ void w_Texture2D_getHeight()
     ves_set_number(0, (double)tex->GetHeight());
 }
 
+void w_Cubemap_get_width()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetWidth());
+}
+
+void w_Cubemap_get_height()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetHeight());
+}
+
 void w_Cubemap_allocate()
 {
     ur::TexturePtr tex = nullptr;
@@ -566,7 +578,8 @@ void w_Framebuffer_attachment()
 {
     auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
-    const char* type = ves_tostring(2);
+
+    std::string type = ves_tostring(2);
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
     if (type == "depth") {
         atta_type = ur::AttachmentType::Depth;
@@ -580,7 +593,26 @@ void w_Framebuffer_attachment()
             }
         }
     }
-    fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, tex, nullptr);
+
+    const char* target = ves_tostring(3);
+    ur::TextureTarget tex_target = ur::TextureTarget::Texture2D;
+    if (strcmp(target, "tex2d") == 0) {
+        tex_target = ur::TextureTarget::Texture2D;
+    } else if (strcmp(target, "cubemap0") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap0;
+    } else if (strcmp(target, "cubemap1") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap1;
+    } else if (strcmp(target, "cubemap2") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap2;
+    } else if (strcmp(target, "cubemap3") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap3;
+    } else if (strcmp(target, "cubemap4") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap4;
+    } else if (strcmp(target, "cubemap5") == 0) {
+        tex_target = ur::TextureTarget::TextureCubeMap5;
+    }
+
+    fbo->SetAttachment(atta_type, tex_target, tex, nullptr);
 }
 
 void w_Render_draw()
@@ -1124,7 +1156,10 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Texture2D.getWidth()") == 0) return w_Texture2D_getWidth;
     if (strcmp(signature, "Texture2D.getHeight()") == 0) return w_Texture2D_getHeight;
 
-    if (strcmp(signature, "Framebuffer.attachment(_,_)") == 0) return w_Framebuffer_attachment;
+    if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
+    if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
+
+    if (strcmp(signature, "Framebuffer.attachment(_,_,_)") == 0) return w_Framebuffer_attachment;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;

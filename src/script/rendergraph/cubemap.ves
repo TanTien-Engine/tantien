@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "render" for Cubemap as tt_Cubemap
-import "rendergraph.variant_type" for VAR_TYPE_TEXTURE
+import "rendergraph.variant_type" for VarTexture, VAR_TYPE_TEXTURE, VAR_TYPE_ARRAY
 
 class Cubemap is Node
 {
@@ -19,7 +19,8 @@ class Cubemap is Node
 			Pin(this, "back",   VAR_TYPE_TEXTURE)
 		]
 		this.exports = [
-			Pin(this, "tex", VAR_TYPE_TEXTURE)
+			Pin(this, "tex",    VAR_TYPE_TEXTURE),
+			Pin(this, "6texes", VAR_TYPE_ARRAY)
 		]
 
 		this.layout()
@@ -44,7 +45,7 @@ class Cubemap is Node
 					var f_pin = conns.front().from
 					var v = f_pin.node.calc(f_pin.slot_idx)
 					if (v and v.type == VAR_TYPE_TEXTURE) {
-						cube_texs.add(v.value[0])
+						cube_texs.add(v.value.tex)
 					}
 				}
 			}
@@ -53,7 +54,25 @@ class Cubemap is Node
 			}
 		}
 
-		return Variant(VAR_TYPE_TEXTURE, [this.tex])
+		if (idx == 0) 
+		{
+			var ret = VarTexture()
+			ret.tex = this.tex
+			return Variant(VAR_TYPE_TEXTURE, ret)			
+		} 
+		else if (idx == 1) 
+		{
+			var list = []
+			for (var i in 0..6) 
+			{
+				var tex = VarTexture()
+				tex.tex = this.tex
+
+				tex.cubemap_idx = i
+				list.add(tex)
+			}
+			return Variant(VAR_TYPE_ARRAY, list)
+		}
 	}
 
 	toString(name) 

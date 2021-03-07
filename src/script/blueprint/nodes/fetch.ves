@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+
+class Fetch is Node
+{
+	init() 
+	{
+		super.init(Fetch.name)
+
+		this.imports = [
+			Pin(this, "items", VAR_TYPE_ANY),
+			Pin(this, "index",  VAR_TYPE_NUMBER),			
+		]
+		this.exports = [
+			Pin(this, "item", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		var items = Blueprint.get_input_value(this, 0)
+		var index = Blueprint.get_input_value(this, 1)
+		if (items and index and items.value is List and index.value is Num) {
+			if (index.value < items.value.count) {
+				return Variant(VAR_TYPE_ANY, items.value[index.value])
+			}
+		}
+	}
+}

@@ -290,10 +290,8 @@ class Shader is Node
 				} else if (unif[1] == "mat4") {
 					unif[2] = val.value
 				} else if (unif[1] == "sampler") {
-					unif[2] = val.value[0]
-					if (val.value.count > 1) {
-						unif[3] = val.value[1]
-					}
+					unif[2] = val.value.tex
+					unif[3] = val.value.sampler
 				}
 			}
 			this.prog.setUniformValue(unif)
