@@ -37,6 +37,9 @@ import "blueprint.nodes.print" for Print
 import "blueprint.nodes.clamp" for Clamp
 import "blueprint.nodes.fetch" for Fetch
 import "blueprint.nodes.custom" for Custom
+import "blueprint.nodes.input" for Input
+import "blueprint.nodes.output" for Output
+import "blueprint.nodes.subgraph" for SubGraph
 
 class Editor
 {
@@ -59,12 +62,13 @@ class Editor
 
 //		this.filepath = ""
 		this.filepath = "samples/rendergraph/learnopengl/6.pbr__2.1.2.ibl_irradiance.ves"
+//		this.filepath = "samples/rendergraph/learnopengl/equirectangular_to_cubemap.ves"
 
 		this.hide_nodes = false
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print, Clamp, Fetch, Custom ]) {
+		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, SubGraph ]) {
 			this.add_popup_node(node)
 		}
 
@@ -351,21 +355,9 @@ class Editor
 		this.scene.add(node)
 	}
 
-	loadfromfile(filepath)
+	load_file_imports()
 	{
-		this.clear()
-
-		if (filepath != "") {
-			this.filepath = filepath
-		}
-		if (this.filepath == "") {
-			return
-		}
-
-		Filesystem.setAssetBaseDir(this.filepath)
-
-		var str = "
-import \"editor\" for _editor
+		return "
 import \"blueprint.blueprint\" for Blueprint
 import \"blueprint.nodes.number\" for Number
 import \"blueprint.nodes.number2\" for Number2
@@ -391,14 +383,35 @@ import \"blueprint.nodes.print\" for Print
 import \"blueprint.nodes.clamp\" for Clamp
 import \"blueprint.nodes.fetch\" for Fetch
 import \"blueprint.nodes.custom\" for Custom
+import \"blueprint.nodes.input\" for Input
+import \"blueprint.nodes.output\" for Output
+import \"blueprint.nodes.subgraph\" for SubGraph
+"	
+	}
+
+	loadfromfile(filepath)
+	{
+		this.clear()
+
+		if (filepath != "") {
+			this.filepath = filepath
+		}
+		if (this.filepath == "") {
+			return
+		}
+
+		Filesystem.setAssetBaseDir(this.filepath)
+
+		var header = "
+import \"editor\" for _editor
 "
-		str = str + this.loadFileImports()
+		header = header + this.load_file_imports()
 
 		var file = IO.open(this.filepath, "r")
-		str = str + file.read()
+		var source = header + file.read()
 		IO.close(file)
 
-		Basic.loadstring("temp", str)
+		Basic.loadstring("temp", source)
 
 		this.scene.bp_dirty = true
 	}
@@ -417,10 +430,11 @@ import \"blueprint.nodes.custom\" for Custom
 			var name = "node%(index)"
 
 			file.write("var %(name) = %(bp.name)()\n")
-			file.write("_editor.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n")
 
 			var node_str = bp.toString(name)
 			file.write("%(node_str)\n")
+
+			file.write("_editor.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n\n")
 
 			index = index + 1
 		}

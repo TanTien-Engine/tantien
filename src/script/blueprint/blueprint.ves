@@ -118,4 +118,16 @@ class Blueprint
 			return f_node.calc(f_pin.slot_idx)
 		}	
 	}
+
+	static get_first_connect_pin(pin)
+	{
+		if (pin.conns.isEmpty) {
+			return nil
+		}
+		if (pin.is_input) {
+			return pin.conns.front().from
+		} else {
+			return pin.conns.front().to
+		}
+	}
 }

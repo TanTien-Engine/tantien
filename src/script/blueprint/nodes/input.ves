@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class Input is Node
+{
+	init() 
+	{
+		super.init(Input.name)
+
+		this.exports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.var_name = "in"
+		this.var_type = VAR_TYPE_ANY
+
+		this.value = nil
+	}
+
+	calc(idx)
+	{
+		return this.value
+	}
+
+	toString(name) 
+	{
+		var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
+		if (t_pin) {
+			this.var_name = t_pin.name
+			this.var_type = t_pin.type
+		}
+		return "
+%(name).var_name = \"%(this.var_name)\"
+%(name).var_type = \"%(this.var_type)\"
+"
+	}
+}

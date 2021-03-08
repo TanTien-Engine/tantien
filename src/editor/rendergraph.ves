@@ -28,26 +28,34 @@ class Rendergraph is Editor
 		}
 	}
 
-	rebuildDrawlist()
+	build_exec_list(nodes)
 	{
-		this.drawlists.clear()
-
-		for (var node in this.scene.nodes) 
+		var exec_list = []
+		for (var node in nodes) 
 		{
-			var bp_node = node.components["bp"]
-			if (bp_node is Pass) {
-				bp_node.rebuild_drawlist()
-				this.drawlists.add(bp_node)
-			} else if (bp_node is Draw and bp_node.exports[0].conns.isEmpty) {
-				var nodes = []
-				Blueprint.getPrecursorNodes(bp_node, nodes)
+			if (node is Pass) {
+				node.rebuild_drawlist()
+				exec_list.add([ node ])
+			} else if (node is Draw and node.exports[0].conns.isEmpty) {
+				var prev_nodes = []
+				Blueprint.getPrecursorNodes(node, prev_nodes)
 
-				var drawlist = Blueprint.topoSort(nodes)
-				this.drawlists.add(drawlist)
-			} else if (bp_node is For) {
-				bp_node.rebuildExecList()
+				var drawlist = Blueprint.topoSort(prev_nodes)
+				exec_list.add(drawlist)
+			} else if (node is For) {
+				node.rebuildExecList()
 			}
 		}
+		return exec_list
+	}
+
+	rebuildDrawlist()
+	{
+		var nodes = []
+		for (var node in this.scene.nodes) {
+			nodes.add(node.components["bp"])
+		}
+		this.drawlists = this.build_exec_list(nodes)
 	}
 
 	drawPreview()
@@ -60,26 +68,19 @@ class Rendergraph is Editor
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
-		for (var drawlist in this.drawlists) 
-		{
-			if (drawlist is List) 
-			{
-				for (var node in drawlist) {
-					if (node.execute) {
-						node.execute()
-					}
+		for (var drawlist in this.drawlists) {
+			for (var node in drawlist) {
+				if (node.execute) {
+					node.execute()
 				}
-			} 
-			else if (drawlist is Pass) 
-			{
-				drawlist.execute()
 			}
 		}
 	}
 
-	loadFileImports()
+	load_file_imports()
 	{
-		return "
+		var ret = super.load_file_imports()
+		ret = ret + "
 import \"rendergraph.clear\" for Clear
 import \"rendergraph.draw\" for Draw
 import \"rendergraph.shader\" for Shader
@@ -91,5 +92,6 @@ import \"rendergraph.texture\" for Texture
 import \"rendergraph.camera3d\" for Camera3D
 import \"rendergraph.render_target\" for RenderTarget
 "
+		return ret
 	}
 }

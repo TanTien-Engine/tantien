@@ -1,0 +1,122 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY
+import "io" for IO
+import "filesystem" for Filesystem
+import "blueprint.nodes.input" for Input
+import "blueprint.nodes.output" for Output
+import "blueprint.blueprint" for Blueprint
+
+class SubGraph is Node
+{
+	init()
+	{
+		super.init(SubGraph.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT)
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.filepath = ""
+
+		this.all_nodes = []
+		this.in_nodes  = []
+		this.out_nodes = []
+		this.exec_list = []
+	}
+
+	calc(idx)
+	{
+		var name = this.exports[idx].name
+		for (var node in this.out_nodes) {
+			if (node.var_name == name) {
+				return Blueprint.get_input_value(node, 0)
+			}
+		}
+	}
+
+	execute()
+	{
+		// setup input vars
+		for (var i in 1..this.imports.count) {
+			var name = this.imports[i].name
+			for (var node in this.in_nodes)	{
+				if (node.var_name == name) {
+					node.value = Blueprint.get_input_value(this, i)
+				}
+				// todo break
+			}
+		}
+
+		for (var pass in this.exec_list) {
+			for (var node in pass) {
+				if (node.execute) {
+					node.execute()
+				}
+			}
+		}
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.width = 180
+	}
+
+	toString(name) {
+		return "
+%(name).load_from_file(_editor, \"%(this.filepath)\")
+"
+	}
+
+	load_from_file(editor, filepath)
+	{
+		this.all_nodes.clear()
+		this.in_nodes.clear()
+		this.out_nodes.clear()
+
+		this.filepath = filepath
+
+		var old_func = editor.add_node
+		editor.add_node = this.add_node
+
+		var header = "import \"editor\" for _editor\n" + editor.load_file_imports()
+
+		var absolute = Filesystem.get_absolute_path(this.filepath)
+		var file = IO.open(absolute, "r")
+		var source = header + file.read()		
+		IO.close(file)
+
+		Basic.loadstring("subgraph", source)
+
+		editor.add_node = old_func
+
+		this.exec_list = editor.build_exec_list(this.all_nodes)
+	}
+
+	add_node(node, x, y)
+	{
+		this.all_nodes.add(node)
+
+		var dirty = false
+		if (node is Input) {
+			this.in_nodes.add(node)
+			this.imports.add(Pin(this, node.var_name, node.var_type))
+			dirty = true
+		} else if (node is Output) {
+			this.out_nodes.add(node)
+			this.exports.add(Pin(this, node.var_name, node.var_type))
+			dirty = true
+		}
+
+		if (dirty) {
+			this.layout()
+		}
+	}
+}
