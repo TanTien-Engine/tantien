@@ -3,8 +3,9 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
 import "maths" for Matrix44
-import "rendergraph.variant" for VAR_TYPE_SHADER
+import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_TEXTURE
 
 class Shader is Node
 {
@@ -55,7 +56,8 @@ class Shader is Node
 			this.uniforms.add(unif)
 		}
 		for (var unif in this.uniforms) {
-			this.imports.add(Pin(this, unif[0], unif[1]))
+			var pin_type = this.type_uniform_to_pin(unif[1])
+			this.imports.add(Pin(this, unif[0], pin_type))
 		}
 
 		this.layout()
@@ -296,5 +298,28 @@ class Shader is Node
 			}
 			this.prog.setUniformValue(unif)
 		}
+	}
+
+	type_uniform_to_pin(unif_type)
+	{
+		var pin_type = VAR_TYPE_UNKNOWN
+		if (unif_type == "bool" or unif_type == "int" or unif_type == "float") {
+			pin_type = VAR_TYPE_NUMBER
+		} else if (unif_type == "int2" or unif_type == "float2") {
+			pin_type = VAR_TYPE_NUMBER2
+		} else if (unif_type == "int3" or unif_type == "float3") {
+			pin_type = VAR_TYPE_NUMBER3
+		} else if (unif_type == "int4" or unif_type == "float4") {
+			pin_type = VAR_TYPE_NUMBER4
+		} else if (unif_type == "mat2") {
+			pin_type = VAR_TYPE_MATRIX2
+		} else if (unif_type == "mat3") {
+			pin_type = VAR_TYPE_MATRIX3
+		} else if (unif_type == "mat4") {
+			pin_type = VAR_TYPE_MATRIX4
+		} else if (unif_type == "sampler") {
+			pin_type = VAR_TYPE_TEXTURE
+		}
+		return pin_type
 	}
 }
