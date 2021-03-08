@@ -266,13 +266,13 @@ class Editor
 	{
 		if (pin.is_input) {
 			for (var p in node.exports) {
-				if (p.type == pin.type or pin.type == VAR_TYPE_ANY) {
+				if (p.type == pin.type or pin.type == VAR_TYPE_ANY or p.type == VAR_TYPE_ANY) {
 					return true
 				}
 			}
 		} else {
 			for (var p in node.imports) {
-				if (p.type == pin.type or pin.type == VAR_TYPE_ANY) {
+				if (p.type == pin.type or pin.type == VAR_TYPE_ANY or p.type == VAR_TYPE_ANY) {
 					return true
 				}
 			}
