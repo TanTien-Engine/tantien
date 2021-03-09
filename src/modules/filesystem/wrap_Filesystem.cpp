@@ -30,10 +30,14 @@ void w_Filesystem_setAssetBaseDir()
 void w_Filesystem_get_absolute_path()
 {
     const char* path = ves_tostring(1);
-    const auto& dir = std::filesystem::path(tt::Filesystem::Instance()->GetAssetBaseDir());
-    auto absolute = std::filesystem::canonical(std::filesystem::path(dir) / path).string();
-
-    ves_set_lstring(0, absolute.c_str(), absolute.size());
+    if (std::filesystem::exists(std::filesystem::path(path))) {
+        auto absolute = std::filesystem::canonical(path).string();
+        ves_set_lstring(0, absolute.c_str(), absolute.size());
+    } else {
+        const auto& dir = std::filesystem::path(tt::Filesystem::Instance()->GetAssetBaseDir());
+        auto absolute = std::filesystem::canonical(std::filesystem::path(dir) / path).string();
+        ves_set_lstring(0, absolute.c_str(), absolute.size());
+    }
 }
 
 }

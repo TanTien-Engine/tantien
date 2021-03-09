@@ -3,14 +3,14 @@ var node0 = Clear()
 node0.masks = [ "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node0, 167.68670172802, 768.56932586571)
+_editor.add_node(node0, -29.916747092996, -127.78975741092)
 
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
 
-_editor.add_node(node1, -51, 593.5)
+_editor.add_node(node1, -248.60344882102, -302.85908327663)
 
 var node2 = Shader()
 
@@ -184,14 +184,14 @@ node2.setUniform("lightColors[1]", [ 300, 300, 300 ])
 node2.setUniform("lightColors[2]", [ 300, 300, 300 ])
 node2.setUniform("lightColors[3]", [ 300, 300, 300 ])
 
-_editor.add_node(node2, -397.16704193754, -13.140775401506)
+_editor.add_node(node2, -594.77049075856, -909.49985867813)
 
 var node3 = PrimitiveShape()
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal" ]
 
-_editor.add_node(node3, -231.47232292876, 502.84410764292)
+_editor.add_node(node3, -429.07577174978, -393.51497563371)
 
 var node4 = Perspective()
 
@@ -200,7 +200,7 @@ node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 100
 
-_editor.add_node(node4, -733.34811374976, 659.17193283298)
+_editor.add_node(node4, -930.95156257078, -237.18715044365)
 
 var node5 = Camera3D()
 
@@ -211,14 +211,14 @@ node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.35880517959595
 
-_editor.add_node(node5, -907.18250114434, 483.8883574907)
+_editor.add_node(node5, -1104.7859499654, -412.47072578593)
 
 var node6 = For()
 
 node6.start = 0
 node6.end = 7
 
-_editor.add_node(node6, 194.42221763255, 598.2649711854)
+_editor.add_node(node6, -3.1812311884657, -298.09411209123)
 
 var node7 = Translate()
 
@@ -226,40 +226,40 @@ node7.dx = 6.25
 node7.dy = 6.25
 node7.dz = 0
 
-_editor.add_node(node7, -664.48324813534, 204.08319612336)
+_editor.add_node(node7, -862.08669695636, -692.27588715327)
 
 var node8 = Matrix()
 
-_editor.add_node(node8, -790.35250328923, 289.53033074482)
+_editor.add_node(node8, -987.95595211025, -606.82875253181)
 
 var node9 = For()
 
 node9.start = 0
 node9.end = 7
 
-_editor.add_node(node9, 443, 599.5)
+_editor.add_node(node9, 245.39655117898, -296.85908327663)
 
 var node10 = Divide()
 
-_editor.add_node(node10, 778.46466448305, 286.51801919656)
+_editor.add_node(node10, 580.86121566203, -609.84106408007)
 
 var node11 = Divide()
 
-_editor.add_node(node11, 448.5059962251, 283.4289767011)
+_editor.add_node(node11, 250.90254740408, -612.93010657553)
 
 var node12 = Clamp()
 
 node12.min = 0.05
 node12.max = 1
 
-_editor.add_node(node12, 584.61301386352, 271.62706446635)
+_editor.add_node(node12, 387.0095650425, -624.73201881028)
 
 var node13 = Texture()
 node13.gamma_correction = false
 node13.init_texture("resources/textures/hdr/newport_loft.hdr")
 node13.set_sampler("linear repeat")
 
-_editor.add_node(node13, -31.592430079198, 1344.1254167708)
+_editor.add_node(node13, -229.19587890021, 447.76633349417)
 
 var node14 = Custom()
 
@@ -282,14 +282,14 @@ if (_editor.script_stack.count == 4)
 "
 node14.init_ports(4, 1)
 
-_editor.add_node(node14, -812.90593243376, 127.18911322842)
+_editor.add_node(node14, -1010.5093812548, -769.16997004821)
 
 var node15 = Draw()
 
 node15.set_prim_type("triangles")
 node15.render_state = { "depth_test" : true, "depth_func" : "lequal", "cull" : "disable" }
 
-_editor.add_node(node15, 859.02442333661, 1278.2686045515)
+_editor.add_node(node15, 661.42097451559, 381.90952127487)
 
 var node16 = Shader()
 
@@ -335,26 +335,26 @@ void main()
 "
 node16.execute()
 
-_editor.add_node(node16, 596.91259112752, 1341.8218065168)
+_editor.add_node(node16, 399.3091423065, 445.46272324017)
 
 var node17 = PrimitiveShape()
 
 node17.type = "cube"
 node17.layout = [ "position" ]
 
-_editor.add_node(node17, 612.14832271402, 1215.0541800323)
+_editor.add_node(node17, 414.544873893, 318.69509675567)
 
 var node18 = SubGraph()
 
-node18.load_from_file(_editor, "equirectangular_to_cubemap.ves")
+node18.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
-_editor.add_node(node18, 237.74846513139, 1356.050820334)
+_editor.add_node(node18, 40.145016310374, 459.69173705737)
 
 var node19 = Pass()
 
 node19.once = false
 
-_editor.add_node(node19, 715.60144042969, 628.564453125)
+_editor.add_node(node19, 517.99799160867, -267.79463015163)
 
 Blueprint.connect(node0.exports[0], node9.imports[0])
 Blueprint.connect(node1.exports[0], node6.imports[1])
