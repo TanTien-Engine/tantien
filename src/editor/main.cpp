@@ -218,6 +218,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (key == GLFW_KEY_S && action == GLFW_PRESS && ctrl_pressed) {
         ves_pushstring("savetofile()");
         ves_call(0, 0);
+    } else if (key == GLFW_KEY_C && action == GLFW_PRESS && ctrl_pressed) {
+        ves_pushstring("copy_to_clipboard()");
+        ves_call(0, 0);
+    } else if (key == GLFW_KEY_V && action == GLFW_PRESS && ctrl_pressed) {
+        ves_pushstring("paste_from_clipboard()");
+        ves_call(0, 0);
     } else if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
         ves_pushstring("refresh()");
         ves_call(0, 0);

@@ -12,6 +12,7 @@ import "scene.components.boundingbox2" for BoundingBox2
 import "scene.components.transform2" for Transform2
 import "io" for IO
 import "filesystem" for Filesystem
+import "editgraph.operators.node2d_translate" for Node2dTranslate
 
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.number2" for Number2
@@ -76,6 +77,10 @@ class Editor
 		}
 
 		this.script_stack = []
+
+		// copy and paste
+		this.clipboard = ""
+		this.cam_pos_on_copy = nil
 	}
 
 	update()
@@ -356,6 +361,8 @@ class Editor
 		node.components["transform"] = trans
 
 		this.scene.add(node)
+
+		return node
 	}
 
 	load_file_imports()
@@ -472,6 +479,94 @@ import \"editor\" for _editor
 		}
 			
 		IO.close(file)
+	}
+
+	copy_to_clipboard()
+	{
+		this.clipboard = ""
+
+		// nodes
+		var index = 0	
+		for (var node in this.scene.selection) 
+		{
+			var bp = node.components["bp"]
+			var trans = node.components["transform"]
+
+			var name = "node%(index)"
+			this.clipboard = this.clipboard + "
+var %(name) = %(bp.name)()
+%(bp.toString(name))
+_editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
+"
+			index = index + 1
+		}
+
+		// connections
+		var t_idx = 0
+		for (var t_node in this.scene.selection) 
+		{
+			var t_name = "node%(t_idx)"
+
+			var t_bp = t_node.components["bp"]
+			for (var t_pin in t_bp.imports)
+			{
+				for (var t_conn in t_pin.conns)
+				{
+					var f_name = nil
+					// find in selection
+					var f_idx = 0
+					for (var node in this.scene.selection) {
+						var f_bp = node.components["bp"]
+						if (f_bp == t_conn.from.node) {
+							f_name = "node%(f_idx)"
+						}
+						f_idx = f_idx + 1
+					}
+					// find in scene
+					if (!f_name)
+					{
+						for (var f_idx = 0; f_idx < this.scene.nodes.count; f_idx = f_idx + 1) {
+							var f_bp = this.scene.nodes[f_idx].components["bp"]
+							if (f_bp == t_conn.from.node) {
+								f_name = "_editor.scene.nodes[%(f_idx)].components[\"bp\"]"
+							}
+						}
+					}
+
+					if (f_name) {
+						this.clipboard = this.clipboard + "Blueprint.connect(%(f_name).exports[%(t_conn.from.slot_idx)], %(t_name).imports[%(t_conn.to.slot_idx)])\n"					
+					}
+				}
+			}
+
+			t_idx = t_idx + 1
+		}
+
+		this.cam_pos_on_copy = Vector2(this.camera.pos.x, this.camera.pos.y)
+	}
+
+	paste_from_clipboard()
+	{
+		if (this.clipboard == "") {
+			return
+		}
+
+		this.scene.selection.clear()
+
+		var header = "
+import \"editor\" for _editor
+"
+		header = header + this.load_file_imports()
+
+		var source = header + this.clipboard
+		Basic.loadstring("temp", source)
+
+		var dx = this.camera.pos.x - this.cam_pos_on_copy.x
+		var dy = this.camera.pos.y - this.cam_pos_on_copy.y
+		var trans_op = Node2dTranslate(this.camera, this.scene)
+		trans_op.translate(Vector2(dx, dy))
+
+		this.scene.bp_dirty = true
 	}
 
 	refresh()
