@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "image" for ImageData
 import "graphics" for Graphics
 import "render" for Texture2D, SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
@@ -15,7 +15,9 @@ class Texture is Node
 		super.init(Texture.name)
 
 		this.exports = [
-			Pin(this, "tex", VAR_TYPE_TEXTURE)
+			Pin(this, "tex", VAR_TYPE_TEXTURE),
+			Pin(this, "width", VAR_TYPE_NUMBER),
+			Pin(this, "height", VAR_TYPE_NUMBER),
 		]
 
 		this.layout()
@@ -39,18 +41,37 @@ class Texture is Node
 
 	calc(idx)
 	{
-		var ret = VarTexture()
-		ret.tex = this.tex
-		if (this.sampler_selected == 0) {
-			ret.sampler = SAMPLER_NEAREST_CLAMP
-		} else if (this.sampler_selected == 1) {
-			ret.sampler = SAMPLER_LINEAR_CLAMP
-		} else if (this.sampler_selected == 2) {
-			ret.sampler = SAMPLER_NEAREST_REPEAT
-		} else if (this.sampler_selected == 3) {
-			ret.sampler = SAMPLER_LINEAR_REPEAT
+		if (idx == 0)
+		{
+			var ret = VarTexture()
+			ret.tex = this.tex
+			if (this.sampler_selected == 0) {
+				ret.sampler = SAMPLER_NEAREST_CLAMP
+			} else if (this.sampler_selected == 1) {
+				ret.sampler = SAMPLER_LINEAR_CLAMP
+			} else if (this.sampler_selected == 2) {
+				ret.sampler = SAMPLER_NEAREST_REPEAT
+			} else if (this.sampler_selected == 3) {
+				ret.sampler = SAMPLER_LINEAR_REPEAT
+			}
+			return Variant(VAR_TYPE_TEXTURE, ret)
 		}
-		return Variant(VAR_TYPE_TEXTURE, ret)
+		else if (idx == 1)
+		{
+			var width = 0
+			if (this.tex) {
+				width = this.tex.getWidth()		
+			}
+			return Variant(VAR_TYPE_NUMBER, width)
+		}
+		else if (idx == 2)
+		{
+			var height = 0
+			if (this.tex) {
+				height = this.tex.getHeight()
+			}
+			return Variant(VAR_TYPE_NUMBER, height)
+		}
 	}
 
 	draw(mt)
