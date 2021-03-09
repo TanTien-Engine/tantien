@@ -29,6 +29,7 @@ import "blueprint.nodes.matrix" for Matrix
 import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
 import "blueprint.nodes.scale" for Scale
+import "blueprint.nodes.camera3d" for Camera3D
 import "blueprint.nodes.perspective" for Perspective
 import "blueprint.nodes.lookat" for LookAt
 import "blueprint.nodes.for" for For
@@ -68,7 +69,7 @@ class Editor
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Perspective, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, SubGraph ]) {
+		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera3D, Perspective, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, SubGraph ]) {
 			this.add_popup_node(node)
 		}
 
@@ -375,6 +376,7 @@ import \"blueprint.nodes.matrix\" for Matrix
 import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
 import \"blueprint.nodes.scale\" for Scale
+import \"blueprint.nodes.camera3d\" for Camera3D
 import \"blueprint.nodes.perspective\" for Perspective
 import \"blueprint.nodes.lookat\" for LookAt
 import \"blueprint.nodes.for\" for For
