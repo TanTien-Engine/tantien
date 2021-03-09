@@ -1,0 +1,109 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths" for Matrix44
+import "graphics" for Graphics
+
+class Camera2D is Node
+{
+	init()
+	{
+		super.init(Camera2D.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4)
+		]
+
+		this.layout()
+
+		this.x = 0
+		this.y = 0
+		this.scale = 1
+
+		this.speed = 0.01		
+	}
+
+	calc(idx)
+	{
+		var mat = Matrix44.init()
+		var s = 1.0 / this.scale
+		mat.scale(s, s, s)
+		mat.translate(-this.x, -this.y, 0)
+		return Variant(VAR_TYPE_MATRIX4, mat)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	toString(name) {
+		return "
+%(name).x = %(this.x)
+%(name).y = %(this.y)
+%(name).scale = %(this.scale)
+%(name).speed = %(this.speed)
+"
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var speed = GUI.slider(ctx, "speed", this.speed, x, y, this.style.width - 40, 0.5, false)
+		if (speed != this.speed) {
+			this.speed = speed
+			dirty = true
+		}
+
+		return dirty
+	}	
+
+	on_key_pressed(key) 
+	{
+		if (key == "w") {
+			this.y = this.y + this.speed
+		} else if (key == "s") {
+			this.y = this.y - this.speed
+		} else if (key == "a") {
+			this.x = this.x - this.speed
+		} else if (key == "d") {
+			this.x = this.x + this.speed
+		} else if (key == "escape") {
+			this.x = 0
+			this.y = 0		
+			this.scale = 1.0
+		}
+	}
+
+	on_mouse_scrolled(x, y, dx, dy)
+	{
+		var scale = 1
+		if (dy > 0) {
+			scale = scale / 1.1
+		} else {
+			scale = scale * 1.1
+		}
+
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+
+		y = h - y
+		
+		var hw = w * 0.5
+		var hh = h * 0.5
+		var new_scale = this.scale * scale
+
+		this.x = -(x - hw - (x - hw + this.x) * this.scale / new_scale)
+		this.y = -(y - hh - (y - hh + this.y) * this.scale / new_scale)
+
+		this.scale = new_scale
+	}
+}

@@ -342,6 +342,16 @@ void w_Graphics_dtexDebugDraw()
     tt::DTex::Instance()->DebugDraw(*tt::Render::Instance()->Context());
 }
 
+void w_Graphics_get_width()
+{
+    ves_set_number(0, (double)tt::Graphics::Instance()->GetWidth());
+}
+
+void w_Graphics_get_height()
+{
+    ves_set_number(0, (double)tt::Graphics::Instance()->GetHeight());
+}
+
 }
 
 namespace tt
@@ -364,6 +374,8 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.drawTexture(_,_,_,_)") == 0) return w_Graphics_drawTexture;
     if (strcmp(signature, "static Graphics.flush()") == 0) return w_Graphics_flush;
     if (strcmp(signature, "static Graphics.dtexDebugDraw()") == 0) return w_Graphics_dtexDebugDraw;
+    if (strcmp(signature, "static Graphics.get_width()") == 0) return w_Graphics_get_width;
+    if (strcmp(signature, "static Graphics.get_height()") == 0) return w_Graphics_get_height;
 
     return nullptr;
 }

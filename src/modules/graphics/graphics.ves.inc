@@ -50,6 +50,8 @@ foreign class Graphics
 	foreign static drawTexture(texture, x, y, scale)
 	foreign static flush()
 	foreign static dtexDebugDraw()
+	foreign static get_width()
+	foreign static get_height()
 }
 
 );

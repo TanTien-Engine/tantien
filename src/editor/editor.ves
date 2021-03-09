@@ -1,5 +1,5 @@
 import "scene.scene" for Scene
-import "graphics.camera2d" for Camera2D
+import "graphics.camera2d" for Camera2D as tt_Camera2D
 import "gui" for GUI, Context, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "blueprint.node_op" for NodeOP
@@ -29,8 +29,10 @@ import "blueprint.nodes.matrix" for Matrix
 import "blueprint.nodes.translate" for Translate
 import "blueprint.nodes.rotate" for Rotate
 import "blueprint.nodes.scale" for Scale
+import "blueprint.nodes.camera2d" for Camera2D
 import "blueprint.nodes.camera3d" for Camera3D
 import "blueprint.nodes.perspective" for Perspective
+import "blueprint.nodes.orthographic" for Orthographic
 import "blueprint.nodes.lookat" for LookAt
 import "blueprint.nodes.for" for For
 import "blueprint.nodes.array" for Array
@@ -47,7 +49,7 @@ class Editor
 	load()
 	{
 		this.scene = Scene()
-		this.camera = Camera2D()
+		this.camera = tt_Camera2D()
 
 		this.nodes_op = BlueprintEditOP(this.camera, this.scene, this.popupCB)
 		this.preview_op = NodeOP(this.scene)
@@ -69,7 +71,7 @@ class Editor
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera3D, Perspective, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, SubGraph ]) {
+		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, SubGraph ]) {
 			this.add_popup_node(node)
 		}
 
@@ -376,8 +378,10 @@ import \"blueprint.nodes.matrix\" for Matrix
 import \"blueprint.nodes.translate\" for Translate
 import \"blueprint.nodes.rotate\" for Rotate
 import \"blueprint.nodes.scale\" for Scale
+import \"blueprint.nodes.camera2d\" for Camera2D
 import \"blueprint.nodes.camera3d\" for Camera3D
 import \"blueprint.nodes.perspective\" for Perspective
+import \"blueprint.nodes.orthographic\" for Orthographic
 import \"blueprint.nodes.lookat\" for LookAt
 import \"blueprint.nodes.for\" for For
 import \"blueprint.nodes.array\" for Array

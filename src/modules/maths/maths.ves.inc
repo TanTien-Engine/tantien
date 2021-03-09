@@ -40,6 +40,7 @@ foreign class Matrix44
 	foreign scale(sx, sy, sz)	
 
 	foreign perspective(fovy, aspect, znear, zfar)
+	foreign orthographic(left, right, bottom, top)
 	foreign lookat(eye, center, up)
 
 	foreign fromRotateMat(mat)
