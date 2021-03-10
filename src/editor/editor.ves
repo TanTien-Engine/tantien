@@ -465,15 +465,18 @@ import \"editor\" for _editor
 			{
 				for (var f_conn in f_pin.conns)
 				{
-					var t_pin
-					var t_name
-					for (var t_idx = 0; t_idx < this.scene.nodes.count; t_idx = t_idx + 1) {
-						var t_bp = this.scene.nodes[t_idx].components["bp"]
-						if (t_bp == f_conn.to.node) {
-							t_name = "node%(t_idx)"
+					if (!f_conn.to.node.dummy)
+					{
+						var t_pin
+						var t_name
+						for (var t_idx = 0; t_idx < this.scene.nodes.count; t_idx = t_idx + 1) {
+							var t_bp = this.scene.nodes[t_idx].components["bp"]
+							if (t_bp == f_conn.to.node) {
+								t_name = "node%(t_idx)"
+							}
 						}
+						file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
 					}
-					file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
 				}
 			}
 

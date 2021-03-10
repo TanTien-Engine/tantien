@@ -51,7 +51,9 @@ class NodeRender
 
 		for (var o in node.exports) {
 			for (var c in o.conns) {
-				this.draw_conn(pt, c)
+				if (!c.to.node.dummy) {
+					this.draw_conn(pt, c)
+				}
 			}
 		}
 
