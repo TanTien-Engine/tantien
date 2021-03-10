@@ -65,8 +65,10 @@ class Editor
 		this.right_press_pos = nil
 
 //		this.filepath = ""
-		this.filepath = "samples/rendergraph/learnopengl/6.pbr__2.1.2.ibl_irradiance.ves"
-//		this.filepath = "samples/rendergraph/learnopengl/equirectangular_to_cubemap.ves"
+//		this.filepath = "samples/rendergraph/learnopengl/6.pbr__2.1.2.ibl_irradiance.ves"
+//		this.filepath = "assets/rendergraph/equirectangular_to_cubemap.ves"
+//		this.filepath = "assets/rendergraph/cubemap_preview.ves"
+		this.filepath = "samples/rendergraph/default/cubemap_project_to_2d.ves"
 
 		this.hide_nodes = false
 
@@ -413,13 +415,12 @@ import \"blueprint.nodes.subgraph\" for SubGraph
 			return
 		}
 
-		Filesystem.setAssetBaseDir(this.filepath)
-
 		var header = "
 import \"editor\" for _editor
 "
 		header = header + this.load_file_imports()
 
+		Filesystem.setAssetBaseDir(this.filepath)
 		var file = IO.open(this.filepath, "r")
 		var source = header + file.read()
 		IO.close(file)
@@ -431,6 +432,7 @@ import \"editor\" for _editor
 
 	savetofile()
 	{
+		Filesystem.setAssetBaseDir(this.filepath)
 		var file = IO.open(this.filepath, "w")
 
 		// nodes
