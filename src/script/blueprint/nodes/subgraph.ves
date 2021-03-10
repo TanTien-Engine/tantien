@@ -1,11 +1,14 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_NUMBER
 import "io" for IO
 import "filesystem" for Filesystem
 import "blueprint.nodes.input" for Input
 import "blueprint.nodes.output" for Output
+import "blueprint.nodes.property" for Property
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
 
 class SubGraph is Node
 {
@@ -24,10 +27,11 @@ class SubGraph is Node
 
 		this.filepath = ""
 
-		this.all_nodes = []
-		this.in_nodes  = []
-		this.out_nodes = []
-		this.exec_list = []
+		this.all_nodes  = []
+		this.in_nodes   = []
+		this.out_nodes  = []
+		this.prop_nodes = []
+		this.exec_list  = []
 	}
 
 	calc(idx)
@@ -67,18 +71,48 @@ class SubGraph is Node
 		super.layout()
 
 		this.style.width = 220
+		//System.print(this.prop_nodes)
+		//this.style.height = this.style.height + DEFAULT_HEIGHT * this.prop_nodes.count
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 1
 	}
 
-	toString(name) {
-		return "
-%(name).load_from_file(_editor, \"%(this.filepath)\")
-"
+	toString(name) 
+	{
+		var ret = "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
+		for (var prop in this.prop_nodes) {
+			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(prop.value))\n"
+		}
+		return ret
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		for (var prop in this.prop_nodes)
+		{
+			if (prop.value and prop.var_type == VAR_TYPE_NUMBER)
+			{
+				var value = GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, 10.0, false)
+				if (value != prop.value) {
+					prop.value = value
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+			}
+		}
+
+		return dirty
 	}
 
 	load_from_file(editor, filepath)
 	{
 		this.all_nodes.clear()
 		this.in_nodes.clear()
+		this.prop_nodes.clear()		
 		this.out_nodes.clear()
 
 		var absolute = Filesystem.get_absolute_path(filepath)
@@ -112,18 +146,41 @@ class SubGraph is Node
 		this.all_nodes.add(node)
 
 		var dirty = false
-		if (node is Input) {
+		if (node is Input) 
+		{
 			this.in_nodes.add(node)
 			this.imports.add(Pin(this, node.var_name, node.var_type))
 			dirty = true
-		} else if (node is Output) {
+		} 
+		else if (node is Output) 
+		{
 			this.out_nodes.add(node)
 			this.exports.add(Pin(this, node.var_name, node.var_type))
+			dirty = true
+		} 
+		else if (node is Property) 
+		{
+			if (!node.value) 
+			{
+				if (node.var_type == VAR_TYPE_NUMBER) {
+					node.value = 0
+				}
+			}
+			this.prop_nodes.add(node)
 			dirty = true
 		}
 
 		if (dirty) {
 			this.layout()
+		}
+	}
+
+	set_prop_value(name, value)
+	{
+		for (var prop in this.prop_nodes) {
+			if (prop.var_name == name) {
+				prop.value = value
+			}
 		}
 	}
 }
