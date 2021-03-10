@@ -1,0 +1,82 @@
+var node0 = Texture()
+node0.gamma_correction = false
+node0.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
+node0.set_sampler("linear repeat")
+
+_editor.add_node(node0, 203.81910637772, -801.64788621246)
+
+var node1 = SubGraph()
+
+node1.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
+
+_editor.add_node(node1, 482.12741975388, -759.19653164321)
+
+var node2 = Cubemap()
+
+node2.init_texture(0, 0, "rgba8")
+
+_editor.add_node(node2, 490.41741043452, -4.160144974879)
+
+var node3 = Texture()
+node3.gamma_correction = false
+node3.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/right.jpg")
+node3.set_sampler("linear repeat")
+
+_editor.add_node(node3, 150.89302078032, 347.17920765516)
+
+var node4 = Texture()
+node4.gamma_correction = false
+node4.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/left.jpg")
+node4.set_sampler("linear repeat")
+
+_editor.add_node(node4, -88.217695700777, 351.97191307146)
+
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/top.jpg")
+node5.set_sampler("linear repeat")
+
+_editor.add_node(node5, 148.84056534708, 17.375232516846)
+
+var node6 = Texture()
+node6.gamma_correction = false
+node6.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/bottom.jpg")
+node6.set_sampler("linear repeat")
+
+_editor.add_node(node6, -83.164762157991, 18.050732824199)
+
+var node7 = Texture()
+node7.gamma_correction = false
+node7.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/front.jpg")
+node7.set_sampler("linear repeat")
+
+_editor.add_node(node7, -71.967522898345, -326.89483441848)
+
+var node8 = Texture()
+node8.gamma_correction = false
+node8.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+node8.set_sampler("linear repeat")
+
+_editor.add_node(node8, 147.35082967317, -325.05069808899)
+
+var node9 = SubGraph()
+
+node9.load_from_file(_editor, "assets/rendergraph/cubemap_project_to_2d.ves")
+
+_editor.add_node(node9, 977.83464900672, -271.81798222346)
+
+var node10 = Pass()
+
+node10.once = false
+
+_editor.add_node(node10, 1163.0830078125, -285.40804443359)
+
+Blueprint.connect(node0.exports[0], node1.imports[1])
+Blueprint.connect(node1.exports[1], node9.imports[1])
+Blueprint.connect(node3.exports[0], node2.imports[0])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node5.exports[0], node2.imports[2])
+Blueprint.connect(node6.exports[0], node2.imports[3])
+Blueprint.connect(node7.exports[0], node2.imports[4])
+Blueprint.connect(node8.exports[0], node2.imports[5])
+Blueprint.connect(node9.exports[0], node10.imports[0])
