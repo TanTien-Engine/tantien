@@ -1,8 +1,16 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
 import "render" for Cubemap as tt_Cubemap
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE, VAR_TYPE_ARRAY
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "graphics" for Graphics
+// fixme
+import "blueprint.node_render" for NodeRender
+import "editor.node_cache" for NODE_CACHE
+import "maths" for Matrix44
+import "gui" for GUI
 
 class Cubemap is Node
 {
@@ -29,7 +37,11 @@ class Cubemap is Node
 
 		this.width  = 0
 		this.height = 0
-		this.format = "rgba8"	
+		this.format = "rgba8"
+
+		this.preview = false
+		this.draw_tex = nil
+		this.draw_mat = nil
 	}
 
 	calc(idx)
@@ -75,11 +87,85 @@ class Cubemap is Node
 		}
 	}
 
+	draw(mt)
+	{
+		// fixme
+//		super.draw(mt)
+		NodeRender.draw_node(this)
+
+		if (!this.preview) {
+			return
+		}
+
+		class CubemapMat is Node
+		{
+			init()
+			{
+				super.init(CubemapMat.name)
+
+				this.exports = [
+					Pin(this, "mat", VAR_TYPE_MATRIX4)
+				]
+
+				this.layout()
+
+				this.prev_mat = Matrix44.init()
+				this.scale = 1.0
+				this.x = 0
+				this.y = 0
+
+				this.dummy = true
+			}
+
+			calc(idx)
+			{
+				var mat = Matrix44.init()
+				mat.scale(this.scale, this.scale, 1.0)
+				mat.translate(this.x, this.y, 0.0)
+				mat.transform(this.prev_mat)		
+				return Variant(VAR_TYPE_MATRIX4, mat)
+			}
+		}
+
+		if (this.tex)
+		{
+			if (!this.draw_tex) 
+			{
+				this.draw_tex = NODE_CACHE.fetch("assets/rendergraph/cubemap_project_to_2d.ves")
+				this.draw_mat = CubemapMat()
+				Blueprint.connect(this.exports[0], this.draw_tex.imports[1])
+				Blueprint.connect(this.draw_mat.exports[0], this.draw_tex.imports[2])
+			}
+			this.draw_mat.prev_mat = mt
+			this.draw_mat.scale = this.style.width / (256.0 * 4.0)
+			this.draw_mat.x = -15
+			this.draw_mat.y = -120
+
+			this.draw_tex.execute()
+		}
+	}
+
 	toString(name) 
 	{
 		return "
 %(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")
 "
+	}
+
+	drawGUI(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var preview = GUI.checkbox(ctx, "preview", this.preview, x, y)
+		if (preview != this.preview) {
+			this.preview = preview
+			dirty = true
+		}
+
+		return dirty
 	}
 
 	init_texture(width, height, format)
