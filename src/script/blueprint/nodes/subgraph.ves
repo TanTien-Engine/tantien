@@ -81,20 +81,26 @@ class SubGraph is Node
 		this.in_nodes.clear()
 		this.out_nodes.clear()
 
+		var absolute = Filesystem.get_absolute_path(filepath)
+		Filesystem.setAssetBaseDir(absolute)
+		var file = IO.open(absolute, "r")
+		var body = file.read()
+		IO.close(file)
+
+		if (!body) {
+			return
+		}
+
 		this.filepath = filepath
 
 		var old_func = editor.add_node
 		editor.add_node = this.add_node
 
 		this.title = Filesystem.get_filename(this.filepath)
+
 		var header = "import \"editor\" for _editor\n" + editor.load_file_imports()
-
-		var absolute = Filesystem.get_absolute_path(this.filepath)
-		var file = IO.open(absolute, "r")
-		var source = header + file.read()		
-		IO.close(file)
-
-		Basic.loadstring("subgraph", source)
+		var source = header + body
+		Basic.loadstring(filepath, source)
 
 		editor.add_node = old_func
 
