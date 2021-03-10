@@ -71,6 +71,15 @@ node10.once = false
 
 _editor.add_node(node10, 1163.0830078125, -285.40804443359)
 
+var node11 = Camera2D()
+
+node11.x = 0
+node11.y = 0
+node11.scale = 1
+node11.speed = 0.01
+
+_editor.add_node(node11, 751.32601074219, -292.23665161133)
+
 Blueprint.connect(node0.exports[0], node1.imports[1])
 Blueprint.connect(node1.exports[1], node9.imports[1])
 Blueprint.connect(node3.exports[0], node2.imports[0])
@@ -80,3 +89,4 @@ Blueprint.connect(node6.exports[0], node2.imports[3])
 Blueprint.connect(node7.exports[0], node2.imports[4])
 Blueprint.connect(node8.exports[0], node2.imports[5])
 Blueprint.connect(node9.exports[0], node10.imports[0])
+Blueprint.connect(node11.exports[0], node9.imports[2])

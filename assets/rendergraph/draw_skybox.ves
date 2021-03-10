@@ -1,0 +1,109 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "lequal" }
+
+_editor.add_node(node0, 203.85918701258, 59.330746129723)
+
+var node1 = Shader()
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+out vec3 TexCoords;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;	
+};
+
+void main()
+{
+    TexCoords = aPos;
+    vec4 pos = projection * view * vec4(aPos, 1.0);
+    gl_Position = pos.xyww;
+}  
+"
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec3 TexCoords;
+
+uniform samplerCube skybox;
+
+uniform UBO
+{
+	bool tonemap;
+	bool gamma_correct;
+};
+
+void main()
+{    
+    vec3 envColor = texture(skybox, TexCoords).rgb;
+    
+    if (tonemap) {
+    	envColor = envColor / (envColor + vec3(1.0));    
+    }
+    if (gamma_correct) {
+    	envColor = pow(envColor, vec3(1.0/2.2));
+    }
+    
+    FragColor = vec4(envColor, 1.0);
+}
+"
+node1.execute()
+
+_editor.add_node(node1, -73.748493212811, 82.017393205064)
+
+var node2 = VertexArray()
+
+node2.data = [ -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1 ]
+node2.attrs = [ 3 ]
+
+_editor.add_node(node2, -41.151425200496, 5.1311638353625)
+
+var node3 = Input()
+
+node3.var_name = "projection"
+node3.var_type = "mat4"
+
+_editor.add_node(node3, -254.18951700326, 194.39497374342)
+
+var node4 = Input()
+
+node4.var_name = "view"
+node4.var_type = "mat4"
+
+_editor.add_node(node4, -254.36151030917, 148.19219487124)
+
+var node5 = Input()
+
+node5.var_name = "skybox"
+node5.var_type = "texture"
+
+_editor.add_node(node5, -254.57691881883, 4.0887243212114)
+
+var node6 = Property()
+
+node6.var_name = "tonemap"
+node6.var_type = "num"
+
+_editor.add_node(node6, -254.03792578327, 103.24493380689)
+
+var node7 = Property()
+
+node7.var_name = "gamma_correct"
+node7.var_type = "num"
+
+_editor.add_node(node7, -254.78922767553, 55.160776277308)
+
+Blueprint.connect(node1.exports[0], node0.imports[1])
+Blueprint.connect(node2.exports[0], node0.imports[2])
+Blueprint.connect(node3.exports[0], node1.imports[0])
+Blueprint.connect(node4.exports[0], node1.imports[1])
+Blueprint.connect(node5.exports[0], node1.imports[4])
+Blueprint.connect(node6.exports[0], node1.imports[2])
+Blueprint.connect(node7.exports[0], node1.imports[3])

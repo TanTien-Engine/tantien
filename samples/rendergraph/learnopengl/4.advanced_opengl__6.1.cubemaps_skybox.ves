@@ -1,124 +1,88 @@
 var node0 = Clear()
-_editor.add_node(node0, -200.43573774767, 631.67841863758)
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
-var node1 = Draw()
-_editor.add_node(node1, 552.9563554402, 239.42053138446)
+_editor.add_node(node0, -205.43573774767, 869.88763605367)
 
-node1.prim_type = "triangles"
-node1.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "lequal" }
+var node1 = Perspective()
 
-var node2 = Shader()
-_editor.add_node(node2, 199.81066867017, 149.1705484598)
+node1.fovy = 45
+node1.aspect = 0
+node1.znear = 0.10000000149012
+node1.zfar = 100
 
-node2.vs = "
-#version 330 core
-layout (location = 0) in vec3 aPos;
+_editor.add_node(node1, -231.66667039799, 592.22609875775)
 
-out vec3 TexCoords;
+var node2 = Camera3D()
 
-uniform UBO
-{
-	mat4 projection;
-	mat4 view;	
-};
+node2.position.set(-1.0558717179288, 0.79437926562139, 2.7679415520657)
+node2.yaw = -90.8
+node2.pitch = -30.9
+node2.zoom = 45
+node2.update_camera_vectors()
+node2.speed = 0.01
 
-void main()
-{
-    TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
-    gl_Position = pos.xyww;
-}  
-"
-node2.fs = "
-#version 330 core
-out vec4 FragColor;
+_editor.add_node(node2, -233.42572228673, 399.72591709507)
 
-in vec3 TexCoords;
+var node3 = Cubemap()
 
-uniform samplerCube skybox;
+node3.init_texture(0, 0, "rgba8")
 
-void main()
-{    
-    FragColor = texture(skybox, TexCoords);
-}
-"
-node2.execute()
+_editor.add_node(node3, -222.38564058926, 238.34615416864)
 
-var node3 = VertexArray()
-_editor.add_node(node3, 288.72472322712, 25.284319090099)
+var node4 = Texture()
+node4.gamma_correction = false
+node4.init_texture("resources/textures/skybox/right.jpg")
+node4.set_sampler("linear repeat")
 
-node3.data = [ -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1 ]
-node3.attrs = [ 3 ]
+_editor.add_node(node4, -976.99946713661, 224.98787820459)
 
-var node4 = Perspective()
-_editor.add_node(node4, -226.66667039799, 354.01688134166)
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture("resources/textures/skybox/left.jpg")
+node5.set_sampler("linear repeat")
 
-node4.fovy = 45
-node4.aspect = 0
-node4.znear = 0.10000000149012
-node4.zfar = 100
+_editor.add_node(node5, -753.70320074161, 216.30149273506)
 
-var node5 = Camera3D()
-_editor.add_node(node5, -228.42572228673, 161.51669967898)
+var node6 = Texture()
+node6.gamma_correction = false
+node6.init_texture("resources/textures/skybox/top.jpg")
+node6.set_sampler("linear repeat")
 
-node5.position.set(-1.0558717179288, 0.79437926562139, 2.7679415520657)
-node5.yaw = -90.8
-node5.pitch = -30.9
-node5.zoom = 45
-node5.update_camera_vectors()
-
-var node6 = Cubemap()
-_editor.add_node(node6, -231.12609547622, 6.2469702202117)
+_editor.add_node(node6, -539.8609837257, 205.1527637084)
 
 var node7 = Texture()
-_editor.add_node(node7, -976.99946713661, 224.98787820459)
-
-node7.init_texture("resources/textures/skybox/right.jpg")
+node7.gamma_correction = false
+node7.init_texture("resources/textures/skybox/bottom.jpg")
 node7.set_sampler("linear repeat")
 
-var node8 = Texture()
-_editor.add_node(node8, -753.70320074161, 216.30149273506)
+_editor.add_node(node7, -968.72004304781, -54.883981697497)
 
-node8.init_texture("resources/textures/skybox/left.jpg")
+var node8 = Texture()
+node8.gamma_correction = false
+node8.init_texture("resources/textures/skybox/front.jpg")
 node8.set_sampler("linear repeat")
 
-var node9 = Texture()
-_editor.add_node(node9, -539.8609837257, 205.1527637084)
+_editor.add_node(node8, -756.21683439839, -56.773890242972)
 
-node9.init_texture("resources/textures/skybox/top.jpg")
+var node9 = Texture()
+node9.gamma_correction = false
+node9.init_texture("resources/textures/skybox/back.jpg")
 node9.set_sampler("linear repeat")
 
-var node10 = Texture()
-_editor.add_node(node10, -968.72004304781, -54.883981697497)
+_editor.add_node(node9, -536.27214499221, -51.279392452607)
 
-node10.init_texture("resources/textures/skybox/bottom.jpg")
-node10.set_sampler("linear repeat")
+var node10 = Draw()
 
-var node11 = Texture()
-_editor.add_node(node11, -756.21683439839, -56.773890242972)
+node10.set_prim_type("triangles")
+node10.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "less" }
 
-node11.init_texture("resources/textures/skybox/front.jpg")
-node11.set_sampler("linear repeat")
+_editor.add_node(node10, 354.27463888888, 595.75907393082)
 
-var node12 = Texture()
-_editor.add_node(node12, -536.27214499221, -51.279392452607)
+var node11 = Shader()
 
-node12.init_texture("resources/textures/skybox/back.jpg")
-node12.set_sampler("linear repeat")
-
-var node13 = Draw()
-_editor.add_node(node13, 359.27463888888, 357.54985651473)
-
-node13.prim_type = "triangles"
-node13.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "less" }
-
-var node14 = Shader()
-_editor.add_node(node14, 158.40993225748, 429.8237266456)
-
-node14.vs = "
+node11.vs = "
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
@@ -138,7 +102,7 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
-node14.fs = "
+node11.fs = "
 #version 330 core
 out vec4 FragColor;
 
@@ -151,36 +115,52 @@ void main()
     FragColor = texture(texture1, TexCoords);
 }
 "
-node14.execute()
+node11.execute()
 
-var node15 = VertexArray()
-_editor.add_node(node15, 175.50352993772, 305.39869979075)
+_editor.add_node(node11, 153.40993225748, 668.03294406169)
 
-node15.data = [ -0.5, -0.5, -0.5, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0.5, 0.5, -0.5, 1, 1, 0.5, 0.5, -0.5, 1, 1, -0.5, 0.5, -0.5, 0, 1, -0.5, -0.5, -0.5, 0, 0, -0.5, -0.5, 0.5, 0, 0, 0.5, -0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 1, 0.5, 0.5, 0.5, 1, 1, -0.5, 0.5, 0.5, 0, 1, -0.5, -0.5, 0.5, 0, 0, -0.5, 0.5, 0.5, 1, 0, -0.5, 0.5, -0.5, 1, 1, -0.5, -0.5, -0.5, 0, 1, -0.5, -0.5, -0.5, 0, 1, -0.5, -0.5, 0.5, 0, 0, -0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, -0.5, 1, 1, 0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, 0.5, 0, 0, 0.5, 0.5, 0.5, 1, 0, -0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, -0.5, 1, 1, 0.5, -0.5, 0.5, 1, 0, 0.5, -0.5, 0.5, 1, 0, -0.5, -0.5, 0.5, 0, 0, -0.5, -0.5, -0.5, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0.5, 0.5, -0.5, 1, 1, 0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 0, -0.5, 0.5, 0.5, 0, 0, -0.5, 0.5, -0.5, 0, 1 ]
-node15.attrs = [ 3, 2 ]
+var node12 = VertexArray()
 
-var node16 = Texture()
-_editor.add_node(node16, -395.74291204198, 537.96694214876)
+node12.data = [ -0.5, -0.5, -0.5, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0.5, 0.5, -0.5, 1, 1, 0.5, 0.5, -0.5, 1, 1, -0.5, 0.5, -0.5, 0, 1, -0.5, -0.5, -0.5, 0, 0, -0.5, -0.5, 0.5, 0, 0, 0.5, -0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 1, 0.5, 0.5, 0.5, 1, 1, -0.5, 0.5, 0.5, 0, 1, -0.5, -0.5, 0.5, 0, 0, -0.5, 0.5, 0.5, 1, 0, -0.5, 0.5, -0.5, 1, 1, -0.5, -0.5, -0.5, 0, 1, -0.5, -0.5, -0.5, 0, 1, -0.5, -0.5, 0.5, 0, 0, -0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, -0.5, 1, 1, 0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, 0.5, 0, 0, 0.5, 0.5, 0.5, 1, 0, -0.5, -0.5, -0.5, 0, 1, 0.5, -0.5, -0.5, 1, 1, 0.5, -0.5, 0.5, 1, 0, 0.5, -0.5, 0.5, 1, 0, -0.5, -0.5, 0.5, 0, 0, -0.5, -0.5, -0.5, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0.5, 0.5, -0.5, 1, 1, 0.5, 0.5, 0.5, 1, 0, 0.5, 0.5, 0.5, 1, 0, -0.5, 0.5, 0.5, 0, 0, -0.5, 0.5, -0.5, 0, 1 ]
+node12.attrs = [ 3, 2 ]
 
-node16.init_texture("resources/textures/container.jpg")
-node16.set_sampler("linear repeat")
+_editor.add_node(node12, 170.50352993772, 543.60791720684)
 
-Blueprint.connect(node0.exports[0], node13.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[0])
-Blueprint.connect(node4.exports[0], node14.imports[2])
-Blueprint.connect(node5.exports[0], node14.imports[1])
-Blueprint.connect(node5.exports[1], node4.imports[0])
-Blueprint.connect(node5.exports[2], node2.imports[1])
-Blueprint.connect(node6.exports[0], node2.imports[2])
-Blueprint.connect(node7.exports[0], node6.imports[0])
-Blueprint.connect(node8.exports[0], node6.imports[1])
-Blueprint.connect(node9.exports[0], node6.imports[2])
-Blueprint.connect(node10.exports[0], node6.imports[3])
-Blueprint.connect(node11.exports[0], node6.imports[4])
-Blueprint.connect(node12.exports[0], node6.imports[5])
-Blueprint.connect(node13.exports[0], node1.imports[0])
-Blueprint.connect(node14.exports[0], node13.imports[1])
-Blueprint.connect(node15.exports[0], node13.imports[2])
-Blueprint.connect(node16.exports[0], node14.imports[3])
+var node13 = Texture()
+node13.gamma_correction = false
+node13.init_texture("resources/textures/container.jpg")
+node13.set_sampler("linear repeat")
+
+_editor.add_node(node13, -400.74291204198, 776.17615956485)
+
+var node14 = SubGraph()
+node14.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
+node14.set_prop_value("tonemap", 0)
+node14.set_prop_value("gamma_correct", 0)
+
+_editor.add_node(node14, 617.30875257533, 439.33730884775)
+
+var node15 = Pass()
+
+node15.once = false
+
+_editor.add_node(node15, 859.02432770371, 442.97111360629)
+
+Blueprint.connect(node0.exports[0], node10.imports[0])
+Blueprint.connect(node1.exports[0], node11.imports[2])
+Blueprint.connect(node1.exports[0], node14.imports[1])
+Blueprint.connect(node2.exports[0], node11.imports[1])
+Blueprint.connect(node2.exports[1], node1.imports[0])
+Blueprint.connect(node2.exports[2], node14.imports[2])
+Blueprint.connect(node3.exports[0], node14.imports[3])
+Blueprint.connect(node4.exports[0], node3.imports[0])
+Blueprint.connect(node5.exports[0], node3.imports[1])
+Blueprint.connect(node6.exports[0], node3.imports[2])
+Blueprint.connect(node7.exports[0], node3.imports[3])
+Blueprint.connect(node8.exports[0], node3.imports[4])
+Blueprint.connect(node9.exports[0], node3.imports[5])
+Blueprint.connect(node10.exports[0], node14.imports[0])
+Blueprint.connect(node11.exports[0], node10.imports[1])
+Blueprint.connect(node12.exports[0], node10.imports[2])
+Blueprint.connect(node13.exports[0], node11.imports[3])
+Blueprint.connect(node14.exports[0], node15.imports[0])
