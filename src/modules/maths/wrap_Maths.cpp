@@ -208,6 +208,13 @@ void w_Matrix44_fromRotateMat()
     *mt = sm::mat4(rot);    
 }
 
+void w_Matrix44_transform()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    sm::Matrix2D* trans = (sm::Matrix2D*)ves_toforeign(1);
+    *mt = sm::mat4(*trans) * *mt;
+}
+
 void w_Maths_isConvexIntersectConvex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -240,6 +247,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
     if (strcmp(signature, "Matrix44.fromRotateMat(_)") == 0) return w_Matrix44_fromRotateMat;
+    if (strcmp(signature, "Matrix44.transform(_)") == 0) return w_Matrix44_transform;
 
     if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return w_Maths_isConvexIntersectConvex;
 

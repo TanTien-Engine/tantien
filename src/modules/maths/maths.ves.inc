@@ -44,6 +44,9 @@ foreign class Matrix44
 	foreign lookat(eye, center, up)
 
 	foreign fromRotateMat(mat)
+
+	// mt: Matrix2D
+	foreign transform(mt)
 }
 
 foreign class Maths
