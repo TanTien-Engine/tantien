@@ -40,6 +40,13 @@ void w_Filesystem_get_absolute_path()
     }
 }
 
+void w_Filesystem_get_filename()
+{
+    const char* path = ves_tostring(1);
+    auto filename = std::filesystem::path(path).stem().string();
+    ves_set_lstring(0, filename.c_str(), filename.size());
+}
+
 }
 
 namespace tt
@@ -49,6 +56,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Filesystem.setAssetBaseDir(_)") == 0) return w_Filesystem_setAssetBaseDir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
+    if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
 
     return NULL;
 }

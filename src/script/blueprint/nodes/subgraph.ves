@@ -86,6 +86,7 @@ class SubGraph is Node
 		var old_func = editor.add_node
 		editor.add_node = this.add_node
 
+		this.title = Filesystem.get_filename(this.filepath)
 		var header = "import \"editor\" for _editor\n" + editor.load_file_imports()
 
 		var absolute = Filesystem.get_absolute_path(this.filepath)

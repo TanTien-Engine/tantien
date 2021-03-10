@@ -22,7 +22,13 @@ class NodeRender
 
 		Graphics.drawPainter(pt)
 
-		Graphics.drawText(node.name, node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+		var str
+		if (node.title) {
+			str = node.title
+		} else {
+			str = node.name
+		}
+		Graphics.drawText(str, node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
 	}
 
 	static draw_node_pins(node)
