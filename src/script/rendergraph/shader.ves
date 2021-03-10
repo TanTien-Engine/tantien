@@ -269,36 +269,46 @@ class Shader is Node
 		{
 			var unif = this.uniforms[i]
 			var conns = this.imports[i].conns
+			var invalid = false
 			if (!conns.isEmpty)
 			{
 				var f_pin = conns.front().from
 				var val = f_pin.node.calc(f_pin.slot_idx)
-				if (unif[1] == "float" or unif[1] == "int") {
-					unif[2] = val.value
-				} else if (unif[1] == "float2" or unif[1] == "int2") {
-					unif[2] = val.value.x
-					unif[3] = val.value.y
-				} else if (unif[1] == "float3" or unif[1] == "int3") {
-					unif[2] = val.value.x
-					unif[3] = val.value.y
-					unif[4] = val.value.z
-				}  else if (unif[1] == "float4" or unif[1] == "int4") {
-					unif[2] = val.value.x
-					unif[3] = val.value.y
-					unif[4] = val.value.z
-					unif[5] = val.value.w
-				} else if (unif[1] == "mat2") {
-					unif[2] = val.value
-				} else if (unif[1] == "mat3") {
-					unif[2] = val.value
-				} else if (unif[1] == "mat4") {
-					unif[2] = val.value
-				} else if (unif[1] == "sampler") {
-					unif[2] = val.value.tex
-					unif[3] = val.value.sampler
+				if (val)
+				{
+					if (unif[1] == "float" or unif[1] == "int") {
+						unif[2] = val.value
+					} else if (unif[1] == "float2" or unif[1] == "int2") {
+						unif[2] = val.value.x
+						unif[3] = val.value.y
+					} else if (unif[1] == "float3" or unif[1] == "int3") {
+						unif[2] = val.value.x
+						unif[3] = val.value.y
+						unif[4] = val.value.z
+					}  else if (unif[1] == "float4" or unif[1] == "int4") {
+						unif[2] = val.value.x
+						unif[3] = val.value.y
+						unif[4] = val.value.z
+						unif[5] = val.value.w
+					} else if (unif[1] == "mat2") {
+						unif[2] = val.value
+					} else if (unif[1] == "mat3") {
+						unif[2] = val.value
+					} else if (unif[1] == "mat4") {
+						unif[2] = val.value
+					} else if (unif[1] == "sampler") {
+						unif[2] = val.value.tex
+						unif[3] = val.value.sampler
+					}
+				}
+				else
+				{
+					invalid = true
 				}
 			}
-			this.prog.setUniformValue(unif)
+			if (!invalid) {
+				this.prog.setUniformValue(unif)
+			}
 		}
 	}
 
