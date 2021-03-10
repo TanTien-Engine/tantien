@@ -38,6 +38,8 @@
     <ClCompile Include="..\..\..\src\modules\render\Render.cpp" />
     <ClCompile Include="..\..\..\src\modules\render\wrap_Render.cpp" />
     <ClCompile Include="..\..\..\src\modules\script\TransHelper.cpp" />
+    <ClCompile Include="..\..\..\src\modules\system\System.cpp" />
+    <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\core\macro.h" />
@@ -63,6 +65,8 @@
     <ClInclude Include="..\..\..\src\modules\render\wrap_Render.h" />
     <ClInclude Include="..\..\..\src\modules\script\Proxy.h" />
     <ClInclude Include="..\..\..\src\modules\script\TransHelper.h" />
+    <ClInclude Include="..\..\..\src\modules\system\System.h" />
+    <ClInclude Include="..\..\..\src\modules\system\wrap_System.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\filesystem\filesystem.ves.inc" />
@@ -73,6 +77,7 @@
     <None Include="..\..\..\src\modules\maths\maths.ves.inc" />
     <None Include="..\..\..\src\modules\model\model.ves.inc" />
     <None Include="..\..\..\src\modules\render\render.ves.inc" />
+    <None Include="..\..\..\src\modules\system\system.ves.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -182,7 +187,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -198,7 +203,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

@@ -14,6 +14,9 @@
 #include "modules/filesystem/filesystem.ves.inc"
 #include "modules/model/wrap_Model.h"
 #include "modules/model/model.ves.inc"
+#include "modules/system/System.h"
+#include "modules/system/wrap_System.h"
+#include "modules/system/system.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -85,6 +88,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = filesystemModuleSource;
     } else if (strcmp(module, "model") == 0) {
         source = modelModuleSource;
+    } else if (strcmp(module, "system") == 0) {
+        source = systemModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -130,6 +135,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::ModelBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::SystemBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -168,6 +176,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::ModelBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::SystemBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
@@ -448,6 +459,8 @@ int main(int argc, char* argv[])
     glDebugMessageCallback(MessageCallback, 0);
 
     ves_init_vm();
+
+    tt::System::Instance()->SetWindow(window);
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
