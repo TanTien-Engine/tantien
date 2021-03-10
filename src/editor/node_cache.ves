@@ -1,0 +1,36 @@
+import "blueprint.nodes.subgraph" for SubGraph
+
+class NodeCache
+{
+	init()
+	{
+		this.editor = nil
+		this.path2node = {}
+	}
+
+	fetch(filepath)
+	{
+		var find = this.path2node[filepath]
+		if (find) {
+			return find
+		}
+
+		if (!this.editor) {
+			return nil
+		}
+
+		var node = SubGraph()
+		node.dummy = true
+		node.load_from_file(this.editor, filepath)
+		this.path2node[filepath] = node
+
+		return node
+	}
+
+	set_editor(editor)
+	{
+		this.editor = editor
+	}
+}
+
+var NODE_CACHE = NodeCache()
