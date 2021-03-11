@@ -45,8 +45,8 @@ foreign class Matrix44
 
 	foreign fromRotateMat(mat)
 
-	// mt: Matrix2D
-	foreign transform(mt)
+	foreign transform_mat2d(mt)
+	foreign transform_mat4(mt)
 }
 
 foreign class Maths

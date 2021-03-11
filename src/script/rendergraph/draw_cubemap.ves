@@ -1,0 +1,97 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_TEXTURE
+import "rendergraph.variant" for VarTexture
+import "editor.node_cache" for NODE_CACHE
+import "maths" for Matrix44
+import "blueprint.blueprint" for Blueprint
+
+class CubemapTrans is Node
+{
+	init()
+	{
+		super.init(CubemapTrans.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4)
+		]
+
+		this.layout()
+
+		this.mat = nil
+
+		this.dummy = true
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_MATRIX4, this.mat)
+	}
+}
+
+class CubemapProxy is Node
+{
+	init()
+	{
+		super.init(CubemapProxy.name)
+
+		this.exports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE)
+		]
+
+		this.layout()
+
+		this.tex = nil
+
+		this.dummy = true
+	}
+
+	calc(idx)
+	{
+		var ret = VarTexture()
+		ret.tex = this.tex
+		return Variant(VAR_TYPE_TEXTURE, ret)
+	}
+}
+
+class DrawCubemap
+{
+	init()
+	{
+		this.draw_node  = nil
+		this.trans_node = nil
+		this.proxy_node = nil
+	}
+
+	draw(tex, mt, width, cam_mt)
+	{
+		if (!tex) {
+			return
+		}
+
+		if (!this.draw_node) 
+		{
+			this.draw_node = NODE_CACHE.fetch("assets/rendergraph/cubemap_project_to_2d.ves")
+			this.trans_node = CubemapTrans()
+			this.proxy_node = CubemapProxy()
+			Blueprint.connect(this.proxy_node.exports[0], this.draw_node.imports[1])
+			Blueprint.connect(this.trans_node.exports[0], this.draw_node.imports[2])
+		}
+
+		var mat = Matrix44.init()
+		var scale = width / (256.0 * 4.0)
+		var x = -15
+		var y = -120
+		mat.scale(scale, scale, 1.0)
+		mat.translate(x, y, 0.0)
+		mat.transform_mat2d(mt)
+		mat.transform_mat4(cam_mt)		
+		this.trans_node.mat = mat
+
+		this.proxy_node.tex = tex
+
+		this.draw_node.execute()
+	}
+}
+
+var DRAW_CUBEMAP = DrawCubemap()

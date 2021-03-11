@@ -1,4 +1,8 @@
-import "render" for Render, SAMPLER_NEAREST_REPEAT
+import "render" for Render, SAMPLER_LINEAR_CLAMP
+import "graphics" for Graphics
+import "render" for Cubemap as tt_Cubemap, Texture2D
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "maths" for Matrix2D
 
 var VAR_TYPE_VERTEX_ARRAY  = "va"
 var VAR_TYPE_SHADER        = "shader"
@@ -13,6 +17,27 @@ class VarTexture
 		this.sampler = SAMPLER_NEAREST_REPEAT
 
 		this.cubemap_idx = -1		
+	}
+
+	print(x, y, width, cam_mt)
+	{
+		if (!this.tex) {
+			return
+		}
+
+		if (this.tex is tt_Cubemap)
+		{
+			var mt = Matrix2D.init()
+			mt.transform(x, y + 80, 0, 1, 1, 0, 0, 0, 0)
+
+			import "rendergraph.draw_cubemap" for DRAW_CUBEMAP			
+			DRAW_CUBEMAP.draw(this.tex, mt, width, cam_mt)
+		}
+		else if (this.tex is Texture2D)
+		{
+			var scale = width / this.tex.getWidth()
+			Graphics.drawTexture(this.tex, x, y - DEFAULT_HEIGHT, scale)
+		}
 	}
 }
 

@@ -1,3 +1,6 @@
+import "graphics" for Graphics
+import "blueprint.node_style" for TB_TITLE
+
 var VAR_TYPE_PORT    = "port"
 
 var VAR_TYPE_UNKNOWN = "unknown"
@@ -20,5 +23,14 @@ class Variant
 	{
 		this.type = type
 		this.value = value
+	}
+
+	print(x, y, width, cam_mt)
+	{
+		if (this.value.has_method("print(_,_,_,_)")) {
+			this.value.print(x, y, width, cam_mt)
+		} else {
+			Graphics.drawText("%(this.value)", x, y, 0.5, TB_TITLE)
+		}
 	}
 }
