@@ -15,6 +15,7 @@ import "filesystem" for Filesystem
 import "editgraph.operators.node2d_translate" for Node2dTranslate
 import "editor.node_cache" for NODE_CACHE
 import "system" for System
+import "maths" for Matrix44
 
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.number2" for Number2
@@ -216,7 +217,12 @@ class Editor
 
 	drawScene()
 	{
-		this.scene.draw()
+		var cam_mt = Matrix44.init()
+		var s = 1.0 / this.camera.scale
+		cam_mt.translate(-this.camera.pos.x, -this.camera.pos.y, 0)
+		cam_mt.scale(s, s, 1)
+
+		this.scene.draw(cam_mt)
 
 		// fixme
 		Graphics.flush()
