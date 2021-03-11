@@ -1,17 +1,18 @@
 var node0 = Clear()
-_editor.add_node(node0, -303.38767843727, 804.93296222935)
 
 node0.masks = [ "depth", "color" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node0, -303.38767843727, 804.93296222935)
+
 var node1 = Draw()
-_editor.add_node(node1, -51, 593.5)
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
 
+_editor.add_node(node1, -51, 593.5)
+
 var node2 = Shader()
-_editor.add_node(node2, -397.16704193754, -13.140775401506)
 
 node2.vs = "
 #version 330 core
@@ -173,22 +174,25 @@ node2.setUniform("lightColors[1]", [ 300, 300, 300 ])
 node2.setUniform("lightColors[2]", [ 300, 300, 300 ])
 node2.setUniform("lightColors[3]", [ 300, 300, 300 ])
 
+_editor.add_node(node2, -397.16704193754, -13.140775401506)
+
 var node3 = PrimitiveShape()
-_editor.add_node(node3, -231.47232292876, 502.84410764292)
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal" ]
 
+_editor.add_node(node3, -231.47232292876, 502.84410764292)
+
 var node4 = Perspective()
-_editor.add_node(node4, -733.34811374976, 659.17193283298)
 
 node4.fovy = 45
 node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 100
 
+_editor.add_node(node4, -733.34811374976, 659.17193283298)
+
 var node5 = Camera3D()
-_editor.add_node(node5, -907.18250114434, 483.8883574907)
 
 node5.position.set(-2.0833028954365, 1.744076305107, 21.570873673811)
 node5.yaw = -1166.9
@@ -197,165 +201,59 @@ node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.35880517959595
 
+_editor.add_node(node5, -907.18250114434, 483.8883574907)
+
 var node6 = For()
-_editor.add_node(node6, 194.42221763255, 598.2649711854)
 
 node6.start = 0
 node6.end = 7
 
+_editor.add_node(node6, 194.42221763255, 598.2649711854)
+
 var node7 = Translate()
-_editor.add_node(node7, -664.48324813534, 204.08319612336)
 
 node7.dx = 6.25
 node7.dy = 6.25
 node7.dz = 0
 
+_editor.add_node(node7, -664.48324813534, 204.08319612336)
+
 var node8 = Matrix()
+
 _editor.add_node(node8, -790.35250328923, 289.53033074482)
 
 var node9 = For()
-_editor.add_node(node9, 443, 599.5)
 
 node9.start = 0
 node9.end = 7
 
+_editor.add_node(node9, 474.9, 553.3)
+
 var node10 = Divide()
+
 _editor.add_node(node10, 778.46466448305, 286.51801919656)
 
 var node11 = Divide()
+
 _editor.add_node(node11, 448.5059962251, 283.4289767011)
 
 var node12 = Clamp()
-_editor.add_node(node12, 584.61301386352, 271.62706446635)
 
 node12.min = 0.05
 node12.max = 1
 
-var node13 = Draw()
-_editor.add_node(node13, -210.824827, 1526.7601465446)
+_editor.add_node(node12, 584.61301386352, 271.62706446635)
 
-node13.set_prim_type("triangles")
-node13.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+var node13 = Texture()
+node13.gamma_correction = false
+node13.init_texture("resources/textures/hdr/newport_loft.hdr")
+node13.set_sampler("linear repeat")
 
-var node14 = Pass()
-_editor.add_node(node14, 276.75071422327, 1574.3742604557)
+_editor.add_node(node13, 484.73265029081, 1207.7693353708)
 
-node14.once = true
+var node14 = Custom()
 
-var node15 = Shader()
-_editor.add_node(node15, -401.79191738021, 1557.7810142062)
-
-node15.vs = "
-#version 330 core
-layout (location = 0) in vec3 aPos;
-
-out vec3 WorldPos;
-
-uniform UBO
-{
-    mat4 projection;
-    mat4 view;    
-};
-
-void main()
-{
-    WorldPos = aPos;
-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
-}
-"
-node15.fs = "
-#version 330 core
-out vec4 FragColor;
-in vec3 WorldPos;
-
-uniform sampler2D equirectangularMap;
-
-const vec2 invAtan = vec2(0.1591, 0.3183);
-vec2 SampleSphericalMap(vec3 v)
-{
-    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
-
-void main()
-{       
-    vec2 uv = SampleSphericalMap(normalize(WorldPos));
-    vec3 color = texture(equirectangularMap, uv).rgb;
-    
-    FragColor = vec4(color, 1.0);
-    //FragColor = vec4(1,1,0, 1.0);
-}
-"
-node15.execute()
-
-var node16 = PrimitiveShape()
-_editor.add_node(node16, -394.83103603082, 1423.7456986508)
-
-node16.type = "cube"
-node16.layout = [ "position" ]
-
-var node17 = Perspective()
-_editor.add_node(node17, -608.76743687972, 1679.5855045399)
-
-node17.fovy = 90
-node17.aspect = 1
-node17.znear = 0.1
-node17.zfar = 10
-
-var node18 = Clear()
-_editor.add_node(node18, -418.53390179914, 1706.3538434784)
-
-node18.masks = [ "color" ]
-node18.values = { "color" : [ 255, 255, 255, 255 ] }
-
-var node19 = RenderTarget()
-_editor.add_node(node19, -425.69322175206, 1126.7644498459)
-
-node19.width = 512
-node19.height = 512
-node19.rbo_depth = false
-node19.rbo_color = false
-
-var node20 = Texture()
-_editor.add_node(node20, -628.8639514092, 1399.7177524708)
-node20.gamma_correction = false
-node20.init_texture("resources/textures/hdr/newport_loft.hdr")
-node20.set_sampler("linear repeat")
-
-var node21 = For()
-_editor.add_node(node21, 7.1346417895149, 1552.3675167654)
-
-node21.start = 0
-node21.end = 6
-
-var node22 = Fetch()
-_editor.add_node(node22, -581.73466967732, 1175.8420132006)
-
-var node23 = Custom()
-_editor.add_node(node23, -732.19213033801, 1527.9438266754)
-
-node23.code = "
-import \"maths\" for Matrix44
-import \"maths.vector\" for Vector3
-var capture_views = [
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 1.0,  0.0,  0.0), Vector3(0.0, -1.0,  0.0)),
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3(-1.0,  0.0,  0.0), Vector3(0.0, -1.0,  0.0)),
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  1.0,  0.0), Vector3(0.0,  0.0,  1.0)),
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0, -1.0,  0.0), Vector3(0.0,  0.0, -1.0)),
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  0.0,  1.0), Vector3(0.0, -1.0,  0.0)),
-    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  0.0, -1.0), Vector3(0.0, -1.0,  0.0))
-]
-_editor.script_stack.clear()
-_editor.script_stack.add(capture_views)
-"
-node23.init_ports(0, 1)
-
-var node24 = Custom()
-_editor.add_node(node24, -812.90593243376, 127.18911322842)
-
-node24.code = "
+node14.code = "
 import \"maths.vector\" for Vector3
 if (_editor.script_stack.count == 4)
 {
@@ -372,113 +270,54 @@ if (_editor.script_stack.count == 4)
     _editor.script_stack.add(Vector3(x, y, 0))
 }
 "
-node24.init_ports(4, 1)
+node14.init_ports(4, 1)
 
-var node25 = Fetch()
-_editor.add_node(node25, -578.22866879974, 1546.441927614)
+_editor.add_node(node14, -812.90593243376, 127.18911322842)
 
-var node26 = Draw()
-_editor.add_node(node26, 859.02442333661, 1278.2686045515)
+var node15 = SubGraph()
+node15.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
-node26.set_prim_type("triangles")
-node26.render_state = { "depth_test" : true, "depth_func" : "lequal", "cull" : "disable" }
+_editor.add_node(node15, 796.00860281038, 1220.7973339574)
 
-var node27 = Shader()
-_editor.add_node(node27, 611.21259112752, 1340.7218065168)
+var node16 = SubGraph()
+node16.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
+node16.set_prop_value("tonemap", 1)
+node16.set_prop_value("gamma_correct", 1)
 
-node27.vs = "
-#version 330 core
-layout (location = 0) in vec3 aPos;
+_editor.add_node(node16, 1146.0922038555, 1196.9984063273)
 
-uniform UBO
-{
-    mat4 projection;
-    mat4 view;    
-};
+var node17 = Pass()
 
-out vec3 WorldPos;
+node17.once = false
 
-void main()
-{
-    WorldPos = aPos;
-
-    mat4 rotView = mat4(mat3(view));
-    vec4 clipPos = projection * rotView * vec4(WorldPos, 1.0);
-
-    gl_Position = clipPos.xyww;
-}
-"
-node27.fs = "
-#version 330 core
-out vec4 FragColor;
-in vec3 WorldPos;
-
-uniform samplerCube environmentMap;
-
-void main()
-{       
-    vec3 envColor = texture(environmentMap, WorldPos).rgb;
-    
-    // HDR tonemap and gamma correct
-    envColor = envColor / (envColor + vec3(1.0));
-    envColor = pow(envColor, vec3(1.0/2.2)); 
-    
-    FragColor = vec4(envColor, 1.0);
-}
-"
-node27.execute()
-
-var node28 = PrimitiveShape()
-_editor.add_node(node28, 612.14832271402, 1215.0541800323)
-
-node28.type = "cube"
-node28.layout = [ "position" ]
-
-var node29 = Cubemap()
-_editor.add_node(node29, -745.69992388719, 1054.3599903791)
-
-node29.init_texture(512, 512, "rgb16f")
+_editor.add_node(node17, 1513.8875085742, 1206.7759571086)
 
 Blueprint.connect(node0.exports[0], node9.imports[0])
 Blueprint.connect(node1.exports[0], node6.imports[1])
 Blueprint.connect(node2.exports[0], node1.imports[1])
 Blueprint.connect(node3.exports[0], node1.imports[2])
 Blueprint.connect(node4.exports[0], node2.imports[0])
-Blueprint.connect(node4.exports[0], node27.imports[0])
+Blueprint.connect(node4.exports[0], node16.imports[1])
 Blueprint.connect(node5.exports[0], node2.imports[1])
-Blueprint.connect(node5.exports[0], node27.imports[1])
 Blueprint.connect(node5.exports[1], node4.imports[0])
+Blueprint.connect(node5.exports[2], node16.imports[2])
 Blueprint.connect(node5.exports[3], node2.imports[15])
 Blueprint.connect(node6.exports[0], node9.imports[1])
 Blueprint.connect(node6.exports[1], node11.imports[0])
-Blueprint.connect(node6.exports[1], node24.imports[1])
+Blueprint.connect(node6.exports[1], node14.imports[1])
 Blueprint.connect(node6.exports[2], node11.imports[1])
-Blueprint.connect(node6.exports[2], node24.imports[2])
+Blueprint.connect(node6.exports[2], node14.imports[2])
 Blueprint.connect(node7.exports[0], node2.imports[2])
 Blueprint.connect(node8.exports[0], node7.imports[0])
-Blueprint.connect(node9.exports[0], node26.imports[0])
+Blueprint.connect(node9.exports[0], node16.imports[0])
 Blueprint.connect(node9.exports[1], node10.imports[0])
-Blueprint.connect(node9.exports[1], node24.imports[3])
+Blueprint.connect(node9.exports[1], node14.imports[3])
 Blueprint.connect(node9.exports[2], node10.imports[1])
-Blueprint.connect(node9.exports[2], node24.imports[4])
+Blueprint.connect(node9.exports[2], node14.imports[4])
 Blueprint.connect(node10.exports[0], node2.imports[4])
 Blueprint.connect(node11.exports[0], node12.imports[0])
 Blueprint.connect(node12.exports[0], node2.imports[5])
-Blueprint.connect(node13.exports[0], node21.imports[1])
-Blueprint.connect(node15.exports[0], node13.imports[1])
-Blueprint.connect(node16.exports[0], node13.imports[2])
-Blueprint.connect(node17.exports[0], node15.imports[0])
-Blueprint.connect(node18.exports[0], node13.imports[0])
-Blueprint.connect(node19.exports[0], node13.imports[3])
-Blueprint.connect(node20.exports[0], node15.imports[2])
-Blueprint.connect(node21.exports[0], node14.imports[0])
-Blueprint.connect(node21.exports[1], node22.imports[1])
-Blueprint.connect(node21.exports[1], node25.imports[1])
-Blueprint.connect(node22.exports[0], node19.imports[0])
-Blueprint.connect(node23.exports[1], node25.imports[0])
-Blueprint.connect(node24.exports[1], node7.imports[1])
-Blueprint.connect(node25.exports[0], node15.imports[1])
-Blueprint.connect(node27.exports[0], node26.imports[1])
-Blueprint.connect(node28.exports[0], node26.imports[2])
-Blueprint.connect(node29.exports[0], node27.imports[2])
-Blueprint.connect(node29.exports[1], node22.imports[0])
+Blueprint.connect(node13.exports[0], node15.imports[1])
+Blueprint.connect(node14.exports[1], node7.imports[1])
+Blueprint.connect(node15.exports[1], node16.imports[3])
+Blueprint.connect(node16.exports[0], node17.imports[0])
