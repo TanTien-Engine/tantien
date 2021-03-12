@@ -190,15 +190,15 @@ void w_GUI_slider()
 	const bool verticle = ves_toboolean(8);
 
 	const bool ret_old = val > max || val < 0;
-	if (ret_old) {
-		ves_set_number(0, ves_tonumber(3));
-	} else {
-		float ret = std::max(0.0f, std::min(val, max));
-		if (egui::slider(tt::GUI::Instance()->NextUID(), label, &ret, x, y, height, max, verticle, *ctx, true)) {
-			ves_set_number(0, ret);
-		} else {
+	float ret = std::max(0.0f, std::min(val, max));
+	if (egui::slider(tt::GUI::Instance()->NextUID(), label, &ret, x, y, height, max, verticle, *ctx, true)) {
+		if (ret_old) {
 			ves_set_number(0, ves_tonumber(3));
+		} else {
+			ves_set_number(0, ret);
 		}
+	} else {
+		ves_set_number(0, ves_tonumber(3));
 	}
 }
 
