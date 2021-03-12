@@ -1,0 +1,191 @@
+var node0 = Draw()
+
+node0.set_prim_type("tri_strip")
+node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node0, 261.90909090909, 136.5)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 255, 255, 255, 255 ] }
+
+_editor.add_node(node1, 28.09090909091, 302.0454545455)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+	gl_Position = vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec2 FragColor;
+in vec2 TexCoords;
+
+const float PI = 3.14159265359;
+// ----------------------------------------------------------------------------
+// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+// efficient VanDerCorpus calculation.
+float RadicalInverse_VdC(uint bits) 
+{
+     bits = (bits << 16u) | (bits >> 16u);
+     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+     return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+// ----------------------------------------------------------------------------
+vec2 Hammersley(uint i, uint N)
+{
+	return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+}
+// ----------------------------------------------------------------------------
+vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
+{
+	float a = roughness*roughness;
+	
+	float phi = 2.0 * PI * Xi.x;
+	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+	float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+	
+	// from spherical coordinates to cartesian coordinates - halfway vector
+	vec3 H;
+	H.x = cos(phi) * sinTheta;
+	H.y = sin(phi) * sinTheta;
+	H.z = cosTheta;
+	
+	// from tangent-space H vector to world-space sample vector
+	vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+	vec3 tangent   = normalize(cross(up, N));
+	vec3 bitangent = cross(N, tangent);
+	
+	vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+	return normalize(sampleVec);
+}
+// ----------------------------------------------------------------------------
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    // note that we use a different k for IBL
+    float a = roughness;
+    float k = (a * a) / 2.0;
+
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+// ----------------------------------------------------------------------------
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
+// ----------------------------------------------------------------------------
+vec2 IntegrateBRDF(float NdotV, float roughness)
+{
+    vec3 V;
+    V.x = sqrt(1.0 - NdotV*NdotV);
+    V.y = 0.0;
+    V.z = NdotV;
+
+    float A = 0.0;
+    float B = 0.0; 
+
+    vec3 N = vec3(0.0, 0.0, 1.0);
+    
+    const uint SAMPLE_COUNT = 1024u;
+    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+    {
+        // generates a sample vector that's biased towards the
+        // preferred alignment direction (importance sampling).
+        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 L = normalize(2.0 * dot(V, H) * H - V);
+
+        float NdotL = max(L.z, 0.0);
+        float NdotH = max(H.z, 0.0);
+        float VdotH = max(dot(V, H), 0.0);
+
+        if(NdotL > 0.0)
+        {
+            float G = GeometrySmith(N, V, L, roughness);
+            float G_Vis = (G * VdotH) / (NdotH * NdotV);
+            float Fc = pow(1.0 - VdotH, 5.0);
+
+            A += (1.0 - Fc) * G_Vis;
+            B += Fc * G_Vis;
+        }
+    }
+    A /= float(SAMPLE_COUNT);
+    B /= float(SAMPLE_COUNT);
+    return vec2(A, B);
+}
+// ----------------------------------------------------------------------------
+void main() 
+{
+    vec2 integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y);
+    FragColor = integratedBRDF;
+}
+"
+node2.execute()
+
+_editor.add_node(node2, 14.99999861284, 189.22726162997)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+
+_editor.add_node(node3, 36.81818043102, 81.95451216264)
+
+var node4 = RenderTarget()
+
+node4.width = 512
+node4.height = 512
+node4.rbo_depth = false
+node4.rbo_color = false
+
+_editor.add_node(node4, 39.54545177113, -88.04548783736)
+
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture(512, 512, "rg16f")
+node5.set_sampler("linear repeat")
+
+_editor.add_node(node5, -292.27272311124, -68.04548228871)
+
+var node6 = Pass()
+
+node6.once = true
+
+_editor.add_node(node6, 410.24724922546, 187.83396770996)
+
+var node7 = Output()
+
+node7.var_name = "tex"
+node7.var_type = "texture"
+
+_editor.add_node(node7, -103.6142689098, -86.34794477983)
+
+Blueprint.connect(node0.exports[0], node6.imports[0])
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node0.imports[3])
+Blueprint.connect(node5.exports[0], node4.imports[0])
+Blueprint.connect(node5.exports[0], node7.imports[0])

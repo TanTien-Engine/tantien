@@ -1,0 +1,77 @@
+var node0 = SubGraph()
+node0.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
+
+_editor.add_node(node0, -483.9280264241, -15.27491152899)
+
+var node1 = Pass()
+
+node1.once = true
+
+_editor.add_node(node1, 594.54437001047, 7.66293305829)
+
+var node2 = SubGraph()
+node2.load_from_file(_editor, "assets/rendergraph/create_irradiance_cubemap.ves")
+
+_editor.add_node(node2, -205.9896440133, 57.99157197682)
+
+var node3 = SubGraph()
+node3.load_from_file(_editor, "assets/rendergraph/create_brdf_lut.ves")
+
+_editor.add_node(node3, 48.01002807492, 58.61358458318)
+
+var node4 = SubGraph()
+node4.load_from_file(_editor, "assets/rendergraph/create_prefilter_cubemap.ves")
+
+_editor.add_node(node4, 317.76377079689, 2.35478655029)
+
+var node5 = Print()
+
+_editor.add_node(node5, 521.98659446023, 152.42065297277)
+
+var node6 = Input()
+
+node6.var_name = "equirectangularMap"
+node6.var_type = "texture"
+
+_editor.add_node(node6, -720.4308922372, -11.14163370937)
+
+var node7 = Output()
+
+node7.var_name = "tex"
+node7.var_type = "texture"
+
+_editor.add_node(node7, -247.78818067015, -94.400018920287)
+
+var node8 = Output()
+
+node8.var_name = "tex"
+node8.var_type = "texture"
+
+_editor.add_node(node8, 7.9185174261556, -88.190805453496)
+
+var node9 = Output()
+
+node9.var_name = "tex"
+node9.var_type = "texture"
+
+_editor.add_node(node9, 248.38440334412, -108.51186855164)
+
+var node10 = Output()
+
+node10.var_name = "tex"
+node10.var_type = "texture"
+
+_editor.add_node(node10, 532.31477746339, -101.17370194092)
+
+Blueprint.connect(node0.exports[0], node2.imports[0])
+Blueprint.connect(node0.exports[1], node2.imports[1])
+Blueprint.connect(node0.exports[1], node4.imports[1])
+Blueprint.connect(node0.exports[1], node7.imports[0])
+Blueprint.connect(node2.exports[0], node3.imports[0])
+Blueprint.connect(node2.exports[1], node8.imports[0])
+Blueprint.connect(node3.exports[0], node4.imports[0])
+Blueprint.connect(node3.exports[1], node9.imports[0])
+Blueprint.connect(node4.exports[0], node1.imports[0])
+Blueprint.connect(node4.exports[1], node5.imports[0])
+Blueprint.connect(node4.exports[1], node10.imports[0])
+Blueprint.connect(node6.exports[0], node0.imports[1])

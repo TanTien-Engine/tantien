@@ -1,0 +1,284 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node0, 201.5802241559, 331.0448724385)
+
+var node1 = Pass()
+
+node1.once = true
+
+_editor.add_node(node1, 976.79212901553, -79.613740923133)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+out vec3 WorldPos;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;    
+};
+
+void main()
+{
+    WorldPos = aPos;
+    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+in vec3 WorldPos;
+
+uniform samplerCube environmentMap;
+
+uniform UBO
+{
+    float roughness;    
+};
+
+const float PI = 3.14159265359;
+// ----------------------------------------------------------------------------
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness*roughness;
+    float a2 = a*a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    float nom   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return nom / denom;
+}
+// ----------------------------------------------------------------------------
+// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+// efficient VanDerCorpus calculation.
+float RadicalInverse_VdC(uint bits) 
+{
+     bits = (bits << 16u) | (bits >> 16u);
+     bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+     bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+     bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+     bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+     return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+// ----------------------------------------------------------------------------
+vec2 Hammersley(uint i, uint N)
+{
+    return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+}
+// ----------------------------------------------------------------------------
+vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
+{
+    float a = roughness*roughness;
+    
+    float phi = 2.0 * PI * Xi.x;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+    
+    // from spherical coordinates to cartesian coordinates - halfway vector
+    vec3 H;
+    H.x = cos(phi) * sinTheta;
+    H.y = sin(phi) * sinTheta;
+    H.z = cosTheta;
+    
+    // from tangent-space H vector to world-space sample vector
+    vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangent   = normalize(cross(up, N));
+    vec3 bitangent = cross(N, tangent);
+    
+    vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+    return normalize(sampleVec);
+}
+// ----------------------------------------------------------------------------
+void main()
+{       
+    vec3 N = normalize(WorldPos);
+    
+    // make the simplyfying assumption that V equals R equals the normal 
+    vec3 R = N;
+    vec3 V = R;
+
+    const uint SAMPLE_COUNT = 1024u;
+    vec3 prefilteredColor = vec3(0.0);
+    float totalWeight = 0.0;
+    
+    for(uint i = 0u; i < SAMPLE_COUNT; ++i)
+    {
+        // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
+        vec2 Xi = Hammersley(i, SAMPLE_COUNT);
+        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 L  = normalize(2.0 * dot(V, H) * H - V);
+
+        float NdotL = max(dot(N, L), 0.0);
+        if(NdotL > 0.0)
+        {
+            // sample from the environment's mip level based on roughness/pdf
+            float D   = DistributionGGX(N, H, roughness);
+            float NdotH = max(dot(N, H), 0.0);
+            float HdotV = max(dot(H, V), 0.0);
+            float pdf = D * NdotH / (4.0 * HdotV) + 0.0001; 
+
+            float resolution = 512.0; // resolution of source cubemap (per face)
+            float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
+            float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+
+            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel); 
+            
+            prefilteredColor += textureLod(environmentMap, L, mipLevel).rgb * NdotL;
+            totalWeight      += NdotL;
+        }
+    }
+
+    prefilteredColor = prefilteredColor / totalWeight;
+
+    FragColor = vec4(prefilteredColor, 1.0);
+}
+"
+node2.execute()
+
+_editor.add_node(node2, -14.749751273145, 379.23929381911)
+
+var node3 = PrimitiveShape()
+
+node3.type = "cube"
+node3.layout = [ "position" ]
+
+_editor.add_node(node3, 17.574015125081, 228.0304245447)
+
+var node4 = Perspective()
+
+node4.fovy = 90
+node4.aspect = 1
+node4.znear = 0.1
+node4.zfar = 10
+
+_editor.add_node(node4, -196.36238572382, 483.8702304338)
+
+var node5 = Clear()
+
+node5.masks = [ "color" ]
+node5.values = { "color" : [ 255, 255, 255, 255 ] }
+
+_editor.add_node(node5, 4.5011493567613, 558.1085693723)
+
+var node6 = RenderTarget()
+
+node6.width = 32
+node6.height = 32
+node6.rbo_depth = false
+node6.rbo_color = false
+
+_editor.add_node(node6, 16.711829403841, 38.321903012524)
+
+var node7 = For()
+
+node7.start = 0
+node7.end = 6
+
+_editor.add_node(node7, 771.63060203633, -95.89321188616)
+
+var node8 = Fetch()
+
+_editor.add_node(node8, -170.23870943051, 20.126739094496)
+
+var node9 = Custom()
+
+node9.code = "
+import \"maths\" for Matrix44
+import \"maths.vector\" for Vector3
+var capture_views = [
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 1.0,  0.0,  0.0), Vector3(0.0, -1.0,  0.0)),
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3(-1.0,  0.0,  0.0), Vector3(0.0, -1.0,  0.0)),
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  1.0,  0.0), Vector3(0.0,  0.0,  1.0)),
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0, -1.0,  0.0), Vector3(0.0,  0.0, -1.0)),
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  0.0,  1.0), Vector3(0.0, -1.0,  0.0)),
+    Matrix44.init().lookat(Vector3(0.0, 0.0, 0.0), Vector3( 0.0,  0.0, -1.0), Vector3(0.0, -1.0,  0.0))
+]
+_editor.script_stack.clear()
+_editor.script_stack.add(capture_views)
+"
+node9.init_ports(0, 1)
+
+_editor.add_node(node9, -356.78707918211, 365.2285525693)
+
+var node10 = Fetch()
+
+_editor.add_node(node10, -176.82361764384, 377.7266535079)
+
+var node11 = Cubemap()
+
+node11.init_texture(32, 32, "rgb16f")
+
+_editor.add_node(node11, -340.65024463212, -12.842887032788)
+
+var node12 = Input()
+
+node12.var_name = "environmentMap"
+node12.var_type = "texture"
+
+_editor.add_node(node12, -184.14451766593, 287.83664353992)
+
+var node13 = Output()
+
+node13.var_name = "tex"
+node13.var_type = "texture"
+
+_editor.add_node(node13, -187.10556446422, 94.644868393575)
+
+var node14 = Print()
+
+_editor.add_node(node14, -349.97003173828, 177.62628173828)
+
+var node15 = For()
+
+node15.start = 0
+node15.end = 5
+
+_editor.add_node(node15, 289.63060203633, -151.89321188616)
+
+var node16 = Divide()
+
+_editor.add_node(node16, 581.6653137207, -228.70376586914)
+
+var node17 = Subtract()
+
+_editor.add_node(node17, 435.6653137207, -232.70376586914)
+
+var node18 = Number()
+
+node18.value = 1
+
+_editor.add_node(node18, 296.6653137207, -263.70376586914)
+
+Blueprint.connect(node0.exports[0], node15.imports[1])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[0])
+Blueprint.connect(node5.exports[0], node0.imports[0])
+Blueprint.connect(node6.exports[0], node0.imports[3])
+Blueprint.connect(node7.exports[0], node1.imports[0])
+Blueprint.connect(node7.exports[1], node8.imports[1])
+Blueprint.connect(node7.exports[1], node10.imports[1])
+Blueprint.connect(node8.exports[0], node6.imports[0])
+Blueprint.connect(node9.exports[1], node10.imports[0])
+Blueprint.connect(node10.exports[0], node2.imports[1])
+Blueprint.connect(node11.exports[0], node13.imports[0])
+Blueprint.connect(node11.exports[0], node14.imports[0])
+Blueprint.connect(node11.exports[1], node8.imports[0])
+Blueprint.connect(node12.exports[0], node2.imports[3])
+Blueprint.connect(node15.exports[0], node7.imports[1])
+Blueprint.connect(node15.exports[1], node16.imports[0])
+Blueprint.connect(node15.exports[1], node6.imports[5])
+Blueprint.connect(node15.exports[2], node17.imports[0])
+Blueprint.connect(node16.exports[0], node2.imports[2])
+Blueprint.connect(node17.exports[0], node16.imports[1])
+Blueprint.connect(node18.exports[0], node17.imports[1])
