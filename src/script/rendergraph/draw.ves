@@ -6,6 +6,7 @@ import "blueprint.variant" for VAR_TYPE_PORT
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER
+import "math" for Math
 
 class Draw is Node
 {
@@ -56,16 +57,50 @@ class Draw is Node
 			return
 		}
 
-		var v_fbo = Blueprint.get_input_value(this, 3)
-		if (v_fbo) {
-			v_fbo.value.bind()
+		var count = shader.get_frame_count()
+		if (va is List) {
+			count = Math.max(count, va.count)
+			if (va.isEmpty)	{
+				return
+			}	
 		}
 
-		shader.updateUniforms()
-		Render.draw(this.prim_types[this.prim_selected], shader.prog, va, this.render_state)
+		var v_fbo = Blueprint.get_input_value(this, 3).value	
+		if (v_fbo is List) {
+			count = Math.max(count, v_fbo.count)	
+		}
 
-		if (v_fbo) {
-			v_fbo.value.unbind()
+		for (var i in 0..count) 
+		{
+			shader.updateUniforms(i)
+
+			var _va = va
+			if (va is List) 
+			{
+				if (i < va.count) {
+					_va = va[i].value
+				} else {
+					_va = va[va.count - 1].value
+				}
+			}
+
+			var _fbo = v_fbo
+			if (v_fbo and v_fbo is List)
+			{
+				if (i < v_fbo.count) {
+					_fbo = v_fbo[i].value
+				} else {
+					_fbo = v_fbo[v_fbo.count - 1].value
+				}
+			}
+
+			if (_fbo) {
+				_fbo.bind()
+			}
+			Render.draw(this.prim_types[this.prim_selected], shader.prog, _va, this.render_state)
+			if (_fbo) {
+				_fbo.unbind()
+			}
 		}
 	}
 

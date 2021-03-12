@@ -1,11 +1,13 @@
 import "render" for Shader as tt_Shader, Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "maths" for Matrix44
 import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_TEXTURE
+import "math" for Math
 
 class Shader is Node
 {
@@ -263,7 +265,19 @@ class Shader is Node
 		return dirty
 	}
 
-	updateUniforms()
+	get_frame_count()
+	{
+		var count = 1
+		for (var i in 0..this.imports.count) {
+			var v = Blueprint.get_input_value(this, i)
+			if (v.value is List) {
+				count = Math.max(count, v.value.count)
+			}
+		}
+		return count
+	}
+
+	updateUniforms(frame)
 	{
 		for (var i = 0; i < this.uniforms.count; i = i + 1)
 		{
@@ -276,29 +290,45 @@ class Shader is Node
 				var val = f_pin.node.calc(f_pin.slot_idx)
 				if (val)
 				{
-					if (unif[1] == "float" or unif[1] == "int") {
-						unif[2] = val.value
-					} else if (unif[1] == "float2" or unif[1] == "int2") {
-						unif[2] = val.value.x
-						unif[3] = val.value.y
-					} else if (unif[1] == "float3" or unif[1] == "int3") {
-						unif[2] = val.value.x
-						unif[3] = val.value.y
-						unif[4] = val.value.z
-					}  else if (unif[1] == "float4" or unif[1] == "int4") {
-						unif[2] = val.value.x
-						unif[3] = val.value.y
-						unif[4] = val.value.z
-						unif[5] = val.value.w
-					} else if (unif[1] == "mat2") {
-						unif[2] = val.value
-					} else if (unif[1] == "mat3") {
-						unif[2] = val.value
-					} else if (unif[1] == "mat4") {
-						unif[2] = val.value
-					} else if (unif[1] == "sampler") {
-						unif[2] = val.value.tex
-						unif[3] = val.value.sampler
+					var _v = nil
+					if (val.type == VAR_TYPE_ARRAY)
+					{
+						if (frame < val.value.count) {
+							_v = val.value[frame].value
+						} else if (!val.value.isEmpty) {
+							_v = val.value[val.value.count - 1].value
+						}
+					}
+					else
+					{
+						_v = val.value
+					}
+					if (_v)
+					{
+						if (unif[1] == "float" or unif[1] == "int") {
+							unif[2] = _v
+						} else if (unif[1] == "float2" or unif[1] == "int2") {
+							unif[2] = _v.x
+							unif[3] = _v.y
+						} else if (unif[1] == "float3" or unif[1] == "int3") {
+							unif[2] = _v.x
+							unif[3] = _v.y
+							unif[4] = _v.z
+						}  else if (unif[1] == "float4" or unif[1] == "int4") {
+							unif[2] = _v.x
+							unif[3] = _v.y
+							unif[4] = _v.z
+							unif[5] = _v.w
+						} else if (unif[1] == "mat2") {
+							unif[2] = _v
+						} else if (unif[1] == "mat3") {
+							unif[2] = _v
+						} else if (unif[1] == "mat4") {
+							unif[2] = _v
+						} else if (unif[1] == "sampler") {
+							unif[2] = _v.tex
+							unif[3] = _v.sampler
+						}
 					}
 				}
 				else
