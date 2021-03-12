@@ -141,10 +141,12 @@ void w_Matrix44_perspective()
 void w_Matrix44_orthographic()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
-    const float left = (float)ves_tonumber(1);
-    const float right = (float)ves_tonumber(2);
+    const float left   = (float)ves_tonumber(1);
+    const float right  = (float)ves_tonumber(2);
     const float bottom = (float)ves_tonumber(3);
-    const float top = (float)ves_tonumber(4);
+    const float top    = (float)ves_tonumber(4);
+    const float near   = (float)ves_tonumber(5);
+    const float far    = (float)ves_tonumber(6);
 
     float w = 0, h = 0;
     if (left == 0 && right == 0 && bottom == 0 && top == 0) {
@@ -157,7 +159,7 @@ void w_Matrix44_orthographic()
     }
     const float hw = w * 0.5f;
     const float hh = h * 0.5f;
-    *mt = sm::mat4::Orthographic(-hw, hw, -hh, hh, 1, -1);
+    *mt = sm::mat4::Orthographic(-hw, hw, -hh, hh, near, far);
 }
 
 void w_Matrix44_lookat()
@@ -251,7 +253,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.rotateAxis(_,_,_,_)") == 0) return w_Matrix44_rotateAxis;
     if (strcmp(signature, "Matrix44.scale(_,_,_)") == 0) return w_Matrix44_scale;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
-    if (strcmp(signature, "Matrix44.orthographic(_,_,_,_)") == 0) return w_Matrix44_orthographic;
+    if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
     if (strcmp(signature, "Matrix44.fromRotateMat(_)") == 0) return w_Matrix44_fromRotateMat;
     if (strcmp(signature, "Matrix44.transform_mat2d(_)") == 0) return w_Matrix44_transform_mat2d;

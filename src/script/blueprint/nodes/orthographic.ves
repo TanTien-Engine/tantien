@@ -21,12 +21,14 @@ class Orthographic is Node
 		this.right  = 1
 		this.bottom = 0
 		this.top    = 1
+		this.near   = 1
+		this.far    = -1
 	}
 
 	calc(idx) 
 	{
 		var mat = Matrix44.init()
-		mat.orthographic(this.left, this.right, this.bottom, this.top)
+		mat.orthographic(this.left, this.right, this.bottom, this.top, this.near, this.far)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
@@ -43,6 +45,8 @@ class Orthographic is Node
 %(name).right = %(this.right)
 %(name).bottom = %(this.bottom)
 %(name).top = %(this.top)
+%(name).near = %(this.near)
+%(name).far = %(this.far)
 "
 	}
 
