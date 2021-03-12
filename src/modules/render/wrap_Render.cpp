@@ -457,6 +457,8 @@ void w_Texture2D_allocate()
             tf = ur::TextureFormat::RGBA8;
         } else if (strcmp(format, "rgba16f") == 0) {
             tf = ur::TextureFormat::RGBA16F;
+        } else if (strcmp(format, "rg16f") == 0) {
+            tf = ur::TextureFormat::RG16F;            
         } else if (strcmp(format, "r16") == 0) {
             tf = ur::TextureFormat::R16;
         } else {
