@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY, VAR_TYPE_ARRAY
 
 class Array is Node
 {
@@ -12,7 +12,7 @@ class Array is Node
 			Pin(this, "index", VAR_TYPE_NUMBER)
 		]
 		this.exports = [
-			Pin(this, "all", VAR_TYPE_ANY),
+			Pin(this, "all", VAR_TYPE_ARRAY),
 			Pin(this, "one", VAR_TYPE_ANY)
 		]
 
@@ -24,7 +24,7 @@ class Array is Node
 	calc(idx) 
 	{
 		if (idx == 0) {
-			return Variant(VAR_TYPE_ANY, this.list)
+			return Variant(VAR_TYPE_ARRAY, this.list)
 		} else if (idx == 1) {
 			var conns = this.imports[0].conns
 			if (!conns.isEmpty) {
