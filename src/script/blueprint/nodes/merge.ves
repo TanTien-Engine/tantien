@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class Merge is Node
+{
+	init() 
+	{
+		super.init(Merge.name)
+
+		this.imports = [
+			Pin(this, "in0", VAR_TYPE_ANY),
+			Pin(this, "in1", VAR_TYPE_ANY),
+			Pin(this, "in2", VAR_TYPE_ANY),
+			Pin(this, "in3", VAR_TYPE_ANY),
+			Pin(this, "in4", VAR_TYPE_ANY),
+			Pin(this, "in5", VAR_TYPE_ANY),
+			Pin(this, "in6", VAR_TYPE_ANY),
+			Pin(this, "in7", VAR_TYPE_ANY),
+			Pin(this, "in8", VAR_TYPE_ANY),
+			Pin(this, "in9", VAR_TYPE_ANY),		
+		]
+		this.exports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		var ret = []
+		for (var i in 0..this.imports.count) {
+			var v = Blueprint.get_input_value(this, i)
+			if (v) {
+				ret.add(v)
+			}
+		}
+		return Variant(VAR_TYPE_ARRAY, ret)
+	}
+}
