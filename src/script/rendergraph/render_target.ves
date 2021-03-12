@@ -5,7 +5,7 @@ import "rendergraph.variant" for VarFrameBuffer, VAR_TYPE_TEXTURE, VAR_TYPE_FRAM
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "render" for Texture2D, Cubemap
 
 class RenderTarget is Node
@@ -15,11 +15,12 @@ class RenderTarget is Node
 		super.init(RenderTarget.name)
 	
 		this.imports = [
-			Pin(this, "col0",  VAR_TYPE_TEXTURE),
-			Pin(this, "col1",  VAR_TYPE_TEXTURE),
-			Pin(this, "col2",  VAR_TYPE_TEXTURE),
-			Pin(this, "col3",  VAR_TYPE_TEXTURE),
-			Pin(this, "depth", VAR_TYPE_TEXTURE),
+			Pin(this, "col0",   VAR_TYPE_TEXTURE),
+			Pin(this, "col1",   VAR_TYPE_TEXTURE),
+			Pin(this, "col2",   VAR_TYPE_TEXTURE),
+			Pin(this, "col3",   VAR_TYPE_TEXTURE),
+			Pin(this, "depth",  VAR_TYPE_TEXTURE),
+			Pin(this, "mipmap", VAR_TYPE_NUMBER),			
 		]
 		this.exports = [
 			Pin(this, "fbo", VAR_TYPE_FRAME_BUFFER)
@@ -43,6 +44,12 @@ class RenderTarget is Node
 			return
 		}
 
+		var mipmap_level = 0
+		var mipmap = Blueprint.get_input_value(this, 5)
+		if (mipmap) {
+			mipmap_level = mipmap.value
+		}
+
 		var tex = var_tex.tex
 		if (tex is Texture2D)
 		{
@@ -51,7 +58,7 @@ class RenderTarget is Node
 				this.height = tex.getHeight()
 			}
 
-			this.fbo.attachment(tex, type, "tex2d")
+			this.fbo.attachment(tex, type, "tex2d", mipmap_level)
 			this.attached = true
 		}
 		else if (tex is Cubemap)
@@ -61,7 +68,7 @@ class RenderTarget is Node
 				this.height = tex.get_height()
 			}
 
-			this.fbo.attachment(tex, type, "cubemap" + "%(var_tex.cubemap_idx)")
+			this.fbo.attachment(tex, type, "cubemap" + "%(var_tex.cubemap_idx)", mipmap_level)
 			this.attached = true
 		}
 	}

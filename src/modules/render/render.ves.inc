@@ -55,7 +55,7 @@ foreign class Framebuffer
 
 	// type: "col0", "col1", ... , "col16", "depth", "stencil"
 	// target: "tex2d", "cubemap0", ... , "cubemap6"
-	foreign attachment(tex, type, target)
+	foreign attachment(tex, type, target, mipmap_level)
 }
 
 foreign class Render

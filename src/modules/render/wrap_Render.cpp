@@ -614,7 +614,8 @@ void w_Framebuffer_attachment()
         tex_target = ur::TextureTarget::TextureCubeMap5;
     }
 
-    fbo->SetAttachment(atta_type, tex_target, tex, nullptr);
+    int mipmap_level = (int)ves_tonumber(4);
+    fbo->SetAttachment(atta_type, tex_target, tex, nullptr, mipmap_level);
 }
 
 void w_Render_draw()
@@ -1161,7 +1162,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
 
-    if (strcmp(signature, "Framebuffer.attachment(_,_,_)") == 0) return w_Framebuffer_attachment;
+    if (strcmp(signature, "Framebuffer.attachment(_,_,_,_)") == 0) return w_Framebuffer_attachment;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
