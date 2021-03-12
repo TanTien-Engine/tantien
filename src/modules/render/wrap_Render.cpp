@@ -458,9 +458,11 @@ void w_Texture2D_allocate()
         } else if (strcmp(format, "rgba16f") == 0) {
             tf = ur::TextureFormat::RGBA16F;
         } else if (strcmp(format, "rg16f") == 0) {
-            tf = ur::TextureFormat::RG16F;            
+            tf = ur::TextureFormat::RG16F;
         } else if (strcmp(format, "r16") == 0) {
             tf = ur::TextureFormat::R16;
+        } else if (strcmp(format, "depth") == 0) {
+            tf = ur::TextureFormat::DEPTH;
         } else {
             GD_REPORT_ASSERT("unknown type.");
         }
