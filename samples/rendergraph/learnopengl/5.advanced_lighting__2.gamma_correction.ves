@@ -1,0 +1,154 @@
+var node0 = Clear()
+
+node0.masks = [ "depth", "color" ]
+node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+_editor.add_node(node0, 278.47878435183, 253.33590159159)
+
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
+node1.render_state = { "depth_test" : true, "cull" : "disable" }
+
+_editor.add_node(node1, 461.85154757362, 206.05502118664)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+// declare an interface block; see 'Advanced GLSL' for what these are.
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;	
+} ubo_vs;
+
+void main()
+{
+    vs_out.FragPos = aPos;
+    vs_out.Normal = aNormal;
+    vs_out.TexCoords = aTexCoords;
+    gl_Position = ubo_vs.projection * ubo_vs.view * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} fs_in;
+
+uniform sampler2D floorTexture;
+
+uniform UBO
+{
+    vec3 lightPositions[4];
+    vec3 lightColors[4];
+    vec3 viewPos;
+    bool gamma;    
+} ubo_fs;
+
+vec3 BlinnPhong(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor)
+{
+    // diffuse
+    vec3 lightDir = normalize(lightPos - fragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(ubo_fs.viewPos - fragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // simple attenuation
+    float max_distance = 1.5;
+    float distance = length(lightPos - fragPos);
+    float attenuation = 1.0 / (ubo_fs.gamma ? distance * distance : distance);
+    
+    diffuse *= attenuation;
+    specular *= attenuation;
+    
+    return diffuse + specular;
+}
+
+void main()
+{           
+    vec3 color = texture(floorTexture, fs_in.TexCoords).rgb;
+    vec3 lighting = vec3(0.0);
+    for(int i = 0; i < 4; ++i)
+        lighting += BlinnPhong(normalize(fs_in.Normal), fs_in.FragPos, ubo_fs.lightPositions[i], ubo_fs.lightColors[i]);
+    color *= lighting;
+    if(ubo_fs.gamma)
+        color = pow(color, vec3(1.0/2.2));
+    FragColor = vec4(color, 1.0);
+}
+"
+node2.execute()
+node2.setUniform("ubo_fs.lightPositions[0]", [ -3, 0, 0 ])
+node2.setUniform("ubo_fs.lightPositions[1]", [ -1, 0, 0 ])
+node2.setUniform("ubo_fs.lightPositions[2]", [ 1, 0, 0 ])
+node2.setUniform("ubo_fs.lightPositions[3]", [ 3, 0, 0 ])
+node2.setUniform("ubo_fs.lightColors[0]", [ 0.25, 0.25, 0.25 ])
+node2.setUniform("ubo_fs.lightColors[1]", [ 0.5, 0.5, 0.5 ])
+node2.setUniform("ubo_fs.lightColors[2]", [ 0.75, 0.75, 0.75 ])
+node2.setUniform("ubo_fs.lightColors[3]", [ 1, 1, 1 ])
+node2.setUniform("ubo_fs.gamma", [ 0 ])
+
+_editor.add_node(node2, 54.781844250067, -41.131581182307)
+
+var node3 = VertexArray()
+
+node3.data = [ 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, 10, 0, 1, 0, 0, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, -10, 0, 1, 0, 10, 10 ]
+node3.attrs = [ 3, 3, 2 ]
+
+_editor.add_node(node3, 293.2417436206, 127.33978971928)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.10000000149012
+node4.zfar = 100
+
+_editor.add_node(node4, -202.3871320265, 434.55747558227)
+
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture("resources/textures/wood.png")
+node5.set_sampler("linear repeat")
+
+_editor.add_node(node5, -200.53483258756, 152.59530255647)
+
+var node6 = Camera3D()
+
+node6.position.set(-0.50480193206081, 1.1974717037242, 6.961510605705)
+node6.yaw = -88.6
+node6.pitch = -22.8
+node6.zoom = 45
+node6.update_camera_vectors()
+node6.speed = 0.10690787434578
+
+_editor.add_node(node6, -202.96711389612, 297.97362508566)
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node1.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[12])
+Blueprint.connect(node6.exports[0], node2.imports[1])
+Blueprint.connect(node6.exports[1], node4.imports[0])
+Blueprint.connect(node6.exports[3], node2.imports[10])

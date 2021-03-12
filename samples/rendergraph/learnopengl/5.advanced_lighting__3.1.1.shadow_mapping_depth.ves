@@ -1,0 +1,258 @@
+var node0 = Clear()
+
+node0.masks = [ "depth" ]
+node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+_editor.add_node(node0, 214.47878435183, 300.33590159159)
+
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
+node1.render_state = { "depth_test" : true, "cull" : "disable" }
+
+_editor.add_node(node1, 578.13035857362, 91.91437918664)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+    mat4 lightSpaceMatrix;
+    mat4 model;    
+};
+
+void main()
+{
+    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{             
+     gl_FragDepth = gl_FragCoord.z;
+}
+"
+node2.execute()
+
+_editor.add_node(node2, 139.92346956451, 134.37955174739)
+
+var node3 = VertexArray()
+
+node3.data = [ 25, -0.5, 25, 0, 1, 0, 25, 0, -25, -0.5, 25, 0, 1, 0, 0, 0, -25, -0.5, -25, 0, 1, 0, 0, 25, 25, -0.5, 25, 0, 1, 0, 25, 0, -25, -0.5, -25, 0, 1, 0, 0, 25, 25, -0.5, -25, 0, 1, 0, 25, 10 ]
+node3.attrs = [ 3, 3, 2 ]
+
+_editor.add_node(node3, -97.987280812155, -361.77532102453)
+
+var node4 = Matrix()
+
+_editor.add_node(node4, -456.71438449437, 16.28092325043)
+
+var node5 = Orthographic()
+
+node5.left = -10
+node5.right = 10
+node5.bottom = -10
+node5.top = 10
+node5.near = 1
+node5.far = 7.5
+
+_editor.add_node(node5, -331.31305524337, 328.98706672605)
+
+var node6 = LookAt()
+
+node6.eye.set(-2, 4, -1)
+node6.center.set(0, 0, 0)
+node6.up.set(0, 1, 0)
+
+_editor.add_node(node6, -313.35437604416, 190.5821197762)
+
+var node7 = Multiply()
+
+_editor.add_node(node7, -35.129315452441, 198.34937982454)
+
+var node8 = PrimitiveShape()
+
+node8.type = "cube"
+node8.layout = [ "position" ]
+
+_editor.add_node(node8, -92.284764573031, -472.28694971267)
+
+var node9 = Translate()
+
+node9.dx = 0
+node9.dy = 1.5
+node9.dz = 0
+
+_editor.add_node(node9, -482.29133535817, -167.74669443311)
+
+var node10 = Scale()
+
+node10.sx = 0.5
+node10.sy = 0.5
+node10.sz = 0.5
+
+_editor.add_node(node10, -632.17806160781, -187.87490608565)
+
+var node11 = Translate()
+
+node11.dx = 2
+node11.dy = 0
+node11.dz = 1
+
+_editor.add_node(node11, -413.02024895697, -376.5730693392)
+
+var node12 = Scale()
+
+node12.sx = 0.5
+node12.sy = 0.5
+node12.sz = 0.5
+
+_editor.add_node(node12, -562.90697520661, -396.70128099174)
+
+var node13 = Translate()
+
+node13.dx = -1
+node13.dy = 0
+node13.dz = 2
+
+_editor.add_node(node13, -366.47646834094, -581.23749308074)
+
+var node14 = Scale()
+
+node14.sx = 0.25
+node14.sy = 0.25
+node14.sz = 0.25
+
+_editor.add_node(node14, -728.36319459054, -601.36570473328)
+
+var node15 = Rotate()
+
+node15.angle = 1
+node15.axis_x = 1
+node15.axis_y = 0
+node15.axis_z = 1
+
+_editor.add_node(node15, -552.80769117257, -588.11394740906)
+
+var node16 = Pass()
+
+node16.once = false
+
+_editor.add_node(node16, 1280.766126598, 31.67838290128)
+
+var node17 = RenderTarget()
+
+node17.width = 1024
+node17.height = 1024
+node17.rbo_depth = false
+node17.rbo_color = false
+
+_editor.add_node(node17, 1069.1661598899, -74.395275656959)
+
+var node18 = Texture()
+node18.gamma_correction = false
+node18.init_texture(1024, 1024, "depth")
+node18.set_sampler("linear repeat")
+
+_editor.add_node(node18, 772.5251953125, -163.17887318004)
+
+var node19 = Draw()
+
+node19.set_prim_type("tri_strip")
+node19.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node19, 1379.7377722022, -256.05199519965)
+
+var node20 = PrimitiveShape()
+
+node20.type = "quad"
+node20.layout = [ "position", "texture" ]
+
+_editor.add_node(node20, 1108.7898518916, -490.73398227265)
+
+var node21 = Shader()
+
+node21.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node21.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D depthMap;
+
+uniform UBO
+{
+	float near_plane;
+	float far_plane;	
+};
+
+// required when using a perspective projection matrix
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Back to NDC 
+    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));	
+}
+
+void main()
+{             
+    float depthValue = texture(depthMap, TexCoords).r;
+    // FragColor = vec4(vec3(LinearizeDepth(depthValue) / far_plane), 1.0); // perspective
+    FragColor = vec4(vec3(depthValue), 1.0); // orthographic
+}
+"
+node21.execute()
+node21.setUniform("near_plane", [ 1 ])
+node21.setUniform("far_plane", [ 7.5 ])
+
+_editor.add_node(node21, 1077.8336349205, -323.60801326485)
+
+var node22 = Merge()
+
+_editor.add_node(node22, -105.38901746147, -217.81096194181)
+
+var node23 = Merge()
+
+_editor.add_node(node23, 73.781866629165, -393.62472515936)
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node1.exports[0], node16.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node23.imports[0])
+Blueprint.connect(node4.exports[0], node22.imports[0])
+Blueprint.connect(node5.exports[0], node7.imports[0])
+Blueprint.connect(node6.exports[0], node7.imports[1])
+Blueprint.connect(node7.exports[0], node2.imports[0])
+Blueprint.connect(node8.exports[0], node23.imports[1])
+Blueprint.connect(node9.exports[0], node22.imports[1])
+Blueprint.connect(node10.exports[0], node9.imports[0])
+Blueprint.connect(node11.exports[0], node22.imports[2])
+Blueprint.connect(node12.exports[0], node11.imports[0])
+Blueprint.connect(node13.exports[0], node22.imports[3])
+Blueprint.connect(node14.exports[0], node15.imports[0])
+Blueprint.connect(node15.exports[0], node13.imports[0])
+Blueprint.connect(node17.exports[0], node16.imports[1])
+Blueprint.connect(node18.exports[0], node17.imports[4])
+Blueprint.connect(node18.exports[0], node21.imports[2])
+Blueprint.connect(node20.exports[0], node19.imports[2])
+Blueprint.connect(node21.exports[0], node19.imports[1])
+Blueprint.connect(node22.exports[0], node2.imports[1])
+Blueprint.connect(node23.exports[0], node1.imports[2])

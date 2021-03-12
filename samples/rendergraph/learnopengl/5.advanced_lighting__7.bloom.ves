@@ -1,0 +1,426 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
+
+_editor.add_node(node0, 23.493459158335, 448.32236965027)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 0, 0, 0, 255 ] }
+
+_editor.add_node(node1, -486.34558150286, 673.61242033965)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.TexCoords = aTexCoords;
+        
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vs_out.Normal = normalize(normalMatrix * aNormal);
+    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+} fs_in;
+
+struct Light {
+    vec3 Position;
+    vec3 Color;
+};
+
+uniform sampler2D diffuseTexture;
+
+uniform UBO
+{
+	Light lights[4];
+	vec3 viewPos;	
+};
+
+void main()
+{           
+    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+    vec3 normal = normalize(fs_in.Normal);
+    // ambient
+    vec3 ambient = 0.0 * color;
+    // lighting
+    vec3 lighting = vec3(0.0);
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    for(int i = 0; i < 4; i++)
+    {
+        // diffuse
+        vec3 lightDir = normalize(lights[i].Position - fs_in.FragPos);
+        float diff = max(dot(lightDir, normal), 0.0);
+        vec3 result = lights[i].Color * diff * color;      
+        // attenuation (use quadratic as we have gamma correction)
+        float distance = length(fs_in.FragPos - lights[i].Position);
+        result *= 1.0 / (distance * distance);
+        lighting += result;
+                
+    }
+    vec3 result = ambient + lighting;
+    // check whether result is higher than some threshold, if so, output as bloom threshold color
+    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        BrightColor = vec4(result, 1.0);
+    else
+        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+    FragColor = vec4(result, 1.0);
+}
+"
+node2.execute()
+node2.setUniform("lights[0].Position", [ 0, 0.5, 1.5 ])
+node2.setUniform("lights[0].Color", [ 5, 5, 5 ])
+node2.setUniform("lights[1].Position", [ -4, 0.5, -3 ])
+node2.setUniform("lights[1].Color", [ 10, 0, 0 ])
+node2.setUniform("lights[2].Position", [ 3, 0.5, 1 ])
+node2.setUniform("lights[2].Color", [ 0, 0, 15 ])
+node2.setUniform("lights[3].Position", [ -0.8, 2.4, -1 ])
+node2.setUniform("lights[3].Color", [ 0, 5, 0 ])
+
+_editor.add_node(node2, -336.80952452474, 65.326874053263)
+
+var node3 = PrimitiveShape()
+
+node3.type = "cube"
+node3.layout = [ "position", "normal", "texture" ]
+
+_editor.add_node(node3, -144.62534376452, 333.3091883221)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
+
+_editor.add_node(node4, -789.17732924848, 528.44056797897)
+
+var node5 = Camera3D()
+
+node5.position.set(-3.1634758400668, 7.1775960244993, 3.0435256574133)
+node5.yaw = -442.7
+node5.pitch = -68.7
+node5.zoom = 45
+node5.update_camera_vectors()
+node5.speed = 0.14392133057117
+
+_editor.add_node(node5, -762.96714550786, 374.24737489047)
+
+var node6 = Texture()
+node6.gamma_correction = false
+node6.init_texture("resources/textures/container2.png")
+node6.set_sampler("linear repeat")
+
+_editor.add_node(node6, -798.45789635755, 10.26673357437)
+
+var node7 = Scale()
+
+node7.sx = 0.5
+node7.sy = 0.5
+node7.sz = 0.5
+
+_editor.add_node(node7, -1469.1788330078, 576.87048339844)
+
+var node8 = Translate()
+
+node8.dx = 0
+node8.dy = 1.5
+node8.dz = 0
+
+_editor.add_node(node8, -1312.1788330078, 597.87048339844)
+
+var node9 = Merge()
+
+_editor.add_node(node9, -1065.0879239169, 174.5068470348)
+
+var node10 = Scale()
+
+node10.sx = 0.5
+node10.sy = 0.5
+node10.sz = 0.5
+
+_editor.add_node(node10, -1468.0788330078, 397.07048339844)
+
+var node11 = Translate()
+
+node11.dx = 0
+node11.dy = 0
+node11.dz = 1
+
+_editor.add_node(node11, -1308.7904032557, 236.69692967943)
+
+var node12 = Translate()
+
+node12.dx = -1
+node12.dy = -1
+node12.dz = 2
+
+_editor.add_node(node12, -1321.5061057351, 416.25230158026)
+
+var node13 = Rotate()
+
+node13.angle = 60
+node13.axis_x = 1
+node13.axis_y = 0
+node13.axis_z = 1
+
+_editor.add_node(node13, -1469.9576355485, 226.36845713214)
+
+var node14 = Translate()
+
+node14.dx = 0
+node14.dy = 2.7
+node14.dz = 4
+
+_editor.add_node(node14, -1298.0466016028, 59.010979266208)
+
+var node15 = Rotate()
+
+node15.angle = 23
+node15.axis_x = 1
+node15.axis_y = 0
+node15.axis_z = 1
+
+_editor.add_node(node15, -1486.4865611683, 51.161845561889)
+
+var node16 = Scale()
+
+node16.sx = 1.25
+node16.sy = 1.25
+node16.sz = 1.25
+
+_editor.add_node(node16, -1676.7974479242, 40.355708371143)
+
+var node17 = Translate()
+
+node17.dx = -2
+node17.dy = 1
+node17.dz = -3
+
+_editor.add_node(node17, -1328.6732732782, -128.22944147008)
+
+var node18 = Rotate()
+
+node18.angle = 124
+node18.axis_x = 1
+node18.axis_y = 0
+node18.axis_z = 1
+
+_editor.add_node(node18, -1489.840505571, -138.55791401737)
+
+var node19 = Scale()
+
+node19.sx = 0.5
+node19.sy = 0.5
+node19.sz = 0.5
+
+_editor.add_node(node19, -1512.1617030303, -304.45588775107)
+
+var node20 = Translate()
+
+node20.dx = -3
+node20.dy = 0
+node20.dz = 0
+
+_editor.add_node(node20, -1364.9416429252, -286.07932877286)
+
+var node21 = Scale()
+
+node21.sx = 12.5
+node21.sy = 0.5
+node21.sz = 12.5
+
+_editor.add_node(node21, -1474.4644532229, 751.56307888446)
+
+var node22 = Translate()
+
+node22.dx = 0
+node22.dy = -1
+node22.dz = 0
+
+_editor.add_node(node22, -1327.2443931178, 769.93963786267)
+
+var node23 = Texture()
+node23.gamma_correction = false
+node23.init_texture("resources/textures/wood.png")
+node23.set_sampler("linear repeat")
+
+_editor.add_node(node23, -1013.4578963576, 10.26673357437)
+
+var node24 = Merge()
+
+_editor.add_node(node24, -595.89608154297, -50.86323852539)
+
+var node25 = Pass()
+
+node25.once = false
+
+_editor.add_node(node25, 823.03750441265, 503.47023931515)
+
+var node26 = RenderTarget()
+
+node26.width = 1024
+node26.height = 1024
+node26.rbo_depth = false
+node26.rbo_color = false
+
+_editor.add_node(node26, 435.94424596131, 330.59558897582)
+
+var node27 = Texture()
+node27.gamma_correction = false
+node27.init_texture(1024, 1024, "rgba16f")
+node27.set_sampler("linear repeat")
+
+_editor.add_node(node27, -85.875688553011, 169.35151268772)
+
+var node28 = Texture()
+node28.gamma_correction = false
+node28.init_texture(1024, 1024, "rgba16f")
+node28.set_sampler("linear repeat")
+
+_editor.add_node(node28, 121.31149031738, 169.17740040282)
+
+var node29 = SubGraph()
+node29.load_from_file(_editor, "assets/rendergraph/gaussian_blur.ves")
+
+_editor.add_node(node29, 606.80582283526, -203.03062452558)
+
+var node30 = Pass()
+
+node30.once = false
+
+_editor.add_node(node30, 1116.0970098393, -301.16286758015)
+
+var node31 = Draw()
+
+node31.set_prim_type("tri_strip")
+node31.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node31, 879.22874999817, -345.99378216383)
+
+var node32 = Shader()
+
+node32.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node32.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D scene;
+uniform sampler2D bloomBlur;
+
+uniform UBO
+{
+    bool bloom;
+    float exposure;    
+};
+
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(scene, TexCoords).rgb;      
+    vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
+    if(bloom)
+        hdrColor += bloomColor; // additive blending
+    // tone mapping
+    vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+    // also gamma correct while we're at it       
+    result = pow(result, vec3(1.0 / gamma));
+    FragColor = vec4(result, 1.0);
+}
+"
+node32.execute()
+node32.setUniform("bloom", [ 1 ])
+node32.setUniform("exposure", [ 4.4842934608459 ])
+
+_editor.add_node(node32, 627.73556705191, -351.73384242126)
+
+var node33 = PrimitiveShape()
+
+node33.type = "quad"
+node33.layout = [ "position", "texture" ]
+
+_editor.add_node(node33, 634.2324912102, -537.65418759869)
+
+Blueprint.connect(node0.exports[0], node25.imports[0])
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[1])
+Blueprint.connect(node5.exports[1], node4.imports[0])
+Blueprint.connect(node5.exports[3], node2.imports[11])
+Blueprint.connect(node6.exports[0], node24.imports[1])
+Blueprint.connect(node7.exports[0], node8.imports[0])
+Blueprint.connect(node8.exports[0], node9.imports[1])
+Blueprint.connect(node9.exports[0], node2.imports[2])
+Blueprint.connect(node10.exports[0], node12.imports[0])
+Blueprint.connect(node11.exports[0], node9.imports[3])
+Blueprint.connect(node12.exports[0], node9.imports[2])
+Blueprint.connect(node13.exports[0], node11.imports[0])
+Blueprint.connect(node14.exports[0], node9.imports[4])
+Blueprint.connect(node15.exports[0], node14.imports[0])
+Blueprint.connect(node16.exports[0], node15.imports[0])
+Blueprint.connect(node17.exports[0], node9.imports[5])
+Blueprint.connect(node18.exports[0], node17.imports[0])
+Blueprint.connect(node19.exports[0], node20.imports[0])
+Blueprint.connect(node20.exports[0], node9.imports[6])
+Blueprint.connect(node21.exports[0], node22.imports[0])
+Blueprint.connect(node22.exports[0], node9.imports[0])
+Blueprint.connect(node23.exports[0], node24.imports[0])
+Blueprint.connect(node24.exports[0], node2.imports[12])
+Blueprint.connect(node26.exports[0], node25.imports[1])
+Blueprint.connect(node27.exports[0], node26.imports[0])
+Blueprint.connect(node27.exports[0], node32.imports[2])
+Blueprint.connect(node28.exports[0], node26.imports[1])
+Blueprint.connect(node28.exports[0], node29.imports[1])
+Blueprint.connect(node29.exports[0], node31.imports[0])
+Blueprint.connect(node29.exports[1], node32.imports[3])
+Blueprint.connect(node31.exports[0], node30.imports[0])
+Blueprint.connect(node32.exports[0], node31.imports[1])
+Blueprint.connect(node33.exports[0], node31.imports[2])

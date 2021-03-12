@@ -1,0 +1,344 @@
+var node0 = Clear()
+
+node0.masks = [ "depth" ]
+node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+_editor.add_node(node0, 214.47878435183, 300.33590159159)
+
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
+node1.render_state = { "depth_test" : true, "cull" : "disable" }
+
+_editor.add_node(node1, 578.13035857362, 91.91437918664)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+    mat4 lightSpaceMatrix;
+    mat4 model;    
+};
+
+void main()
+{
+    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{             
+     gl_FragDepth = gl_FragCoord.z;
+}
+"
+node2.execute()
+
+_editor.add_node(node2, 139.92346956451, 134.37955174739)
+
+var node3 = VertexArray()
+
+node3.data = [ 25, -0.5, 25, 0, 1, 0, 25, 0, -25, -0.5, -25, 0, 1, 0, 0, 25, -25, -0.5, 25, 0, 1, 0, 0, 0, 25, -0.5, 25, 0, 1, 0, 25, 0, 25, -0.5, -25, 0, 1, 0, 25, 25, -25, -0.5, -25, 0, 1, 0, 0, 25 ]
+node3.attrs = [ 3, 3, 2 ]
+
+_editor.add_node(node3, -140.33728081216, -596.51532102453)
+
+var node4 = Matrix()
+
+_editor.add_node(node4, -456.71438449437, 16.28092325043)
+
+var node5 = Orthographic()
+
+node5.left = -10
+node5.right = 10
+node5.bottom = -10
+node5.top = 10
+node5.near = 1
+node5.far = 7.5
+
+_editor.add_node(node5, -331.31305524337, 328.98706672605)
+
+var node6 = LookAt()
+
+node6.eye.set(-2, 4, -1)
+node6.center.set(0, 0, 0)
+node6.up.set(0, 1, 0)
+
+_editor.add_node(node6, -313.35437604416, 190.5821197762)
+
+var node7 = Multiply()
+
+_editor.add_node(node7, -35.129315452441, 198.34937982454)
+
+var node8 = PrimitiveShape()
+
+node8.type = "cube"
+node8.layout = [ "position", "normal", "texture" ]
+
+_editor.add_node(node8, -135.84476457303, -711.86694971267)
+
+var node9 = Translate()
+
+node9.dx = 0
+node9.dy = 1.5
+node9.dz = 0
+
+_editor.add_node(node9, -482.29133535817, -167.74669443311)
+
+var node10 = Scale()
+
+node10.sx = 0.5
+node10.sy = 0.5
+node10.sz = 0.5
+
+_editor.add_node(node10, -632.17806160781, -187.87490608565)
+
+var node11 = Translate()
+
+node11.dx = 2
+node11.dy = 0
+node11.dz = 1
+
+_editor.add_node(node11, -413.02024895697, -376.5730693392)
+
+var node12 = Scale()
+
+node12.sx = 0.5
+node12.sy = 0.5
+node12.sz = 0.5
+
+_editor.add_node(node12, -562.90697520661, -396.70128099174)
+
+var node13 = Translate()
+
+node13.dx = -1
+node13.dy = 0
+node13.dz = 2
+
+_editor.add_node(node13, -366.47646834094, -581.23749308074)
+
+var node14 = Scale()
+
+node14.sx = 0.25
+node14.sy = 0.25
+node14.sz = 0.25
+
+_editor.add_node(node14, -728.36319459054, -601.36570473328)
+
+var node15 = Rotate()
+
+node15.angle = 1
+node15.axis_x = 1
+node15.axis_y = 0
+node15.axis_z = 1
+
+_editor.add_node(node15, -552.80769117257, -588.11394740906)
+
+var node16 = Pass()
+
+node16.once = false
+
+_editor.add_node(node16, 1280.766126598, 31.67838290128)
+
+var node17 = RenderTarget()
+
+node17.width = 1024
+node17.height = 1024
+node17.rbo_depth = false
+node17.rbo_color = false
+
+_editor.add_node(node17, 1069.1661598899, -74.395275656959)
+
+var node18 = Texture()
+node18.gamma_correction = false
+node18.init_texture(1024, 1024, "depth")
+node18.set_sampler("linear repeat")
+
+_editor.add_node(node18, 772.5251953125, -163.17887318004)
+
+var node19 = Merge()
+
+_editor.add_node(node19, -105.38901746147, -217.81096194181)
+
+var node20 = Merge()
+
+_editor.add_node(node20, 39.901866629165, -636.83472515936)
+
+var node21 = Draw()
+
+node21.set_prim_type("triangles")
+node21.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node21, 1701.9302775064, -761.54820926226)
+
+var node22 = Shader()
+
+node22.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+    vec4 FragPosLightSpace;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+    mat4 lightSpaceMatrix;    
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
+    vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
+    vs_out.TexCoords = aTexCoords;
+    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node22.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+    vec4 FragPosLightSpace;
+} fs_in;
+
+uniform sampler2D diffuseTexture;
+uniform sampler2D shadowMap;
+
+uniform UBO
+{
+    vec3 lightPos;
+    vec3 viewPos;    
+};
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
+
+void main()
+{           
+    vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+    vec3 normal = normalize(fs_in.Normal);
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);                      
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+    
+    FragColor = vec4(lighting, 1.0);
+}
+"
+node22.execute()
+node22.setUniform("lightPos", [ -2, 4, -1 ])
+
+_editor.add_node(node22, 1234.1805964177, -734.65936900887)
+
+var node23 = Perspective()
+
+node23.fovy = 45
+node23.aspect = 0
+node23.znear = 0.1
+node23.zfar = 100
+
+_editor.add_node(node23, 1015.2978137635, -589.28468981164)
+
+var node24 = Camera3D()
+
+node24.position.set(1.734200507369, 3.3288557362171, -5.2083963539763)
+node24.yaw = -255.6
+node24.pitch = -24.3
+node24.zoom = 45
+node24.update_camera_vectors()
+node24.speed = 0.27874407172203
+
+_editor.add_node(node24, 756.15524200471, -717.63900497455)
+
+var node25 = Texture()
+node25.gamma_correction = false
+node25.init_texture("resources/textures/wood.png")
+node25.set_sampler("linear repeat")
+
+_editor.add_node(node25, 985.45356685611, -825.07588948713)
+
+var node26 = Clear()
+
+node26.masks = [ "color", "depth" ]
+node26.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
+
+_editor.add_node(node26, 1447.0934699, -615.17698388359)
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node1.exports[0], node16.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node20.imports[0])
+Blueprint.connect(node4.exports[0], node19.imports[0])
+Blueprint.connect(node5.exports[0], node7.imports[0])
+Blueprint.connect(node6.exports[0], node7.imports[1])
+Blueprint.connect(node7.exports[0], node2.imports[0])
+Blueprint.connect(node7.exports[0], node22.imports[3])
+Blueprint.connect(node8.exports[0], node20.imports[1])
+Blueprint.connect(node9.exports[0], node19.imports[1])
+Blueprint.connect(node10.exports[0], node9.imports[0])
+Blueprint.connect(node11.exports[0], node19.imports[2])
+Blueprint.connect(node12.exports[0], node11.imports[0])
+Blueprint.connect(node13.exports[0], node19.imports[3])
+Blueprint.connect(node14.exports[0], node15.imports[0])
+Blueprint.connect(node15.exports[0], node13.imports[0])
+Blueprint.connect(node17.exports[0], node16.imports[1])
+Blueprint.connect(node18.exports[0], node17.imports[4])
+Blueprint.connect(node18.exports[0], node22.imports[6])
+Blueprint.connect(node19.exports[0], node2.imports[1])
+Blueprint.connect(node19.exports[0], node22.imports[2])
+Blueprint.connect(node20.exports[0], node1.imports[2])
+Blueprint.connect(node20.exports[0], node21.imports[2])
+Blueprint.connect(node22.exports[0], node21.imports[1])
+Blueprint.connect(node23.exports[0], node22.imports[0])
+Blueprint.connect(node24.exports[0], node22.imports[1])
+Blueprint.connect(node24.exports[1], node23.imports[0])
+Blueprint.connect(node24.exports[3], node22.imports[5])
+Blueprint.connect(node25.exports[0], node22.imports[7])
+Blueprint.connect(node26.exports[0], node21.imports[0])

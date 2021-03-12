@@ -1,0 +1,71 @@
+var node0 = Texture()
+node0.gamma_correction = false
+node0.init_texture("samples/rendergraph/learnopengl/resources/textures/container.jpg")
+node0.set_sampler("linear repeat")
+
+_editor.add_node(node0, -273.94087853814, 24.395207816406)
+
+var node1 = SubGraph()
+node1.load_from_file(_editor, "assets/rendergraph/gaussian_blur.ves")
+
+_editor.add_node(node1, -32.781625513413, 69.771747733496)
+
+var node2 = Pass()
+
+node2.once = false
+
+_editor.add_node(node2, 642.51435186795, 48.750866053396)
+
+var node3 = Draw()
+
+node3.set_prim_type("tri_strip")
+node3.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node3, 427.61901699549, -2.4153937122643)
+
+var node4 = Shader()
+
+node4.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node4.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+// texture sampler
+uniform sampler2D texture1;
+
+void main()
+{
+	FragColor = texture(texture1, TexCoord);
+}
+"
+node4.execute()
+
+_editor.add_node(node4, 240.52878068049, -28.334930662204)
+
+var node5 = PrimitiveShape()
+
+node5.type = "quad"
+node5.layout = [ "position", "texture" ]
+
+_editor.add_node(node5, 273.58662938658, -135.02164238696)
+
+Blueprint.connect(node0.exports[0], node1.imports[1])
+Blueprint.connect(node1.exports[0], node3.imports[0])
+Blueprint.connect(node1.exports[1], node4.imports[0])
+Blueprint.connect(node3.exports[0], node2.imports[0])
+Blueprint.connect(node4.exports[0], node3.imports[1])
+Blueprint.connect(node5.exports[0], node3.imports[2])

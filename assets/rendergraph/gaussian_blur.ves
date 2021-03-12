@@ -1,0 +1,158 @@
+var node0 = RenderTarget()
+
+node0.width = 1024
+node0.height = 1024
+node0.rbo_depth = false
+node0.rbo_color = false
+
+_editor.add_node(node0, -518.08635916386, -110.94944992639)
+
+var node1 = RenderTarget()
+
+node1.width = 1024
+node1.height = 1024
+node1.rbo_depth = false
+node1.rbo_color = false
+
+_editor.add_node(node1, -519.08635916386, 85.050550073612)
+
+var node2 = Texture()
+node2.gamma_correction = false
+node2.init_texture(1024, 1024, "rgba16f")
+node2.set_sampler("linear repeat")
+
+_editor.add_node(node2, -741.08635916386, 183.05055007361)
+
+var node3 = Texture()
+node3.gamma_correction = false
+node3.init_texture(1024, 1024, "rgba16f")
+node3.set_sampler("linear repeat")
+
+_editor.add_node(node3, -737.08635916386, -155.94944992639)
+
+var node4 = Draw()
+
+node4.set_prim_type("tri_strip")
+node4.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node4, 354.00457548614, 88.464645445912)
+
+var node5 = Shader()
+
+node5.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node5.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D image;
+
+uniform UBO
+{
+	bool horizontal;
+};
+const float weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
+
+void main()
+{             
+     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
+     vec3 result = texture(image, TexCoords).rgb * weight[0];
+     if(horizontal)
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+            result += texture(image, TexCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+            result += texture(image, TexCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+         }
+     }
+     else
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+             result += texture(image, TexCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+             result += texture(image, TexCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+         }
+     }
+     FragColor = vec4(result, 1.0);
+}
+"
+node5.execute()
+
+_editor.add_node(node5, 121.82353928574, 153.19417395174)
+
+var node6 = PrimitiveShape()
+
+node6.type = "quad"
+node6.layout = [ "position", "texture" ]
+
+_editor.add_node(node6, 163.76576242049, 22.62740349013)
+
+var node7 = Array()
+
+node7.list = [ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 ]
+
+_editor.add_node(node7, -68.266271384389, 192.62537163552)
+
+var node8 = Input()
+
+node8.var_name = "in0"
+node8.var_type = "any"
+
+_editor.add_node(node8, -501.2185341028, 423.14973289002)
+
+var node9 = Merge()
+
+_editor.add_node(node9, -331.72924010314, 333.95116452391)
+
+var node10 = Merge()
+
+_editor.add_node(node10, -328.56221313477, -14.278495788575)
+
+var node11 = Output()
+
+node11.var_name = "tex"
+node11.var_type = "texture"
+
+_editor.add_node(node11, -566.0532968064, 329.16260623144)
+
+Blueprint.connect(node0.exports[0], node10.imports[0])
+Blueprint.connect(node0.exports[0], node10.imports[2])
+Blueprint.connect(node0.exports[0], node10.imports[4])
+Blueprint.connect(node0.exports[0], node10.imports[6])
+Blueprint.connect(node0.exports[0], node10.imports[8])
+Blueprint.connect(node1.exports[0], node10.imports[1])
+Blueprint.connect(node1.exports[0], node10.imports[3])
+Blueprint.connect(node1.exports[0], node10.imports[5])
+Blueprint.connect(node1.exports[0], node10.imports[7])
+Blueprint.connect(node1.exports[0], node10.imports[9])
+Blueprint.connect(node2.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node9.imports[2])
+Blueprint.connect(node2.exports[0], node9.imports[4])
+Blueprint.connect(node2.exports[0], node9.imports[6])
+Blueprint.connect(node2.exports[0], node9.imports[8])
+Blueprint.connect(node2.exports[0], node11.imports[0])
+Blueprint.connect(node3.exports[0], node0.imports[0])
+Blueprint.connect(node3.exports[0], node9.imports[1])
+Blueprint.connect(node3.exports[0], node9.imports[3])
+Blueprint.connect(node3.exports[0], node9.imports[5])
+Blueprint.connect(node3.exports[0], node9.imports[7])
+Blueprint.connect(node3.exports[0], node9.imports[9])
+Blueprint.connect(node5.exports[0], node4.imports[1])
+Blueprint.connect(node6.exports[0], node4.imports[2])
+Blueprint.connect(node7.exports[0], node5.imports[0])
+Blueprint.connect(node8.exports[0], node9.imports[0])
+Blueprint.connect(node9.exports[0], node5.imports[1])
+Blueprint.connect(node10.exports[0], node4.imports[3])
