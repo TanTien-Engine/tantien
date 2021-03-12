@@ -5,6 +5,7 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths.vector" for Vector3
 import "maths" for Matrix44
+import "math" for Math
 
 class Rotate is Node
 {
@@ -43,7 +44,7 @@ class Rotate is Node
 			this.angle = f_pin.node.calc(f_pin.slot_idx).value
 		}
 
-		mat.rotateAxis(this.angle, this.axis_x, this.axis_y, this.axis_z)
+		mat.rotateAxis(Math.radians(this.angle), this.axis_x, this.axis_y, this.axis_z)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
@@ -71,7 +72,7 @@ class Rotate is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
 
-		var angle = GUI.slider(ctx, "angle", this.angle, x, y, this.style.width - 50, 6.28, false)
+		var angle = GUI.slider(ctx, "angle", this.angle, x, y, this.style.width - 50, 360, false)
 		if (angle != this.angle) {
 			this.angle = angle
 			dirty = true
