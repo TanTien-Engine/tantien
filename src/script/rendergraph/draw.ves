@@ -40,11 +40,17 @@ class Draw is Node
 		this.cull_items = ["disable", "front", "back", "front_and_back"]
 		this.cull_selected = -1
 
+		this.skip = false
+
 		this.layout()
 	}
 
 	execute() 
 	{
+		if (this.skip) {
+			return
+		}
+
 		var va = nil
 		var conns = this.imports[2].conns
 		if (!conns.isEmpty) {
@@ -124,6 +130,13 @@ class Draw is Node
 
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var skip = GUI.checkbox(ctx, "skip", this.skip, x, y)
+		if (skip != this.skip) {
+			this.skip = skip
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
 
 		var item = GUI.combo(ctx, "prim", this.prim_selected, this.prim_types, x, y, 80)
 		if (item != this.prim_selected) {
