@@ -432,7 +432,7 @@ import \"editor\" for _editor
 "
 		header = header + this.load_file_imports()
 
-		Filesystem.setAssetBaseDir(this.filepath)
+		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "r")
 		var source = header + file.read()
 		IO.close(file)
@@ -444,7 +444,7 @@ import \"editor\" for _editor
 
 	savetofile()
 	{
-		Filesystem.setAssetBaseDir(this.filepath)
+		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "w")
 
 		// nodes

@@ -3,7 +3,9 @@ static const char* filesystemModuleSource = QUOTE(
 
 foreign class Filesystem
 {
+	foreign static get_file_dir(filepath)	
 	foreign static setAssetBaseDir(path)
+	foreign static get_asset_base_dir()
 	foreign static get_absolute_path(path)
 	foreign static get_filename(path)
 }

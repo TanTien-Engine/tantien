@@ -116,10 +116,12 @@ class SubGraph is Node
 		this.out_nodes.clear()
 
 		var absolute = Filesystem.get_absolute_path(filepath)
-		Filesystem.setAssetBaseDir(absolute)
+		var old_dir = Filesystem.get_asset_base_dir()
+		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(absolute))
 		var file = IO.open(absolute, "r")
 		var body = file.read()
 		IO.close(file)
+		Filesystem.setAssetBaseDir(old_dir)
 
 		if (!body) {
 			return

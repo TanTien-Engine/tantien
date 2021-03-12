@@ -8,7 +8,7 @@
 namespace
 {
 
-void w_Filesystem_setAssetBaseDir()
+void w_Filesystem_get_file_dir()
 {
     const char* path = ves_tostring(1);
     std::string filename(path);
@@ -24,7 +24,19 @@ void w_Filesystem_setAssetBaseDir()
         }
     }
 
+    ves_set_lstring(0, directory.c_str(), directory.size());
+}
+
+void w_Filesystem_setAssetBaseDir()
+{
+    const char* directory = ves_tostring(1);
     tt::Filesystem::Instance()->SetAssetBaseDir(directory);
+}
+
+void w_Filesystem_get_asset_base_dir()
+{
+    auto& dir = tt::Filesystem::Instance()->GetAssetBaseDir();
+    ves_set_lstring(0, dir.c_str(), dir.size());
 }
 
 void w_Filesystem_get_absolute_path()
@@ -54,7 +66,9 @@ namespace tt
 
 VesselForeignMethodFn FilesystemBindMethod(const char* signature)
 {
+    if (strcmp(signature, "static Filesystem.get_file_dir(_)") == 0) return w_Filesystem_get_file_dir;
     if (strcmp(signature, "static Filesystem.setAssetBaseDir(_)") == 0) return w_Filesystem_setAssetBaseDir;
+    if (strcmp(signature, "static Filesystem.get_asset_base_dir()") == 0) return w_Filesystem_get_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
 
