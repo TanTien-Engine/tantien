@@ -105,9 +105,7 @@ class For is Node
 
 		var root = this.imports[1].conns.front().from.node
 
-		var nodes = []
-		Blueprint.getPrecursorNodes(root, nodes)
-
+		var nodes = Blueprint.getPrecursorNodes(root)
 		this.exec_list = Blueprint.topoSort(nodes)
 	}
 }

@@ -88,9 +88,7 @@ class Pass is Node
 		var prev = Blueprint.getInputNode(this, 0)
 		if (prev)
 		{
-			var nodes = []
-			Blueprint.getPrecursorNodes(prev, nodes)
-
+			var nodes = Blueprint.getPrecursorNodes(prev)
 			this.drawlist = Blueprint.topoSort(nodes)
 		}
 	}

@@ -55,8 +55,9 @@ class Blueprint
 		return ret
 	}
 
-	static getPrecursorNodes(root, nodes)
+	static getPrecursorNodes(root)
 	{
+		var nodes = Set.new()
 		var buf = []
 		buf.add(root)
 		while (!buf.isEmpty)
@@ -75,6 +76,7 @@ class Blueprint
 				}
 			}
 		}
+		return nodes
 	}
 
 	static connect(from, to)

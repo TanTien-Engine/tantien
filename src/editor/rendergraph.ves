@@ -36,9 +36,7 @@ class Rendergraph is Editor
 				node.rebuild_drawlist()
 				exec_list.add([ node ])
 			} else if (node is Draw and node.exports[0].conns.isEmpty) {
-				var prev_nodes = []
-				Blueprint.getPrecursorNodes(node, prev_nodes)
-
+				var prev_nodes = Blueprint.getPrecursorNodes(node)
 				var drawlist = Blueprint.topoSort(prev_nodes)
 				exec_list.add(drawlist)
 			} else if (node is For) {
