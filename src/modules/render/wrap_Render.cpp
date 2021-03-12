@@ -546,7 +546,8 @@ void w_Cubemap_allocate()
         desc.width = width;
         desc.height = height;
         desc.format = tf;
-        //desc.gen_mipmaps = true;
+        desc.gen_mipmaps = true;
+        desc.sampler_type = ur::Device::TextureSamplerType::LinearClampMipmap;
         tex = tt::Render::Instance()->Device()->CreateTexture(desc);
     }
 
