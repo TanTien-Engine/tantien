@@ -53,9 +53,16 @@ foreign class Framebuffer
 {
 	init() {}
 
-	// type: "col0", "col1", ... , "col16", "depth", "stencil"
+	// attachment: "col0", "col1", ... , "col16", "depth", "stencil"
 	// target: "tex2d", "cubemap0", ... , "cubemap6"
-	foreign attachment(tex, type, target, mipmap_level)
+	foreign attach_tex(tex, attachment, target, mipmap_level)
+	foreign attach_rbo(rbo, attachment)
+}
+
+foreign class RenderBuffer
+{
+	// format: "depth_component", "depth_stencil", "red", "rg", "rgb", "rgba"
+	init(width, height, format) {}
 }
 
 foreign class Render

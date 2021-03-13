@@ -1,7 +1,7 @@
 import "render" for Render, Framebuffer
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "rendergraph.variant" for VarFrameBuffer, VAR_TYPE_TEXTURE, VAR_TYPE_FRAME_BUFFER
+import "rendergraph.variant" for VarFrameBuffer, VarTexture, VarRenderBuffer, VAR_TYPE_TEXTURE, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_RENDER_BUFFER
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
@@ -15,11 +15,11 @@ class RenderTarget is Node
 		super.init(RenderTarget.name)
 	
 		this.imports = [
-			Pin(this, "col0",   VAR_TYPE_TEXTURE),
-			Pin(this, "col1",   VAR_TYPE_TEXTURE),
-			Pin(this, "col2",   VAR_TYPE_TEXTURE),
-			Pin(this, "col3",   VAR_TYPE_TEXTURE),
-			Pin(this, "depth",  VAR_TYPE_TEXTURE),
+			Pin(this, "col0",   [ VAR_TYPE_TEXTURE, VAR_TYPE_RENDER_BUFFER ]),
+			Pin(this, "col1",   [ VAR_TYPE_TEXTURE, VAR_TYPE_RENDER_BUFFER ]),
+			Pin(this, "col2",   [ VAR_TYPE_TEXTURE, VAR_TYPE_RENDER_BUFFER ]),
+			Pin(this, "col3",   [ VAR_TYPE_TEXTURE, VAR_TYPE_RENDER_BUFFER ]),
+			Pin(this, "depth",  [ VAR_TYPE_TEXTURE, VAR_TYPE_RENDER_BUFFER ]),
 			Pin(this, "mipmap", VAR_TYPE_NUMBER),			
 		]
 		this.exports = [
@@ -29,46 +29,56 @@ class RenderTarget is Node
 		this.width  = 0
 		this.height = 0
 
-		this.rbo_depth = false
-		this.rbo_color = false
-
 		this.layout()
 
 		this.fbo = nil
 		this.attached = false
 	}
 
-	attach_texture(var_tex, type)
+	attachment(value, type)
 	{
-		if (!var_tex.tex) {
-			return
-		}
-
 		var mipmap_level = 0
 		var mipmap = Blueprint.get_input_value(this, 5)
 		if (mipmap) {
 			mipmap_level = mipmap.value
 		}
 
-		var tex = var_tex.tex
-		if (tex is Texture2D)
+		if (value is VarTexture)
 		{
-			if (this.width == 0) {
-				this.width = tex.getWidth()
-				this.height = tex.getHeight()
+			var tex = value.tex
+			if (!tex) {
+				return
 			}
 
-			this.fbo.attachment(tex, type, "tex2d", mipmap_level)
-			this.attached = true
+			if (tex is Texture2D)
+			{
+				if (this.width == 0) {
+					this.width = tex.getWidth()
+					this.height = tex.getHeight()
+				}
+
+				this.fbo.attach_tex(tex, type, "tex2d", mipmap_level)
+				this.attached = true
+			}
+			else if (tex is Cubemap)
+			{
+				if (this.width == 0) {
+					this.width = tex.get_width()
+					this.height = tex.get_height()
+				}
+
+				this.fbo.attach_tex(tex, type, "cubemap" + "%(value.cubemap_idx)", mipmap_level)
+				this.attached = true
+			}
 		}
-		else if (tex is Cubemap)
+		else if (value is VarRenderBuffer)
 		{
-			if (this.width == 0) {
-				this.width = tex.get_width()
-				this.height = tex.get_height()
+			var rbo = value.rbo
+			if (!rbo) {
+				return
 			}
 
-			this.fbo.attachment(tex, type, "cubemap" + "%(var_tex.cubemap_idx)", mipmap_level)
+			this.fbo.attach_rbo(rbo, type)
 			this.attached = true
 		}
 	}
@@ -82,7 +92,7 @@ class RenderTarget is Node
 		for (var i in 0..this.imports.count) {
 			var v = Blueprint.get_input_value(this, i)
 			if (v)  {
-				this.attach_texture(v.value, this.imports[i].name)
+				this.attachment(v.value, this.imports[i].name)
 			}
 		}
 
@@ -94,43 +104,11 @@ class RenderTarget is Node
 		return Variant(VAR_TYPE_FRAME_BUFFER, ret)
 	}
 
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
 	toString(name) 
 	{
 		return "
 %(name).width = %(this.width)
 %(name).height = %(this.height)
-%(name).rbo_depth = %(this.rbo_depth)
-%(name).rbo_color = %(this.rbo_color)
 "
-	}
-
-	drawGUI(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
-
-		var _rbo_depth = GUI.checkbox(ctx, "rbo_depth", this.rbo_depth, x, y)
-		if (_rbo_depth != this.rbo_depth) {
-			this.rbo_depth = _rbo_depth
-			dirty = true
-		}
-
-		y = y - DEFAULT_HEIGHT
-		var _rbo_color = GUI.checkbox(ctx, "rbo_color", this.rbo_color, x, y)
-		if (_rbo_color != this.rbo_color) {
-			this.rbo_color = _rbo_color
-			dirty = true
-		}
-
-		return dirty
 	}
 }

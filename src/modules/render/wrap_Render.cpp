@@ -20,6 +20,7 @@
 #include <unirender/Framebuffer.h>
 #include <unirender/TextureUtility.h>
 #include <unirender/TextureDescription.h>
+#include <unirender/RenderBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
@@ -579,25 +580,29 @@ int w_Framebuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::Framebuffer>);
 }
 
-void w_Framebuffer_attachment()
+ur::AttachmentType strint2attachment(const std::string& str)
 {
-    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
-
-    std::string type = ves_tostring(2);
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
-    if (type == "depth") {
+    if (str == "depth") {
         atta_type = ur::AttachmentType::Depth;
-    } else if (type == "stencil") {
+    } else if (str == "stencil") {
         atta_type = ur::AttachmentType::Stencil;
     } else {
         for (int i = 0; i < 16; ++i) {
-            if (type == "col" + std::to_string(i)) {
+            if (str == "col" + std::to_string(i)) {
                 atta_type = static_cast<ur::AttachmentType>((int)ur::AttachmentType::Color0 + i);
                 break;
             }
         }
     }
+    return atta_type;
+}
+
+void w_Framebuffer_attach_tex()
+{
+    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    auto atta_type = strint2attachment(ves_tostring(2));
 
     const char* target = ves_tostring(3);
     ur::TextureTarget tex_target = ur::TextureTarget::Texture2D;
@@ -619,6 +624,48 @@ void w_Framebuffer_attachment()
 
     int mipmap_level = (int)ves_tonumber(4);
     fbo->SetAttachment(atta_type, tex_target, tex, nullptr, mipmap_level);
+}
+
+void w_Framebuffer_attach_rbo()
+{
+    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
+    auto rbo = ((tt::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
+    auto atta_type = strint2attachment(ves_tostring(2));
+    fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
+}
+
+void w_RenderBuffer_allocate()
+{
+    int width = (int)ves_tonumber(1);
+    int height = (int)ves_tonumber(2);
+
+    ur::InternalFormat format = ur::InternalFormat::RGBA;
+    const char* s_fmt = ves_tostring(3);
+    if (strcmp(s_fmt, "depth_component") == 0) {
+        format = ur::InternalFormat::DepthComponent;
+    } else if (strcmp(s_fmt, "depth_stencil") == 0) {
+        format = ur::InternalFormat::DepthStencil;
+    } else if (strcmp(s_fmt, "red") == 0) {
+        format = ur::InternalFormat::RED;
+    } else if (strcmp(s_fmt, "rg") == 0) {
+        format = ur::InternalFormat::RG;
+    } else if (strcmp(s_fmt, "rgb") == 0) {
+        format = ur::InternalFormat::RGB;
+    } else if (strcmp(s_fmt, "rgba") == 0) {
+        format = ur::InternalFormat::RGBA;
+    }
+
+    auto rbo = tt::Render::Instance()->Device()->CreateRenderBuffer(width, height, format);
+
+    auto proxy = (tt::Proxy<ur::RenderBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::RenderBuffer>));
+    proxy->obj = rbo;
+}
+
+int w_RenderBuffer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::RenderBuffer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::RenderBuffer>);
 }
 
 void w_Render_draw()
@@ -1165,7 +1212,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
 
-    if (strcmp(signature, "Framebuffer.attachment(_,_,_,_)") == 0) return w_Framebuffer_attachment;
+    if (strcmp(signature, "Framebuffer.attach_tex(_,_,_,_)") == 0) return w_Framebuffer_attach_tex;
+    if (strcmp(signature, "Framebuffer.attach_rbo(_,_)") == 0) return w_Framebuffer_attach_rbo;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
@@ -1213,6 +1261,13 @@ void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Framebuffer_allocate;
         methods->finalize = w_Framebuffer_finalize;
+        return;
+    }
+
+    if (strcmp(className, "RenderBuffer") == 0)
+    {
+        methods->allocate = w_RenderBuffer_allocate;
+        methods->finalize = w_RenderBuffer_finalize;
         return;
     }
 }

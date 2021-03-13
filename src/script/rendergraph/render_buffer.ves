@@ -1,0 +1,49 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "rendergraph.variant" for VarRenderBuffer, VAR_TYPE_RENDER_BUFFER
+import "render" for RenderBuffer as tt_RenderBuffer
+
+class RenderBuffer is Node
+{
+	init()
+	{
+		super.init(RenderBuffer.name)
+
+		this.exports = [
+			Pin(this, "rbo", VAR_TYPE_RENDER_BUFFER)
+		]
+
+		this.layout()
+
+		this.rbo = nil
+
+		this.width  = 0
+		this.height = 0
+		this.format = ""
+	}
+
+	calc(idx)
+	{
+		var ret = VarRenderBuffer()
+		ret.rbo = this.rbo
+
+		return Variant(VAR_TYPE_RENDER_BUFFER, ret)
+	}
+
+	toString(name) 
+	{
+		return "
+%(name).init_rbo(%(this.width), %(this.height), \"%(this.format)\")
+"
+	}
+
+	init_rbo(width, height, format)
+	{
+		this.width  = width
+		this.height = height
+		this.format = format
+
+		this.rbo = tt_RenderBuffer.init(this.width, this.height, this.format)
+	}
+}
