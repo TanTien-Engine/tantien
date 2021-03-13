@@ -14,7 +14,7 @@ import "io" for IO
 import "filesystem" for Filesystem
 import "editgraph.operators.node2d_translate" for Node2dTranslate
 import "editor.node_cache" for NODE_CACHE
-import "system" for System
+import "system" for tt_System
 import "maths" for Matrix44
 
 import "blueprint.nodes.number" for Number
@@ -286,19 +286,42 @@ class Editor
 
 	is_var_type_match(pin, node)
 	{
-		if (pin.is_input) {
-			for (var p in node.exports) {
-				if (p.type == pin.type or pin.type == VAR_TYPE_ANY or p.type == VAR_TYPE_ANY) {
-					return true
-				}
+		var types = []
+		if (pin.type is List) {
+			for (var type in pin.type) {
+				types.add(type)
 			}
 		} else {
-			for (var p in node.imports) {
-				if (p.type == pin.type or pin.type == VAR_TYPE_ANY or p.type == VAR_TYPE_ANY) {
+			types.add(pin.type)
+		}
+		if (types.contains(VAR_TYPE_ANY)) {
+			return true
+		}
+
+		var pins
+		if (pin.is_input) {
+			pins = node.exports
+		} else {
+			pins = node.imports
+		}	
+		for (var p in pins) 
+		{
+			if (p.type == VAR_TYPE_ANY) {
+				return true
+			}
+			if (p.type is List) {
+				for (var type in p.type) {
+					if (types.contains(type)) {
+						return true
+					}				
+				}
+			} else {
+				if (types.contains(p.type)) {
 					return true
 				}
 			}
 		}
+
 		return false
 	}	
 
@@ -570,14 +593,14 @@ _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(tra
 
 		this.cam_pos_on_copy = Vector2(this.camera.pos.x, this.camera.pos.y)
 
-		System.set_clipboard_text(ext_clipboard)
+		tt_System.set_clipboard_text(ext_clipboard)
 	}
 
 	paste_from_clipboard()
 	{
 		var text = this.clipboard
 		if (text == "") {
-			text = System.get_clipboard_text()
+			text = tt_System.get_clipboard_text()
 		}
 		if (text == "") {
 			return
