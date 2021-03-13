@@ -19,8 +19,9 @@ class Shader is Node
 			Pin(this, "out", VAR_TYPE_SHADER)
 		]
 
-		this.vs = nil
-		this.fs = nil
+		this.vs = ""
+		this.fs = ""
+		this.gs = ""
 
 		this.prog = nil
 		this.dirty = true
@@ -57,6 +58,12 @@ class Shader is Node
 		for (var unif in fs_unifs) {
 			this.uniforms.add(unif)
 		}
+		if (this.gs) {
+			var gs_unifs = this.getShaderUniforms("geometry", this.gs)
+			for (var unif in gs_unifs) {
+				this.uniforms.add(unif)
+			}	
+		}
 		for (var unif in this.uniforms) {
 			var pin_type = this.type_uniform_to_pin(unif[1])
 			this.imports.add(Pin(this, unif[0], pin_type))
@@ -64,7 +71,7 @@ class Shader is Node
 
 		this.layout()
 
-		this.prog = tt_Shader.init(this.vs, this.fs)
+		this.prog = tt_Shader.init(this.vs, this.fs, this.gs)
 		this.dirty = false
 	}
 
@@ -107,6 +114,7 @@ class Shader is Node
 		var code = "
 %(name).vs = \"%(this.vs)\"
 %(name).fs = \"%(this.fs)\"
+%(name).gs = \"%(this.gs)\"
 %(name).execute()
 "
 		for (var unif in this.uniforms)

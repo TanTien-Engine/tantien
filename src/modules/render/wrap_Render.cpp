@@ -44,6 +44,14 @@ void w_Shader_allocate()
 
     const char* vs_str = ves_tostring(1);
     const char* fs_str = ves_tostring(2);
+    const char* gs_str = ves_tostring(3);
+
+    if (strlen(vs_str) == 0) 
+    {
+        auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
+        proxy->obj = prog;
+        return;
+    }
 
     if (strlen(fs_str) == 0)
     {
@@ -60,9 +68,10 @@ void w_Shader_allocate()
     }
     else
     {
-        std::vector<unsigned int> vs, fs;
+        std::vector<unsigned int> vs, fs, gs;
         shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs_str, vs);
         shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs_str, fs);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str, gs);
 
 #ifdef SHADER_DEBUG_PRINT
         std::string vs_glsl, fs_glsl;
@@ -71,7 +80,7 @@ void w_Shader_allocate()
         printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs);
+        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, std::vector<uint32_t>(), std::vector<uint32_t>(), gs);
     }
 
     auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
@@ -1118,6 +1127,9 @@ void get_shader_uniforms(const char* stage_str, const char* shader_str, const ch
     } else if (strcmp(stage_str, "tess_eval") == 0) {
         stage = EShLangTessEvaluation;
         st_stage = shadertrans::ShaderStage::TessEvalShader;
+    } else if (strcmp(stage_str, "geometry") == 0) {
+        stage = EShLangGeometry;
+        st_stage = shadertrans::ShaderStage::GeometryShader;
     } else if (strcmp(stage_str, "pixel") == 0) {
         stage = EShLangFragment;
         st_stage = shadertrans::ShaderStage::PixelShader;
@@ -1147,7 +1159,9 @@ void w_Render_getShaderUniforms()
     const char* lang  = ves_tostring(3);
 
     std::vector<std::pair<std::string, std::string>> uniforms;
-    get_shader_uniforms(stage, code, lang, uniforms);
+    if (strlen(code) != 0) {
+        get_shader_uniforms(stage, code, lang, uniforms);
+    }
 
     ves_pop(4);
     ves_newlist(static_cast<int>(uniforms.size()));

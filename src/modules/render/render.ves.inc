@@ -10,7 +10,7 @@ foreign class Shader
 {
 	// vs: string
 	// fs: string
-	init(vs, fs) {}
+	init(vs, fs, gs) {}
 
 	// name(string) + type(string) + value(list)
 	foreign setUniformValue(uniform)
@@ -81,7 +81,7 @@ foreign class Render
 	// values: map { "color" : [r,g,b,a] }
 	foreign static clear(masks, values)
 
-	// stage: <"vertex", "tess_ctrl", "tess_eval", "pixel", "compute">
+	// stage: <"vertex", "tess_ctrl", "tess_eval",  "geometry", "pixel", "compute">
 	// lang: <"glsl", "hlsl">
 	// return: list, name + type + values
 	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler

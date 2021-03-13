@@ -1,0 +1,88 @@
+var node0 = Draw()
+
+node0.set_prim_type("points")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+
+_editor.add_node(node0, 46, 207.5)
+
+var node1 = Clear()
+
+node1.masks = [ "color" ]
+node1.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
+
+_editor.add_node(node1, -149, 269.5)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec3 aColor;
+
+out VS_OUT {
+    vec3 color;
+} vs_out;
+
+void main()
+{
+    vs_out.color = aColor;
+    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec3 fColor;
+
+void main()
+{
+    FragColor = vec4(fColor, 1.0);   
+}
+"
+node2.gs = "
+#version 330 core
+layout (points) in;
+layout (triangle_strip, max_vertices = 5) out;
+
+in VS_OUT {
+    vec3 color;
+} gs_in[];
+
+out vec3 fColor;
+
+void build_house(vec4 position)
+{    
+    fColor = gs_in[0].color; // gs_in[0] since there's only one input vertex
+    gl_Position = position + vec4(-0.2, -0.2, 0.0, 0.0); // 1:bottom-left   
+    EmitVertex();   
+    gl_Position = position + vec4( 0.2, -0.2, 0.0, 0.0); // 2:bottom-right
+    EmitVertex();
+    gl_Position = position + vec4(-0.2,  0.2, 0.0, 0.0); // 3:top-left
+    EmitVertex();
+    gl_Position = position + vec4( 0.2,  0.2, 0.0, 0.0); // 4:top-right
+    EmitVertex();
+    gl_Position = position + vec4( 0.0,  0.4, 0.0, 0.0); // 5:top
+    fColor = vec3(1.0, 1.0, 1.0);
+    EmitVertex();
+    EndPrimitive();
+}
+
+void main() {    
+    build_house(gl_in[0].gl_Position);
+}
+"
+node2.execute()
+
+_editor.add_node(node2, -160, 135.5)
+
+var node3 = VertexArray()
+
+node3.data = [ -0.5, 0.5, 1, 0, 0, 0.5, 0.5, 0, 1, 0, 0.5, -0.5, 0, 0, 1, -0.5, -0.5, 1, 1, 0 ]
+node3.attrs = [ 2, 3 ]
+
+_editor.add_node(node3, -135.23560379945, 64.49335217896)
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
