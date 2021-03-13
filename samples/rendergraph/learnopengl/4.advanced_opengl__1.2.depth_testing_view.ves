@@ -1,0 +1,128 @@
+var node0 = Clear()
+
+node0.masks = [ "color", "depth" ]
+node0.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
+
+_editor.add_node(node0, -181.45454545455, 568.59090909091)
+
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
+node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+
+_editor.add_node(node1, 56.80518593489, 434.01631470776)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+float near = 0.1; 
+float far = 100.0; 
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
+void main()
+{             
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far to get depth in range [0,1] for visualization purposes
+    FragColor = vec4(vec3(depth), 1.0);
+}
+"
+node2.execute()
+
+_editor.add_node(node2, -164.03965761902, 389.53503742566)
+
+var node3 = Camera3D()
+
+node3.position.set(2.8401885346808, 3.4074242845055, 6.9675921212326)
+node3.yaw = -109.1
+node3.pitch = -33.6
+node3.zoom = 45
+node3.update_camera_vectors()
+node3.speed = 0.17553623020649
+
+_editor.add_node(node3, -617.0056622191, 681.89869496855)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
+
+_editor.add_node(node4, -592.25183128148, 509.99043217132)
+
+var node5 = VertexArray()
+
+node5.data = [ 5, -0.5, 5, 2, 0, -5, -0.5, 5, 0, 0, -5, -0.5, -5, 0, 2, 5, -0.5, 5, 2, 0, -5, -0.5, -5, 0, 2, 5, -0.5, -5, 2, 2 ]
+node5.attrs = [ 3, 2 ]
+
+_editor.add_node(node5, -298.56524639287, 169.80069776803)
+
+var node6 = Merge()
+
+_editor.add_node(node6, -143.3981628418, 29.329940795898)
+
+var node7 = PrimitiveShape()
+
+node7.type = "cube"
+node7.layout = [ "position", "texture" ]
+
+_editor.add_node(node7, -299.85587693749, 22.904105807213)
+
+var node8 = Matrix()
+
+_editor.add_node(node8, -658.90679931641, 150.671875)
+
+var node9 = Translate()
+
+node9.dx = -1
+node9.dy = 0
+node9.dz = -1
+
+_editor.add_node(node9, -656.42981933594, 53.518882446289)
+
+var node10 = Translate()
+
+node10.dx = 2
+node10.dy = 0
+node10.dz = 0
+
+_editor.add_node(node10, -655.21981933594, -88.051117553712)
+
+var node11 = Merge()
+
+_editor.add_node(node11, -484.14837646484, 10.860900878905)
+
+Blueprint.connect(node0.exports[0], node1.imports[0])
+Blueprint.connect(node2.exports[0], node1.imports[1])
+Blueprint.connect(node3.exports[0], node2.imports[1])
+Blueprint.connect(node3.exports[1], node4.imports[0])
+Blueprint.connect(node4.exports[0], node2.imports[2])
+Blueprint.connect(node5.exports[0], node6.imports[0])
+Blueprint.connect(node6.exports[0], node1.imports[2])
+Blueprint.connect(node7.exports[0], node6.imports[1])
+Blueprint.connect(node8.exports[0], node11.imports[0])
+Blueprint.connect(node9.exports[0], node11.imports[1])
+Blueprint.connect(node10.exports[0], node11.imports[2])
+Blueprint.connect(node11.exports[0], node2.imports[0])
