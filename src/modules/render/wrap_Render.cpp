@@ -684,7 +684,9 @@ void w_Render_draw()
     ur::PrimitiveType prim_type = ur::PrimitiveType::Triangles;
 
     const char* prim_type_str = ves_tostring(1);
-    if (strcmp(prim_type_str, "triangles") == 0) {
+    if (strcmp(prim_type_str, "points") == 0) {
+        prim_type = ur::PrimitiveType::Points;
+    } else if (strcmp(prim_type_str, "triangles") == 0) {
         prim_type = ur::PrimitiveType::Triangles;
     } else if (strcmp(prim_type_str, "tri_strip") == 0) {
         prim_type = ur::PrimitiveType::TriangleStrip;
