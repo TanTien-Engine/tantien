@@ -1,12 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "render" for Cubemap as tt_Cubemap
-import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE, VAR_TYPE_ARRAY
+import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "graphics" for Graphics
-// fixme
-import "blueprint.node_render" for NodeRender
 import "gui" for GUI
 import "rendergraph.draw_cubemap" for DRAW_CUBEMAP
 
@@ -85,9 +83,7 @@ class Cubemap is Node
 
 	draw(mt, cam_mt)
 	{
-		// fixme
-//		super.draw(mt, cam_mt)
-		NodeRender.draw_node(this)
+		super.draw(mt, cam_mt)
 
 		if (this.preview and this.tex) {
 			DRAW_CUBEMAP.draw(this.tex, mt, this.style.width)
