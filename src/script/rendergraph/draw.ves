@@ -5,7 +5,7 @@ import "blueprint.Blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER
+import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_MODEL
 import "math" for Math
 
 class Draw is Node
@@ -18,7 +18,8 @@ class Draw is Node
 			Pin(this, "prev",   VAR_TYPE_PORT),
 			Pin(this, "shader", VAR_TYPE_SHADER),
 			Pin(this, "va",     VAR_TYPE_VERTEX_ARRAY),
-			Pin(this, "fbo",    VAR_TYPE_FRAME_BUFFER)
+			Pin(this, "fbo",    VAR_TYPE_FRAME_BUFFER),
+			Pin(this, "model",  VAR_TYPE_MODEL)
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -51,15 +52,26 @@ class Draw is Node
 			return
 		}
 
+		var shader = Blueprint.getInputNode(this, 1)
+		if (!shader or !shader.prog) {
+			return
+		}
+
+		var model = Blueprint.get_input_value(this, 4).value
+		if (model)
+		{
+			shader.updateUniforms(0)
+			Render.draw_model(shader.prog, model.model, this.render_state)
+			return
+		}
+
 		var va = nil
 		var conns = this.imports[2].conns
 		if (!conns.isEmpty) {
 			var f_pin = conns.front().from
 			va = f_pin.node.calc(f_pin.slot_idx).value
 		}
-
-		var shader = Blueprint.getInputNode(this, 1)
-		if (!shader or !shader.prog or !va) {
+		if (!va) {
 			return
 		}
 

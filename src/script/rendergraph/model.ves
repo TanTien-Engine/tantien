@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "model" for Model as tt_Model
+import "rendergraph.variant" for VarModel, VAR_TYPE_MODEL
+
+class Model is Node
+{
+	init() 
+	{
+		super.init(Model.name)
+
+		this.exports = [
+			Pin(this, "model", VAR_TYPE_MODEL),
+		]
+
+		this.layout()
+
+		this.model = nil
+
+		this.model_filepath = ""
+	}
+
+	calc(idx)
+	{
+		var ret = VarModel()
+		ret.model = this.model
+		return Variant(VAR_TYPE_MODEL, ret)
+	}
+
+	toString(name) 
+	{
+		return "%(name).init_model(\"%(this.model_filepath)\")\n"
+	}
+
+	init_model(filepath)
+	{
+		this.model_filepath = filepath
+		this.model = tt_Model.init(filepath)
+	}
+}

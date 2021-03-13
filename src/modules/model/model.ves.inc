@@ -3,6 +3,7 @@ static const char* modelModuleSource = QUOTE(
 
 foreign class Model
 {
+	init(filepath) {}
 }
 
 );

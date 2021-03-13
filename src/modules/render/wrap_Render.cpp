@@ -25,6 +25,7 @@
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
 #include <guard/check.h>
+#include <model/Model.h>
 
 #include <glslang/glslang/Public/ShaderLang.h>
 
@@ -677,6 +678,93 @@ int w_RenderBuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::RenderBuffer>);
 }
 
+void prepare_render_state(ur::RenderState& rs, int slot)
+{
+    if (ves_getfield(slot, "depth_test") == VES_TYPE_BOOL) {
+        rs.depth_test.enabled = ves_toboolean(-1);
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "depth_func") == VES_TYPE_STRING) 
+    {
+        const char* func = ves_tostring(-1);
+        if (strcmp(func, "never") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::Never;
+        } else if (strcmp(func, "less") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::Less;
+        } else if (strcmp(func, "equal") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::Equal;
+        } else if (strcmp(func, "lequal") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::LessThanOrEqual;
+        } else if (strcmp(func, "greater") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::Greater;
+        } else if (strcmp(func, "notequal") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::NotEqual;
+        } else if (strcmp(func, "gequal") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::GreaterThanOrEqual;
+        } else if (strcmp(func, "always") == 0) {
+            rs.depth_test.function = ur::DepthTestFunc::Always;
+        }
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "stencil_test") == VES_TYPE_BOOL) {
+        rs.stencil_test.enabled = ves_toboolean(-1);
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "stencil_func") == VES_TYPE_STRING) 
+    {
+        const char* func = ves_tostring(-1);
+        if (strcmp(func, "never") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::Never;
+        } else if (strcmp(func, "less") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::Less;
+        } else if (strcmp(func, "equal") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::Equal;
+        } else if (strcmp(func, "lequal") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::LessThanOrEqual;
+        } else if (strcmp(func, "greater") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::Greater;
+        } else if (strcmp(func, "notequal") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::NotEqual;
+        } else if (strcmp(func, "gequal") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::GreaterThanOrEqual;
+        } else if (strcmp(func, "always") == 0) {
+            rs.stencil_test.front_face.function = ur::StencilTestFunction::Always;
+        }
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "stencil_ref") == VES_TYPE_NUM) {
+        rs.stencil_test.front_face.reference_value = (int)(ves_tonumber(-1));
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "stencil_mask") == VES_TYPE_NUM) {
+        rs.stencil_test.front_face.mask = (int)(ves_tonumber(-1));
+    }
+    ves_pop(1);
+
+    if (ves_getfield(slot, "cull") == VES_TYPE_STRING) 
+    {
+        const char* mode = ves_tostring(-1);
+        if (strcmp(mode, "disable") == 0) {
+            rs.facet_culling.enabled = false;
+        } else if (strcmp(mode, "front") == 0) {
+            rs.facet_culling.enabled = true;
+            rs.facet_culling.face = ur::CullFace::Front;
+        } else if (strcmp(mode, "back") == 0) {
+            rs.facet_culling.enabled = true;
+            rs.facet_culling.face = ur::CullFace::Back;
+        } else if (strcmp(mode, "front_and_back") == 0) {
+            rs.facet_culling.enabled = true;
+            rs.facet_culling.face = ur::CullFace::FrontAndBack;
+        }
+    }
+    ves_pop(1);
+}
+
 void w_Render_draw()
 {
     ur::DrawState ds;
@@ -697,53 +785,40 @@ void w_Render_draw()
     ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
     ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
 
-    if (ves_getfield(4, "depth_test") == VES_TYPE_BOOL) {
-        ds.render_state.depth_test.enabled = ves_toboolean(-1);
-    }
-    ves_pop(1);
-
-    if (ves_getfield(4, "depth_func") == VES_TYPE_STRING) 
-    {
-        const char* func = ves_tostring(-1);
-        if (strcmp(func, "never") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::Never;
-        } else if (strcmp(func, "less") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::Less;
-        } else if (strcmp(func, "equal") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::Equal;
-        } else if (strcmp(func, "lequal") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::LessThanOrEqual;
-        } else if (strcmp(func, "greater") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::Greater;
-        } else if (strcmp(func, "notequal") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::NotEqual;
-        } else if (strcmp(func, "gequal") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::GreaterThanOrEqual;
-        } else if (strcmp(func, "always") == 0) {
-            ds.render_state.depth_test.function = ur::DepthTestFunc::Always;
-        }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(4, "cull") == VES_TYPE_STRING) 
-    {
-        const char* mode = ves_tostring(-1);
-        if (strcmp(mode, "disable") == 0) {
-            ds.render_state.facet_culling.enabled = false;
-        } else if (strcmp(mode, "front") == 0) {
-            ds.render_state.facet_culling.enabled = true;
-            ds.render_state.facet_culling.face = ur::CullFace::Front;
-        } else if (strcmp(mode, "back") == 0) {
-            ds.render_state.facet_culling.enabled = true;
-            ds.render_state.facet_culling.face = ur::CullFace::Back;
-        } else if (strcmp(mode, "front_and_back") == 0) {
-            ds.render_state.facet_culling.enabled = true;
-            ds.render_state.facet_culling.face = ur::CullFace::FrontAndBack;
-        }
-    }
-    ves_pop(1);
+    prepare_render_state(ds.render_state, 4);
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
+}
+
+void w_Render_draw_model()
+{
+    ur::DrawState ds;
+
+    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+
+    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
+
+    prepare_render_state(ds.render_state, 3);
+
+    auto ctx = tt::Render::Instance()->Context();
+
+    auto& meshes = model->meshes;
+    for (auto& mesh : meshes)
+    {
+        auto& geo = mesh->geometry;
+        ds.vertex_array = geo.vertex_array;
+        GD_ASSERT(geo.sub_geometries.size() == geo.sub_geometry_materials.size(), "error size.");
+        for (int i = 0, n = geo.sub_geometries.size(); i < n; ++i)
+        {
+            auto& mat = model->materials[geo.sub_geometry_materials[i]];
+            if (mat->diffuse_tex >= 0) {
+                ctx->SetTexture(ds.program->QueryTexSlot("texture_diffuse1"), model->textures[mat->diffuse_tex].second);
+            }
+            ds.offset = geo.sub_geometries[i].offset;
+            ds.count = geo.sub_geometries[i].count;
+            ctx->Draw(ur::PrimitiveType::Triangles, ds, nullptr);
+        }
+    }
 }
 
 void w_Render_compute()
@@ -1232,6 +1307,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Framebuffer.attach_rbo(_,_)") == 0) return w_Framebuffer_attach_rbo;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
+    if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.getShaderUniforms(_,_,_)") == 0) return w_Render_getShaderUniforms;

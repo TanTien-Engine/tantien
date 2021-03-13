@@ -14,6 +14,7 @@ import "rendergraph.primitive_shape" for PrimitiveShape
 import "rendergraph.texture" for Texture
 import "rendergraph.render_target" for RenderTarget
 import "rendergraph.render_buffer" for RenderBuffer
+import "rendergraph.model" for Model
 
 class Rendergraph is Editor
 {
@@ -23,7 +24,7 @@ class Rendergraph is Editor
 
 		this.drawlists = []
 
-		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, RenderTarget, RenderBuffer ]) {
+		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, RenderTarget, RenderBuffer, Model ]) {
 			super.add_popup_node(node)
 		}
 	}
@@ -89,6 +90,7 @@ import \"rendergraph.primitive_shape\" for PrimitiveShape
 import \"rendergraph.texture\" for Texture
 import \"rendergraph.render_target\" for RenderTarget
 import \"rendergraph.render_buffer\" for RenderBuffer
+import \"rendergraph.model\" for Model
 "
 		return ret
 	}
