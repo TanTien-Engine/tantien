@@ -1,0 +1,86 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, -10.492079074999, 33.045530735999)
+
+var node1 = Model()
+node1.init_model("resources/objects/backpack/backpack.obj")
+
+_editor.add_node(node1, -169.48240633091, -63.807067086194)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+    TexCoords = aTexCoords;    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{    
+    FragColor = texture(texture_diffuse1, TexCoords);
+}
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -200.37606979578, 18.412290452596)
+
+var node3 = Clear()
+
+node3.masks = [ "color", "depth" ]
+node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
+
+_editor.add_node(node3, -181.40594233567, 154.09172663351)
+
+var node4 = Camera3D()
+
+node4.position.set(5.2023579425071, 0.1315312301981, 5.0385705123956)
+node4.yaw = -132
+node4.pitch = 1.1
+node4.zoom = 45
+node4.update_camera_vectors()
+node4.speed = 0.21111145615578
+
+_editor.add_node(node4, -433.55561062704, 39.001536013218)
+
+var node5 = Perspective()
+
+node5.fovy = 45
+node5.aspect = 0
+node5.znear = 0.1
+node5.zfar = 100
+
+_editor.add_node(node5, -432.87257632775, -118.09155541126)
+
+Blueprint.connect(node1.exports[0], node0.imports[4])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[0])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node4.exports[1], node5.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[2])
