@@ -59,6 +59,25 @@ void w_Filesystem_get_filename()
     ves_set_lstring(0, filename.c_str(), filename.size());
 }
 
+void w_Filesystem_get_directory_files()
+{
+    std::vector<std::string> files;
+
+    const char* dir_path = ves_tostring(1);
+    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) {
+        files.push_back(std::filesystem::absolute(p).string());
+    }
+
+    ves_pop(2);
+    ves_newlist(files.size());
+    for (int i = 0, n = files.size(); i < n; ++i)
+    {
+        ves_pushstring(files[i].c_str());
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
 }
 
 namespace tt
@@ -71,6 +90,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.get_asset_base_dir()") == 0) return w_Filesystem_get_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
+    if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
 
     return NULL;
 }
