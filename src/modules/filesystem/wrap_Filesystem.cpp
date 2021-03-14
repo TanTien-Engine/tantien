@@ -86,7 +86,7 @@ namespace tt
 VesselForeignMethodFn FilesystemBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Filesystem.get_file_dir(_)") == 0) return w_Filesystem_get_file_dir;
-    if (strcmp(signature, "static Filesystem.setAssetBaseDir(_)") == 0) return w_Filesystem_setAssetBaseDir;
+    if (strcmp(signature, "static Filesystem.set_asset_base_dir(_)") == 0) return w_Filesystem_setAssetBaseDir;
     if (strcmp(signature, "static Filesystem.get_asset_base_dir()") == 0) return w_Filesystem_get_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;

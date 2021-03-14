@@ -5,7 +5,7 @@ class Test
 	load()
 	{
 		this.pt = Painter.init()
-		this.pt.addRectFilled([0, 0, 100, 50], [255, 128, 0])
+		this.pt.add_rect_filled([0, 0, 100, 50], [255, 128, 0])
 	}
 
 	update()
@@ -14,14 +14,14 @@ class Test
 
 	draw()
 	{
-		Graphics.drawPainter(this.pt)
+		Graphics.draw_painter(this.pt)
 
 		Graphics.flush()
 	}
 
 	sizechanged(w, h)
 	{
-		Graphics.onSize(w, h)
+		Graphics.on_size(w, h)
 	}
 
 	keypressed(c)

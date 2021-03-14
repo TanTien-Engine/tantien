@@ -13,7 +13,7 @@ foreign class Shader
 	init(vs, fs, gs) {}
 
 	// name(string) + type(string) + value(list)
-	foreign setUniformValue(uniform)
+	foreign set_uniform_value(uniform)
 }
 
 foreign class VertexArray
@@ -34,8 +34,8 @@ foreign class Texture2D
 	// format: "rgb", "rgba8", "rgba16f", "rg16f", "r16", "depth"
 	init(width, height, format) {}
 
-	foreign getWidth()
-	foreign getHeight()
+	foreign get_width()
+	foreign get_height()
 }
 
 foreign class Cubemap
@@ -86,7 +86,7 @@ foreign class Render
 	// lang: <"glsl", "hlsl">
 	// return: list, name + type + values
 	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler
-	foreign static getShaderUniforms(stage, code, lang)
+	foreign static get_shader_uniforms(stage, code, lang)
 
 	foreign static get_fbo()
 	foreign static set_fbo(fbo)	

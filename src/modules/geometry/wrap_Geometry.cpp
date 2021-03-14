@@ -23,7 +23,7 @@ int w_Bezier_finalize(void* data)
     return sizeof(tt::Proxy<gs::Bezier>);
 }
 
-void w_Bezier_setCtrlPos()
+void w_Bezier_set_ctrl_pos()
 {
     auto b = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
     auto vertices = tt::list_to_vec2_array(1);
@@ -38,7 +38,7 @@ namespace tt
 
 VesselForeignMethodFn GeometryBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Bezier.setCtrlPos(_)") == 0) return w_Bezier_setCtrlPos;
+    if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
     return nullptr;
 }

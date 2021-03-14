@@ -108,7 +108,7 @@ class Test
 
 		if (this.popup_pos)
 		{
-			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
+			var pos = GUI.trans_scr_pos_to_proj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
 			for (var i in 1..5) {
 				if (GUI.selectable(this.gui, "popup%(i)", false, pos[0], pos[1] - 25 * i, 80)) {
 					System.print("popup select %(i)")
@@ -123,13 +123,13 @@ class Test
 
 		Graphics.flush()
 
-		//Graphics.dtexDebugDraw()
+		//Graphics.dtex_debug_draw()
 	}
 
 	sizechanged(w, h)
 	{
-		Graphics.onSize(w, h)
-		GUI.onSize(w, h)
+		Graphics.on_size(w, h)
+		GUI.on_size(w, h)
 	}
 
 	keypressed(c) {}
@@ -137,15 +137,15 @@ class Test
 
 	mousemoved(x, y, btn) 
 	{
-		GUI.mouseInput(this.gui, btn, MOUSE_MOVE, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui, btn, MOUSE_MOVE, x, y, 0, 0, 1)
 	}
 	mousedragged(x, y, btn) 
 	{
-		GUI.mouseInput(this.gui, btn, MOUSE_DRAG, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui, btn, MOUSE_DRAG, x, y, 0, 0, 1)
 	}
 	mousepressed(x, y, btn) 
 	{
-		GUI.mouseInput(this.gui, btn, MOUSE_DOWN, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui, btn, MOUSE_DOWN, x, y, 0, 0, 1)
 
 		if (btn == MOUSE_RIGHT) {
 			this.popup_pos = Vector2(x, y)
@@ -155,7 +155,7 @@ class Test
 	}
 	mousereleased(x, y, btn) 
 	{
-		GUI.mouseInput(this.gui, btn, MOUSE_UP, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui, btn, MOUSE_UP, x, y, 0, 0, 1)
 	}
 	mousescrolled(x, y, dx, dy) {}
 }

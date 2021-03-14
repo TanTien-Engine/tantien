@@ -38,17 +38,17 @@ class Rendergraph is Editor
 				node.rebuild_drawlist()
 				exec_list.add([ node ])
 			} else if (node is Draw and node.exports[0].conns.isEmpty) {
-				var prev_nodes = Blueprint.getPrecursorNodes(node)
-				var drawlist = Blueprint.topoSort(prev_nodes)
+				var prev_nodes = Blueprint.get_precursor_nodes(node)
+				var drawlist = Blueprint.topo_sort(prev_nodes)
 				exec_list.add(drawlist)
 			} else if (node is For) {
-				node.rebuildExecList()
+				node.rebuild_exec_list()
 			}
 		}
 		return exec_list
 	}
 
-	rebuildDrawlist()
+	rebuild_drawlist()
 	{
 		var nodes = []
 		for (var node in this.scene.nodes) {
@@ -57,11 +57,11 @@ class Rendergraph is Editor
 		this.drawlists = this.build_exec_list(nodes)
 	}
 
-	drawPreview()
+	draw_preview()
 	{
 		if (this.scene.bp_dirty)
 		{
-			this.rebuildDrawlist()
+			this.rebuild_drawlist()
 			this.scene.bp_dirty = false
 		}
 

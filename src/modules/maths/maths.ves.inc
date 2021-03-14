@@ -5,19 +5,19 @@ foreign class Float2
 {
 	init() {}
 	init(v) {
-		this.setX(v.x())
-		this.setY(v.y())
+		this.set_x(v.x())
+		this.set_y(v.y())
 	}
 	init(x, y) {
-		this.setX(x)
-		this.setY(y)
+		this.set_x(x)
+		this.set_y(y)
 	}
 
 	//foreign x=(x)
 	//foreign x
-	foreign setX(x)
+	foreign set_x(x)
 	foreign x()
-	foreign setY(y)
+	foreign set_y(y)
 	foreign y()
 
 	// mt: Matrix2D
@@ -36,14 +36,14 @@ foreign class Matrix44
 	init() {}
 
 	foreign translate(x, y, z)
-	foreign rotateAxis(angle, x, y, z)
+	foreign rotate_axis(angle, x, y, z)
 	foreign scale(sx, sy, sz)	
 
 	foreign perspective(fovy, aspect, znear, zfar)
 	foreign orthographic(left, right, bottom, top, near, far)
 	foreign lookat(eye, center, up)
 
-	foreign fromRotateMat(mat)
+	foreign from_totate_mat(mat)
 
 	foreign transform_mat2d(mt)
 	foreign transform_mat4(mt)
@@ -52,7 +52,7 @@ foreign class Matrix44
 foreign class Maths
 {
 	// conv0, conv1: float list
-	foreign static isConvexIntersectConvex(conv0, conv1)
+	foreign static is_convex_intersect_convex(conv0, conv1)
 }
 
 );

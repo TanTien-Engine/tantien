@@ -124,7 +124,7 @@ int get_value_number_size(const std::string& type)
     return size;
 }
 
-void w_Shader_setUniformValue()
+void w_Shader_set_uniform_value()
 {
     auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
 
@@ -493,13 +493,13 @@ int w_Texture2D_finalize(void* data)
     return sizeof(tt::Proxy<ur::Texture>);
 }
 
-void w_Texture2D_getWidth()
+void w_Texture2D_get_width()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetWidth());
 }
 
-void w_Texture2D_getHeight()
+void w_Texture2D_get_height()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
@@ -1232,7 +1232,7 @@ void get_shader_uniforms(const char* stage_str, const char* shader_str, const ch
     }
 }
 
-void w_Render_getShaderUniforms()
+void w_Render_get_shader_uniforms()
 {
     const char* stage = ves_tostring(1);
     const char* code  = ves_tostring(2);
@@ -1298,10 +1298,10 @@ namespace tt
 
 VesselForeignMethodFn RenderBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Shader.setUniformValue(_)") == 0) return w_Shader_setUniformValue;
+    if (strcmp(signature, "Shader.set_uniform_value(_)") == 0) return w_Shader_set_uniform_value;
 
-    if (strcmp(signature, "Texture2D.getWidth()") == 0) return w_Texture2D_getWidth;
-    if (strcmp(signature, "Texture2D.getHeight()") == 0) return w_Texture2D_getHeight;
+    if (strcmp(signature, "Texture2D.get_width()") == 0) return w_Texture2D_get_width;
+    if (strcmp(signature, "Texture2D.get_height()") == 0) return w_Texture2D_get_height;
 
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
@@ -1313,7 +1313,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
-    if (strcmp(signature, "static Render.getShaderUniforms(_,_,_)") == 0) return w_Render_getShaderUniforms;
+    if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_)") == 0) return w_Render_get_shader_uniforms;
     if (strcmp(signature, "static Render.get_fbo()") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;

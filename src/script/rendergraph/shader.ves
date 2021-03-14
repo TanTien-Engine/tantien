@@ -33,9 +33,9 @@ class Shader is Node
 		this.layout()
 	}
 
-	getShaderUniforms(stage, code)
+	get_shader_uniforms(stage, code)
 	{
-		var uniforms = Render.getShaderUniforms(stage, code, "glsl")
+		var uniforms = Render.get_shader_uniforms(stage, code, "glsl")
 		// init
 		for (var unif in uniforms)
 		{
@@ -55,13 +55,13 @@ class Shader is Node
 			return
 		}
 
-		this.uniforms = this.getShaderUniforms("vertex", this.vs)
-		var fs_unifs = this.getShaderUniforms("pixel", this.fs)
+		this.uniforms = this.get_shader_uniforms("vertex", this.vs)
+		var fs_unifs = this.get_shader_uniforms("pixel", this.fs)
 		for (var unif in fs_unifs) {
 			this.uniforms.add(unif)
 		}
 		if (this.gs) {
-			var gs_unifs = this.getShaderUniforms("geometry", this.gs)
+			var gs_unifs = this.get_shader_uniforms("geometry", this.gs)
 			for (var unif in gs_unifs) {
 				this.uniforms.add(unif)
 			}	
@@ -100,7 +100,7 @@ class Shader is Node
 		}
 	}
 
-	setUniform(name, value)
+	set_uniform(name, value)
 	{
 		for (var unif in this.uniforms)
 		{
@@ -113,7 +113,7 @@ class Shader is Node
 		}
 	}
 
-	toString(name) 
+	to_string(name) 
 	{
 		var code = "
 %(name).vs = \"%(this.vs)\"
@@ -134,20 +134,20 @@ class Shader is Node
 			if (conns_empty)
 			{
 				if (unif[1] == "float" or unif[1] == "int") {
-					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]) ])\n"
+					code = code + "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2]) ])\n"
 				} else if (unif[1] == "float2" or unif[1] == "int2") {
-					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]) ])\n"
+					code = code + "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]) ])\n"
 				} else if (unif[1] == "float3" or unif[1] == "int3") {
-					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]) ])\n"
+					code = code + "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]) ])\n"
 				} else if (unif[1] == "float4" or unif[1] == "int4") {
-					code = code + "%(name).setUniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]), %(unif[5]) ])\n"
+					code = code + "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2]), %(unif[3]), %(unif[4]), %(unif[5]) ])\n"
 				}
 			}
 		}
 		return code
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 
@@ -180,7 +180,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.setUniformValue(unif)
+			    	this.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -203,7 +203,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.setUniformValue(unif)
+			    	this.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -233,7 +233,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.setUniformValue(unif)
+			    	this.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -270,7 +270,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.setUniformValue(unif)
+			    	this.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -283,7 +283,7 @@ class Shader is Node
 	{
 		var count = 1
 		for (var i in 0..this.imports.count) {
-			var v = Blueprint.get_input_value(this, i)
+			var v = Blueprint.calc_input_value(this, i)
 			if (v.value is List) {
 				count = Math.max(count, v.value.count)
 			}
@@ -351,7 +351,7 @@ class Shader is Node
 				}
 			}
 			if (!invalid) {
-				this.prog.setUniformValue(unif)
+				this.prog.set_uniform_value(unif)
 			}
 		}
 	}

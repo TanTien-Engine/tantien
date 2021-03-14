@@ -39,7 +39,7 @@ class SubGraph is Node
 		var name = this.exports[idx].name
 		for (var node in this.out_nodes) {
 			if (node.var_name == name) {
-				return Blueprint.get_input_value(node, 0)
+				return Blueprint.calc_input_value(node, 0)
 			}
 		}
 	}
@@ -51,7 +51,7 @@ class SubGraph is Node
 			var name = this.imports[i].name
 			for (var node in this.in_nodes)	{
 				if (node.var_name == name) {
-					node.value = Blueprint.get_input_value(this, i)
+					node.value = Blueprint.calc_input_value(this, i)
 				}
 				// todo break
 			}
@@ -76,7 +76,7 @@ class SubGraph is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 1
 	}
 
-	toString(name) 
+	to_string(name) 
 	{
 		var ret = "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
 		for (var prop in this.prop_nodes) {
@@ -85,7 +85,7 @@ class SubGraph is Node
 		return ret
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 
@@ -117,11 +117,11 @@ class SubGraph is Node
 
 		var absolute = Filesystem.get_absolute_path(filepath)
 		var old_dir = Filesystem.get_asset_base_dir()
-		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(absolute))
+		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(absolute))
 		var file = IO.open(absolute, "r")
 		var body = file.read()
 		IO.close(file)
-		Filesystem.setAssetBaseDir(old_dir)
+		Filesystem.set_asset_base_dir(old_dir)
 
 		if (!body) {
 			return

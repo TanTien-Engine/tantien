@@ -34,7 +34,7 @@ class Pass is Node
 
 		var prev_fbo = nil
 		var prev_vp = nil
-		var v_fbo = Blueprint.get_input_value(this, 1)
+		var v_fbo = Blueprint.calc_input_value(this, 1)
 		if (v_fbo) {
 			v_fbo.value.bind()
 		}
@@ -59,13 +59,13 @@ class Pass is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).once = %(this.once)
 "
 	}	
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 
@@ -85,11 +85,11 @@ class Pass is Node
 	{
 		this.drawlist = []
 
-		var prev = Blueprint.getInputNode(this, 0)
+		var prev = Blueprint.get_input_node(this, 0)
 		if (prev)
 		{
-			var nodes = Blueprint.getPrecursorNodes(prev)
-			this.drawlist = Blueprint.topoSort(nodes)
+			var nodes = Blueprint.get_precursor_nodes(prev)
+			this.drawlist = Blueprint.topo_sort(nodes)
 		}
 	}
 

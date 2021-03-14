@@ -7,20 +7,20 @@ foreign class Painter
 
 	// rect: list [x, y, width, height]
 	// color: list [r, g, b, a]
-	foreign addRect(rect, color, line_width)
-	foreign addRectFilled(rect, color)
+	foreign add_rect(rect, color, line_width)
+	foreign add_rect_filled(rect, color)
 
 	// vertices: list [x0, y0, x1, y1 ...]
 	// color: list [r, g, b, a]
-	foreign addPolygon(vertices, color, line_width)
-	foreign addPolyline(vertices, color, line_width)
+	foreign add_polygon(vertices, color, line_width)
+	foreign add_polyline(vertices, color, line_width)
 
 	// color: list [r, g, b, a]
-	foreign addCircle(x, y, radius, color)
-	foreign addCircleFilled(x, y, radius, color)
+	foreign add_circle(x, y, radius, color)
+	foreign add_circle_filled(x, y, radius, color)
 
 	// 
-	foreign addBezier(bezier, color, line_width)
+	foreign add_bezier(bezier, color, line_width)
 }
 
 class Textbox
@@ -43,13 +43,13 @@ class Textbox
 
 foreign class Graphics
 {
-	foreign static onSize(w, h)
-	foreign static onCamUpdate(dx, dy, scale)
-	foreign static drawPainter(pt)
-	foreign static drawText(text, x, y, scale, textbox)
-	foreign static drawTexture(texture, x, y, scale)
+	foreign static on_size(w, h)
+	foreign static on_cam_update(dx, dy, scale)
+	foreign static draw_painter(pt)
+	foreign static draw_text(text, x, y, scale, textbox)
+	foreign static draw_texture(texture, x, y, scale)
 	foreign static flush()
-	foreign static dtexDebugDraw()
+	foreign static dtex_debug_draw()
 	foreign static get_width()
 	foreign static get_height()
 }

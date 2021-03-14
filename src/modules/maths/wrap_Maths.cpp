@@ -45,25 +45,25 @@ int w_Float2_finalize(void* data)
     return sizeof(sm::vec2);
 }
 
-void w_Float2_setX()
+void w_Float2_set_x()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     v2->x = (float)ves_tonumber(1);
 }
 
-void w_Float2_getX()
+void w_Float2_get_x()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     ves_set_number(0, static_cast<double>(v2->x));
 }
 
-void w_Float2_setY()
+void w_Float2_set_y()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     v2->y = (float)ves_tonumber(1);
 }
 
-void w_Float2_getY()
+void w_Float2_get_y()
 {
     sm::vec2* v2 = (sm::vec2*)ves_toforeign(0);
     ves_set_number(0, static_cast<double>(v2->y));
@@ -100,7 +100,7 @@ void w_Matrix44_translate()
     mt->Translate(x, y, z);
 }
 
-void w_Matrix44_rotateAxis()
+void w_Matrix44_rotate_axis()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
     const float angle = (float)ves_tonumber(1);
@@ -201,7 +201,7 @@ void w_Matrix44_lookat()
     *mt = sm::mat4::LookAt(eye, center, up);
 }
 
-void w_Matrix44_fromRotateMat()
+void w_Matrix44_from_rotate_mat()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
 
@@ -224,7 +224,7 @@ void w_Matrix44_transform_mat4()
     *mt = *trans * *mt;
 }
 
-void w_Maths_isConvexIntersectConvex()
+void w_Maths_is_convex_intersect_convex()
 {
     auto c0 = tt::list_to_vec2_array(1);
     auto c1 = tt::list_to_vec2_array(2);
@@ -239,27 +239,27 @@ namespace tt
 
 VesselForeignMethodFn MathsBindMethod(const char* signature)
 {
-    //if (strcmp(signature, "Float2.x=(_)") == 0) return w_Float2_setX;
-    //if (strcmp(signature, "Float2.x()") == 0) return w_Float2_getX;
-    if (strcmp(signature, "Float2.setX(_)") == 0) return w_Float2_setX;
-    if (strcmp(signature, "Float2.x()") == 0) return w_Float2_getX;
-    if (strcmp(signature, "Float2.setY(_)") == 0) return w_Float2_setY;
-    if (strcmp(signature, "Float2.y()") == 0) return w_Float2_getY;
+    //if (strcmp(signature, "Float2.x=(_)") == 0) return w_Float2_set_x;
+    //if (strcmp(signature, "Float2.x()") == 0) return w_Float2_get_x;
+    if (strcmp(signature, "Float2.set_x(_)") == 0) return w_Float2_set_x;
+    if (strcmp(signature, "Float2.x()") == 0) return w_Float2_get_x;
+    if (strcmp(signature, "Float2.set_y(_)") == 0) return w_Float2_set_y;
+    if (strcmp(signature, "Float2.y()") == 0) return w_Float2_get_y;
     if (strcmp(signature, "Float2.transform(_)") == 0) return w_Float2_transform;
 
     if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
 
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
-    if (strcmp(signature, "Matrix44.rotateAxis(_,_,_,_)") == 0) return w_Matrix44_rotateAxis;
+    if (strcmp(signature, "Matrix44.rotate_axis(_,_,_,_)") == 0) return w_Matrix44_rotate_axis;
     if (strcmp(signature, "Matrix44.scale(_,_,_)") == 0) return w_Matrix44_scale;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
-    if (strcmp(signature, "Matrix44.fromRotateMat(_)") == 0) return w_Matrix44_fromRotateMat;
+    if (strcmp(signature, "Matrix44.from_totate_mat(_)") == 0) return w_Matrix44_from_rotate_mat;
     if (strcmp(signature, "Matrix44.transform_mat2d(_)") == 0) return w_Matrix44_transform_mat2d;
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
 
-    if (strcmp(signature, "static Maths.isConvexIntersectConvex(_,_)") == 0) return w_Maths_isConvexIntersectConvex;
+    if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
 
 	return nullptr;
 }

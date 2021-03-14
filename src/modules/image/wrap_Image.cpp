@@ -118,19 +118,19 @@ int w_ImageData_finalize(void* data)
     return sizeof(tt::ImageData);
 }
 
-void w_ImageData_getWidth()
+void w_ImageData_get_width()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     ves_set_number(0, (double)img->width);
 }
 
-void w_ImageData_getHeight()
+void w_ImageData_get_height()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     ves_set_number(0, (double)img->height);
 }
 
-void w_ImageData_toRGB565()
+void w_ImageData_to_rgb565()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
 
@@ -153,14 +153,14 @@ void w_ImageData_toRGB565()
     img->format = GPF_RGB565;
 }
 
-void w_ImageData_storeToFile()
+void w_ImageData_store_to_file()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     const char* filepath = ves_tostring(1);
     gimg_export(filepath, img->pixels, img->width, img->height, img->format, 1);
 }
 
-void w_ImageData_getPixel()
+void w_ImageData_get_pixel()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     const int x = (int)ves_tonumber(1);
@@ -182,7 +182,7 @@ void w_ImageData_getPixel()
     ves_set_number(0, (double)col);
 }
 
-void w_ImageData_setPixel()
+void w_ImageData_set_pixel()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     const int x = (int)ves_tonumber(1);
@@ -244,7 +244,7 @@ void w_ImageData_cropping()
     sub_img->format = img->format;
 }
 
-void w_ImageData_copyFrom()
+void w_ImageData_copy_from()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     tt::ImageData* sub_img = (tt::ImageData*)ves_toforeign(1);
@@ -283,7 +283,7 @@ void w_ImageData_copyFrom()
     }
 }
 
-void w_ImageData_isEmpty()
+void w_ImageData_is_empty()
 {
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
     const int channels = get_format_channels(img->format);
@@ -308,15 +308,15 @@ namespace tt
 
 VesselForeignMethodFn ImageBindMethod(const char* signature)
 {
-    if (strcmp(signature, "ImageData.getWidth()") == 0) return w_ImageData_getWidth;
-    if (strcmp(signature, "ImageData.getHeight()") == 0) return w_ImageData_getHeight;
-    if (strcmp(signature, "ImageData.toRGB565()") == 0) return w_ImageData_toRGB565;
-    if (strcmp(signature, "ImageData.storeToFile(_)") == 0) return w_ImageData_storeToFile;
-    if (strcmp(signature, "ImageData.getPixel(_,_)") == 0) return w_ImageData_getPixel;
-    if (strcmp(signature, "ImageData.setPixel(_,_,_,_,_)") == 0) return w_ImageData_setPixel;
+    if (strcmp(signature, "ImageData.get_width()") == 0) return w_ImageData_get_width;
+    if (strcmp(signature, "ImageData.get_height()") == 0) return w_ImageData_get_height;
+    if (strcmp(signature, "ImageData.to_rgb565()") == 0) return w_ImageData_to_rgb565;
+    if (strcmp(signature, "ImageData.store_to_file(_)") == 0) return w_ImageData_store_to_file;
+    if (strcmp(signature, "ImageData.get_pixel(_,_)") == 0) return w_ImageData_get_pixel;
+    if (strcmp(signature, "ImageData.set_pixel(_,_,_,_,_)") == 0) return w_ImageData_set_pixel;
     if (strcmp(signature, "ImageData.cropping(_,_,_,_)") == 0) return w_ImageData_cropping;
-    if (strcmp(signature, "ImageData.copyFrom(_,_,_,_)") == 0) return w_ImageData_copyFrom;
-    if (strcmp(signature, "ImageData.isEmpty()") == 0) return w_ImageData_isEmpty;
+    if (strcmp(signature, "ImageData.copy_from(_,_,_,_)") == 0) return w_ImageData_copy_from;
+    if (strcmp(signature, "ImageData.is_empty()") == 0) return w_ImageData_is_empty;
 
     return nullptr;
 }

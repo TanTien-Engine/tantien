@@ -59,7 +59,7 @@ class Editor
 		this.scene = Scene()
 		this.camera = tt_Camera2D()
 
-		this.nodes_op = BlueprintEditOP(this.camera, this.scene, this.popupCB)
+		this.nodes_op = BlueprintEditOP(this.camera, this.scene, this.popup_cb)
 		this.preview_op = NodeOP(this.scene)
 		this.editop = this.nodes_op
 
@@ -113,7 +113,7 @@ class Editor
 
 	draw()
 	{
-		this.drawPreview()
+		this.draw_preview()
 
 		if (!this.hide_nodes) {
 			this.drawScene()		
@@ -123,15 +123,15 @@ class Editor
 
 		Graphics.flush()
 
-		this.drawGUI()
+		this.draw_gui()
 
-		//Graphics.dtexDebugDraw()
+		//Graphics.dtex_debug_draw()
 	}
 
 	sizechanged(w, h)
 	{
-		Graphics.onSize(w, h)
-		GUI.onSize(w, h)
+		Graphics.on_size(w, h)
+		GUI.on_size(w, h)
 		this.camera.on_size(w, h)
 	}
 
@@ -162,8 +162,8 @@ class Editor
 
 	mousemoved(x, y, btn)
 	{
-		GUI.mouseInput(this.gui_top, btn, MOUSE_MOVE, x, y, 0, 0, 1)
-		GUI.mouseInput(this.gui_nodes, btn, MOUSE_MOVE, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+		GUI.mouse_input(this.gui_top, btn, MOUSE_MOVE, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui_nodes, btn, MOUSE_MOVE, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_moved(x, y, btn)
@@ -172,8 +172,8 @@ class Editor
 
 	mousedragged(x, y, btn)
 	{
-		GUI.mouseInput(this.gui_top, btn, MOUSE_DRAG, x, y, 0, 0, 1)
-		GUI.mouseInput(this.gui_nodes, btn, MOUSE_DRAG, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+		GUI.mouse_input(this.gui_top, btn, MOUSE_DRAG, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DRAG, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_dragged(x, y, btn)
@@ -182,8 +182,8 @@ class Editor
 
 	mousepressed(x, y, btn)
 	{
-		GUI.mouseInput(this.gui_top, btn, MOUSE_DOWN, x, y, 0, 0, 1)
-		GUI.mouseInput(this.gui_nodes, btn, MOUSE_DOWN, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+		GUI.mouse_input(this.gui_top, btn, MOUSE_DOWN, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DOWN, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
 		if (btn == MOUSE_RIGHT) {
 			this.right_press_pos = Vector2(x, y)
@@ -196,8 +196,8 @@ class Editor
 
 	mousereleased(x, y, btn)
 	{
-		GUI.mouseInput(this.gui_top, btn, MOUSE_UP, x, y, 0, 0, 1)
-		GUI.mouseInput(this.gui_nodes, btn, MOUSE_UP, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+		GUI.mouse_input(this.gui_top, btn, MOUSE_UP, x, y, 0, 0, 1)
+		GUI.mouse_input(this.gui_nodes, btn, MOUSE_UP, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
 		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
 			this.right_press_pos = nil
@@ -233,7 +233,7 @@ class Editor
 		var dirty = false
 		for (var node in this.scene.nodes) {
 			var bp_node = node.components["bp"]
-			if (bp_node.drawGUI(this.gui_nodes)) {
+			if (bp_node.draw_gui(this.gui_nodes)) {
 				dirty = true
 			}
 		}
@@ -244,19 +244,19 @@ class Editor
 		}
 	}
 
-	drawGUI()
+	draw_gui()
 	{
-		Graphics.onCamUpdate(0, 0, 1)
+		Graphics.on_cam_update(0, 0, 1)
 
 		GUI.begin(this.gui_top)
 
 		if (this.popup_pos)
 		{
-			var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
-			var new_node = this.drawPopup(pos[0], pos[1] - 25, this.prev_pin)
+			var pos = GUI.trans_scr_pos_to_proj(this.popup_pos.x, this.popup_pos.y, 0, 0, 1)
+			var new_node = this.draw_popup(pos[0], pos[1] - 25, this.prev_pin)
 			if (new_node)
 			{
-				var pos = GUI.transScrPosToProj(this.popup_pos.x, this.popup_pos.y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
+				var pos = GUI.trans_scr_pos_to_proj(this.popup_pos.x, this.popup_pos.y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 				this.add_node(new_node, pos[0], pos[1])
 				if (this.prev_pin)
 				{
@@ -282,7 +282,7 @@ class Editor
 
 		GUI.end(this.gui_top)
 
-		Graphics.onCamUpdate(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
+		Graphics.on_cam_update(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}
 
 	is_var_type_match(pin, node)
@@ -326,7 +326,7 @@ class Editor
 		return false
 	}	
 
-	drawPopup(x, y, prev_pin)
+	draw_popup(x, y, prev_pin)
 	{
 		var num = 0
 		if (prev_pin)
@@ -362,7 +362,7 @@ class Editor
 		return nil
 	}
 
-	popupCB(x, y, prev_pin)
+	popup_cb(x, y, prev_pin)
 	{
 		this.popup_pos = Vector2(x, y)
 		if (prev_pin) {
@@ -458,7 +458,7 @@ import \"editor\" for _editor
 "
 		header = header + this.load_file_imports()
 
-		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(this.filepath))
+		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "r")
 		var source = header + file.read()
 		IO.close(file)
@@ -470,7 +470,7 @@ import \"editor\" for _editor
 
 	savetofile()
 	{
-		Filesystem.setAssetBaseDir(Filesystem.get_file_dir(this.filepath))
+		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "w")
 
 		// nodes
@@ -484,7 +484,7 @@ import \"editor\" for _editor
 
 			file.write("var %(name) = %(bp.name)()\n")
 
-			var node_str = bp.toString(name)
+			var node_str = bp.to_string(name)
 			file.write("%(node_str)\n")
 
 			file.write("_editor.add_node(node%(index), %(trans.position.x), %(trans.position.y))\n\n")
@@ -539,7 +539,7 @@ import \"editor\" for _editor
 			var name = "node%(index)"
 			var source = "
 var %(name) = %(bp.name)()
-%(bp.toString(name))
+%(bp.to_string(name))
 _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
 "
 			this.clipboard = this.clipboard + source
@@ -661,10 +661,10 @@ import \"editor\" for _editor
 		Render.set_fbo(fbo)
 		Render.set_viewport([ 0, 0, TEX_SIZE, TEX_SIZE ])
 
-		this.drawPreview()
+		this.draw_preview()
 
 		var img = ImageData.init("SCREEN_CAPTURE")
-		img.storeToFile(img_path)
+		img.store_to_file(img_path)
 
 		Render.set_fbo(prev_fbo)
 		Render.set_viewport(prev_vp)

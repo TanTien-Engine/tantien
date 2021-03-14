@@ -38,7 +38,7 @@ class RenderTarget is Node
 	attachment(value, type)
 	{
 		var mipmap_level = 0
-		var mipmap = Blueprint.get_input_value(this, 5)
+		var mipmap = Blueprint.calc_input_value(this, 5)
 		if (mipmap) {
 			mipmap_level = mipmap.value
 		}
@@ -53,8 +53,8 @@ class RenderTarget is Node
 			if (tex is Texture2D)
 			{
 				if (this.width == 0) {
-					this.width = tex.getWidth()
-					this.height = tex.getHeight()
+					this.width = tex.get_width()
+					this.height = tex.get_height()
 				}
 
 				this.fbo.attach_tex(tex, type, "tex2d", mipmap_level)
@@ -90,7 +90,7 @@ class RenderTarget is Node
 		}
 
 		for (var i in 0..this.imports.count) {
-			var v = Blueprint.get_input_value(this, i)
+			var v = Blueprint.calc_input_value(this, i)
 			if (v)  {
 				this.attachment(v.value, this.imports[i].name)
 			}
@@ -104,7 +104,7 @@ class RenderTarget is Node
 		return Variant(VAR_TYPE_FRAME_BUFFER, ret)
 	}
 
-	toString(name) 
+	to_string(name) 
 	{
 		return "
 %(name).width = %(this.width)

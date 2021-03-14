@@ -37,7 +37,7 @@ class Camera2D
 		this.pos.x = this.pos.x + offset.x * this.scale
 		this.pos.y = this.pos.y + offset.y * this.scale
 
-		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)	
+		Graphics.on_cam_update(this.pos.x, this.pos.y, this.scale)	
 	}
 
 	scale_cam(scale, pos)
@@ -51,7 +51,7 @@ class Camera2D
 		this.pos.y = (y - hh) * this.scale + this.pos.y - (y - hh) * new_scale
 		this.scale = new_scale
 
-		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)
+		Graphics.on_cam_update(this.pos.x, this.pos.y, this.scale)
 	}
 
 	reset()
@@ -59,6 +59,6 @@ class Camera2D
 		this.pos.set(0, 0)
 		this.scale = 1.0
 
-		Graphics.onCamUpdate(this.pos.x, this.pos.y, this.scale)	
+		Graphics.on_cam_update(this.pos.x, this.pos.y, this.scale)	
 	}
 }

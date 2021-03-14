@@ -8,20 +8,20 @@ foreign class ImageData
 	// format: <"rgb", "rgba">
 	init(width, height, format) {}
 
-	foreign getWidth()
-	foreign getHeight()
+	foreign get_width()
+	foreign get_height()
 
-	foreign toRGB565()
+	foreign to_rgb565()
 
-	foreign storeToFile(filepath)
+	foreign store_to_file(filepath)
 
-	foreign getPixel(x, y)
-	foreign setPixel(x, y, r, g, b)
+	foreign get_pixel(x, y)
+	foreign set_pixel(x, y, r, g, b)
 	
 	foreign cropping(x, y, w, h)
-	foreign copyFrom(sub_img, x, y, debug_border)
+	foreign copy_from(sub_img, x, y, debug_border)
 
-	foreign isEmpty()
+	foreign is_empty()
 }
 
 );

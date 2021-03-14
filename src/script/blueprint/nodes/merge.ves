@@ -32,7 +32,7 @@ class Merge is Node
 	{
 		var ret = []
 		for (var i in 0..this.imports.count) {
-			var v = Blueprint.get_input_value(this, i)
+			var v = Blueprint.calc_input_value(this, i)
 			if (v) {
 				ret.add(v)
 			}

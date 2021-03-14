@@ -22,8 +22,8 @@ class Fetch is Node
 
 	calc(idx)
 	{
-		var items = Blueprint.get_input_value(this, 0)
-		var index = Blueprint.get_input_value(this, 1)
+		var items = Blueprint.calc_input_value(this, 0)
+		var index = Blueprint.calc_input_value(this, 1)
 		if (items and index and items.value is List and index.value is Num) {
 			if (index.value < items.value.count) {
 				return Variant(VAR_TYPE_ANY, items.value[index.value])

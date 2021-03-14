@@ -36,7 +36,7 @@ class LookAt is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).eye.set(%(this.eye.x), %(this.eye.y), %(this.eye.z))
 %(name).center.set(%(this.center.x), %(this.center.y), %(this.center.z))
@@ -44,7 +44,7 @@ class LookAt is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

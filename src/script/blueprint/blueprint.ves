@@ -2,7 +2,7 @@ import "blueprint.connecting" for Connecting
 
 class Blueprint
 {
-	static topoSort(nodes)
+	static topo_sort(nodes)
 	{
 		// prepare
 		var in_deg = List.filled(nodes.count, 0)
@@ -55,7 +55,7 @@ class Blueprint
 		return ret
 	}
 
-	static getPrecursorNodes(root)
+	static get_precursor_nodes(root)
 	{
 		var nodes = Set.new()
 		var buf = []
@@ -99,7 +99,7 @@ class Blueprint
 		conn.update()
 	}
 
-	static getInputNode(curr_node, input_slot)
+	static get_input_node(curr_node, input_slot)
 	{
 		var pin = curr_node.imports[input_slot]
 		if (pin.conns.isEmpty) {
@@ -109,7 +109,7 @@ class Blueprint
 		}
 	}
 
-	static get_input_value(curr_node, input_slot)
+	static calc_input_value(curr_node, input_slot)
 	{
 		var pin = curr_node.imports[input_slot]
 		if (pin.conns.isEmpty) {

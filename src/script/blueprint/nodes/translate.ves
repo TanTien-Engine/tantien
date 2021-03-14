@@ -30,14 +30,14 @@ class Translate is Node
 
 	calc(idx) 
 	{
-		var v_offset = Blueprint.get_input_value(this, 1)
+		var v_offset = Blueprint.calc_input_value(this, 1)
 		if (v_offset.type == VAR_TYPE_NUMBER3)
 		{
 			this.dx = v_offset.value.x
 			this.dy = v_offset.value.y
 			this.dz = v_offset.value.z
 
-			var v_mat = Blueprint.get_input_value(this, 0)
+			var v_mat = Blueprint.calc_input_value(this, 0)
 			v_mat.value.translate(this.dx, this.dy, this.dz)
 			return v_mat
 		}
@@ -46,7 +46,7 @@ class Translate is Node
 			var ret = []
 			for (var offset in v_offset.value)
 			{
-				var v_mat = Blueprint.get_input_value(this, 0)
+				var v_mat = Blueprint.calc_input_value(this, 0)
 				v_mat.value.translate(offset[0], offset[1], offset[2])
 				ret.add(v_mat)
 			}
@@ -54,7 +54,7 @@ class Translate is Node
 		}
 		else
 		{
-			var v_mat = Blueprint.get_input_value(this, 0)
+			var v_mat = Blueprint.calc_input_value(this, 0)
 			if (v_mat) {
 				v_mat.value.translate(this.dx, this.dy, this.dz)
 				return v_mat
@@ -73,7 +73,7 @@ class Translate is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).dx = %(this.dx)
 %(name).dy = %(this.dy)
@@ -81,7 +81,7 @@ class Translate is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

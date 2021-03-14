@@ -30,11 +30,11 @@ foreign class GUI
 	foreign static update(ctx)
 	foreign static rebuild(ctx)
 
-	foreign static onSize(w, h)
-	foreign static transScrPosToProj(x, y, cam_x, cam_y, cam_scale)
+	foreign static on_size(w, h)
+	foreign static trans_scr_pos_to_proj(x, y, cam_x, cam_y, cam_scale)
 	// btn: MOUSE_LEFT, MOUSE_RIGHT
 	// action: MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
-	foreign static mouseInput(ctx, btn, action, x, y, cam_x, cam_y, cam_scale)
+	foreign static mouse_input(ctx, btn, action, x, y, cam_x, cam_y, cam_scale)
 
 	foreign static frame(ctx, x, y, width, height)
 	foreign static button(ctx, label, x, y, width, height)

@@ -54,7 +54,7 @@ class Camera3D is Node
 		else if (idx == 2)
 		{
 			var mat = Matrix44.init()
-			mat.fromRotateMat(this.calc_mat())
+			mat.from_totate_mat(this.calc_mat())
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 3)
@@ -70,7 +70,7 @@ class Camera3D is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).position.set(%(this.position.x), %(this.position.y), %(this.position.z))
 %(name).yaw = %(this.yaw)
@@ -81,7 +81,7 @@ class Camera3D is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

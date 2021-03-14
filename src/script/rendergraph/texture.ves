@@ -60,7 +60,7 @@ class Texture is Node
 		{
 			var width = 0
 			if (this.tex) {
-				width = this.tex.getWidth()		
+				width = this.tex.get_width()		
 			}
 			return Variant(VAR_TYPE_NUMBER, width)
 		}
@@ -68,7 +68,7 @@ class Texture is Node
 		{
 			var height = 0
 			if (this.tex) {
-				height = this.tex.getHeight()
+				height = this.tex.get_height()
 			}
 			return Variant(VAR_TYPE_NUMBER, height)
 		}
@@ -80,10 +80,10 @@ class Texture is Node
 
 		if (this.tex)
 		{
-			var scale = this.style.width / this.tex.getWidth()
+			var scale = this.style.width / this.tex.get_width()
 			var x = this.pos.x
-			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.getHeight() * scale * 0.5 - DEFAULT_HEIGHT
-			Graphics.drawTexture(this.tex, x, y, scale)
+			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
+			Graphics.draw_texture(this.tex, x, y, scale)
 		}
 	}
 
@@ -99,7 +99,7 @@ class Texture is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
-	toString(name) 
+	to_string(name) 
 	{
 		var ret = "%(name).gamma_correction = %(this.gamma_correction)\n"
 		if (this.width != 0 and this.height != 0) {
@@ -111,7 +111,7 @@ class Texture is Node
 		return ret
 	}
 
-	drawGUI(ctx)
+	draw_gui(ctx)
 	{
 		var dirty = false
 

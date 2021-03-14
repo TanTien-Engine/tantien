@@ -69,7 +69,7 @@ void w_GUI_onSize()
 	tt::GUI::Instance()->OnSize(w, h);
 }
 
-void w_GUI_transScrPosToProj()
+void w_GUI_trans_scr_pos_to_proj()
 {
 	const float x = (float)ves_tonumber(1);
 	const float y = (float)ves_tonumber(2);
@@ -101,7 +101,7 @@ enum MouseAction
 	MOUSE_DRAG
 };
 
-void w_GUI_mouseInput()
+void w_GUI_mouse_input()
 {
 	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const int btn = (int)ves_tonumber(2);
@@ -313,9 +313,9 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 	if (strcmp(signature, "static GUI.update(_)") == 0) return w_GUI_update;
 	if (strcmp(signature, "static GUI.rebuild(_)") == 0) return w_GUI_rebuild;
 
-	if (strcmp(signature, "static GUI.onSize(_,_)") == 0) return w_GUI_onSize;
-	if (strcmp(signature, "static GUI.transScrPosToProj(_,_,_,_,_)") == 0) return w_GUI_transScrPosToProj;
-	if (strcmp(signature, "static GUI.mouseInput(_,_,_,_,_,_,_,_)") == 0) return w_GUI_mouseInput;
+	if (strcmp(signature, "static GUI.on_size(_,_)") == 0) return w_GUI_onSize;
+	if (strcmp(signature, "static GUI.trans_scr_pos_to_proj(_,_,_,_,_)") == 0) return w_GUI_trans_scr_pos_to_proj;
+	if (strcmp(signature, "static GUI.mouse_input(_,_,_,_,_,_,_,_)") == 0) return w_GUI_mouse_input;
 
 	if (strcmp(signature, "static GUI.frame(_,_,_,_,_)") == 0) return w_GUI_frame;
 	if (strcmp(signature, "static GUI.button(_,_,_,_,_,_)") == 0) return w_GUI_button;

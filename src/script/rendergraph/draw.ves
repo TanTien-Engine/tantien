@@ -52,12 +52,12 @@ class Draw is Node
 			return
 		}
 
-		var shader = Blueprint.getInputNode(this, 1)
+		var shader = Blueprint.get_input_node(this, 1)
 		if (!shader or !shader.prog) {
 			return
 		}
 
-		var model = Blueprint.get_input_value(this, 4).value
+		var model = Blueprint.calc_input_value(this, 4).value
 		if (model and model.model)
 		{
 			this.draw_model(shader, model.model)
@@ -82,7 +82,7 @@ class Draw is Node
 			}	
 		}
 
-		var v_fbo = Blueprint.get_input_value(this, 3).value	
+		var v_fbo = Blueprint.calc_input_value(this, 3).value	
 		if (v_fbo is List) {
 			count = Math.max(count, v_fbo.count)	
 		}
@@ -130,6 +130,7 @@ class Draw is Node
 			Render.draw_model(shader.prog, model, this.render_state)
 		}
 	}
+
 	layout() 
 	{
 		super.layout()
@@ -137,14 +138,14 @@ class Draw is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).set_prim_type(\"%(this.prim_types[this.prim_selected])\")
 %(name).render_state = %(this.render_state)
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

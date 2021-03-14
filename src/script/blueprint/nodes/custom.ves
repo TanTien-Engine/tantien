@@ -39,7 +39,7 @@ class Custom is Node
 		import "editor" for _editor
 		_editor.script_stack.clear()
 		for (var i in 1..this.imports.count) {
-			var v = Blueprint.get_input_value(this, i)
+			var v = Blueprint.calc_input_value(this, i)
 			_editor.script_stack.add(v.value)
 		}
 		var code = "import \"editor\" for _editor\n" + this.code
@@ -53,7 +53,7 @@ class Custom is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
 	}
 
-	toString(name) 
+	to_string(name) 
 	{
 		var source = this.code.replace("\"", "\\\"")
 		return "
@@ -62,7 +62,7 @@ class Custom is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

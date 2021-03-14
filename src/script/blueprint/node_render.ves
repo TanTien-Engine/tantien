@@ -18,9 +18,9 @@ class NodeRender
 
 		var hw = node.style.width * 0.5
 		var hh = node.style.height * 0.5
-		pt.addRectFilled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], COL_PANEL_BG)
+		pt.add_rect_filled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], COL_PANEL_BG)
 
-		Graphics.drawPainter(pt)
+		Graphics.draw_painter(pt)
 
 		var str
 		if (node.title) {
@@ -28,7 +28,7 @@ class NodeRender
 		} else {
 			str = node.name
 		}
-		Graphics.drawText(str, node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+		Graphics.draw_text(str, node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
 	}
 
 	static draw_node_pins(node)
@@ -57,14 +57,14 @@ class NodeRender
 			}
 		}
 
-		Graphics.drawPainter(pt)
+		Graphics.draw_painter(pt)
 	}
 
 	static draw_pin(x, y, pin)
 	{
 		var pt = Painter.init()
-		pt.addCircle(x, y, PIN_RADIUS, [224, 224, 224, 255])
-		Graphics.drawPainter(pt)
+		pt.add_circle(x, y, PIN_RADIUS, [224, 224, 224, 255])
+		Graphics.draw_painter(pt)
 
 		var dx = 0
 		var tb
@@ -76,11 +76,11 @@ class NodeRender
 			tb = TB_RIGHT		
 		}
 
-		Graphics.drawText(pin.name, x + dx, y, 0.5, tb)
+		Graphics.draw_text(pin.name, x + dx, y, 0.5, tb)
 	}
 
 	static draw_conn(pt, conn)
 	{
-		pt.addBezier(conn.curve, [255,0,0,255], 1)
+		pt.add_bezier(conn.curve, [255,0,0,255], 1)
 	}
 }

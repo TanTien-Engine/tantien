@@ -52,10 +52,10 @@ class DrawSelectRect is EditOP
 		}
 
 		var r = Rect(p0, p1)
-		pt.addRectFilled([r.x, r.y, r.w, r.h], color)
-		pt.addRect([r.x, r.y, r.w, r.h], Colors.select_red(), 2 * this.camera.scale)
+		pt.add_rect_filled([r.x, r.y, r.w, r.h], color)
+		pt.add_rect([r.x, r.y, r.w, r.h], Colors.select_red(), 2 * this.camera.scale)
 
-		Graphics.drawPainter(pt)
+		Graphics.draw_painter(pt)
 	}
 
 	clear()

@@ -64,14 +64,14 @@ class For is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).start = %(this.start)
 %(name).end = %(this.end)
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 
@@ -97,7 +97,7 @@ class For is Node
 		return dirty
 	}
 
-	rebuildExecList()
+	rebuild_exec_list()
 	{
 		if (this.imports[1].conns.isEmpty) {
 			return
@@ -105,7 +105,7 @@ class For is Node
 
 		var root = this.imports[1].conns.front().from.node
 
-		var nodes = Blueprint.getPrecursorNodes(root)
-		this.exec_list = Blueprint.topoSort(nodes)
+		var nodes = Blueprint.get_precursor_nodes(root)
+		this.exec_list = Blueprint.topo_sort(nodes)
 	}
 }

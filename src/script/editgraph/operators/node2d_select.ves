@@ -71,9 +71,9 @@ class Node2dSelect is EditOP
 			var bb = node.components["bounding"]
 			var borders = bb.get_border_points()
 			var vertices = [borders[0].x, borders[0].y, borders[1].x, borders[1].y, borders[2].x, borders[2].y, borders[3].x, borders[3].y]
-			pt.addPolygon(vertices, Colors.select_red(), this.camera.scale)
+			pt.add_polygon(vertices, Colors.select_red(), this.camera.scale)
 		}
-		Graphics.drawPainter(pt)
+		Graphics.draw_painter(pt)
 	}
 
 	clear()

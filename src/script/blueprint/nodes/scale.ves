@@ -32,15 +32,15 @@ class Scale is Node
 
 	calc(idx) 
 	{
-		var sx = Blueprint.get_input_value(this, 1)
+		var sx = Blueprint.calc_input_value(this, 1)
 		if (sx) {
 			this.sx = sx.value
 		}
-		var sy = Blueprint.get_input_value(this, 2)
+		var sy = Blueprint.calc_input_value(this, 2)
 		if (sy) {
 			this.sy = sy.value
 		}		
-		var sz = Blueprint.get_input_value(this, 3)
+		var sz = Blueprint.calc_input_value(this, 3)
 		if (sz) {
 			this.sz = sz.value
 		}
@@ -63,7 +63,7 @@ class Scale is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 3
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).sx = %(this.sx)
 %(name).sy = %(this.sy)
@@ -71,7 +71,7 @@ class Scale is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 

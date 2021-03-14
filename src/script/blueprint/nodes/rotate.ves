@@ -44,7 +44,7 @@ class Rotate is Node
 			this.angle = f_pin.node.calc(f_pin.slot_idx).value
 		}
 
-		mat.rotateAxis(Math.radians(this.angle), this.axis_x, this.axis_y, this.axis_z)
+		mat.rotate_axis(Math.radians(this.angle), this.axis_x, this.axis_y, this.axis_z)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
@@ -56,7 +56,7 @@ class Rotate is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
 	}
 
-	toString(name) {
+	to_string(name) {
 		return "
 %(name).angle = %(this.angle)
 %(name).axis_x = %(this.axis_x)
@@ -65,7 +65,7 @@ class Rotate is Node
 "
 	}
 
-	drawGUI(ctx) 
+	draw_gui(ctx) 
 	{
 		var dirty = false
 
