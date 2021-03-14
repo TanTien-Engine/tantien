@@ -58,10 +58,9 @@ class Draw is Node
 		}
 
 		var model = Blueprint.get_input_value(this, 4).value
-		if (model)
+		if (model and model.model)
 		{
-			shader.updateUniforms(0)
-			Render.draw_model(shader.prog, model.model, this.render_state)
+			this.draw_model(shader, model.model)
 			return
 		}
 
@@ -122,6 +121,15 @@ class Draw is Node
 		}
 	}
 
+	draw_model(shader, model)
+	{
+		var count = shader.get_frame_count()
+		for (var i in 0..count) 
+		{
+			shader.updateUniforms(i)
+			Render.draw_model(shader.prog, model, this.render_state)
+		}
+	}
 	layout() 
 	{
 		super.layout()
