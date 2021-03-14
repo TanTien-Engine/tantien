@@ -55,8 +55,14 @@ class Translate is Node
 		else
 		{
 			var v_mat = Blueprint.get_input_value(this, 0)
-			v_mat.value.translate(this.dx, this.dy, this.dz)
-			return v_mat
+			if (v_mat) {
+				v_mat.value.translate(this.dx, this.dy, this.dz)
+				return v_mat
+			} else {
+				var mt = Matrix44.init()
+				mt.translate(this.dx, this.dy, this.dz)
+				return Variant(VAR_TYPE_MATRIX4, mt)		
+			}
 		}
 	}
 
