@@ -1,0 +1,79 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, 39.721431443145, -1.3193923547427)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
+
+_editor.add_node(node1, -352.5045136906, 84.087950245939)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+} 
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -160.44446606735, 8.2205971894984)
+
+var node3 = VertexArray()
+
+node3.data = [ -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5 ]
+node3.attrs = [ 3 ]
+
+_editor.add_node(node3, -136.2709004928, -84.303873170763)
+
+var node4 = Camera3D()
+
+node4.position.set(-0.72429769344927, 0.052538788015722, 2.1184513642188)
+node4.yaw = -68.4
+node4.pitch = 5.1
+node4.zoom = 45
+node4.update_camera_vectors()
+node4.speed = 0.01
+
+_editor.add_node(node4, -485.88475340421, -74.482134571835)
+
+var node5 = Perspective()
+
+node5.fovy = 45
+node5.aspect = 0
+node5.znear = 0.1
+node5.zfar = 100
+
+_editor.add_node(node5, -328.85996003871, -217.98327153505)
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[2])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node4.exports[1], node5.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[2])

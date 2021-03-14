@@ -1,0 +1,167 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, 151.04060311884, 160.76904688927)
+
+var node1 = Model()
+node1.init_model("resources/objects/backpack/backpack.obj")
+
+_editor.add_node(node1, -68.655960049918, -34.881447251483)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+    TexCoords = aTexCoords;    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{    
+    FragColor = texture(texture_diffuse1, TexCoords);
+}
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -200.37606979578, 18.412290452596)
+
+var node3 = Clear()
+
+node3.masks = [ "color", "depth" ]
+node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
+
+_editor.add_node(node3, -181.40594233567, 154.09172663351)
+
+var node4 = Camera3D()
+
+node4.position.set(7.8536627956128, 0.35000538843367, -2.4203552790022)
+node4.yaw = -179
+node4.pitch = -7.8
+node4.zoom = 8
+node4.update_camera_vectors()
+node4.speed = 0.21111145615578
+
+_editor.add_node(node4, -433.55561062704, 39.001536013218)
+
+var node5 = Perspective()
+
+node5.fovy = 8
+node5.aspect = 0
+node5.znear = 0.1
+node5.zfar = 100
+
+_editor.add_node(node5, -432.87257632775, -118.09155541126)
+
+var node6 = Draw()
+
+node6.set_prim_type("triangles")
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+
+_editor.add_node(node6, 609.06448284926, 142.09908624272)
+
+var node7 = Shader()
+
+node7.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out VS_OUT {
+    vec3 normal;
+} vs_out;
+
+uniform UBO
+{
+	mat4 view;
+	mat4 model;	
+};
+
+void main()
+{
+    mat3 normalMatrix = mat3(transpose(inverse(view * model)));
+    vs_out.normal = vec3(vec4(normalMatrix * aNormal, 0.0));
+    gl_Position = view * model * vec4(aPos, 1.0); 
+}
+"
+node7.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+"
+node7.gs = "
+#version 330 core
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+in VS_OUT {
+    vec3 normal;
+} gs_in[];
+
+const float MAGNITUDE = 0.2;
+
+uniform UBO
+{
+	mat4 projection;	
+};
+
+void GenerateLine(int index)
+{
+    gl_Position = projection * gl_in[index].gl_Position;
+    EmitVertex();
+    gl_Position = projection * (gl_in[index].gl_Position + vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    EmitVertex();
+    EndPrimitive();
+}
+
+void main()
+{
+    GenerateLine(0); // first vertex normal
+    GenerateLine(1); // second vertex normal
+    GenerateLine(2); // third vertex normal
+}
+"
+node7.execute()
+
+_editor.add_node(node7, 416.67396461722, 141.33238992326)
+
+Blueprint.connect(node0.exports[0], node6.imports[0])
+Blueprint.connect(node1.exports[0], node0.imports[4])
+Blueprint.connect(node1.exports[0], node6.imports[4])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[0])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node4.exports[0], node7.imports[0])
+Blueprint.connect(node4.exports[1], node5.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[2])
+Blueprint.connect(node5.exports[0], node7.imports[2])
+Blueprint.connect(node7.exports[0], node6.imports[1])

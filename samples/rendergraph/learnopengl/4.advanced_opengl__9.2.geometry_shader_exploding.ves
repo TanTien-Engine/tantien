@@ -1,0 +1,136 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, -10.492079074999, 33.045530735999)
+
+var node1 = Model()
+node1.init_model("resources/objects/nanosuit/nanosuit.obj")
+
+_editor.add_node(node1, -171.53144669701, -130.6945747701)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT {
+    vec2 texCoords;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+};
+
+void main()
+{
+    vs_out.texCoords = aTexCoords;
+    gl_Position = projection * view * model * vec4(aPos, 1.0); 
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{
+    FragColor = texture(texture_diffuse1, TexCoords);
+}
+"
+node2.gs = "
+#version 330 core
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in VS_OUT {
+    vec2 texCoords;
+} gs_in[];
+
+out vec2 TexCoords; 
+
+uniform UBO
+{
+	float time;
+};
+
+vec4 explode(vec4 position, vec3 normal)
+{
+    float magnitude = 2.0;
+    vec3 direction = normal * ((sin(time) + 1.0) / 2.0) * magnitude; 
+    return position + vec4(direction, 0.0);
+}
+
+vec3 GetNormal()
+{
+    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
+    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+    return normalize(cross(a, b));
+}
+
+void main() {    
+    vec3 normal = GetNormal();
+
+    gl_Position = explode(gl_in[0].gl_Position, normal);
+    TexCoords = gs_in[0].texCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[1].gl_Position, normal);
+    TexCoords = gs_in[1].texCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[2].gl_Position, normal);
+    TexCoords = gs_in[2].texCoords;
+    EmitVertex();
+    EndPrimitive();
+}
+"
+node2.execute()
+
+_editor.add_node(node2, -197.32513742956, -20.047283797561)
+
+var node3 = Clear()
+
+node3.masks = [ "depth" ]
+node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
+
+_editor.add_node(node3, -181.40594233567, 154.09172663351)
+
+var node4 = Camera3D()
+
+node4.position.set(-3.4741800262782, 0.48399370362902, 17.34073460926)
+node4.yaw = -797.2
+node4.pitch = 19.6
+node4.zoom = 45
+node4.update_camera_vectors()
+node4.speed = 0.14068865776062
+
+_editor.add_node(node4, -459.69639832783, 155.17591555759)
+
+var node5 = Perspective()
+
+node5.fovy = 45
+node5.aspect = 0
+node5.znear = 0.10000000149012
+node5.zfar = 100
+
+_editor.add_node(node5, -483.19745298173, -7.5054677744243)
+
+var node6 = Time()
+
+_editor.add_node(node6, -396.21146306078, -114.71948988068)
+
+Blueprint.connect(node1.exports[0], node0.imports[4])
+Blueprint.connect(node2.exports[0], node0.imports[1])
+Blueprint.connect(node3.exports[0], node0.imports[0])
+Blueprint.connect(node4.exports[0], node2.imports[1])
+Blueprint.connect(node4.exports[1], node5.imports[0])
+Blueprint.connect(node5.exports[0], node2.imports[0])
+Blueprint.connect(node6.exports[0], node2.imports[4])
