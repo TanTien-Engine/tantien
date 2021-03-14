@@ -2,6 +2,7 @@
 #include "modules/image/ImageData.h"
 #include "modules/filesystem/Filesystem.h"
 #include "modules/script/Proxy.h"
+#include "modules/render/Render.h"
 
 #include <gimg_import.h>
 #include <gimg_typedef.h>
@@ -9,6 +10,7 @@
 #include <unirender/typedef.h>
 #include <unirender/Texture.h>
 #include <unirender/TextureUtility.h>
+#include <unirender/Device.h>
 #include <guard/check.h>
 
 #include <string>
@@ -45,11 +47,23 @@ void w_ImageData_allocate()
         uint8_t* pixels = nullptr;
 
         const char* filepath = ves_tostring(1);
-        if (tt::Filesystem::IsExists(filepath)) {
-            pixels = gimg_import(filepath, &width, &height, &format);
-        } else {
-            std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;
-            pixels = gimg_import(path.c_str(), &width, &height, &format);
+        if (strcmp(filepath, "SCREEN_CAPTURE") == 0)
+        {
+            static const int TEX_SZ = 512;
+            pixels = new uint8_t[TEX_SZ * TEX_SZ * 3];
+            tt::Render::Instance()->Device()->ReadPixels(pixels, ur::TextureFormat::RGB, 0, 0, TEX_SZ, TEX_SZ);
+            width = TEX_SZ;
+            height = TEX_SZ;
+            format = GPF_RGB;
+        }
+        else
+        {
+            if (tt::Filesystem::IsExists(filepath)) {
+                pixels = gimg_import(filepath, &width, &height, &format);
+            } else {
+                std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;
+                pixels = gimg_import(path.c_str(), &width, &height, &format);
+            }
         }
 
         img->pixels = pixels;

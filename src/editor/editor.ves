@@ -16,6 +16,8 @@ import "editgraph.operators.node2d_translate" for Node2dTranslate
 import "editor.node_cache" for NODE_CACHE
 import "system" for System as tt_System
 import "maths" for Matrix44
+import "image" for ImageData
+import "render" for Render, Framebuffer, RenderBuffer
 
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.number2" for Number2
@@ -640,5 +642,31 @@ import \"editor\" for _editor
 
 		this.clipboard = ""
 		this.cam_pos_on_copy = nil
+	}
+
+	print_screen()
+	{
+		var TEX_SIZE = 512
+
+		var img_path = this.filepath.replace(".ves", ".jpg")
+
+		var fbo = Framebuffer.init()
+
+		var rbo = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "rgb")
+		fbo.attach_rbo(rbo, "col0")
+
+		var prev_fbo = Render.get_fbo()
+		var prev_vp = Render.get_viewport()
+
+		Render.set_fbo(fbo)
+		Render.set_viewport([ 0, 0, TEX_SIZE, TEX_SIZE ])
+
+		this.drawPreview()
+
+		var img = ImageData.init("SCREEN_CAPTURE")
+		img.storeToFile(img_path)
+
+		Render.set_fbo(prev_fbo)
+		Render.set_viewport(prev_vp)
 	}
 }
