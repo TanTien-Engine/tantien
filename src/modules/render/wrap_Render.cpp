@@ -811,8 +811,11 @@ void w_Render_draw_model()
         for (int i = 0, n = geo.sub_geometries.size(); i < n; ++i)
         {
             auto& mat = model->materials[geo.sub_geometry_materials[i]];
-            if (mat->diffuse_tex >= 0) {
-                ctx->SetTexture(ds.program->QueryTexSlot("texture_diffuse1"), model->textures[mat->diffuse_tex].second);
+            if (mat->diffuse_tex >= 0 && ds.program) {
+                int slot = ds.program->QueryTexSlot("texture_diffuse1");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model->textures[mat->diffuse_tex].second);
+                }
             }
             ds.offset = geo.sub_geometries[i].offset;
             ds.count = geo.sub_geometries[i].count;
