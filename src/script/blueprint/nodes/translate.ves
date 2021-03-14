@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "maths.vector" for Vector3
 import "maths" for Matrix44
@@ -14,10 +15,10 @@ class Translate is Node
 
 		this.imports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
-			Pin(this, "offset", VAR_TYPE_NUMBER3),
+			Pin(this, "offset", [VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY]),
 		]
 		this.exports = [
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "mat", [VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY]),
 		]
 
 		this.layout()
@@ -29,36 +30,34 @@ class Translate is Node
 
 	calc(idx) 
 	{
-		var mat = Matrix44.init()
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			mat = f_pin.node.calc(f_pin.slot_idx).value
-		}
-
-		conns = this.imports[1].conns
-		if (!conns.isEmpty) 
+		var v_offset = Blueprint.get_input_value(this, 1)
+		if (v_offset.type == VAR_TYPE_NUMBER3)
 		{
-			var f_pin = conns.front().from
-			var offset = f_pin.node.calc(f_pin.slot_idx).value
-			if (offset is Vector3)
-			{
-				this.dx = offset.x
-				this.dy = offset.y
-				this.dz = offset.z
-			}
-			else if (offset is List)
-			{
-				this.dx = offset[0]
-				this.dy = offset[1]
-				this.dz = offset[2]
-			}
-		}
+			this.dx = v_offset.value.x
+			this.dy = v_offset.value.y
+			this.dz = v_offset.value.z
 
-		//var offset = this.region * 0.5
-		//mat.translate(this.dx - offset, this.dy - offset, this.dz - offset)
-		mat.translate(this.dx, this.dy, this.dz)
-		return Variant(VAR_TYPE_MATRIX4, mat)
+			var v_mat = Blueprint.get_input_value(this, 0)
+			v_mat.value.translate(this.dx, this.dy, this.dz)
+			return v_mat
+		}
+		else if (v_offset.type == VAR_TYPE_ARRAY)
+		{
+			var ret = []
+			for (var offset in v_offset.value)
+			{
+				var v_mat = Blueprint.get_input_value(this, 0)
+				v_mat.value.translate(offset[0], offset[1], offset[2])
+				ret.add(v_mat)
+			}
+			return Variant(VAR_TYPE_ARRAY, ret)
+		}
+		else
+		{
+			var v_mat = Blueprint.get_input_value(this, 0)
+			v_mat.value.translate(this.dx, this.dy, this.dz)
+			return v_mat
+		}
 	}
 
 	layout()
