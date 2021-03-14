@@ -1,17 +1,18 @@
 var node0 = Clear()
-_editor.add_node(node0, -179, 36)
 
-node0.masks = [ "color" ]
-node0.values = { "color" : [ 0.2, 0.3, 0.3, 1.0 ] }
+node0.masks = [ "color", "depth" ]
+node0.values = { "color" : [ 0.2, 0.3, 0.3, 1 ] }
+
+_editor.add_node(node0, -278.34741168946, 104.30134553651)
 
 var node1 = Draw()
-_editor.add_node(node1, 134, 19)
 
-node1.prim_type = "triangles"
+node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
+_editor.add_node(node1, 134, 19)
+
 var node2 = Shader()
-_editor.add_node(node2, -30, -16)
 
 node2.vs = "
 #version 330 core
@@ -29,12 +30,17 @@ void main()
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }
 "
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -65.392515414372, 51.059502890389)
 
 var node3 = VertexArray()
-_editor.add_node(node3, -29, -122)
 
-node3.data = [ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0,0.0,  0.5, 0.0 ]
+node3.data = [ -0.5, -0.5, 0, 0.5, -0.5, 0, 0, 0.5, 0 ]
 node3.attrs = [ 3 ]
+
+_editor.add_node(node3, -60.666987476017, -18.92706037218)
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])

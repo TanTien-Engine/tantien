@@ -120,11 +120,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;spirv-cross-cored.lib;spirv-cross-utild.lib;spirv-cross-glsld.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;spirv-cross-cored.lib;spirv-cross-utild.lib;spirv-cross-glsld.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -137,6 +138,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -210,7 +212,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\test\main.cpp" />
+    <ClCompile Include="..\..\..\test\screen_shot.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
