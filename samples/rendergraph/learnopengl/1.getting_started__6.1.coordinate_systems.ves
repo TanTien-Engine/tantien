@@ -1,17 +1,18 @@
 var node0 = Clear()
-_editor.add_node(node0, -179.72643, 200.18856)
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
-var node1 = Draw()
-_editor.add_node(node1, 134, 19)
+_editor.add_node(node0, -179.72643, 200.18856)
 
-node1.prim_type = "triangles"
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
 
+_editor.add_node(node1, 134, 19)
+
 var node2 = Shader()
-_editor.add_node(node2, -23.5, -3)
 
 node2.vs = "
 #version 330 core
@@ -50,45 +51,64 @@ void main()
 	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
 }
 "
+node2.gs = ""
+
 node2.execute()
 
+_editor.add_node(node2, -23.5, -3)
+
 var node3 = VertexArray()
-_editor.add_node(node3, -29, -122)
 
 node3.data = [ 0.5, 0.5, 0, 1, 1, 0.5, -0.5, 0, 1, 0, -0.5, -0.5, 0, 0, 0, -0.5, 0.5, 0, 0, 1 ]
 node3.attrs = [ 3, 2 ]
 
 node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
 
-var node4 = Texture()
-_editor.add_node(node4, -216.01303761499, -185.85417691026)
+_editor.add_node(node3, -29, -122)
 
+var node4 = Texture()
+node4.gamma_correction = false
 node4.init_texture("resources/textures/container.jpg")
 node4.set_sampler("linear repeat")
 
-var node5 = Texture()
-_editor.add_node(node5, -218.75427120745, -257.11461344574)
+_editor.add_node(node4, -493.60420600425, -246.84011542002)
 
+var node5 = Texture()
+node5.gamma_correction = false
 node5.init_texture("resources/textures/awesomeface.png")
 node5.set_sampler("linear repeat")
 
-var node6 = Perspective()
-_editor.add_node(node6, -180.04958677686, -80.04958677686)
+_editor.add_node(node5, -224.26754024629, -249.05675869666)
 
-node6.fovy = 180
+var node6 = Perspective()
+
+node6.fovy = 45
 node6.aspect = 0
 node6.znear = 0.10000000149012
 node6.zfar = 100
 
-var node7 = Translate()
-_editor.add_node(node7, -170.49750700089, 42.441363294857)
+_editor.add_node(node6, -343.73023783467, -75.14267218412)
 
-node7.dx = 5.1663904190063
-node7.dy = 5.0552792549133
-node7.dz = 0
+var node7 = Translate()
+
+node7.dx = 0
+node7.dy = 0
+node7.dz = -3
+
+_editor.add_node(node7, -329.85450036409, 62.875157634622)
 
 var node8 = Matrix()
-_editor.add_node(node8, -314.44491496482, 74.486851990984)
+
+_editor.add_node(node8, -720.19067276046, 80.427302994514)
+
+var node9 = Rotate()
+
+node9.angle = -55
+node9.axis_x = 1
+node9.axis_y = 0
+node9.axis_z = 0
+
+_editor.add_node(node9, -534.68665081232, 36.209855584715)
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node2.exports[0], node1.imports[1])
@@ -97,4 +117,5 @@ Blueprint.connect(node4.exports[0], node2.imports[3])
 Blueprint.connect(node5.exports[0], node2.imports[4])
 Blueprint.connect(node6.exports[0], node2.imports[2])
 Blueprint.connect(node7.exports[0], node2.imports[1])
-Blueprint.connect(node8.exports[0], node7.imports[0])
+Blueprint.connect(node8.exports[0], node9.imports[0])
+Blueprint.connect(node9.exports[0], node7.imports[0])

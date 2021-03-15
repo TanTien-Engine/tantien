@@ -1,17 +1,18 @@
 var node0 = Draw()
-_editor.add_node(node0, 288, 419)
 
-node0.prim_type = "triangles"
+node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
 
+_editor.add_node(node0, 288, 419)
+
 var node1 = Clear()
-_editor.add_node(node1, 104.61577275634, 720.28026537048)
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node1, 104.61577275634, 720.28026537048)
+
 var node2 = Shader()
-_editor.add_node(node2, -53.127097378661, 373.1309566719)
 
 node2.vs = "
 #version 330 core
@@ -91,61 +92,72 @@ void main()
     FragColor = vec4(result, 1.0);
 } 
 "
+node2.gs = ""
 node2.execute()
 node2.set_uniform("ubo_fs.viewPos", [ 0.61252337694168, 0.53474563360214, 0.52363449335098 ])
-node2.set_uniform("ubo_fs.material.specular", [ 1, 1, 1 ])
+node2.set_uniform("ubo_fs.material.specular", [ 0.5, 0.5, 0.5 ])
 node2.set_uniform("ubo_fs.material.shininess", [ 64 ])
 node2.set_uniform("ubo_fs.light.position", [ 1.2, 1, 2 ])
 node2.set_uniform("ubo_fs.light.ambient", [ 0.20000000298023, 0.20000000298023, 0.20000000298023 ])
 node2.set_uniform("ubo_fs.light.diffuse", [ 0.5, 0.5, 0.5 ])
 node2.set_uniform("ubo_fs.light.specular", [ 1, 1, 1 ])
 
+_editor.add_node(node2, -53.127097378661, 373.1309566719)
+
 var node3 = VertexArray()
-_editor.add_node(node3, 142.36267687706, 407.49150265223)
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
-var node4 = Perspective()
-_editor.add_node(node4, -278.51163020742, 506.32078183062)
+_editor.add_node(node3, 142.36267687706, 407.49150265223)
 
-node4.fovy = 36
+var node4 = Perspective()
+
+node4.fovy = 45
 node4.aspect = 0
 node4.znear = 0.0061240303330123
 node4.zfar = 194.57363891602
 
+_editor.add_node(node4, -278.51163020742, 506.32078183062)
+
 var node5 = LookAt()
-_editor.add_node(node5, -285.28779525623, 642.42103089521)
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
 node5.up.set(0, 1, 0)
 
+_editor.add_node(node5, -285.28779525623, 642.42103089521)
+
 var node6 = Rotate()
-_editor.add_node(node6, -262.75812027475, 815.24195641983)
 
 node6.angle = 1.5880110263824
 node6.axis_x = 0
 node6.axis_y = 0
 node6.axis_z = 1
 
+_editor.add_node(node6, -262.75812027475, 815.24195641983)
+
 var node7 = Matrix()
+
 _editor.add_node(node7, -418.17726423899, 862.68965707053)
 
 var node8 = Texture()
-_editor.add_node(node8, -284.1, 401.1)
-
+node8.gamma_correction = false
 node8.init_texture("resources/textures/container2.png")
 node8.set_sampler("linear repeat")
 
-var node9 = Camera3D()
-_editor.add_node(node9, -486.04661747465, 690.35946552221)
+_editor.add_node(node8, -284.1, 401.1)
 
-node9.position.set(-1.7209566789003, -1.4264411833142, -0.063775868303267)
-node9.yaw = 13
-node9.pitch = 45.8
-node9.zoom = 36
+var node9 = Camera3D()
+
+node9.position.set(-1.0053784736365, 0.69616852151278, 1.6192541116902)
+node9.yaw = -56.9
+node9.pitch = -21.4
+node9.zoom = 45
 node9.update_camera_vectors()
+node9.speed = 0.01
+
+_editor.add_node(node9, -486.04661747465, 690.35946552221)
 
 Blueprint.connect(node1.exports[0], node0.imports[0])
 Blueprint.connect(node2.exports[0], node0.imports[1])

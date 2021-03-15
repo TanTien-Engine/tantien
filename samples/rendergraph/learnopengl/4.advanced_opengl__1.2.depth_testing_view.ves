@@ -1,6 +1,6 @@
 var node0 = Clear()
 
-node0.masks = [ "color", "depth" ]
+node0.masks = [ "depth", "color" ]
 node0.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
 
 _editor.add_node(node0, -181.45454545455, 568.59090909091)
@@ -48,20 +48,21 @@ void main()
     FragColor = vec4(vec3(depth), 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 
 _editor.add_node(node2, -164.03965761902, 389.53503742566)
 
 var node3 = Camera3D()
 
-node3.position.set(2.8401885346808, 3.4074242845055, 6.9675921212326)
-node3.yaw = -109.1
-node3.pitch = -33.6
+node3.position.set(4.1498765330915, 9.8766539658422, 13.269100888032)
+node3.yaw = -106.3
+node3.pitch = -39.1
 node3.zoom = 45
 node3.update_camera_vectors()
 node3.speed = 0.17553623020649
 
-_editor.add_node(node3, -617.0056622191, 681.89869496855)
+_editor.add_node(node3, -617.0056622191, 680.20527317839)
 
 var node4 = Perspective()
 

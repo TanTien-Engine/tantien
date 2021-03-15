@@ -99,8 +99,9 @@ void main()
     FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
-node2.set_uniform("lightPos", [ 0.46489089727402, 0.48630982637405, 0.43075424432755 ])
+node2.set_uniform("lightPos", [ 0.5, 1, 0.3 ])
 
 _editor.add_node(node2, -243.84018158955, 504.07397096406)
 
@@ -136,9 +137,9 @@ _editor.add_node(node6, -448.78666929949, 806.55757003711)
 
 var node7 = Camera3D()
 
-node7.position.set(0.39433444515505, 0.39996986037889, 0.016488673168421)
-node7.yaw = -108.9
-node7.pitch = 21.8
+node7.position.set(0, 0, 3)
+node7.yaw = -90
+node7.pitch = 0
 node7.zoom = 45
 node7.update_camera_vectors()
 node7.speed = 0.19082772731781

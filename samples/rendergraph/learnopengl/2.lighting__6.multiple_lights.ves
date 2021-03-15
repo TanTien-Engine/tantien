@@ -1,17 +1,18 @@
 var node0 = Draw()
-_editor.add_node(node0, 266, 565)
 
-node0.prim_type = "triangles"
+node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
 
+_editor.add_node(node0, 266, 565)
+
 var node1 = Clear()
-_editor.add_node(node1, 217.93767275634, 791.29866537048)
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node1, 217.93767275634, 791.29866537048)
+
 var node2 = Shader()
-_editor.add_node(node2, -49.07563606574, -1181.0663333572)
 
 node2.vs = "
 #version 330 core
@@ -194,8 +195,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 "
+node2.gs = ""
 node2.execute()
-node2.set_uniform("viewPos", [ 0, 0, 0 ])
 node2.set_uniform("dirLight.direction", [ -0.2, -1, -0.3 ])
 node2.set_uniform("dirLight.ambient", [ 0.050000000745058, 0.050000000745058, 0.050000000745058 ])
 node2.set_uniform("dirLight.diffuse", [ 0.40000000596046, 0.40000000596046, 0.40000000596046 ])
@@ -228,6 +229,7 @@ node2.set_uniform("pointLights[3].quadratic", [ 0.032000001519918 ])
 node2.set_uniform("pointLights[3].ambient", [ 0.050000000745058, 0.050000000745058, 0.050000000745058 ])
 node2.set_uniform("pointLights[3].diffuse", [ 0.80000001192093, 0.80000001192093, 0.80000001192093 ])
 node2.set_uniform("pointLights[3].specular", [ 1, 1, 1 ])
+node2.set_uniform("spotLight.cutOff", [ 0 ])
 node2.set_uniform("spotLight.outerCutOff", [ 0 ])
 node2.set_uniform("spotLight.constant", [ 1 ])
 node2.set_uniform("spotLight.linear", [ 0.090000003576279 ])
@@ -237,104 +239,116 @@ node2.set_uniform("spotLight.diffuse", [ 1, 1, 1 ])
 node2.set_uniform("spotLight.specular", [ 1, 1, 1 ])
 node2.set_uniform("material.shininess", [ 32 ])
 
+_editor.add_node(node2, -28.13900606574, -416.07408335719)
+
 var node3 = VertexArray()
-_editor.add_node(node3, 89.784036363636, 554.99683636364)
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
+_editor.add_node(node3, 89.784036363636, 554.99683636364)
+
 var node4 = Perspective()
-_editor.add_node(node4, -266.57469947408, 589.44236363636)
 
 node4.fovy = 45
 node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 102.21896362305
 
-var node5 = LookAt()
-_editor.add_node(node5, -270.25359660318, 726.76260649435)
+_editor.add_node(node4, -266.57469947408, 589.44236363636)
 
-node5.eye.set(0.8341708779335, 0.61194866895676, 1.0563931465149)
-node5.center.set(0, 0, 0)
-node5.up.set(0, 1, 0)
+var node5 = Rotate()
 
-var node6 = Rotate()
-_editor.add_node(node6, -460.42982143452, 846.31688727089)
+node5.angle = 3.7205390930176
+node5.axis_x = 0
+node5.axis_y = 0.43717923760414
+node5.axis_z = 1
 
-node6.angle = 3.7205390930176
-node6.axis_x = 0
-node6.axis_y = 0.43717923760414
-node6.axis_z = 1
+_editor.add_node(node5, -460.42982143452, 846.31688727089)
 
-var node7 = Matrix()
-_editor.add_node(node7, -661.37629885782, 895.82455351986)
+var node6 = Matrix()
 
-var node8 = Texture()
-_editor.add_node(node8, -493.88806912096, -371.21357625846)
+_editor.add_node(node6, -661.37629885782, 895.82455351986)
 
-node8.init_texture("resources/textures/container2.png")
-node8.set_sampler("linear repeat")
+var node7 = Texture()
+node7.gamma_correction = false
+node7.init_texture("resources/textures/container2.png")
+node7.set_sampler("linear repeat")
 
-var node9 = For()
-_editor.add_node(node9, 521.5307, 670.6894)
+_editor.add_node(node7, -493.88806912096, -371.21357625846)
 
-node9.start = 0
-node9.end = 10
+var node8 = For()
 
-var node10 = Pass()
-_editor.add_node(node10, 691.78763051496, 702.14751612186)
+node8.start = 0
+node8.end = 10
 
-var node11 = Array()
-_editor.add_node(node11, 665.89317158699, 579.73176966445)
+_editor.add_node(node8, 521.5307, 670.6894)
 
-node11.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
+var node9 = Pass()
 
-var node12 = Translate()
-_editor.add_node(node12, -284.00764496961, 855.27001366027)
+node9.once = false
 
-node12.dx = -1.3
-node12.dy = 1
-node12.dz = -1.5
+_editor.add_node(node9, 691.78763051496, 702.14751612186)
 
-var node13 = Texture()
-_editor.add_node(node13, -253.59817387506, -374.8919737293)
+var node10 = Array()
 
-node13.init_texture("resources/textures/container2_specular.png")
-node13.set_sampler("linear repeat")
+node10.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
+
+_editor.add_node(node10, 665.89317158699, 579.73176966445)
+
+var node11 = Translate()
+
+node11.dx = -1.3
+node11.dy = 1
+node11.dz = -1.5
+
+_editor.add_node(node11, -284.00764496961, 855.27001366027)
+
+var node12 = Texture()
+node12.gamma_correction = false
+node12.init_texture("resources/textures/container2_specular.png")
+node12.set_sampler("linear repeat")
+
+_editor.add_node(node12, -253.59817387506, -374.8919737293)
+
+var node13 = Number3()
+
+node13.value.set(5.5820517539978, 4.9153847694397, 5.0264959335327)
+
+_editor.add_node(node13, -263.23846714, 100.11554706)
 
 var node14 = Number3()
-_editor.add_node(node14, -263.23846714, 100.11554706)
 
-node14.value.set(5.5820517539978, 4.9153847694397, 5.0264959335327)
+node14.value.set(2.6222229003906, 7.5111117362976, 7.5111117362976)
 
-var node15 = Number3()
-_editor.add_node(node15, -260.17581759815, -13.051438985168)
+_editor.add_node(node14, -260.17581759815, -13.051438985168)
 
-node15.value.set(2.6222229003906, 7.5111117362976, 7.5111117362976)
+var node15 = Camera3D()
 
-var node16 = Number()
-_editor.add_node(node16, -369.8, -107.6)
+node15.position.set(1.6721375983934, 5.2809154655564, 1.3743249769547)
+node15.yaw = -124.9
+node15.pitch = -47.9
+node15.zoom = 45
+node15.update_camera_vectors()
+node15.speed = 0.080249026417732
 
-node16.value = 0.60888874530792
+_editor.add_node(node15, -479.23482522613, 408.01306884794)
 
-var node17 = Cos()
-_editor.add_node(node17, -228.2309951506, -109.47582132368)
-
-Blueprint.connect(node0.exports[0], node9.imports[1])
-Blueprint.connect(node1.exports[0], node9.imports[0])
+Blueprint.connect(node0.exports[0], node8.imports[1])
+Blueprint.connect(node1.exports[0], node8.imports[0])
 Blueprint.connect(node2.exports[0], node0.imports[1])
 Blueprint.connect(node3.exports[0], node0.imports[2])
 Blueprint.connect(node4.exports[0], node2.imports[2])
-Blueprint.connect(node5.exports[0], node2.imports[1])
-Blueprint.connect(node6.exports[0], node12.imports[0])
-Blueprint.connect(node7.exports[0], node6.imports[0])
-Blueprint.connect(node8.exports[0], node2.imports[47])
-Blueprint.connect(node9.exports[0], node10.imports[0])
-Blueprint.connect(node9.exports[1], node11.imports[0])
-Blueprint.connect(node11.exports[1], node12.imports[1])
-Blueprint.connect(node12.exports[0], node2.imports[0])
-Blueprint.connect(node13.exports[0], node2.imports[48])
-Blueprint.connect(node14.exports[0], node2.imports[36])
-Blueprint.connect(node15.exports[0], node2.imports[37])
-//Blueprint.connect(node16.exports[0], node17.imports[0])
-//Blueprint.connect(node17.exports[0], node2.imports[38])
+Blueprint.connect(node5.exports[0], node11.imports[0])
+Blueprint.connect(node6.exports[0], node5.imports[0])
+Blueprint.connect(node7.exports[0], node2.imports[47])
+Blueprint.connect(node8.exports[0], node9.imports[0])
+Blueprint.connect(node8.exports[1], node10.imports[0])
+Blueprint.connect(node10.exports[1], node11.imports[1])
+Blueprint.connect(node11.exports[0], node2.imports[0])
+Blueprint.connect(node12.exports[0], node2.imports[48])
+Blueprint.connect(node13.exports[0], node2.imports[36])
+Blueprint.connect(node14.exports[0], node2.imports[37])
+Blueprint.connect(node15.exports[0], node2.imports[1])
+Blueprint.connect(node15.exports[1], node4.imports[0])
+Blueprint.connect(node15.exports[3], node2.imports[3])
