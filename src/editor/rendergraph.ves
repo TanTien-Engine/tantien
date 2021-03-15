@@ -4,17 +4,17 @@ import "render" for Render
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.for" for For
 
-import "rendergraph.clear" for Clear
-import "rendergraph.draw" for Draw
-import "rendergraph.shader" for Shader
-import "rendergraph.vertex_array" for VertexArray
-import "rendergraph.pass" for Pass
-import "rendergraph.cubemap" for Cubemap
-import "rendergraph.primitive_shape" for PrimitiveShape
-import "rendergraph.texture" for Texture
-import "rendergraph.render_target" for RenderTarget
-import "rendergraph.render_buffer" for RenderBuffer
-import "rendergraph.model" for Model
+import "rendergraph.nodes.clear" for Clear
+import "rendergraph.nodes.draw" for Draw
+import "rendergraph.nodes.shader" for Shader
+import "rendergraph.nodes.vertex_array" for VertexArray
+import "rendergraph.nodes.pass" for Pass
+import "rendergraph.nodes.cubemap" for Cubemap
+import "rendergraph.nodes.primitive_shape" for PrimitiveShape
+import "rendergraph.nodes.texture" for Texture
+import "rendergraph.nodes.render_target" for RenderTarget
+import "rendergraph.nodes.render_buffer" for RenderBuffer
+import "rendergraph.nodes.model" for Model
 
 class Rendergraph is Editor
 {
@@ -80,17 +80,17 @@ class Rendergraph is Editor
 	{
 		var ret = super.load_file_imports()
 		ret = ret + "
-import \"rendergraph.clear\" for Clear
-import \"rendergraph.draw\" for Draw
-import \"rendergraph.shader\" for Shader
-import \"rendergraph.vertex_array\" for VertexArray
-import \"rendergraph.pass\" for Pass
-import \"rendergraph.cubemap\" for Cubemap
-import \"rendergraph.primitive_shape\" for PrimitiveShape
-import \"rendergraph.texture\" for Texture
-import \"rendergraph.render_target\" for RenderTarget
-import \"rendergraph.render_buffer\" for RenderBuffer
-import \"rendergraph.model\" for Model
+import \"rendergraph.nodes.clear\" for Clear
+import \"rendergraph.nodes.draw\" for Draw
+import \"rendergraph.nodes.shader\" for Shader
+import \"rendergraph.nodes.vertex_array\" for VertexArray
+import \"rendergraph.nodes.pass\" for Pass
+import \"rendergraph.nodes.cubemap\" for Cubemap
+import \"rendergraph.nodes.primitive_shape\" for PrimitiveShape
+import \"rendergraph.nodes.texture\" for Texture
+import \"rendergraph.nodes.render_target\" for RenderTarget
+import \"rendergraph.nodes.render_buffer\" for RenderBuffer
+import \"rendergraph.nodes.model\" for Model
 "
 		return ret
 	}
