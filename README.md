@@ -14,9 +14,9 @@ Procedural content generation
 Use editors to generate each component
 
 ### Fast iteration
-Less c&cpp parts, more scripts
-Edit assets in runtime directly
-Hot update
+* Less c&cpp parts, more scripts
+* Edit assets in runtime directly
+* Hot update
 
 ## Editors
 
@@ -40,15 +40,16 @@ Based for each editors
 
 ### rendergraph
 
-![](./doc/rendergraph/screenshots/camera3d.jpg)
-    <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
+<img src="./doc/rendergraph/screenshots/camera3d.jpg">
+    <em>Sample from learnopengl<a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
 
-![](./doc/rendergraph/screenshots/for.jpg)
-    <em>Sample from learnopengl <a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
+<img src="./doc/rendergraph/screenshots/for.jpg">
+    <em>Sample from learnopengl<a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
 
 #### Features
 * auto gen shader uniforms
 * operable nodes
+<img src="./doc/rendergraph/screenshots/camera3d.gif">
 * ...
 
 #### Nodes
