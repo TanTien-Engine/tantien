@@ -6,7 +6,7 @@ import "blueprint.node_op" for NodeOP
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ANY
 import "maths.vector" for Vector2
-import "graphics" for Graphics
+import "graphics" for Graphics, Textbox
 import "scene.node" for Node as SceneNode
 import "scene.components.boundingbox2" for BoundingBox2
 import "scene.components.transform2" for Transform2
@@ -91,6 +91,15 @@ class Editor
 		this.cam_pos_on_copy = nil
 
 		NODE_CACHE.set_editor(this)
+
+		var tb = Textbox()
+		tb.width = 500
+		tb.height = 50
+		tb.font_size = 48
+		tb.font_color = [196, 64, 64, 255]
+		tb.align_hori = 2
+		tb.align_vert = 1
+		this.TB_TITLE = tb
 	}
 
 	update()
@@ -117,6 +126,14 @@ class Editor
 
 		if (!this.hide_nodes) {
 			this.drawScene()		
+		} else {
+			// draw op title
+			var node = this.preview_op.get_selected()
+			if (node) {
+				var x = -Graphics.get_width() * 0.5 + 200
+				var y = Graphics.get_height() * 0.5 - 50
+				Graphics.draw_text(node.name, x, y, 1.0, this.TB_TITLE)
+			}
 		}
 
 		this.editop.draw()
