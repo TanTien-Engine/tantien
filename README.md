@@ -40,10 +40,10 @@ Based for each editors
 
 ### rendergraph
 
-![](./screenshots/camera3d.jpg)
+![](./doc/rendergraph/screenshots/camera3d.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
 
-![](./screenshots/for.jpg)
+![](./doc/rendergraph/screenshots/for.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
 
 #### Features
