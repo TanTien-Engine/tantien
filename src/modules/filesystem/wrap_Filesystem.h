@@ -6,6 +6,6 @@ namespace tt
 {
 
 VesselForeignMethodFn FilesystemBindMethod(const char* signature);
-void FilesystemBindClass(const char* className, VesselForeignClassMethods* methods);
+void FilesystemBindClass(const char* class_name, VesselForeignClassMethods* methods);
 
 }

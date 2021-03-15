@@ -6,6 +6,6 @@ namespace tt
 {
 
 VesselForeignMethodFn SystemBindMethod(const char* signature);
-void SystemBindClass(const char* className, VesselForeignClassMethods* methods);
+void SystemBindClass(const char* class_name, VesselForeignClassMethods* methods);
 
 }

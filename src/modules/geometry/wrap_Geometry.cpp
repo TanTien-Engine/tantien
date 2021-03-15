@@ -43,9 +43,9 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     return nullptr;
 }
 
-void GeometryBindClass(const char* className, VesselForeignClassMethods* methods)
+void GeometryBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "Bezier") == 0)
+    if (strcmp(class_name, "Bezier") == 0)
     {
         methods->allocate = w_Bezier_allocate;
         methods->finalize = w_Bezier_finalize;

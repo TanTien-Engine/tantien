@@ -6,6 +6,6 @@ namespace tt
 {
 
 VesselForeignMethodFn GeometryBindMethod(const char* signature);
-void GeometryBindClass(const char* className, VesselForeignClassMethods* methods);
+void GeometryBindClass(const char* class_name, VesselForeignClassMethods* methods);
 
 }

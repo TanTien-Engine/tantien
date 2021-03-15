@@ -6,6 +6,6 @@ namespace tt
 {
 
 VesselForeignMethodFn RenderBindMethod(const char* signature);
-void RenderBindClass(const char* className, VesselForeignClassMethods* methods);
+void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods);
 
 }

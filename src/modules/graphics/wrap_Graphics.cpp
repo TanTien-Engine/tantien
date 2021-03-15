@@ -380,9 +380,9 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     return nullptr;
 }
 
-void GraphicsBindClass(const char* className, VesselForeignClassMethods* methods)
+void GraphicsBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "Painter") == 0)
+    if (strcmp(class_name, "Painter") == 0)
     {
         methods->allocate = w_Painter_allocate;
         methods->finalize = w_Painter_finalize;

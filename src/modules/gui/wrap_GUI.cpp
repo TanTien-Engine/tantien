@@ -330,9 +330,9 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 	return nullptr;
 }
 
-void GUIBindClass(const char* className, VesselForeignClassMethods* methods)
+void GUIBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-	if (strcmp(className, "Context") == 0)
+	if (strcmp(class_name, "Context") == 0)
 	{
 		methods->allocate = w_Context_allocate;
 		methods->finalize = w_Context_finalize;

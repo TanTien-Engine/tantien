@@ -95,7 +95,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     return NULL;
 }
 
-void FilesystemBindClass(const char* className, VesselForeignClassMethods* methods)
+void FilesystemBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
 }
 

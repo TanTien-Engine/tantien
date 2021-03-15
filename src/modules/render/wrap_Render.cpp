@@ -1322,44 +1322,44 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     return NULL;
 }
 
-void RenderBindClass(const char* className, VesselForeignClassMethods* methods)
+void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "Shader") == 0)
+    if (strcmp(class_name, "Shader") == 0)
     {
         methods->allocate = w_Shader_allocate;
         methods->finalize = w_Shader_finalize;
         return;
     }
 
-    if (strcmp(className, "VertexArray") == 0)
+    if (strcmp(class_name, "VertexArray") == 0)
     {
         methods->allocate = w_VertexArray_allocate;
         methods->finalize = w_VertexArray_finalize;
         return;
     }
 
-    if (strcmp(className, "Texture2D") == 0)
+    if (strcmp(class_name, "Texture2D") == 0)
     {
         methods->allocate = w_Texture2D_allocate;
         methods->finalize = w_Texture2D_finalize;
         return;
     }
 
-    if (strcmp(className, "Cubemap") == 0)
+    if (strcmp(class_name, "Cubemap") == 0)
     {
         methods->allocate = w_Cubemap_allocate;
         methods->finalize = w_Cubemap_finalize;
         return;
     }
 
-    if (strcmp(className, "Framebuffer") == 0)
+    if (strcmp(class_name, "Framebuffer") == 0)
     {
         methods->allocate = w_Framebuffer_allocate;
         methods->finalize = w_Framebuffer_finalize;
         return;
     }
 
-    if (strcmp(className, "RenderBuffer") == 0)
+    if (strcmp(class_name, "RenderBuffer") == 0)
     {
         methods->allocate = w_RenderBuffer_allocate;
         methods->finalize = w_RenderBuffer_finalize;

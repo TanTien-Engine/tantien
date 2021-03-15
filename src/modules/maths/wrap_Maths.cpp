@@ -264,23 +264,23 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
 	return nullptr;
 }
 
-void MathsBindClass(const char* className, VesselForeignClassMethods* methods)
+void MathsBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "Float2") == 0)
+    if (strcmp(class_name, "Float2") == 0)
     {
         methods->allocate = w_Float2_allocate;
         methods->finalize = w_Float2_finalize;
         return;
     }
 
-    if (strcmp(className, "Matrix2D") == 0)
+    if (strcmp(class_name, "Matrix2D") == 0)
     {
         methods->allocate = w_Matrix2D_allocate;
         methods->finalize = w_Matrix2D_finalize;
         return;
     }
 
-    if (strcmp(className, "Matrix44") == 0)
+    if (strcmp(class_name, "Matrix44") == 0)
     {
         methods->allocate = w_Matrix44_allocate;
         methods->finalize = w_Matrix44_finalize;

@@ -47,9 +47,9 @@ VesselForeignMethodFn ModelBindMethod(const char* signature)
     return NULL;
 }
 
-void ModelBindClass(const char* className, VesselForeignClassMethods* methods)
+void ModelBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "Model") == 0)
+    if (strcmp(class_name, "Model") == 0)
     {
         methods->allocate = w_Model_allocate;
         methods->finalize = w_Model_finalize;

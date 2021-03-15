@@ -321,9 +321,9 @@ VesselForeignMethodFn ImageBindMethod(const char* signature)
     return nullptr;
 }
 
-void ImageBindClass(const char* className, VesselForeignClassMethods* methods)
+void ImageBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
-    if (strcmp(className, "ImageData") == 0)
+    if (strcmp(class_name, "ImageData") == 0)
     {
         methods->allocate = w_ImageData_allocate;
         methods->finalize = w_ImageData_finalize;
