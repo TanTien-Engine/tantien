@@ -40,11 +40,11 @@ Based for each editors
 
 ### rendergraph
 
-<img src="./doc/rendergraph/screenshots/camera3d.jpg">
-    <em>Sample from learnopengl<a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
+![](./doc/rendergraph/screenshots/camera3d.jpg)
+    <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
 
-<img src="./doc/rendergraph/screenshots/for.jpg">
-    <em>Sample from learnopengl<a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
+![](./doc/rendergraph/screenshots/for.jpg)
+    <em>Sample from learnopengl <a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
 
 #### Features
 * auto gen shader uniforms
