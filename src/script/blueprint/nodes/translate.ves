@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
@@ -31,7 +31,7 @@ class Translate is Node
 	calc(idx) 
 	{
 		var v_offset = Blueprint.calc_input_value(this, 1)
-		if (v_offset.type == VAR_TYPE_NUMBER3)
+		if (v_offset.type == VAR_TYPE_NUMBER3 or (v_offset.type == VAR_TYPE_ANY and v_offset.value is Vector3))
 		{
 			this.dx = v_offset.value.x
 			this.dy = v_offset.value.y
