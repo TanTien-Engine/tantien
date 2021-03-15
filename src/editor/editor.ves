@@ -652,8 +652,11 @@ import \"editor\" for _editor
 
 		var fbo = Framebuffer.init()
 
-		var rbo = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "rgb")
-		fbo.attach_rbo(rbo, "col0")
+		var rbo_color = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "rgb")
+		fbo.attach_rbo(rbo_color, "col0")
+
+		var rbo_depth = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "depth_component")
+		fbo.attach_rbo(rbo_depth, "depth")
 
 		var prev_fbo = Render.get_fbo()
 		var prev_vp = Render.get_viewport()
