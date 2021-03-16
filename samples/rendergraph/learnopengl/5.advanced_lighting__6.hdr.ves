@@ -3,7 +3,7 @@ var node0 = Clear()
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node0, -68.183024411294, 1013.7392585871)
+_editor.add_node(node0, -59.183024411294, 919.7392585871)
 
 var node1 = Draw()
 
@@ -107,14 +107,14 @@ node2.set_uniform("lights[2].Color", [ 0, 0, 0.20000000298023 ])
 node2.set_uniform("lights[3].Position", [ 0.80000001192093, -1.7, 6 ])
 node2.set_uniform("lights[3].Color", [ 0, 0.10000000149012, 0 ])
 
-_editor.add_node(node2, -70.033484051636, 194.72322382351)
+_editor.add_node(node2, -174.55558305164, 270.90034682351)
 
 var node3 = PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position", "normal", "texture" ]
 
-_editor.add_node(node3, 68.722433333658, 651.7188029569)
+_editor.add_node(node3, 45.692140333658, 648.1756809569)
 
 var node4 = Perspective()
 
@@ -123,7 +123,7 @@ node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 100
 
-_editor.add_node(node4, -290.78383194422, 843.91156899396)
+_editor.add_node(node4, -395.30593094422, 920.08869199396)
 
 var node5 = Camera3D()
 
@@ -134,18 +134,18 @@ node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.15786197781563
 
-_editor.add_node(node5, -450.10066272342, 719.12246846686)
+_editor.add_node(node5, -554.62276172342, 795.29959146686)
 
 var node6 = Texture()
 node6.gamma_correction = true
 node6.init_texture("resources/textures/wood.png")
 node6.set_sampler("linear clamp")
 
-_editor.add_node(node6, -287.61171236857, 362.81003968489)
+_editor.add_node(node6, -392.13381136857, 438.98716268489)
 
 var node7 = Matrix()
 
-_editor.add_node(node7, -637.61472706782, 602.44510982856)
+_editor.add_node(node7, -743.13682606782, 647.62223282856)
 
 var node8 = Translate()
 
@@ -153,7 +153,7 @@ node8.dx = 0
 node8.dy = 0
 node8.dz = 25
 
-_editor.add_node(node8, -330.28961903423, 566.2941876913)
+_editor.add_node(node8, -469.81171803423, 605.4713106913)
 
 var node9 = Scale()
 
@@ -161,7 +161,7 @@ node9.sx = 2.5
 node9.sy = 2.5
 node9.sz = 27.5
 
-_editor.add_node(node9, -482.33805409467, 573.95135236664)
+_editor.add_node(node9, -607.86015309467, 586.12847536664)
 
 var node10 = Pass()
 
@@ -181,21 +181,21 @@ node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgb16f")
 node12.set_sampler("linear repeat")
 
-_editor.add_node(node12, 135.2051316, 482.2948684)
+_editor.add_node(node12, 152.7743316, 271.4644684)
 
 var node13 = Clear()
 
 node13.masks = [ "color", "depth" ]
-node13.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+node13.values = { "color" : [ 0.1, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node13, 700.6868464907, 26.32813657091)
+_editor.add_node(node13, 787.6393012513, 470.75181871181)
 
 var node14 = Draw()
 
 node14.set_prim_type("tri_strip")
 node14.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
 
-_editor.add_node(node14, 887.5376241, -92.1215731)
+_editor.add_node(node14, 974.4900788606, 352.3021090409)
 
 var node15 = Shader()
 
@@ -249,17 +249,17 @@ void main()
 "
 node15.gs = ""
 node15.execute()
-node15.set_uniform("hdr", [ 1 ])
+node15.set_uniform("hdr", [ 4.9407715797424 ])
 node15.set_uniform("exposure", [ 4 ])
 
-_editor.add_node(node15, 637.09595808094, -160.13817431416)
+_editor.add_node(node15, 724.04841284154, 284.28550782674)
 
 var node16 = PrimitiveShape()
 
 node16.type = "quad"
 node16.layout = [ "position", "texture" ]
 
-_editor.add_node(node16, 641.23935727603, -333.17305628678)
+_editor.add_node(node16, 728.19181203663, 111.25062585412)
 
 Blueprint.connect(node0.exports[0], node1.imports[0])
 Blueprint.connect(node1.exports[0], node10.imports[0])

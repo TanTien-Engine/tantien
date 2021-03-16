@@ -4,8 +4,8 @@ Game engine.
 
 ## Features
 
-### Node based
-Every thing are nodes: shader, render pipeline, material, vfx, gui, edit op...
+### Visual programming
+Nodes for everyone: shader, render pipeline, material, vfx, gui, edit op...
 
 ### Procedural generation
 Procedural content generation
@@ -39,6 +39,9 @@ Based for each editors
 * subgraph: subgraph, input, output, property
 
 ### rendergraph
+
+![](./doc/rendergraph/screenshots/hdr.jpg)
+    <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-Lighting/HDR">HDR</a></em>
 
 ![](./doc/rendergraph/screenshots/camera3d.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
