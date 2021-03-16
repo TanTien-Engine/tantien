@@ -93,7 +93,7 @@ class Draw is Node
 
 		for (var i in 0..count) 
 		{
-			shader.updateUniforms(i)
+			shader.update_uniforms(i)
 
 			var _va = va
 			if (va is List) 
@@ -130,7 +130,7 @@ class Draw is Node
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
 		{
-			shader.updateUniforms(i)
+			shader.update_uniforms(i)
 			Render.draw_model(shader.prog, model, this.render_state)
 		}
 	}
