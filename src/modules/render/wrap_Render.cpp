@@ -164,7 +164,19 @@ void w_Shader_set_uniform_value()
                 ves_geti(1, 3);
                 if (ves_type(-1) != VES_TYPE_NULL)
                 {
-                    ur::Device::TextureSamplerType type = static_cast<ur::Device::TextureSamplerType>(ves_tonumber(-1));
+                    ur::Device::TextureSamplerType type;
+
+                    auto type_str = ves_tostring(-1);
+                    if (strcmp(type_str, "nearest_clamp") == 0) {
+                        type = ur::Device::TextureSamplerType::NearestClamp;
+                    } else if (strcmp(type_str, "linear_clamp") == 0) {
+                        type = ur::Device::TextureSamplerType::LinearClamp;
+                    } else if (strcmp(type_str, "nearest_repeat") == 0) {
+                        type = ur::Device::TextureSamplerType::NearestRepeat;
+                    } else if (strcmp(type_str, "linear_repeat") == 0) {
+                        type = ur::Device::TextureSamplerType::LinearRepeat;
+                    }
+
                     auto dev = tt::Render::Instance()->Device();
                     ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
                 }

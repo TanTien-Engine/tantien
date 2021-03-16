@@ -1,11 +1,6 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* renderModuleSource = QUOTE(
 
-var SAMPLER_NEAREST_CLAMP  = 0
-var SAMPLER_LINEAR_CLAMP   = 1
-var SAMPLER_NEAREST_REPEAT = 2
-var SAMPLER_LINEAR_REPEAT  = 3
-
 foreign class Shader
 {
 	// vs: string

@@ -1,4 +1,4 @@
-import "render" for Render, SAMPLER_LINEAR_CLAMP
+import "render" for Render
 import "graphics" for Graphics
 import "render" for Cubemap as tt_Cubemap, Texture2D
 import "blueprint.node_layout" for DEFAULT_HEIGHT
@@ -16,7 +16,7 @@ class VarTexture
 	init() 
 	{
 		this.tex = nil
-		this.sampler = SAMPLER_LINEAR_CLAMP
+		this.sampler = "linear_clamp"
 
 		this.cubemap_idx = -1		
 	}

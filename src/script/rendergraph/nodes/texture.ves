@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "image" for ImageData
 import "graphics" for Graphics
-import "render" for Texture2D, SAMPLER_NEAREST_CLAMP, SAMPLER_LINEAR_CLAMP, SAMPLER_NEAREST_REPEAT, SAMPLER_LINEAR_REPEAT
+import "render" for Texture2D
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
@@ -46,13 +46,13 @@ class Texture is Node
 			var ret = VarTexture()
 			ret.tex = this.tex
 			if (this.sampler_selected == 0) {
-				ret.sampler = SAMPLER_NEAREST_CLAMP
+				ret.sampler = "nearest_clamp"
 			} else if (this.sampler_selected == 1) {
-				ret.sampler = SAMPLER_LINEAR_CLAMP
+				ret.sampler = "linear_clamp"
 			} else if (this.sampler_selected == 2) {
-				ret.sampler = SAMPLER_NEAREST_REPEAT
+				ret.sampler = "nearest_repeat"
 			} else if (this.sampler_selected == 3) {
-				ret.sampler = SAMPLER_LINEAR_REPEAT
+				ret.sampler = "linear_repeat"
 			}
 			return Variant(VAR_TYPE_TEXTURE, ret)
 		}
