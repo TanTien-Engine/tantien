@@ -1,11 +1,12 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths.vector" for Vector3
 import "maths" for Matrix44
 import "math" for Math
+import "blueprint.blueprint" for Blueprint
 
 class Rotate is Node
 {
@@ -14,11 +15,11 @@ class Rotate is Node
 		super.init(Rotate.name)
 
 		this.imports = [
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
-			Pin(this, "angle", VAR_TYPE_NUMBER),
+			Pin(this, "mat", [VAR_TYPE_MATRIX4, VAR_TYPE_MATRIX4]),
+			Pin(this, "angle", [VAR_TYPE_NUMBER, VAR_TYPE_ARRAY]),
 		]
 		this.exports = [
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "mat", [VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY]),
 		]
 
 		this.layout()
@@ -29,23 +30,76 @@ class Rotate is Node
 		this.axis_z = 0
 	}
 
+	calc_list(mat_list, angle_list)
+	{
+		var ret = []
+
+		var n_mat = mat_list.count
+		var n_angle = angle_list.count
+		var num = Math.max(n_mat.count, n_angle.count)
+		for (var i in 0..num)
+		{
+			var mat = nil
+			if (mat_list.isEmpty) {
+				mat = Matrix44.init()
+			} else if (i < mat_list.count) {
+				mat = mat_list[i].value.clone()
+			} else {
+				mat = mat_list[mat_list.count - 1].value.clone()
+			}
+
+			var angle = nil
+			if (angle_list.isEmpty) {
+				angle = 0
+			} else if (i < angle_list.count) {
+				angle = angle_list[i]
+			} else {
+				angle = angle_list[angle_list.count - 1]
+			}
+
+			mat.rotate_axis(angle, this.axis_x, this.axis_y, this.axis_z)
+			ret.add(Variant(VAR_TYPE_MATRIX4, mat))
+		}
+
+		if (ret.count == 0) {
+			return Variant(VAR_TYPE_MATRIX4, Matrix44.init())
+		} else if (ret.count == 1) {
+			return ret[0]
+		} else {
+			return Variant(VAR_TYPE_ARRAY, ret)
+		}
+	}
+
 	calc(idx) 
 	{
-		var mat = Matrix44.init()
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			mat = f_pin.node.calc(f_pin.slot_idx).value
+		var mat_list = []
+		var v_mat = Blueprint.calc_input_value(this, 0)
+		if (v_mat)
+		{
+			if (v_mat.type == VAR_TYPE_MATRIX4) {
+				mat_list.add(v_mat)
+			} else if (v_mat.type == VAR_TYPE_ARRAY) {
+				mat_list = v_mat.value
+			}
 		}
 
-		conns = this.imports[1].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			this.angle = f_pin.node.calc(f_pin.slot_idx).value
+		var angle_list = []
+		var v_angle = Blueprint.calc_input_value(this, 1)
+		if (v_angle.type == VAR_TYPE_ARRAY)
+		{
+			for (var angle in v_angle.value) {
+				angle_list.add(angle)
+			}
+		}
+		else
+		{
+			if (v_angle) {
+				this.angle = v_angle.value
+			}
+			angle_list.add(this.angle)
 		}
 
-		mat.rotate_axis(Math.radians(this.angle), this.axis_x, this.axis_y, this.axis_z)
-		return Variant(VAR_TYPE_MATRIX4, mat)
+		return this.calc_list(mat_list, angle_list)
 	}
 
 	layout()

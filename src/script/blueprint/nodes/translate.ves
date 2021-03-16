@@ -6,6 +6,7 @@ import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "maths.vector" for Vector3
 import "maths" for Matrix44
+import "math" for Math
 
 class Translate is Node
 {
@@ -14,7 +15,7 @@ class Translate is Node
 		super.init(Translate.name)
 
 		this.imports = [
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "mat", [VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY]),
 			Pin(this, "offset", [VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY]),
 		]
 		this.exports = [
@@ -28,42 +29,92 @@ class Translate is Node
 		this.dz = 0
 	}
 
+	calc_list(mat_list, offset_list)
+	{
+		var ret = []
+
+		var n_mat = mat_list.count
+		var n_offset = offset_list.count
+		var num = Math.max(n_mat.count, n_offset.count)
+		for (var i in 0..num)
+		{
+			var mat = nil
+			if (mat_list.isEmpty) {
+				mat = Matrix44.init()
+			} else if (i < mat_list.count) {
+				mat = mat_list[i].value.clone()
+			} else {
+				mat = mat_list[mat_list.count - 1].value.clone()
+			}
+
+			var offset = nil
+			if (offset_list.isEmpty) {
+				offset = Vector3()	
+			} else if (i < offset_list.count) {
+				offset = Vector3(offset_list[i])
+			} else {
+				offset = Vector3(offset_list[offset_list.count - 1])
+			}
+
+			mat.translate(offset.x, offset.y, offset.z)
+			ret.add(Variant(VAR_TYPE_MATRIX4, mat))
+		}
+
+		if (ret.count == 0) {
+			return Variant(VAR_TYPE_MATRIX4, Matrix44.init())
+		} else if (ret.count == 1) {
+			return ret[0]
+		} else {
+			return Variant(VAR_TYPE_ARRAY, ret)
+		}
+	}
+
 	calc(idx) 
 	{
+		var mat_list = []
+		var v_mat = Blueprint.calc_input_value(this, 0)
+		if (v_mat)
+		{
+			if (v_mat.type == VAR_TYPE_MATRIX4) {
+				mat_list.add(v_mat)
+			} else if (v_mat.type == VAR_TYPE_ARRAY) {
+				mat_list = v_mat.value
+			}
+		}
+
+		var offset_list = []
 		var v_offset = Blueprint.calc_input_value(this, 1)
 		if (v_offset.type == VAR_TYPE_NUMBER3 or (v_offset.type == VAR_TYPE_ANY and v_offset.value is Vector3))
 		{
 			this.dx = v_offset.value.x
 			this.dy = v_offset.value.y
 			this.dz = v_offset.value.z
-
-			var v_mat = Blueprint.calc_input_value(this, 0)
-			v_mat.value.translate(this.dx, this.dy, this.dz)
-			return v_mat
+			offset_list.add(Vector3(this.dx, this.dy, this.dz))
+		}
+		else if (v_offset.type == VAR_TYPE_ANY and v_offset.value is List)
+		{
+			this.dx = v_offset.value[0]
+			this.dy = v_offset.value[1]
+			this.dz = v_offset.value[2]
+			offset_list.add(Vector3(this.dx, this.dy, this.dz))
 		}
 		else if (v_offset.type == VAR_TYPE_ARRAY)
 		{
-			var ret = []
 			for (var offset in v_offset.value)
 			{
-				var v_mat = Blueprint.calc_input_value(this, 0)
-				v_mat.value.translate(offset[0], offset[1], offset[2])
-				ret.add(v_mat)
+				if (offset is Vector3) {
+					offset_list.add(offset)
+				} else if (offset is List) {
+					offset_list.add(Vector3(offset[0], offset[1], offset[2]))
+				}
 			}
-			return Variant(VAR_TYPE_ARRAY, ret)
 		}
 		else
 		{
-			var v_mat = Blueprint.calc_input_value(this, 0)
-			if (v_mat) {
-				v_mat.value.translate(this.dx, this.dy, this.dz)
-				return v_mat
-			} else {
-				var mt = Matrix44.init()
-				mt.translate(this.dx, this.dy, this.dz)
-				return Variant(VAR_TYPE_MATRIX4, mt)		
-			}
+			offset_list.add(Vector3(this.dx, this.dy, this.dz))
 		}
+
+		return this.calc_list(mat_list, offset_list)
 	}
 
 	layout()
