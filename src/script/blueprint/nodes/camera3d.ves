@@ -17,7 +17,8 @@ class Camera3D is Node
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 			Pin(this, "zoom", VAR_TYPE_NUMBER),
 			Pin(this, "rot", VAR_TYPE_MATRIX4),
-			Pin(this, "pos", VAR_TYPE_NUMBER3),			
+			Pin(this, "pos", VAR_TYPE_NUMBER3),
+			Pin(this, "front", VAR_TYPE_NUMBER3),
 		]
 
 		this.layout()
@@ -60,6 +61,10 @@ class Camera3D is Node
 		else if (idx == 3)
 		{
 			return Variant(VAR_TYPE_NUMBER3, this.position)	
+		}
+		else if (idx == 4)
+		{
+			return Variant(VAR_TYPE_NUMBER3, this.front)	
 		}
 	}
 
