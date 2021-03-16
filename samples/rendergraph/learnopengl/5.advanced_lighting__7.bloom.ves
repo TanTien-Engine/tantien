@@ -99,6 +99,7 @@ void main()
     FragColor = vec4(result, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 node2.set_uniform("lights[0].Position", [ 0, 0.5, 1.5 ])
 node2.set_uniform("lights[0].Color", [ 5, 5, 5 ])
@@ -129,9 +130,9 @@ _editor.add_node(node4, -789.17732924848, 528.44056797897)
 
 var node5 = Camera3D()
 
-node5.position.set(-3.1634758400668, 7.1775960244993, 3.0435256574133)
-node5.yaw = -442.7
-node5.pitch = -68.7
+node5.position.set(0.37432003333603, 2.3518213242048, -1.2709788177503)
+node5.yaw = -221.6
+node5.pitch = -24.2
 node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.14392133057117
@@ -163,7 +164,7 @@ _editor.add_node(node8, -1312.1788330078, 597.87048339844)
 
 var node9 = Merge()
 
-_editor.add_node(node9, -1065.0879239169, 174.5068470348)
+_editor.add_node(node9, -1051.9408977474, 232.60822075183)
 
 var node10 = Scale()
 
@@ -233,12 +234,12 @@ _editor.add_node(node17, -1328.6732732782, -128.22944147008)
 
 var node18 = Rotate()
 
-node18.angle = 124
-node18.axis_x = 1
+node18.angle = 135.07275390625
+node18.axis_x = 0.47520208358765
 node18.axis_y = 0
-node18.axis_z = 1
+node18.axis_z = 0
 
-_editor.add_node(node18, -1489.840505571, -138.55791401737)
+_editor.add_node(node18, -1491.7682220181, -138.55791401737)
 
 var node19 = Scale()
 
@@ -294,7 +295,7 @@ var node26 = RenderTarget()
 node26.width = 1024
 node26.height = 1024
 
-_editor.add_node(node26, 435.94424596131, 330.59558897582)
+_editor.add_node(node26, 569.36535670129, 392.64107054371)
 
 var node27 = Texture()
 node27.gamma_correction = false
@@ -372,6 +373,7 @@ void main()
     FragColor = vec4(result, 1.0);
 }
 "
+node32.gs = ""
 node32.execute()
 node32.set_uniform("bloom", [ 1 ])
 node32.set_uniform("exposure", [ 4.4842934608459 ])
@@ -384,6 +386,12 @@ node33.type = "quad"
 node33.layout = [ "position", "texture" ]
 
 _editor.add_node(node33, 634.2324912102, -537.65418759869)
+
+var node34 = RenderBuffer()
+
+node34.init_rbo(1024, 1024, "depth_component")
+
+_editor.add_node(node34, 400.27377596465, 320.84944026171)
 
 Blueprint.connect(node0.exports[0], node25.imports[0])
 Blueprint.connect(node1.exports[0], node0.imports[0])
@@ -422,3 +430,4 @@ Blueprint.connect(node29.exports[1], node32.imports[3])
 Blueprint.connect(node31.exports[0], node30.imports[0])
 Blueprint.connect(node32.exports[0], node31.imports[1])
 Blueprint.connect(node33.exports[0], node31.imports[2])
+Blueprint.connect(node34.exports[0], node26.imports[4])

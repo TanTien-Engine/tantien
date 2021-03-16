@@ -10,7 +10,7 @@ var node1 = Clear()
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node1, 217.93767275634, 791.29866537048)
+_editor.add_node(node1, 48.684168696775, 763.15400524212)
 
 var node2 = Shader()
 
@@ -229,8 +229,6 @@ node2.set_uniform("pointLights[3].quadratic", [ 0.032000001519918 ])
 node2.set_uniform("pointLights[3].ambient", [ 0.050000000745058, 0.050000000745058, 0.050000000745058 ])
 node2.set_uniform("pointLights[3].diffuse", [ 0.80000001192093, 0.80000001192093, 0.80000001192093 ])
 node2.set_uniform("pointLights[3].specular", [ 1, 1, 1 ])
-node2.set_uniform("spotLight.cutOff", [ 0 ])
-node2.set_uniform("spotLight.outerCutOff", [ 0 ])
 node2.set_uniform("spotLight.constant", [ 1 ])
 node2.set_uniform("spotLight.linear", [ 0.090000003576279 ])
 node2.set_uniform("spotLight.quadratic", [ 0.032000001519918 ])
@@ -259,10 +257,10 @@ _editor.add_node(node4, -266.57469947408, 589.44236363636)
 
 var node5 = Rotate()
 
-node5.angle = 3.7205390930176
-node5.axis_x = 0
-node5.axis_y = 0.43717923760414
-node5.axis_z = 1
+node5.angle = 0
+node5.axis_x = 1
+node5.axis_y = 0.3
+node5.axis_z = 0.5
 
 _editor.add_node(node5, -460.42982143452, 846.31688727089)
 
@@ -277,78 +275,91 @@ node7.set_sampler("linear repeat")
 
 _editor.add_node(node7, -493.88806912096, -371.21357625846)
 
-var node8 = For()
+var node8 = Array()
 
-node8.start = 0
-node8.end = 10
+node8.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
 
-_editor.add_node(node8, 521.5307, 670.6894)
+_editor.add_node(node8, -427.29169299308, 725.44785590434)
 
-var node9 = Pass()
+var node9 = Translate()
 
-node9.once = false
+node9.dx = -1.3
+node9.dy = 1
+node9.dz = -1.5
 
-_editor.add_node(node9, 691.78763051496, 702.14751612186)
+_editor.add_node(node9, -284.00764496961, 855.27001366027)
 
-var node10 = Array()
+var node10 = Texture()
+node10.gamma_correction = false
+node10.init_texture("resources/textures/container2_specular.png")
+node10.set_sampler("linear repeat")
 
-node10.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
+_editor.add_node(node10, -253.59817387506, -374.8919737293)
 
-_editor.add_node(node10, 665.89317158699, 579.73176966445)
+var node11 = Camera3D()
 
-var node11 = Translate()
+node11.position.set(1.5812811868422, 5.2809154655564, 1.8444331164479)
+node11.yaw = -101.8
+node11.pitch = -50.8
+node11.zoom = 45
+node11.update_camera_vectors()
+node11.speed = 0.080249026417732
 
-node11.dx = -1.3
-node11.dy = 1
-node11.dz = -1.5
+_editor.add_node(node11, -479.23482522613, 408.01306884794)
 
-_editor.add_node(node11, -284.00764496961, 855.27001366027)
+var node12 = Cos()
 
-var node12 = Texture()
-node12.gamma_correction = false
-node12.init_texture("resources/textures/container2_specular.png")
-node12.set_sampler("linear repeat")
+_editor.add_node(node12, -201.89371715875, -139.47645189627)
 
-_editor.add_node(node12, -253.59817387506, -374.8919737293)
+var node13 = Radians()
 
-var node13 = Number3()
+_editor.add_node(node13, -328.83536477254, -139.1791590264)
 
-node13.value.set(5.5820517539978, 4.9153847694397, 5.0264959335327)
+var node14 = Number()
 
-_editor.add_node(node13, -263.23846714, 100.11554706)
+node14.value = 12.5
 
-var node14 = Number3()
+_editor.add_node(node14, -457.9131889982, -148.33446618543)
 
-node14.value.set(2.6222229003906, 7.5111117362976, 7.5111117362976)
+var node15 = Cos()
 
-_editor.add_node(node14, -260.17581759815, -13.051438985168)
+_editor.add_node(node15, -199.768113278, -196.70424868557)
 
-var node15 = Camera3D()
+var node16 = Radians()
 
-node15.position.set(1.6721375983934, 5.2809154655564, 1.3743249769547)
-node15.yaw = -124.9
-node15.pitch = -47.9
-node15.zoom = 45
-node15.update_camera_vectors()
-node15.speed = 0.080249026417732
+_editor.add_node(node16, -326.70976089179, -196.4069558157)
 
-_editor.add_node(node15, -479.23482522613, 408.01306884794)
+var node17 = Number()
 
-Blueprint.connect(node0.exports[0], node8.imports[1])
-Blueprint.connect(node1.exports[0], node8.imports[0])
+node17.value = 15
+
+_editor.add_node(node17, -455.78758511745, -217.82536228672)
+
+var node18 = Array()
+
+node18.list = [ 20, 40, 60, 80, 100, 120, 140, 160, 180, 200 ]
+
+_editor.add_node(node18, -622.57750650973, 731.91681214566)
+
+Blueprint.connect(node1.exports[0], node0.imports[0])
 Blueprint.connect(node2.exports[0], node0.imports[1])
 Blueprint.connect(node3.exports[0], node0.imports[2])
 Blueprint.connect(node4.exports[0], node2.imports[2])
-Blueprint.connect(node5.exports[0], node11.imports[0])
+Blueprint.connect(node5.exports[0], node9.imports[0])
 Blueprint.connect(node6.exports[0], node5.imports[0])
 Blueprint.connect(node7.exports[0], node2.imports[47])
-Blueprint.connect(node8.exports[0], node9.imports[0])
-Blueprint.connect(node8.exports[1], node10.imports[0])
-Blueprint.connect(node10.exports[1], node11.imports[1])
-Blueprint.connect(node11.exports[0], node2.imports[0])
-Blueprint.connect(node12.exports[0], node2.imports[48])
-Blueprint.connect(node13.exports[0], node2.imports[36])
-Blueprint.connect(node14.exports[0], node2.imports[37])
-Blueprint.connect(node15.exports[0], node2.imports[1])
-Blueprint.connect(node15.exports[1], node4.imports[0])
-Blueprint.connect(node15.exports[3], node2.imports[3])
+Blueprint.connect(node8.exports[0], node9.imports[1])
+Blueprint.connect(node9.exports[0], node2.imports[0])
+Blueprint.connect(node10.exports[0], node2.imports[48])
+Blueprint.connect(node11.exports[0], node2.imports[1])
+Blueprint.connect(node11.exports[1], node4.imports[0])
+Blueprint.connect(node11.exports[3], node2.imports[3])
+Blueprint.connect(node11.exports[3], node2.imports[36])
+Blueprint.connect(node11.exports[4], node2.imports[37])
+Blueprint.connect(node12.exports[0], node2.imports[38])
+Blueprint.connect(node13.exports[0], node12.imports[0])
+Blueprint.connect(node14.exports[0], node13.imports[0])
+Blueprint.connect(node15.exports[0], node2.imports[39])
+Blueprint.connect(node16.exports[0], node15.imports[0])
+Blueprint.connect(node17.exports[0], node16.imports[0])
+Blueprint.connect(node18.exports[0], node5.imports[1])
