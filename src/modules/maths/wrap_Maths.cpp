@@ -114,7 +114,9 @@ void w_Matrix44_rotate_axis()
     const float x = (float)ves_tonumber(2);
     const float y = (float)ves_tonumber(3);
     const float z = (float)ves_tonumber(4);
-    *mt = mt->RotatedAxis({ x, y, z }, angle);
+    sm::vec3 axis(x, y, z);
+    axis.Normalize();
+    *mt = mt->RotatedAxis(axis, angle);
 }
 
 void w_Matrix44_scale()
