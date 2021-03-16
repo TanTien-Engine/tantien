@@ -35,6 +35,8 @@ foreign class Matrix44
 {
 	init() {}
 
+	foreign clone()
+
 	foreign translate(x, y, z)
 	foreign rotate_axis(angle, x, y, z)
 	foreign scale(sx, sy, sz)	
