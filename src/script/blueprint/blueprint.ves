@@ -92,6 +92,25 @@ class Blueprint
 		conn.update()
 	}
 
+	static query_pin(pins, name) 
+	{
+		for (var p in pins) {
+			if (p.name == name) {
+				return p
+			}
+		}
+		return nil
+	}
+
+	static connect(f_node, f_pin, t_node, t_pin)
+	{
+		var f = this.query_pin(f_node.exports, f_pin)
+		var t = this.query_pin(t_node.imports, t_pin)
+		if (f and t) {
+			this.connect(f, t)
+		}
+	}
+
 	static disconnect(conn)
 	{
 		conn.from.conns.remove(conn)

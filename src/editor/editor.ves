@@ -530,7 +530,8 @@ import \"editor\" for _editor
 								t_name = "node%(t_idx)"
 							}
 						}
-						file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
+						//file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
+						file.write("Blueprint.connect(%(f_name), \"%(f_conn.from.name)\", %(t_name), \"%(f_conn.to.name)\")\n")
 					}
 				}
 			}
