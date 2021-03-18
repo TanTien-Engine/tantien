@@ -204,13 +204,16 @@ class Shader is Node
 	{
 		var dirty = false
 
-		if ((!this.fold_array and unif[1] == "array") or unif[1] == "struct")
+		if (unif[1] == "array" or unif[1] == "struct")
 		{
-			for (var u in unif[2]) {
-				var y_d = this.draw_gui(ctx, u, x, y)
-				y = y_d[0]
-				if (y_d[1]) {
-					dirty = true
+			if (!this.fold_array) 
+			{
+				for (var u in unif[2]) {
+					var y_d = this.draw_gui(ctx, u, x, y)
+					y = y_d[0]
+					if (y_d[1]) {
+						dirty = true
+					}
 				}
 			}
 		}
