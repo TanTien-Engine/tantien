@@ -30,7 +30,7 @@ class Custom is Node
 
 		import "editor" for _editor
 		if (idx - 1 < _editor.script_stack.count) {
-			return Variant(VAR_TYPE_ANY, _editor.script_stack[idx - 1])
+			return Variant(_editor.script_stack[idx - 1])
 		}
 	}
 

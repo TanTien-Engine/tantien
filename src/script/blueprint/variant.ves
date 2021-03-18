@@ -1,5 +1,7 @@
 import "graphics" for Graphics
 import "blueprint.node_style" for TB_TITLE
+import "maths" for Matrix44
+import "maths.vector" for Vector2, Vector3, Vector4
 
 var VAR_TYPE_PORT    = "port"
 
@@ -19,6 +21,54 @@ var VAR_TYPE_MATRIX4 = "mat4"
 
 class Variant
 {
+	init(value)
+	{
+		if (value is Variant)
+		{
+			this.type = value.type
+			this.value = value.value
+		}
+		else if (value is List)
+		{
+			var list = []
+			for (var v in value) {
+				list.add(Variant(v))
+			}
+			this.type = VAR_TYPE_ARRAY
+			this.value = list
+		}
+		else if (value is Num)
+		{
+			this.type = VAR_TYPE_NUMBER
+			this.value = value
+		}
+		else if (value is Vector2)
+		{
+			this.type = VAR_TYPE_NUMBER2
+			this.value = value
+		}
+		else if (value is Vector3)
+		{
+			this.type = VAR_TYPE_NUMBER3
+			this.value = value
+		}
+		else if (value is Vector4)
+		{
+			this.type = VAR_TYPE_NUMBER4
+			this.value = value
+		}
+		else if (value is Matrix44)
+		{
+			this.type = VAR_TYPE_MATRIX4
+			this.value = value
+		}
+		else
+		{
+			this.type = VAR_TYPE_ANY
+			this.value = value
+		}
+	}
+
 	init(type, value)
 	{
 		this.type = type
