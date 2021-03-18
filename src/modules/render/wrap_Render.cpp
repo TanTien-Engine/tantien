@@ -22,6 +22,7 @@
 #include <unirender/TextureDescription.h>
 #include <unirender/RenderBuffer.h>
 #include <shadertrans/ShaderTrans.h>
+#include <shadertrans/ShaderReflection.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
 #include <guard/check.h>
@@ -95,60 +96,186 @@ int w_Shader_finalize(void* data)
     return sizeof(tt::Proxy<ur::ShaderProgram>);
 }
 
-int get_value_number_size(const std::string& type)
+int get_value_number_size(shadertrans::ShaderReflection::VarType type)
 {
     int size = 0;
-    if (type == "float") {
+    switch (type)
+    {
+    case shadertrans::ShaderReflection::VarType::Float:
         size = 1;
-    } else if (type == "float2") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Float2:
         size = 2;
-    } else if (type == "float3") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Float3:
         size = 3;
-    } else if (type == "float4") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Float4:
         size = 4;
-    } else if (type == "mat2") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat2:
         size = 4;
-    } else if (type == "mat3") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat3:
         size = 9;
-    } else if (type == "mat4") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat4:
         size = 16;
-    } else if (type == "int") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Int:
         size = 1;
-    } else if (type == "int2") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Int2:
         size = 2;
-    } else if (type == "int3") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Int3:
         size = 3;
-    } else if (type == "int4") {
+        break;
+    case shadertrans::ShaderReflection::VarType::Int4:
         size = 4;
+        break;
     }
     return size;
 }
 
-void w_Shader_set_uniform_value()
+const char* unif_type_to_string(shadertrans::ShaderReflection::VarType type)
 {
-    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
-
-    GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "unknown type");
-
-    ves_geti(1, 0);
-    const char* name = ves_tostring(-1);
-    ves_pop(1);
-
-    ves_geti(1, 1);
-    const char* type = ves_tostring(-1);
-    ves_pop(1);
-    GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
-
-    if (strcmp(type, "sampler") == 0)
+    const char* ret = nullptr;
+    switch (type)
     {
-        int num = ves_len(1);
+    case shadertrans::ShaderReflection::VarType::Unknown:
+        ret = "unknown";
+        break;
+    case shadertrans::ShaderReflection::VarType::Array:
+        ret = "array";
+        break;
+    case shadertrans::ShaderReflection::VarType::Struct:
+        ret = "struct";
+        break;
+    case shadertrans::ShaderReflection::VarType::Bool:
+        ret = "bool";
+        break;
+    case shadertrans::ShaderReflection::VarType::Int:
+        ret = "int";
+        break;
+    case shadertrans::ShaderReflection::VarType::Int2:
+        ret = "int2";
+        break;
+    case shadertrans::ShaderReflection::VarType::Int3:
+        ret = "int3";
+        break;
+    case shadertrans::ShaderReflection::VarType::Int4:
+        ret = "int4";
+        break;
+    case shadertrans::ShaderReflection::VarType::Float:
+        ret = "float";
+        break;
+    case shadertrans::ShaderReflection::VarType::Float2:
+        ret = "float2";
+        break;
+    case shadertrans::ShaderReflection::VarType::Float3:
+        ret = "float3";
+        break;
+    case shadertrans::ShaderReflection::VarType::Float4:
+        ret = "float4";
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat2:
+        ret = "mat2";
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat3:
+        ret = "mat3";
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat4:
+        ret = "mat4";
+        break;
+    case shadertrans::ShaderReflection::VarType::Sampler:
+        ret = "sampler";
+        break;
+    default:
+        assert(0);
+    }
+    return ret;
+}
 
+shadertrans::ShaderReflection::VarType strint_to_unif_type(const char* type)
+{
+    auto ret = shadertrans::ShaderReflection::VarType::Unknown;
+    if (strcmp(type, "unknown") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Unknown;
+    } else if (strcmp(type, "array") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Array;
+    } else if (strcmp(type, "struct") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Struct;
+    } else if (strcmp(type, "bool") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Bool;
+    } else if (strcmp(type, "int") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Int;
+    } else if (strcmp(type, "int2") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Int2;
+    } else if (strcmp(type, "int3") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Int3;
+    } else if (strcmp(type, "int4") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Int4;
+    } else if (strcmp(type, "float") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Float;
+    } else if (strcmp(type, "float2") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Float2;
+    } else if (strcmp(type, "float3") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Float3;
+    } else if (strcmp(type, "float4") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Float4;
+    } else if (strcmp(type, "mat2") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Mat2;
+    } else if (strcmp(type, "mat3") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Mat3;
+    } else if (strcmp(type, "mat4") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Mat4;
+    } else if (strcmp(type, "sampler") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Sampler;
+    }
+    return ret;
+}
+
+void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const char* name, shadertrans::ShaderReflection::VarType type)
+{
+    GD_ASSERT(ves_type(-1) == VES_TYPE_LIST, "value should be list");
+    switch (type)
+    {
+    case shadertrans::ShaderReflection::VarType::Array:
+    case shadertrans::ShaderReflection::VarType::Struct:
+    {
+        int num = ves_len(-1);
+        for (int i = 0; i < num; ++i)
+        {
+            ves_geti(-1, i);
+
+            ves_geti(-1, 0);
+            const char* name = ves_tostring(-1);
+            ves_pop(1);
+
+            ves_geti(-1, 1);
+            const char* type = ves_tostring(-1);
+            ves_pop(1);
+            GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
+
+            ves_geti(-1, 2);
+            set_uniform_value(prog, name, strint_to_unif_type(type));
+            ves_pop(1);
+
+            ves_pop(1);
+        }
+    }
+        break;
+    case shadertrans::ShaderReflection::VarType::Sampler:
+    {
         auto slot = prog->QueryTexSlot(name);
         if (slot >= 0)
         {
+            int n = ves_len(-1);
+
             auto ctx = tt::Render::Instance()->Context();
 
-            ves_geti(1, 2);
+            ves_geti(-1, 0);
             if (ves_type(-1) != VES_TYPE_NULL)
             {
                 auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
@@ -159,9 +286,9 @@ void w_Shader_set_uniform_value()
             ves_pop(1);
 
             // texture sampler
-            if (ves_len(1) > 3)
+            if (ves_len(-1) > 1)
             {
-                ves_geti(1, 3);
+                ves_geti(-1, 1);
                 if (ves_type(-1) != VES_TYPE_NULL)
                 {
                     ur::Device::TextureSamplerType type;
@@ -184,41 +311,21 @@ void w_Shader_set_uniform_value()
             }
         }
     }
-    else if (strcmp(type, "image") == 0)
-    {
-        int num = ves_len(1);
-
-        auto slot = prog->QueryImgSlot(name);
-        if (slot >= 0)
-        {
-            auto ctx = tt::Render::Instance()->Context();
-
-            ves_geti(1, 2);
-            if (ves_type(-1) != VES_TYPE_NULL)
-            {
-                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
-                if (slot >= 0) {
-                    ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
-                }
-            }
-            ves_pop(1);
-        }
-    }
-    else if (strcmp(type, "mat4") == 0)
+        break;
+    case shadertrans::ShaderReflection::VarType::Mat4:
     {
         auto unif = prog->QueryUniform(name);
         if (unif)
         {
-            int num = ves_len(1);
-
-            ves_geti(1, 2);
+            ves_geti(-1, 0);
             sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
             ves_pop(1);
 
             unif->SetValue(mt->x, 16);
         }
     }
-    else
+        break;
+    default:
     {
         auto unif = prog->QueryUniform(name);
         if (unif)
@@ -232,7 +339,7 @@ void w_Shader_set_uniform_value()
                 int val[4];
                 for (int i = 0; i < num; ++i)
                 {
-                    ves_geti(1, 2 + i);
+                    ves_geti(-1, i);
                     val[i] = (int)ves_tonumber(-1);
                     ves_pop(1);
                 }
@@ -246,7 +353,7 @@ void w_Shader_set_uniform_value()
                 float val[16];
                 for (int i = 0; i < num; ++i)
                 {
-                    ves_geti(1, 2 + i);
+                    ves_geti(-1, i);
                     val[i] = (float)ves_tonumber(-1);
                     ves_pop(1);
                 }
@@ -255,6 +362,27 @@ void w_Shader_set_uniform_value()
             }
         }
     }
+    }
+}
+
+void w_Shader_set_uniform_value()
+{
+    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
+
+    GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "unknown type");
+
+    ves_geti(1, 0);
+    const char* name = ves_tostring(-1);
+    ves_pop(1);
+
+    ves_geti(1, 1);
+    const char* type = ves_tostring(-1);
+    ves_pop(1);
+    GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
+
+    ves_geti(1, 2);
+    set_uniform_value(prog, name, strint_to_unif_type(type));
+    ves_pop(1);
 }
 
 void w_VertexArray_allocate()
@@ -967,282 +1095,123 @@ void w_Render_set_viewport()
     tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
-std::string parse_spir_type(const spirv_cross::SPIRType& type)
-{
-    std::string ret = "unknown";
-
-	switch (type.basetype)
-	{
-	case spirv_cross::SPIRType::BaseType::Boolean:
-		if (type.columns == 1 && type.vecsize == 1) {
-			ret = "bool";
-		}
-		break;
-
-	case spirv_cross::SPIRType::BaseType::Int:
-		switch (type.vecsize) 
-		{
-		case 1: 
-			ret = "int";
-			break;
-		case 2: 
-			ret = "int2";
-			break;
-		case 3: 
-			ret = "int3";
-			break;
-		case 4: 
-			ret = "int4";
-			break;
-		}
-		break;
-
-    case spirv_cross::SPIRType::BaseType::UInt:
-        switch (type.vecsize)
-        {
-        case 1:
-            ret = "int";
-            break;
-        case 2:
-            ret = "int2";
-            break;
-        case 3:
-            ret = "int3";
-            break;
-        case 4:
-            ret = "int4";
-            break;
-        }
-        break;
-
-	case spirv_cross::SPIRType::BaseType::Float:
-		switch (type.columns) 
-		{
-		case 1:
-			switch (type.vecsize) 
-			{
-			case 1: 
-				ret = "float";
-				break;
-			case 2: 
-				ret = "float2";
-				break;
-			case 3: 
-				ret = "float3";
-				break;
-			case 4: 
-				ret = "float4";
-				break;
-			}
-			break;
-
-		case 2:
-			if (type.vecsize == 2) {
-				ret = "mat2";
-			}
-			break;
-				
-		case 3:
-			if (type.vecsize == 3) {
-				ret = "mat3";
-			}
-			break;
-
-		case 4:
-			if (type.vecsize == 4) {
-				ret = "mat4";
-			}
-			break;
-		}
-		break;
-	}
-    GD_ASSERT(ret != "unknown", "unknown type");
-	return ret;
-}
-
-void get_struct_uniforms(const spirv_cross::CompilerGLSL& compiler, 
-                         spirv_cross::TypeID base_type_id,
-                         const spirv_cross::SPIRType& type,
-                         std::vector<std::pair<std::string, std::string>>& uniforms,
-                         const std::string& base_name)
-{   
-    auto member_count = type.member_types.size();
-    if (!type.array.empty()) 
-    {
-        for (int i = 0, n = type.array[0]; i < n; ++i)
-        {
-            for (int j = 0; j < member_count; j++)
-            {
-                std::string full_name = base_name + "[" + std::to_string(i) + "]";
-                auto name = compiler.get_member_name(type.parent_type, j);
-                full_name.append("." + name);
-                auto sub_type = compiler.get_type(type.member_types[j]);
-                if (sub_type.basetype == spirv_cross::SPIRType::Struct)
-                {
-                    get_struct_uniforms(compiler, type.member_types[j], sub_type, uniforms, full_name);
-                }
-                else
-                {
-                    std::pair<std::string, std::string> unif;
-
-                    unif.first = full_name;
-                    unif.second = parse_spir_type(sub_type);
-
-                    //size_t size = compiler.get_declared_struct_member_size(type, j);
-                    //size_t offset = compiler.type_struct_member_offset(type, j);
-
-                    uniforms.push_back(unif);
-                }
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < member_count; i++)
-        {
-            auto name = compiler.get_member_name(base_type_id, i);
-            if (!base_name.empty()) {
-                name.insert(0, base_name + ".");
-            }
-            auto sub_type = compiler.get_type(type.member_types[i]);
-            if (sub_type.basetype == spirv_cross::SPIRType::Struct)
-            {
-                get_struct_uniforms(compiler, type.member_types[i], sub_type, uniforms, name);
-            }
-            else if (!sub_type.array.empty())
-            {
-                for (int i = 0, n = sub_type.array[0]; i < n; ++i)
-                {
-                    std::string full_name = name + "[" + std::to_string(i) + "]";
-
-                    std::pair<std::string, std::string> unif;
-
-                    unif.first = full_name;
-                    unif.second = parse_spir_type(sub_type);
-
-                    uniforms.push_back(unif);
-                }
-            }
-            else
-            {
-                std::pair<std::string, std::string> unif;
-
-                unif.first = name;
-                unif.second = parse_spir_type(sub_type);
-
-
-                uniforms.push_back(unif);
-            }
-        }
-    }
-}
-
-void get_shader_uniforms(EShLanguage stage, const std::vector<unsigned int>& shader,
-                         std::vector<std::pair<std::string, std::string>>& uniforms)
-{
-    spirv_cross::CompilerGLSL compiler(shader);
-    spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-
-	//// get_work_group_size_specialization_constants
-	//auto entries = compiler.get_entry_points_and_stages();
-	//for (auto& e : entries)
-	//{
-	//	if (e.execution_model == spv::ExecutionModelGLCompute)
-	//	{
-	//		const auto& spv_entry = compiler.get_entry_point(e.name, e.execution_model);
-	//		m_props.insert({ "local_size_x", ShaderVariant(static_cast<int>(spv_entry.workgroup_size.x)) });
-	//		m_props.insert({ "local_size_y", ShaderVariant(static_cast<int>(spv_entry.workgroup_size.y)) });
-	//		m_props.insert({ "local_size_z", ShaderVariant(static_cast<int>(spv_entry.workgroup_size.z)) });
-	//		break;
-	//	}
-	//}
-
-	// uniforms
-    for (auto& resource : resources.uniform_buffers)
-    {
-        auto ubo_name = compiler.get_name(resource.id);;
-        spirv_cross::SPIRType type = compiler.get_type(resource.base_type_id);
-        if (type.basetype == spirv_cross::SPIRType::Struct) {
-            get_struct_uniforms(compiler, resource.base_type_id, type, uniforms, ubo_name);
-        }
-
-		uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-		uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);		
-    }
-
-	for (auto& resource : resources.sampled_images)
-	{
-        std::pair<std::string, std::string> unif;
-
-		spirv_cross::SPIRType type = compiler.get_type(resource.base_type_id);
-
-		unif.first = compiler.get_name(resource.id);
-		uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-		uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
-
-		// todo
-        unif.second = "sampler";
-
-		uniforms.push_back(unif);
-	}
-
-	//for (auto& resource : resources.storage_images)
-	//{
-	//	ImageUnit img;
-
-	//	spirv_cross::SPIRType type = compiler.get_type(resource.base_type_id);
-
-	//	img.name = compiler.get_name(resource.id);
-	//	uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-	//	img.unit = compiler.get_decoration(resource.id, spv::DecorationBinding);
-	//	img.fmt = parse_image_format(type.image.format);
-	//	img.access = parse_image_access(type.image.access);
-
-	//	m_images.push_back(img);
-
-	//	Variable unif;
-	//	unif.name = img.name;
-	//	unif.type = VariableType::Sampler2D;
-	//	m_uniforms.push_back(unif);
-	//}
-}
-
 void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* lang_str,
-                         std::vector<std::pair<std::string, std::string>>& uniforms)
+                         std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
 {
-    EShLanguage stage;
-    shadertrans::ShaderStage st_stage;
+    shadertrans::ShaderStage stage;
     if (strcmp(stage_str, "vertex") == 0) {
-        stage = EShLangVertex;
-        st_stage = shadertrans::ShaderStage::VertexShader;
+        stage = shadertrans::ShaderStage::VertexShader;
     } else if (strcmp(stage_str, "tess_ctrl") == 0) {
-        stage = EShLangTessControl;
-        st_stage = shadertrans::ShaderStage::TessCtrlShader;
+        stage = shadertrans::ShaderStage::TessCtrlShader;
     } else if (strcmp(stage_str, "tess_eval") == 0) {
-        stage = EShLangTessEvaluation;
-        st_stage = shadertrans::ShaderStage::TessEvalShader;
+        stage = shadertrans::ShaderStage::TessEvalShader;
     } else if (strcmp(stage_str, "geometry") == 0) {
-        stage = EShLangGeometry;
-        st_stage = shadertrans::ShaderStage::GeometryShader;
+        stage = shadertrans::ShaderStage::GeometryShader;
     } else if (strcmp(stage_str, "pixel") == 0) {
-        stage = EShLangFragment;
-        st_stage = shadertrans::ShaderStage::PixelShader;
+        stage = shadertrans::ShaderStage::PixelShader;
     } else if (strcmp(stage_str, "compute") == 0) {
-        stage = EShLangCompute;
-        st_stage = shadertrans::ShaderStage::ComputeShader;
+        stage = shadertrans::ShaderStage::ComputeShader;
     } else {
         return;
     }
 
     std::vector<unsigned int> spirv;
     if (strcmp(lang_str, "glsl") == 0) {
-        shadertrans::ShaderTrans::GLSL2SpirV(st_stage, shader_str, spirv);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, shader_str, spirv);
     } else if (strcmp(lang_str, "hlsl") == 0) {
-        shadertrans::ShaderTrans::HLSL2SpirV(st_stage, shader_str, spirv);
+        shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, spirv);
     }
 
     if (!spirv.empty()) {
-        get_shader_uniforms(stage, spirv, uniforms);
+        shadertrans::ShaderReflection::GetUniforms(spirv, uniforms);
+    }
+}
+
+int count_uniform_num(const std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
+{
+    int num = 0;
+    for (auto& unif : uniforms)
+    {
+        if (unif.type == shadertrans::ShaderReflection::VarType::Array || 
+            unif.type == shadertrans::ShaderReflection::VarType::Struct) {
+            const int n = count_uniform_num(unif.children);
+            num += n;
+        } else {
+            assert(unif.children.empty());
+            ++num;
+        }
+    }
+    return num;
+}
+
+void push_uniforms(const std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
+{
+    ves_newlist(uniforms.size());
+
+    for (int i = 0, n = uniforms.size(); i < n; ++i)
+    {
+        // name + type + value[]
+        ves_newlist(3);
+
+        auto& unif = uniforms[i];
+        if (unif.type == shadertrans::ShaderReflection::VarType::Array || 
+            unif.type == shadertrans::ShaderReflection::VarType::Struct)
+        {
+            // name
+            ves_pushstring(unif.name.c_str());
+            ves_seti(-2, 0);
+            ves_pop(1);
+
+            // type
+            ves_pushstring(unif_type_to_string(unif.type));
+            ves_seti(-2, 1);
+            ves_pop(1);
+
+            // value
+            push_uniforms(unif.children);
+            ves_seti(-2, 2);
+            ves_pop(1);
+        }
+        else 
+        {
+            assert(unif.children.empty());
+
+            // name
+            ves_pushstring(unif.name.c_str());
+            ves_seti(-2, 0);
+            ves_pop(1);
+
+            // type
+            ves_pushstring(unif_type_to_string(unif.type));
+            ves_seti(-2, 1);
+            ves_pop(1);
+
+            // value
+            if (unif.type == shadertrans::ShaderReflection::VarType::Sampler)
+            {
+                ves_newlist(2);
+            }
+            else if (unif.type == shadertrans::ShaderReflection::VarType::Mat2 || 
+                     unif.type == shadertrans::ShaderReflection::VarType::Mat3 || 
+                     unif.type == shadertrans::ShaderReflection::VarType::Mat4)
+            {
+                ves_newlist(1);
+            }
+            else
+            {
+                const int num = get_value_number_size(unif.type);
+                ves_newlist(num);
+                for (int i = 0; i < num; ++i) {
+                    ves_pushnumber(0);
+                    ves_seti(-2, i);
+                    ves_pop(1);
+                }
+            }
+            ves_seti(-2, 2);
+            ves_pop(1);
+        }
+        ves_seti(-2, i);
+        ves_pop(1);
     }
 }
 
@@ -1252,58 +1221,15 @@ void w_Render_get_shader_uniforms()
     const char* code  = ves_tostring(2);
     const char* lang  = ves_tostring(3);
 
-    std::vector<std::pair<std::string, std::string>> uniforms;
+    std::vector<shadertrans::ShaderReflection::Uniform> uniforms;
     if (strlen(code) != 0) {
         get_shader_uniforms(stage, code, lang, uniforms);
     }
 
     ves_pop(4);
-    ves_newlist(static_cast<int>(uniforms.size()));
-    for (int i = 0, n = static_cast<int>(uniforms.size()); i < n; ++i)
-    {
-        auto& unif = uniforms[i];
 
-        int size = 2;
-        if (unif.second == "sampler") {
-            size += 2;  // texture and sampler
-        } else if (unif.second == "mat2" || unif.second == "mat3" || unif.second == "mat4") {
-            size += 1;
-        } else {
-            size += get_value_number_size(unif.second);
-        }
-
-        ves_newlist(size);
-
-        // name
-        ves_pushstring(unif.first.c_str());
-        ves_seti(-2, 0);
-        ves_pop(1);
-
-        // type
-        ves_pushstring(unif.second.c_str());
-        ves_seti(-2, 1);
-        ves_pop(1);
-
-        // values
-        if (unif.second == "sampler")
-        {
-        }
-        else if (unif.second == "mat2" || unif.second == "mat3" || unif.second == "mat4")
-        {
-        }
-        else
-        {
-            for (int i = 0, n = get_value_number_size(unif.second); i < n; ++i) {
-                ves_pushnumber(0);
-                ves_seti(-2, 2 + i);
-                ves_pop(1);
-            }
-        }
-
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
-}
+    push_uniforms(uniforms);
+} 
 
 }
 
