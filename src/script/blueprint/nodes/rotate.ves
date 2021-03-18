@@ -57,7 +57,7 @@ class Rotate is Node
 				angle = angle_list[angle_list.count - 1]
 			}
 
-			mat.rotate_axis(angle, this.axis_x, this.axis_y, this.axis_z)
+			mat.rotate_axis(angle * 0.0174533, this.axis_x, this.axis_y, this.axis_z)
 			ret.add(Variant(VAR_TYPE_MATRIX4, mat))
 		}
 
