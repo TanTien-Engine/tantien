@@ -22,20 +22,25 @@ class Custom is Node
 		this.layout()
 
 		this.code = ""
+
+		this.result = nil
+		this.use_cache = false
 	}
 
 	calc(idx)
 	{
 		this.execute()
-
-		import "editor" for _editor
-		if (idx - 1 < _editor.script_stack.count) {
-			return Variant(_editor.script_stack[idx - 1])
+		if (idx - 1 < this.result.count) {
+			return Variant(this.result[idx - 1])
 		}
 	}
 
 	execute() 
 	{
+		if (this.use_cache and this.result) {
+			return
+		}
+
 		import "editor" for _editor
 		_editor.script_stack.clear()
 		for (var i in 1..this.imports.count) {
@@ -44,6 +49,11 @@ class Custom is Node
 		}
 		var code = "import \"editor\" for _editor\n" + this.code
 		Basic.loadstring("temp", code)
+
+		this.result = []
+		for (var v in _editor.script_stack) {
+			this.result.add(v)
+		}
 	}
 
 	layout() 
@@ -59,6 +69,7 @@ class Custom is Node
 		return "
 %(name).code = \"%(source)\"
 %(name).init_ports(%(this.imports.count - 1), %(this.exports.count - 1))
+%(name).use_cache = %(this.use_cache)
 "
 	}
 
