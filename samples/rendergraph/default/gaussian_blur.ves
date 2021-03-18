@@ -52,6 +52,7 @@ void main()
 	FragColor = texture(texture1, TexCoord);
 }
 "
+node4.gs = ""
 node4.execute()
 
 _editor.add_node(node4, 240.52878068049, -28.334930662204)
@@ -63,9 +64,9 @@ node5.layout = [ "position", "texture" ]
 
 _editor.add_node(node5, 273.58662938658, -135.02164238696)
 
-Blueprint.connect(node0.exports[0], node1.imports[1])
-Blueprint.connect(node1.exports[0], node3.imports[0])
-Blueprint.connect(node1.exports[1], node4.imports[0])
-Blueprint.connect(node3.exports[0], node2.imports[0])
-Blueprint.connect(node4.exports[0], node3.imports[1])
-Blueprint.connect(node5.exports[0], node3.imports[2])
+Blueprint.connect(node0, "tex", node1, "in0")
+Blueprint.connect(node1, "next", node3, "prev")
+Blueprint.connect(node1, "tex", node4, "texture1")
+Blueprint.connect(node3, "next", node2, "prev")
+Blueprint.connect(node4, "out", node3, "shader")
+Blueprint.connect(node5, "out", node3, "va")

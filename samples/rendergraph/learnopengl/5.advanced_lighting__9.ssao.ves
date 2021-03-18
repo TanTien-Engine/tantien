@@ -82,9 +82,9 @@ _editor.add_node(node3, -1659.5750835156, 169.08908390428)
 
 var node4 = Camera3D()
 
-node4.position.set(4.3505002091804, 1.2279903296738, 1.1486023862097)
-node4.yaw = 208.4
-node4.pitch = -30.1
+node4.position.set(7.5601256626814, 2.7005676030934, -0.66358765270434)
+node4.yaw = 176.9
+node4.pitch = -26.2
 node4.zoom = 45
 node4.update_camera_vectors()
 node4.speed = 0.27363935112953
@@ -139,14 +139,14 @@ node11.gamma_correction = false
 node11.init_texture(1024, 1024, "rgba16f")
 node11.set_sampler("linear repeat")
 
-_editor.add_node(node11, -1213.4204235625, -294.73992812789)
+_editor.add_node(node11, -1227.4204235625, -291.73992812789)
 
 var node12 = Texture()
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgba8")
 node12.set_sampler("linear repeat")
 
-_editor.add_node(node12, -1204.6051779614, -432.26588220533)
+_editor.add_node(node12, -1226.5310248313, -433.19889696575)
 
 var node13 = RenderBuffer()
 
@@ -277,8 +277,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;
 
-//const int KERNEL_SIZE = 64;
-const int KERNEL_SIZE = 4;
+const int KERNEL_SIZE = 64;
 
 uniform UBO
 {
@@ -331,12 +330,72 @@ void main()
 "
 node18.gs = ""
 node18.execute()
-node18.set_uniform("samples[0]", [ 3.3745799064636, 3.1079132556915, 2.7745797634125 ])
-node18.set_uniform("samples[1]", [ 2.7079131603241, 2.9079132080078, 2.9079132080078 ])
-node18.set_uniform("samples[2]", [ 1.9079132080078, 2.1079132556915, 2.1745798587799 ])
-node18.set_uniform("samples[3]", [ 6.5745801925659, 1.6412465572357, 7.8412466049194 ])
+node18.set_uniform("samples[0]", [ 0, 0, 0 ])
+node18.set_uniform("samples[1]", [ 0, 0, 0 ])
+node18.set_uniform("samples[2]", [ 0, 0, 0 ])
+node18.set_uniform("samples[3]", [ 0, 0, 0 ])
+node18.set_uniform("samples[4]", [ 0, 0, 0 ])
+node18.set_uniform("samples[5]", [ 0, 0, 0 ])
+node18.set_uniform("samples[6]", [ 0, 0, 0 ])
+node18.set_uniform("samples[7]", [ 0, 0, 0 ])
+node18.set_uniform("samples[8]", [ 0, 0, 0 ])
+node18.set_uniform("samples[9]", [ 0, 0, 0 ])
+node18.set_uniform("samples[10]", [ 0, 0, 0 ])
+node18.set_uniform("samples[11]", [ 0, 0, 0 ])
+node18.set_uniform("samples[12]", [ 0, 0, 0 ])
+node18.set_uniform("samples[13]", [ 0, 0, 0 ])
+node18.set_uniform("samples[14]", [ 0, 0, 0 ])
+node18.set_uniform("samples[15]", [ 0, 0, 0 ])
+node18.set_uniform("samples[16]", [ 0, 0, 0 ])
+node18.set_uniform("samples[17]", [ 0, 0, 0 ])
+node18.set_uniform("samples[18]", [ 0, 0, 0 ])
+node18.set_uniform("samples[19]", [ 0, 0, 0 ])
+node18.set_uniform("samples[20]", [ 0, 0, 0 ])
+node18.set_uniform("samples[21]", [ 0, 0, 0 ])
+node18.set_uniform("samples[22]", [ 0, 0, 0 ])
+node18.set_uniform("samples[23]", [ 0, 0, 0 ])
+node18.set_uniform("samples[24]", [ 0, 0, 0 ])
+node18.set_uniform("samples[25]", [ 0, 0, 0 ])
+node18.set_uniform("samples[26]", [ 0, 0, 0 ])
+node18.set_uniform("samples[27]", [ 0, 0, 0 ])
+node18.set_uniform("samples[28]", [ 0, 0, 0 ])
+node18.set_uniform("samples[29]", [ 0, 0, 0 ])
+node18.set_uniform("samples[30]", [ 0, 0, 0 ])
+node18.set_uniform("samples[31]", [ 0, 0, 0 ])
+node18.set_uniform("samples[32]", [ 0, 0, 0 ])
+node18.set_uniform("samples[33]", [ 0, 0, 0 ])
+node18.set_uniform("samples[34]", [ 0, 0, 0 ])
+node18.set_uniform("samples[35]", [ 0, 0, 0 ])
+node18.set_uniform("samples[36]", [ 0, 0, 0 ])
+node18.set_uniform("samples[37]", [ 0, 0, 0 ])
+node18.set_uniform("samples[38]", [ 0, 0, 0 ])
+node18.set_uniform("samples[39]", [ 0, 0, 0 ])
+node18.set_uniform("samples[40]", [ 0, 0, 0 ])
+node18.set_uniform("samples[41]", [ 0, 0, 0 ])
+node18.set_uniform("samples[42]", [ 0, 0, 0 ])
+node18.set_uniform("samples[43]", [ 0, 0, 0 ])
+node18.set_uniform("samples[44]", [ 0, 0, 0 ])
+node18.set_uniform("samples[45]", [ 0, 0, 0 ])
+node18.set_uniform("samples[46]", [ 0, 0, 0 ])
+node18.set_uniform("samples[47]", [ 0, 0, 0 ])
+node18.set_uniform("samples[48]", [ 0, 0, 0 ])
+node18.set_uniform("samples[49]", [ 0, 0, 0 ])
+node18.set_uniform("samples[50]", [ 0, 0, 0 ])
+node18.set_uniform("samples[51]", [ 0, 0, 0 ])
+node18.set_uniform("samples[52]", [ 0, 0, 0 ])
+node18.set_uniform("samples[53]", [ 0, 0, 0 ])
+node18.set_uniform("samples[54]", [ 0, 0, 0 ])
+node18.set_uniform("samples[55]", [ 0, 0, 0 ])
+node18.set_uniform("samples[56]", [ 0, 0, 0 ])
+node18.set_uniform("samples[57]", [ 0, 0, 0 ])
+node18.set_uniform("samples[58]", [ 0, 0, 0 ])
+node18.set_uniform("samples[59]", [ 0, 0, 0 ])
+node18.set_uniform("samples[60]", [ 0, 0, 0 ])
+node18.set_uniform("samples[61]", [ 0, 0, 0 ])
+node18.set_uniform("samples[62]", [ 0, 0, 0 ])
+node18.set_uniform("samples[63]", [ 0, 0, 0 ])
 
-_editor.add_node(node18, 313.81781378811, 87.382101692001)
+_editor.add_node(node18, 291.27836976106, 16.348702334033)
 
 var node19 = RenderTarget()
 
@@ -532,46 +591,78 @@ node33.axis_z = 0
 
 _editor.add_node(node33, -1007.1497619326, 573.62460529087)
 
-Blueprint.connect(node0.exports[0], node29.imports[0])
-Blueprint.connect(node1.exports[0], node0.imports[1])
-Blueprint.connect(node2.exports[0], node0.imports[2])
-Blueprint.connect(node3.exports[0], node1.imports[3])
-Blueprint.connect(node3.exports[0], node18.imports[4])
-Blueprint.connect(node3.exports[0], node30.imports[3])
-Blueprint.connect(node4.exports[0], node1.imports[2])
-Blueprint.connect(node4.exports[0], node30.imports[2])
-Blueprint.connect(node4.exports[1], node3.imports[0])
-Blueprint.connect(node5.exports[0], node0.imports[0])
-Blueprint.connect(node6.exports[0], node1.imports[1])
-Blueprint.connect(node7.exports[0], node6.imports[0])
-Blueprint.connect(node9.exports[0], node8.imports[1])
-Blueprint.connect(node10.exports[0], node9.imports[0])
-Blueprint.connect(node10.exports[0], node15.imports[4])
-Blueprint.connect(node10.exports[0], node18.imports[5])
-Blueprint.connect(node11.exports[0], node9.imports[1])
-Blueprint.connect(node11.exports[0], node15.imports[5])
-Blueprint.connect(node11.exports[0], node18.imports[6])
-Blueprint.connect(node12.exports[0], node9.imports[2])
-Blueprint.connect(node12.exports[0], node15.imports[6])
-Blueprint.connect(node13.exports[0], node9.imports[4])
-Blueprint.connect(node15.exports[0], node14.imports[1])
-Blueprint.connect(node16.exports[0], node14.imports[0])
-Blueprint.connect(node17.exports[0], node23.imports[0])
-Blueprint.connect(node18.exports[0], node17.imports[1])
-Blueprint.connect(node19.exports[0], node17.imports[3])
-Blueprint.connect(node20.exports[0], node19.imports[0])
-Blueprint.connect(node20.exports[0], node24.imports[0])
-Blueprint.connect(node21.exports[0], node17.imports[2])
-Blueprint.connect(node22.exports[0], node17.imports[0])
-Blueprint.connect(node23.exports[0], node16.imports[0])
-Blueprint.connect(node24.exports[0], node23.imports[1])
-Blueprint.connect(node25.exports[0], node23.imports[3])
-Blueprint.connect(node26.exports[0], node25.imports[0])
-Blueprint.connect(node26.exports[0], node15.imports[7])
-Blueprint.connect(node27.exports[0], node23.imports[2])
-Blueprint.connect(node28.exports[0], node14.imports[2])
-Blueprint.connect(node29.exports[0], node8.imports[0])
-Blueprint.connect(node30.exports[0], node29.imports[1])
-Blueprint.connect(node31.exports[0], node29.imports[4])
-Blueprint.connect(node32.exports[0], node30.imports[1])
-Blueprint.connect(node33.exports[0], node32.imports[0])
+var node34 = Custom()
+
+node34.code = "
+import \"random\" for Random
+import \"maths.vector\" for Vector3
+var random = Random.init(12345)
+var ssao_kernel = []
+for (var i in 0..64)
+{
+    var sample = Vector3()
+    sample.x = random.float(1) * 2 - 1
+    sample.y = random.float(1) * 2 - 1
+    sample.z = random.float(1)
+    sample.normalize()
+    var r = random.float(1)
+    sample.x = sample.x * r
+    sample.y = sample.y * r
+    sample.z = sample.z * r
+    var s = i / 64.0 
+    s = 0.1 + s * s * (1.0 - 0.1)
+    sample.x = sample.x * s
+    sample.y = sample.y * s
+    sample.z = sample.z * s
+    ssao_kernel.add(sample)
+}
+_editor.script_stack.clear()
+_editor.script_stack.add(ssao_kernel)
+"
+node34.init_ports(0, 1)
+
+_editor.add_node(node34, 59.378242829207, 101.89349911426)
+
+Blueprint.connect(node0, "next", node29, "prev")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")
+Blueprint.connect(node3, "mat", node1, "projection")
+Blueprint.connect(node3, "mat", node30, "projection")
+Blueprint.connect(node3, "mat", node18, "projection")
+Blueprint.connect(node4, "mat", node1, "view")
+Blueprint.connect(node4, "mat", node30, "view")
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node5, "next", node0, "prev")
+Blueprint.connect(node6, "mat", node1, "model")
+Blueprint.connect(node7, "mat", node6, "mat")
+Blueprint.connect(node9, "fbo", node8, "fbo")
+Blueprint.connect(node10, "tex", node9, "col0")
+Blueprint.connect(node10, "tex", node15, "gPosition")
+Blueprint.connect(node10, "tex", node18, "gPosition")
+Blueprint.connect(node11, "tex", node9, "col1")
+Blueprint.connect(node11, "tex", node15, "gNormal")
+Blueprint.connect(node11, "tex", node18, "gNormal")
+Blueprint.connect(node12, "tex", node9, "col2")
+Blueprint.connect(node12, "tex", node15, "gAlbedo")
+Blueprint.connect(node13, "rbo", node9, "depth")
+Blueprint.connect(node15, "out", node14, "shader")
+Blueprint.connect(node16, "next", node14, "prev")
+Blueprint.connect(node17, "next", node23, "prev")
+Blueprint.connect(node18, "out", node17, "shader")
+Blueprint.connect(node19, "fbo", node17, "fbo")
+Blueprint.connect(node20, "tex", node19, "col0")
+Blueprint.connect(node20, "tex", node24, "ssaoInput")
+Blueprint.connect(node21, "out", node17, "va")
+Blueprint.connect(node22, "next", node17, "prev")
+Blueprint.connect(node23, "next", node16, "prev")
+Blueprint.connect(node24, "out", node23, "shader")
+Blueprint.connect(node25, "fbo", node23, "fbo")
+Blueprint.connect(node26, "tex", node25, "col0")
+Blueprint.connect(node26, "tex", node15, "ssao")
+Blueprint.connect(node27, "out", node23, "va")
+Blueprint.connect(node28, "out", node14, "va")
+Blueprint.connect(node29, "next", node8, "prev")
+Blueprint.connect(node30, "out", node29, "shader")
+Blueprint.connect(node31, "model", node29, "model")
+Blueprint.connect(node32, "mat", node30, "model")
+Blueprint.connect(node33, "mat", node32, "mat")

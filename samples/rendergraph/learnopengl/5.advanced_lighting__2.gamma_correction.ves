@@ -97,6 +97,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 node2.set_uniform("ubo_fs.lightPositions[0]", [ -3, 0, 0 ])
 node2.set_uniform("ubo_fs.lightPositions[1]", [ -1, 0, 0 ])
@@ -144,11 +145,11 @@ node6.speed = 0.10690787434578
 
 _editor.add_node(node6, -202.96711389612, 297.97362508566)
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[0])
-Blueprint.connect(node5.exports[0], node2.imports[12])
-Blueprint.connect(node6.exports[0], node2.imports[1])
-Blueprint.connect(node6.exports[1], node4.imports[0])
-Blueprint.connect(node6.exports[3], node2.imports[10])
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
+Blueprint.connect(node5, "tex", node2, "floorTexture")
+Blueprint.connect(node6, "mat", node2, "ubo_vs.view")
+Blueprint.connect(node6, "zoom", node4, "fovy")
+Blueprint.connect(node6, "pos", node2, "ubo_fs.viewPos")

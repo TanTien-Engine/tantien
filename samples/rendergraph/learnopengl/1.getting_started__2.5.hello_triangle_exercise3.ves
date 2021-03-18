@@ -1,17 +1,18 @@
 var node0 = Clear()
-_editor.add_node(node0, -169, 32)
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
-var node1 = Draw()
-_editor.add_node(node1, 116.4, 27.8)
+_editor.add_node(node0, -169, 32)
 
-node1.prim_type = "triangles"
+var node1 = Draw()
+
+node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
 
+_editor.add_node(node1, 116.4, 27.8)
+
 var node2 = Shader()
-_editor.add_node(node2, -28.911902, 30.383612)
 
 node2.vs = "
 #version 330 core
@@ -29,27 +30,33 @@ void main()
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }
 "
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -28.911902, 30.383612)
 
 var node3 = VertexArray()
-_editor.add_node(node3, -30.8, -20.5)
 
 node3.data = [ -0.9, -0.5, 0, -0, -0.5, 0, -0.45, 0.5, 0 ]
 node3.attrs = [ 3 ]
 
-var node4 = Draw()
-_editor.add_node(node4, 399.612829, 28.555024)
+_editor.add_node(node3, -30.8, -20.5)
 
-node4.prim_type = "triangles"
+var node4 = Draw()
+
+node4.set_prim_type("triangles")
 node4.render_state = { "depth_test" : false, "cull" : "disable" }
 
+_editor.add_node(node4, 399.612829, 28.555024)
+
 var node5 = VertexArray()
-_editor.add_node(node5, 261.54683, -20.34683)
 
 node5.data = [ 0, -0.5, 0, 0.9, -0.5, 0, 0.45, 0.5, 0 ]
 node5.attrs = [ 3 ]
 
+_editor.add_node(node5, 261.54683, -20.34683)
+
 var node6 = Shader()
-_editor.add_node(node6, 261.54545454545, 28.090909090909)
 
 node6.vs = "
 #version 330 core
@@ -67,10 +74,14 @@ void main()
     FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 }
 "
+node6.gs = ""
+node6.execute()
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
-Blueprint.connect(node1.exports[0], node4.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node5.exports[0], node4.imports[2])
-Blueprint.connect(node6.exports[0], node4.imports[1])
+_editor.add_node(node6, 261.54545454545, 28.090909090909)
+
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node1, "next", node4, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node5, "out", node4, "va")
+Blueprint.connect(node6, "out", node4, "shader")

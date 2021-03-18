@@ -71,9 +71,9 @@ node5.zfar = 100
 
 _editor.add_node(node5, -328.85996003871, -217.98327153505)
 
-Blueprint.connect(node1.exports[0], node0.imports[0])
-Blueprint.connect(node2.exports[0], node0.imports[1])
-Blueprint.connect(node3.exports[0], node0.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[1])
-Blueprint.connect(node4.exports[1], node5.imports[0])
-Blueprint.connect(node5.exports[0], node2.imports[2])
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "mat", node2, "view")
+Blueprint.connect(node4, "zoom", node5, "fovy")
+Blueprint.connect(node5, "mat", node2, "projection")

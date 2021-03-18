@@ -224,60 +224,124 @@ var node12 = Input()
 node12.var_name = "environmentMap"
 node12.var_type = "texture"
 
-_editor.add_node(node12, -184.14451766593, 287.83664353992)
+_editor.add_node(node12, -195.05360857502, 219.01846172174)
 
 var node13 = Output()
 
 node13.var_name = "tex"
 node13.var_type = "texture"
 
-_editor.add_node(node13, -187.10556446422, 94.644868393575)
+_editor.add_node(node13, -189.10556446422, 82.644868393575)
 
-var node14 = Print()
+var node14 = Texture()
+node14.gamma_correction = true
+node14.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
+node14.set_sampler("linear repeat")
 
-_editor.add_node(node14, -349.97003173828, 177.62628173828)
+_editor.add_node(node14, -1129.784475707, 22.636798680584)
 
-var node15 = For()
+var node15 = SubGraph()
+node15.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
-node15.start = 0
-node15.end = 5
+_editor.add_node(node15, -888.04974758251, 51.132305848634)
 
-_editor.add_node(node15, 289.63060203633, -151.89321188616)
+var node16 = Pass()
 
-var node16 = Divide()
+node16.once = true
 
-_editor.add_node(node16, 581.6653137207, -228.70376586914)
+_editor.add_node(node16, -682.32484751811, 50.821960650264)
 
-var node17 = Subtract()
+var node17 = Print()
 
-_editor.add_node(node17, 435.6653137207, -232.70376586914)
+_editor.add_node(node17, -349.97003173828, 177.62628173828)
 
-var node18 = Number()
+var node18 = For()
 
-node18.value = 1
+node18.start = 0
+node18.end = 5
 
-_editor.add_node(node18, 296.6653137207, -263.70376586914)
+_editor.add_node(node18, 289.63060203633, -151.89321188616)
 
-Blueprint.connect(node0, "next", node15, "do")
+var node19 = Divide()
+
+_editor.add_node(node19, 581.6653137207, -228.70376586914)
+
+var node20 = Subtract()
+
+_editor.add_node(node20, 435.6653137207, -232.70376586914)
+
+var node21 = Number()
+
+node21.value = 1
+
+_editor.add_node(node21, 296.6653137207, -263.70376586914)
+
+var node22 = SubGraph()
+node22.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
+node22.set_prop_value("tonemap", 1.6668492555618)
+node22.set_prop_value("gamma_correct", 1.9826387166977)
+
+_editor.add_node(node22, -129.30012870402, -340.29721057784)
+
+var node23 = Pass()
+
+node23.once = false
+
+_editor.add_node(node23, 75.5683949243, -134.65094503149)
+
+var node24 = Perspective()
+
+node24.fovy = 45
+node24.aspect = 0
+node24.znear = 0.1
+node24.zfar = 100
+
+_editor.add_node(node24, -461.53686187898, -429.78966851056)
+
+var node25 = Camera3D()
+
+node25.position.set(0, 0, 3)
+node25.yaw = 46.6
+node25.pitch = -36.8
+node25.zoom = 45
+node25.update_camera_vectors()
+node25.speed = 0.01
+
+_editor.add_node(node25, -468.36699769994, -571.85648363795)
+
+var node26 = Clear()
+
+node26.masks = [ "depth" ]
+node26.values = { "color" : [ 255, 255, 255, 255 ] }
+
+_editor.add_node(node26, -459.69724483073, -279.79155367669)
+
+Blueprint.connect(node0, "next", node18, "do")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
 Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node6, "fbo", node0, "fbo")
-Blueprint.connect(node7, "next", node1, "prev")
 Blueprint.connect(node7, "index", node8, "index")
 Blueprint.connect(node7, "index", node10, "index")
 Blueprint.connect(node8, "item", node6, "col0")
 Blueprint.connect(node9, "out0", node10, "items")
 Blueprint.connect(node10, "item", node2, "view")
 Blueprint.connect(node11, "tex", node13, "var")
-Blueprint.connect(node11, "tex", node14, "value")
+Blueprint.connect(node11, "tex", node17, "value")
 Blueprint.connect(node11, "sides", node8, "items")
-Blueprint.connect(node12, "var", node2, "environmentMap")
-Blueprint.connect(node15, "next", node7, "do")
-Blueprint.connect(node15, "index", node16, "a")
-Blueprint.connect(node15, "index", node6, "mipmap")
-Blueprint.connect(node15, "num", node17, "a")
-Blueprint.connect(node16, "v", node2, "roughness")
-Blueprint.connect(node17, "v", node16, "b")
-Blueprint.connect(node18, "v", node17, "b")
+Blueprint.connect(node14, "tex", node15, "equirectangularMap")
+Blueprint.connect(node15, "next", node16, "prev")
+Blueprint.connect(node15, "tex", node2, "environmentMap")
+Blueprint.connect(node15, "tex", node22, "skybox")
+Blueprint.connect(node18, "next", node7, "do")
+Blueprint.connect(node18, "index", node19, "a")
+Blueprint.connect(node18, "index", node6, "mipmap")
+Blueprint.connect(node18, "num", node20, "a")
+Blueprint.connect(node19, "v", node2, "roughness")
+Blueprint.connect(node20, "v", node19, "b")
+Blueprint.connect(node21, "v", node20, "b")
+Blueprint.connect(node22, "next", node23, "prev")
+Blueprint.connect(node24, "mat", node22, "projection")
+Blueprint.connect(node25, "rot", node22, "view")
+Blueprint.connect(node26, "next", node22, "prev")

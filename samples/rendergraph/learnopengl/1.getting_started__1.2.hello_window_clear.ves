@@ -1,13 +1,15 @@
 var node0 = Clear()
-_editor.add_node(node0, -185, 54)
 
 node0.masks = [ "color" ]
-node0.values = { "color" : [ 0.2, 0.3, 0.3, 1.0 ] }
+node0.values = { "color" : [ 0.2, 0.3, 0.3, 1 ] }
+
+_editor.add_node(node0, -185, 54)
 
 var node1 = Draw()
-_editor.add_node(node1, 87, 28)
 
-node1.prim_type = "triangles"
+node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
+_editor.add_node(node1, 87, 28)
+
+Blueprint.connect(node0, "next", node1, "prev")

@@ -1,17 +1,18 @@
 var node0 = Clear()
-_editor.add_node(node0, -303.38767843727, 804.93296222935)
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node0, -303.38767843727, 804.93296222935)
+
 var node1 = Draw()
-_editor.add_node(node1, -51, 593.5)
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
 
+_editor.add_node(node1, -51, 593.5)
+
 var node2 = Shader()
-_editor.add_node(node2, -413.1123015137, -279.00686750897)
 
 node2.vs = "
 #version 330 core
@@ -192,6 +193,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 node2.set_uniform("lightPositions[0]", [ 0, 10, 0 ])
 node2.set_uniform("lightPositions[1]", [ 0, 10, 0 ])
@@ -202,22 +204,25 @@ node2.set_uniform("lightColors[1]", [ 150, 150, 150 ])
 node2.set_uniform("lightColors[2]", [ 150, 150, 150 ])
 node2.set_uniform("lightColors[3]", [ 150, 150, 150 ])
 
+_editor.add_node(node2, -413.1123015137, -279.00686750897)
+
 var node3 = PrimitiveShape()
-_editor.add_node(node3, -262.51838908172, 570.01650531932)
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal", "texture" ]
 
+_editor.add_node(node3, -262.51838908172, 570.01650531932)
+
 var node4 = Perspective()
-_editor.add_node(node4, -733.34811374976, 659.17193283298)
 
 node4.fovy = 45
 node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 100
 
+_editor.add_node(node4, -733.34811374976, 659.17193283298)
+
 var node5 = Camera3D()
-_editor.add_node(node5, -907.18250114434, 483.8883574907)
 
 node5.position.set(-0.42811923858109, 5.7014535195037, 19.394480938735)
 node5.yaw = -450.3
@@ -226,65 +231,76 @@ node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.35880517959595
 
+_editor.add_node(node5, -907.18250114434, 483.8883574907)
+
 var node6 = For()
-_editor.add_node(node6, 194.42221763255, 598.2649711854)
 
 node6.start = 0
 node6.end = 7
 
+_editor.add_node(node6, 194.42221763255, 598.2649711854)
+
 var node7 = Pass()
-_editor.add_node(node7, 656.08143889079, 605.62939136237)
 
 node7.once = false
 
+_editor.add_node(node7, 656.08143889079, 605.62939136237)
+
 var node8 = Translate()
-_editor.add_node(node8, -664.48324813534, 204.08319612336)
 
 node8.dx = 6.25
 node8.dy = 6.25
 node8.dz = 0
 
+_editor.add_node(node8, -664.48324813534, 204.08319612336)
+
 var node9 = Matrix()
+
 _editor.add_node(node9, -815.00907729374, 284.08818198449)
 
 var node10 = For()
-_editor.add_node(node10, 443, 599.5)
 
 node10.start = 0
 node10.end = 7
 
+_editor.add_node(node10, 443, 599.5)
+
 var node11 = Texture()
-_editor.add_node(node11, -1327.8678453635, -223.87367779038)
 node11.gamma_correction = false
 node11.init_texture("resources/textures/pbr/rusted_iron/albedo.png")
 node11.set_sampler("linear repeat")
 
+_editor.add_node(node11, -1327.8678453635, -223.87367779038)
+
 var node12 = Texture()
-_editor.add_node(node12, -1572.1986852476, -227.43500956547)
 node12.gamma_correction = false
 node12.init_texture("resources/textures/pbr/rusted_iron/normal.png")
 node12.set_sampler("linear repeat")
 
+_editor.add_node(node12, -1572.1986852476, -227.43500956547)
+
 var node13 = Texture()
-_editor.add_node(node13, -1102.6654502296, -220.95168450524)
 node13.gamma_correction = false
 node13.init_texture("resources/textures/pbr/rusted_iron/metallic.png")
 node13.set_sampler("linear repeat")
 
+_editor.add_node(node13, -1102.6654502296, -220.95168450524)
+
 var node14 = Texture()
-_editor.add_node(node14, -882.5167360562, -220.26535977602)
 node14.gamma_correction = false
 node14.init_texture("resources/textures/pbr/rusted_iron/roughness.png")
 node14.set_sampler("linear repeat")
 
+_editor.add_node(node14, -882.5167360562, -220.26535977602)
+
 var node15 = Texture()
-_editor.add_node(node15, -658.14071167281, -217.45724846892)
 node15.gamma_correction = false
 node15.init_texture("resources/textures/pbr/rusted_iron/ao.png")
 node15.set_sampler("linear repeat")
 
+_editor.add_node(node15, -658.14071167281, -217.45724846892)
+
 var node16 = Custom()
-_editor.add_node(node16, -816.27359964373, 160.22888281387)
 
 node16.code = "
 import \"maths.vector\" for Vector3
@@ -305,25 +321,27 @@ if (_editor.script_stack.count == 4)
 "
 node16.init_ports(4, 1)
 
-Blueprint.connect(node0.exports[0], node10.imports[0])
-Blueprint.connect(node1.exports[0], node6.imports[1])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[0])
-Blueprint.connect(node5.exports[0], node2.imports[1])
-Blueprint.connect(node5.exports[1], node4.imports[0])
-Blueprint.connect(node5.exports[3], node2.imports[11])
-Blueprint.connect(node6.exports[0], node10.imports[1])
-Blueprint.connect(node6.exports[1], node16.imports[1])
-Blueprint.connect(node6.exports[2], node16.imports[2])
-Blueprint.connect(node8.exports[0], node2.imports[2])
-Blueprint.connect(node9.exports[0], node8.imports[0])
-Blueprint.connect(node10.exports[0], node7.imports[0])
-Blueprint.connect(node10.exports[1], node16.imports[3])
-Blueprint.connect(node10.exports[2], node16.imports[4])
-Blueprint.connect(node11.exports[0], node2.imports[13])
-Blueprint.connect(node12.exports[0], node2.imports[12])
-Blueprint.connect(node13.exports[0], node2.imports[14])
-Blueprint.connect(node14.exports[0], node2.imports[15])
-Blueprint.connect(node15.exports[0], node2.imports[16])
-Blueprint.connect(node16.exports[1], node8.imports[1])
+_editor.add_node(node16, -816.27359964373, 160.22888281387)
+
+Blueprint.connect(node0, "next", node10, "prev")
+Blueprint.connect(node1, "next", node6, "do")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node5, "zoom", node4, "fovy")
+Blueprint.connect(node5, "pos", node2, "camPos")
+Blueprint.connect(node6, "next", node10, "do")
+Blueprint.connect(node6, "index", node16, "in0")
+Blueprint.connect(node6, "num", node16, "in1")
+Blueprint.connect(node8, "mat", node2, "model")
+Blueprint.connect(node9, "mat", node8, "mat")
+Blueprint.connect(node10, "next", node7, "prev")
+Blueprint.connect(node10, "index", node16, "in2")
+Blueprint.connect(node10, "num", node16, "in3")
+Blueprint.connect(node11, "tex", node2, "albedoMap")
+Blueprint.connect(node12, "tex", node2, "normalMap")
+Blueprint.connect(node13, "tex", node2, "metallicMap")
+Blueprint.connect(node14, "tex", node2, "roughnessMap")
+Blueprint.connect(node15, "tex", node2, "aoMap")
+Blueprint.connect(node16, "out0", node8, "offset")

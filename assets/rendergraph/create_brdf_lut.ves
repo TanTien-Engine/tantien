@@ -142,6 +142,7 @@ void main()
     FragColor = integratedBRDF;
 }
 "
+node2.gs = ""
 node2.execute()
 
 _editor.add_node(node2, 14.99999861284, 189.22726162997)
@@ -180,10 +181,10 @@ node7.var_type = "texture"
 
 _editor.add_node(node7, -103.6142689098, -86.34794477983)
 
-Blueprint.connect(node0.exports[0], node6.imports[0])
-Blueprint.connect(node1.exports[0], node0.imports[0])
-Blueprint.connect(node2.exports[0], node0.imports[1])
-Blueprint.connect(node3.exports[0], node0.imports[2])
-Blueprint.connect(node4.exports[0], node0.imports[3])
-Blueprint.connect(node5.exports[0], node4.imports[0])
-Blueprint.connect(node5.exports[0], node7.imports[0])
+Blueprint.connect(node0, "next", node6, "prev")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "fbo", node0, "fbo")
+Blueprint.connect(node5, "tex", node4, "col0")
+Blueprint.connect(node5, "tex", node7, "var")

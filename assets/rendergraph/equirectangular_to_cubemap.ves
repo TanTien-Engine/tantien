@@ -55,6 +55,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 
 _editor.add_node(node2, 10.613133775691, 362.0657401001)
@@ -144,18 +145,18 @@ node13.var_type = "texture"
 
 _editor.add_node(node13, -189.10556446422, 82.644868393575)
 
-Blueprint.connect(node0.exports[0], node7.imports[1])
-Blueprint.connect(node2.exports[0], node0.imports[1])
-Blueprint.connect(node3.exports[0], node0.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[0])
-Blueprint.connect(node5.exports[0], node0.imports[0])
-Blueprint.connect(node6.exports[0], node0.imports[3])
-Blueprint.connect(node7.exports[0], node1.imports[0])
-Blueprint.connect(node7.exports[1], node8.imports[1])
-Blueprint.connect(node7.exports[1], node10.imports[1])
-Blueprint.connect(node8.exports[0], node6.imports[0])
-Blueprint.connect(node9.exports[1], node10.imports[0])
-Blueprint.connect(node10.exports[0], node2.imports[1])
-Blueprint.connect(node11.exports[0], node13.imports[0])
-Blueprint.connect(node11.exports[1], node8.imports[0])
-Blueprint.connect(node12.exports[0], node2.imports[2])
+Blueprint.connect(node0, "next", node7, "do")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "next", node0, "prev")
+Blueprint.connect(node6, "fbo", node0, "fbo")
+Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node7, "index", node8, "index")
+Blueprint.connect(node7, "index", node10, "index")
+Blueprint.connect(node8, "item", node6, "col0")
+Blueprint.connect(node9, "out0", node10, "items")
+Blueprint.connect(node10, "item", node2, "view")
+Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node11, "sides", node8, "items")
+Blueprint.connect(node12, "var", node2, "equirectangularMap")

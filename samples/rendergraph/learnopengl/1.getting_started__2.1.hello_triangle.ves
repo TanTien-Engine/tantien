@@ -42,6 +42,6 @@ node3.attrs = [ 3 ]
 
 _editor.add_node(node3, -60.666987476017, -18.92706037218)
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")

@@ -1,17 +1,18 @@
 var node0 = Draw()
-_editor.add_node(node0, 157, 414)
 
-node0.prim_type = "triangles"
+node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
 
+_editor.add_node(node0, 157, 414)
+
 var node1 = Clear()
-_editor.add_node(node1, -198, 619.5)
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node1, -198, 619.5)
+
 var node2 = Shader()
-_editor.add_node(node2, -53.090909090909, 349.22727272727)
 
 node2.vs = "
 #version 330 core
@@ -74,48 +75,56 @@ void main()
     FragColor = vec4(result, 1.0);
 } 
 "
+node2.gs = ""
 node2.execute()
 node2.set_uniform("lightPos", [ 1.2, 1, 2 ])
 node2.set_uniform("viewPos", [ 0, 0, 0 ])
 node2.set_uniform("lightColor", [ 1, 1, 1 ])
 node2.set_uniform("objectColor", [ 1, 0.5, 0.31000000238419 ])
 
+_editor.add_node(node2, -53.090909090909, 349.22727272727)
+
 var node3 = VertexArray()
-_editor.add_node(node3, 29.784036363636, 169.99683636364)
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0.5, -0.5, -0.5, 0, 0, -1, 0.5, 0.5, -0.5, 0, 0, -1, 0.5, 0.5, -0.5, 0, 0, -1, -0.5, 0.5, -0.5, 0, 0, -1, -0.5, -0.5, -0.5, 0, 0, -1, -0.5, -0.5, 0.5, 0, 0, 1, 0.5, -0.5, 0.5, 0, 0, 1, 0.5, 0.5, 0.5, 0, 0, 1, 0.5, 0.5, 0.5, 0, 0, 1, -0.5, 0.5, 0.5, 0, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, -0.5, 0.5, 0.5, -1, 0, 0, -0.5, 0.5, -0.5, -1, 0, 0, -0.5, -0.5, -0.5, -1, 0, 0, -0.5, -0.5, -0.5, -1, 0, 0, -0.5, -0.5, 0.5, -1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 0.5, 0.5, -0.5, 1, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0, 0.5, -0.5, 0.5, 1, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0.5, -0.5, -0.5, 0, -1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 0.5, -0.5, 0.5, 0, -1, 0, -0.5, -0.5, 0.5, 0, -1, 0, -0.5, -0.5, -0.5, 0, -1, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0.5, 0.5, -0.5, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, -0.5, 0.5, -0.5, 0, 1, 0 ]
 node3.attrs = [ 3, 3 ]
 
+_editor.add_node(node3, 29.784036363636, 169.99683636364)
+
 var node4 = Perspective()
-_editor.add_node(node4, -233.29969947408, 155.53636363636)
 
 node4.fovy = 45
 node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 102.21896362305
 
+_editor.add_node(node4, -233.29969947408, 155.53636363636)
+
 var node5 = LookAt()
-_editor.add_node(node5, -235.50754100588, 278.85523609615)
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
 node5.up.set(0, 1, 0)
 
+_editor.add_node(node5, -235.50754100588, 278.85523609615)
+
 var node6 = Rotate()
-_editor.add_node(node6, -237.5, 431.6)
 
 node6.angle = 3.4540002346039
 node6.axis_x = 0
 node6.axis_y = 0.35777792334557
 node6.axis_z = 1
 
+_editor.add_node(node6, -237.5, 431.6)
+
 var node7 = Matrix()
+
 _editor.add_node(node7, -417.5, 483.4)
 
-Blueprint.connect(node1.exports[0], node0.imports[0])
-Blueprint.connect(node2.exports[0], node0.imports[1])
-Blueprint.connect(node3.exports[0], node0.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[2])
-Blueprint.connect(node5.exports[0], node2.imports[1])
-Blueprint.connect(node6.exports[0], node2.imports[0])
-Blueprint.connect(node7.exports[0], node6.imports[0])
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node6, "mat", node2, "model")
+Blueprint.connect(node7, "mat", node6, "mat")

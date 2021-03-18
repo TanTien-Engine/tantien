@@ -1,17 +1,18 @@
 var node0 = Draw()
-_editor.add_node(node0, 112.6602691073, 592.02207064843)
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
 
+_editor.add_node(node0, 112.6602691073, 592.02207064843)
+
 var node1 = Clear()
-_editor.add_node(node1, -235.20616450689, 821.44547068941)
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
+_editor.add_node(node1, -235.20616450689, 821.44547068941)
+
 var node2 = Shader()
-_editor.add_node(node2, -223.02084396036, 500.98962464862)
 
 node2.vs = "
 #version 330 core
@@ -139,68 +140,80 @@ void main()
     FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
 "
+node2.gs = ""
 node2.execute()
 
+_editor.add_node(node2, -223.02084396036, 500.98962464862)
+
 var node3 = PrimitiveShape()
-_editor.add_node(node3, -61.59003669645, 571.22430472335)
 
 node3.type = "quad"
 node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
 
-var node4 = Texture()
-_editor.add_node(node4, -665.77154359778, 433.17806618088)
+_editor.add_node(node3, -61.59003669645, 571.22430472335)
 
+var node4 = Texture()
+node4.gamma_correction = false
 node4.init_texture("resources/textures/bricks2_normal.jpg")
 node4.set_sampler("linear repeat")
 
-var node5 = Texture()
-_editor.add_node(node5, -442.87683262093, 433.50267736584)
+_editor.add_node(node4, -665.77154359778, 433.17806618088)
 
+var node5 = Texture()
+node5.gamma_correction = false
 node5.init_texture("resources/textures/bricks2.jpg")
 node5.set_sampler("linear repeat")
 
+_editor.add_node(node5, -442.87683262093, 433.50267736584)
+
 var node6 = Perspective()
-_editor.add_node(node6, -448.78666929949, 806.55757003711)
 
 node6.fovy = 45
 node6.aspect = 0
 node6.znear = 0.10000000149012
 node6.zfar = 100
 
+_editor.add_node(node6, -448.78666929949, 806.55757003711)
+
 var node7 = Camera3D()
-_editor.add_node(node7, -680.71588643819, 779.63233375858)
 
 node7.position.set(0.65770197180239, -0.49830661589627, 2.5018698946975)
 node7.yaw = -104.9
 node7.pitch = 10.2
 node7.zoom = 45
 node7.update_camera_vectors()
+node7.speed = 0.01
+
+_editor.add_node(node7, -680.71588643819, 779.63233375858)
 
 var node8 = Texture()
-_editor.add_node(node8, -898.23686906632, 435.03630216515)
-
+node8.gamma_correction = false
 node8.init_texture("resources/textures/bricks2_disp.jpg")
 node8.set_sampler("linear repeat")
 
+_editor.add_node(node8, -898.23686906632, 435.03630216515)
+
 var node9 = Number3()
-_editor.add_node(node9, -649.35635423969, 631.55999766207)
 
 node9.value.set(0.5, 1, 0.30000001192093)
 
+_editor.add_node(node9, -649.35635423969, 631.55999766207)
+
 var node10 = Number()
-_editor.add_node(node10, -498.15807362937, 577.71171913289)
 
 node10.value = 0.10000000149012
 
-Blueprint.connect(node1.exports[0], node0.imports[0])
-Blueprint.connect(node2.exports[0], node0.imports[1])
-Blueprint.connect(node3.exports[0], node0.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[7])
-Blueprint.connect(node5.exports[0], node2.imports[8])
-Blueprint.connect(node6.exports[0], node2.imports[0])
-Blueprint.connect(node7.exports[0], node2.imports[1])
-Blueprint.connect(node7.exports[1], node6.imports[0])
-Blueprint.connect(node7.exports[3], node2.imports[4])
-Blueprint.connect(node8.exports[0], node2.imports[6])
-Blueprint.connect(node9.exports[0], node2.imports[3])
-Blueprint.connect(node10.exports[0], node2.imports[5])
+_editor.add_node(node10, -498.15807362937, 577.71171913289)
+
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "tex", node2, "normalMap")
+Blueprint.connect(node5, "tex", node2, "diffuseMap")
+Blueprint.connect(node6, "mat", node2, "projection")
+Blueprint.connect(node7, "mat", node2, "view")
+Blueprint.connect(node7, "zoom", node6, "fovy")
+Blueprint.connect(node7, "pos", node2, "viewPos")
+Blueprint.connect(node8, "tex", node2, "depthMap")
+Blueprint.connect(node9, "v2", node2, "lightPos")
+Blueprint.connect(node10, "v", node2, "heightScale")

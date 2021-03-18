@@ -46,6 +46,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node1.gs = ""
 node1.execute()
 
 _editor.add_node(node1, 58.420286048602, 125.43814200199)
@@ -63,6 +64,8 @@ node3.left = 0
 node3.right = 0
 node3.bottom = 0
 node3.top = 0
+node3.near = 1
+node3.far = -1
 
 _editor.add_node(node3, -336.68849924316, -704.3802741184)
 
@@ -131,6 +134,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node7.gs = ""
 node7.execute()
 
 _editor.add_node(node7, 118.4202860486, -126.38003981619)
@@ -183,6 +187,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node9.gs = ""
 node9.execute()
 
 _editor.add_node(node9, 251.14755877587, -388.19822163437)
@@ -235,6 +240,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node11.gs = ""
 node11.execute()
 
 _editor.add_node(node11, 384.58870128224, -654.92492780028)
@@ -287,6 +293,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node13.gs = ""
 node13.execute()
 
 _editor.add_node(node13, 476.76302011224, -886.43251928028)
@@ -339,6 +346,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node15.gs = ""
 node15.execute()
 
 _editor.add_node(node15, 573.22451656224, -1115.7965219503)
@@ -405,45 +413,45 @@ node23.var_type = "mat4"
 
 _editor.add_node(node23, -797.1440496425, -613.40086364051)
 
-Blueprint.connect(node1.exports[0], node0.imports[1])
-Blueprint.connect(node2.exports[0], node0.imports[2])
-Blueprint.connect(node2.exports[0], node6.imports[2])
-Blueprint.connect(node2.exports[0], node8.imports[2])
-Blueprint.connect(node2.exports[0], node10.imports[2])
-Blueprint.connect(node2.exports[0], node12.imports[2])
-Blueprint.connect(node2.exports[0], node14.imports[2])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node3.exports[0], node7.imports[2])
-Blueprint.connect(node3.exports[0], node9.imports[2])
-Blueprint.connect(node3.exports[0], node11.imports[2])
-Blueprint.connect(node3.exports[0], node13.imports[2])
-Blueprint.connect(node3.exports[0], node15.imports[2])
-Blueprint.connect(node5.exports[0], node16.imports[0])
-Blueprint.connect(node5.exports[0], node17.imports[0])
-Blueprint.connect(node5.exports[0], node18.imports[0])
-Blueprint.connect(node5.exports[0], node19.imports[0])
-Blueprint.connect(node5.exports[0], node20.imports[0])
-Blueprint.connect(node5.exports[0], node21.imports[0])
-Blueprint.connect(node7.exports[0], node6.imports[1])
-Blueprint.connect(node9.exports[0], node8.imports[1])
-Blueprint.connect(node11.exports[0], node10.imports[1])
-Blueprint.connect(node13.exports[0], node12.imports[1])
-Blueprint.connect(node15.exports[0], node14.imports[1])
-Blueprint.connect(node16.exports[0], node1.imports[0])
-Blueprint.connect(node17.exports[0], node7.imports[0])
-Blueprint.connect(node18.exports[0], node9.imports[0])
-Blueprint.connect(node19.exports[0], node11.imports[0])
-Blueprint.connect(node20.exports[0], node13.imports[0])
-Blueprint.connect(node21.exports[0], node15.imports[0])
-Blueprint.connect(node22.exports[0], node1.imports[3])
-Blueprint.connect(node22.exports[0], node7.imports[3])
-Blueprint.connect(node22.exports[0], node9.imports[3])
-Blueprint.connect(node22.exports[0], node11.imports[3])
-Blueprint.connect(node22.exports[0], node13.imports[3])
-Blueprint.connect(node22.exports[0], node15.imports[3])
-Blueprint.connect(node23.exports[0], node1.imports[1])
-Blueprint.connect(node23.exports[0], node7.imports[1])
-Blueprint.connect(node23.exports[0], node9.imports[1])
-Blueprint.connect(node23.exports[0], node11.imports[1])
-Blueprint.connect(node23.exports[0], node13.imports[1])
-Blueprint.connect(node23.exports[0], node15.imports[1])
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")
+Blueprint.connect(node2, "out", node6, "va")
+Blueprint.connect(node2, "out", node8, "va")
+Blueprint.connect(node2, "out", node10, "va")
+Blueprint.connect(node2, "out", node12, "va")
+Blueprint.connect(node2, "out", node14, "va")
+Blueprint.connect(node3, "mat", node1, "projection")
+Blueprint.connect(node3, "mat", node7, "projection")
+Blueprint.connect(node3, "mat", node9, "projection")
+Blueprint.connect(node3, "mat", node11, "projection")
+Blueprint.connect(node3, "mat", node13, "projection")
+Blueprint.connect(node3, "mat", node15, "projection")
+Blueprint.connect(node5, "mat", node16, "mat")
+Blueprint.connect(node5, "mat", node17, "mat")
+Blueprint.connect(node5, "mat", node18, "mat")
+Blueprint.connect(node5, "mat", node19, "mat")
+Blueprint.connect(node5, "mat", node20, "mat")
+Blueprint.connect(node5, "mat", node21, "mat")
+Blueprint.connect(node7, "out", node6, "shader")
+Blueprint.connect(node9, "out", node8, "shader")
+Blueprint.connect(node11, "out", node10, "shader")
+Blueprint.connect(node13, "out", node12, "shader")
+Blueprint.connect(node15, "out", node14, "shader")
+Blueprint.connect(node16, "mat", node1, "model")
+Blueprint.connect(node17, "mat", node7, "model")
+Blueprint.connect(node18, "mat", node9, "model")
+Blueprint.connect(node19, "mat", node11, "model")
+Blueprint.connect(node20, "mat", node13, "model")
+Blueprint.connect(node21, "mat", node15, "model")
+Blueprint.connect(node22, "var", node1, "environmentMap")
+Blueprint.connect(node22, "var", node7, "environmentMap")
+Blueprint.connect(node22, "var", node9, "environmentMap")
+Blueprint.connect(node22, "var", node11, "environmentMap")
+Blueprint.connect(node22, "var", node13, "environmentMap")
+Blueprint.connect(node22, "var", node15, "environmentMap")
+Blueprint.connect(node23, "var", node1, "view")
+Blueprint.connect(node23, "var", node7, "view")
+Blueprint.connect(node23, "var", node9, "view")
+Blueprint.connect(node23, "var", node11, "view")
+Blueprint.connect(node23, "var", node13, "view")
+Blueprint.connect(node23, "var", node15, "view")

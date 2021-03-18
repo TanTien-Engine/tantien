@@ -54,6 +54,7 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
+node1.gs = ""
 node1.execute()
 
 _editor.add_node(node1, -73.748493212811, 82.017393205064)
@@ -100,10 +101,10 @@ node7.var_type = "num"
 
 _editor.add_node(node7, -254.78922767553, 55.160776277308)
 
-Blueprint.connect(node1.exports[0], node0.imports[1])
-Blueprint.connect(node2.exports[0], node0.imports[2])
-Blueprint.connect(node3.exports[0], node1.imports[0])
-Blueprint.connect(node4.exports[0], node1.imports[1])
-Blueprint.connect(node5.exports[0], node1.imports[4])
-Blueprint.connect(node6.exports[0], node1.imports[2])
-Blueprint.connect(node7.exports[0], node1.imports[3])
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")
+Blueprint.connect(node3, "var", node1, "projection")
+Blueprint.connect(node4, "var", node1, "view")
+Blueprint.connect(node5, "var", node1, "skybox")
+Blueprint.connect(node6, "var", node1, "tonemap")
+Blueprint.connect(node7, "var", node1, "gamma_correct")

@@ -52,7 +52,6 @@ void main()
 }
 "
 node2.gs = ""
-
 node2.execute()
 
 _editor.add_node(node2, -23.5, -3)
@@ -110,12 +109,12 @@ node9.axis_z = 0
 
 _editor.add_node(node9, -534.68665081232, 36.209855584715)
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node1.imports[2])
-Blueprint.connect(node4.exports[0], node2.imports[3])
-Blueprint.connect(node5.exports[0], node2.imports[4])
-Blueprint.connect(node6.exports[0], node2.imports[2])
-Blueprint.connect(node7.exports[0], node2.imports[1])
-Blueprint.connect(node8.exports[0], node9.imports[0])
-Blueprint.connect(node9.exports[0], node7.imports[0])
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node4, "tex", node2, "texture1")
+Blueprint.connect(node5, "tex", node2, "texture2")
+Blueprint.connect(node6, "mat", node2, "projection")
+Blueprint.connect(node7, "mat", node2, "view")
+Blueprint.connect(node8, "mat", node9, "mat")
+Blueprint.connect(node9, "mat", node7, "mat")

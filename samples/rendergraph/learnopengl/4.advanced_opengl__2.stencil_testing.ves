@@ -47,6 +47,7 @@ void main()
     FragColor = texture(texture1, TexCoords);
 }
 "
+node2.gs = ""
 node2.execute()
 
 _editor.add_node(node2, -164.03965761902, 389.53503742566)
@@ -173,6 +174,7 @@ void main()
     FragColor = texture(texture1, TexCoords);
 }
 "
+node16.gs = ""
 node16.execute()
 
 _editor.add_node(node16, 375.92443329007, 145.95731015293)
@@ -219,36 +221,37 @@ void main()
     FragColor = vec4(0.04, 0.28, 0.26, 1.0);
 }
 "
+node19.gs = ""
 node19.execute()
 
 _editor.add_node(node19, 930.47461853884, -80.261328051351)
 
-Blueprint.connect(node0.exports[0], node1.imports[0])
-Blueprint.connect(node1.exports[0], node15.imports[0])
-Blueprint.connect(node2.exports[0], node1.imports[1])
-Blueprint.connect(node3.exports[0], node2.imports[1])
-Blueprint.connect(node3.exports[0], node16.imports[1])
-Blueprint.connect(node3.exports[0], node19.imports[1])
-Blueprint.connect(node3.exports[1], node4.imports[0])
-Blueprint.connect(node4.exports[0], node2.imports[2])
-Blueprint.connect(node4.exports[0], node16.imports[2])
-Blueprint.connect(node4.exports[0], node19.imports[2])
-Blueprint.connect(node5.exports[0], node7.imports[0])
-Blueprint.connect(node5.exports[0], node1.imports[2])
-Blueprint.connect(node6.exports[0], node10.imports[0])
-Blueprint.connect(node6.exports[0], node2.imports[3])
-Blueprint.connect(node7.exports[0], node18.imports[2])
-Blueprint.connect(node8.exports[0], node7.imports[1])
-Blueprint.connect(node8.exports[0], node15.imports[2])
-Blueprint.connect(node9.exports[0], node10.imports[1])
-Blueprint.connect(node9.exports[0], node16.imports[3])
-Blueprint.connect(node11.exports[0], node14.imports[0])
-Blueprint.connect(node12.exports[0], node14.imports[1])
-Blueprint.connect(node12.exports[0], node17.imports[0])
-Blueprint.connect(node13.exports[0], node14.imports[2])
-Blueprint.connect(node13.exports[0], node17.imports[1])
-Blueprint.connect(node14.exports[0], node19.imports[0])
-Blueprint.connect(node15.exports[0], node18.imports[0])
-Blueprint.connect(node16.exports[0], node15.imports[1])
-Blueprint.connect(node17.exports[0], node16.imports[0])
-Blueprint.connect(node19.exports[0], node18.imports[1])
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node1, "next", node15, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "mat", node2, "view")
+Blueprint.connect(node3, "mat", node16, "view")
+Blueprint.connect(node3, "mat", node19, "view")
+Blueprint.connect(node3, "zoom", node4, "fovy")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node4, "mat", node16, "projection")
+Blueprint.connect(node4, "mat", node19, "projection")
+Blueprint.connect(node5, "out", node7, "in0")
+Blueprint.connect(node5, "out", node1, "va")
+Blueprint.connect(node6, "tex", node10, "in0")
+Blueprint.connect(node6, "tex", node2, "texture1")
+Blueprint.connect(node7, "list", node18, "va")
+Blueprint.connect(node8, "out", node7, "in1")
+Blueprint.connect(node8, "out", node15, "va")
+Blueprint.connect(node9, "tex", node10, "in1")
+Blueprint.connect(node9, "tex", node16, "texture1")
+Blueprint.connect(node11, "mat", node14, "in0")
+Blueprint.connect(node12, "mat", node14, "in1")
+Blueprint.connect(node12, "mat", node17, "in0")
+Blueprint.connect(node13, "mat", node14, "in2")
+Blueprint.connect(node13, "mat", node17, "in1")
+Blueprint.connect(node14, "list", node19, "model")
+Blueprint.connect(node15, "next", node18, "prev")
+Blueprint.connect(node16, "out", node15, "shader")
+Blueprint.connect(node17, "list", node16, "model")
+Blueprint.connect(node19, "out", node18, "shader")
