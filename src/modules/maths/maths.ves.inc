@@ -24,6 +24,33 @@ foreign class Float2
 	foreign transform(mt)
 }
 
+foreign class Float3
+{
+	init() {}
+	init(v) {
+		this.set_x(v.x())
+		this.set_y(v.y())
+		this.set_z(v.z())
+	}
+	init(x, y, z) {
+		this.set_x(x)
+		this.set_y(y)
+		this.set_z(z)
+	}
+
+	//foreign x=(x)
+	//foreign x
+	foreign set_x(x)
+	foreign x()
+	foreign set_y(y)
+	foreign y()
+	foreign set_z(z)
+	foreign z()
+
+	// mt: mat4
+	foreign transform(mt)
+}
+
 foreign class Matrix2D
 {
 	init() {}

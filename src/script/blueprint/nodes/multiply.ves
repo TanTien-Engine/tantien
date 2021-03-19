@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
-import "maths" for Matrix44
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
+import "maths" for Matrix44, Float3
+import "maths.vector" for Vector3
 
 class Multiply is Node
 {
@@ -45,7 +46,12 @@ class Multiply is Node
 			mt.transform_mat4(b.value)
 			mt.transform_mat4(a.value)
 			return Variant(VAR_TYPE_MATRIX4, mt)
-		} else {
+		} else if (a.type == VAR_TYPE_NUMBER3 and b.type == VAR_TYPE_MATRIX4) {
+			var p = Float3.init(a.value.x, a.value.y, a.value.z)
+			p.transform(b.value)
+			return Variant(VAR_TYPE_NUMBER3, Vector3(p.x(), p.y(), p.z()))	
+		}
+		else {
 			return Variant(VAR_TYPE_NUMBER, 0)		
 		}
 	}

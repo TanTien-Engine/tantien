@@ -76,6 +76,61 @@ void w_Float2_transform()
     *v2 = *mt * *v2;
 }
 
+void w_Float3_allocate()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_set_newforeign(0, 0, sizeof(sm::vec3));
+    v3->x = 0;
+    v3->y = 0;
+}
+
+int w_Float3_finalize(void* data)
+{
+    return sizeof(sm::vec3);
+}
+
+void w_Float3_set_x()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    v3->x = (float)ves_tonumber(1);
+}
+
+void w_Float3_get_x()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    ves_set_number(0, static_cast<double>(v3->x));
+}
+
+void w_Float3_set_y()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    v3->y = (float)ves_tonumber(1);
+}
+
+void w_Float3_get_y()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    ves_set_number(0, static_cast<double>(v3->y));
+}
+
+void w_Float3_set_z()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    v3->z = (float)ves_tonumber(1);
+}
+
+void w_Float3_get_z()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    ves_set_number(0, static_cast<double>(v3->z));
+}
+
+void w_Float3_transform()
+{
+    sm::vec3* v3 = (sm::vec3*)ves_toforeign(0);
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
+    *v3 = *mt * *v3;
+}
+
 void w_Matrix2D_transform()
 {
     sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
@@ -256,6 +311,14 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Float2.y()") == 0) return w_Float2_get_y;
     if (strcmp(signature, "Float2.transform(_)") == 0) return w_Float2_transform;
 
+    if (strcmp(signature, "Float3.set_x(_)") == 0) return w_Float3_set_x;
+    if (strcmp(signature, "Float3.x()") == 0) return w_Float3_get_x;
+    if (strcmp(signature, "Float3.set_y(_)") == 0) return w_Float3_set_y;
+    if (strcmp(signature, "Float3.y()") == 0) return w_Float3_get_y;
+    if (strcmp(signature, "Float3.set_z(_)") == 0) return w_Float3_set_z;
+    if (strcmp(signature, "Float3.z()") == 0) return w_Float3_get_z;
+    if (strcmp(signature, "Float3.transform(_)") == 0) return w_Float3_transform;
+
     if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
 
     if (strcmp(signature, "Matrix44.clone()") == 0) return w_Matrix44_clone;
@@ -280,6 +343,13 @@ void MathsBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Float2_allocate;
         methods->finalize = w_Float2_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Float3") == 0)
+    {
+        methods->allocate = w_Float3_allocate;
+        methods->finalize = w_Float3_finalize;
         return;
     }
 
