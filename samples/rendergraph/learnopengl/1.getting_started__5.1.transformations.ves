@@ -82,26 +82,26 @@ _editor.add_node(node6, -582.06330292888, 153.72707403245)
 
 var node7 = Translate()
 
-node7.dx = 0.88769936561584
-node7.dy = 0.44325494766235
+node7.dx = 0.5
+node7.dy = -0.5
 node7.dz = 0
 
-_editor.add_node(node7, -439.8929531639, 124.22850836071)
+_editor.add_node(node7, -256.25658952754, 52.410326542528)
 
 var node8 = Rotate()
 
-node8.angle = 52.662
+node8.angle = 45
 node8.axis_x = 0
 node8.axis_y = 0
 node8.axis_z = 1
 
-_editor.add_node(node8, -234.07080513626, 34.233360562803)
+_editor.add_node(node8, -426.79807786353, 46.051542380985)
 
 Blueprint.connect(node0, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
 Blueprint.connect(node4, "tex", node2, "texture1")
 Blueprint.connect(node5, "tex", node2, "texture2")
-Blueprint.connect(node6, "mat", node7, "mat")
-Blueprint.connect(node7, "mat", node8, "mat")
-Blueprint.connect(node8, "mat", node2, "transform")
+Blueprint.connect(node6, "mat", node8, "mat")
+Blueprint.connect(node7, "mat", node2, "transform")
+Blueprint.connect(node8, "mat", node7, "mat")
