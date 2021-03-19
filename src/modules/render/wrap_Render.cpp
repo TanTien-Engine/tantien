@@ -647,6 +647,48 @@ void w_Texture2D_get_height()
     ves_set_number(0, (double)tex->GetHeight());
 }
 
+void w_Texture2D_upload()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto fmt = tex->GetFormat();
+
+    GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "pixels should be list");
+
+    const int num = ves_len(1);
+
+    const float x = ves_tonumber(2);
+    const float y = ves_tonumber(3);
+    const float w = ves_tonumber(4);
+    const float h = ves_tonumber(5);
+
+    if (fmt == ur::TextureFormat::RGBA16F ||
+        fmt == ur::TextureFormat::RGBA32F ||
+        fmt == ur::TextureFormat::RGB16F ||
+        fmt == ur::TextureFormat::RGB32F ||
+        fmt == ur::TextureFormat::RG16F ||
+        fmt == ur::TextureFormat::R16 ||
+        fmt == ur::TextureFormat::RGB32I)
+    {
+        std::vector<float> data;
+        for (int i = 0; i < num; ++i) {
+            ves_geti(1, i);
+            data.push_back((float)ves_tonumber(-1));
+            ves_pop(1);
+        }
+        tex->Upload(data.data(), x, y, w, h);
+    }
+    else
+    {
+        std::vector<char> data;
+        for (int i = 0; i < num; ++i) {
+            ves_geti(1, i);
+            data.push_back((char)ves_tonumber(-1));
+            ves_pop(1);
+        }
+        tex->Upload(data.data(), x, y, w, h);
+    }
+}
+
 void w_Cubemap_get_width()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
@@ -1242,6 +1284,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 
     if (strcmp(signature, "Texture2D.get_width()") == 0) return w_Texture2D_get_width;
     if (strcmp(signature, "Texture2D.get_height()") == 0) return w_Texture2D_get_height;
+    if (strcmp(signature, "Texture2D.upload(_,_,_,_,_)") == 0) return w_Texture2D_upload;
 
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
