@@ -63,7 +63,7 @@ class NodeRender
 	static draw_pin(x, y, pin)
 	{
 		var pt = Painter.init()
-		pt.add_circle(x, y, PIN_RADIUS, [224, 224, 224, 255])
+		pt.add_circle(x, y, PIN_RADIUS, pin.color)
 		Graphics.draw_painter(pt)
 
 		var dx = 0
@@ -81,6 +81,6 @@ class NodeRender
 
 	static draw_conn(pt, conn)
 	{
-		pt.add_bezier(conn.curve, [255,0,0,255], 1)
+		pt.add_bezier(conn.curve, conn.from.color, 2)
 	}
 }
