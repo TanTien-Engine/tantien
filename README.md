@@ -5,7 +5,7 @@ Game engine.
 ## Features
 
 ### Visual programming
-Nodes for everyone: shader, render pipeline, material, vfx, gui, edit op...
+Nodes for everyone: shader, render pipeline, material, vfx, gui ...
 
 ### Procedural generation
 Procedural content generation
@@ -40,11 +40,11 @@ Based for each editors
 
 ### rendergraph
 
+![](./doc/rendergraph/screenshots/ssao.jpg)
+    <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-Lighting/SSAO">SSAO</a></em>
+
 ![](./doc/rendergraph/screenshots/hdr.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-Lighting/HDR">HDR</a></em>
-
-![](./doc/rendergraph/screenshots/camera3d.jpg)
-    <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-OpenGL/Cubemaps">Cubemaps</a></em>
 
 ![](./doc/rendergraph/screenshots/for.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
