@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "maths" for Matrix44, Float3
 import "maths.vector" for Vector3
 
@@ -36,7 +36,7 @@ class Multiply is Node
 			b = f_pin.node.calc(f_pin.slot_idx)
 		}
 		if (!a or !b) {
-			return Variant(VAR_TYPE_NUMBER, 0)
+			return Variant(VAR_TYPE_UNKNOWN, nil)
 		}
 
 		if (a.type == VAR_TYPE_NUMBER) {
@@ -50,9 +50,8 @@ class Multiply is Node
 			var p = Float3.init(a.value.x, a.value.y, a.value.z)
 			p.transform(b.value)
 			return Variant(VAR_TYPE_NUMBER3, Vector3(p.x(), p.y(), p.z()))	
-		}
-		else {
-			return Variant(VAR_TYPE_NUMBER, 0)		
+		} else {
+			return Variant(VAR_TYPE_UNKNOWN, nil)
 		}
 	}
 }
