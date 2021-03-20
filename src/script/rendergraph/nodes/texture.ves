@@ -82,7 +82,7 @@ class Texture is Node
 		{
 			var scale = this.style.width / this.tex.get_width()
 			var x = this.pos.x
-			var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT - this.tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
+			var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT - this.tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
 			Graphics.draw_texture(this.tex, x, y, scale)
 		}
 	}
@@ -116,7 +116,7 @@ class Texture is Node
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
 		var item = GUI.combo(ctx, "sampler", this.sampler_selected, this.sampler_items, x, y, 130)
 		if (item != this.sampler_selected) {

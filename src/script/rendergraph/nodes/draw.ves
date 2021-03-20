@@ -154,7 +154,7 @@ class Draw is Node
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height* 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
 		var skip = GUI.checkbox(ctx, "skip", this.skip, x, y)
 		if (skip != this.skip) {

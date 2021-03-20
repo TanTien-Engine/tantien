@@ -60,7 +60,7 @@ class Perspective is Node
 		var dirty = false
 
 		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
 		var fovy = GUI.slider(ctx, "fovy", this.fovy, x, y, this.style.width - 20, 180, false)
 		if (fovy != this.fovy) {

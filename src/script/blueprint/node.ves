@@ -72,7 +72,7 @@ class Node
 	layout()
 	{
 		this.style.width = 120
-		this.style.height = this.calcPanelHeight()
+		this.style.height = this.calc_panel_height()
 
 		for (var i = 0; i < this.imports.count; i = i + 1) {
 			this.imports[i].is_input = true
@@ -100,7 +100,7 @@ class Node
 	on_mouse_dragged(x, y, btn) {}
 	on_mouse_scrolled(x, y, dx, dy) {}
 
-	calcPanelHeight() {
+	calc_panel_height() {
 		return DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
 	}
 
