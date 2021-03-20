@@ -40,14 +40,14 @@ Based for each editors
 
 ### rendergraph
 
+![](./doc/rendergraph/screenshots/ssss.jpg)
+    <em>Sample from Jorge Jimenez's separable-sss <a href="https://github.com/iryoku/separable-sss">SSSS</a></em>
+
 ![](./doc/rendergraph/screenshots/ssao.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-Lighting/SSAO">SSAO</a></em>
 
 ![](./doc/rendergraph/screenshots/hdr.jpg)
     <em>Sample from learnopengl <a href="https://learnopengl.com/Advanced-Lighting/HDR">HDR</a></em>
-
-![](./doc/rendergraph/screenshots/for.jpg)
-    <em>Sample from learnopengl <a href="https://learnopengl.com/PBR/Theory">PBR</a></em>
 
 #### Features
 * auto gen shader uniforms
