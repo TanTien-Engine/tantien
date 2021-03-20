@@ -1,10 +1,11 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
 import "maths.vector" for Vector3
+import "blueprint.blueprint" for Blueprint
 
 class LookAt is Node
 {
@@ -12,6 +13,9 @@ class LookAt is Node
 	{
 		super.init(LookAt.name)
 
+		this.imports = [
+			Pin(this, "eye", VAR_TYPE_NUMBER3),
+		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
@@ -23,7 +27,13 @@ class LookAt is Node
 		this.up     = Vector3(0, 1, 0)
 	}
 
-	calc(idx) {
+	calc(idx) 
+	{
+		var eye = Blueprint.calc_input_value(this, 0)
+		if (eye) {
+			this.eye.set(eye.value.x, eye.value.y, eye.value.z)
+		}
+
 		var mat = Matrix44.init()
 		mat.lookat(this.eye, this.center, this.up)
 		return Variant(VAR_TYPE_MATRIX4, mat)
