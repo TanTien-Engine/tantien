@@ -1,0 +1,262 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, 116.282, -83.119200000001)
+
+var node1 = Clear()
+
+node1.masks = [ "depth" ]
+node1.values = { "color" : [ 0, 0, 0, 255 ] }
+
+_editor.add_node(node1, -129.718, 93.880799999999)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+
+uniform UBO
+{
+	mat4 lightSpaceMatrix;
+	mat4 model;	
+};
+
+void main()
+{
+    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+void main()
+{             
+//     gl_FragDepth = gl_FragCoord.z;
+}
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -146.26118818263, -40.079852215758)
+
+var node3 = Model()
+node3.init_model("Head2.fbx")
+
+_editor.add_node(node3, -87.629363481133, -284.94098937106)
+
+var node4 = RenderTarget()
+
+node4.width = 2048
+node4.height = 2048
+
+_editor.add_node(node4, -327.64895174481, -355.31899244416)
+
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture(2048, 2048, "depth")
+node5.set_sampler("linear clamp")
+
+_editor.add_node(node5, -599.65259139026, -466.56217066551)
+
+var node6 = Multiply()
+
+_editor.add_node(node6, -335.48382568359, -40.799798066951)
+
+var node7 = Draw()
+
+node7.set_prim_type("triangles")
+node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node7, 583.70380722722, -545.39065203247)
+
+var node8 = Shader()
+
+node8.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out VS_OUT 
+{
+    vec3 FragPos;
+    vec3 Normal;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
+    vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node8.fs = "
+#version 420 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+} fs_in;
+
+//uniform sampler2DShadow shadowMap;
+uniform sampler2D shadowMap;
+
+uniform UBO
+{
+	vec3 lightPos;
+	vec3 viewPos;
+	mat4 lightSpaceMatrix;
+	float zfar;	
+};
+
+float calc_shadow_pos()
+{
+	return 0.0;
+}
+
+void main()
+{           
+    vec3 color = vec3(0.5, 0.5, 0.5);
+    vec3 normal = normalize(fs_in.Normal);
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    vec3 lighting = (ambient + (diffuse + specular)) * color;    
+    vec4 shrinked_pos = vec4(fs_in.FragPos - 0.002 * fs_in.Normal, 1.0);
+    vec4 frag_pos_light_space = lightSpaceMatrix * shrinked_pos;
+    //vec4 frag_pos_light_space = lightSpaceMatrix * vec4(fs_in.FragPos, 1.0);
+    vec3 proj_coords = frag_pos_light_space.xyz / frag_pos_light_space.w;
+    proj_coords = proj_coords * 0.5 + 0.5;
+    float scale = 8.25 * 3;
+    vec4 shadow_pos = vec4(proj_coords, 1.0);
+    //float d1 = texture(shadowMap, vec3(shadow_pos.xy, shadow_pos.z)).r;
+    float d1 = texture(shadowMap, shadow_pos.xy).r;
+    float d2 = proj_coords.z;
+    float d = scale * abs(d1 * zfar - d2);
+
+    float dd = -d * d;
+    vec3 profile = vec3(0.233, 0.455, 0.649) * exp(dd / 0.0064) +
+                     vec3(0.1,   0.336, 0.344) * exp(dd / 0.0484) +
+                     vec3(0.118, 0.198, 0.0)   * exp(dd / 0.187)  +
+                     vec3(0.113, 0.007, 0.007) * exp(dd / 0.567)  +
+                     vec3(0.358, 0.004, 0.0)   * exp(dd / 1.99)   +
+                     vec3(0.078, 0.0,   0.0)   * exp(dd / 7.41);
+    vec3 transmittance = profile * clamp(0.3 + dot(lightPos - fs_in.FragPos, -normal), 0.0, 1.0);
+    //FragColor = vec4(transmittance + lighting * 3, 1.0);
+    FragColor = vec4(profile, 1.0);    
+}
+"
+node8.gs = ""
+node8.execute()
+node8.set_uniform("zfar", [ 1 ])
+
+_editor.add_node(node8, 313.63013986634, -633.2442268813)
+
+var node9 = Orthographic()
+
+node9.left = 0
+node9.right = 1
+node9.bottom = 0
+node9.top = 1
+node9.near = 1
+node9.far = -1
+
+_editor.add_node(node9, -558.08553135401, 9.744824243971)
+
+var node10 = LookAt()
+
+node10.eye.set(0, 0, 0.5)
+node10.center.set(0, 0, 0)
+node10.up.set(0, 1, 0)
+
+_editor.add_node(node10, -571.29476274382, -125.00223213859)
+
+var node11 = Pass()
+
+node11.once = false
+
+_editor.add_node(node11, 300.56391158129, -25.009676686093)
+
+var node12 = Number3()
+
+node12.value.set(0.5, 0, 0)
+
+_editor.add_node(node12, -735.0605538994, -190.80734506183)
+
+var node13 = Number3()
+
+node13.value.set(0, 0, 0.5)
+
+_editor.add_node(node13, -735.74356735476, -82.891219114153)
+
+var node14 = Perspective()
+
+node14.fovy = 45
+node14.aspect = 0
+node14.znear = 0.1
+node14.zfar = 100
+
+_editor.add_node(node14, 40.965354351958, -505.0140063073)
+
+var node15 = Camera3D()
+
+node15.position.set(-0.10923194878468, 0.33230045651671, 0.61797473538041)
+node15.yaw = -91.3
+node15.pitch = -14.4
+node15.zoom = 45
+node15.update_camera_vectors()
+node15.speed = 0.01
+
+_editor.add_node(node15, -124.76190942181, -648.41896347172)
+
+var node16 = Clear()
+
+node16.masks = [ "color", "depth" ]
+node16.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node16, 357.43530273438, -351.70159912109)
+
+Blueprint.connect(node0, "next", node11, "prev")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "model", node0, "model")
+Blueprint.connect(node3, "model", node7, "model")
+Blueprint.connect(node4, "fbo", node11, "fbo")
+Blueprint.connect(node5, "tex", node4, "depth")
+Blueprint.connect(node5, "tex", node8, "shadowMap")
+Blueprint.connect(node6, "v", node2, "lightSpaceMatrix")
+Blueprint.connect(node6, "v", node8, "lightSpaceMatrix")
+Blueprint.connect(node8, "out", node7, "shader")
+Blueprint.connect(node9, "mat", node6, "a")
+Blueprint.connect(node10, "mat", node6, "b")
+Blueprint.connect(node13, "v2", node10, "eye")
+Blueprint.connect(node13, "v2", node8, "lightPos")
+Blueprint.connect(node14, "mat", node8, "projection")
+Blueprint.connect(node15, "mat", node8, "view")
+Blueprint.connect(node15, "zoom", node14, "fovy")
+Blueprint.connect(node15, "pos", node8, "viewPos")
+Blueprint.connect(node16, "next", node7, "prev")
