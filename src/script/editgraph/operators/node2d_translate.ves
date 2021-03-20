@@ -1,5 +1,6 @@
 import "editgraph.editop" for EditOP
 import "maths.vector" for Vector2
+import "editgraph.message" for MSG_SELECTION_MOVED, MSG_SELECTION_MOVING
 
 class Node2dTranslate is EditOP
 {
@@ -19,6 +20,11 @@ class Node2dTranslate is EditOP
 	on_mouse_release(x, y)
 	{
 		this.last_pos = nil
+
+		if (!this.scene.selection.isEmpty) {
+			var p = this.camera.screen2project(Vector2(x, y))
+			this.scene.send_message(MSG_SELECTION_MOVED, [p])
+		}
 	}
 
 	on_mouse_drag(x, y)
@@ -47,6 +53,10 @@ class Node2dTranslate is EditOP
 			if (trans) {
 				trans.translate(offset)
 			}
+		}
+
+		if (!this.scene.selection.isEmpty) {
+			this.scene.send_message(MSG_SELECTION_MOVING, [offset])
 		}
 	}
 }

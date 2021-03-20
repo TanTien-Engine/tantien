@@ -1,0 +1,115 @@
+import "blueprint.node" for Node
+import "blueprint.node_style" for COL_PANEL_BG
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "graphics" for Painter, Graphics
+import "gui" for GUI
+import "maths.rect" for Rect
+
+class Commentary is Node
+{
+	init() 
+	{
+		super.init(Commentary.name)
+
+		this.width = 400
+		this.height = 400
+
+		this.layout()
+
+		this.children = Set.new()
+
+		this.size_gui = false
+
+		this.line_width = 2
+	}
+
+	draw(mt, cam_mt)
+	{
+		super.draw(mt, cam_mt)
+
+		var pt = Painter.init()
+
+		var r = this.get_comment_region(this.pos)
+		var line_width = 1.0 / cam_mt.get_scale()[0] * this.line_width
+		pt.add_rect([r.x, r.y, r.w, r.h], COL_PANEL_BG, line_width)
+	
+		Graphics.draw_painter(pt)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.width = this.width
+
+		if (this.size_gui) {
+			this.style.height = this.style.height + DEFAULT_HEIGHT		
+		}
+	}
+
+	to_string(name) 
+	{
+		return "
+%(name).set_size(%(this.width), %(this.height))
+%(name).title = \"%(this.title)\"
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		if (!this.size_gui) {
+			return false
+		}
+
+		var dirty = false
+
+		var ITEM_WIDTH = 150
+
+		var x = this.pos.x - ITEM_WIDTH
+		var y = this.pos.y + this.style.height * 0.5 - this.calcPanelHeight() - DEFAULT_HEIGHT
+
+		var width = GUI.slider(ctx, "width", this.width, x, y, ITEM_WIDTH - 80, 2048, false)
+		if (width != this.width) {
+			this.width = width
+			dirty = true
+		}
+
+		x = x + ITEM_WIDTH
+		var height = GUI.slider(ctx, "height", this.height, x, y, ITEM_WIDTH - 80, 2048, false)
+		if (height != this.height) {
+			this.height = height
+			dirty = true
+		}
+
+		if (dirty) {
+			this.layout()
+		}
+
+		return dirty
+	}
+
+	set_size(width, height)
+	{
+		if (this.width == width and this.height == height) {
+			return
+		}
+
+		this.width = width
+		this.height = height
+
+		this.layout()
+	}
+
+	get_comment_region(pos)
+	{
+		var ret = Rect()
+		ret.x = pos.x - this.width * 0.5 + this.line_width * 0.5
+		ret.y = pos.y - this.height - DEFAULT_HEIGHT * 0.5
+		if (this.size_gui) {
+			ret.y = ret.y - DEFAULT_HEIGHT * 0.5
+		}
+		ret.w = this.width - this.line_width
+		ret.h = this.height
+		return ret
+	}	
+}

@@ -5,6 +5,8 @@ class Scene
 		this.selection = Set.new()
 
 		this.bp_dirty = false
+
+		this.messages = {}
 	}
 
 	add(node) {
@@ -38,6 +40,19 @@ class Scene
 	{
 		for (var node in this.nodes) {
 			node.draw(cam_mt)
+		}
+	}
+
+	add_msg_handler(msg, handler)
+	{
+		this.messages[msg] = handler
+	}
+
+	send_message(msg, args)
+	{
+		var handler = this.messages[msg]
+		if (handler) {
+			handler(args)
 		}
 	}
 }

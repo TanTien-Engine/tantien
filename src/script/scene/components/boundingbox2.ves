@@ -58,6 +58,16 @@ class BoundingBox2 is Component
 		return pts		
 	}
 
+	get_region_no_rot()
+	{
+		var r = Rect()
+		r.x = this.pos.x + this.rect.x
+		r.y = this.pos.y + this.rect.y
+		r.w = this.rect.w
+		r.h = this.rect.h
+		return r
+	}	
+
 	transform(pos, angle, offset)
 	{
 		// todo: scale and shear rect

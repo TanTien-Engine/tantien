@@ -3,6 +3,7 @@ import "editgraph.operators.node2d_translate" for Node2dTranslate
 import "editgraph.operators.cam2d_zoom" for Cam2dZoom
 import "editgraph.operators.cam2d_translate" for Cam2dTranslate
 import "blueprint.connect_pins" for ConnectPins
+import "blueprint.commentary_op" for CommentaryOP
 
 class EditOP
 {
@@ -16,6 +17,8 @@ class EditOP
 		this.cam_zoom_op   = Cam2dZoom(cam, scene)
 		this.cam_trans_op  = Cam2dTranslate(cam, scene)
 		this.connect_op    = ConnectPins(cam, scene, popup_cb)
+
+		this.comm_op = CommentaryOP(scene)
 
 		this.curr_op = this.cam_zoom_op
 	}

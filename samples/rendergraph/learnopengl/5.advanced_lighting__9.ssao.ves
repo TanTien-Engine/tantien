@@ -125,34 +125,34 @@ var node9 = RenderTarget()
 node9.width = 1024
 node9.height = 1024
 
-_editor.add_node(node9, -965.35579367255, -21.153362486896)
+_editor.add_node(node9, -965.35579367255, -219.2209685309)
 
 var node10 = Texture()
 node10.gamma_correction = false
 node10.init_texture(1024, 1024, "rgba16f")
 node10.set_sampler("linear repeat")
 
-_editor.add_node(node10, -1226.0157369071, -154.63894728592)
+_editor.add_node(node10, -1226.0157369071, -352.70655332992)
 
 var node11 = Texture()
 node11.gamma_correction = false
 node11.init_texture(1024, 1024, "rgba16f")
 node11.set_sampler("linear repeat")
 
-_editor.add_node(node11, -1227.4204235625, -291.73992812789)
+_editor.add_node(node11, -1227.4204235625, -489.80753417189)
 
 var node12 = Texture()
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgba8")
 node12.set_sampler("linear repeat")
 
-_editor.add_node(node12, -1226.5310248313, -433.19889696575)
+_editor.add_node(node12, -1226.5310248313, -631.26650300975)
 
 var node13 = RenderBuffer()
 
 node13.init_rbo(1024, 1024, "depth_component")
 
-_editor.add_node(node13, -1219.201321549, -31.849163146555)
+_editor.add_node(node13, -1219.201321549, -229.91676919056)
 
 var node14 = Draw()
 
@@ -598,6 +598,41 @@ _editor.add_node(node36, -41.131255289157, -1189.4616508918)
 var node37 = Multiply()
 
 _editor.add_node(node37, 105.69757518568, -1171.7688056592)
+
+var node38 = Commentary()
+
+node38.set_size(696.55834960938, 583.91668701172)
+node38.title = "blur SSAO texture to remove noise"
+
+_editor.add_node(node38, 1655.5230191699, 15.850538945312)
+
+var node39 = Commentary()
+
+node39.set_size(890.70935058594, 811.62811279297)
+node39.title = "generate SSAO texture"
+
+_editor.add_node(node39, 388.15691916992, 272.55203894531)
+
+var node40 = Commentary()
+
+node40.set_size(1215.0541992188, 566.52081298828)
+node40.title = "lighting pass"
+
+_editor.add_node(node40, 360.40271191222, -844.98737554839)
+
+var node41 = Commentary()
+
+node41.set_size(2048, 842.07086181641)
+node41.title = "draw scene to gbuffer"
+
+_editor.add_node(node41, -1118.1740652247, 863.43252025723)
+
+var node42 = Commentary()
+
+node42.set_size(698.64581298828, 611.19586181641)
+node42.title = "gbuffer"
+
+_editor.add_node(node42, -1031.906123149, -104.30646817535)
 
 Blueprint.connect(node0, "next", node29, "prev")
 Blueprint.connect(node1, "out", node0, "shader")

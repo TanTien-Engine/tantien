@@ -1,0 +1,112 @@
+import "editgraph.message" for MSG_SELECTION_MOVED, MSG_SELECTION_MOVING
+import "blueprint.nodes.commentary" for Commentary
+import "maths.vector" for Vector2
+import "maths.rect" for Rect
+
+class CommentaryOP
+{
+	init(scene)
+	{
+		this.scene = scene
+
+		scene.add_msg_handler(MSG_SELECTION_MOVED, this.on_selection_moved)
+		scene.add_msg_handler(MSG_SELECTION_MOVING, this.on_selection_moving)		
+	}
+
+	rebuild()
+	{
+		for (var node in this.scene.nodes)
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Commentary) 
+			{
+				bp_node.children.clear()
+
+				var r = bp_node.get_comment_region(node.components["transform"].position)
+				for (var node2 in this.scene.nodes)
+				{
+					var cr = node2.components["bounding"].get_region_no_rot()
+					if (node2 != node and r.is_contain_rect(cr)) {
+						bp_node.children.add(node2.components["bp"])
+					}
+				}
+			}
+		}
+	}
+
+	on_selection_moved(args)
+	{
+		for (var node in this.scene.selection)
+		{
+			var bp_node = node.components["bp"]
+			if (!(bp_node is Commentary)) {
+				this.move_to(node, args[0])
+			}
+		}
+	}
+
+	on_selection_moving(args)
+	{
+		if (this.scene.selection.count != 1) {
+			return
+		}
+
+		var node = this.scene.selection.front()
+		var comm = node.components["bp"]
+		if (!(comm is Commentary)) {
+			return
+		}
+
+		for (var node in this.scene.nodes)
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node and comm.children.contains(bp_node)) 
+			{			
+				var bb = node.components["bounding"]
+				if (bb) {
+					bb.translate(args[0])
+				}
+
+				var trans = node.components["transform"]
+				if (trans) {
+					trans.translate(args[0])
+				}
+			}
+		}
+	}
+
+	query_comm_by_pos(pos)	
+	{
+		for (var node in this.scene.nodes)
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Commentary) 
+			{
+				var r = bp_node.get_comment_region(bp_node.pos)
+				if (r.is_contain_pos(pos)) {
+					return bp_node
+				}
+			}
+		}
+		return nil
+	}
+
+	move_to(node, pos)
+	{
+		// remove from old
+		for (var comm_node in this.scene.nodes) 
+		{
+			var bp_node = comm_node.components["bp"]
+			if (bp_node is Commentary) {
+				bp_node.children.remove(node.components["bp"])
+			}
+		}
+
+		// insert to new
+		var new_comm = this.query_comm_by_pos(pos)
+		var r = node.components["bounding"].get_region_no_rot()
+		if (new_comm and new_comm.get_comment_region(new_comm.pos).is_contain_rect(r)) {
+			new_comm.children.add(node.components["bp"])
+		}
+	}
+}

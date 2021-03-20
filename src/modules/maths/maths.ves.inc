@@ -76,6 +76,8 @@ foreign class Matrix44
 
 	foreign transform_mat2d(mt)
 	foreign transform_mat4(mt)
+
+	foreign get_scale()	
 }
 
 foreign class Maths
