@@ -61,10 +61,12 @@ class Draw is Node
 			return
 		}
 
+		var v_fbo = Blueprint.calc_input_value(this, 3).value
+
 		var model = Blueprint.calc_input_value(this, 4).value
 		if (model and model.model)
 		{
-			this.draw_model(shader, model.model)
+			this.draw_model(shader, model.model, v_fbo)
 			return
 		}
 
@@ -86,7 +88,6 @@ class Draw is Node
 			}	
 		}
 
-		var v_fbo = Blueprint.calc_input_value(this, 3).value	
 		if (v_fbo is List) {
 			count = Math.max(count, v_fbo.count)	
 		}
@@ -125,13 +126,21 @@ class Draw is Node
 		}
 	}
 
-	draw_model(shader, model)
+	draw_model(shader, model, fbo)
 	{
+		if (fbo and !(fbo is List)) {
+			fbo.bind()
+		}
+
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
 		{
 			shader.update_uniforms(i)
 			Render.draw_model(shader.prog, model, this.render_state)
+		}
+
+		if (fbo and !(fbo is List)) {
+			fbo.unbind()
 		}
 	}
 
