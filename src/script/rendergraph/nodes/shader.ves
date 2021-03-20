@@ -206,7 +206,8 @@ class Shader is Node
 
 		if (unif[1] == "array" or unif[1] == "struct")
 		{
-			if (!this.fold_array) 
+			var skip = unif[1] == "array" and this.fold_array
+			if (!skip) 
 			{
 				for (var u in unif[2]) {
 					var y_d = this.draw_gui(ctx, u, x, y)
