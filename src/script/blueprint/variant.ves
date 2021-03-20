@@ -79,6 +79,14 @@ class Variant
 	{
 		if (this.value.has_method("print(_,_,_,_)")) {
 			this.value.print(x, y, width, cam_mt)
+		} else if (this.type == VAR_TYPE_NUMBER) {
+			Graphics.draw_text("%(this.value)", x, y, 0.5, TB_TITLE)
+		} else if (this.type == VAR_TYPE_NUMBER2) {
+			Graphics.draw_text("%(this.value.x), %(this.value.y)", x, y, 0.5, TB_TITLE)
+		} else if (this.type == VAR_TYPE_NUMBER3) {
+			Graphics.draw_text("%(this.value.x), %(this.value.y), %(this.value.z)", x, y, 0.5, TB_TITLE)
+		} else if (this.type == VAR_TYPE_NUMBER4) {
+			Graphics.draw_text("%(this.value.x), %(this.value.y), %(this.value.z), %(this.value.w)", x, y, 0.5, TB_TITLE)
 		} else {
 			Graphics.draw_text("%(this.value)", x, y, 0.5, TB_TITLE)
 		}
