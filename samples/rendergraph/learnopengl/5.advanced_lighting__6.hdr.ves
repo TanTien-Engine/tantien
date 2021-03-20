@@ -3,14 +3,14 @@ var node0 = Clear()
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node0, -59.183024411294, 919.7392585871)
+_editor.add_node(node0, 589.48794468871, 1202.8844857871)
 
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "front" }
 
-_editor.add_node(node1, 233.21917737572, 673.1720833414)
+_editor.add_node(node1, 1150.1950986914, 1061.7607914432)
 
 var node2 = Shader()
 
@@ -97,7 +97,7 @@ void main()
 "
 node2.gs = ""
 node2.execute()
-node2.set_uniform("inverse_normals", [ 1.0037198066711 ])
+node2.set_uniform("inverse_normals", [ 1 ])
 node2.set_uniform("lights[0].Position", [ 0, 0, 49.5 ])
 node2.set_uniform("lights[0].Color", [ 200, 200, 200 ])
 node2.set_uniform("lights[1].Position", [ -1.4, -1.9, 9 ])
@@ -107,14 +107,14 @@ node2.set_uniform("lights[2].Color", [ 0, 0, 0.20000000298023 ])
 node2.set_uniform("lights[3].Position", [ 0.80000001192093, -1.7, 6 ])
 node2.set_uniform("lights[3].Color", [ 0, 0.10000000149012, 0 ])
 
-_editor.add_node(node2, -174.55558305164, 270.90034682351)
+_editor.add_node(node2, 413.13138604836, 972.7902740235)
 
 var node3 = PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position", "normal", "texture" ]
 
-_editor.add_node(node3, 45.692140333658, 648.1756809569)
+_editor.add_node(node3, 631.40680943366, 1000.1336081569)
 
 var node4 = Perspective()
 
@@ -123,7 +123,7 @@ node4.aspect = 0
 node4.znear = 0.10000000149012
 node4.zfar = 100
 
-_editor.add_node(node4, -395.30593094422, 920.08869199396)
+_editor.add_node(node4, 194.80103815578, 1301.328619194)
 
 var node5 = Camera3D()
 
@@ -134,18 +134,18 @@ node5.zoom = 45
 node5.update_camera_vectors()
 node5.speed = 0.15786197781563
 
-_editor.add_node(node5, -554.62276172342, 795.29959146686)
+_editor.add_node(node5, 35.484207376581, 1176.5395186669)
 
 var node6 = Texture()
 node6.gamma_correction = true
 node6.init_texture("resources/textures/wood.png")
 node6.set_sampler("linear clamp")
 
-_editor.add_node(node6, -392.13381136857, 438.98716268489)
+_editor.add_node(node6, 197.97315773143, 820.22708988489)
 
 var node7 = Matrix()
 
-_editor.add_node(node7, -743.13682606782, 647.62223282856)
+_editor.add_node(node7, -153.02985696782, 1028.8621600286)
 
 var node8 = Translate()
 
@@ -153,7 +153,7 @@ node8.dx = 0
 node8.dy = 0
 node8.dz = 25
 
-_editor.add_node(node8, -469.81171803423, 605.4713106913)
+_editor.add_node(node8, 120.29525106577, 986.7112378913)
 
 var node9 = Scale()
 
@@ -161,45 +161,39 @@ node9.sx = 2.5
 node9.sy = 2.5
 node9.sz = 27.5
 
-_editor.add_node(node9, -607.86015309467, 586.12847536664)
+_editor.add_node(node9, -17.75318399467, 967.3684025666)
 
-var node10 = Pass()
+var node10 = RenderTarget()
 
-node10.once = false
+node10.width = 2048
+node10.height = 2048
 
-_editor.add_node(node10, 497.59578419333, 628.42354250067)
+_editor.add_node(node10, 473.29907932805, 573.48879895375)
 
-var node11 = RenderTarget()
+var node11 = Texture()
+node11.gamma_correction = false
+node11.init_texture(1024, 1024, "rgb16f")
+node11.set_sampler("linear repeat")
 
-node11.width = 2048
-node11.height = 2048
+_editor.add_node(node11, 268.6802316, 473.9216684)
 
-_editor.add_node(node11, 341.40907932805, 421.02879895375)
+var node12 = Clear()
 
-var node12 = Texture()
-node12.gamma_correction = false
-node12.init_texture(1024, 1024, "rgb16f")
-node12.set_sampler("linear repeat")
+node12.masks = [ "color", "depth" ]
+node12.values = { "color" : [ 0.1, 0.10000000149012, 0.10000000149012, 1 ] }
 
-_editor.add_node(node12, 152.7743316, 271.4644684)
+_editor.add_node(node12, 896.4293012513, 621.34181871181)
 
-var node13 = Clear()
+var node13 = Draw()
 
-node13.masks = [ "color", "depth" ]
-node13.values = { "color" : [ 0.1, 0.10000000149012, 0.10000000149012, 1 ] }
+node13.set_prim_type("tri_strip")
+node13.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
 
-_editor.add_node(node13, 787.6393012513, 470.75181871181)
+_editor.add_node(node13, 1083.2800788606, 502.8921090409)
 
-var node14 = Draw()
+var node14 = Shader()
 
-node14.set_prim_type("tri_strip")
-node14.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
-
-_editor.add_node(node14, 974.4900788606, 352.3021090409)
-
-var node15 = Shader()
-
-node15.vs = "
+node14.vs = "
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
@@ -212,7 +206,7 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
-node15.fs = "
+node14.fs = "
 #version 330 core
 out vec4 FragColor;
 
@@ -247,22 +241,35 @@ void main()
     }
 }
 "
-node15.gs = ""
-node15.execute()
-node15.set_uniform("hdr", [ 4.9407715797424 ])
-node15.set_uniform("exposure", [ 4 ])
+node14.gs = ""
+node14.execute()
+node14.set_uniform("hdr", [ 4.9407715797424 ])
+node14.set_uniform("exposure", [ 4 ])
 
-_editor.add_node(node15, 724.04841284154, 284.28550782674)
+_editor.add_node(node14, 832.83841284154, 434.87550782674)
 
-var node16 = PrimitiveShape()
+var node15 = PrimitiveShape()
 
-node16.type = "quad"
-node16.layout = [ "position", "texture" ]
+node15.type = "quad"
+node15.layout = [ "position", "texture" ]
 
-_editor.add_node(node16, 728.19181203663, 111.25062585412)
+_editor.add_node(node15, 885.92635749118, 268.72608039957)
+
+var node16 = Commentary()
+
+node16.set_size(456.3791809082, 536.59167480469)
+node16.title = "render floating point color buffer to 2D quad"
+
+_editor.add_node(node16, 940.8794984102, 739.19005278125)
+
+var node17 = Commentary()
+
+node17.set_size(1502.1302490234, 892.02185058594)
+node17.title = "render scene into floating point framebuffer"
+
+_editor.add_node(node17, 522.50754201832, 1399.7012922021)
 
 Blueprint.connect(node0, "next", node1, "prev")
-Blueprint.connect(node1, "next", node10, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
 Blueprint.connect(node4, "mat", node2, "projection")
@@ -273,9 +280,9 @@ Blueprint.connect(node6, "tex", node2, "diffuseTexture")
 Blueprint.connect(node7, "mat", node9, "mat")
 Blueprint.connect(node8, "mat", node2, "model")
 Blueprint.connect(node9, "mat", node8, "mat")
-Blueprint.connect(node11, "fbo", node10, "fbo")
-Blueprint.connect(node12, "tex", node11, "col0")
-Blueprint.connect(node12, "tex", node15, "hdrBuffer")
-Blueprint.connect(node13, "next", node14, "prev")
-Blueprint.connect(node15, "out", node14, "shader")
-Blueprint.connect(node16, "out", node14, "va")
+Blueprint.connect(node10, "fbo", node1, "fbo")
+Blueprint.connect(node11, "tex", node10, "col0")
+Blueprint.connect(node11, "tex", node14, "hdrBuffer")
+Blueprint.connect(node12, "next", node13, "prev")
+Blueprint.connect(node14, "out", node13, "shader")
+Blueprint.connect(node15, "out", node13, "va")
