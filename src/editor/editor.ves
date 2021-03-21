@@ -126,7 +126,7 @@ class Editor
 		this.draw_preview()
 
 		if (!this.hide_nodes) {
-			this.drawScene()		
+			this.draw_scene()
 		} else {
 			// draw op title
 			var node = this.preview_op.get_selected()
@@ -235,7 +235,7 @@ class Editor
 		this.editop.on_mouse_scrolled(x, y, dx, dy)		
 	}
 
-	drawScene()
+	draw_scene()
 	{
 		var cam_mt = Matrix44.init()
 		var s = 1.0 / this.camera.scale
