@@ -4,10 +4,10 @@ import "editor.message" for MSG_SELECTION_MOVED, MSG_SELECTION_MOVING
 
 class Node2dTranslate is EditOP
 {
-	init(cam, scene)
+	init(cam, scene_stack)
 	{
 		this.camera = cam
-		this.scene  = scene
+		this.scene_stack = scene_stack
 
 		this.last_pos = nil
 	}
@@ -21,9 +21,10 @@ class Node2dTranslate is EditOP
 	{
 		this.last_pos = nil
 
-		if (!this.scene.selection.isEmpty) {
+		var scene = this.scene_stack.top()
+		if (!scene.selection.isEmpty) {
 			var p = this.camera.screen2project(Vector2(x, y))
-			this.scene.send_message(MSG_SELECTION_MOVED, [p])
+			this.scene_stack.send_message(scene, MSG_SELECTION_MOVED, [p])
 		}
 	}
 
@@ -42,7 +43,9 @@ class Node2dTranslate is EditOP
 
 	translate(offset)
 	{
-		for (var node in this.scene.selection)
+		var scene = this.scene_stack.top()
+
+		for (var node in scene.selection)
 		{
 			var bb = node.components["bounding"]
 			if (bb) {
@@ -55,8 +58,8 @@ class Node2dTranslate is EditOP
 			}
 		}
 
-		if (!this.scene.selection.isEmpty) {
-			this.scene.send_message(MSG_SELECTION_MOVING, [offset])
+		if (!scene.selection.isEmpty) {
+			this.scene_stack.send_message(scene, MSG_SELECTION_MOVING, [offset])
 		}
 	}
 }

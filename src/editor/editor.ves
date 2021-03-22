@@ -1,4 +1,5 @@
 import "scene.scene" for Scene
+import "scene.scene_stack" for SceneStack
 import "graphics.camera2d" for Camera2D as tt_Camera2D
 import "gui" for GUI, Context, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
 import "blueprint.edit_op" for EditOP as BlueprintEditOP
@@ -57,11 +58,12 @@ class Editor
 {
 	load()
 	{
-		this.scene = Scene()
+		this.scene_stack = SceneStack()
+
 		this.camera = tt_Camera2D()
 
-		this.nodes_op = BlueprintEditOP(this.camera, this.scene, this.popup_cb)
-		this.preview_op = NodeOP(this.scene)
+		this.nodes_op = BlueprintEditOP(this.camera, this.scene_stack, this.popup_cb)
+		this.preview_op = NodeOP(this.scene_stack)
 		this.editop = this.nodes_op
 
 		this.popup_pos = nil
@@ -105,10 +107,11 @@ class Editor
 
 	update()
 	{
-		this.scene.update()
+		var scene = this.scene_stack.top()
+		scene.update()
 
 		// update aabb
-		for (var node in this.scene.nodes) 
+		for (var node in scene.nodes) 
 		{
 			var bp_node = node.components["bp"]
 			if (bp_node.aabb_dirty) {
@@ -159,7 +162,7 @@ class Editor
 
 		if (key == "delete") 
 		{
-			this.scene.bp_dirty = true
+			this.scene_stack.bp_dirty = true
 			GUI.rebuild(this.gui_nodes)
 		} 
 		else if (key == "space") 
@@ -168,7 +171,7 @@ class Editor
 			if (this.hide_nodes) {
 				this.editop = this.preview_op
 			} else {
-				this.editop = this.nodes_op			
+				this.editop = this.nodes_op
 			}
 		}
 	}
@@ -230,9 +233,14 @@ class Editor
 		}
 	}
 
+	mouseclicked(x, y, btn)
+	{
+		this.enter_subgraph()
+	}
+
 	mousescrolled(x, y, dx, dy)
 	{
-		this.editop.on_mouse_scrolled(x, y, dx, dy)		
+		this.editop.on_mouse_scrolled(x, y, dx, dy)
 	}
 
 	draw_scene()
@@ -242,14 +250,15 @@ class Editor
 		cam_mt.translate(-this.camera.pos.x, -this.camera.pos.y, 0)
 		cam_mt.scale(s, s, 1)
 
-		this.scene.draw(cam_mt)
+		var scene = this.scene_stack.top()
+		scene.draw(cam_mt)
 
 		// fixme
 		Graphics.flush()
 
 		GUI.begin(this.gui_nodes)
 		var dirty = false
-		for (var node in this.scene.nodes) {
+		for (var node in scene.nodes) {
 			var bp_node = node.components["bp"]
 			if (bp_node.draw_gui(this.gui_nodes)) {
 				dirty = true
@@ -259,6 +268,29 @@ class Editor
 
 		if (dirty) {
 			this.editop.clear()
+		}
+	}
+
+	draw_scenes_nav_bar()
+	{
+		if (this.scene_stack.count() <= 1) {
+			return
+		}
+
+		var x = - Graphics.get_width() * 0.5 + 20
+		var y = Graphics.get_height() * 0.5 - 30
+		for (var i in 0..this.scene_stack.scenes.count - 1) 
+		{
+			var scene = this.scene_stack.scenes[i]
+			if (GUI.button(this.gui_top, scene.name, x, y, 0, 0)) 
+			{
+				while (this.scene_stack.scenes.count > i + 1) {
+					this.scene_stack.pop()
+					this.filepath = this.scene_stack.top().filepath
+				}
+				return
+			}
+			x = x + 50
 		}
 	}
 
@@ -281,12 +313,12 @@ class Editor
 					if (this.prev_pin.is_input) {
 						if (!new_node.exports.isEmpty) {
 							Blueprint.connect(new_node.exports[0], this.prev_pin)
-							this.scene.bp_dirty = true
+							this.scene_stack.bp_dirty = true
 						}
 					} else {
 						if (!new_node.imports.isEmpty) {
 							Blueprint.connect(this.prev_pin, new_node.imports[0])
-							this.scene.bp_dirty = true
+							this.scene_stack.bp_dirty = true
 						}
 					}
 				}
@@ -294,6 +326,8 @@ class Editor
 				this.prev_pin = nil
 			}
 		}
+
+		this.draw_scenes_nav_bar()
 
 		// fixme:
 		GUI.button(this.gui_top, ".", 9999, 9999, 0, 0)
@@ -416,7 +450,7 @@ class Editor
 		trans.set_position(pos)
 		node.components["transform"] = trans
 
-		this.scene.add(node)
+		this.scene_stack.top().add(node)
 
 		return node
 	}
@@ -486,7 +520,9 @@ import \"editor\" for _editor
 
 		this.nodes_op.comm_op.rebuild()
 
-		this.scene.bp_dirty = true
+		this.scene_stack.bp_dirty = true
+
+		this.scene_stack.set_root_filepath(this.filepath)
 	}
 
 	savetofile()
@@ -494,9 +530,11 @@ import \"editor\" for _editor
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "w")
 
+		var scene = this.scene_stack.top()
+
 		// nodes
 		var index = 0
-		for (var node in this.scene.nodes) 
+		for (var node in scene.nodes) 
 		{
 			var bp = node.components["bp"]
 			var trans = node.components["transform"]
@@ -515,7 +553,7 @@ import \"editor\" for _editor
 
 		// connections
 		var f_idx = 0
-		for (var f_node in this.scene.nodes) 
+		for (var f_node in scene.nodes) 
 		{
 			var f_name = "node%(f_idx)"
 
@@ -528,8 +566,8 @@ import \"editor\" for _editor
 					{
 						var t_pin
 						var t_name
-						for (var t_idx = 0; t_idx < this.scene.nodes.count; t_idx = t_idx + 1) {
-							var t_bp = this.scene.nodes[t_idx].components["bp"]
+						for (var t_idx = 0; t_idx < scene.nodes.count; t_idx = t_idx + 1) {
+							var t_bp = scene.nodes[t_idx].components["bp"]
 							if (t_bp == f_conn.to.node) {
 								t_name = "node%(t_idx)"
 							}
@@ -551,9 +589,11 @@ import \"editor\" for _editor
 		this.clipboard = ""
 		var ext_clipboard = ""
 
+		var scene = this.scene_stack.top()
+
 		// nodes
 		var index = 0	
-		for (var node in this.scene.selection) 
+		for (var node in scene.selection) 
 		{
 			var bp = node.components["bp"]
 			var trans = node.components["transform"]
@@ -572,7 +612,7 @@ _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(tra
 
 		// connections
 		var t_idx = 0
-		for (var t_node in this.scene.selection) 
+		for (var t_node in scene.selection) 
 		{
 			var t_name = "node%(t_idx)"
 
@@ -584,7 +624,7 @@ _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(tra
 					var f_name = nil
 					// find in selection
 					var f_idx = 0
-					for (var node in this.scene.selection) {
+					for (var node in scene.selection) {
 						var f_bp = node.components["bp"]
 						if (f_bp == t_conn.from.node) {
 							f_name = "node%(f_idx)"
@@ -598,8 +638,8 @@ _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(tra
 					// find in scene
 					if (!f_name)
 					{
-						for (var f_idx = 0; f_idx < this.scene.nodes.count; f_idx = f_idx + 1) {
-							var f_bp = this.scene.nodes[f_idx].components["bp"]
+						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
+							var f_bp = scene.nodes[f_idx].components["bp"]
 							if (f_bp == t_conn.from.node) {
 								f_name = "_editor.scene.nodes[%(f_idx)].components[\"bp\"]"
 							}
@@ -629,7 +669,9 @@ _editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(tra
 			return
 		}
 
-		this.scene.selection.clear()
+		var scene = this.scene_stack.top()
+
+		scene.selection.clear()
 
 		var header = "
 import \"editor\" for _editor
@@ -643,11 +685,11 @@ import \"editor\" for _editor
 		{
 			var dx = this.camera.pos.x - this.cam_pos_on_copy.x
 			var dy = this.camera.pos.y - this.cam_pos_on_copy.y
-			var trans_op = Node2dTranslate(this.camera, this.scene)
+			var trans_op = Node2dTranslate(this.camera, scene)
 			trans_op.translate(Vector2(dx, dy))
 		}
 
-		this.scene.bp_dirty = true
+		this.scene_stack.bp_dirty = true
 	}
 
 	refresh()
@@ -658,7 +700,7 @@ import \"editor\" for _editor
 	clear()
 	{
 		this.editop.clear()
-		this.scene.clear()
+		this.scene_stack.top().clear()
 
 		this.script_stack = []
 
@@ -693,5 +735,28 @@ import \"editor\" for _editor
 
 		Render.set_fbo(prev_fbo)
 		Render.set_viewport(prev_vp)
+	}
+
+	enter_subgraph()
+	{
+		var scene = this.scene_stack.top()
+
+		if (scene.selection.count != 1) {
+			return false
+		}
+
+		var node = scene.selection.front()
+		var bp_node = node.components["bp"]
+		if (!(bp_node is SubGraph)) {
+			return false
+		}
+
+		var name = Filesystem.get_filename(bp_node.filepath)
+		var next_scene = Scene(name)
+		next_scene.filepath = bp_node.filepath
+		this.scene_stack.push(next_scene)
+		this.loadfromfile(bp_node.filepath)
+
+		return true
 	}
 }

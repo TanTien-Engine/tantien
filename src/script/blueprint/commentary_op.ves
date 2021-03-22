@@ -5,17 +5,18 @@ import "maths.rect" for Rect
 
 class CommentaryOP
 {
-	init(scene)
+	init(scene_stack)
 	{
-		this.scene = scene
+		this.scene_stack = scene_stack
 
-		scene.add_msg_handler(MSG_SELECTION_MOVED, this.on_selection_moved)
-		scene.add_msg_handler(MSG_SELECTION_MOVING, this.on_selection_moving)		
+		scene_stack.add_msg_handler(MSG_SELECTION_MOVED, this.on_selection_moved)
+		scene_stack.add_msg_handler(MSG_SELECTION_MOVING, this.on_selection_moving)		
 	}
 
 	rebuild()
 	{
-		for (var node in this.scene.nodes)
+		var scene = this.scene_stack.top()
+		for (var node in scene.nodes)
 		{
 			var bp_node = node.components["bp"]
 			if (bp_node is Commentary) 
@@ -23,7 +24,7 @@ class CommentaryOP
 				bp_node.children.clear()
 
 				var r = bp_node.get_comment_region(node.components["transform"].position)
-				for (var node2 in this.scene.nodes)
+				for (var node2 in scene.nodes)
 				{
 					var cr = node2.components["bounding"].get_region_no_rot()
 					if (node2 != node and r.is_contain_rect(cr)) {
@@ -34,30 +35,30 @@ class CommentaryOP
 		}
 	}
 
-	on_selection_moved(args)
+	on_selection_moved(scene, args)
 	{
-		for (var node in this.scene.selection)
+		for (var node in scene.selection)
 		{
 			var bp_node = node.components["bp"]
 			if (!(bp_node is Commentary)) {
-				this.move_to(node, args[0])
+				this.move_to(scene, node, args[0])
 			}
 		}
 	}
 
-	on_selection_moving(args)
+	on_selection_moving(scene, args)
 	{
-		if (this.scene.selection.count != 1) {
+		if (scene.selection.count != 1) {
 			return
 		}
 
-		var node = this.scene.selection.front()
+		var node = scene.selection.front()
 		var comm = node.components["bp"]
 		if (!(comm is Commentary)) {
 			return
 		}
 
-		for (var node in this.scene.nodes)
+		for (var node in scene.nodes)
 		{
 			var bp_node = node.components["bp"]
 			if (bp_node and comm.children.contains(bp_node)) 
@@ -75,9 +76,9 @@ class CommentaryOP
 		}
 	}
 
-	query_comm_by_pos(pos)	
+	query_comm_by_pos(scene, pos)	
 	{
-		for (var node in this.scene.nodes)
+		for (var node in scene.nodes)
 		{
 			var bp_node = node.components["bp"]
 			if (bp_node is Commentary) 
@@ -91,10 +92,10 @@ class CommentaryOP
 		return nil
 	}
 
-	move_to(node, pos)
+	move_to(scene, node, pos)
 	{
 		// remove from old
-		for (var comm_node in this.scene.nodes) 
+		for (var comm_node in scene.nodes) 
 		{
 			var bp_node = comm_node.components["bp"]
 			if (bp_node is Commentary) {
@@ -103,7 +104,7 @@ class CommentaryOP
 		}
 
 		// insert to new
-		var new_comm = this.query_comm_by_pos(pos)
+		var new_comm = this.query_comm_by_pos(scene, pos)
 		var r = node.components["bounding"].get_region_no_rot()
 		if (new_comm and new_comm.get_comment_region(new_comm.pos).is_contain_rect(r)) {
 			new_comm.children.add(node.components["bp"])

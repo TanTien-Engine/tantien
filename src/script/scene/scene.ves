@@ -1,10 +1,12 @@
 class Scene
 {
-	init() {
+	init(name) 
+	{
+		this.name = name
+		this.filepath = ""
+
 		this.nodes = []
 		this.selection = Set.new()
-
-		this.bp_dirty = false
 
 		this.messages = {}
 	}

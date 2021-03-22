@@ -7,12 +7,12 @@ import "maths.rect" for Rect
 
 class Node2dSelect is EditOP
 {
-	init(cam, scene)
+	init(cam, scene_stack)
 	{
 		this.camera = cam
-		this.scene  = scene
+		this.scene_stack = scene_stack
 
-		this.draw_op = DrawSelectRect(cam, scene)
+		this.draw_op = DrawSelectRect(cam)
 
 		this.first_pos = nil
 	}
@@ -23,16 +23,17 @@ class Node2dSelect is EditOP
 
 		var p = this.camera.screen2project(Vector2(x, y))
 		var sel = this.query_by_pos(p)
+		var scene = this.scene_stack.top()
 		if (sel) 
 		{
-			if (!this.scene.selection.contains(sel)) {
-				this.scene.selection.clear()
-				this.scene.selection.add(sel)			
+			if (!scene.selection.contains(sel)) {
+				scene.selection.clear()
+				scene.selection.add(sel)			
 			}
 		} 
 		else 
 		{
-			this.scene.selection.clear()
+			scene.selection.clear()
 		}
 
 		this.first_pos = Vector2(x, y)
@@ -49,8 +50,9 @@ class Node2dSelect is EditOP
 		var p0 = this.camera.screen2project(this.first_pos)
 		var p1 = this.camera.screen2project(Vector2(x, y))
 		var selected = this.query_by_rect(p0, p1, this.first_pos.x < x)
+		var scene = this.scene_stack.top()
 		for (var node in selected) {
-			this.scene.selection.add(node)
+			scene.selection.add(node)
 		}
 
 		this.first_pos = nil
@@ -66,7 +68,8 @@ class Node2dSelect is EditOP
 		this.draw_op.draw()
 
 		var pt = Painter.init()
-		for (var node in this.scene.selection)
+		var scene = this.scene_stack.top()
+		for (var node in scene.selection)
 		{
 			var bb = node.components["bounding"]
 			var borders = bb.get_border_points()
@@ -83,7 +86,8 @@ class Node2dSelect is EditOP
 
 	query_by_pos(pos)
 	{
-		for (var node in this.scene.nodes)
+		var scene = this.scene_stack.top()
+		for (var node in scene.nodes)
 		{
 			var bb = node.components["bounding"]
 			if (bb.is_contain(pos)) {
@@ -97,7 +101,8 @@ class Node2dSelect is EditOP
 	{
 		var selected = []
 		var outer = Rect(p0, p1)
-		for (var node in this.scene.nodes)
+		var scene = this.scene_stack.top()
+		for (var node in scene.nodes)
 		{
 			var bb = node.components["bounding"]
 			var inner_border = bb.get_border_points()

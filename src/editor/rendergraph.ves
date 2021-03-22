@@ -50,8 +50,10 @@ class Rendergraph is Editor
 
 	rebuild_drawlist()
 	{
+		var scene = this.scene_stack.root()
+
 		var nodes = []
-		for (var node in this.scene.nodes) {
+		for (var node in scene.nodes) {
 			nodes.add(node.components["bp"])
 		}
 		this.drawlists = this.build_exec_list(nodes)
@@ -59,10 +61,10 @@ class Rendergraph is Editor
 
 	draw_preview()
 	{
-		if (this.scene.bp_dirty)
+		if (this.scene_stack.bp_dirty)
 		{
 			this.rebuild_drawlist()
-			this.scene.bp_dirty = false
+			this.scene_stack.bp_dirty = false
 		}
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })

@@ -1,8 +1,8 @@
 class NodeOP
 {
-	init(scene)
+	init(scene_stack)
 	{
-		this.scene = scene
+		this.scene_stack = scene_stack
 	}
 
 	draw()
@@ -71,10 +71,11 @@ class NodeOP
 
 	get_selected()
 	{
-		if (this.scene.selection.count != 1) {
+		var scene = this.scene_stack.top()
+		if (scene.selection.count != 1) {
 			return nil
 		} else {
-			var node = this.scene.selection.front()
+			var node = scene.selection.front()
 			return node.components["bp"]
 		}
 	}

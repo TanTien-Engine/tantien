@@ -9,10 +9,10 @@ import "graphics" for Painter, Graphics
 
 class ConnectPins is EditOP
 {
-	init(cam, scene, popup_cb)
+	init(cam, scene_stack, popup_cb)
 	{
 		this.camera = cam
-		this.scene = scene
+		this.scene_stack = scene_stack
 
 		this.selected_pin = nil
 		this.curve = Bezier.init()
@@ -44,10 +44,10 @@ class ConnectPins is EditOP
 					var last_pin = this.selected_pin
 					if (!last_pin.is_input and pin.is_input) {
 						Blueprint.connect(last_pin, pin)
-						this.scene.bp_dirty = true
+						this.scene_stack.bp_dirty = true
 					} else if (last_pin.is_input and !pin.is_input) {
 						Blueprint.connect(pin, last_pin)
-						this.scene.bp_dirty = true
+						this.scene_stack.bp_dirty = true
 					}
 				}
 			}
@@ -58,7 +58,7 @@ class ConnectPins is EditOP
 				if (this.selected_pin.is_input) {
 					while (!this.selected_pin.conns.isEmpty) {
 						Blueprint.disconnect(this.selected_pin.conns.front())
-						this.scene.bp_dirty = true
+						this.scene_stack.bp_dirty = true
 						disconn = true
 					}
 				}
@@ -122,10 +122,11 @@ class ConnectPins is EditOP
 	query_pin_by_pos(pos, only_selection)
 	{
 		var nodes
+		var scene = this.scene_stack.top()
 		if (only_selection) {
-			nodes = this.scene.selection
+			nodes = scene.selection
 		} else {
-			nodes = this.scene.nodes
+			nodes = scene.nodes
 		}
 		for (var node in nodes) 
 		{

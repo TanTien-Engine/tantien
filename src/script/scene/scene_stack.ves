@@ -1,0 +1,71 @@
+import "scene.scene" for Scene
+import "filesystem" for Filesystem
+
+class SceneStack
+{
+	init() 
+	{
+		this.scenes = []
+		this.push(Scene("root"))
+
+		this.bp_dirty = false
+
+		this.messages = {}
+	}
+
+	push(scene) 
+	{
+		this.scenes.add(scene)
+	}
+
+	pop() 
+	{
+		if (!this.scenes.isEmpty) {
+			this.scenes.removeAt(this.scenes.count - 1)
+		}
+	}
+
+	top()
+	{
+		if (this.scenes.isEmpty) {
+			return nil
+		} else {
+			return this.scenes[this.scenes.count - 1]
+		}
+	}
+
+	root()
+	{
+		if (this.scenes.isEmpty) {
+			return nil
+		} else {
+			return this.scenes[0]
+		}
+	}
+
+	add_msg_handler(msg, handler)
+	{
+		this.messages[msg] = handler
+	}
+
+	send_message(scene, msg, args)
+	{
+		var handler = this.messages[msg]
+		if (handler) {
+			handler(scene, args)
+		}
+	}
+
+	count() {
+		return this.scenes.count
+	}
+
+	set_root_filepath(filepath) 
+	{
+		if (this.scenes.count != 1) {
+			return
+		}
+		this.scenes[0].filepath = filepath	
+		this.scenes[0].name = Filesystem.get_filename(filepath)
+	}
+}
