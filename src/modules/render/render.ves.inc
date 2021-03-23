@@ -89,7 +89,7 @@ foreign class Render
 	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler
 	foreign static get_shader_uniforms(stage, code, lang)
 
-	foreign static get_fbo()
+	foreign static get_fbo(cls)
 	foreign static set_fbo(fbo)	
 
 	// [x, y, w, h]

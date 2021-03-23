@@ -722,7 +722,7 @@ import \"editor\" for _editor
 		var rbo_depth = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "depth_component")
 		fbo.attach_rbo(rbo_depth, "depth")
 
-		var prev_fbo = Render.get_fbo()
+		var prev_fbo = Render.get_fbo(Framebuffer)
 		var prev_vp = Render.get_viewport()
 
 		Render.set_fbo(fbo)

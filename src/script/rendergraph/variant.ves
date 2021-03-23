@@ -1,6 +1,6 @@
 import "render" for Render
 import "graphics" for Graphics
-import "render" for Cubemap as tt_Cubemap, Texture2D
+import "render" for Cubemap as tt_Cubemap, Texture2D, Framebuffer
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "maths" for Matrix2D
 
@@ -62,7 +62,7 @@ class VarFrameBuffer
 			return
 		}
 
-		this.prev_fbo = Render.get_fbo()
+		this.prev_fbo = Render.get_fbo(Framebuffer)
 		this.prev_vp  = Render.get_viewport()
 
 		Render.set_fbo(this.fbo)

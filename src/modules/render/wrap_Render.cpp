@@ -1081,7 +1081,7 @@ void w_Render_clear()
 
 void w_Render_get_fbo()
 {
-    std::shared_ptr<ur::Framebuffer>* fbo = (std::shared_ptr<ur::Framebuffer>*)ves_set_newforeign(0, 0, sizeof(std::shared_ptr<ur::Framebuffer>));
+    std::shared_ptr<ur::Framebuffer>* fbo = (std::shared_ptr<ur::Framebuffer>*)ves_set_newforeign(0, 1, sizeof(std::shared_ptr<ur::Framebuffer>));
     *fbo = tt::Render::Instance()->Context()->GetFramebuffer();
 }
 
@@ -1297,7 +1297,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_)") == 0) return w_Render_get_shader_uniforms;
-    if (strcmp(signature, "static Render.get_fbo()") == 0) return w_Render_get_fbo;
+    if (strcmp(signature, "static Render.get_fbo(_)") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;
     if (strcmp(signature, "static Render.set_viewport(_)") == 0) return w_Render_set_viewport;
