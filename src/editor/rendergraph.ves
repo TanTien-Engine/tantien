@@ -34,7 +34,7 @@ class Rendergraph is Editor
 		var exec_list = []
 		for (var node in nodes) 
 		{
-			if (node is Pass) {
+			if (node is Pass and node.exports[0].conns.isEmpty) {
 				node.rebuild_drawlist()
 				exec_list.add([ node ])
 			} else if (node is Draw and node.exports[0].conns.isEmpty) {
