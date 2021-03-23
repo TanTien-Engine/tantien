@@ -1,0 +1,18 @@
+var node0 = SubGraph()
+node0.load_from_file(_editor, "assets/rendergraph/transmittance.ves")
+
+_editor.add_node(node0, -19, 453.5)
+
+var node1 = Model()
+node1.init_model("../skin/Head2.fbx")
+
+_editor.add_node(node1, -216.85827849177, 436.45001194181)
+
+var node2 = Pass()
+
+node2.once = false
+
+_editor.add_node(node2, 184.57639375183, 459.141818208)
+
+Blueprint.connect(node0, "next", node2, "prev")
+Blueprint.connect(node1, "model", node0, "model")

@@ -1,0 +1,607 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+
+_editor.add_node(node0, 459.36940964728, -315.54832714451)
+
+var node1 = Clear()
+
+node1.masks = [ "depth", "color" ]
+node1.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node1, 92.484360811818, -191.35373661108)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT 
+{
+	vec2 TexCoords;
+	vec3 WorldPos;
+	vec3 Normal;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+};
+
+void main()
+{
+    vs_out.TexCoords = aTexCoords;
+    vs_out.WorldPos = vec3(model * vec4(aPos, 1.0));
+    vs_out.Normal = mat3(model) * aNormal;   
+    gl_Position =  projection * view * vec4(vs_out.WorldPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT 
+{
+	vec2 TexCoords;
+	vec3 WorldPos;
+	vec3 Normal;
+} fs_in;
+
+#define N_LIGHTS 3
+
+struct Light {
+    vec3 position;
+    vec3 direction;
+    float falloffStart;
+    float falloffWidth;
+    vec3 color;
+    float attenuation;
+    float farPlane;
+    float bias;
+    //mat4 viewProjection;
+};
+
+uniform UBO
+{
+    Light lights[N_LIGHTS];
+    vec3 viewPos;
+    float specularFresnel;
+    float ambient;
+};
+
+uniform sampler2D diffuseTex;
+uniform sampler2D normalTex;
+uniform sampler2D aoTex;
+uniform sampler2D beckmannTex;
+
+float Fresnel(vec3 _half, float f0) 
+{
+    float base = 1.0 - dot(viewPos, _half);
+    float exponential = pow(base, 5.0);
+    return exponential + f0 * (1.0 - exponential);
+}
+
+float SpecularKSK(vec3 normal, vec3 light, float roughness) 
+{
+    vec3 _half = viewPos + light;
+    vec3 halfn = normalize(_half);
+
+    float ndotl = max(dot(normal, light), 0.0);
+    float ndoth = max(dot(normal, halfn), 0.0);
+
+    float ph = pow(2.0 * texture(beckmannTex, vec2(ndoth, roughness)).r, 10.0);
+    float f = mix(0.25, Fresnel(halfn, 0.028), specularFresnel);
+    float ksk = max(ph * f / dot(_half, _half), 0.0);
+
+    return ndotl * ksk;   
+}
+
+void main()
+{
+    vec3 N = normalize(fs_in.Normal);
+    vec3 V = normalize(viewPos - fs_in.WorldPos);
+    vec3 normal = N;
+
+    vec4 albedo = texture(diffuseTex, vec2(fs_in.TexCoords.x, 1.0 - fs_in.TexCoords.y));
+
+    float occlusion = texture(aoTex, fs_in.TexCoords).r;
+    float intensity = 0.5;
+    float roughness = 0.5;
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
+    for (int i = 0; i < N_LIGHTS; i++) 
+    {
+        vec3 light = lights[i].position - fs_in.WorldPos;
+        float dist = length(light);
+        light /= dist;
+
+        float spot = dot(lights[i].direction, -light);
+        if (spot > lights[i].falloffStart) 
+        {
+            // Calculate attenuation:
+            float curve = min(pow(dist / lights[i].farPlane, 6.0), 1.0);
+            float attenuation = mix(1.0 / (1.0 + lights[i].attenuation * dist * dist), 0.0, curve);
+
+            // And the spot light falloff:
+            spot = clamp((spot - lights[i].falloffStart) / lights[i].falloffWidth, 0.0, 1.0);
+
+            // Calculate some terms we will use later on:
+            vec3 f1 = lights[i].color * attenuation * spot;
+            vec3 f2 = albedo.rgb * f1;
+
+            // Calculate the diffuse and specular lighting:
+            vec3 diffuse = vec3(clamp(dot(light, normal), 0.0, 1.0));
+            float specular = intensity * SpecularKSK(normal, light, roughness);
+
+            // And also the shadowing:
+//            float shadow = ShadowPCF(fs_in.WorldPos, i, 3, 1.0);
+			float shadow = 1.0;
+
+            // Add the diffuse and specular components:
+#ifdef SEPARATE_SPECULARS
+            color.rgb += shadow * f2 * diffuse;
+            specularColor.rgb += shadow * f1 * specular;
+#else
+            color.rgb += shadow * (f2 * diffuse + f1 * specular);
+#endif
+
+            // Add the transmittance component:
+//            if (sssEnabled)
+//                color.rgb += f2 * SSSSTransmittance(translucency, sssWidth, fs_in.WorldPos, input.normal, light, shadowMaps[i], lights[i].viewProjection, lights[i].farPlane);
+        }
+    }
+
+    // Add the ambient component:
+    color.rgb += occlusion * ambient * albedo.rgb;
+
+    color.a = 1.0;
+
+    FragColor = color;
+}
+
+"
+node2.gs = ""
+node2.execute()
+node2.set_uniform("lights[0].position", [ -0.425, 0.515, 0.48 ])
+node2.set_uniform("lights[0].direction", [ 0.6, -0.378, -0.7 ])
+node2.set_uniform("lights[0].falloffStart", [ 0.92395569947027 ])
+node2.set_uniform("lights[0].falloffWidth", [ 0.05 ])
+node2.set_uniform("lights[0].color", [ 0.5, 0.5, 0.5 ])
+node2.set_uniform("lights[0].attenuation", [ 0.0078125 ])
+node2.set_uniform("lights[0].farPlane", [ 10 ])
+node2.set_uniform("lights[0].bias", [ -0.01 ])
+node2.set_uniform("lights[1].position", [ 0.466, 0.457, 0.457 ])
+node2.set_uniform("lights[1].direction", [ -0.519, -0.4, -0.75 ])
+node2.set_uniform("lights[1].falloffStart", [ 0.92395569947027 ])
+node2.set_uniform("lights[1].falloffWidth", [ 0.05 ])
+node2.set_uniform("lights[1].color", [ 0.5, 0.5, 0.5 ])
+node2.set_uniform("lights[1].attenuation", [ 0.0078125 ])
+node2.set_uniform("lights[1].farPlane", [ 10 ])
+node2.set_uniform("lights[1].bias", [ -0.01 ])
+node2.set_uniform("lights[2].position", [ 0.0587, 0.59, 0.8 ])
+node2.set_uniform("lights[2].direction", [ 0.075, -0.448, -0.891 ])
+node2.set_uniform("lights[2].falloffStart", [ 0.92395569947027 ])
+node2.set_uniform("lights[2].falloffWidth", [ 0.05 ])
+node2.set_uniform("lights[2].color", [ 0.5, 0.5, 0.5 ])
+node2.set_uniform("lights[2].attenuation", [ 0.0078125 ])
+node2.set_uniform("lights[2].farPlane", [ 10 ])
+node2.set_uniform("lights[2].bias", [ -0.01 ])
+node2.set_uniform("specularFresnel", [ 1.5927958488464 ])
+node2.set_uniform("ambient", [ 0.19279581308365 ])
+
+_editor.add_node(node2, -79.891942478386, -476.55710396823)
+
+var node3 = Texture()
+node3.gamma_correction = false
+node3.init_texture("assets/textures/beckmann.jpg")
+node3.set_sampler("linear repeat")
+
+_editor.add_node(node3, -334.5423275953, -457.9743061648)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
+
+_editor.add_node(node4, -286.52362060547, -160.71020507813)
+
+var node5 = Camera3D()
+
+node5.position.set(-0.13016721848106, 0.33143328307611, 0.41881437280284)
+node5.yaw = -66.2
+node5.pitch = -20.5
+node5.zoom = 45
+node5.update_camera_vectors()
+node5.speed = 0.01
+
+_editor.add_node(node5, -656.11896483762, -153.26098680427)
+
+var node6 = RenderTarget()
+
+node6.width = 2048
+node6.height = 2048
+
+_editor.add_node(node6, -240.2319044918, -1505.2498841702)
+
+var node7 = Texture()
+node7.gamma_correction = false
+node7.init_texture(2048, 2048, "rgba8")
+node7.set_sampler("linear repeat")
+
+_editor.add_node(node7, -465.62440443845, -1368.7714169007)
+
+var node8 = Texture()
+node8.gamma_correction = false
+node8.init_texture(2048, 2048, "depth")
+node8.set_sampler("linear repeat")
+
+_editor.add_node(node8, -465.17868555518, -1702.8043428238)
+
+var node9 = Pass()
+
+node9.once = false
+
+_editor.add_node(node9, 841.29190465463, -260.48714721779)
+
+var node10 = Commentary()
+
+node10.set_size(1761.9114990234, 1039.30859375)
+node10.title = "Lighting"
+
+_editor.add_node(node10, 72.197703593751, -22.198881699219)
+
+var node11 = Draw()
+
+node11.set_prim_type("tri_strip")
+node11.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+
+_editor.add_node(node11, 978.62082932266, -1424.7424714975)
+
+var node12 = Clear()
+
+node12.masks = [ "color" ]
+node12.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node12, 697.95637717654, -1228.0089559291)
+
+var node13 = Shader()
+
+node13.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+out vec2 TexCoord;
+void main()
+{
+    TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node13.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+uniform sampler2D color_tex;
+uniform sampler2D depth_tex;
+
+uniform UBO
+{
+	float SSSIntencity;	
+};
+
+#define SSSS_FOVY 20.0
+#define SSSS_N_SAMPLES 17
+vec4 kernel[] = vec4[](
+    vec4(0.536343, 0.624624, 0.748867, 0),
+    vec4(0.00317394, 0.000134823, 3.77269e-005, -2),
+    vec4(0.0100386, 0.000914679, 0.000275702, -1.53125),
+    vec4(0.0144609, 0.00317269, 0.00106399, -1.125),
+    vec4(0.0216301, 0.00794618, 0.00376991, -0.78125),
+    vec4(0.0347317, 0.0151085, 0.00871983, -0.5),
+    vec4(0.0571056, 0.0287432, 0.0172844, -0.28125),
+    vec4(0.0582416, 0.0659959, 0.0411329, -0.125),
+    vec4(0.0324462, 0.0656718, 0.0532821, -0.03125),
+    vec4(0.0324462, 0.0656718, 0.0532821, 0.03125),
+    vec4(0.0582416, 0.0659959, 0.0411329, 0.125),
+    vec4(0.0571056, 0.0287432, 0.0172844, 0.28125),
+    vec4(0.0347317, 0.0151085, 0.00871983, 0.5),
+    vec4(0.0216301, 0.00794618, 0.00376991, 0.78125),
+    vec4(0.0144609, 0.00317269, 0.00106399, 1.125),
+    vec4(0.0100386, 0.000914679, 0.000275702, 1.53125),
+    vec4(0.00317394, 0.000134823, 3.77269e-005, 2)
+);
+
+vec4 SSS(vec4 SceneColor, vec2 uv, vec2 SSSIntencity) 
+{
+    // Fetch linear depth of current pixel
+    float depth = texture(depth_tex, uv).r;                                   
+    // Calculate the sssWidth scale (1.0 for a unit plane sitting on the
+    // projection window):
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * radians(SSSS_FOVY));
+    float scale = distanceToProjectionWindow / depth;
+    // Calculate the final step to fetch the surrounding pixels:
+    vec2 finalStep = SSSIntencity;
+    finalStep *= SceneColor.a; // Modulate it using the alpha channel.
+    finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
+    // Accumulate the center sample:
+    vec4 colorBlurred = SceneColor;
+    colorBlurred.rgb *= kernel[0].rgb;
+    // Accumulate the other samples:
+    for (int i = 1; i < SSSS_N_SAMPLES; i++) 
+    {
+        // Fetch color and depth for current sample:
+        vec2 offset = uv + kernel[i].a * finalStep;
+        vec4 color = texture(color_tex, offset);
+        // Accumulate:
+        colorBlurred.rgb += kernel[i].rgb * color.rgb;
+    }
+    return colorBlurred;
+}
+
+void main()
+{
+//    FragColor = texture(color_tex, TexCoord);
+    vec4 SceneColor = texture(color_tex, TexCoord);
+    //    float SSSIntencity = (_SSSScale * _CameraDepthTexture_TexelSize.x);
+    vec3 BlurColor = SSS(SceneColor, TexCoord, vec2(SSSIntencity, 0)).rgb;
+    FragColor = vec4(BlurColor, SceneColor.a);
+}
+"
+node13.gs = ""
+node13.execute()
+node13.set_uniform("SSSIntencity", [ 0.1 ])
+
+_editor.add_node(node13, 525.63024652302, -1375.6271985859)
+
+var node14 = PrimitiveShape()
+
+node14.type = "quad"
+node14.layout = [ "position", "texture" ]
+
+_editor.add_node(node14, 710.38648949626, -1483.9295878489)
+
+var node15 = RenderTarget()
+
+node15.width = 2048
+node15.height = 2048
+
+_editor.add_node(node15, 768.10671412109, -1675.0811340625)
+
+var node16 = Texture()
+node16.gamma_correction = false
+node16.init_texture(2048, 2048, "rgba8")
+node16.set_sampler("linear repeat")
+
+_editor.add_node(node16, 556.90676294922, -1666.2811340625)
+
+var node17 = Draw()
+
+node17.set_prim_type("tri_strip")
+node17.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+
+_editor.add_node(node17, 1640.1823166477, -1805.5601226795)
+
+var node18 = Shader()
+
+node18.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+out vec2 TexCoord;
+void main()
+{
+    TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node18.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+uniform sampler2D color_tex;
+uniform sampler2D depth_tex;
+
+uniform UBO
+{
+	float SSSIntencity;	
+};
+
+#define SSSS_FOVY 20.0
+#define SSSS_N_SAMPLES 17
+vec4 kernel[] = vec4[](
+    vec4(0.536343, 0.624624, 0.748867, 0),
+    vec4(0.00317394, 0.000134823, 3.77269e-005, -2),
+    vec4(0.0100386, 0.000914679, 0.000275702, -1.53125),
+    vec4(0.0144609, 0.00317269, 0.00106399, -1.125),
+    vec4(0.0216301, 0.00794618, 0.00376991, -0.78125),
+    vec4(0.0347317, 0.0151085, 0.00871983, -0.5),
+    vec4(0.0571056, 0.0287432, 0.0172844, -0.28125),
+    vec4(0.0582416, 0.0659959, 0.0411329, -0.125),
+    vec4(0.0324462, 0.0656718, 0.0532821, -0.03125),
+    vec4(0.0324462, 0.0656718, 0.0532821, 0.03125),
+    vec4(0.0582416, 0.0659959, 0.0411329, 0.125),
+    vec4(0.0571056, 0.0287432, 0.0172844, 0.28125),
+    vec4(0.0347317, 0.0151085, 0.00871983, 0.5),
+    vec4(0.0216301, 0.00794618, 0.00376991, 0.78125),
+    vec4(0.0144609, 0.00317269, 0.00106399, 1.125),
+    vec4(0.0100386, 0.000914679, 0.000275702, 1.53125),
+    vec4(0.00317394, 0.000134823, 3.77269e-005, 2)
+);
+
+vec4 SSS(vec4 SceneColor, vec2 uv, vec2 SSSIntencity) 
+{
+    // Fetch linear depth of current pixel
+    float depth = texture(depth_tex, uv).r;                                   
+    // Calculate the sssWidth scale (1.0 for a unit plane sitting on the
+    // projection window):
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * radians(SSSS_FOVY));
+    float scale = distanceToProjectionWindow / depth;
+    // Calculate the final step to fetch the surrounding pixels:
+    vec2 finalStep = SSSIntencity;
+    finalStep *= SceneColor.a; // Modulate it using the alpha channel.
+    finalStep *= 1.0 / 3.0; // Divide by 3 as the kernels range from -3 to 3.
+    // Accumulate the center sample:
+    vec4 colorBlurred = SceneColor;
+    colorBlurred.rgb *= kernel[0].rgb;
+    // Accumulate the other samples:
+    for (int i = 1; i < SSSS_N_SAMPLES; i++) 
+    {
+        // Fetch color and depth for current sample:
+        vec2 offset = uv + kernel[i].a * finalStep;
+        vec4 color = texture(color_tex, offset);
+        // Accumulate:
+        colorBlurred.rgb += kernel[i].rgb * color.rgb;
+    }
+    return colorBlurred;
+}
+
+void main()
+{
+//    FragColor = texture(color_tex, TexCoord);
+    vec4 SceneColor = texture(color_tex, TexCoord);
+    //    float SSSIntencity = (_SSSScale * _CameraDepthTexture_TexelSize.x);
+    vec3 BlurColor = SSS(SceneColor, TexCoord, vec2(0, SSSIntencity)).rgb;
+    FragColor = vec4(BlurColor, SceneColor.a);
+}
+"
+node18.gs = ""
+node18.execute()
+node18.set_uniform("SSSIntencity", [ 0.1 ])
+
+_editor.add_node(node18, 1430.2649612758, -1728.0395281063)
+
+var node19 = RenderTarget()
+
+node19.width = 2048
+node19.height = 2048
+
+_editor.add_node(node19, 1484.010863039, -1874.8213730179)
+
+var node20 = Texture()
+node20.gamma_correction = false
+node20.init_texture(2048, 2048, "rgba8")
+node20.set_sampler("linear repeat")
+
+_editor.add_node(node20, 1282.3460068837, -1869.8224094096)
+
+var node21 = Commentary()
+
+node21.set_size(810.61663818359, 830.73748779297)
+node21.title = "SSSS BlurX"
+
+_editor.add_node(node21, 711.05144974375, -1117.8201199969)
+
+var node22 = Commentary()
+
+node22.set_size(553.50415039063, 340.52084350586)
+node22.title = "SSSS BlurY"
+
+_editor.add_node(node22, 1434.6913663052, -1603.1961572919)
+
+var node23 = Commentary()
+
+node23.set_size(486.10208129883, 672.83123779297)
+node23.title = "Lighting result"
+
+_editor.add_node(node23, -364.14337667002, -1277.0318127864)
+
+var node24 = Input()
+
+node24.var_name = "diffuseTex"
+node24.var_type = "texture"
+
+_editor.add_node(node24, -551.89555664062, -617.90159912109)
+
+var node25 = Input()
+
+node25.var_name = "aoTex"
+node25.var_type = "texture"
+
+_editor.add_node(node25, -551.89553222656, -681.70163574219)
+
+var node26 = Input()
+
+node26.var_name = "normalTex"
+node26.var_type = "texture"
+
+_editor.add_node(node26, -549.69558105469, -745.50161132813)
+
+var node27 = Input()
+
+node27.var_name = "model"
+node27.var_type = "model"
+
+_editor.add_node(node27, 248.9582380815, -399.90272105824)
+
+var node28 = Input()
+
+node28.var_name = "view"
+node28.var_type = "mat4"
+
+_editor.add_node(node28, -654.66350763494, -255.32181895863)
+
+var node29 = Input()
+
+node29.var_name = "viewPos"
+node29.var_type = "num3"
+
+_editor.add_node(node29, -653.75439453125, -299.86728182706)
+
+var node30 = Input()
+
+node30.var_name = "fovy"
+node30.var_type = "num"
+
+_editor.add_node(node30, -652.84532026811, -345.32183560458)
+
+var node31 = Output()
+
+node31.var_name = "tex"
+node31.var_type = "texture"
+
+_editor.add_node(node31, 1474.0467896017, -2001.9025348178)
+
+Blueprint.connect(node0, "next", node9, "prev")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "tex", node2, "beckmannTex")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node6, "fbo", node9, "fbo")
+Blueprint.connect(node7, "tex", node6, "col0")
+Blueprint.connect(node7, "tex", node13, "color_tex")
+Blueprint.connect(node8, "tex", node6, "depth")
+Blueprint.connect(node8, "tex", node13, "depth_tex")
+Blueprint.connect(node8, "tex", node18, "depth_tex")
+Blueprint.connect(node11, "next", node17, "prev")
+Blueprint.connect(node12, "next", node11, "prev")
+Blueprint.connect(node13, "out", node11, "shader")
+Blueprint.connect(node14, "out", node11, "va")
+Blueprint.connect(node14, "out", node17, "va")
+Blueprint.connect(node15, "fbo", node11, "fbo")
+Blueprint.connect(node16, "tex", node15, "col0")
+Blueprint.connect(node16, "tex", node18, "color_tex")
+Blueprint.connect(node18, "out", node17, "shader")
+Blueprint.connect(node19, "fbo", node17, "fbo")
+Blueprint.connect(node20, "tex", node19, "col0")
+Blueprint.connect(node20, "tex", node31, "var")
+Blueprint.connect(node24, "var", node2, "diffuseTex")
+Blueprint.connect(node25, "var", node2, "aoTex")
+Blueprint.connect(node26, "var", node2, "normalTex")
+Blueprint.connect(node27, "var", node0, "model")
+Blueprint.connect(node28, "var", node2, "view")
+Blueprint.connect(node29, "var", node2, "viewPos")
+Blueprint.connect(node30, "var", node4, "fovy")

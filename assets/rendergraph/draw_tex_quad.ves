@@ -1,0 +1,66 @@
+var node0 = Draw()
+
+node0.set_prim_type("tri_strip")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+
+_editor.add_node(node0, 319.30050275821, -169.04286659416)
+
+var node1 = Clear()
+
+node1.masks = [ "color" ]
+node1.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node1, -195.87972269609, -10.621836605118)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+// texture sampler
+uniform sampler2D texture1;
+
+void main()
+{
+	FragColor = texture(texture1, TexCoord);
+}
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, 32.753094207104, -137.29665616138)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+
+_editor.add_node(node3, 61.306104075084, -243.87563990273)
+
+var node4 = Input()
+
+node4.var_name = "texture1"
+node4.var_type = "texture"
+
+_editor.add_node(node4, -142, -140.5)
+
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "var", node2, "texture1")
