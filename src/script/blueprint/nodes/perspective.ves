@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
+import "blueprint.blueprint" for Blueprint
 
 class Perspective is Node
 {
@@ -28,10 +29,9 @@ class Perspective is Node
 
 	calc(idx) 
 	{
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			this.fovy = f_pin.node.calc(f_pin.slot_idx).value
+		var fovy = Blueprint.calc_input_value(this, 0)
+		if (fovy) {
+			this.fovy = fovy.value
 		}
 
 		var mat = Matrix44.init()
