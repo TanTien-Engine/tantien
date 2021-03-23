@@ -71,10 +71,6 @@ class VarFrameBuffer
 
 	unbind()
 	{
-		if (!this.prev_fbo) {
-			return
-		}
-
 		Render.set_fbo(this.prev_fbo)
 		Render.set_viewport(this.prev_vp)
 
