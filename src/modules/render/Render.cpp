@@ -21,4 +21,9 @@ Render::~Render()
 {
 }
 
+void Render::SetViewport(int x, int y, int w, int h)
+{
+    m_ctx->SetViewport(x, y, w, h);
+}
+
 }

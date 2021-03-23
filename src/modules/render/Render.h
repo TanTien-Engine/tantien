@@ -15,6 +15,8 @@ public:
 	auto Device() const { return m_dev; }
 	auto Context() const { return m_ctx; }
 
+	void SetViewport(int x, int y, int w, int h);
+
 private:
 	std::shared_ptr<ur::Device>  m_dev = nullptr;
 	std::shared_ptr<ur::Context> m_ctx = nullptr;

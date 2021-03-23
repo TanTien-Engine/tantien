@@ -17,6 +17,7 @@
 #include "modules/system/System.h"
 #include "modules/system/wrap_System.h"
 #include "modules/system/system.ves.inc"
+#include "modules/render/Render.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -232,6 +233,8 @@ int main(int argc, char* argv[])
     ves_init_vm();
 
     tt::System::Instance()->SetWindow(window);
+
+    tt::Render::Instance()->SetViewport(0, 0, width, height);
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
