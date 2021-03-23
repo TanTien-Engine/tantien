@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 #include <assert.h>
 
@@ -250,6 +251,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
+void mouse_press_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    // double click
+    if (action == GLFW_RELEASE) 
+    {
+        static auto before = std::chrono::system_clock::now();
+        auto now = std::chrono::system_clock::now();
+        double diff_ms = std::chrono::duration <double, std::milli>(now - before).count();
+        before = now;
+        if (diff_ms > 10 && diff_ms < 250) 
+        {
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+
+            ves_pushnumber(x);
+            ves_pushnumber(y);
+            ves_pushnumber(button);
+            ves_pushstring("mouseclicked(_,_,_)");
+            ves_call(3, 0);
+        }
+    }
+}
+
 void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
     if (count == 0) {
@@ -448,6 +472,7 @@ int main(int argc, char* argv[])
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_press_callback);
     glfwSetDropCallback(window, drop_callback);
 
     if(gl3wInit()) {
