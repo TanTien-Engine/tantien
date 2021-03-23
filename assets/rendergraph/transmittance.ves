@@ -56,7 +56,7 @@ node4.gamma_correction = false
 node4.init_texture(2048, 2048, "depth")
 node4.set_sampler("linear clamp")
 
-_editor.add_node(node4, -599.65259139026, -466.56217066551)
+_editor.add_node(node4, -595.65959139026, -551.74617066551)
 
 var node5 = Multiply()
 
@@ -66,7 +66,7 @@ var node6 = Draw()
 
 node6.set_prim_type("triangles")
 node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
-node6.skip = true
+node6.skip = false
 
 _editor.add_node(node6, 583.70380722722, -545.39065203247)
 
@@ -255,6 +255,7 @@ Blueprint.connect(node5, "v", node7, "lightSpaceMatrix")
 Blueprint.connect(node7, "out", node6, "shader")
 Blueprint.connect(node8, "mat", node5, "a")
 Blueprint.connect(node9, "mat", node5, "b")
+Blueprint.connect(node10, "next", node15, "prev")
 Blueprint.connect(node12, "v2", node9, "eye")
 Blueprint.connect(node12, "v2", node7, "lightPos")
 Blueprint.connect(node13, "mat", node7, "projection")

@@ -2,6 +2,7 @@ var node0 = Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.skip = false
 
 _editor.add_node(node0, 116.282, -83.119200000001)
 
@@ -10,7 +11,7 @@ var node1 = Clear()
 node1.masks = [ "depth" ]
 node1.values = { "color" : [ 0, 0, 0, 255 ] }
 
-_editor.add_node(node1, -129.718, 93.880799999999)
+_editor.add_node(node1, -130.718, 94.880799999999)
 
 var node2 = Shader()
 
@@ -70,6 +71,7 @@ var node7 = Draw()
 
 node7.set_prim_type("triangles")
 node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node7.skip = false
 
 _editor.add_node(node7, 583.70380722722, -545.39065203247)
 
@@ -253,6 +255,7 @@ Blueprint.connect(node6, "v", node8, "lightSpaceMatrix")
 Blueprint.connect(node8, "out", node7, "shader")
 Blueprint.connect(node9, "mat", node6, "a")
 Blueprint.connect(node10, "mat", node6, "b")
+Blueprint.connect(node11, "next", node16, "prev")
 Blueprint.connect(node13, "v2", node10, "eye")
 Blueprint.connect(node13, "v2", node8, "lightPos")
 Blueprint.connect(node14, "mat", node8, "projection")
