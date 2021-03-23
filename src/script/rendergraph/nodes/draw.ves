@@ -151,10 +151,12 @@ class Draw is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
 	}
 
-	to_string(name) {
+	to_string(name) 
+	{
 		return "
 %(name).set_prim_type(\"%(this.prim_types[this.prim_selected])\")
 %(name).render_state = %(this.render_state)
+%(name).skip = %(this.skip)
 "
 	}
 
