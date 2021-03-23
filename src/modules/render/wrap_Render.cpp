@@ -774,7 +774,7 @@ int w_Framebuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::Framebuffer>);
 }
 
-ur::AttachmentType strint2attachment(const std::string& str)
+ur::AttachmentType string2attachment(const std::string& str)
 {
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
     if (str == "depth") {
@@ -796,7 +796,7 @@ void w_Framebuffer_attach_tex()
 {
     auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
-    auto atta_type = strint2attachment(ves_tostring(2));
+    auto atta_type = string2attachment(ves_tostring(2));
 
     const char* target = ves_tostring(3);
     ur::TextureTarget tex_target = ur::TextureTarget::Texture2D;
@@ -824,7 +824,7 @@ void w_Framebuffer_attach_rbo()
 {
     auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
     auto rbo = ((tt::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
-    auto atta_type = strint2attachment(ves_tostring(2));
+    auto atta_type = string2attachment(ves_tostring(2));
     fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
 }
 
