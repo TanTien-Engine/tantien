@@ -58,15 +58,13 @@ class VarFrameBuffer
 
 	bind()
 	{
-		if (!this.fbo or this.width <= 0 or this.height <= 0 or !this.attached) {
-			return
-		}
-
 		this.prev_fbo = Render.get_fbo(Framebuffer)
 		this.prev_vp  = Render.get_viewport()
 
-		Render.set_fbo(this.fbo)
-		Render.set_viewport([ 0, 0, this.width, this.height ])		
+		if (this.fbo and this.width > 0 and this.height > 0 and this.attached) {
+			Render.set_fbo(this.fbo)
+			Render.set_viewport([ 0, 0, this.width, this.height ])
+		}
 	}
 
 	unbind()
