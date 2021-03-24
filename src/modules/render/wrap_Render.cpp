@@ -709,14 +709,22 @@ void w_Cubemap_allocate()
     {
         GD_ASSERT(ves_len(1) == 6, "error number");
         std::array<ur::TexturePtr, 6> textures;
-        for (int i = 0; i < 6; ++i)
+        bool fail = false;
+        for (int i = 0; i < 6 && !fail; ++i)
         {
             ves_geti(1, i);
-            textures[i] = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+            auto f = ves_toforeign(-1);
+            if (!f) {
+                fail = true;
+            } else {
+                textures[i] = ((tt::Proxy<ur::Texture>*)f)->obj;
+            }
             ves_pop(1);
         }
 
-        tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
+        if (!fail) {
+            tex = tt::Render::Instance()->Device()->CreateTextureCubeMap(textures);
+        }
     }
     else
     {

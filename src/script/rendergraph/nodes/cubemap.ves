@@ -50,7 +50,7 @@ class Cubemap is Node
 				{
 					var f_pin = conns.front().from
 					var v = f_pin.node.calc(f_pin.slot_idx)
-					if (v and v.type == VAR_TYPE_TEXTURE) {
+					if (v and v.type == VAR_TYPE_TEXTURE and v.value.tex) {
 						cube_texs.add(v.value.tex)
 					}
 				}
