@@ -69,10 +69,19 @@ class Rendergraph is Editor
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
-		for (var drawlist in this.drawlists) {
-			for (var node in drawlist) {
-				if (node.execute) {
-					node.execute()
+		for (var drawlist in this.drawlists) 
+		{
+			var skip = false
+			if (!drawlist.isEmpty and drawlist[drawlist.count - 1] is Draw and drawlist[drawlist.count - 1].skip) {
+				skip = true
+			}
+			if (!skip)
+			{
+				for (var node in drawlist) 
+				{
+					if (node.execute) {
+						node.execute()
+					}
 				}
 			}
 		}
