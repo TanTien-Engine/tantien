@@ -1,0 +1,253 @@
+var node0 = Draw()
+
+node0.set_prim_type("tri_strip")
+node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+node0.skip = false
+
+_editor.add_node(node0, 103.78109418755, 598.16919174672)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
+
+_editor.add_node(node1, -235.20616450689, 821.44547068941)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+layout (location = 3) in vec3 aTangent;
+layout (location = 4) in vec3 aBitangent;
+
+out VS_OUT {
+    vec3 FragPos;
+    vec2 TexCoords;
+    vec3 TangentLightPos;
+    vec3 TangentViewPos;
+    vec3 TangentFragPos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 projection;
+	mat4 view;
+	mat4 model;	
+
+	vec3 lightPos;
+	vec3 viewPos;
+};
+
+void main()
+{
+    vs_out.FragPos = vec3(model * vec4(aPos, 1.0));   
+    vs_out.TexCoords = aTexCoords;
+    
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 N = normalize(normalMatrix * aNormal);
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+    
+    mat3 TBN = transpose(mat3(T, B, N));    
+    vs_out.TangentLightPos = TBN * lightPos;
+    vs_out.TangentViewPos  = TBN * viewPos;
+    vs_out.TangentFragPos  = TBN * vs_out.FragPos;
+        
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 FragPos;
+    vec2 TexCoords;
+    vec3 TangentLightPos;
+    vec3 TangentViewPos;
+    vec3 TangentFragPos;
+} fs_in;
+
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
+
+void main()
+{           
+     // obtain normal from normal map in range [0,1]
+    vec3 normal = texture(normalMap, fs_in.TexCoords).rgb;
+    // transform normal vector to range [-1,1]
+    normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+   
+    // get diffuse color
+    vec3 color = texture(diffuseMap, fs_in.TexCoords).rgb;
+    // ambient
+    vec3 ambient = 0.1 * color;
+    // diffuse
+    vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
+    float NdotL = dot(lightDir, normal);
+    //float diff = max(NdotL, 0.0);
+    float diff = NdotL > 0.0 ? 1.0 : 0.0;
+    vec3 diffuse = diff * color;
+    // specular
+    vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+    vec3 specular = vec3(0.2) * spec;
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
+}
+"
+node2.gs = ""
+node2.execute()
+
+_editor.add_node(node2, -243.84018158955, 504.07397096406)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture", "normal", "tangent_bitangent" ]
+
+_editor.add_node(node3, -62.273050151815, 543.90376650875)
+
+var node4 = Texture()
+node4.gamma_correction = false
+node4.init_texture("samples/rendergraph/learnopengl/resources/textures/brickwall_normal.jpg")
+node4.set_sampler("linear repeat")
+
+_editor.add_node(node4, -760.59498461957, 424.68069578268)
+
+var node5 = Texture()
+node5.gamma_correction = false
+node5.init_texture("samples/rendergraph/learnopengl/resources/textures/brickwall.jpg")
+node5.set_sampler("linear repeat")
+
+_editor.add_node(node5, -504.18207133413, 424.23418477654)
+
+var node6 = Perspective()
+
+node6.fovy = 45
+node6.aspect = 0
+node6.znear = 0.10000000149012
+node6.zfar = 100
+
+_editor.add_node(node6, -448.78666929949, 806.55757003711)
+
+var node7 = Camera3D()
+
+node7.position.set(0.092706943114071, -1.3706840299958, 0.75300775998874)
+node7.yaw = -90.9
+node7.pitch = 41.2
+node7.zoom = 45
+node7.update_camera_vectors()
+node7.speed = 0.19082772731781
+
+_editor.add_node(node7, -677.07952280183, 805.99597012222)
+
+var node8 = Camera3D()
+
+node8.position.set(0.083703929578082, -1.5164841898252, 0.36495698299315)
+node8.yaw = -85.8
+node8.pitch = 65.1
+node8.zoom = 45
+node8.update_camera_vectors()
+node8.speed = 0.19958627223969
+
+_editor.add_node(node8, -671.94207487671, 607.82859820617)
+
+var node9 = Draw()
+
+node9.set_prim_type("tri_strip")
+node9.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node9.skip = false
+
+_editor.add_node(node9, 365.50871415572, 248.731500799)
+
+var node10 = Shader()
+
+node10.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out VS_OUT {
+    vec3 normal;
+} vs_out;
+
+uniform UBO
+{
+    mat4 view;
+    mat4 model; 
+};
+
+void main()
+{
+    mat3 normalMatrix = mat3(transpose(inverse(view * model)));
+    vs_out.normal = vec3(vec4(normalMatrix * aNormal, 0.0));
+    gl_Position = view * model * vec4(aPos, 1.0); 
+}
+"
+node10.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+"
+node10.gs = "
+#version 330 core
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+in VS_OUT {
+    vec3 normal;
+} gs_in[];
+
+const float MAGNITUDE = 0.2;
+
+uniform UBO
+{
+    mat4 projection;    
+};
+
+void GenerateLine(int index)
+{
+    gl_Position = projection * gl_in[index].gl_Position;
+    EmitVertex();
+    gl_Position = projection * (gl_in[index].gl_Position + vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    EmitVertex();
+    EndPrimitive();
+}
+
+void main()
+{
+    GenerateLine(0); // first vertex normal
+    GenerateLine(1); // second vertex normal
+    GenerateLine(2); // third vertex normal
+}
+"
+node10.execute()
+
+_editor.add_node(node10, 134.60967834152, 288.99934635979)
+
+Blueprint.connect(node0, "next", node9, "prev")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node3, "out", node9, "va")
+Blueprint.connect(node4, "tex", node2, "normalMap")
+Blueprint.connect(node5, "tex", node2, "diffuseMap")
+Blueprint.connect(node6, "mat", node2, "projection")
+Blueprint.connect(node6, "mat", node10, "projection")
+Blueprint.connect(node7, "mat", node2, "view")
+Blueprint.connect(node7, "mat", node10, "view")
+Blueprint.connect(node7, "zoom", node6, "fovy")
+Blueprint.connect(node7, "pos", node2, "viewPos")
+Blueprint.connect(node8, "pos", node2, "lightPos")
+Blueprint.connect(node10, "out", node9, "shader")
