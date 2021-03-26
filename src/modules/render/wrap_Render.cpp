@@ -541,6 +541,9 @@ void w_Texture2D_allocate()
         case GPF_RED:
             tf = ur::TextureFormat::RED;
             break;
+        case GPF_R16:
+            tf = ur::TextureFormat::R16;
+            break;
 	    case GPF_RGB:
 		    tf = ur::TextureFormat::RGB;
 		    break;
@@ -614,6 +617,8 @@ void w_Texture2D_allocate()
             tf = ur::TextureFormat::RG16F;
         } else if (strcmp(format, "r16") == 0) {
             tf = ur::TextureFormat::R16;
+        } else if (strcmp(format, "r16f") == 0) {
+            tf = ur::TextureFormat::R16F;
         } else if (strcmp(format, "depth") == 0) {
             tf = ur::TextureFormat::DEPTH;
         } else {
@@ -667,6 +672,7 @@ void w_Texture2D_upload()
         fmt == ur::TextureFormat::RGB32F ||
         fmt == ur::TextureFormat::RG16F ||
         fmt == ur::TextureFormat::R16 ||
+        fmt == ur::TextureFormat::R16F ||
         fmt == ur::TextureFormat::RGB32I)
     {
         std::vector<float> data;
@@ -742,6 +748,8 @@ void w_Cubemap_allocate()
             tf = ur::TextureFormat::RGBA16F;
         } else if (strcmp(format, "r16") == 0) {
             tf = ur::TextureFormat::R16;
+        } else if (strcmp(format, "r16f") == 0) {
+            tf = ur::TextureFormat::R16F;
         } else {
             GD_REPORT_ASSERT("unknown type.");
         }
