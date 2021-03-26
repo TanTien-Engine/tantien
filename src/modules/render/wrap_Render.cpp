@@ -583,7 +583,7 @@ void w_Texture2D_allocate()
 
         bool gamma_correction = ves_toboolean(2);
 
-        size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(img->width, img->height, tf, 4);
+        size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(img->width, img->height, tf, 1);
         tex = tt::Render::Instance()->Device()->CreateTexture(img->width, img->height, tf, img->pixels, buf_sz, gamma_correction);
     }
     else if (ves_type(1) == VES_TYPE_LIST)
