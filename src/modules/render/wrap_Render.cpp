@@ -318,10 +318,11 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         if (unif)
         {
             ves_geti(-1, 0);
-            sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
+            if (ves_type(-1) != VES_TYPE_NULL) {
+                sm::mat4* mt = static_cast<sm::mat4*>(ves_toforeign(-1));
+                unif->SetValue(mt->x, 16);
+            }
             ves_pop(1);
-
-            unif->SetValue(mt->x, 16);
         }
     }
         break;
