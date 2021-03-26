@@ -127,6 +127,14 @@ class Camera3D is Node
 			this.position.x = this.position.x + this.right.x * this.speed
 			this.position.y = this.position.y + this.right.y * this.speed
 			this.position.z = this.position.z + this.right.z * this.speed
+		} 
+		else if (key == "escape") 
+		{
+			this.position = Vector3(0, 0, 3)
+		    this.yaw   = -90.0
+		    this.pitch = 0
+			this.zoom = 45.0
+			this.update_camera_vectors()
 		}
 	}
 
