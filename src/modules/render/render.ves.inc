@@ -5,7 +5,7 @@ foreign class Shader
 {
 	// vs: string
 	// fs: string
-	init(vs, fs, gs) {}
+	init(vs, tcs, tes, gs, fs) {}
 
 	// name(string) + type(string) + value(list)
 	foreign set_uniform_value(uniform)
@@ -64,7 +64,7 @@ foreign class RenderBuffer
 
 foreign class Render
 {
-	// prim_type: "triangles"
+	// prim_type: "points", "triangles", "tri_strip", "patches"
 	// render_state: map { 
 	//   "depth_test" : bool,
 	//   "depth_func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">

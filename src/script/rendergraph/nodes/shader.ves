@@ -19,9 +19,11 @@ class Shader is Node
 			Pin(this, "out", VAR_TYPE_SHADER)
 		]
 
-		this.vs = ""
-		this.fs = ""
-		this.gs = ""
+		this.vs  = ""
+		this.tcs = ""
+		this.tes = ""		
+		this.gs  = ""
+		this.fs  = ""
 
 		this.prog = nil
 		this.dirty = true
@@ -92,7 +94,7 @@ class Shader is Node
 
 		this.layout()
 
-		this.prog = tt_Shader.init(this.vs, this.fs, this.gs)
+		this.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)
 		this.dirty = false
 	}
 
@@ -190,8 +192,10 @@ class Shader is Node
 	{
 		var code = "
 %(name).vs = \"%(this.vs)\"
-%(name).fs = \"%(this.fs)\"
+%(name).tcs = \"%(this.tcs)\"
+%(name).tes = \"%(this.tes)\"
 %(name).gs = \"%(this.gs)\"
+%(name).fs = \"%(this.fs)\"
 %(name).execute()
 "
 		for (var unif in this.uniforms) {

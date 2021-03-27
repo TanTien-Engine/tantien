@@ -44,9 +44,11 @@ void w_Shader_allocate()
 {
     std::shared_ptr<ur::ShaderProgram> prog = nullptr;
 
-    const char* vs_str = ves_tostring(1);
-    const char* fs_str = ves_tostring(2);
-    const char* gs_str = ves_tostring(3);
+    const char* vs_str  = ves_tostring(1);
+    const char* tcs_str = ves_tostring(2);
+    const char* tes_str = ves_tostring(3);
+    const char* gs_str  = ves_tostring(4);
+    const char* fs_str  = ves_tostring(5);
 
     if (strlen(vs_str) == 0) 
     {
@@ -70,10 +72,12 @@ void w_Shader_allocate()
     }
     else
     {
-        std::vector<unsigned int> vs, fs, gs;
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs_str, vs);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs_str, fs);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str, gs);
+        std::vector<unsigned int> vs, tcs, tes, gs, fs;
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader,   vs_str,  vs);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessCtrlShader, tcs_str, tcs);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessEvalShader, tes_str, tes);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str,  gs);
+        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader,    fs_str,  fs);
 
 #ifdef SHADER_DEBUG_PRINT
         std::string vs_glsl, fs_glsl;
@@ -82,7 +86,7 @@ void w_Shader_allocate()
         printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, std::vector<uint32_t>(), std::vector<uint32_t>(), gs);
+        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
     }
 
     auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
@@ -979,6 +983,8 @@ void w_Render_draw()
         prim_type = ur::PrimitiveType::Triangles;
     } else if (strcmp(prim_type_str, "tri_strip") == 0) {
         prim_type = ur::PrimitiveType::TriangleStrip;
+    } else if (strcmp(prim_type_str, "patches") == 0) {
+        prim_type = ur::PrimitiveType::Patches;
     } else {
         GD_REPORT_ASSERT("unknown prim type.");
     }
