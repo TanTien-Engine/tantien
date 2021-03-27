@@ -968,6 +968,19 @@ void prepare_render_state(ur::RenderState& rs, int slot)
         }
     }
     ves_pop(1);
+
+    if (ves_getfield(slot, "rasterization") == VES_TYPE_STRING) 
+    {
+        const char* mode = ves_tostring(-1);
+        if (strcmp(mode, "point") == 0) {
+            rs.rasterization_mode = ur::RasterizationMode::Point;
+        } else if (strcmp(mode, "line") == 0) {
+            rs.rasterization_mode = ur::RasterizationMode::Line;
+        } else if (strcmp(mode, "fill") == 0) {
+            rs.rasterization_mode = ur::RasterizationMode::Fill;
+        }
+    }
+    ves_pop(1);
 }
 
 void w_Render_draw()

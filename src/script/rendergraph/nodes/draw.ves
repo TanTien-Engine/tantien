@@ -36,7 +36,8 @@ class Draw is Node
 			"stencil_mask" : 255,
 			"stencil_func" : "always",
 			"stencil_ref" : 0,
-			"cull" : "disable"
+			"cull" : "disable",
+			"rasterization" : "fill",
 		}
 
 		// for gui
@@ -44,6 +45,8 @@ class Draw is Node
 		this.depth_func_selected = -1
 		this.cull_items = ["disable", "front", "back", "front_and_back"]
 		this.cull_selected = -1
+		this.rasterization_items = ["point", "line", "fill"]
+		this.rasterization_selected = 2
 
 		this.skip = false
 
@@ -148,7 +151,7 @@ class Draw is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 6
 	}
 
 	to_string(name) 
@@ -211,6 +214,14 @@ class Draw is Node
 			this.cull_selected = item
 			this.render_state["cull"] = this.cull_items[this.cull_selected]
 			dirty = true				
+		}
+		y = y - DEFAULT_HEIGHT
+
+		item = GUI.combo(ctx, "rasterization", this.rasterization_selected, this.rasterization_items, x, y, 80)
+		if (item != this.rasterization_selected) {
+			this.rasterization_selected = item
+			this.render_state["rasterization"] = this.rasterization_items[this.rasterization_selected]
+			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
 
