@@ -85,6 +85,12 @@ class SubGraph is Node
 		for (var prop in this.prop_nodes) {
 			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(prop.value))\n"
 		}
+
+		if (this.op_node) {
+			var op_name = name + ".op_node"
+			ret = ret + this.op_node.to_string(op_name)
+		}
+
 		return ret
 	}
 
