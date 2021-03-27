@@ -6,6 +6,7 @@ import "filesystem" for Filesystem
 import "blueprint.nodes.input" for Input
 import "blueprint.nodes.output" for Output
 import "blueprint.nodes.property" for Property
+import "blueprint.nodes.camera3d" for Camera3D
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
@@ -32,6 +33,8 @@ class SubGraph is Node
 		this.out_nodes  = []
 		this.prop_nodes = []
 		this.exec_list  = []
+
+		this.op_node = nil
 	}
 
 	calc(idx)
@@ -141,6 +144,12 @@ class SubGraph is Node
 		editor.add_node = old_func
 
 		this.exec_list = editor.build_exec_list(this.all_nodes)
+
+		for (var node in this.all_nodes) {
+			if (node is Camera3D) {
+				this.op_node = node
+			}
+		}
 	}
 
 	add_node(node, x, y)
@@ -184,5 +193,41 @@ class SubGraph is Node
 				prop.value = value
 			}
 		}
+	}
+
+	on_key_pressed(key) {
+		if (this.op_node) {
+			this.op_node.on_key_pressed(key)
+		}
+	}
+	on_key_released(key) {
+		if (this.op_node) {
+			this.op_node.on_key_release(key)
+		}
+	}
+	on_mouse_pressed(x, y, btn) {
+		if (this.op_node) {
+			this.op_node.on_mouse_pressed(x, y, btn)
+		}
+	}
+	on_mouse_released(x, y, btn) {
+		if (this.op_node) {
+			this.op_node.on_mouse_released(x, y, btn)
+		}	
+	}
+	on_mouse_moved(x, y, btn) {
+		if (this.op_node) {
+			this.op_node.on_mouse_moved(x, y, btn)
+		}	
+	}
+	on_mouse_dragged(x, y, btn) {
+		if (this.op_node) {
+			this.op_node.on_mouse_dragged(x, y, btn)
+		}
+	}
+	on_mouse_scrolled(x, y, dx, dy) {
+		if (this.op_node) {
+			this.op_node.on_mouse_scrolled(x, y, dx, dy)
+		}	
 	}
 }
