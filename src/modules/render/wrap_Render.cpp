@@ -319,7 +319,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
     case shadertrans::ShaderReflection::VarType::Mat4:
     {
         auto unif = prog->QueryUniform(name);
-        if (unif)
+        if (unif && ves_len(-1) > 0)
         {
             ves_geti(-1, 0);
             if (ves_type(-1) != VES_TYPE_NULL) {
@@ -1267,13 +1267,13 @@ void push_uniforms(const std::vector<shadertrans::ShaderReflection::Uniform>& un
             // value
             if (unif.type == shadertrans::ShaderReflection::VarType::Sampler)
             {
-                ves_newlist(2);
+                ves_newlist(0);
             }
             else if (unif.type == shadertrans::ShaderReflection::VarType::Mat2 || 
                      unif.type == shadertrans::ShaderReflection::VarType::Mat3 || 
                      unif.type == shadertrans::ShaderReflection::VarType::Mat4)
             {
-                ves_newlist(1);
+                ves_newlist(0);
             }
             else
             {

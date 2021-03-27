@@ -35,35 +35,46 @@ class Shader is Node
 		this.fold_array = true
 	}
 
-	get_shader_uniforms(stage, code)
+	init_shader_uniforms(unif)
 	{
-		var uniforms = Render.get_shader_uniforms(stage, code, "glsl")
-		// init
-		for (var unif in uniforms)
+		if (unif[1] == "array" or unif[1] == "struct")
+		{
+			for (var u in unif[2]) {
+				this.init_shader_uniforms(u)
+			}		
+		}
+		else
 		{
 			if (unif[1] == "mat4") {
-				unif[2][0] = Matrix44.init()
+				unif[2] = [ Matrix44.init() ]
 			} else if (unif[1] == "sampler") {
-				unif[2][0] = nil
-				unif[2][1] = nil
+				unif[2] = [ nil, nil ]
 			}
 		}
-		return uniforms
+	}
+
+	get_shader_uniforms(stage, code, uniforms)
+	{
+		var unifs = Render.get_shader_uniforms(stage, code, "glsl")
+
+		// init
+		for (var unif in unifs) {
+			this.init_shader_uniforms(unif)
+		}
+
+		for (var unif in unifs) {
+			uniforms.add(unif)
+		}		
 	}
 
 	get_shader_uniforms()
 	{
-		var uniforms = this.get_shader_uniforms("vertex", this.vs)
-		var fs_unifs = this.get_shader_uniforms("pixel", this.fs)
-		for (var unif in fs_unifs) {
-			uniforms.add(unif)
-		}
-		if (this.gs) {
-			var gs_unifs = this.get_shader_uniforms("geometry", this.gs)
-			for (var unif in gs_unifs) {
-				uniforms.add(unif)
-			}	
-		}
+		var uniforms = []
+		this.get_shader_uniforms("vertex",    this.vs,  uniforms)
+		this.get_shader_uniforms("tess_ctrl", this.tcs, uniforms)
+		this.get_shader_uniforms("tess_eval", this.tes, uniforms)
+		this.get_shader_uniforms("geometry",  this.gs,  uniforms)
+		this.get_shader_uniforms("pixel",     this.fs,  uniforms)
 		return uniforms
 	}
 
@@ -405,15 +416,10 @@ class Shader is Node
 			dst[2][1] = src.y
 			dst[2][2] = src.z
 			dst[2][3] = src.w
-		} else if (dst[1] == "mat2") {
-			dst[2][0] = src
-		} else if (dst[1] == "mat3") {
-			dst[2][0] = src
-		} else if (dst[1] == "mat4") {
-			dst[2][0] = src
+		} else if (dst[1] == "mat2" or dst[1] == "mat3" or dst[1] == "mat4") {
+			dst[2] = [src]
 		} else if (dst[1] == "sampler") {
-			dst[2][0] = src.tex
-			dst[2][1] = src.sampler
+			dst[2] = [src.tex, src.sampler]
 		}
 	}
 
