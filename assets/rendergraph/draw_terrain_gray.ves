@@ -1,0 +1,252 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.skip = false
+
+_editor.add_node(node0, 558.8075282446, -339.48126638417)
+
+var node1 = Shader()
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texcoord;
+
+out vec3 TCS_IN_FragPos;
+out vec2 TCS_IN_TexCoord;
+
+void main()
+{
+    TCS_IN_FragPos = position;
+    TCS_IN_TexCoord = texcoord;
+}
+"
+node1.tcs = "
+#version 400 core
+
+layout(vertices = 3) out;
+
+in vec3 TCS_IN_FragPos[];
+in vec2 TCS_IN_TexCoord[];
+
+out vec3 TES_IN_FragPos[];
+out vec2 TES_IN_TexCoord[];
+
+uniform UBO_TCS
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;   
+
+    vec3 cam_pos;
+    int lod_level;  
+} tcs;
+
+void main()
+{
+    TES_IN_FragPos[gl_InvocationID] = TCS_IN_FragPos[gl_InvocationID];
+    TES_IN_TexCoord[gl_InvocationID] = TCS_IN_TexCoord[gl_InvocationID];
+
+    if (gl_InvocationID == 0)
+    {
+        vec4 curr_p = tcs.projection * tcs.view * tcs.model * vec4(TCS_IN_FragPos[0], 1.0);
+        float dist = length(tcs.cam_pos - curr_p.xyz);
+
+        int max_level = tcs.lod_level;
+        int curr_level = max_level;
+        for (int i = 0; i < max_level; ++i) {
+            if (dist < 0.01 * pow(2, i)) {
+                curr_level = i;
+                break;
+            }
+        }
+        float level = clamp(pow(2.0, (max_level - curr_level)), 1.0, float(gl_MaxTessGenLevel));
+        for (int i = 0; i < 3; ++i) {
+            gl_TessLevelOuter[i] = level;
+        }
+        gl_TessLevelInner[0] = level / 2;
+    }
+}
+"
+node1.tes = "
+#version 400 core
+
+layout(triangles, equal_spacing, ccw) in;
+
+in vec3 TES_IN_FragPos[];
+in vec2 TES_IN_TexCoord[];
+
+out VS_OUT {
+    float height;
+    vec3 fragpos;
+    vec2 texcoord;
+} vs_out;
+
+uniform UBO_TES
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;   
+
+    float height_scale;    
+} tes;
+
+uniform sampler2D tes_heightmap;
+
+vec2 interpolate_2d(vec2 v0, vec2 v1, vec2 v2)
+{
+    return vec2(gl_TessCoord.x) * v0 + vec2(gl_TessCoord.y) * v1 + vec2(gl_TessCoord.z) * v2;
+}
+
+vec3 interpolate_3d(vec3 v0, vec3 v1, vec3 v2)
+{
+    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+}
+
+void main()
+{
+    vec4 pos = vec4(interpolate_3d(TES_IN_FragPos[0],TES_IN_FragPos[1],TES_IN_FragPos[2]), 1.0);
+    vec2 texcoord = interpolate_2d(TES_IN_TexCoord[0],TES_IN_TexCoord[1],TES_IN_TexCoord[2]);
+
+    vs_out.texcoord = texcoord;
+
+    vs_out.height = texture(tes_heightmap, texcoord).r/* - 0.5*/;
+
+    pos.z = vs_out.height * tes.height_scale;
+    vs_out.fragpos = vec3(tes.model * pos);
+
+    gl_Position = tes.projection * tes.view * tes.model * pos;
+}
+"
+node1.gs = ""
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    float height;
+    vec3 fragpos;
+    vec2 texcoord;
+} fs_in;
+
+uniform UBO_FS
+{
+    vec3 light_pos;
+    vec2 inv_res;
+} fs;
+
+uniform sampler2D fs_heightmap;
+
+float calc_height(vec2 texcoord)
+{
+    return texture(fs_heightmap, texcoord).r/* - 0.5*/;
+}
+
+vec3 ComputeNormalCentralDifference(vec2 position, float heightExaggeration)
+{
+    float leftHeight = calc_height(position - vec2(1.0, 0.0) * fs.inv_res) * heightExaggeration;
+    float rightHeight = calc_height(position + vec2(1.0, 0.0) * fs.inv_res) * heightExaggeration;
+    float bottomHeight = calc_height(position - vec2(0.0, 1.0) * fs.inv_res) * heightExaggeration;
+    float topHeight = calc_height(position + vec2(0.0, 1.0) * fs.inv_res) * heightExaggeration;
+    return normalize(vec3(leftHeight - rightHeight, 2.0, bottomHeight - topHeight));
+}
+
+void main()
+{
+    vec3 pos = fs_in.fragpos;
+
+    vec3 N = ComputeNormalCentralDifference(fs_in.texcoord, 500);
+
+    vec3 light_dir = normalize(fs.light_pos - pos);
+    float diff = max(dot(N, light_dir), 0.0);
+    vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
+    FragColor = vec4(diffuse, 1.0);
+
+    //FragColor = vec4(N, 1.0);
+
+    //// debug lod
+    //vec4 pos_final = u_projection * u_view * vec4(fs_in.fragpos, 1.0);
+    //float dist = length(pos_final.xyz);
+    //const vec4 colors[9] = vec4[9](
+    //    vec4(1,0,0,1),
+    //    vec4(1,1,1,1),
+    //    vec4(0,0,0,1),
+    //    vec4(0,1,1,1),
+    //    vec4(1,0,1,1),
+    //    vec4(1,1,0,1),
+    //    vec4(0,0,1,1),
+    //    vec4(0,1,0,1),
+    //    vec4(1,0,0,1)
+    //);
+    //const int max_level = 7;
+    //int curr_level = max_level;
+    //for (int i = 0; i < max_level; ++i) {
+    //    if (dist < 0.01 * pow(2, i)) {
+    //        curr_level = i;
+    //        break;
+    //    }
+    //}
+    //FragColor = colors[curr_level];
+}
+"
+node1.execute()
+node1.set_uniform("tcs.lod_level", [ 11.848308563232 ])
+node1.set_uniform("tes.height_scale", [ 0.11497599631548 ])
+node1.set_uniform("fs.light_pos", [ 0.79082131385803, 3.7241544723511, 2.3908212184906 ])
+node1.set_uniform("fs.inv_res", [ 0.0009765625, 0.0009765625 ])
+
+_editor.add_node(node1, 157.79557543759, -355.9795922234)
+
+var node2 = Clear()
+
+node2.masks = [ "color", "depth" ]
+node2.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node2, 335.02348918957, -188.12587085987)
+
+var node3 = PrimitiveShape()
+
+node3.type = "grids"
+node3.layout = [ "position", "texture" ]
+
+_editor.add_node(node3, 381.67421297039, -401.33131969581)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.025245843455195
+node4.zfar = 1000
+
+_editor.add_node(node4, -44.721260070801, -167.46328735352)
+
+var node5 = Camera3D()
+
+node5.position.set(0.82511950586381, 0.22295544086903, 0.27113827348144)
+node5.yaw = -91.999999999999
+node5.pitch = 40.1
+node5.zoom = 45
+node5.update_camera_vectors()
+node5.speed = 0.01031406968832
+
+_editor.add_node(node5, -212.44397048522, -295.44062400171)
+
+var node6 = Input()
+
+node6.var_name = "tes_heightmap"
+node6.var_type = "texture"
+
+_editor.add_node(node6, -204.39431471226, -414.00510651966)
+
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "mat", node1, "tcs.projection")
+Blueprint.connect(node4, "mat", node1, "tes.projection")
+Blueprint.connect(node5, "mat", node1, "tcs.view")
+Blueprint.connect(node5, "mat", node1, "tes.view")
+Blueprint.connect(node5, "zoom", node4, "fovy")
+Blueprint.connect(node5, "pos", node1, "tcs.cam_pos")
+Blueprint.connect(node6, "var", node1, "tes_heightmap")
+Blueprint.connect(node6, "var", node1, "fs_heightmap")

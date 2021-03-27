@@ -1,0 +1,20 @@
+var node0 = Texture()
+node0.gamma_correction = false
+node0.init_texture("gale.png")
+node0.set_sampler("linear repeat")
+
+_editor.add_node(node0, -217.19568145036, -111.34339624713)
+
+var node1 = SubGraph()
+node1.load_from_file(_editor, "assets/rendergraph/draw_terrain_gray.ves")
+
+_editor.add_node(node1, 70.454755596532, -67.70449119608)
+
+var node2 = Pass()
+
+node2.once = false
+
+_editor.add_node(node2, 310.2407953127, -63.890224123245)
+
+Blueprint.connect(node0, "tex", node1, "tes_heightmap")
+Blueprint.connect(node1, "next", node2, "prev")
