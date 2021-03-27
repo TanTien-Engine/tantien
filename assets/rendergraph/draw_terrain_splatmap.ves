@@ -1,7 +1,7 @@
 var node0 = Draw()
 
 node0.set_prim_type("patches")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
 node0.skip = false
 
 _editor.add_node(node0, 558.8075282446, -339.48126638417)
@@ -18,7 +18,7 @@ out vec2 TCS_IN_TexCoord;
 
 void main()
 {
-    TCS_IN_FragPos = position;
+    TCS_IN_FragPos = position.xzy;
     TCS_IN_TexCoord = texcoord;
 }
 "
@@ -113,7 +113,7 @@ void main()
 
     vs_out.height = texture(tes_heightmap, texcoord).r/* - 0.5*/;
 
-    pos.z = vs_out.height * tes.height_scale;
+    pos.y = vs_out.height * tes.height_scale;
     vs_out.fragpos = vec3(tes.model * pos);
 
     gl_Position = tes.projection * tes.view * tes.model * pos;
