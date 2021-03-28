@@ -1,147 +1,27 @@
-var node0 = Draw()
+var node0 = Texture()
+node0.gamma_correction = false
+node0.init_texture("gale.png")
+node0.set_sampler("linear repeat")
 
-node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
-node0.skip = false
+_editor.add_node(node0, -218.19568145036, -115.34339624713)
 
-_editor.add_node(node0, 558.8075282446, -339.48126638417)
+var node1 = SubGraph()
+node1.load_from_file(_editor, "assets/rendergraph/draw_terrain_gray.ves")
 
-var node1 = Shader()
+node1.op_node.position.set(0.087234348389743, 0.35599428127744, -0.020866484359405)
+node1.op_node.yaw = -307.3
+node1.op_node.pitch = -30
+node1.op_node.zoom = 45
+node1.op_node.update_camera_vectors()
+node1.op_node.speed = 0.01031406968832
 
-node1.vs = "
-#version 330 core
+_editor.add_node(node1, 70.454755596532, -67.70449119608)
 
-layout (location = 0) in vec4 position;
-layout (location = 1) in vec2 texcoord;
+var node2 = Pass()
 
-uniform UBO
-{
-    mat4 projection;
-    mat4 view;
-    mat4 model;
-};
+node2.once = false
 
-uniform sampler2D u_heightmap;
+_editor.add_node(node2, 310.2407953127, -63.890224123245)
 
-out VS_OUT {
-#ifdef BUILD_NORMAL_MAP
-    vec2  texcoord;
-#endif // BUILD_NORMAL_MAP
-    vec3  frag_pos;
-    vec3  normal;
-} vs_out;
-
-vec3 ComputeNormalCentralDifference(vec2 position, float heightExaggeration, vec2 inv_res)
-{
-    float leftHeight = texture(u_heightmap, position - vec2(1.0, 0.0) * inv_res).r * heightExaggeration;
-    float rightHeight = texture(u_heightmap, position + vec2(1.0, 0.0) * inv_res).r * heightExaggeration;
-    float bottomHeight = texture(u_heightmap, position - vec2(0.0, 1.0) * inv_res).r * heightExaggeration;
-    float topHeight = texture(u_heightmap, position + vec2(0.0, 1.0) * inv_res).r * heightExaggeration;
-    return normalize(vec3(leftHeight - rightHeight, 2.0, bottomHeight - topHeight));
-}
-
-void main()
-{
-    const float h_scale = 0.2;
-
-	vec4 pos = position;
-	pos.z = texture(u_heightmap, texcoord).r * h_scale;
-
-	vec2 inv_res = 1.0 / textureSize(u_heightmap, 0);
-
-#ifdef BUILD_NORMAL_MAP
-    vs_out.texcoord = texcoord;
-#endif // BUILD_NORMAL_MAP
-    vs_out.frag_pos = vec3(model * pos);
-    vs_out.normal = ComputeNormalCentralDifference(texcoord, 500, inv_res);
-
-	gl_Position = projection * view * model * pos;
-}
-"
-node1.fs = "
-#version 330 core
-
-#ifdef BUILD_NORMAL_MAP
-uniform sampler2D u_normal_map;
-#endif // BUILD_NORMAL_MAP
-
-in VS_OUT {
-#ifdef BUILD_NORMAL_MAP
-    vec2  texcoord;
-#endif // BUILD_NORMAL_MAP
-    vec3  frag_pos;
-    vec3  normal;
-} fs_in;
-
-void main()
-{
-//#ifdef BUILD_NORMAL_MAP
-//    // fixme
-//    //vec3 N = texture(u_normal_map, fs_in.texcoord).rgb;
-//    vec3 N = normalize(texture(u_normal_map, fs_in.texcoord).rgb);
-//#else
-//    vec3 fdx = dFdx(fs_in.frag_pos);
-//    vec3 fdy = dFdy(fs_in.frag_pos);
-//    vec3 N = normalize(cross(fdx, fdy));
-//#endif // BUILD_NORMAL_MAP
-    vec3 N = fs_in.normal;
-
-    vec3 light_dir = normalize(vec3(0, 1000, 1000) - fs_in.frag_pos);
-    float diff = max(dot(N, light_dir), 0.0);
-    vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
-	gl_FragColor = vec4(diffuse, 1.0);
-}
-"
-node1.gs = ""
-node1.execute()
-
-_editor.add_node(node1, 166.62267980231, -357.12313378723)
-
-var node2 = Clear()
-
-node2.masks = [ "color", "depth" ]
-node2.values = { "color" : [ 128, 128, 128, 255 ] }
-
-_editor.add_node(node2, 335.02348918957, -188.12587085987)
-
-var node3 = PrimitiveShape()
-
-node3.type = "grids"
-node3.layout = [ "position" ]
-
-_editor.add_node(node3, 381.67421297039, -401.33131969581)
-
-var node4 = Perspective()
-
-node4.fovy = 45
-node4.aspect = 0
-node4.znear = 0.025245843455195
-node4.zfar = 1000
-
-_editor.add_node(node4, -44.721260070801, -167.46328735352)
-
-var node5 = Camera3D()
-
-node5.position.set(0.44898615442759, 0.0096080233370398, 0.36559031639699)
-node5.yaw = -88.2
-node5.pitch = 48.1
-node5.zoom = 45
-node5.update_camera_vectors()
-node5.speed = 0.038111876696348
-
-_editor.add_node(node5, -213.75975921617, -292.44062400171)
-
-var node6 = Texture()
-node6.gamma_correction = false
-node6.init_texture("gale.png")
-node6.set_sampler("linear repeat")
-
-_editor.add_node(node6, -146.44530965099, -456.70975302563)
-
-Blueprint.connect(node1, "out", node0, "shader")
-Blueprint.connect(node2, "next", node0, "prev")
-Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node1, "projection")
-Blueprint.connect(node5, "mat", node1, "view")
-Blueprint.connect(node5, "zoom", node4, "fovy")
-Blueprint.connect(node6, "tex", node1, "u_heightmap")
+Blueprint.connect(node0, "tex", node1, "tes_heightmap")
+Blueprint.connect(node1, "next", node2, "prev")
