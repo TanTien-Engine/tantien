@@ -511,9 +511,19 @@ void w_VertexArray_allocate()
             GD_REPORT_ASSERT("unknown layout.");
         }
 
+        int grids_size = -1;
+        if (ves_getfield(3, "grids_size") == VES_TYPE_NUM) {
+            grids_size = (int)ves_tonumber(-1);
+        }
+        ves_pop(1);
+
         auto dev = tt::Render::Instance()->Device();
-        ur::PrimitiveType prim_type;
-        va = tt::Model::Instance()->CreateShape(*dev, type, layout, prim_type);
+        if (type == tt::ShapeType::Grids && grids_size > 0) {
+            va = tt::Model::Instance()->CreateGrids(*dev, layout, grids_size);
+        } else {
+            ur::PrimitiveType prim_type;
+            va = tt::Model::Instance()->CreateShape(*dev, type, layout, prim_type);
+        }
     }
 
     auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::VertexArray>));

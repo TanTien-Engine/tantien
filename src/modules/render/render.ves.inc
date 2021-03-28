@@ -20,7 +20,10 @@ foreign class VertexArray
 
 	// type: "quad", "cube", "sphere", "grids"
 	// layout: [ "position", "normal", "texture", "tangent_bitangent" ]
-	init(type, layout) {}
+	// params: map { 
+	//   "grids_size" : int
+	// }
+	init(type, layout, params) {}
 }
 
 foreign class Texture2D

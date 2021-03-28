@@ -26,9 +26,14 @@ class PrimitiveShape is Node
 		this.va = nil
 		this.dirty = true
 
+		this.shape_params = {}
+
 		// for gui
 		this.type_items = [ "quad", "cube", "sphere", "grids" ]
 		this.type_selected = -1
+		this.grids_size_items = ["16", "32", "64", "128", "256", "512"]
+		this.grids_size_values = [16, 32, 64, 128, 256, 512]
+		this.grids_size_selected = 5
 	}
 
 	calc(idx)
@@ -39,7 +44,7 @@ class PrimitiveShape is Node
 	execute() 
 	{
 		if (this.dirty) {
-			this.va = VertexArray.init(this.type, this.layout)
+			this.va = VertexArray.init(this.type, this.layout, this.shape_params)
 			this.dirty = false
 		}
 	}
@@ -53,6 +58,9 @@ class PrimitiveShape is Node
 
 		// layout
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 4
+
+		// params
+		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
 	to_string(name) 
@@ -60,6 +68,7 @@ class PrimitiveShape is Node
 		return "
 %(name).type = \"%(this.type)\"
 %(name).layout = %(this.layout)
+%(name).shape_params = %(this.shape_params)
 "
 	}
 
@@ -129,6 +138,14 @@ class PrimitiveShape is Node
 			} else {
 				this.layout.remove("tangent_bitangent")
 			}
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		item = GUI.combo(ctx, "grids_size", this.grids_size_selected, this.grids_size_items, x, y, 80)
+		if (item != this.grids_size_selected) {
+			this.grids_size_selected = item
+			this.shape_params["grids_size"] = this.grids_size_values[this.grids_size_selected]
 			dirty = true
 		}
 

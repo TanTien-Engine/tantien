@@ -110,20 +110,18 @@ struct Vertex
     sm::vec2 texcoords;
 };
 
-const int HEIGHT_FIELD_SIZE = 512;
-
-std::shared_ptr<ur::VertexArray> build_grids_va(const ur::Device& dev, ur::VertexLayoutType layout)
+std::shared_ptr<ur::VertexArray> build_grids_va(const ur::Device& dev, ur::VertexLayoutType layout, size_t size = 512)
 {
    auto va = dev.CreateVertexArray();
 
     auto usage = ur::BufferUsageHint::StaticDraw;
 
-    const size_t num_vert = HEIGHT_FIELD_SIZE * HEIGHT_FIELD_SIZE;
+    const size_t num_vert = size * size;
     Vertex* vertices = new Vertex[num_vert];
     auto vert_ptr = vertices;
-    for (size_t y = 0; y < HEIGHT_FIELD_SIZE; ++y) {
-        for (size_t x = 0; x < HEIGHT_FIELD_SIZE; ++x) {
-            *vert_ptr++ = Vertex(x, y, HEIGHT_FIELD_SIZE, HEIGHT_FIELD_SIZE);
+    for (size_t y = 0; y < size; ++y) {
+        for (size_t x = 0; x < size; ++x) {
+            *vert_ptr++ = Vertex(x, y, size, size);
         }
     }
 
@@ -133,14 +131,14 @@ std::shared_ptr<ur::VertexArray> build_grids_va(const ur::Device& dev, ur::Verte
     vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
     va->SetVertexBuffer(vbuf);
 
-    const size_t num_idx = (HEIGHT_FIELD_SIZE - 1) * (HEIGHT_FIELD_SIZE - 1) * 6;
+    const size_t num_idx = (size - 1) * (size - 1) * 6;
     unsigned int* indices = new unsigned int[num_idx];
     auto index_ptr = indices;
-    for (size_t y = 0; y < HEIGHT_FIELD_SIZE - 1; ++y) {
-        for (size_t x = 0; x < HEIGHT_FIELD_SIZE - 1; ++x) {
-            size_t ll = y * HEIGHT_FIELD_SIZE + x;
+    for (size_t y = 0; y < size - 1; ++y) {
+        for (size_t x = 0; x < size - 1; ++x) {
+            size_t ll = y * size + x;
             size_t rl = ll + 1;
-            size_t lh = ll + HEIGHT_FIELD_SIZE;
+            size_t lh = ll + size;
             size_t rh = lh + 1;
             *index_ptr++ = ll;
             *index_ptr++ = lh;
@@ -213,6 +211,12 @@ Model::CreateShape(const ur::Device& dev, ShapeType type, ur::VertexLayoutType l
         GD_REPORT_ASSERT("unknown type.");
     }
     return va;
+}
+
+std::shared_ptr<ur::VertexArray> Model::
+CreateGrids(const ur::Device& dev, ur::VertexLayoutType layout, size_t size)
+{
+    return build_grids_va(dev, layout, size);
 }
 
 }

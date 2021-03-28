@@ -23,8 +23,11 @@ enum class ShapeType
 class Model
 {
 public:
-	std::shared_ptr<ur::VertexArray> CreateShape(const ur::Device& dev, 
-		ShapeType type, ur::VertexLayoutType layout, ur::PrimitiveType& prim_type);
+	std::shared_ptr<ur::VertexArray> CreateShape(const ur::Device& dev, ShapeType type, 
+		ur::VertexLayoutType layout, ur::PrimitiveType& prim_type);
+
+	std::shared_ptr<ur::VertexArray> CreateGrids(const ur::Device& dev,
+		ur::VertexLayoutType layout, size_t size);
 
 private:
 
