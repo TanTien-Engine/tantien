@@ -603,7 +603,7 @@ import \"editor\" for _editor
 			var source = "
 var %(name) = %(bp.name)()
 %(bp.to_string(name))
-_editor.scene.selection.add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
+_editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
 "
 			this.clipboard = this.clipboard + source
 			ext_clipboard = ext_clipboard + source
@@ -686,7 +686,7 @@ import \"editor\" for _editor
 		{
 			var dx = this.camera.pos.x - this.cam_pos_on_copy.x
 			var dy = this.camera.pos.y - this.cam_pos_on_copy.y
-			var trans_op = Node2dTranslate(this.camera, scene)
+			var trans_op = Node2dTranslate(this.camera, this.scene_stack)
 			trans_op.translate(Vector2(dx, dy))
 		}
 
