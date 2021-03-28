@@ -99,7 +99,7 @@ struct Vertex
             ix / static_cast<float>(size_x),
             iz / static_cast<float>(size_z),
             0
-        );
+        ) * 2.0f - sm::vec3(1.0f, 1.0f, 1.0f);
         texcoords = sm::vec2(
             ix / static_cast<float>(size_x),
             iz / static_cast<float>(size_z)
