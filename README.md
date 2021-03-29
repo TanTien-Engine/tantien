@@ -40,6 +40,9 @@ Based for each editors
 
 ### rendergraph
 
+![](./doc/rendergraph/screenshots/terrain.jpg)
+    <em>Terrain</em>
+
 ![](./doc/rendergraph/screenshots/cel_shading.jpg)
     <em>Cel Shading</em>
 
