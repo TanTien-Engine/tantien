@@ -637,7 +637,7 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 						f_idx = f_idx + 1
 					}
 					if (f_name) {
-						ext_clipboard = ext_clipboard + "Blueprint.connect(%(f_name).exports[%(t_conn.from.slot_idx)], %(t_name).imports[%(t_conn.to.slot_idx)])\n"					
+						ext_clipboard = ext_clipboard + "Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n"	
 					}
 					
 					// find in scene
@@ -646,12 +646,12 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
 							var f_bp = scene.nodes[f_idx].components["bp"]
 							if (f_bp == t_conn.from.node) {
-								f_name = "_editor.scene.nodes[%(f_idx)].components[\"bp\"]"
+								f_name = "_editor.scene_stack.top().nodes[%(f_idx)].components[\"bp\"]"
 							}
 						}
 					}
 					if (f_name) {
-						this.clipboard = this.clipboard + "Blueprint.connect(%(f_name).exports[%(t_conn.from.slot_idx)], %(t_name).imports[%(t_conn.to.slot_idx)])\n"					
+						this.clipboard = this.clipboard + "Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n"
 					}
 				}
 			}
