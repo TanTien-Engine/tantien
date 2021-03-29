@@ -992,8 +992,8 @@ void prepare_render_state(ur::RenderState& rs, int slot)
     }
     ves_pop(1);
 
-    if (ves_getfield(slot, "clip_panel") == VES_TYPE_BOOL) {
-        rs.clip_panel = ves_toboolean(-1);
+    if (ves_getfield(slot, "clip_plane") == VES_TYPE_BOOL) {
+        rs.clip_plane = ves_toboolean(-1);
     }
     ves_pop(1);
 }

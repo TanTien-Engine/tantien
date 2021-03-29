@@ -37,7 +37,7 @@ class Draw is Node
 			"stencil_ref" : 0,
 			"cull" : "disable",
 			"rasterization" : "fill",
-			"clip_panel" : false,
+			"clip_plane" : false,
 		}
 
 		// for gui
@@ -225,12 +225,12 @@ class Draw is Node
 		}
 		y = y - DEFAULT_HEIGHT
 
-		if (this.render_state["clip_panel"] == nil) {
-			this.render_state["clip_panel"] = false
+		if (this.render_state["clip_plane"] == nil) {
+			this.render_state["clip_plane"] = false
 		}
-		var clip_panel = GUI.checkbox(ctx, "clip_panel", this.render_state["clip_panel"], x, y)
-		if (clip_panel != this.render_state["clip_panel"]) {
-			this.render_state["clip_panel"] = clip_panel
+		var clip_plane = GUI.checkbox(ctx, "clip_plane", this.render_state["clip_plane"], x, y)
+		if (clip_plane != this.render_state["clip_plane"]) {
+			this.render_state["clip_plane"] = clip_plane
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
