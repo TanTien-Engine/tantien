@@ -82,8 +82,15 @@ class SubGraph is Node
 	to_string(name) 
 	{
 		var ret = "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
-		for (var prop in this.prop_nodes) {
-			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(prop.value.to_string()))\n"
+		for (var prop in this.prop_nodes) 
+		{
+			var val = nil
+			if (prop.value.to_list) {
+				val = prop.value.to_list()
+			} else {
+				val = prop.value
+			}
+			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(val))\n"
 		}
 
 		if (this.op_node) {
@@ -270,9 +277,16 @@ class SubGraph is Node
 
 	set_prop_value(name, value)
 	{
-		for (var prop in this.prop_nodes) {
-			if (prop.var_name == name) {
-				prop.value = value
+		for (var prop in this.prop_nodes) 
+		{
+			if (prop.var_name == name) 
+			{
+				if (prop.value.from_list) {
+					prop.value.from_list(value)
+				} else {
+					prop.value = value
+				}
+				return
 			}
 		}
 	}

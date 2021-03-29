@@ -26,8 +26,12 @@ class Vector2
 		this.y = y
 	}
 
-	to_string() {
-		return "Vector2(%(this.x), %(this.y))"	
+	from_list(list) {
+		this.x = list[0]
+		this.y = list[1]
+	}
+	to_list() {
+		return [this.x, this.y]	
 	}
 }
 
@@ -70,8 +74,13 @@ class Vector3
 		return Vector3(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
 	}
 
-	to_string() {
-		return "Vector3(%(this.x), %(this.y), %(this.z))"	
+	from_list(list) {
+		this.x = list[0]
+		this.y = list[1]
+		this.z = list[2]
+	}
+	to_list() {
+		return [this.x, this.y, this.z]	
 	}
 }
 
@@ -95,7 +104,13 @@ class Vector4
 		this.w = w		
 	}
 
-	to_string() {
-		return "Vector4(%(this.x), %(this.y), %(this.z), %(this.w))"	
+	from_list(list) {
+		this.x = list[0]
+		this.y = list[1]
+		this.z = list[2]
+		this.w = list[3]
+	}
+	to_list() {
+		return [this.x, this.y, this.z, this.w]	
 	}
 }
