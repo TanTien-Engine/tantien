@@ -1,19 +1,12 @@
 var node0 = Texture()
-node0.gamma_correction = false
+node0.gamma_correction = true
 node0.init_texture("gale.png")
 node0.set_sampler("linear repeat")
 
-_editor.add_node(node0, -217.19568145036, -111.34339624713)
+_editor.add_node(node0, -458.47320519336, -72.581531279193)
 
 var node1 = SubGraph()
 node1.load_from_file(_editor, "assets/rendergraph/draw_terrain_splatmap.ves")
-
-node1.op_node.position.set(0.0026311405547894, 0.24659204094381, 0.11706920678951)
-node1.op_node.yaw = -321.5
-node1.op_node.pitch = -24.5
-node1.op_node.zoom = 45
-node1.op_node.update_camera_vectors()
-node1.op_node.speed = 0.01031406968832
 
 _editor.add_node(node1, 53.752276257689, -66.051598634097)
 
@@ -23,5 +16,29 @@ node2.once = false
 
 _editor.add_node(node2, 288.75319200692, -63.890224123245)
 
+var node3 = Perspective()
+
+node3.fovy = 45
+node3.aspect = 0
+node3.znear = 0.1
+node3.zfar = 100
+
+_editor.add_node(node3, -225.89358520508, 45.101612091064)
+
+var node4 = Camera3D()
+
+node4.position.set(0.72754759233828, 0.42722188873024, -0.047512989285003)
+node4.yaw = -238.3
+node4.pitch = -34
+node4.zoom = 45
+node4.update_camera_vectors()
+node4.speed = 0.12969098985195
+
+_editor.add_node(node4, -236.15675522885, -126.10659342541)
+
 Blueprint.connect(node0, "tex", node1, "tes_heightmap")
 Blueprint.connect(node1, "next", node2, "prev")
+Blueprint.connect(node3, "mat", node1, "tcs.projection")
+Blueprint.connect(node4, "mat", node1, "tcs.view")
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node4, "pos", node1, "tcs.cam_pos")

@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "io" for IO
 import "filesystem" for Filesystem
 import "blueprint.nodes.input" for Input
@@ -10,6 +10,7 @@ import "blueprint.nodes.camera3d" for Camera3D
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
+import "maths.vector" for Vector2, Vector3, Vector4
 
 class SubGraph is Node
 {
@@ -74,7 +75,6 @@ class SubGraph is Node
 		super.layout()
 
 		this.style.width = 220
-		//System.print(this.prop_nodes)
 		//this.style.height = this.style.height + DEFAULT_HEIGHT * this.prop_nodes.count
 		this.style.height = this.style.height + DEFAULT_HEIGHT * 1
 	}
@@ -83,7 +83,7 @@ class SubGraph is Node
 	{
 		var ret = "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
 		for (var prop in this.prop_nodes) {
-			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(prop.value))\n"
+			ret = ret + "%(name).set_prop_value(\"%(prop.var_name)\", %(prop.value.to_string()))\n"
 		}
 
 		if (this.op_node) {
@@ -101,13 +101,83 @@ class SubGraph is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
+		var REGION = 10
 		for (var prop in this.prop_nodes)
 		{
 			if (prop.value and prop.var_type == VAR_TYPE_NUMBER)
 			{
-				var value = GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, 10.0, false)
+				var value = GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, REGION, false)
 				if (value != prop.value) {
 					prop.value = value
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+			}
+			else if (prop.value and prop.var_type == VAR_TYPE_NUMBER2)
+			{
+				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
+				if (vx != prop.value.x) {
+					prop.value.x = vx
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
+				if (vy != prop.value.y) {
+					prop.value.y = vy
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+			}
+			else if (prop.value and prop.var_type == VAR_TYPE_NUMBER3)
+			{
+				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
+				if (vx != prop.value.x) {
+					prop.value.x = vx
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
+				if (vy != prop.value.y) {
+					prop.value.y = vy
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vz = GUI.slider(ctx, "z", prop.value.z, x, y, this.style.width - 20, REGION, false)
+				if (vz != prop.value.z) {
+					prop.value.z = vz
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+			}
+			else if (prop.value and prop.var_type == VAR_TYPE_NUMBER4)
+			{
+				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
+				if (vx != prop.value.x) {
+					prop.value.x = vx
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
+				if (vy != prop.value.y) {
+					prop.value.y = vy
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vz = GUI.slider(ctx, "z", prop.value.z, x, y, this.style.width - 20, REGION, false)
+				if (vz != prop.value.z) {
+					prop.value.z = vz
+					dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+
+				var vw = GUI.slider(ctx, "w", prop.value.w, x, y, this.style.width - 20, REGION, false)
+				if (vw != prop.value.w) {
+					prop.value.w = vw
 					dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
@@ -181,6 +251,12 @@ class SubGraph is Node
 			{
 				if (node.var_type == VAR_TYPE_NUMBER) {
 					node.value = 0
+				} else if (node.var_type == VAR_TYPE_NUMBER2) {
+					node.value = Vector2()
+				} else if (node.var_type == VAR_TYPE_NUMBER3) {
+					node.value = Vector3()
+				} else if (node.var_type == VAR_TYPE_NUMBER4) {
+					node.value = Vector4()
 				}
 			}
 			this.prop_nodes.add(node)

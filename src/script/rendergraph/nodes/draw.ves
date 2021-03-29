@@ -28,7 +28,6 @@ class Draw is Node
 		this.prim_types = [ "points", "triangles", "tri_strip", "patches" ]
 		this.prim_selected = 1
 
-		// { "depth_test" : bool, "cull" : string }
 		this.render_state = { 
 			"depth_test" : false, 
 			"depth_func" : "less", 
@@ -38,6 +37,7 @@ class Draw is Node
 			"stencil_ref" : 0,
 			"cull" : "disable",
 			"rasterization" : "fill",
+			"clip_panel" : false,
 		}
 
 		// for gui
@@ -151,7 +151,7 @@ class Draw is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 6
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 7
 	}
 
 	to_string(name) 
@@ -221,6 +221,16 @@ class Draw is Node
 		if (item != this.rasterization_selected) {
 			this.rasterization_selected = item
 			this.render_state["rasterization"] = this.rasterization_items[this.rasterization_selected]
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		if (this.render_state["clip_panel"] == nil) {
+			this.render_state["clip_panel"] = false
+		}
+		var clip_panel = GUI.checkbox(ctx, "clip_panel", this.render_state["clip_panel"], x, y)
+		if (clip_panel != this.render_state["clip_panel"]) {
+			this.render_state["clip_panel"] = clip_panel
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT

@@ -25,6 +25,10 @@ class Vector2
 		this.x = x
 		this.y = y
 	}
+
+	to_string() {
+		return "Vector2(%(this.x), %(this.y))"	
+	}
 }
 
 class Vector3
@@ -65,6 +69,10 @@ class Vector3
 	{
 		return Vector3(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
 	}
+
+	to_string() {
+		return "Vector3(%(this.x), %(this.y), %(this.z))"	
+	}
 }
 
 class Vector4
@@ -85,5 +93,9 @@ class Vector4
 		this.y = y
 		this.z = z
 		this.w = w		
+	}
+
+	to_string() {
+		return "Vector4(%(this.x), %(this.y), %(this.z), %(this.w))"	
 	}
 }

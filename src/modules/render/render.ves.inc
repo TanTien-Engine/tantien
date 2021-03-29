@@ -77,6 +77,7 @@ foreign class Render
 	//   "stencil_ref" : int
 	//   "cull" : <"disable", "front", "back", "front_and_back">
 	//   "rasterization" : <"point", "line", "fill">
+	//   "clip_panel" : bool
 	// }
 	foreign static draw(prim_type, prog, va, render_state)
 	foreign static draw_model(prog, model, render_state)

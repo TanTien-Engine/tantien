@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
 
 class Property is Node
@@ -23,7 +23,7 @@ class Property is Node
 
 	calc(idx)
 	{
-		return this.value
+		return Variant(this.var_type, this.value)
 	}
 
 	to_string(name) 

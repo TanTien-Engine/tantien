@@ -1,0 +1,204 @@
+var node0 = Draw()
+
+node0.set_prim_type("tri_strip")
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "clip_panel" : false, "depth_test" : true, "depth_func" : "less" }
+node0.skip = false
+
+_editor.add_node(node0, 749.40210233013, -289.76748647438)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node1, 2.5208785184396, 439.12206856587)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out VS_OUT {
+    vec3 fragpos;
+    vec2 texcoord;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;   
+};
+
+void main()
+{
+	vs_out.fragpos = vec3(model * vec4(aPos.xzy, 1.0));
+	vs_out.texcoord = vec2(aTexCoord.x, aTexCoord.y);
+	gl_Position = projection * view * model * vec4(aPos.xzy, 1.0);
+}
+"
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 fragpos;
+    vec2 texcoord;
+} fs_in;
+
+uniform sampler2D norm_tex;
+
+uniform UBO
+{
+	float time;
+	vec2 tilling;
+	float speed;
+	vec3 light_dir;
+	vec3 cam_pos;
+	vec3 color_compose;
+	float shininess;
+};
+
+vec3 blend_linear(vec3 n0, vec3 n1)
+{
+	return normalize(n0 + n1);
+}
+
+vec2 rotate2d(vec2 dir, float angle)
+{
+	float c = cos(angle);
+	float s = sin(angle);
+	return vec2(dir.x * c - dir.y * s, dir.x * s + dir.y * c);
+}
+
+vec3 calc_normal(vec2 uv, vec2 speed, vec2 tilling, float time, vec2 uv_offset, float height)
+{
+	uv -= time * speed;
+	vec2 xy = texture(norm_tex, uv * tilling + uv_offset).xy * vec2(2.0, 2.0) - vec2(1.0, 1.0);
+	float z = sqrt(1.0 - dot(xy, xy)) + 1.0;
+	//z = 1.0;
+	z = z * height;
+//	return normalize(vec3(xy, z)).xzy;
+	return vec3(xy, z).xzy;
+}
+
+void main()
+{
+    vec2 uv = fs_in.texcoord;
+
+	vec3 norm0 = calc_normal(uv, vec2(speed * 0.01, 0.0), vec2(tilling.y * 0.8, tilling.y), time, vec2(0.5, 0), 0.75);
+	vec3 norm1 = calc_normal(uv, vec2(0.0, speed * 0.003), vec2(tilling.y, tilling.y) * 1.3, time, vec2(0, 0), 1.5);
+	vec3 norm2 = calc_normal(uv, vec2(0.0, -speed * 0.002), vec2(tilling.y, tilling.y) * 1.8, time, vec2(0.0, 0.5), 1.5);
+	norm0 = vec3(-norm0.x, norm0.y, -norm0.z);
+
+	vec3 norm12 = vec3(-norm1.x-norm2.x, norm1.y, -norm1.z-norm2.z);
+	vec3 norm012 = blend_linear(norm0, norm12);
+
+	vec3 normal	= normalize(norm012);
+
+	vec3 view_dir = normalize(cam_pos - fs_in.fragpos);
+	float n_dot_v = clamp(dot(normal, view_dir),0.0,1.0);
+
+	vec3 half_angle = normalize(normalize(light_dir - vec3(5.0)) + view_dir);
+	float n_dot_h = clamp(dot(normal, half_angle),0.0,1.0);
+    
+    vec3 diffuse_color = vec3(0.157, 0.157, 0.2);
+    vec3 specular_color = vec3(0.3, 0.3, 0.4);
+
+	vec3 ambient = diffuse_color * vec3(n_dot_v);
+	vec3 specular = specular_color * pow(n_dot_h, shininess * 100);
+    //return ambient * 5 + specular * 0.62;
+    vec3 final = color_compose.y * ambient + color_compose.z * specular;
+
+	FragColor = vec4(final, 1.0);    
+
+	//FragColor = texture(norm_tex, fs_in.texcoord);
+}
+"
+node2.execute()
+node2.set_uniform("tilling", [ 2.4607975482941, 5.8607974052429 ])
+node2.set_uniform("speed", [ 0.66079765558243 ])
+node2.set_uniform("light_dir", [ 5.4341630935669, 6.1674962043762, 3.4030623435974 ])
+node2.set_uniform("color_compose", [ 0, 2.2030622959137, 1.203062415123 ])
+node2.set_uniform("shininess", [ 0.13639576733112 ])
+
+_editor.add_node(node2, 120.25406556966, -455.9037858693)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
+
+_editor.add_node(node3, 359.92569942271, -374.87319227648)
+
+var node4 = Texture()
+node4.gamma_correction = false
+node4.init_texture("assets/textures/water/normal.png")
+node4.set_sampler("linear repeat")
+
+_editor.add_node(node4, -276.10412846776, -308.26956177834)
+
+var node5 = Perspective()
+
+node5.fovy = 45
+node5.aspect = 0
+node5.znear = 0.1
+node5.zfar = 100
+
+_editor.add_node(node5, -269.08203374632, 13.49545712871)
+
+var node6 = Camera3D()
+
+node6.position.set(-1.5010043836212, 1.3093703520277, -0.37387302853875)
+node6.yaw = 7.8000000000001
+node6.pitch = -42
+node6.zoom = 45
+node6.update_camera_vectors()
+node6.speed = 0.14950735867023
+
+_editor.add_node(node6, -444.9113283933, -162.07111654576)
+
+var node7 = Time()
+
+_editor.add_node(node7, -76.076180972531, -208.87648108116)
+
+var node8 = Texture()
+node8.gamma_correction = true
+node8.init_texture("gale.png")
+node8.set_sampler("linear repeat")
+
+_editor.add_node(node8, -501.85609428427, 317.57385326626)
+
+var node9 = SubGraph()
+node9.load_from_file(_editor, "assets/rendergraph/draw_terrain_splatmap.ves")
+node9.set_prop_value("tes.clip_plane", Vector4(0, 7.8910841941833, 1.1542422771454, 0))
+
+_editor.add_node(node9, 370.06938716678, 211.90378591136)
+
+var node10 = Pass()
+
+node10.once = false
+
+_editor.add_node(node10, 621.49230957031, 204.32563781738)
+
+Blueprint.connect(node1, "next", node9, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node4, "tex", node2, "norm_tex")
+Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node9, "tcs.projection")
+Blueprint.connect(node6, "mat", node2, "view")
+Blueprint.connect(node6, "mat", node9, "tcs.view")
+Blueprint.connect(node6, "zoom", node5, "fovy")
+Blueprint.connect(node6, "pos", node2, "cam_pos")
+Blueprint.connect(node6, "pos", node9, "tcs.cam_pos")
+Blueprint.connect(node7, "time", node2, "time")
+Blueprint.connect(node8, "tex", node9, "tes_heightmap")
+Blueprint.connect(node9, "next", node10, "prev")

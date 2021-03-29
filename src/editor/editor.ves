@@ -23,6 +23,7 @@ import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.number2" for Number2
 import "blueprint.nodes.number3" for Number3
+import "blueprint.nodes.number4" for Number4
 import "blueprint.nodes.combine" for Combine
 import "blueprint.nodes.time" for Time
 import "blueprint.nodes.sin" for Sin
@@ -78,13 +79,13 @@ class Editor
 //		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__9.ssao.ves"
 //		this.filepath = "assets/rendergraph/gaussian_blur.ves"
 //		this.filepath = "samples/rendergraph/default/gaussian_blur.ves"
-		this.filepath = "samples/rendergraph/terrain/splatmap.ves"
+		this.filepath = "samples/rendergraph/terrain/water.ves"
 
 		this.hide_nodes = false
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary ]) {
+		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary ]) {
 			this.add_popup_node(node)
 		}
 
@@ -463,6 +464,7 @@ import \"blueprint.blueprint\" for Blueprint
 import \"blueprint.nodes.number\" for Number
 import \"blueprint.nodes.number2\" for Number2
 import \"blueprint.nodes.number3\" for Number3
+import \"blueprint.nodes.number4\" for Number4
 import \"blueprint.nodes.combine\" for Combine
 import \"blueprint.nodes.time\" for Time
 import \"blueprint.nodes.sin\" for Sin
