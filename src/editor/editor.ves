@@ -54,6 +54,7 @@ import "blueprint.nodes.property" for Property
 import "blueprint.nodes.subgraph" for SubGraph
 import "blueprint.nodes.merge" for Merge
 import "blueprint.nodes.commentary" for Commentary
+import "blueprint.nodes.viewport" for Viewport
 
 class Editor
 {
@@ -85,7 +86,7 @@ class Editor
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary ]) {
+		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport ]) {
 			this.add_popup_node(node)
 		}
 
@@ -495,6 +496,7 @@ import \"blueprint.nodes.property\" for Property
 import \"blueprint.nodes.subgraph\" for SubGraph
 import \"blueprint.nodes.merge\" for Merge
 import \"blueprint.nodes.commentary\" for Commentary
+import \"blueprint.nodes.viewport\" for Viewport
 "	
 	}
 

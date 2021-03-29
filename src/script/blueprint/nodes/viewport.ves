@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "graphics" for Graphics
+import "maths.vector" for Vector2
+
+class Viewport is Node
+{
+	init() 
+	{
+		super.init(Viewport.name)
+
+		this.exports = [
+			Pin(this, "size", VAR_TYPE_NUMBER2)
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+		return Variant(VAR_TYPE_NUMBER2, Vector2(w, h))
+	}
+}
