@@ -1,7 +1,7 @@
 var node0 = Draw()
 
 node0.set_prim_type("patches")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "clip_panel" : true, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : true }
 node0.skip = false
 
 _editor.add_node(node0, 558.8075282446, -339.48126638417)
@@ -293,7 +293,7 @@ _editor.add_node(node1, 157.79557543759, -355.9795922234)
 var node2 = Clear()
 
 node2.masks = [ "color", "depth" ]
-node2.values = { "color" : [ 128, 128, 128, 255 ] }
+node2.values = { "color" : [ 0, 0, 0, 255 ] }
 
 _editor.add_node(node2, 335.02348918957, -188.12587085987)
 
@@ -420,9 +420,17 @@ var node13 = Property()
 node13.var_name = "tes.clip_plane"
 node13.var_type = "num4"
 
-_editor.add_node(node13, -77.549131112674, 104.89295472534)
+_editor.add_node(node13, -75.428643020812, 68.420559545306)
+
+var node14 = Input()
+
+node14.var_name = "tcs.model"
+node14.var_type = "mat4"
+
+_editor.add_node(node14, -76.720631933989, 112.76301364638)
 
 Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "next", node0, "prev")
 Blueprint.connect(node3, "out", node0, "va")
 Blueprint.connect(node4, "var", node1, "tes_heightmap")
 Blueprint.connect(node4, "var", node1, "fs_heightmap")
@@ -440,3 +448,5 @@ Blueprint.connect(node11, "var", node1, "tcs.view")
 Blueprint.connect(node11, "var", node1, "tes.view")
 Blueprint.connect(node12, "var", node1, "tcs.cam_pos")
 Blueprint.connect(node13, "var", node1, "tes.clip_plane")
+Blueprint.connect(node14, "var", node1, "tcs.model")
+Blueprint.connect(node14, "var", node1, "tes.model")

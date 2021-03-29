@@ -1,17 +1,17 @@
 var node0 = Draw()
 
 node0.set_prim_type("tri_strip")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "clip_panel" : false, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
-_editor.add_node(node0, 749.40210233013, -289.76748647438)
+_editor.add_node(node0, 1787.2998622665, -294.00749126529)
 
 var node1 = Clear()
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 128, 128, 128, 255 ] }
 
-_editor.add_node(node1, 2.5208785184396, 439.12206856587)
+_editor.add_node(node1, -40.096956301563, 415.37335808587)
 
 var node2 = Shader()
 
@@ -53,6 +53,11 @@ in VS_OUT {
 } fs_in;
 
 uniform sampler2D norm_tex;
+uniform sampler2D refracted_tex;
+uniform sampler2D reflected_tex;
+uniform sampler2D noise_tex;
+uniform sampler1D fresnel_tex;
+uniform samplerCube sky_tex;
 
 uniform UBO
 {
@@ -63,6 +68,8 @@ uniform UBO
 	vec3 cam_pos;
 	vec3 color_compose;
 	float shininess;
+	vec2 viewport_size;
+	vec2 sun_pos;
 };
 
 vec3 blend_linear(vec3 n0, vec3 n1)
@@ -116,6 +123,29 @@ void main()
     //return ambient * 5 + specular * 0.62;
     vec3 final = color_compose.y * ambient + color_compose.z * specular;
 
+	vec3 R = normalize(reflect(view_dir, normal));		
+//	float f = texture(fresnel_tex, dot(R, -normal)).r;
+	float f = 1.0 - dot(R, -normal);
+
+    vec2 tc = gl_FragCoord.xy / viewport_size;
+    //vec3 tc_n = 2 * texture(noise_tex, tc - time * vec2(speed * 0.025, 0.0)).rgb - 1;
+    //tc -= tc_n.xz * 0.005;
+    tc -= normal.xz * 0.05;
+
+    vec4 refr = texture(refracted_tex, tc);
+    vec4 refl = texture(reflected_tex, tc);
+
+    vec2 s_pos = sun_pos - vec2(5.0);
+    vec3 sun_vec = vec3(cos(s_pos.y) * sin(s_pos.x), sin(s_pos.y), cos(s_pos.y) * cos(s_pos.x));
+	float sun_strength = 700;
+	float sun_shininess = 3500;
+	vec3 sunlight = sun_strength * pow(clamp(dot(R, sun_vec), 0.0, 1.0), sun_shininess) * vec3(1.2, 0.4, 0.1);
+	vec3 skyrefl = texture(sky_tex, R).rgb;
+
+	//vec3 col = mix(skyrefl + sunlight, refl.rgb, refl.a);
+	vec3 col = mix(skyrefl + sunlight, refl.rgb, 0.5);
+	final = mix(mix(refr.rgb, final, 0.7), col, f);
+
 	FragColor = vec4(final, 1.0);    
 
 	//FragColor = texture(norm_tex, fs_in.texcoord);
@@ -127,8 +157,9 @@ node2.set_uniform("speed", [ 0.66079765558243 ])
 node2.set_uniform("light_dir", [ 5.4341630935669, 6.1674962043762, 3.4030623435974 ])
 node2.set_uniform("color_compose", [ 0, 2.2030622959137, 1.203062415123 ])
 node2.set_uniform("shininess", [ 0.13639576733112 ])
+node2.set_uniform("sun_pos", [ 1.9060709476471, 4.3727374076843 ])
 
-_editor.add_node(node2, 120.25406556966, -455.9037858693)
+_editor.add_node(node2, 1390.1191960905, -626.14379066019)
 
 var node3 = PrimitiveShape()
 
@@ -136,14 +167,14 @@ node3.type = "quad"
 node3.layout = [ "position", "texture" ]
 node3.shape_params = {  }
 
-_editor.add_node(node3, 359.92569942271, -374.87319227648)
+_editor.add_node(node3, 1574.2480686021, -322.28411620549)
 
 var node4 = Texture()
 node4.gamma_correction = false
 node4.init_texture("assets/textures/water/normal.png")
 node4.set_sampler("linear repeat")
 
-_editor.add_node(node4, -276.10412846776, -308.26956177834)
+_editor.add_node(node4, 830.22526460956, -351.24934017479)
 
 var node5 = Perspective()
 
@@ -152,53 +183,186 @@ node5.aspect = 0
 node5.znear = 0.1
 node5.zfar = 100
 
-_editor.add_node(node5, -269.08203374632, 13.49545712871)
+_editor.add_node(node5, 191.81796625368, -206.50454287129)
 
 var node6 = Camera3D()
 
-node6.position.set(-1.5010043836212, 1.3093703520277, -0.37387302853875)
-node6.yaw = 7.8000000000001
-node6.pitch = -42
+node6.position.set(-0.50815893218389, 0.6854959593749, -0.81100480857262)
+node6.yaw = 41.3
+node6.pitch = -41.5
 node6.zoom = 45
 node6.update_camera_vectors()
 node6.speed = 0.14950735867023
 
-_editor.add_node(node6, -444.9113283933, -162.07111654576)
+_editor.add_node(node6, -79.711328393299, -417.27111654576)
 
 var node7 = Time()
 
-_editor.add_node(node7, -76.076180972531, -208.87648108116)
+_editor.add_node(node7, 1178.5215789638, -230.71648587209)
 
 var node8 = Texture()
-node8.gamma_correction = true
+node8.gamma_correction = false
 node8.init_texture("gale.png")
 node8.set_sampler("linear repeat")
 
-_editor.add_node(node8, -501.85609428427, 317.57385326626)
+_editor.add_node(node8, -438.71575328427, 150.53536626626)
 
 var node9 = SubGraph()
 node9.load_from_file(_editor, "assets/rendergraph/draw_terrain_splatmap.ves")
-node9.set_prop_value("tes.clip_plane", Vector4(0, 7.8910841941833, 1.1542422771454, 0))
+node9.set_prop_value("tes.clip_plane", [ 0, 0, 0, 0 ])
 
-_editor.add_node(node9, 370.06938716678, 211.90378591136)
+_editor.add_node(node9, 358.80155234678, 430.92507543136)
 
 var node10 = Pass()
 
 node10.once = false
 
-_editor.add_node(node10, 621.49230957031, 204.32563781738)
+_editor.add_node(node10, 1292.6569208136, 451.61858998212)
 
+var node11 = SubGraph()
+node11.load_from_file(_editor, "assets/rendergraph/draw_terrain_splatmap.ves")
+node11.set_prop_value("tes.clip_plane", [ 0, -1, 0, 0.002 ])
+
+_editor.add_node(node11, 855.6633041419, 421.85788016954)
+
+var node12 = RenderTarget()
+
+node12.width = 1024
+node12.height = 1024
+
+_editor.add_node(node12, 1094.498273964, 295.7220605907)
+
+var node13 = Texture()
+node13.gamma_correction = false
+node13.init_texture(1024, 1024, "rgb")
+node13.set_sampler("linear repeat")
+
+_editor.add_node(node13, 867.7377845548, 213.07742828627)
+
+var node14 = Pass()
+
+node14.once = false
+
+_editor.add_node(node14, 604.87714417687, 463.40232189476)
+
+var node15 = Pass()
+
+node15.once = false
+
+_editor.add_node(node15, 2252.4897310166, 469.86439664097)
+
+var node16 = SubGraph()
+node16.load_from_file(_editor, "assets/rendergraph/draw_terrain_splatmap.ves")
+node16.set_prop_value("tes.clip_plane", [ 0, -1, 0, 0 ])
+
+_editor.add_node(node16, 1814.6696680639, 440.10368682839)
+
+var node17 = RenderTarget()
+
+node17.width = 1024
+node17.height = 1024
+
+_editor.add_node(node17, 2054.331084167, 313.96786724955)
+
+var node18 = Texture()
+node18.gamma_correction = false
+node18.init_texture(1024, 1024, "rgb")
+node18.set_sampler("linear repeat")
+
+_editor.add_node(node18, 1827.5705947578, 231.32323494512)
+
+var node19 = Pass()
+
+node19.once = false
+
+_editor.add_node(node19, 1971.11816306, -202.66251087259)
+
+var node20 = Texture()
+node20.gamma_correction = false
+node20.init_texture("assets/textures/water/XZnoise.png")
+node20.set_sampler("linear repeat")
+
+_editor.add_node(node20, 1046.3228057329, -360.53503372859)
+
+var node21 = Viewport()
+
+_editor.add_node(node21, 1169.1283766132, -293.86999630429)
+
+var node22 = Scale()
+
+node22.sx = 1
+node22.sy = -1
+node22.sz = 1
+
+_editor.add_node(node22, 1589.9146690647, 280.40126804793)
+
+var node23 = Texture()
+node23.gamma_correction = false
+node23.init_texture("assets/textures/water/fresnel.bmp")
+node23.set_sampler("linear repeat")
+
+_editor.add_node(node23, 867.24181985306, -720.25677194469)
+
+var node24 = Commentary()
+
+node24.set_size(797.67498779297, 273.26251220703)
+node24.title = "terrain"
+
+_editor.add_node(node24, 280.20370109496, 561.15791039383)
+
+var node25 = Commentary()
+
+node25.set_size(655.79791259766, 587.53125)
+node25.title = "reflect"
+
+_editor.add_node(node25, 1037.6435810038, 539.18213425465)
+
+var node26 = Commentary()
+
+node26.set_size(813.64581298828, 554.57086181641)
+node26.title = "refract"
+
+_editor.add_node(node26, 1919.1626812886, 542.52732847383)
+
+var node27 = Commentary()
+
+node27.set_size(1371.1125488281, 1020.1583251953)
+node27.title = "water"
+
+_editor.add_node(node27, 1391.241044775, -120.4459521498)
+
+Blueprint.connect(node0, "next", node19, "prev")
 Blueprint.connect(node1, "next", node9, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
 Blueprint.connect(node4, "tex", node2, "norm_tex")
 Blueprint.connect(node5, "mat", node2, "projection")
 Blueprint.connect(node5, "mat", node9, "tcs.projection")
+Blueprint.connect(node5, "mat", node11, "tcs.projection")
+Blueprint.connect(node5, "mat", node16, "tcs.projection")
 Blueprint.connect(node6, "mat", node2, "view")
 Blueprint.connect(node6, "mat", node9, "tcs.view")
+Blueprint.connect(node6, "mat", node11, "tcs.view")
+Blueprint.connect(node6, "mat", node16, "tcs.view")
 Blueprint.connect(node6, "zoom", node5, "fovy")
 Blueprint.connect(node6, "pos", node2, "cam_pos")
 Blueprint.connect(node6, "pos", node9, "tcs.cam_pos")
+Blueprint.connect(node6, "pos", node11, "tcs.cam_pos")
+Blueprint.connect(node6, "pos", node16, "tcs.cam_pos")
 Blueprint.connect(node7, "time", node2, "time")
 Blueprint.connect(node8, "tex", node9, "tes_heightmap")
-Blueprint.connect(node9, "next", node10, "prev")
+Blueprint.connect(node8, "tex", node11, "tes_heightmap")
+Blueprint.connect(node8, "tex", node16, "tes_heightmap")
+Blueprint.connect(node9, "next", node14, "prev")
+Blueprint.connect(node11, "next", node10, "prev")
+Blueprint.connect(node12, "fbo", node10, "fbo")
+Blueprint.connect(node13, "tex", node12, "col0")
+Blueprint.connect(node13, "tex", node2, "refracted_tex")
+Blueprint.connect(node16, "next", node15, "prev")
+Blueprint.connect(node17, "fbo", node15, "fbo")
+Blueprint.connect(node18, "tex", node17, "col0")
+Blueprint.connect(node18, "tex", node2, "reflected_tex")
+Blueprint.connect(node20, "tex", node2, "noise_tex")
+Blueprint.connect(node21, "size", node2, "viewport_size")
+Blueprint.connect(node22, "mat", node16, "tcs.model")
+Blueprint.connect(node23, "tex", node2, "fresnel_tex")
