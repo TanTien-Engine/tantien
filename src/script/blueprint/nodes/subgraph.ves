@@ -72,7 +72,7 @@ class SubGraph is Node
 
 		for (var pass in this.exec_list) {
 			for (var node in pass) {
-				if (node.execute) {
+				if (node.has_method("execute()")) {
 					node.execute()
 				}
 			}
