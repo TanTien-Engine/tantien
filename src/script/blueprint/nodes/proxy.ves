@@ -9,37 +9,30 @@ class Proxy is Node
 
 		this.layout()
 
-		this.real = nil		
+		this.real_name = "proxy"
+		this.real_node = nil
 	}
 
 	calc(idx)
 	{
-		if (this.real) {
-			return this.real.calc(idx)
+		if (this.real_node) {
+			return this.real_node.calc(idx)
 		}
 	}
 
 	to_string(name) 
 	{
 		var cls = ""
-		if (this.real) {
-			cls = this.real.type().name
+		if (this.real_node) {
+			cls = this.real_node.type().name
 		}
 		return "
-%(name).init_real(_editor.popup_nodes, \"%(cls)\")
+%(name).real_name = \"%(this.real_name)\"
+%(name).init_real_node(_editor.popup_nodes, \"%(cls)\")
 "
 	}
 
-	get_name()
-	{
-		//if (this.real) {
-			return this.real.type().name
-		//} else {
-		//	return this.name
-		//}
-	}
-
-	init_real(popup_nodes, cls_name)
+	init_real_node(popup_nodes, cls_name)
 	{
 		var cls = nil
 		for (var n in popup_nodes) {
@@ -51,11 +44,11 @@ class Proxy is Node
 			return
 		}
 
-		this.real = cls()
-		for (var i in this.real.imports) {
+		this.real_node = cls()
+		for (var i in this.real_node.imports) {
 			this.imports.add(Pin(this, i.name, i.type))
 		}
-		for (var o in this.real.exports) {
+		for (var o in this.real_node.exports) {
 			this.exports.add(Pin(this, o.name, o.type))
 		}
 		this.layout()
@@ -63,36 +56,36 @@ class Proxy is Node
 
 	on_key_pressed(key) 
 	{
-		if (this.real) {
-			this.real.on_key_pressed(key)
+		if (this.real_node) {
+			this.real_node.on_key_pressed(key)
 		}
 	}
 
 	on_mouse_pressed(x, y, btn) 
 	{
-		if (this.real) {
-			this.real.on_mouse_pressed(x, y, btn)
+		if (this.real_node) {
+			this.real_node.on_mouse_pressed(x, y, btn)
 		}
 	}
 
 	on_mouse_released(x, y, btn) 
 	{ 
-		if (this.real) {
-			this.real.on_mouse_released(x, y, btn)
+		if (this.real_node) {
+			this.real_node.on_mouse_released(x, y, btn)
 		}
 	}
 
 	on_mouse_dragged(x, y, btn) 
 	{		
-		if (this.real) {
-			this.real.on_mouse_dragged(x, y, btn)
+		if (this.real_node) {
+			this.real_node.on_mouse_dragged(x, y, btn)
 		}
 	}
 	
 	on_mouse_scrolled(x, y, dx, dy)
 	{
-		if (this.real) {
-			this.real.on_mouse_scrolled(x, y, dx, dy)
+		if (this.real_node) {
+			this.real_node.on_mouse_scrolled(x, y, dx, dy)
 		}
 	}
 }

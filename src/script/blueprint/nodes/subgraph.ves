@@ -63,8 +63,8 @@ class SubGraph is Node
 				// todo break
 			}
 			for (var node in this.proxy_nodes) {
-				if (node.get_name() == name) {
-					node.real = Blueprint.calc_input_value(this, i).value
+				if (node.real_name == name) {
+					node.real_node = Blueprint.calc_input_value(this, i).value
 				}
 				// todo break
 			}
@@ -287,7 +287,7 @@ class SubGraph is Node
 		else if (node is Proxy)
 		{
 			this.proxy_nodes.add(node)
-			this.imports.add(Pin(this, node.get_name(), VAR_TYPE_NODE))
+			this.imports.add(Pin(this, node.real_name, VAR_TYPE_NODE))
 			dirty = true
 		}
 
