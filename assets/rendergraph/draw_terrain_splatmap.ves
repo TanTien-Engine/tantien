@@ -394,40 +394,34 @@ node9.use_cache = false
 
 _editor.add_node(node9, -252.76502418668, -137.49332885429)
 
-var node10 = Input()
+var node10 = Property()
 
-node10.var_name = "tcs.projection"
-node10.var_type = "mat4"
+node10.var_name = "tes.clip_plane"
+node10.var_type = "num4"
 
-_editor.add_node(node10, -75.483917236328, 266.26715087891)
+_editor.add_node(node10, -100.82996987323, 97.773203908102)
 
 var node11 = Input()
 
-node11.var_name = "tcs.view"
+node11.var_name = "tcs.model"
 node11.var_type = "mat4"
 
-_editor.add_node(node11, -75.922844089122, 213.14721902239)
+_editor.add_node(node11, -102.68643271646, 151.71171482009)
 
-var node12 = Input()
+var node12 = Proxy()
 
-node12.var_name = "tcs.cam_pos"
-node12.var_type = "num3"
+node12.init_real(_editor.popup_nodes, "Camera3D")
 
-_editor.add_node(node12, -76.417130896262, 156.06312601264)
+_editor.add_node(node12, -305.91326836226, 217.13073328478)
 
-var node13 = Property()
+var node13 = Perspective()
 
-node13.var_name = "tes.clip_plane"
-node13.var_type = "num4"
+node13.fovy = 45
+node13.aspect = 0
+node13.znear = 0.1
+node13.zfar = 100
 
-_editor.add_node(node13, -75.428643020812, 68.420559545306)
-
-var node14 = Input()
-
-node14.var_name = "tcs.model"
-node14.var_type = "mat4"
-
-_editor.add_node(node14, -76.720631933989, 112.76301364638)
+_editor.add_node(node13, -134.60698499512, 344.54891007019)
 
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "next", node0, "prev")
@@ -442,11 +436,12 @@ Blueprint.connect(node9, "out0", node1, "fs.layer_height_scale")
 Blueprint.connect(node9, "out1", node1, "fs.layer_height_bias")
 Blueprint.connect(node9, "out2", node1, "fs.layer_slope_scale")
 Blueprint.connect(node9, "out3", node1, "fs.layer_slope_bias")
-Blueprint.connect(node10, "var", node1, "tcs.projection")
-Blueprint.connect(node10, "var", node1, "tes.projection")
-Blueprint.connect(node11, "var", node1, "tcs.view")
-Blueprint.connect(node11, "var", node1, "tes.view")
-Blueprint.connect(node12, "var", node1, "tcs.cam_pos")
-Blueprint.connect(node13, "var", node1, "tes.clip_plane")
-Blueprint.connect(node14, "var", node1, "tcs.model")
-Blueprint.connect(node14, "var", node1, "tes.model")
+Blueprint.connect(node10, "var", node1, "tes.clip_plane")
+Blueprint.connect(node11, "var", node1, "tcs.model")
+Blueprint.connect(node11, "var", node1, "tes.model")
+Blueprint.connect(node12, "mat", node1, "tcs.view")
+Blueprint.connect(node12, "mat", node1, "tes.view")
+Blueprint.connect(node12, "zoom", node13, "fovy")
+Blueprint.connect(node12, "pos", node1, "tcs.cam_pos")
+Blueprint.connect(node13, "mat", node1, "tcs.projection")
+Blueprint.connect(node13, "mat", node1, "tes.projection")

@@ -1,0 +1,98 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+
+class Proxy is Node
+{
+	init() 
+	{
+		super.init(Proxy.name)		
+
+		this.layout()
+
+		this.real = nil		
+	}
+
+	calc(idx)
+	{
+		if (this.real) {
+			return this.real.calc(idx)
+		}
+	}
+
+	to_string(name) 
+	{
+		var cls = ""
+		if (this.real) {
+			cls = this.real.type().name
+		}
+		return "
+%(name).init_real(_editor.popup_nodes, \"%(cls)\")
+"
+	}
+
+	get_name()
+	{
+		//if (this.real) {
+			return this.real.type().name
+		//} else {
+		//	return this.name
+		//}
+	}
+
+	init_real(popup_nodes, cls_name)
+	{
+		var cls = nil
+		for (var n in popup_nodes) {
+			if (n.name == cls_name) {
+				cls = n
+			}
+		}
+		if (!cls) {
+			return
+		}
+
+		this.real = cls()
+		for (var i in this.real.imports) {
+			this.imports.add(Pin(this, i.name, i.type))
+		}
+		for (var o in this.real.exports) {
+			this.exports.add(Pin(this, o.name, o.type))
+		}
+		this.layout()
+	}
+
+	on_key_pressed(key) 
+	{
+		if (this.real) {
+			this.real.on_key_pressed(key)
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		if (this.real) {
+			this.real.on_mouse_pressed(x, y, btn)
+		}
+	}
+
+	on_mouse_released(x, y, btn) 
+	{ 
+		if (this.real) {
+			this.real.on_mouse_released(x, y, btn)
+		}
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{		
+		if (this.real) {
+			this.real.on_mouse_dragged(x, y, btn)
+		}
+	}
+	
+	on_mouse_scrolled(x, y, dx, dy)
+	{
+		if (this.real) {
+			this.real.on_mouse_scrolled(x, y, dx, dy)
+		}
+	}
+}

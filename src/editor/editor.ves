@@ -55,6 +55,7 @@ import "blueprint.nodes.subgraph" for SubGraph
 import "blueprint.nodes.merge" for Merge
 import "blueprint.nodes.commentary" for Commentary
 import "blueprint.nodes.viewport" for Viewport
+import "blueprint.nodes.proxy" for Proxy
 
 class Editor
 {
@@ -77,16 +78,15 @@ class Editor
 		this.right_press_pos = nil
 
 //		this.filepath = ""
-//		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__9.ssao.ves"
 //		this.filepath = "assets/rendergraph/gaussian_blur.ves"
-//		this.filepath = "samples/rendergraph/default/gaussian_blur.ves"
-		this.filepath = "samples/rendergraph/terrain/water.ves"
+		this.filepath = "samples/rendergraph/terrain/splatmap.ves"
+//		this.filepath = "samples/terraingraph/unit/constant.ves"
 
 		this.hide_nodes = false
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport ]) {
+		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport, Proxy ]) {
 			this.add_popup_node(node)
 		}
 
@@ -497,7 +497,8 @@ import \"blueprint.nodes.subgraph\" for SubGraph
 import \"blueprint.nodes.merge\" for Merge
 import \"blueprint.nodes.commentary\" for Commentary
 import \"blueprint.nodes.viewport\" for Viewport
-"	
+import \"blueprint.nodes.proxy\" for Proxy
+"
 	}
 
 	loadfromfile(filepath)

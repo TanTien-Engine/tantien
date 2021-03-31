@@ -1,11 +1,12 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_NODE, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "io" for IO
 import "filesystem" for Filesystem
 import "blueprint.nodes.input" for Input
 import "blueprint.nodes.output" for Output
 import "blueprint.nodes.property" for Property
+import "blueprint.nodes.proxy" for Proxy
 import "blueprint.nodes.camera3d" for Camera3D
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
@@ -29,11 +30,12 @@ class SubGraph is Node
 
 		this.filepath = ""
 
-		this.all_nodes  = []
-		this.in_nodes   = []
-		this.out_nodes  = []
-		this.prop_nodes = []
-		this.exec_list  = []
+		this.all_nodes   = []
+		this.in_nodes    = []
+		this.out_nodes   = []
+		this.prop_nodes  = []
+		this.proxy_nodes = []
+		this.exec_list   = []
 
 		this.op_node = nil
 	}
@@ -51,11 +53,18 @@ class SubGraph is Node
 	execute()
 	{
 		// setup input vars
-		for (var i in 1..this.imports.count) {
+		for (var i in 1..this.imports.count) 
+		{
 			var name = this.imports[i].name
 			for (var node in this.in_nodes)	{
 				if (node.var_name == name) {
 					node.value = Blueprint.calc_input_value(this, i)
+				}
+				// todo break
+			}
+			for (var node in this.proxy_nodes) {
+				if (node.get_name() == name) {
+					node.real = Blueprint.calc_input_value(this, i).value
 				}
 				// todo break
 			}
@@ -267,6 +276,12 @@ class SubGraph is Node
 				}
 			}
 			this.prop_nodes.add(node)
+			dirty = true
+		}
+		else if (node is Proxy)
+		{
+			this.proxy_nodes.add(node)
+			this.imports.add(Pin(this, node.get_name(), VAR_TYPE_NODE))
 			dirty = true
 		}
 

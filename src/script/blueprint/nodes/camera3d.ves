@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NODE, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
@@ -14,6 +14,7 @@ class Camera3D is Node
 		super.init(Camera3D.name)
 
 		this.exports = [
+			Pin(this, "this", VAR_TYPE_NODE),		
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 			Pin(this, "zoom", VAR_TYPE_NUMBER),
 			Pin(this, "rot", VAR_TYPE_MATRIX4),
@@ -46,23 +47,27 @@ class Camera3D is Node
 	{
 		if (idx == 0)
 		{
-			return Variant(VAR_TYPE_MATRIX4, this.calc_mat())
+			return Variant(VAR_TYPE_NODE, this)
 		}
 		else if (idx == 1)
 		{
-			return Variant(VAR_TYPE_NUMBER, this.zoom)	
+			return Variant(VAR_TYPE_MATRIX4, this.calc_mat())
 		}
 		else if (idx == 2)
+		{
+			return Variant(VAR_TYPE_NUMBER, this.zoom)	
+		}
+		else if (idx == 3)
 		{
 			var mat = Matrix44.init()
 			mat.from_totate_mat(this.calc_mat())
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
-		else if (idx == 3)
+		else if (idx == 4)
 		{
 			return Variant(VAR_TYPE_NUMBER3, this.position)	
 		}
-		else if (idx == 4)
+		else if (idx == 5)
 		{
 			return Variant(VAR_TYPE_NUMBER3, this.front)	
 		}
