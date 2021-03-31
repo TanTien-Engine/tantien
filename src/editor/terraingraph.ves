@@ -1,0 +1,73 @@
+import "editor.editor" for Editor
+import "render" for Render
+import "blueprint.blueprint" for Blueprint
+import "terraingraph.node" for Node
+
+import "terraingraph.nodes.constant" for Constant
+import "terraingraph.nodes.viewer" for Viewer
+
+class Terraingraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		for (var node in [ Constant, Viewer ]) {
+			super.add_popup_node(node)
+		}
+	}
+
+	rebuild()
+	{
+		var scene = this.scene_stack.root()
+
+		for (var node in scene.nodes) {
+			node.components["bp"].dirty = true
+		}
+
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Node and bp_node.dirty and Blueprint.is_out_conns_empty(bp_node)) 
+			{
+				var prev_nodes = Blueprint.get_precursor_nodes(bp_node)
+				var sorted = Blueprint.topo_sort(prev_nodes)
+				for (var n in sorted) {
+					if (n is Node) {
+						n.execute()
+						n.dirty = false					
+					}
+				}				
+			}
+		}
+	}
+
+	draw_preview()
+	{
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		if (this.scene_stack.bp_dirty) {
+			this.rebuild()
+			this.scene_stack.bp_dirty = false
+		}
+
+		var scene = this.scene_stack.root()
+		for (var node in scene.nodes) {
+			var bp_node = node.components["bp"]
+			if (bp_node is Viewer) {
+				bp_node.execute()
+				return
+			}
+		}
+	}
+
+	load_file_imports()
+	{
+		var ret = super.load_file_imports()
+		ret = ret + "
+import \"terraingraph.nodes.constant\" for Constant
+import \"terraingraph.nodes.viewer\" for Viewer
+"
+		return ret
+	}
+}

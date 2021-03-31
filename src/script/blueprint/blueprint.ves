@@ -151,4 +151,14 @@ class Blueprint
 			return pin.conns.front().to
 		}
 	}
+
+	static is_out_conns_empty(node)
+	{
+		for (var p in node.exports) {
+			if (!p.conns.isEmpty) {
+				return false
+			}
+		}
+		return true
+	}
 }

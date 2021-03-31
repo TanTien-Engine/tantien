@@ -1,0 +1,37 @@
+import "terraingraph.node" for Node
+import "terraingraph.style" for HEIGHTFIELD_SIZE
+import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "image" for ImageData
+import "render" for Texture2D
+
+class Constant is Node
+{
+	init() 
+	{
+		super.init(Constant.name)
+	
+		this.exports = [
+			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
+		]
+
+		this.layout()
+
+		this.value = 0
+
+		this.hf = VarHeightfield()
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
+	}
+
+	execute() 
+	{
+		if (!this.hf.tex) {
+			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16")
+		}
+	}
+}

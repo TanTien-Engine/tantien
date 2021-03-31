@@ -1,0 +1,80 @@
+import "terraingraph.node" for Node
+import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD
+import "blueprint.pin" for Pin
+import "blueprint.nodes.subgraph" for SubGraph
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_NODE
+import "rendergraph.variant" for VAR_TYPE_TEXTURE, VarTexture
+import "editor.rendergraph" for Rendergraph
+import "editor.node_cache" for NODE_CACHE
+
+class HeightfieldProxy is Node
+{
+	init()
+	{
+		super.init(HeightfieldProxy.name)
+
+		this.exports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE)
+		]
+
+		this.layout()
+
+		this.tex = nil
+
+		this.dummy = true
+	}
+
+	calc(idx)
+	{
+		var ret = VarTexture()
+		ret.tex = this.tex
+		return Variant(VAR_TYPE_TEXTURE, ret)
+	}
+}
+
+class Viewer is Node
+{
+	init() 
+	{
+		super.init(Viewer.name)
+	
+		this.imports = [
+			Pin(this, "hf",  VAR_TYPE_HEIGHTFIELD),
+			Pin(this, "cam", VAR_TYPE_NODE),
+		]
+
+		this.layout()
+
+		this.hf_proxy = HeightfieldProxy()
+
+		this.draw_editor = nil
+		this.draw_node = nil
+		this.init_draw_node()
+	}
+
+	execute() 
+	{
+		var hf = Blueprint.calc_input_value(this, 0)
+		if (!hf or !hf.value or !hf.value.tex) {
+			return
+		}
+
+		this.hf_proxy.tex = hf.value.tex
+
+		var cam = Blueprint.calc_input_value(this, 1)
+		if (cam and cam.value) {
+			Blueprint.connect(cam.value, "this", this.draw_node, "view_cam")
+		}
+
+		this.draw_node.execute()
+	}
+
+	init_draw_node()
+	{	
+		this.draw_editor = Rendergraph()
+		this.draw_node = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_splatmap.ves", this.draw_editor)
+
+		Blueprint.connect(this.hf_proxy, "tex", this.draw_node, "tes_heightmap")
+	}
+}
