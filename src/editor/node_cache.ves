@@ -8,7 +8,7 @@ class NodeCache
 		this.path2node = {}
 	}
 
-	fetch(filepath)
+	fetch(filepath, sub_editor)
 	{
 		var find = this.path2node[filepath]
 		if (find) {
@@ -21,7 +21,11 @@ class NodeCache
 
 		var node = SubGraph()
 		node.dummy = true
-		node.load_from_file(this.editor, filepath)
+		if (sub_editor) {
+			node.load_from_file(this.editor, filepath, sub_editor)		
+		} else {
+			node.load_from_file(this.editor, filepath)
+		}
 		this.path2node[filepath] = node
 
 		return node

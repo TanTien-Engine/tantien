@@ -71,7 +71,7 @@ class DrawCubemap
 
 		if (!this.draw_node) 
 		{
-			this.draw_node = NODE_CACHE.fetch("assets/rendergraph/cubemap_project_to_2d.ves")
+			this.draw_node = NODE_CACHE.fetch("assets/rendergraph/cubemap_project_to_2d.ves", nil)
 			this.trans_node = CubemapTrans()
 			this.proxy_node = CubemapProxy()
 			Blueprint.connect(this.proxy_node.exports[0], this.draw_node.imports[1])
