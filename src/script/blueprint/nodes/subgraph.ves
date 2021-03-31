@@ -205,9 +205,15 @@ class SubGraph is Node
 
 	load_from_file(editor, filepath)
 	{
+		this.load_from_file(editor, filepath, editor)
+	}
+
+	load_from_file(editor, filepath, sub_editor)
+	{
 		this.all_nodes.clear()
 		this.in_nodes.clear()
-		this.prop_nodes.clear()		
+		this.prop_nodes.clear()
+		this.proxy_nodes.clear()		
 		this.out_nodes.clear()
 
 		var absolute = Filesystem.get_absolute_path(filepath)
@@ -229,13 +235,13 @@ class SubGraph is Node
 
 		this.title = Filesystem.get_filename(this.filepath)
 
-		var header = "import \"editor\" for _editor\n" + editor.load_file_imports()
+		var header = "import \"editor\" for _editor\n" + sub_editor.load_file_imports()
 		var source = header + body
 		Basic.loadstring(filepath, source)
 
 		editor.add_node = old_func
 
-		this.exec_list = editor.build_exec_list(this.all_nodes)
+		this.exec_list = sub_editor.build_exec_list(this.all_nodes)
 
 		for (var node in this.all_nodes) {
 			if (node is Camera3D) {
