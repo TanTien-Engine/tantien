@@ -195,6 +195,9 @@ const char* unif_type_to_string(shadertrans::ShaderReflection::VarType type)
     case shadertrans::ShaderReflection::VarType::Sampler:
         ret = "sampler";
         break;
+    case shadertrans::ShaderReflection::VarType::Image:
+        ret = "image";
+        break;
     default:
         assert(0);
     }
@@ -236,6 +239,8 @@ shadertrans::ShaderReflection::VarType strint_to_unif_type(const char* type)
         ret = shadertrans::ShaderReflection::VarType::Mat4;
     } else if (strcmp(type, "sampler") == 0) {
         ret = shadertrans::ShaderReflection::VarType::Sampler;
+    } else if (strcmp(type, "image") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::Image;
     }
     return ret;
 }
@@ -316,6 +321,27 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         }
     }
         break;
+    case shadertrans::ShaderReflection::VarType::Image:
+    {
+        auto slot = prog->QueryImgSlot(name);
+        if (slot >= 0)
+        {
+            int n = ves_len(-1);
+
+            auto ctx = tt::Render::Instance()->Context();
+
+            ves_geti(-1, 0);
+            if (ves_type(-1) != VES_TYPE_NULL)
+            {
+                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+                if (slot >= 0) {
+                    ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
+                }
+            }
+            ves_pop(1);
+        }
+    }
+        break;
     case shadertrans::ShaderReflection::VarType::Mat4:
     {
         auto unif = prog->QueryUniform(name);
@@ -362,7 +388,6 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
                     val[i] = (float)ves_tonumber(-1);
                     ves_pop(1);
                 }
-
                 unif->SetValue(val, num);
             }
         }
@@ -1280,7 +1305,8 @@ void push_uniforms(const std::vector<shadertrans::ShaderReflection::Uniform>& un
             ves_pop(1);
 
             // value
-            if (unif.type == shadertrans::ShaderReflection::VarType::Sampler)
+            if (unif.type == shadertrans::ShaderReflection::VarType::Sampler ||
+                unif.type == shadertrans::ShaderReflection::VarType::Image)
             {
                 ves_newlist(0);
             }

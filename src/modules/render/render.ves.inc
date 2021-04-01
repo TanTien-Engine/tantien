@@ -3,8 +3,6 @@ static const char* renderModuleSource = QUOTE(
 
 foreign class Shader
 {
-	// vs: string
-	// fs: string
 	init(vs, tcs, tes, gs, fs) {}
 
 	// name(string) + type(string) + value(list)
