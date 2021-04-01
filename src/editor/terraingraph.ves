@@ -12,6 +12,8 @@ class Terraingraph is Editor
 	{
 		super.load()
 
+		this.drawlist = []
+
 		for (var node in [ Constant, Viewer ]) {
 			super.add_popup_node(node)
 		}
@@ -28,16 +30,11 @@ class Terraingraph is Editor
 		for (var node in scene.nodes) 
 		{
 			var bp_node = node.components["bp"]
-			if (bp_node is Node and bp_node.dirty and Blueprint.is_out_conns_empty(bp_node)) 
+			if (bp_node is Viewer) 
 			{
 				var prev_nodes = Blueprint.get_precursor_nodes(bp_node)
-				var sorted = Blueprint.topo_sort(prev_nodes)
-				for (var n in sorted) {
-					if (n is Node) {
-						n.execute()
-						n.dirty = false					
-					}
-				}				
+				this.drawlist = Blueprint.topo_sort(prev_nodes)
+				return
 			}
 		}
 	}
@@ -51,12 +48,9 @@ class Terraingraph is Editor
 			this.scene_stack.bp_dirty = false
 		}
 
-		var scene = this.scene_stack.root()
-		for (var node in scene.nodes) {
-			var bp_node = node.components["bp"]
-			if (bp_node is Viewer) {
-				bp_node.execute()
-				return
+		for (var node in this.drawlist) {
+			if (node.has_method("execute()")) {
+				node.execute()
 			}
 		}
 	}
