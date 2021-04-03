@@ -75,6 +75,19 @@ node3.set_sampler("linear repeat")
 
 _editor.add_node(node3, -425.86781575686, -191.88570829273)
 
+var node4 = SubGraph()
+node4.load_from_file(_editor, "assets/rendergraph/draw_tex_quad.ves")
+
+_editor.add_node(node4, 74.226862932426, -215.71472321059)
+
+var node5 = Pass()
+
+node5.once = false
+
+_editor.add_node(node5, 326.53439759814, -213.67057169764)
+
 Blueprint.connect(node0, "out", node1, "shader")
 Blueprint.connect(node2, "tex", node0, "inputImage")
 Blueprint.connect(node3, "tex", node0, "resultImage")
+Blueprint.connect(node3, "tex", node4, "texture1")
+Blueprint.connect(node4, "next", node5, "prev")

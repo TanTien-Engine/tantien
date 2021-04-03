@@ -151,6 +151,7 @@ void main()
 	//FragColor = texture(norm_tex, fs_in.texcoord);
 }
 "
+node2.cs = ""
 node2.execute()
 node2.set_uniform("tilling", [ 2.4607975482941, 5.8607974052429 ])
 node2.set_uniform("speed", [ 0.66079765558243 ])
@@ -188,8 +189,8 @@ _editor.add_node(node5, 191.81796625368, -206.50454287129)
 var node6 = Camera3D()
 
 node6.position.set(-0.50815893218389, 0.6854959593749, -0.81100480857262)
-node6.yaw = 41.3
-node6.pitch = -41.5
+node6.yaw = 63.9
+node6.pitch = -38.6
 node6.zoom = 45
 node6.update_camera_vectors()
 node6.speed = 0.14950735867023
@@ -337,18 +338,12 @@ Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
 Blueprint.connect(node4, "tex", node2, "norm_tex")
 Blueprint.connect(node5, "mat", node2, "projection")
-Blueprint.connect(node5, "mat", node9, "tcs.projection")
-Blueprint.connect(node5, "mat", node11, "tcs.projection")
-Blueprint.connect(node5, "mat", node16, "tcs.projection")
+Blueprint.connect(node6, "this", node9, "view_cam")
+Blueprint.connect(node6, "this", node11, "view_cam")
+Blueprint.connect(node6, "this", node16, "view_cam")
 Blueprint.connect(node6, "mat", node2, "view")
-Blueprint.connect(node6, "mat", node9, "tcs.view")
-Blueprint.connect(node6, "mat", node11, "tcs.view")
-Blueprint.connect(node6, "mat", node16, "tcs.view")
 Blueprint.connect(node6, "zoom", node5, "fovy")
 Blueprint.connect(node6, "pos", node2, "cam_pos")
-Blueprint.connect(node6, "pos", node9, "tcs.cam_pos")
-Blueprint.connect(node6, "pos", node11, "tcs.cam_pos")
-Blueprint.connect(node6, "pos", node16, "tcs.cam_pos")
 Blueprint.connect(node7, "time", node2, "time")
 Blueprint.connect(node8, "tex", node9, "tes_heightmap")
 Blueprint.connect(node8, "tex", node11, "tes_heightmap")

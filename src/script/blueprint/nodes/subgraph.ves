@@ -302,7 +302,7 @@ class SubGraph is Node
 		{
 			if (prop.var_name == name) 
 			{
-				if (prop.value.from_list) {
+				if (prop.value.has_method("from_list(_)")) {
 					prop.value.from_list(value)
 				} else {
 					prop.value = value
