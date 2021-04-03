@@ -1,0 +1,23 @@
+var node0 = Viewer()
+
+_editor.add_node(node0, 127, 978.5)
+
+var node1 = Constant()
+
+node1.value = 0.77777779102325
+
+_editor.add_node(node1, -89, 1012.5)
+
+var node2 = Camera3D()
+
+node2.position.set(0.028954609443303, 0.79717790614566, 1.6227468507254)
+node2.yaw = -86.9
+node2.pitch = -32.3
+node2.zoom = 45
+node2.update_camera_vectors()
+node2.speed = 0.20714285969734
+
+_editor.add_node(node2, -75, 846.5)
+
+Blueprint.connect(node1, "hf", node0, "hf")
+Blueprint.connect(node2, "this", node0, "cam")

@@ -1,0 +1,51 @@
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.for" for For
+import "rendergraph.nodes.draw" for Draw
+import "rendergraph.nodes.compute" for Compute
+import "rendergraph.nodes.pass" for Pass
+
+class Drawlist
+{
+	init(nodes)
+	{
+		this.lists = this.build_lists(nodes)
+	}
+
+	build_lists(nodes)
+	{
+		var lists = []
+		for (var node in nodes) 
+		{
+			if (node is Pass and node.exports[0].conns.isEmpty) {
+				node.rebuild_drawlist()
+				lists.add([ node ])
+			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
+				var prev_nodes = Blueprint.get_precursor_nodes(node)
+				var list = Blueprint.topo_sort(prev_nodes)
+				lists.add(list)
+			} else if (node is For) {
+				node.rebuild_exec_list()
+			}
+		}
+		return lists
+	}
+
+	draw()
+	{
+		for (var list in this.lists) 
+		{
+			var skip = false
+			if (!list.isEmpty and list[list.count - 1] is Draw and list[list.count - 1].skip) {
+				skip = true
+			}
+			if (!skip)
+			{
+				for (var node in list) {
+					if (node.has_method("execute()")) {
+						node.execute()
+					}
+				}
+			}
+		}
+	}
+}

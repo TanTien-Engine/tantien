@@ -24,6 +24,7 @@ class Shader is Node
 		this.tes = ""		
 		this.gs  = ""
 		this.fs  = ""
+		this.cs  = ""
 
 		this.prog = nil
 		this.dirty = true
@@ -75,6 +76,7 @@ class Shader is Node
 		this.get_shader_uniforms("tess_eval", this.tes, uniforms)
 		this.get_shader_uniforms("geometry",  this.gs,  uniforms)
 		this.get_shader_uniforms("pixel",     this.fs,  uniforms)
+		this.get_shader_uniforms("compute",   this.cs,  uniforms)		
 		return uniforms
 	}
 
@@ -94,18 +96,27 @@ class Shader is Node
 
 	execute() 
 	{
-		if (!this.vs or !this.fs or !this.dirty) {
+		if (!this.dirty) {
 			return
 		}
 
-		this.uniforms = this.get_shader_uniforms()
-		for (var unif in this.uniforms) {
-			this.add_uniform_to_imports(unif)
+		this.prog = nil
+		if (this.cs != "") {
+			this.prog = tt_Shader.init(this.cs)
+		} else {
+			this.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)		
 		}
 
-		this.layout()
+		if (this.prog)
+		{
+			this.uniforms = this.get_shader_uniforms()
+			for (var unif in this.uniforms) {
+				this.add_uniform_to_imports(unif)
+			}
 
-		this.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)
+			this.layout()
+		}
+
 		this.dirty = false
 	}
 
@@ -207,6 +218,7 @@ class Shader is Node
 %(name).tes = \"%(this.tes)\"
 %(name).gs = \"%(this.gs)\"
 %(name).fs = \"%(this.fs)\"
+%(name).cs = \"%(this.cs)\"
 %(name).execute()
 "
 		for (var unif in this.uniforms) {
@@ -235,7 +247,7 @@ class Shader is Node
 		}
 		else
 		{			
-			if (unif[1] != "sampler" and unif[1] != "mat2" and unif[1] != "mat3" and unif[1] != "mat4") {
+			if (unif[1] != "sampler" and unif[1] != "image" and unif[1] != "mat2" and unif[1] != "mat3" and unif[1] != "mat4") {
 		    	GUI.label(ctx, unif[0], x, y)
 				y = y - DEFAULT_HEIGHT
 			}
@@ -418,7 +430,7 @@ class Shader is Node
 			dst[2][3] = src.w
 		} else if (dst[1] == "mat2" or dst[1] == "mat3" or dst[1] == "mat4") {
 			dst[2] = [src]
-		} else if (dst[1] == "sampler") {
+		} else if (dst[1] == "sampler" or dst[1] == "image") {
 			dst[2] = [src.tex, src.sampler]
 		}
 	}
@@ -493,7 +505,7 @@ class Shader is Node
 			pin_type = VAR_TYPE_MATRIX3
 		} else if (unif_type == "mat4") {
 			pin_type = VAR_TYPE_MATRIX4
-		} else if (unif_type == "sampler") {
+		} else if (unif_type == "sampler" or unif_type == "image") {
 			pin_type = VAR_TYPE_TEXTURE
 		}
 		return pin_type

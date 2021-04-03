@@ -29,21 +29,32 @@ layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 
 uniform UBO
 {
-	float value;
+	float angle;
 };
+
+vec2 rotate2d(vec2 dir, float angle)
+{
+	float c = cos(angle);
+	float s = sin(angle);
+	return vec2(dir.x * c - dir.y * s, dir.x * s + dir.y * c);
+}
 
 void main()
 {
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    imageStore(out_tex, pos, vec4(value));
+
+    vec2 tex_coord = pos / float(imageSize(out_tex));
+    tex_coord = vec2(0.5) + rotate2d(tex_coord - vec2(0.5), angle * 3.14 / 180.0);
+    const float h = -(tex_coord.x - 0.5) / 0.5;
+    imageStore(out_tex, pos, vec4(h));
 }
 "	
 
-class Constant is Node
+class Gradient is Node
 {
 	init() 
 	{
-		super.init(Constant.name)
+		super.init(Gradient.name)
 	
 		this.exports = [
 			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
@@ -51,7 +62,7 @@ class Constant is Node
 
 		this.layout()
 
-		this.value = 0
+		this.angle = 0
 
 		this.hf = VarHeightfield()
 	}
@@ -95,7 +106,7 @@ class Constant is Node
 
 	to_string(name) {
 		return "
-%(name).value = %(this.value)
+%(name).angle = %(this.angle)
 "
 	}
 
@@ -106,10 +117,10 @@ class Constant is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
-		var REGION = 1
-		var val = GUI.slider(ctx, "val", this.value, x, y, this.style.width - 20, REGION, false)
-		if (val != this.value) {
-			this.value = val
+		var REGION = 360
+		var angle = GUI.slider(ctx, "angle", this.angle, x, y, this.style.width - 20, REGION, false)
+		if (angle != this.angle) {
+			this.angle = angle
 			dirty = true
 		}
 
@@ -125,7 +136,7 @@ class Constant is Node
 		var pout = HeightfieldProxy(this.exports[0])
 		Blueprint.connect(pout, "tex", shader, "out_tex")
 
-		var pv = FieldProxy(this, "value")
-		Blueprint.connect(pv, "out", shader, "value")
+		var pv = FieldProxy(this, "angle")
+		Blueprint.connect(pv, "out", shader, "angle")
 	}
 }

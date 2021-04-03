@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.pin" for Pin
+
+class FieldProxy is Node
+{
+	init(node, field)
+	{
+		super.init(FieldProxy.name)
+
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_ANY)
+		]		
+
+		this.layout()
+
+		this.node = node
+		this.field = field
+
+		this.dummy = true
+	}
+
+	calc(idx)
+	{
+		return Variant(this.node[this.field])
+	}
+}

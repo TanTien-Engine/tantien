@@ -27,33 +27,67 @@ layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) i
 
 layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 
+uniform sampler2D in0_tex;
+uniform sampler2D in1_tex;
+
 uniform UBO
 {
-	float value;
+    // average, add, subtract, multiply, divide, max, min
+	int method;
 };
 
 void main()
 {
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    imageStore(out_tex, pos, vec4(value));
+    vec2 tex_coords = pos / float(imageSize(out_tex));
+
+    float a = texture(in0_tex, tex_coords).r;
+    float b = texture(in1_tex, tex_coords).r;
+
+    float v = 0.0;
+    if (method == 0) {
+    	v = (a + b) * 0.5;
+    } else if (method == 1) {
+    	v = a + b;
+    } else if (method == 2) {
+    	v = a - b;
+    } else if (method == 3) {
+    	v = a * b;
+    } else if (method == 4) {
+    	v = a / b;
+    } else if (method == 5) {
+    	v = max(a, b);
+    } else if (method == 6) {
+    	v = min(a, b);
+    }
+
+    imageStore(out_tex, pos, vec4(v));
 }
 "	
 
-class Constant is Node
+class Combiner is Node
 {
 	init() 
 	{
-		super.init(Constant.name)
-	
+		super.init(Combiner.name)
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_HEIGHTFIELD),
+			Pin(this, "b", VAR_TYPE_HEIGHTFIELD)			
+		]
 		this.exports = [
 			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
 
-		this.value = 0
+		this.method = "add"
 
 		this.hf = VarHeightfield()
+
+		// for gui
+		this.method_items = [ "average", "add", "subtract", "multiply", "divide", "max", "min" ]
+		this.method_selected = 1
 	}
 
 	calc(idx)
@@ -93,9 +127,16 @@ class Constant is Node
 		}
 	}
 
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
 	to_string(name) {
 		return "
-%(name).value = %(this.value)
+%(name).method = \"%(this.method)\"
 "
 	}
 
@@ -106,11 +147,12 @@ class Constant is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
-		var REGION = 1
-		var val = GUI.slider(ctx, "val", this.value, x, y, this.style.width - 20, REGION, false)
-		if (val != this.value) {
-			this.value = val
-			dirty = true
+		var method = GUI.combo(ctx, "method", this.method_selected, this.method_items, x, y, 80)
+		if (method != this.method_selected) 
+		{
+			this.method_selected = method
+			this.method = this.method_items[method]
+			dirty = true	
 		}
 
 		if (dirty) {
@@ -122,10 +164,16 @@ class Constant is Node
 
 	bind(shader)
 	{
-		var pout = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(pout, "tex", shader, "out_tex")
+		var a = HeightfieldProxy(this.imports[0])
+		Blueprint.connect(a, "tex", shader, "in0_tex")
 
-		var pv = FieldProxy(this, "value")
-		Blueprint.connect(pv, "out", shader, "value")
+		var b = HeightfieldProxy(this.imports[1])
+		Blueprint.connect(b, "tex", shader, "in1_tex")
+
+		var out = HeightfieldProxy(this.exports[0])
+		Blueprint.connect(out, "tex", shader, "out_tex")
+
+		var method = FieldProxy(this, "method_selected")
+		Blueprint.connect(method, "out", shader, "method")
 	}
 }

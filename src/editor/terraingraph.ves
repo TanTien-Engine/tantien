@@ -5,6 +5,10 @@ import "terraingraph.node" for Node
 
 import "terraingraph.nodes.constant" for Constant
 import "terraingraph.nodes.viewer" for Viewer
+import "terraingraph.nodes.gradient" for Gradient
+import "terraingraph.nodes.perlin" for Perlin
+import "terraingraph.nodes.worley" for Worley
+import "terraingraph.nodes.combiner" for Combiner
 
 class Terraingraph is Editor
 {
@@ -14,7 +18,7 @@ class Terraingraph is Editor
 
 		this.drawlist = []
 
-		for (var node in [ Constant, Viewer ]) {
+		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner ]) {
 			super.add_popup_node(node)
 		}
 	}
@@ -61,6 +65,10 @@ class Terraingraph is Editor
 		ret = ret + "
 import \"terraingraph.nodes.constant\" for Constant
 import \"terraingraph.nodes.viewer\" for Viewer
+import \"terraingraph.nodes.gradient\" for Gradient
+import \"terraingraph.nodes.perlin\" for Perlin
+import \"terraingraph.nodes.worley\" for Worley
+import \"terraingraph.nodes.combiner\" for Combiner
 "
 		return ret
 	}

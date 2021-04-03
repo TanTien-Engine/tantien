@@ -70,7 +70,31 @@ class Blueprint
 				if (!pin.stop_port_pass) {
 					for (var conn in pin.conns) {
 						if (!conn.from.stop_port_pass) {
-							buf.add(conn.from.node)						
+							buf.add(conn.from.node)
+						}
+					}
+				}
+			}
+		}
+		return nodes
+	}
+
+	static get_successor_nodes(root)
+	{
+		var nodes = Set.new()
+		var buf = []
+		buf.add(root)
+		while (!buf.isEmpty)
+		{
+			var n = buf[buf.count - 1]
+			buf.removeAt(buf.count - 1)
+
+			nodes.add(n)
+			for (var pin in n.exports) {
+				if (!pin.stop_port_pass) {
+					for (var conn in pin.conns) {
+						if (!conn.to.stop_port_pass) {
+							buf.add(conn.to.node)
 						}
 					}
 				}

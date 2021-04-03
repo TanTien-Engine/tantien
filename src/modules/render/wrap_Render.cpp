@@ -44,49 +44,49 @@ void w_Shader_allocate()
 {
     std::shared_ptr<ur::ShaderProgram> prog = nullptr;
 
-    const char* vs_str  = ves_tostring(1);
-    const char* tcs_str = ves_tostring(2);
-    const char* tes_str = ves_tostring(3);
-    const char* gs_str  = ves_tostring(4);
-    const char* fs_str  = ves_tostring(5);
-
-    if (strlen(vs_str) == 0) 
+    int num = ves_argnum();
+    if (num == 6)
     {
-        auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
-        proxy->obj = prog;
-        return;
-    }
-
-    if (strlen(fs_str) == 0)
-    {
-        std::vector<unsigned int> cs;
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::ComputeShader, vs_str, cs);
+        const char* vs_str = ves_tostring(1);
+        const char* tcs_str = ves_tostring(2);
+        const char* tes_str = ves_tostring(3);
+        const char* gs_str = ves_tostring(4);
+        const char* fs_str = ves_tostring(5);
+        if (strlen(vs_str) != 0)
+        {
+            std::vector<unsigned int> vs, tcs, tes, gs, fs;
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader,   vs_str,  vs);
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessCtrlShader, tcs_str, tcs);
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessEvalShader, tes_str, tes);
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str,  gs);
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader,    fs_str,  fs);
 
 #ifdef SHADER_DEBUG_PRINT
-        std::string cs_glsl;
-        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
-        printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
+            std::string vs_glsl, fs_glsl;
+            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::VertexShader, vs, vs_glsl);
+            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::PixelShader, fs, fs_glsl);
+            printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+            prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
+        }
     }
-    else
+    else if (num == 2)
     {
-        std::vector<unsigned int> vs, tcs, tes, gs, fs;
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader,   vs_str,  vs);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessCtrlShader, tcs_str, tcs);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessEvalShader, tes_str, tes);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str,  gs);
-        shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader,    fs_str,  fs);
+        const char* cs_str = ves_tostring(1);
+        if (strlen(cs_str) != 0)
+        {
+            std::vector<unsigned int> cs;
+            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::ComputeShader, cs_str, cs);
 
 #ifdef SHADER_DEBUG_PRINT
-        std::string vs_glsl, fs_glsl;
-        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::VertexShader, vs, vs_glsl);
-        shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::PixelShader, fs, fs_glsl);
-        printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
+            std::string cs_glsl;
+            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
+            printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
 
-        prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
+            prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+        }
     }
 
     auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
@@ -282,17 +282,20 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         {
             int n = ves_len(-1);
 
-            auto ctx = tt::Render::Instance()->Context();
-
-            ves_geti(-1, 0);
-            if (ves_type(-1) != VES_TYPE_NULL)
+            // texture
+            if (n > 0)
             {
-                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
-                if (slot >= 0) {
-                    ctx->SetTexture(slot, tex);
+                ves_geti(-1, 0);
+                if (ves_type(-1) != VES_TYPE_NULL)
+                {
+                    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+                    if (slot >= 0) {
+                        auto ctx = tt::Render::Instance()->Context();
+                        ctx->SetTexture(slot, tex);
+                    }
                 }
+                ves_pop(1);
             }
-            ves_pop(1);
 
             // texture sampler
             if (ves_len(-1) > 1)
@@ -313,6 +316,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
                         type = ur::Device::TextureSamplerType::LinearRepeat;
                     }
 
+                    auto ctx = tt::Render::Instance()->Context();
                     auto dev = tt::Render::Instance()->Device();
                     ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
                 }
@@ -327,18 +331,19 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         if (slot >= 0)
         {
             int n = ves_len(-1);
-
-            auto ctx = tt::Render::Instance()->Context();
-
-            ves_geti(-1, 0);
-            if (ves_type(-1) != VES_TYPE_NULL)
+            if (n > 0)
             {
-                auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
-                if (slot >= 0) {
-                    ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
+                ves_geti(-1, 0);
+                if (ves_type(-1) != VES_TYPE_NULL)
+                {
+                    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+                    if (slot >= 0) {
+                        auto ctx = tt::Render::Instance()->Context();
+                        ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
+                    }
                 }
+                ves_pop(1);
             }
-            ves_pop(1);
         }
     }
         break;

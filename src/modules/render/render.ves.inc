@@ -4,6 +4,7 @@ static const char* renderModuleSource = QUOTE(
 foreign class Shader
 {
 	init(vs, tcs, tes, gs, fs) {}
+	init(cs) {}
 
 	// name(string) + type(string) + value(list)
 	foreign set_uniform_value(uniform)

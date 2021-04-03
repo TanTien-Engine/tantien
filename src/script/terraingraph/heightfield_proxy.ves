@@ -1,0 +1,45 @@
+import "terraingraph.node" for Node
+import "blueprint.pin" for Pin
+import "rendergraph.variant" for VAR_TYPE_TEXTURE, VarTexture
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant
+
+class HeightfieldProxy is Node
+{
+	init(pin)
+	{
+		super.init(HeightfieldProxy.name)
+
+		this.exports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE)
+		]
+
+		this.layout()
+
+		this.pin = pin
+
+		this.dummy = true
+	}
+
+	calc(idx)
+	{
+		if (!this.pin) {
+			return
+		}
+
+		var hf = nil
+		if (this.pin.is_input) {
+			hf = Blueprint.calc_input_value(this.pin.node, this.pin.slot_idx)
+		} else {
+			hf = this.pin.node.calc(this.pin.slot_idx)
+		}
+
+		if (!hf or !hf.value or !hf.value.tex) {
+			return
+		}
+
+		var ret = VarTexture()
+		ret.tex = hf.value.tex
+		return Variant(VAR_TYPE_TEXTURE, ret)
+	}
+}

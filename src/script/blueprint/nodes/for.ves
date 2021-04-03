@@ -50,7 +50,7 @@ class For is Node
 	{
 		for (this.index = this.start; this.index < this.end; this.index = this.index + 1) {
 			for (var node in this.exec_list) {
-				if (node.execute) {
+				if (node.has_method("execute()")) {
 					node.execute()
 				}
 			}

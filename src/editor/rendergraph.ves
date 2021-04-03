@@ -1,8 +1,8 @@
 import "editor.editor" for Editor
 import "gui" for GUI
 import "render" for Render
-import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.for" for For
+import "rendergraph.drawlist" for Drawlist
 
 import "rendergraph.nodes.clear" for Clear
 import "rendergraph.nodes.draw" for Draw
@@ -15,6 +15,7 @@ import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.render_target" for RenderTarget
 import "rendergraph.nodes.render_buffer" for RenderBuffer
 import "rendergraph.nodes.model" for Model
+import "rendergraph.nodes.compute" for Compute
 
 class Rendergraph is Editor
 {
@@ -22,30 +23,17 @@ class Rendergraph is Editor
 	{
 		super.load()
 
-		this.drawlists = []
+		this.drawlist = nil
 
-		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, RenderTarget, RenderBuffer, Model ]) {
+		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, RenderTarget, RenderBuffer, Model, Compute ]) {
 			super.add_popup_node(node)
 		}
 	}
 
 	build_exec_list(nodes)
 	{
-		var exec_list = []
-		for (var node in nodes) 
-		{
-			if (node is Pass and node.exports[0].conns.isEmpty) {
-				node.rebuild_drawlist()
-				exec_list.add([ node ])
-			} else if (node is Draw and node.exports[0].conns.isEmpty) {
-				var prev_nodes = Blueprint.get_precursor_nodes(node)
-				var drawlist = Blueprint.topo_sort(prev_nodes)
-				exec_list.add(drawlist)
-			} else if (node is For) {
-				node.rebuild_exec_list()
-			}
-		}
-		return exec_list
+		var drawlist = Drawlist(nodes)
+		return drawlist.lists
 	}
 
 	rebuild_drawlist()
@@ -56,35 +44,19 @@ class Rendergraph is Editor
 		for (var node in scene.nodes) {
 			nodes.add(node.components["bp"])
 		}
-		this.drawlists = this.build_exec_list(nodes)
+		this.drawlist = Drawlist(nodes)
 	}
 
 	draw_preview()
 	{
-		if (this.scene_stack.bp_dirty)
-		{
+		if (!this.drawlist or this.scene_stack.bp_dirty) {
 			this.rebuild_drawlist()
 			this.scene_stack.bp_dirty = false
 		}
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
-		for (var drawlist in this.drawlists) 
-		{
-			var skip = false
-			if (!drawlist.isEmpty and drawlist[drawlist.count - 1] is Draw and drawlist[drawlist.count - 1].skip) {
-				skip = true
-			}
-			if (!skip)
-			{
-				for (var node in drawlist) 
-				{
-					if (node.execute) {
-						node.execute()
-					}
-				}
-			}
-		}
+		this.drawlist.draw()
 	}
 
 	load_file_imports()
@@ -102,6 +74,7 @@ import \"rendergraph.nodes.texture\" for Texture
 import \"rendergraph.nodes.render_target\" for RenderTarget
 import \"rendergraph.nodes.render_buffer\" for RenderBuffer
 import \"rendergraph.nodes.model\" for Model
+import \"rendergraph.nodes.compute\" for Compute
 "
 		return ret
 	}

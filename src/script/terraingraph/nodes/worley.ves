@@ -1,0 +1,267 @@
+import "terraingraph.node" for Node
+import "terraingraph.style" for HEIGHTFIELD_SIZE
+import "terraingraph.heightfield_proxy" for HeightfieldProxy
+import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.field_proxy" for FieldProxy
+import "render" for Texture2D, Render
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.nodes.shader" for Shader
+import "rendergraph.nodes.compute" for Compute
+import "rendergraph.nodes.texture" for Texture
+import "rendergraph.drawlist" for Drawlist
+
+var DARWLIST = nil
+var SHADER   = nil
+var COMPUTE  = nil
+
+var CS = "
+#version 430
+
+#define LOCAL_SIZE 32
+
+layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
+
+layout(binding = 0, r16f) writeonly uniform image2D out_tex;
+
+uniform UBO
+{
+	vec2 offset;
+	float seed;
+
+	float frequency;
+
+	float manhattan_scale;
+
+	// euclidean, manhattan, chebyshev
+	int dist_op;
+	// f1, f2, f1 + f2, f2 - f1, f1 * f2, f1 / f2
+	int features_mode;	
+};
+
+vec2 random2(vec2 p)
+{
+    return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+}
+
+float euclidean_dist(vec2 diff)
+{
+    return diff.x * diff.x + diff.y * diff.y;
+}
+
+float manhattan_dist(vec2 diff)
+{
+    return manhattan_scale * (abs(diff.x) + abs(diff.y));
+}
+
+float chebyshev_dist(vec2 diff)
+{
+    float dx = abs(diff.x);
+    float dy = abs(diff.y);
+    return max(dx, dy);
+}
+
+float calc_grid(vec2 st)
+{
+    vec2 i_st = floor(st);
+    vec2 f_st = fract(st);
+
+    float f1 = 1., f2 = 1.;
+
+    for (int y = -1; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++) {
+            vec2 neighbor = vec2(float(x),float(y));
+
+            vec2 point = random2(i_st + neighbor);
+            point = 0.5 + 0.5*sin(seed + 6.2831 * point);
+
+            vec2 diff = neighbor + point - f_st;
+            float dist = 0;
+            if (dist_op == 0) {
+                dist = euclidean_dist(diff);
+            } else if (dist_op == 1) {
+                dist = manhattan_dist(diff);
+            } else if (dist_op == 2) {
+                dist = chebyshev_dist(diff);
+            }
+
+            if (dist < f1) {
+                f2 = f1;
+                f1 = dist;
+            } else if (dist > f1 && dist < f2) {
+                f2 = dist;
+            }
+        }
+    }
+
+    if (features_mode == 0) {
+        return f1;
+    } else if (features_mode == 1) {
+        return f2;
+    } else if (features_mode == 2) {
+        return f1 + f2;
+    } else if (features_mode == 3) {
+        return f2 - f1;
+    } else if (features_mode == 4) {
+        return f1 * f2;
+    } else if (features_mode == 5) {
+        return f1 / f2;
+    } else {
+        return 0;
+    }
+
+    //// debug draw
+    //float color = 0;
+    //color += min_dist;                                  // Draw the min distance (distance field)
+    //color += 1.-step(.001, min_dist);                   // Draw cell center
+    //color += step(.98, f_st.x) + step(.98, f_st.y);     // Draw grid
+    //return color;
+}
+
+void main()
+{
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    const vec2 tex_coord = pos / float(imageSize(out_tex));
+
+    vec2 st = (tex_coord + offset) * frequency;
+
+    float v = calc_grid(st);
+
+    v = clamp(v, 0.0, 1.0);
+
+    imageStore(out_tex, pos, vec4(v));
+}
+"
+
+class Worley is Node
+{
+	init() 
+	{
+		super.init(Worley.name)
+	
+		this.exports = [
+			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
+		]
+
+		this.layout()
+
+		this.offset = [0, 0]
+		this.seed = 0
+		this.frequency = 4
+
+		this.manhattan_scale = 0.1
+		this.dist_op = 0
+		this.features_mode = 0
+
+		this.hf = VarHeightfield()
+
+		// for gui
+		this.method_items = [ "average", "add", "subtract", "multiply", "divide", "max", "min" ]
+		this.method_selected = 1
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
+	}
+
+	execute()
+	{
+		if (!this.hf.tex) {
+			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
+		}
+		if (!DARWLIST) 
+		{
+			var shader = Shader()
+			shader.cs = CS
+			shader.execute()
+
+			var compute = Compute()
+			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
+
+			Blueprint.connect(shader, "out", compute, "shader")
+
+			DARWLIST = Drawlist([compute])
+
+			SHADER = shader
+			COMPUTE = compute
+		}
+
+		if (this.dirty) 
+		{
+			COMPUTE.dirty = true
+			this.bind(SHADER)
+			DARWLIST.draw()
+
+			this.dirty = false
+		}
+	}
+
+	to_string(name) {
+		return "
+%(name).seed = %(this.seed)
+%(name).frequency = %(this.frequency)
+%(name).manhattan_scale = %(this.manhattan_scale)
+%(name).dist_op = %(this.dist_op)
+%(name).features_mode = %(this.features_mode)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var seed = GUI.slider(ctx, "seed", this.seed, x, y, this.style.width - 20, 1.0, false)
+		if (seed != this.seed) {
+			this.seed = seed
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var REGION = 10
+		var freq = GUI.slider(ctx, "freq", this.frequency, x, y, this.style.width - 20, REGION, false)
+		if (freq != this.frequency) {
+			this.frequency = freq
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+
+
+		if (dirty) {
+			this.make_dirty()
+		}
+
+		return dirty
+	}
+
+	bind(shader)
+	{
+		var out = HeightfieldProxy(this.exports[0])
+		Blueprint.connect(out, "tex", shader, "out_tex")
+
+		var offset = FieldProxy(this, "offset")
+		Blueprint.connect(offset, "out", shader, "offset")
+
+		var seed = FieldProxy(this, "seed")
+		Blueprint.connect(seed, "out", shader, "seed")
+
+		var freq = FieldProxy(this, "frequency")
+		Blueprint.connect(freq, "out", shader, "frequency")
+
+		var manhattan_scale = FieldProxy(this, "manhattan_scale")
+		Blueprint.connect(manhattan_scale, "out", shader, "manhattan_scale")
+
+		var dist_op = FieldProxy(this, "dist_op")
+		Blueprint.connect(dist_op, "out", shader, "dist_op")
+
+		var features_mode = FieldProxy(this, "features_mode")
+		Blueprint.connect(features_mode, "out", shader, "features_mode")
+	}
+}

@@ -43,7 +43,7 @@ class Pass is Node
 		}
 
 		for (var node in this.drawlist) {
-			if (node.execute) {
+			if (node.has_method("execute()")) {
 				node.execute()
 			}
 		}
