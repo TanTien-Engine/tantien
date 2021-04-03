@@ -6,6 +6,8 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_NODE
 import "editor.rendergraph" for Rendergraph
 import "editor.node_cache" for NODE_CACHE
+import "gui" for GUI
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Viewer is Node
 {
@@ -22,26 +24,71 @@ class Viewer is Node
 
 		this.hf_proxy = HeightfieldProxy(this.imports[0])
 
-		this.draw_editor = nil
-		this.draw_node = nil
-		this.init_draw_node()
+		this.gray = true
+
+		this.draw_node_gray = nil
+		this.draw_node_splatmap = nil		
 	}
 
 	execute() 
 	{
-		var cam = Blueprint.calc_input_value(this, 1)
-		if (cam and cam.value) {
-			Blueprint.connect(cam.value, "this", this.draw_node, "view_cam")
+		var draw = nil
+		if (this.gray) 
+		{
+			if (!this.draw_node_gray) {
+				var draw_editor = Rendergraph()
+				this.draw_node_gray = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_gray.ves", draw_editor)
+				Blueprint.connect(this.hf_proxy, "tex", this.draw_node_gray, "tes_heightmap")
+			}
+			draw = this.draw_node_gray
+		}
+		else
+		{
+			if (!this.draw_node_splatmap) {
+				var draw_editor = Rendergraph()
+				this.draw_node_splatmap = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_splatmap.ves", draw_editor)
+				Blueprint.connect(this.hf_proxy, "tex", this.draw_node_splatmap, "tes_heightmap")
+			}
+			draw = this.draw_node_splatmap
 		}
 
-		this.draw_node.execute()
+		var cam = Blueprint.calc_input_value(this, 1)
+		if (cam and cam.value) {
+			Blueprint.connect(cam.value, "this", draw, "view_cam")
+		}
+
+		draw.execute()
 	}
 
-	init_draw_node()
-	{	
-		this.draw_editor = Rendergraph()
-		this.draw_node = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_splatmap.ves", this.draw_editor)
 
-		Blueprint.connect(this.hf_proxy, "tex", this.draw_node, "tes_heightmap")
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		return "
+%(name).gray = %(this.gray)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var gray = GUI.checkbox(ctx, "gray", this.gray, x, y)
+		if (gray != this.gray) {
+			this.gray = gray
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
 	}
 }

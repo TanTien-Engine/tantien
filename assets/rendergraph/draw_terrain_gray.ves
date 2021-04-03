@@ -1,7 +1,7 @@
 var node0 = Draw()
 
 node0.set_prim_type("patches")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 558.8075282446, -339.48126638417)
@@ -190,8 +190,9 @@ void main()
     //FragColor = colors[curr_level];
 }
 "
+node1.cs = ""
 node1.execute()
-node1.set_uniform("tcs.lod_level", [ 11.848308563232 ])
+node1.set_uniform("tcs.lod_level", [ 13 ])
 node1.set_uniform("tes.height_scale", [ 0.11497599631548 ])
 node1.set_uniform("fs.light_pos", [ 0.79082131385803, 3.7241544723511, 2.3908212184906 ])
 node1.set_uniform("fs.inv_res", [ 0.0009765625, 0.0009765625 ])
@@ -222,32 +223,28 @@ node4.zfar = 1000
 
 _editor.add_node(node4, -44.721260070801, -167.46328735352)
 
-var node5 = Camera3D()
+var node5 = Input()
 
-node5.position.set(0.82511950586381, 0.22295544086903, 0.27113827348144)
-node5.yaw = -91.999999999999
-node5.pitch = 40.1
-node5.zoom = 45
-node5.update_camera_vectors()
-node5.speed = 0.01031406968832
+node5.var_name = "tes_heightmap"
+node5.var_type = "texture"
 
-_editor.add_node(node5, -212.44397048522, -295.44062400171)
+_editor.add_node(node5, -204.39431471226, -414.00510651966)
 
-var node6 = Input()
+var node6 = Proxy()
 
-node6.var_name = "tes_heightmap"
-node6.var_type = "texture"
+node6.real_name = "view_cam"
+node6.init_real_node(_editor.popup_nodes, "Camera3D")
 
-_editor.add_node(node6, -204.39431471226, -414.00510651966)
+_editor.add_node(node6, -223.05257443076, -190.79010489722)
 
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "next", node0, "prev")
 Blueprint.connect(node3, "out", node0, "va")
 Blueprint.connect(node4, "mat", node1, "tcs.projection")
 Blueprint.connect(node4, "mat", node1, "tes.projection")
-Blueprint.connect(node5, "mat", node1, "tcs.view")
-Blueprint.connect(node5, "mat", node1, "tes.view")
-Blueprint.connect(node5, "zoom", node4, "fovy")
-Blueprint.connect(node5, "pos", node1, "tcs.cam_pos")
-Blueprint.connect(node6, "var", node1, "tes_heightmap")
-Blueprint.connect(node6, "var", node1, "fs_heightmap")
+Blueprint.connect(node5, "var", node1, "tes_heightmap")
+Blueprint.connect(node5, "var", node1, "fs_heightmap")
+Blueprint.connect(node6, "mat", node1, "tes.view")
+Blueprint.connect(node6, "mat", node1, "tcs.view")
+Blueprint.connect(node6, "zoom", node4, "fovy")
+Blueprint.connect(node6, "pos", node1, "tcs.cam_pos")
