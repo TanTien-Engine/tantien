@@ -93,7 +93,7 @@ class Perlin is Node
 		super.init(Perlin.name)
 	
 		this.exports = [
-			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
+			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
@@ -147,6 +147,13 @@ class Perlin is Node
 
 			this.dirty = false
 		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
 	}
 
 	to_string(name) {

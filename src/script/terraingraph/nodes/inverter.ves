@@ -27,31 +27,31 @@ layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) i
 
 layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 
-uniform UBO
-{
-	float value;
-};
+uniform sampler2D in_tex;
 
 void main()
 {
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    imageStore(out_tex, pos, vec4(value));
+	vec2 uv = pos / float(imageSize(out_tex));
+	float h = 1.0 - texture(in_tex, uv).r;
+    imageStore(out_tex, pos, vec4(h));
 }
 "	
 
-class Constant is Node
+class Inverter is Node
 {
 	init() 
 	{
-		super.init(Constant.name)
-	
+		super.init(Inverter.name)
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
+		]	
 		this.exports = [
 			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
-
-		this.value = 0
 
 		this.hf = VarHeightfield()
 	}
@@ -99,40 +99,13 @@ class Constant is Node
 
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
-	
-	to_string(name) {
-		return "
-%(name).value = %(this.value)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var REGION = 1
-		var val = GUI.slider(ctx, "val", this.value, x, y, this.style.width - 20, REGION, false)
-		if (val != this.value) {
-			this.value = val
-			dirty = true
-		}
-
-		if (dirty) {
-			this.make_dirty()
-		}
-
-		return dirty
-	}
 
 	bind(shader)
 	{
-		var pout = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(pout, "tex", shader, "out_tex")
+		var out_tex = HeightfieldProxy(this.exports[0])
+		Blueprint.connect(out_tex, "tex", shader, "out_tex")
 
-		var pv = FieldProxy(this, "value")
-		Blueprint.connect(pv, "out", shader, "value")
+		var in_tex = HeightfieldProxy(this.imports[0])
+		Blueprint.connect(in_tex, "tex", shader, "in_tex")
 	}
 }

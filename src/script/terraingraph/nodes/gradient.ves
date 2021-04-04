@@ -57,7 +57,7 @@ class Gradient is Node
 		super.init(Gradient.name)
 	
 		this.exports = [
-			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
+			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
@@ -104,6 +104,13 @@ class Gradient is Node
 		}
 	}
 
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+	
 	to_string(name) {
 		return "
 %(name).angle = %(this.angle)

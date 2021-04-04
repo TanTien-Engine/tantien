@@ -143,7 +143,7 @@ class Worley is Node
 		super.init(Worley.name)
 	
 		this.exports = [
-			Pin(this, "hf", VAR_TYPE_HEIGHTFIELD)
+			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
@@ -200,6 +200,13 @@ class Worley is Node
 		}
 	}
 
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
 	to_string(name) {
 		return "
 %(name).seed = %(this.seed)
@@ -231,8 +238,6 @@ class Worley is Node
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT
-
-
 
 		if (dirty) {
 			this.make_dirty()

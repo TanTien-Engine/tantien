@@ -9,6 +9,15 @@ import "terraingraph.nodes.gradient" for Gradient
 import "terraingraph.nodes.perlin" for Perlin
 import "terraingraph.nodes.worley" for Worley
 import "terraingraph.nodes.combiner" for Combiner
+import "terraingraph.nodes.clamp" for Clamp
+import "terraingraph.nodes.gaussian" for Gaussian
+import "terraingraph.nodes.incline" for Incline
+import "terraingraph.nodes.inverter" for Inverter
+import "terraingraph.nodes.scale_bias" for ScaleBias
+import "terraingraph.nodes.step" for Step
+import "terraingraph.nodes.transform" for Transform
+import "terraingraph.nodes.select_height" for SelectHeight
+import "terraingraph.nodes.select_slope" for SelectSlope
 
 class Terraingraph is Editor
 {
@@ -18,7 +27,7 @@ class Terraingraph is Editor
 
 		this.drawlist = []
 
-		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner ]) {
+		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner, Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform, SelectHeight, SelectSlope ]) {
 			super.add_popup_node(node)
 		}
 	}
@@ -69,6 +78,15 @@ import \"terraingraph.nodes.gradient\" for Gradient
 import \"terraingraph.nodes.perlin\" for Perlin
 import \"terraingraph.nodes.worley\" for Worley
 import \"terraingraph.nodes.combiner\" for Combiner
+import \"terraingraph.nodes.clamp\" for Clamp
+import \"terraingraph.nodes.gaussian\" for Gaussian
+import \"terraingraph.nodes.incline\" for Incline
+import \"terraingraph.nodes.inverter\" for Inverter
+import \"terraingraph.nodes.scale_bias\" for ScaleBias
+import \"terraingraph.nodes.step\" for Step
+import \"terraingraph.nodes.transform\" for Transform
+import \"terraingraph.nodes.select_height\" for SelectHeight
+import \"terraingraph.nodes.select_slope\" for SelectSlope
 "
 		return ret
 	}

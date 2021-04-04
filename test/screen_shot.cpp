@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
     ves_pushstring("load()");
     ves_call(0, 0);
 
-    const char* dir_path = "samples/rendergraph";
+    const char* dir_path = "samples/terraingraph";
     for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) 
     {
         auto filepath = std::filesystem::absolute(p).string();

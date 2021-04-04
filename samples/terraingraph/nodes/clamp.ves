@@ -1,0 +1,37 @@
+var node0 = Viewer()
+
+node0.gray = true
+
+_editor.add_node(node0, 91.705611730187, 224.53444269908)
+
+var node1 = Clamp()
+
+node1.lower_bound = 0.060394626110792
+node1.upper_bound = 0.54444444179535
+
+_editor.add_node(node1, -123.43552606995, 295.5)
+
+var node2 = Worley()
+
+node2.seed = 0
+node2.frequency = 7.8729958534241
+node2.manhattan_scale = 0.1
+node2.dist_op = 0
+node2.features_mode = 0
+
+_editor.add_node(node2, -280.85697825541, 292.53058020146)
+
+var node3 = Camera3D()
+
+node3.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
+node3.yaw = -56.7
+node3.pitch = -52.5
+node3.zoom = 45
+node3.update_camera_vectors()
+node3.speed = 0.17548675835133
+
+_editor.add_node(node3, -97.568144474456, 134.43885851232)
+
+Blueprint.connect(node1, "out", node0, "hf")
+Blueprint.connect(node2, "out", node1, "in")
+Blueprint.connect(node3, "this", node0, "cam")

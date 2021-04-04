@@ -37,6 +37,6 @@ node4.method = "add"
 _editor.add_node(node4, 41.833755013629, 182.28949536769)
 
 Blueprint.connect(node1, "this", node0, "cam")
-Blueprint.connect(node2, "hf", node4, "b")
-Blueprint.connect(node3, "hf", node4, "a")
-Blueprint.connect(node4, "hf", node0, "hf")
+Blueprint.connect(node2, "out", node4, "b")
+Blueprint.connect(node3, "out", node4, "a")
+Blueprint.connect(node4, "out", node0, "hf")

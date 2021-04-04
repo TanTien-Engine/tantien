@@ -27,67 +27,43 @@ layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) i
 
 layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 
-uniform sampler2D in0_tex;
-uniform sampler2D in1_tex;
+uniform sampler2D in_tex;
 
 uniform UBO
 {
-    // average, add, subtract, multiply, divide, max, min
-	int method;
+	float low;
+	float high;
 };
 
 void main()
 {
 	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     vec2 tex_coords = pos / float(imageSize(out_tex));
-
-    float a = texture(in0_tex, tex_coords).r;
-    float b = texture(in1_tex, tex_coords).r;
-
-    float v = 0.0;
-    if (method == 0) {
-    	v = (a + b) * 0.5;
-    } else if (method == 1) {
-    	v = a + b;
-    } else if (method == 2) {
-    	v = a - b;
-    } else if (method == 3) {
-    	v = a * b;
-    } else if (method == 4) {
-    	v = a / b;
-    } else if (method == 5) {
-    	v = max(a, b);
-    } else if (method == 6) {
-    	v = min(a, b);
-    }
-
-    imageStore(out_tex, pos, vec4(v));
+    float h = texture(in_tex, tex_coords).r;
+    h = smoothstep(low, high, h);
+    imageStore(out_tex, pos, vec4(h));
 }
-"	
+"
 
-class Combiner is Node
+class Step is Node
 {
 	init() 
 	{
-		super.init(Combiner.name)
+		super.init(Step.name)
 
 		this.imports = [
-			Pin(this, "a", VAR_TYPE_HEIGHTFIELD),
-			Pin(this, "b", VAR_TYPE_HEIGHTFIELD)			
-		]
+			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
+		]	
 		this.exports = [
 			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
 		]
 
 		this.layout()
 
-		this.method = "add"
+		this.low = 0
+		this.high = 1
 
 		this.hf = VarHeightfield()
-
-		// for gui
-		this.method_items = [ "average", "add", "subtract", "multiply", "divide", "max", "min" ]
-		this.method_selected = 1
 	}
 
 	calc(idx)
@@ -131,12 +107,13 @@ class Combiner is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
 	}
 
 	to_string(name) {
 		return "
-%(name).method = \"%(this.method)\"
+%(name).low = %(this.low)
+%(name).high = %(this.high)
 "
 	}
 
@@ -147,12 +124,20 @@ class Combiner is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
-		var method = GUI.combo(ctx, "method", this.method_selected, this.method_items, x, y, 80)
-		if (method != this.method_selected) 
-		{
-			this.method_selected = method
-			this.method = this.method_items[method]
-			dirty = true	
+		var REGION = 10
+
+		var low = GUI.slider(ctx, "low", this.low, x, y, this.style.width - 20, REGION, false)
+		if (low != this.low) {
+			this.low = low
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+
+		var high = GUI.slider(ctx, "high", this.high, x, y, this.style.width - 20, REGION, false)
+		if (high != this.high) {
+			this.high = high
+			dirty = true
 		}
 
 		if (dirty) {
@@ -164,16 +149,16 @@ class Combiner is Node
 
 	bind(shader)
 	{
-		var a = HeightfieldProxy(this.imports[0])
-		Blueprint.connect(a, "tex", shader, "in0_tex")
+		var out_tex = HeightfieldProxy(this.exports[0])
+		Blueprint.connect(out_tex, "tex", shader, "out_tex")
 
-		var b = HeightfieldProxy(this.imports[1])
-		Blueprint.connect(b, "tex", shader, "in1_tex")
+		var in_tex = HeightfieldProxy(this.imports[0])
+		Blueprint.connect(in_tex, "tex", shader, "in_tex")
 
-		var out = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(out, "tex", shader, "out_tex")
+		var low = FieldProxy(this, "low")
+		Blueprint.connect(low, "out", shader, "low")
 
-		var method = FieldProxy(this, "method_selected")
-		Blueprint.connect(method, "out", shader, "method")
+		var high = FieldProxy(this, "high")
+		Blueprint.connect(high, "out", shader, "high")
 	}
 }
