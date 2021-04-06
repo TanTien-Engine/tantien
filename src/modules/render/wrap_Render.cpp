@@ -3,6 +3,7 @@
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
 #include "modules/script/Proxy.h"
+#include "modules/maths/Float16.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -21,6 +22,7 @@
 #include <unirender/TextureUtility.h>
 #include <unirender/TextureDescription.h>
 #include <unirender/RenderBuffer.h>
+#include <unirender/WritePixelBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
 #include <SM_Matrix.h>
@@ -697,6 +699,23 @@ void w_Texture2D_get_height()
     ves_set_number(0, (double)tex->GetHeight());
 }
 
+template<typename T>
+void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
+{
+    std::vector<T> data;
+    for (int i = 0; i < num; ++i) {
+        ves_geti(1, i);
+        data.push_back(FloatToFloat16((float)ves_tonumber(-1)));
+        ves_pop(1);
+    }
+
+    auto dev = tt::Render::Instance()->Device();
+    auto pbuf = dev->CreateWritePixelBuffer(ur::BufferUsageHint::DynamicDraw, num * sizeof(T));
+    pbuf->ReadFromMemory(data.data(), data.size() * sizeof(T), 0);
+    pbuf->Bind();
+    tex.Upload(reinterpret_cast<void*>(0), x, y, w, h);
+}
+
 void w_Texture2D_upload()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
@@ -711,33 +730,51 @@ void w_Texture2D_upload()
     const float w = ves_tonumber(4);
     const float h = ves_tonumber(5);
 
-    if (fmt == ur::TextureFormat::RGBA16F ||
-        fmt == ur::TextureFormat::RGBA32F ||
-        fmt == ur::TextureFormat::RGB16F ||
-        fmt == ur::TextureFormat::RGB32F ||
-        fmt == ur::TextureFormat::RG16F ||
-        fmt == ur::TextureFormat::R16 ||
-        fmt == ur::TextureFormat::R16F ||
-        fmt == ur::TextureFormat::RGB32I)
+    switch (fmt)
     {
-        std::vector<float> data;
-        for (int i = 0; i < num; ++i) {
-            ves_geti(1, i);
-            data.push_back((float)ves_tonumber(-1));
-            ves_pop(1);
-        }
-        tex->Upload(data.data(), x, y, w, h);
+    case ur::TextureFormat::RGBA16F:
+    case ur::TextureFormat::RGB16F:
+    case ur::TextureFormat::RG16F:
+    case ur::TextureFormat::R16:
+    case ur::TextureFormat::R16F:
+        texture2d_upload<short>(*tex, num, x, y, w, h);
+        break;
+    case ur::TextureFormat::RGBA32F:
+    case ur::TextureFormat::RGB32F:
+    case ur::TextureFormat::RGB32I:
+        texture2d_upload<float>(*tex, num, x, y, w, h);
+        break;
+    default:
+        texture2d_upload<char>(*tex, num, x, y, w, h);
     }
-    else
+}
+
+void w_Texture2D_download()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto img = (tt::ImageData*)ves_toforeign(1);
+
+    img->width = tex->GetWidth();
+    img->height = tex->GetHeight();
+
+    switch (tex->GetFormat())
     {
-        std::vector<char> data;
-        for (int i = 0; i < num; ++i) {
-            ves_geti(1, i);
-            data.push_back((char)ves_tonumber(-1));
-            ves_pop(1);
-        }
-        tex->Upload(data.data(), x, y, w, h);
+    case ur::TextureFormat::RGB:
+        img->format = GPF_RGB;
+        break;
+    case ur::TextureFormat::RGBA8:
+        img->format = GPF_RGBA8;
+        break;
+    case ur::TextureFormat::R16F:
+        img->format = GPF_R16;
+        break;
+    default:
+        GD_REPORT_ASSERT("unknown type.");
+        return;
     }
+
+    size_t sz = ur::TextureUtility::RequiredSizeInBytes(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), 4);
+    img->pixels = (uint8_t*)tex->WriteToMemory(sz);
 }
 
 void w_Cubemap_get_width()
@@ -1367,6 +1404,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Texture2D.get_width()") == 0) return w_Texture2D_get_width;
     if (strcmp(signature, "Texture2D.get_height()") == 0) return w_Texture2D_get_height;
     if (strcmp(signature, "Texture2D.upload(_,_,_,_,_)") == 0) return w_Texture2D_upload;
+    if (strcmp(signature, "Texture2D.download(_)") == 0) return w_Texture2D_download;
 
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;

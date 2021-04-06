@@ -35,6 +35,7 @@ foreign class Texture2D
 	foreign get_height()
 
 	foreign upload(pixels, x, y, w, h)
+	foreign download(image)
 }
 
 foreign class Cubemap
