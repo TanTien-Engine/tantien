@@ -3,6 +3,7 @@
 #include "modules/filesystem/Filesystem.h"
 #include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
+#include "modules/maths/Float16.h"
 
 #include <gimg_import.h>
 #include <gimg_typedef.h>
@@ -24,14 +25,20 @@ int get_format_channels(int format)
     int channels = 0;
     switch (format)
     {
-    case GPF_RGBA8:
-        channels = 4;
+    case GPF_RED:
+        channels = 1;
+        break;
+    case GPF_R16:
+        channels = 1;
         break;
     case GPF_RGB:
         channels = 3;
         break;
+    case GPF_RGBA8:
+        channels = 4;
+        break;
     default:
-        // unsupported format
+        GD_REPORT_ASSERT("unknown type.");
         break;
     }
     return channels;
@@ -99,6 +106,8 @@ void w_ImageData_allocate()
             img->format = GPF_RGB;
         } else if (strcmp(format, "rgba") == 0) {
             img->format = GPF_RGBA8;
+        } else if (strcmp(format, "r16f") == 0) {
+            img->format = GPF_R16;
         } else {
             GD_REPORT_ASSERT("unknown type.");
             return;
@@ -170,16 +179,39 @@ void w_ImageData_get_pixel()
         return;
     }
 
-    const int channels = get_format_channels(img->format);
-    int rgba[4];
-    for (int i = 0; i < channels; ++i) {
-        rgba[i] = img->pixels[(y * img->width + x) * channels + i];
+    switch (img->format)
+    {
+    case GPF_R16:
+    {
+        short* pixels = (short*)img->pixels;
+        float col = Float16ToFloat(pixels[y * img->width + x]);
+        ves_set_number(0, (double)col);
     }
-    for (int i = channels; i < 4; ++i) {
-        rgba[i] = 0;
+        break;
+    case GPF_RGB:
+    {
+        int rgb[3];
+        for (int i = 0; i < 3; ++i) {
+            rgb[i] = img->pixels[(y * img->width + x) * 3 + i];
+        }
+        uint32_t col = rgb[0] << 24 | rgb[1] << 16 | rgb[2] << 8 | 0xff;
+        ves_set_number(0, (double)col);
     }
-    uint32_t col = rgba[0] << 24 | rgba[1] << 16 | rgba[2] << 8 | rgba[3];
-    ves_set_number(0, (double)col);
+        break;
+    case GPF_RGBA8:
+    {
+        int rgba[4];
+        for (int i = 0; i < 4; ++i) {
+            rgba[i] = img->pixels[(y * img->width + x) * 4 + i];
+        }
+        uint32_t col = rgba[0] << 24 | rgba[1] << 16 | rgba[2] << 8 | rgba[3];
+        ves_set_number(0, (double)col);
+    }
+        break;
+    default:
+        GD_REPORT_ASSERT("unknown type.");
+        break;
+    }
 }
 
 void w_ImageData_set_pixel()
