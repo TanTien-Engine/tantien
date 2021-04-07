@@ -261,6 +261,7 @@ int main(int argc, char* argv[])
             continue;
         }
 
+        printf("++ %s\n", filepath.c_str());
         ves_pushstring(filepath.c_str());
         ves_pushstring("loadfromfile(_)");
         ves_call(1, 0);
