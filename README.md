@@ -64,6 +64,22 @@ Based for each editors
 * operate: clear, draw
 * control: pass
 
+### terraingraph
+
+![](./doc/terraingraph/screenshots/erosion.jpg)
+    <em>Noise and erosion</em>
+
+#### Features
+* brushes
+
+#### Nodes
+* generator : constant, gradient, perlin, worley
+* combiner : combiner
+* filter: clamp, gaussian, incline, inverter, scale_bias, step, transform
+* natural : erosion
+* selector ： select_height, select_slope
+* draw : viewer
+
 ## Building
 First clone the project & submodules:
 ```
