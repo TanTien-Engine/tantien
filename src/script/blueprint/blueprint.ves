@@ -132,6 +132,8 @@ class Blueprint
 		var t = this.query_pin(t_node.imports, t_pin)
 		if (f and t) {
 			this.connect(f, t)
+		} else {
+			System.print("connect fail %(f_pin) -> %(t_pin)")
 		}
 	}
 
