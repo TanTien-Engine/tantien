@@ -1,0 +1,44 @@
+var node0 = Viewer()
+
+node0.gray = true
+
+_editor.add_node(node0, 282.897368, 323.02243)
+
+var node1 = Camera3D()
+
+node1.position.set(-1.5708654207181, 0.7544028714694, -0.67403869285696)
+node1.yaw = 14
+node1.pitch = -34.8
+node1.zoom = 45
+node1.update_camera_vectors()
+node1.speed = 0.20714285969734
+
+_editor.add_node(node1, 80.897368, 191.02243)
+
+var node2 = Worley()
+
+node2.seed = 0.33908379077911
+node2.frequency = 6.6130599975586
+node2.manhattan_scale = 0.1
+node2.dist_op = 0
+node2.features_mode = 0
+
+_editor.add_node(node2, -185.81874023565, 492.96391077615)
+
+var node3 = Erosion()
+
+node3.iter = 200000
+node3.radius = 2
+node3.kq = 4
+node3.min_slope = 0.013
+node3.kw = 0.01
+node3.kr = 0.008
+node3.kd = 0.3
+node3.ki = 0.76
+node3.g = 4
+
+_editor.add_node(node3, 29.496560662067, 492.15031386102)
+
+Blueprint.connect(node1, "this", node0, "cam")
+Blueprint.connect(node2, "out", node3, "in")
+Blueprint.connect(node3, "out", node0, "hf")

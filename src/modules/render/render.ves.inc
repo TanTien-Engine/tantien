@@ -65,6 +65,15 @@ foreign class RenderBuffer
 	init(width, height, format) {}
 }
 
+foreign class ComputeBuffer
+{
+	// type: <"int", "float">
+	// data: list
+	init(type, data, id) {}
+
+	foreign download(type, size)
+}
+
 foreign class Render
 {
 	// prim_type: "points", "triangles", "tri_strip", "patches"

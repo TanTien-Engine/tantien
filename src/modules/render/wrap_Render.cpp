@@ -3,7 +3,6 @@
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
 #include "modules/script/Proxy.h"
-#include "modules/maths/Float16.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -22,6 +21,7 @@
 #include <unirender/TextureUtility.h>
 #include <unirender/TextureDescription.h>
 #include <unirender/RenderBuffer.h>
+#include <unirender/ComputeBuffer.h>
 #include <unirender/WritePixelBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
@@ -703,9 +703,16 @@ template<typename T>
 void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
 {
     std::vector<T> data;
-    for (int i = 0; i < num; ++i) {
+    for (int i = 0; i < num; ++i) 
+    {
         ves_geti(1, i);
-        data.push_back(FloatToFloat16((float)ves_tonumber(-1)));
+        if (std::is_same<T, double>::value) {
+            data.push_back(ves_tonumber(-1));
+        } else if (std::is_same<T, float>::value) {
+            data.push_back((float)ves_tonumber(-1));
+        } else {
+            data.push_back(std::numeric_limits<T>::max() * ves_tonumber(-1));
+        }
         ves_pop(1);
     }
 
@@ -737,7 +744,7 @@ void w_Texture2D_upload()
     case ur::TextureFormat::RG16F:
     case ur::TextureFormat::R16:
     case ur::TextureFormat::R16F:
-        texture2d_upload<short>(*tex, num, x, y, w, h);
+        texture2d_upload<unsigned short>(*tex, num, x, y, w, h);
         break;
     case ur::TextureFormat::RGBA32F:
     case ur::TextureFormat::RGB32F:
@@ -745,7 +752,7 @@ void w_Texture2D_upload()
         texture2d_upload<float>(*tex, num, x, y, w, h);
         break;
     default:
-        texture2d_upload<char>(*tex, num, x, y, w, h);
+        texture2d_upload<unsigned char>(*tex, num, x, y, w, h);
     }
 }
 
@@ -872,6 +879,43 @@ int w_Framebuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::Framebuffer>);
 }
 
+void w_ComputeBuffer_allocate()
+{
+    const char* type = ves_tostring(1);
+    const int num = ves_len(2);
+    const int id = (int)ves_tonumber(3);
+    std::shared_ptr<ur::ComputeBuffer> buf = nullptr;
+    if (strcmp(type, "int") == 0)
+    {
+        std::vector<int> data(num);
+        for (int i = 0; i < num; ++i) {
+            ves_geti(2, i);
+            data[i] = (int)ves_tonumber(-1);
+            ves_pop(1);
+        }
+        buf = tt::Render::Instance()->Device()->CreateComputeBuffer(data.data(), sizeof(int) * data.size(), id);
+    }
+    else if (strcmp(type, "float") == 0)
+    {
+        std::vector<float> data(num);
+        for (int i = 0; i < num; ++i) {
+            ves_geti(2, i);
+            data[i] = ves_tonumber(-1);
+            ves_pop(1);
+        }
+        buf = tt::Render::Instance()->Device()->CreateComputeBuffer(data.data(), sizeof(float) * data.size(), id);
+    }
+    auto proxy = (tt::Proxy<ur::ComputeBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ComputeBuffer>));
+    proxy->obj = buf;
+}
+
+int w_ComputeBuffer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::ComputeBuffer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::ComputeBuffer>);
+}
+
 ur::AttachmentType string2attachment(const std::string& str)
 {
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
@@ -924,6 +968,41 @@ void w_Framebuffer_attach_rbo()
     auto rbo = ((tt::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
     auto atta_type = string2attachment(ves_tostring(2));
     fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
+}
+
+void w_ComputeBuffer_download()
+{
+    auto buf = ((tt::Proxy<ur::ComputeBuffer>*)ves_toforeign(0))->obj;
+    const char* type = ves_tostring(1);
+    const size_t size = (size_t)ves_tonumber(2);
+    if (strcmp(type, "int") == 0)
+    {
+        std::vector<int> data(size);
+        buf->GetComputeBufferData(data.data(), sizeof(data) * size);
+
+        ves_pop(3);
+        ves_newlist(size);
+        for (int i = 0; i < size; ++i) 
+        {
+            ves_pushnumber(data[i]);
+            ves_seti(-2, i);
+            ves_pop(1);
+        }
+    }
+    else if (strcmp(type, "float") == 0)
+    {
+        std::vector<float> data(size);
+        buf->GetComputeBufferData(data.data(), sizeof(float) * size);
+
+        ves_pop(3);
+        ves_newlist(size);
+        for (int i = 0; i < size; ++i)
+        {
+            ves_pushnumber(data[i]);
+            ves_seti(-2, i);
+            ves_pop(1);
+        }
+    }
 }
 
 void w_RenderBuffer_allocate()
@@ -1412,6 +1491,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Framebuffer.attach_tex(_,_,_,_)") == 0) return w_Framebuffer_attach_tex;
     if (strcmp(signature, "Framebuffer.attach_rbo(_,_)") == 0) return w_Framebuffer_attach_rbo;
 
+    if (strcmp(signature, "ComputeBuffer.download(_,_)") == 0) return w_ComputeBuffer_download;
+
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
@@ -1459,6 +1540,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Framebuffer_allocate;
         methods->finalize = w_Framebuffer_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "ComputeBuffer") == 0)
+    {
+        methods->allocate = w_ComputeBuffer_allocate;
+        methods->finalize = w_ComputeBuffer_finalize;
         return;
     }
 
