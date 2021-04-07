@@ -29,14 +29,14 @@ Based for each editors
 * ...
 
 #### Nodes
-* math: number, number2, number3, matrix, add, subtract, multiply, divide, sin, cos, radians, clamp
+* math: add, clamp, cos, divide, matrix, multiply, number, number2, number3, number4, radians, sin, subtract
 * camera: camera2d, camera3d, lookat, orthographic, perspective
-* transform: translate, scale, rotate
-* constant: time
-* data: array, fetch, merge, combine, split
+* transform: rotate, scale, translate
+* constant: time, viewport
+* data: array, combine, fetch, merge, split
 * control: for
-* tools: custom, print 
-* subgraph: subgraph, input, output, property
+* tools: commentary, custom, print, proxy
+* subgraph: input, output, property, subgraph
 
 ### rendergraph
 
@@ -60,8 +60,8 @@ Based for each editors
 
 #### Nodes
 * vertex: model, primitive_shape, vertex_array
-* resource: texture, cubemap, shader, render_buffer, render_target
-* operate: clear, draw
+* resource: cubemap, render_buffer, render_target, shader, texture
+* operate: clear, compute, draw
 * control: pass
 
 ### terraingraph
