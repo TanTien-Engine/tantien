@@ -172,15 +172,15 @@ class Erosion is Node
 
 		this.layout()
 
-		this.iter = 1000000
-		this.radius = 3
+		this.iter = 200000
+		this.radius = 2
 
 		this.kq = 4
-		this.min_slope = 0.01
+		this.min_slope = 0.013
 		this.kw = 0.01
-		this.kr = 0.3
+		this.kr = 0.008
 		this.kd = 0.3
-		this.ki = 0.05
+		this.ki = 0.76
 		this.g = 4
 
 		this.hf = VarHeightfield()
@@ -234,7 +234,7 @@ class Erosion is Node
 	{
 		super.layout()
 
-		this.style.height = this.style.height + DEFAULT_HEIGHT
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 9
 	}
 	
 	to_string(name) {
