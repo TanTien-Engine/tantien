@@ -1,0 +1,254 @@
+import "terraingraph.node" for Node
+import "terraingraph.style" for HEIGHTFIELD_SIZE
+import "terraingraph.heightfield_proxy" for HeightfieldProxy
+import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.nodes.number" for Number
+import "blueprint.field_proxy" for FieldProxy
+import "image" for ImageData
+import "render" for Texture2D, Render, ComputeBuffer
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.nodes.shader" for Shader
+import "rendergraph.nodes.compute" for Compute
+import "rendergraph.drawlist" for Drawlist
+import "random" for Random
+import "math" for Math
+
+var DARWLIST = nil
+var SHADER   = nil
+var COMPUTE  = nil
+
+var CS = "
+
+#version 430
+
+layout(binding = 0, std430) coherent buffer HeightfieldDataFloat { float height_buf[]; };
+
+uniform UBO
+{
+	int   grid_sizex;
+	int   grid_sizey;
+	float amplitude;
+	float cell_size;
+	float tan_threshold_angle;
+};
+
+bool Inside(int x, int y)
+{
+	if (x < 0 || x >= grid_sizex ||
+        y < 0 || y >= grid_sizey) {
+		return false;
+    }
+	return true;
+}
+
+int ToIndex1D(int x, int y)
+{
+	return y * grid_sizex + x;
+}
+
+layout(local_size_x = 1024) in;
+void main()
+{
+	uint id = gl_GlobalInvocationID.x;
+	if (id >= height_buf.length()) {
+        return;
+    }
+
+	float max_y_diff = 0;
+	int max_idx = -1;
+	int y = int(id) / grid_sizex;
+	int x = int(id) \% grid_sizex;
+	for (int k = -1; k <= 1; k += 2)
+	{
+		for (int l = -1; l <= 1; l += 2)
+		{
+			if (Inside(x + k, y + l) == false)
+				continue;
+			int index = ToIndex1D(x + k, y + l);
+			float h = height_buf[index];
+			float diff = height_buf[id] - h;
+			if (diff > max_y_diff)
+			{
+				max_y_diff = diff;
+				max_idx = index;
+			}
+		}
+	}
+	if (max_y_diff > 0)
+	{
+		height_buf[id] = height_buf[id] - amplitude;
+		height_buf[max_idx] = height_buf[max_idx] + amplitude;
+	}
+}
+
+"	
+
+class ThermalWeathering is Node
+{
+	init() 
+	{
+		super.init(ThermalWeathering.name)
+	
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
+		]
+
+		this.layout()
+
+		this.iter = 1
+		this.amplitude = 0.01
+		this.tan_threshold_angle = 0.6
+
+		this.hf = VarHeightfield()
+		this.heights_buf = nil
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
+	}
+
+	execute()
+	{
+		if (!this.hf.tex) {
+			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
+		}
+		if (!DARWLIST) 
+		{
+			var shader = Shader()
+			shader.cs = CS
+			shader.execute()
+
+			var compute = Compute()
+			Blueprint.connect(shader, "out", compute, "shader")
+
+			DARWLIST = Drawlist([compute])
+
+			SHADER = shader
+			COMPUTE = compute
+		}
+
+		if (this.dirty) 
+		{
+			var thread_group_count = Math.ceil(HEIGHTFIELD_SIZE * HEIGHTFIELD_SIZE / 1024)
+			COMPUTE.num_groups = [ thread_group_count, 1, 1 ]
+
+			COMPUTE.dirty = true
+
+			this.setup_buffers()
+			this.bind(SHADER)
+			for (var i in 0..this.iter) {
+				DARWLIST.draw()			
+			}
+			this.get_result()
+
+			this.dirty = false
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 9
+	}
+	
+	to_string(name) {
+		return "
+%(name).iter = %(this.iter)
+%(name).amplitude = %(this.amplitude)
+%(name).tan_threshold_angle = %(this.tan_threshold_angle)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var iter = Math.floor(GUI.slider(ctx, "iter", this.iter, x, y, this.style.width - 20, 1000, false))
+		if (iter != this.iter) {
+			this.iter = iter
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var amplitude = GUI.slider(ctx, "amplitude", this.amplitude, x, y, this.style.width - 20, 0.001, false)
+		if (amplitude != this.amplitude) {
+			this.amplitude = amplitude
+			dirty = true
+		}
+
+		y = y - DEFAULT_HEIGHT
+		var tan_threshold_angle = GUI.slider(ctx, "tan_threshold_angle", this.tan_threshold_angle, x, y, this.style.width - 20, 1.0, false)
+		if (tan_threshold_angle != this.tan_threshold_angle) {
+			this.tan_threshold_angle = tan_threshold_angle
+			dirty = true
+		}
+
+		if (dirty) {
+			this.make_dirty()
+		}
+
+		return dirty
+	}
+
+	bind(shader)
+	{
+		var grid_sizex = Number()
+		grid_sizex.value = HEIGHTFIELD_SIZE
+		Blueprint.connect(grid_sizex, "v", shader, "grid_sizex")
+
+		var grid_sizey = Number()
+		grid_sizey.value = HEIGHTFIELD_SIZE
+		Blueprint.connect(grid_sizey, "v", shader, "grid_sizey")
+
+		var amplitude = FieldProxy(this, "amplitude")
+		Blueprint.connect(amplitude, "out", shader, "amplitude")
+
+		var tan_threshold_angle = FieldProxy(this, "tan_threshold_angle")
+		Blueprint.connect(tan_threshold_angle, "out", shader, "tan_threshold_angle")
+
+		var cell_size = Number()
+		cell_size.value = 1.0 / 50.0
+		Blueprint.connect(cell_size, "v", shader, "cell_size")
+	}
+
+	setup_buffers()
+	{
+		// heights buffer
+		var hf = Blueprint.calc_input_value(this, 0)
+		if (hf and hf.value and hf.value.tex)
+		{
+			var height_img = ImageData.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
+			hf.value.tex.download(height_img)
+			var heights = []
+			for (var y in 0..HEIGHTFIELD_SIZE) {
+				for (var x in 0..HEIGHTFIELD_SIZE) {
+					heights.add(height_img.get_pixel(x, y))
+				}
+			}
+			this.heights_buf = ComputeBuffer.init("float", heights, 0)
+			this.hf.tex.upload(heights, 0, 0, HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE)			
+		}
+	}
+
+	get_result()
+	{
+		if (!this.heights_buf) {
+			return
+		}
+
+		var heights = this.heights_buf.download("float", HEIGHTFIELD_SIZE * HEIGHTFIELD_SIZE)
+		this.hf.tex.upload(heights, 0, 0, HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE)
+	}
+}

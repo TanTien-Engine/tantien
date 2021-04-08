@@ -19,6 +19,7 @@ import "terraingraph.nodes.transform" for Transform
 import "terraingraph.nodes.select_height" for SelectHeight
 import "terraingraph.nodes.select_slope" for SelectSlope
 import "terraingraph.nodes.erosion" for Erosion
+import "terraingraph.nodes.thermal_weathering" for ThermalWeathering
 
 class Terraingraph is Editor
 {
@@ -28,7 +29,7 @@ class Terraingraph is Editor
 
 		this.drawlist = []
 
-		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner, Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform, SelectHeight, SelectSlope, Erosion ]) {
+		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner, Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform, SelectHeight, SelectSlope, Erosion, ThermalWeathering ]) {
 			super.add_popup_node(node)
 		}
 	}
@@ -89,6 +90,7 @@ import \"terraingraph.nodes.transform\" for Transform
 import \"terraingraph.nodes.select_height\" for SelectHeight
 import \"terraingraph.nodes.select_slope\" for SelectSlope
 import \"terraingraph.nodes.erosion\" for Erosion
+import \"terraingraph.nodes.thermal_weathering\" for ThermalWeathering
 "
 		return ret
 	}
