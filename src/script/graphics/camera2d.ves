@@ -16,7 +16,7 @@ class Camera2D
 		this.size.set(w, h)
 	}
 
-	screen2project(screen) 
+	screen2world(screen) 
 	{
 		var proj = Vector2()
 		proj.x = (screen.x - this.size.x * 0.5)  * this.scale + this.pos.x
@@ -24,7 +24,7 @@ class Camera2D
 		return proj
 	}
 
-	project2screen(project)
+	world2screen(project)
 	{
 		var screen = Vector2()
 		screen.x = (project.x - this.pos.x) / this.scale + this.size.x * 0.5

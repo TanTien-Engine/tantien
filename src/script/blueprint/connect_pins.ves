@@ -22,7 +22,7 @@ class ConnectPins is EditOP
 
 	on_mouse_press(x, y) 
 	{
-		var pos = this.camera.screen2project(Vector2(x, y))
+		var pos = this.camera.screen2world(Vector2(x, y))
 		var pin = this.query_pin_by_pos(pos, true)
 		if (pin) {
 			this.selected_pin = pin
@@ -34,7 +34,7 @@ class ConnectPins is EditOP
 	{
 		if (this.selected_pin)
 		{
-			var pos = this.camera.screen2project(Vector2(x, y))
+			var pos = this.camera.screen2world(Vector2(x, y))
 			var pin = this.query_pin_by_pos(pos, false)
 			if (pin) 
 			{
@@ -82,7 +82,7 @@ class ConnectPins is EditOP
 		if (this.selected_pin.conns.isEmpty or !this.selected_pin.is_input)
 		{
 			var p0 = NodeLayout.calc_pin_pos(this.selected_pin)
-			var p1 = this.camera.screen2project(Vector2(x, y))
+			var p1 = this.camera.screen2world(Vector2(x, y))
 			if (this.selected_pin.is_input) {
 				Connecting.build_curve(p1, p0, this.curve)
 			} else {
@@ -92,7 +92,7 @@ class ConnectPins is EditOP
 		// change exist conns
 		else
 		{
-			var p = this.camera.screen2project(Vector2(x, y))
+			var p = this.camera.screen2world(Vector2(x, y))
 			for (var conn in this.selected_pin.conns) {
 				var f_pos = NodeLayout.calc_pin_pos(conn.from)
 				Connecting.build_curve(f_pos, p, conn.curve)

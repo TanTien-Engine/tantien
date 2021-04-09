@@ -21,7 +21,7 @@ class Node2dSelect is EditOP
 	{
 		this.draw_op.on_mouse_press(x, y)
 
-		var p = this.camera.screen2project(Vector2(x, y))
+		var p = this.camera.screen2world(Vector2(x, y))
 		var sel = this.query_by_pos(p)
 		var scene = this.scene_stack.top()
 		if (sel) 
@@ -47,8 +47,8 @@ class Node2dSelect is EditOP
 			return
 		}
 
-		var p0 = this.camera.screen2project(this.first_pos)
-		var p1 = this.camera.screen2project(Vector2(x, y))
+		var p0 = this.camera.screen2world(this.first_pos)
+		var p1 = this.camera.screen2world(Vector2(x, y))
 		var selected = this.query_by_rect(p0, p1, this.first_pos.x < x)
 		var scene = this.scene_stack.top()
 		for (var node in selected) {

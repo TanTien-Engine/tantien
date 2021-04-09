@@ -41,8 +41,8 @@ class DrawSelectRect is EditOP
 
 		var pt = Painter.init()
 
-		var p0 = this.camera.screen2project(this.first_pos)
-		var p1 = this.camera.screen2project(this.last_pos)
+		var p0 = this.camera.screen2world(this.first_pos)
+		var p1 = this.camera.screen2world(this.last_pos)
 
 		var color
 		if (p1.x > p0.x) {

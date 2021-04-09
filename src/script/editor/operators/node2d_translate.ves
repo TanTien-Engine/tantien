@@ -23,7 +23,7 @@ class Node2dTranslate is EditOP
 
 		var scene = this.scene_stack.top()
 		if (!scene.selection.isEmpty) {
-			var p = this.camera.screen2project(Vector2(x, y))
+			var p = this.camera.screen2world(Vector2(x, y))
 			this.scene_stack.send_message(scene, MSG_SELECTION_MOVED, [p])
 		}
 	}
@@ -34,8 +34,8 @@ class Node2dTranslate is EditOP
 			return
 		}
 
-		var p0 = this.camera.screen2project(this.last_pos)
-		var p1 = this.camera.screen2project(Vector2(x, y))
+		var p0 = this.camera.screen2world(this.last_pos)
+		var p1 = this.camera.screen2world(Vector2(x, y))
  		this.translate(Vector2(p1.x - p0.x, p1.y - p0.y))
 
 		this.last_pos.set(x, y)
