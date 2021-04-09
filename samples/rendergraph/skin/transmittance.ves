@@ -1,7 +1,7 @@
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 116.282, -83.119200000001)
@@ -31,6 +31,9 @@ void main()
     gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -39,7 +42,7 @@ void main()
 //     gl_FragDepth = gl_FragCoord.z;
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, -146.26118818263, -40.079852215758)
@@ -70,7 +73,7 @@ _editor.add_node(node6, -335.48382568359, -40.799798066951)
 var node7 = Draw()
 
 node7.set_prim_type("triangles")
-node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node7.skip = false
 
 _editor.add_node(node7, 583.70380722722, -545.39065203247)
@@ -103,6 +106,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node8.tcs = ""
+node8.tes = ""
+node8.gs = ""
 node8.fs = "
 #version 420 core
 out vec4 FragColor;
@@ -172,7 +178,7 @@ void main()
     FragColor = vec4(profile, 1.0);    
 }
 "
-node8.gs = ""
+node8.cs = ""
 node8.execute()
 node8.set_uniform("zfar", [ 1 ])
 
@@ -255,7 +261,6 @@ Blueprint.connect(node6, "v", node8, "lightSpaceMatrix")
 Blueprint.connect(node8, "out", node7, "shader")
 Blueprint.connect(node9, "mat", node6, "a")
 Blueprint.connect(node10, "mat", node6, "b")
-Blueprint.connect(node11, "next", node16, "prev")
 Blueprint.connect(node13, "v3", node10, "eye")
 Blueprint.connect(node13, "v3", node8, "lightPos")
 Blueprint.connect(node14, "mat", node8, "projection")

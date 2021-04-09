@@ -8,7 +8,8 @@ _editor.add_node(node0, -17.515820092996, -161.44941641092)
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
+node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
+node1.skip = false
 
 _editor.add_node(node1, -248.60344882102, -302.85908327663)
 
@@ -37,6 +38,9 @@ void main()
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -188,7 +192,7 @@ void main()
     FragColor = vec4(color , 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 node2.set_uniform("albedo", [ 0.5, 0, 0 ])
 node2.set_uniform("ao", [ 1 ])
@@ -207,6 +211,7 @@ var node3 = PrimitiveShape()
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, -429.07577174978, -393.51497563371)
 
@@ -298,6 +303,7 @@ if (_editor.script_stack.count == 4)
 }
 "
 node14.init_ports(4, 1)
+node14.use_cache = false
 
 _editor.add_node(node14, -1010.5093812548, -769.16997004821)
 
@@ -372,9 +378,9 @@ Blueprint.connect(node12, "v", node2, "roughness")
 Blueprint.connect(node13, "tex", node15, "equirectangularMap")
 Blueprint.connect(node14, "out0", node7, "offset")
 Blueprint.connect(node15, "next", node19, "prev")
-Blueprint.connect(node15, "tex", node19, "equirectangularMap")
 Blueprint.connect(node15, "tex", node16, "skybox")
 Blueprint.connect(node15, "tex", node21, "environmentMap")
+Blueprint.connect(node15, "tex", node19, "environmentMap")
 Blueprint.connect(node16, "next", node17, "prev")
 Blueprint.connect(node19, "next", node20, "prev")
 Blueprint.connect(node19, "tex", node2, "irradianceMap")
