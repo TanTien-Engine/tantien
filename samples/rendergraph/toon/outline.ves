@@ -1,0 +1,407 @@
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, 1593.7416105096, 372.65929428944)
+
+var node1 = Model()
+node1.init_model("../learnopengl/resources/objects/backpack/backpack.obj")
+
+_editor.add_node(node1, -94.035444330909, 47.0920029138)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out VS_OUT {
+    vec2 texCoords;
+} vs_out;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+
+	float dist;	
+};
+
+void main()
+{
+    vs_out.texCoords = aTexCoords;
+    gl_Position = projection * view * model * vec4(aPos, 1.0); 
+
+	//vec3 normal = (model * vec4(aNormal, 1.0)).rgb;
+    //gl_Position = projection * view * model * vec4(aPos, 1.0) + vec4(normal * dist, 0.0);
+}
+"
+node2.tcs = ""
+node2.tes = ""
+node2.gs = "
+#version 330 core
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in VS_OUT {
+    vec2 texCoords;
+} gs_in[];
+
+out vec2 TexCoords; 
+
+uniform UBO
+{
+	float dist;	
+	vec3 viewPos;
+};
+
+
+vec4 explode(vec4 position, vec3 normal)
+{
+	vec3 viewDir = normalize(viewPos - position.xyz);
+
+	float l = 0.0;
+	//if (dot(normal, viewDir) < 0) 
+	{
+		l = dist;
+	}	
+    vec3 direction = normal * l; 
+    return position + vec4(direction, 0.0);
+}
+
+vec3 GetNormal()
+{
+    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
+    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+    return normalize(cross(a, b));
+}
+
+void main() 
+{    
+    vec3 normal = GetNormal();
+
+    gl_Position = explode(gl_in[0].gl_Position, normal);
+    TexCoords = gs_in[0].texCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[1].gl_Position, normal);
+    TexCoords = gs_in[1].texCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[2].gl_Position, normal);
+    TexCoords = gs_in[2].texCoords;
+    EmitVertex();
+    EndPrimitive();
+}
+"
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{    
+	FragColor = vec4(0.0);
+	//FragColor = texture(texture_diffuse1, TexCoords);
+}
+"
+node2.cs = ""
+node2.execute()
+node2.set_uniform("dist", [ 0.005 ])
+node2.set_uniform("dist", [ 0.005 ])
+
+_editor.add_node(node2, 1351.2487377944, 206.59943285156)
+
+var node3 = Clear()
+
+node3.masks = [ "depth", "color" ]
+node3.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node3, 1352.596658439, 459.82074306807)
+
+var node4 = Camera3D()
+
+node4.position.set(1.31536227059, 1.2225956798751, 1.267446647937)
+node4.yaw = -118.8
+node4.pitch = -1.3
+node4.zoom = 45
+node4.update_camera_vectors()
+node4.speed = 0.21111145615578
+
+_editor.add_node(node4, -324.2695329915, 213.76534955785)
+
+var node5 = Perspective()
+
+node5.fovy = 45
+node5.aspect = 0
+node5.znear = 0.1
+node5.zfar = 100
+
+_editor.add_node(node5, -320.22283332775, 58.35527158874)
+
+var node6 = Draw()
+
+node6.set_prim_type("triangles")
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node6.skip = false
+
+_editor.add_node(node6, 926.4973793462, 298.69981632394)
+
+var node7 = Clear()
+
+node7.masks = [ "depth", "color" ]
+node7.values = { "color" : [ 128, 125.72415161133, 128, 255 ] }
+
+_editor.add_node(node7, 686.83681124013, 463.02620705056)
+
+var node8 = Shader()
+
+node8.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+out VS_OUT {
+	vec3 FragPos;
+    vec2 TexCoords;
+	vec3 Normal;
+} vs_out;
+
+void main()
+{
+	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
+	vs_out.TexCoords = aTexCoords;
+
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vs_out.Normal = normalMatrix * aNormal;
+
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node8.tcs = ""
+node8.tes = ""
+node8.gs = ""
+node8.fs = "
+#version 330 core
+layout (location = 0) out vec3 gMain;
+layout (location = 1) out vec3 gDepth;
+layout (location = 2) out vec3 gNormal;
+
+in VS_OUT {
+	vec3 FragPos;
+    vec2 TexCoords;
+    vec3 Normal;
+} fs_in;
+
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_normal1;
+uniform sampler2D diffuse_ramp;
+uniform sampler2D palette_tex;
+
+uniform UBO
+{
+    vec3 lightPos;
+    vec3 viewPos;
+    float rimThreshold;
+    float rimAmount;
+};
+
+float near = 0.1; 
+float far = 100.0; 
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
+vec3 rgb2hsv(vec3 _in)
+{
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 P = mix(vec4(_in.bg, K.wz), vec4(_in.gb, K.xy), step(_in.b, _in.g));
+    vec4 Q = mix(vec4(P.xyw, _in.r), vec4(_in.r, P.yzx), step(P.x, _in.r));
+    float D = Q.x - min(Q.w, Q.y);
+    float  E = 1e-10;
+    return vec3(abs(Q.z + (Q.w - Q.y)/(6.0 * D + E)), D / (Q.x + E), Q.x);
+}
+
+vec3 hsv2rgb(vec3 _in)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 P = abs(fract(_in.xxx + K.xyz) * 6.0 - K.www);
+    return _in.z * mix(K.xxx, clamp(P - K.xxx, 0.0, 1.0), _in.y);
+}
+
+void main()
+{
+	vec3 normal = normalize(fs_in.Normal);
+
+	vec3 rgb = texture(texture_diffuse1, fs_in.TexCoords).rgb;
+	vec3 hsv = rgb2hsv(rgb);	
+//	gMain = hsv2rgb(vec3(floor(hsv.r * 16.0) / 16.0, hsv.g * 2.0, hsv.b));
+//	gMain = hsv2rgb(vec3(hsv.r, hsv.g * 2.0, hsv.b));
+//	vec3 color = hsv2rgb(vec3(texture(palette_tex, vec2(hsv.x, 0.5)).x, hsv.y, hsv.z));
+	vec3 color = hsv2rgb(vec3(texture(palette_tex, vec2(hsv.x, 0.5)).x, 0.5, 0.5));
+
+	//float u_colorFactor = 0.0;
+	//float grey = 0.21 * rgb.r + 0.71 * rgb.g + 0.07 * rgb.b;
+	//vec3 color = vec3(rgb.r * u_colorFactor + grey * (1.0 - u_colorFactor), rgb.g * u_colorFactor + grey * (1.0 - u_colorFactor), rgb.b * u_colorFactor + grey * (1.0 - u_colorFactor));
+
+//	vec3 lightColor = vec3(0.3) * 3;
+	vec3 lightColor = vec3(0.3, 0.3, 0.2) * 3;
+
+    // ambient
+    vec3 ambient = 0.3 * color;
+
+    // diffuse
+    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    float NdotL = dot(lightDir, normal);
+//  float diff = max(NdotL, 0.0);
+//	float diff = NdotL > 0.0 ? 1.0 : 0.0;
+	// 0.105, 0.368, 0.632, 0.895
+	float diff = texture(diffuse_ramp, vec2(NdotL * 0.5 + 0.5, 0.105)).r;
+	float lightIntensity = diff;
+    vec3 diffuse = diff * lightColor;
+
+    // specular
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    spec = smoothstep(0.005, 0.01, spec);
+    vec3 specular = spec * lightColor;
+
+    // rim
+    vec3 _RimColor = vec3(1.0);
+    float rimDot = 1 - dot(viewDir, normal);
+	float rimIntensity = rimDot * pow(NdotL, rimThreshold);
+	rimIntensity = smoothstep(rimAmount - 0.01, rimAmount + 0.01, rimIntensity);
+	vec3 rim = rimIntensity * _RimColor;
+
+    // final
+    vec3 lighting = (ambient + diffuse + specular + rim) * color;
+
+    gMain = lighting;
+
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far to get depth in range [0,1] for visualization purposes
+    gDepth = vec3(depth);
+
+	//vec3 normal = texture(texture_normal1, fs_in.TexCoords).rgb;
+
+    gNormal = normal;
+}
+"
+node8.cs = ""
+node8.execute()
+node8.set_uniform("rimThreshold", [ 0.05 ])
+node8.set_uniform("rimAmount", [ 0.68 ])
+
+_editor.add_node(node8, 737.1005497475, 133.41398703134)
+
+var node9 = Commentary()
+
+node9.set_size(1058.3312988281, 706.05834960938)
+node9.title = "Main"
+
+_editor.add_node(node9, 637.70490851017, 574.06501773893)
+
+var node10 = Texture()
+node10.gamma_correction = false
+node10.init_texture("samples/rendergraph/learnopengl/resources/objects/backpack/normal.png")
+node10.set_sampler("linear repeat")
+
+_editor.add_node(node10, 471.62710801958, 137.77728837576)
+
+var node11 = Camera3D()
+
+node11.position.set(7.6322342785631, 16.984345708486, -1.7379706063585)
+node11.yaw = -164.2
+node11.pitch = -81.4
+node11.zoom = 31
+node11.update_camera_vectors()
+node11.speed = 0.19831281900406
+
+_editor.add_node(node11, -333.68403873828, 423.42719476456)
+
+var node12 = Texture()
+node12.gamma_correction = false
+node12.init_texture("diffuse_ramp_4.jpg")
+node12.set_sampler("linear repeat")
+
+_editor.add_node(node12, 227.47450297497, 69.821222563127)
+
+var node13 = Texture()
+node13.gamma_correction = false
+node13.init_texture("107017.png")
+node13.set_sampler("linear repeat")
+
+_editor.add_node(node13, 232, 442.5)
+
+var node14 = Commentary()
+
+node14.set_size(508.44375610352, 515.13751220703)
+node14.title = "Outline"
+
+_editor.add_node(node14, 1468.9081243096, 566.36989913551)
+
+var node15 = Commentary()
+
+node15.set_size(400, 613.55834960938)
+node15.title = "Input"
+
+_editor.add_node(node15, -218.56462711719, 554.67486801563)
+
+var node16 = Pass()
+
+node16.once = false
+
+_editor.add_node(node16, 1881.9633340625, 469.12254547266)
+
+var node17 = Rotate()
+
+node17.angle = 0
+node17.axis_x = 0
+node17.axis_y = 1
+node17.axis_z = 0
+
+_editor.add_node(node17, 544.27335853491, 369.13205210559)
+
+var node18 = Matrix()
+
+_editor.add_node(node18, 394.01041646795, 416.4648895149)
+
+Blueprint.connect(node0, "next", node16, "prev")
+Blueprint.connect(node1, "model", node0, "model")
+Blueprint.connect(node1, "model", node6, "model")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node4, "mat", node2, "view")
+Blueprint.connect(node4, "mat", node8, "view")
+Blueprint.connect(node4, "zoom", node5, "fovy")
+Blueprint.connect(node4, "pos", node8, "viewPos")
+Blueprint.connect(node4, "pos", node2, "viewPos")
+Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node8, "projection")
+Blueprint.connect(node6, "next", node0, "prev")
+Blueprint.connect(node7, "next", node6, "prev")
+Blueprint.connect(node8, "out", node6, "shader")
+Blueprint.connect(node10, "tex", node8, "texture_normal1")
+Blueprint.connect(node11, "pos", node8, "lightPos")
+Blueprint.connect(node12, "tex", node8, "diffuse_ramp")
+Blueprint.connect(node13, "tex", node8, "palette_tex")
+Blueprint.connect(node17, "mat", node8, "model")
+Blueprint.connect(node17, "mat", node2, "model")
+Blueprint.connect(node18, "mat", node17, "mat")

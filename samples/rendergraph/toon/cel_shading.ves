@@ -1,7 +1,7 @@
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = true
 
 _editor.add_node(node0, 502.8121562967, 784.63764981691)
@@ -34,6 +34,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -47,7 +50,7 @@ void main()
     FragColor = texture(texture_diffuse1, TexCoords);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, 248.25214705539, 720.7351516582)
@@ -61,9 +64,9 @@ _editor.add_node(node3, 260.7587880509, 859.25768422459)
 
 var node4 = Camera3D()
 
-node4.position.set(-3.2689844397441, 2.5161317275178, 3.8270588880934)
-node4.yaw = -52.9
-node4.pitch = -27.1
+node4.position.set(-1.1614182948584, 2.4461837054937, 3.1891899598955)
+node4.yaw = -69.4
+node4.pitch = -26.5
 node4.zoom = 45
 node4.update_camera_vectors()
 node4.speed = 0.21111145615578
@@ -82,7 +85,7 @@ _editor.add_node(node5, -320.22283332775, 58.35527158874)
 var node6 = Draw()
 
 node6.set_prim_type("triangles")
-node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node6.skip = false
 
 _editor.add_node(node6, 926.4973793462, 298.69981632394)
@@ -126,6 +129,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node8.tcs = ""
+node8.tes = ""
+node8.gs = ""
 node8.fs = "
 #version 330 core
 layout (location = 0) out vec3 gMain;
@@ -236,7 +242,7 @@ void main()
     gNormal = normal;
 }
 "
-node8.gs = ""
+node8.cs = ""
 node8.execute()
 node8.set_uniform("rimThreshold", [ 0.05 ])
 node8.set_uniform("rimAmount", [ 0.68 ])
@@ -287,7 +293,7 @@ _editor.add_node(node14, 469.69248296636, -519.09847458377)
 var node15 = Draw()
 
 node15.set_prim_type("tri_strip")
-node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
 node15.skip = false
 
 _editor.add_node(node15, 1626.9281613854, -603.40160915683)
@@ -308,6 +314,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node16.tcs = ""
+node16.tes = ""
+node16.gs = ""
 node16.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -375,7 +384,7 @@ void main()
 	FragColor = alphaBlend(edgeColor, color);
 }
 "
-node16.gs = ""
+node16.cs = ""
 node16.execute()
 node16.set_uniform("scale", [ 2.4900879859924 ])
 node16.set_uniform("depthThreshold", [ 0.090087890625 ])
@@ -387,6 +396,7 @@ var node17 = PrimitiveShape()
 
 node17.type = "quad"
 node17.layout = [ "position", "texture" ]
+node17.shape_params = {  }
 
 _editor.add_node(node17, 1415.632484151, -670.59665653931)
 
@@ -486,7 +496,7 @@ _editor.add_node(node30, 1945.7366293976, -797.39668927692)
 var node31 = Draw()
 
 node31.set_prim_type("tri_strip")
-node31.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node31.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
 node31.skip = false
 
 _editor.add_node(node31, 2435.9883789063, -769.78994384766)
@@ -507,6 +517,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node32.tcs = ""
+node32.tes = ""
+node32.gs = ""
 node32.fs = "
 #version 330
 out vec4 FragColor;
@@ -569,7 +582,7 @@ void main()
 	// else FragColor.rgb = rgbB;
 }
 "
-node32.gs = ""
+node32.cs = ""
 node32.execute()
 
 _editor.add_node(node32, 2215.7493356368, -704.62636357788)
@@ -578,6 +591,7 @@ var node33 = PrimitiveShape()
 
 node33.type = "quad"
 node33.layout = [ "position", "texture" ]
+node33.shape_params = {  }
 
 _editor.add_node(node33, 2280.3251473729, -868.54959318043)
 
@@ -587,6 +601,19 @@ node34.set_size(682.41668701172, 682.41668701172)
 node34.title = "FXAA"
 
 _editor.add_node(node34, 2171.007421875, -388.44512939453)
+
+var node35 = Rotate()
+
+node35.angle = 140.30615234375
+node35.axis_x = 0
+node35.axis_y = 1
+node35.axis_z = 0
+
+_editor.add_node(node35, 536.28711492365, 408.97360506925)
+
+var node36 = Matrix()
+
+_editor.add_node(node36, 393.55981445312, 462.60997702859)
 
 Blueprint.connect(node1, "model", node0, "model")
 Blueprint.connect(node1, "model", node6, "model")
@@ -622,3 +649,5 @@ Blueprint.connect(node30, "tex", node29, "col0")
 Blueprint.connect(node30, "tex", node32, "tex")
 Blueprint.connect(node32, "out", node31, "shader")
 Blueprint.connect(node33, "out", node31, "va")
+Blueprint.connect(node35, "mat", node8, "model")
+Blueprint.connect(node36, "mat", node35, "mat")
