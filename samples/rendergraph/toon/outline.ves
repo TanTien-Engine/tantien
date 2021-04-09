@@ -34,69 +34,19 @@ uniform UBO
 
 void main()
 {
-    vs_out.texCoords = aTexCoords;
-    gl_Position = projection * view * model * vec4(aPos, 1.0); 
+    // shell method
+    vec3 normal = (model * vec4(aNormal, 1.0)).rgb;
+    gl_Position = projection * view * (model * vec4(aPos, 1.0) + vec4(normal * dist, 0.0));
 
-	//vec3 normal = (model * vec4(aNormal, 1.0)).rgb;
-    //gl_Position = projection * view * model * vec4(aPos, 1.0) + vec4(normal * dist, 0.0);
+//    // z-bias
+//    vec4 pos = view * model * vec4(aPos, 1.0);
+//    pos.z -= dist;
+//    gl_Position = projection * pos;
 }
 "
 node2.tcs = ""
 node2.tes = ""
-node2.gs = "
-#version 330 core
-layout (triangles) in;
-layout (triangle_strip, max_vertices = 3) out;
-
-in VS_OUT {
-    vec2 texCoords;
-} gs_in[];
-
-out vec2 TexCoords; 
-
-uniform UBO
-{
-	float dist;	
-	vec3 viewPos;
-};
-
-
-vec4 explode(vec4 position, vec3 normal)
-{
-	vec3 viewDir = normalize(viewPos - position.xyz);
-
-	float l = 0.0;
-	//if (dot(normal, viewDir) < 0) 
-	{
-		l = dist;
-	}	
-    vec3 direction = normal * l; 
-    return position + vec4(direction, 0.0);
-}
-
-vec3 GetNormal()
-{
-    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
-    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
-    return normalize(cross(a, b));
-}
-
-void main() 
-{    
-    vec3 normal = GetNormal();
-
-    gl_Position = explode(gl_in[0].gl_Position, normal);
-    TexCoords = gs_in[0].texCoords;
-    EmitVertex();
-    gl_Position = explode(gl_in[1].gl_Position, normal);
-    TexCoords = gs_in[1].texCoords;
-    EmitVertex();
-    gl_Position = explode(gl_in[2].gl_Position, normal);
-    TexCoords = gs_in[2].texCoords;
-    EmitVertex();
-    EndPrimitive();
-}
-"
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -113,10 +63,9 @@ void main()
 "
 node2.cs = ""
 node2.execute()
-node2.set_uniform("dist", [ 0.005 ])
-node2.set_uniform("dist", [ 0.005 ])
+node2.set_uniform("dist", [ 0.01 ])
 
-_editor.add_node(node2, 1351.2487377944, 206.59943285156)
+_editor.add_node(node2, 1351.4122457852, 206.76294084239)
 
 var node3 = Clear()
 
@@ -127,9 +76,9 @@ _editor.add_node(node3, 1352.596658439, 459.82074306807)
 
 var node4 = Camera3D()
 
-node4.position.set(1.31536227059, 1.2225956798751, 1.267446647937)
-node4.yaw = -118.8
-node4.pitch = -1.3
+node4.position.set(-1.13537731586, 1.1157364157419, -2.3371155376176)
+node4.yaw = 68.1
+node4.pitch = -9.9
 node4.zoom = 45
 node4.update_camera_vectors()
 node4.speed = 0.21111145615578
@@ -373,12 +322,12 @@ _editor.add_node(node16, 1881.9633340625, 469.12254547266)
 
 var node17 = Rotate()
 
-node17.angle = 0
+node17.angle = 185.36694335938
 node17.axis_x = 0
 node17.axis_y = 1
 node17.axis_z = 0
 
-_editor.add_node(node17, 544.27335853491, 369.13205210559)
+_editor.add_node(node17, 545.65827121721, 368.73636276779)
 
 var node18 = Matrix()
 
@@ -392,7 +341,6 @@ Blueprint.connect(node4, "mat", node2, "view")
 Blueprint.connect(node4, "mat", node8, "view")
 Blueprint.connect(node4, "zoom", node5, "fovy")
 Blueprint.connect(node4, "pos", node8, "viewPos")
-Blueprint.connect(node4, "pos", node2, "viewPos")
 Blueprint.connect(node5, "mat", node2, "projection")
 Blueprint.connect(node5, "mat", node8, "projection")
 Blueprint.connect(node6, "next", node0, "prev")
