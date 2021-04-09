@@ -94,7 +94,7 @@ class SubGraph is Node
 		for (var prop in this.prop_nodes) 
 		{
 			var val = nil
-			if (prop.value.to_list) {
+			if (prop.value.has_method("to_list()")) {
 				val = prop.value.to_list()
 			} else {
 				val = prop.value
