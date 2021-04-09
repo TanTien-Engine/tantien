@@ -5,7 +5,7 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
 import "maths.vector" for Vector2, Vector3
-import "math" for Math
+import "graphics.camera3d" for Camera3D as tt_Camera3D
 
 class Camera3D is Node
 {
@@ -24,19 +24,8 @@ class Camera3D is Node
 
 		this.layout()
 
-		this.position = Vector3(0, 0, 3)
-		this.front    = Vector3(0, 0, -1)
-		this.up       = Vector3(0, 1, 0)
-
-		this.right    = Vector3()
-		this.world_up = Vector3(0, 1, 0)
-
-	    this.yaw   = -90.0
-	    this.pitch = 0
-
-		this.zoom = 45.0
-
-		this.update_camera_vectors()
+		this.cam = tt_Camera3D()
+		this.cam.update_vectors()
 
 		this.last_pos = nil
 
@@ -51,25 +40,25 @@ class Camera3D is Node
 		}
 		else if (idx == 1)
 		{
-			return Variant(VAR_TYPE_MATRIX4, this.calc_mat())
+			return Variant(VAR_TYPE_MATRIX4, this.cam.calc_mat())
 		}
 		else if (idx == 2)
 		{
-			return Variant(VAR_TYPE_NUMBER, this.zoom)	
+			return Variant(VAR_TYPE_NUMBER, this.cam.zoom)	
 		}
 		else if (idx == 3)
 		{
 			var mat = Matrix44.init()
-			mat.from_totate_mat(this.calc_mat())
+			mat.from_totate_mat(this.cam.calc_mat())
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 4)
 		{
-			return Variant(VAR_TYPE_NUMBER3, this.position)	
+			return Variant(VAR_TYPE_NUMBER3, this.cam.position)	
 		}
 		else if (idx == 5)
 		{
-			return Variant(VAR_TYPE_NUMBER3, this.front)	
+			return Variant(VAR_TYPE_NUMBER3, this.cam.front)	
 		}
 	}
 
@@ -82,11 +71,11 @@ class Camera3D is Node
 
 	to_string(name) {
 		return "
-%(name).position.set(%(this.position.x), %(this.position.y), %(this.position.z))
-%(name).yaw = %(this.yaw)
-%(name).pitch = %(this.pitch)
-%(name).zoom = %(this.zoom)
-%(name).update_camera_vectors()
+%(name).cam.position.set(%(this.cam.position.x), %(this.cam.position.y), %(this.cam.position.z))
+%(name).cam.yaw = %(this.cam.yaw)
+%(name).cam.pitch = %(this.cam.pitch)
+%(name).cam.zoom = %(this.cam.zoom)
+%(name).cam.update_vectors()
 %(name).speed = %(this.speed)
 "
 	}
@@ -111,35 +100,27 @@ class Camera3D is Node
 	{
 		if (key == "w") 
 		{
-			this.position.x = this.position.x + this.front.x * this.speed
-			this.position.y = this.position.y + this.front.y * this.speed
-			this.position.z = this.position.z + this.front.z * this.speed
+			this.cam.move(this.cam.front.x * this.speed, this.cam.front.y * this.speed, this.cam.front.z * this.speed)
 		} 
 		else if (key == "s") 
 		{
-			this.position.x = this.position.x - this.front.x * this.speed
-			this.position.y = this.position.y - this.front.y * this.speed
-			this.position.z = this.position.z - this.front.z * this.speed
+			this.cam.move(-this.cam.front.x * this.speed, -this.cam.front.y * this.speed, -this.cam.front.z * this.speed)
 		} 
 		else if (key == "a") 
 		{
-			this.position.x = this.position.x - this.right.x * this.speed
-			this.position.y = this.position.y - this.right.y * this.speed
-			this.position.z = this.position.z - this.right.z * this.speed
+			this.cam.move(-this.cam.right.x * this.speed, -this.cam.right.y * this.speed, -this.cam.right.z * this.speed)
 		} 
 		else if (key == "d") 
 		{
-			this.position.x = this.position.x + this.right.x * this.speed
-			this.position.y = this.position.y + this.right.y * this.speed
-			this.position.z = this.position.z + this.right.z * this.speed
+			this.cam.move(this.cam.right.x * this.speed, this.cam.right.y * this.speed, this.cam.right.z * this.speed)
 		} 
 		else if (key == "escape") 
 		{
-			this.position = Vector3(0, 0, 3)
-		    this.yaw   = -90.0
-		    this.pitch = 0
-			this.zoom = 45.0
-			this.update_camera_vectors()
+			this.cam.position = Vector3(0, 0, 3)
+		    this.cam.yaw   = -90.0
+		    this.cam.pitch = 0
+			this.cam.zoom = 45.0
+			this.cam.update_vectors()
 		}
 	}
 
@@ -162,53 +143,27 @@ class Camera3D is Node
 		var SENSITIVITY = 0.1
 		dx = dx * SENSITIVITY
 		dy = dy * SENSITIVITY
-		this.yaw = this.yaw + dx
-		this.pitch = this.pitch + dy
+		this.cam.yaw = this.cam.yaw + dx
+		this.cam.pitch = this.cam.pitch + dy
 
-		if (this.pitch > 89) {
-			this.pitch = 89
+		if (this.cam.pitch > 89) {
+			this.cam.pitch = 89
 		}
-		if (this.pitch < -89) {
-			this.pitch = -89
+		if (this.cam.pitch < -89) {
+			this.cam.pitch = -89
 		}
 
-		this.update_camera_vectors()
+		this.cam.update_vectors()
 	}
 	
 	on_mouse_scrolled(x, y, dx, dy)
 	{
-		this.zoom = this.zoom - dy
-		if (this.zoom < 1.0) {
-			this.zoom = 1.0
+		this.cam.zoom = this.cam.zoom - dy
+		if (this.cam.zoom < 1.0) {
+			this.cam.zoom = 1.0
 		}
-		if (this.zoom > 45.0) {
-			this.zoom = 45.0 
+		if (this.cam.zoom > 45.0) {
+			this.cam.zoom = 45.0 
 		}
-	}
-
-	update_camera_vectors()
-	{
-		this.front.x = Math.cos(Math.radians(this.yaw)) * Math.cos(Math.radians(this.pitch))		
-		this.front.y = Math.sin(Math.radians(this.pitch))
-		this.front.z = Math.sin(Math.radians(this.yaw)) * Math.cos(Math.radians(this.pitch))
-
-		this.front.normalize()
-
-		this.right = this.front.cross(this.world_up)
-		this.right.normalize()
-		this.up = this.right.cross(this.front)
-		this.up.normalize()
-	}
-
-	calc_mat()
-	{
-		var center = Vector3()
-		center.x = this.position.x + this.front.x
-		center.y = this.position.y + this.front.y
-		center.z = this.position.z + this.front.z
-
-		var mat = Matrix44.init()
-		mat.lookat(this.position, center, this.up)
-		return mat
 	}
 }

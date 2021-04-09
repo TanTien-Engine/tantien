@@ -1,0 +1,54 @@
+import "maths.vector" for Vector3
+import "math" for Math
+import "maths" for Matrix44
+
+class Camera3D
+{
+	init() 
+	{
+		this.position = Vector3(0, 0, 3)
+		this.front    = Vector3(0, 0, -1)
+		this.up       = Vector3(0, 1, 0)
+
+		this.right    = Vector3()
+		this.world_up = Vector3(0, 1, 0)
+
+	    this.yaw   = -90.0
+	    this.pitch = 0
+
+		this.zoom = 45.0
+	}
+
+	update_vectors()
+	{
+		this.front.x = Math.cos(Math.radians(this.yaw)) * Math.cos(Math.radians(this.pitch))		
+		this.front.y = Math.sin(Math.radians(this.pitch))
+		this.front.z = Math.sin(Math.radians(this.yaw)) * Math.cos(Math.radians(this.pitch))
+
+		this.front.normalize()
+
+		this.right = this.front.cross(this.world_up)
+		this.right.normalize()
+		this.up = this.right.cross(this.front)
+		this.up.normalize()
+	}
+
+	calc_mat()
+	{
+		var center = Vector3()
+		center.x = this.position.x + this.front.x
+		center.y = this.position.y + this.front.y
+		center.z = this.position.z + this.front.z
+
+		var mat = Matrix44.init()
+		mat.lookat(this.position, center, this.up)
+		return mat
+	}
+
+	move(dx, dy, dz)
+	{
+		this.position.x = this.position.x + dx
+		this.position.y = this.position.y + dy
+		this.position.z = this.position.z + dz
+	}
+}
