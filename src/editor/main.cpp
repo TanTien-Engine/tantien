@@ -442,7 +442,7 @@ void limit_fps(int fps)
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cerr << "Need test file name!" << std::endl;
+        std::cerr << "Need editor name!" << std::endl;
         glfwTerminate();
         return 1;
     }
@@ -508,6 +508,12 @@ int main(int argc, char* argv[])
     ves_call(0, 0);
 
     call_sizechanged(width, height);
+
+    if (argc > 2) {
+        ves_pushstring(argv[2]);
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
+    }
 
     while(!glfwWindowShouldClose(window))
     {
