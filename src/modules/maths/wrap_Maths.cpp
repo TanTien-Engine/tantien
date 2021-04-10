@@ -346,7 +346,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
-    if (strcmp(signature, "Matrix44.from_totate_mat(_)") == 0) return w_Matrix44_from_rotate_mat;
+    if (strcmp(signature, "Matrix44.from_rotate_mat(_)") == 0) return w_Matrix44_from_rotate_mat;
     if (strcmp(signature, "Matrix44.transform_mat2d(_)") == 0) return w_Matrix44_transform_mat2d;
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
     if (strcmp(signature, "Matrix44.get_scale()") == 0) return w_Matrix44_get_scale;

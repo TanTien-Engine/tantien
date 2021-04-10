@@ -49,7 +49,7 @@ class Camera3D is Node
 		else if (idx == 3)
 		{
 			var mat = Matrix44.init()
-			mat.from_totate_mat(this.cam.calc_mat())
+			mat.from_rotate_mat(this.cam.calc_mat())
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 4)

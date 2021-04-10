@@ -72,7 +72,7 @@ foreign class Matrix44
 	foreign orthographic(left, right, bottom, top, near, far)
 	foreign lookat(eye, center, up)
 
-	foreign from_totate_mat(mat)
+	foreign from_rotate_mat(mat)
 
 	foreign transform_mat2d(mt)
 	foreign transform_mat4(mt)
