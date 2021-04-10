@@ -78,6 +78,8 @@ foreign class Matrix44
 	foreign transform_mat4(mt)
 
 	foreign get_scale()	
+
+	foreign inverse()
 }
 
 foreign class Maths

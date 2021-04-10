@@ -306,6 +306,12 @@ void w_Matrix44_get_scale()
     ves_pop(1);
 }
 
+void w_Matrix44_inverse()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    *mt = mt->Inverted();
+}
+
 void w_Maths_is_convex_intersect_convex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -350,6 +356,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.transform_mat2d(_)") == 0) return w_Matrix44_transform_mat2d;
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
     if (strcmp(signature, "Matrix44.get_scale()") == 0) return w_Matrix44_get_scale;
+    if (strcmp(signature, "Matrix44.inverse()") == 0) return w_Matrix44_inverse;
 
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
 

@@ -74,6 +74,11 @@ class Vector3
 		return Vector3(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
 	}
 
+	dot(v)
+	{
+		 return this.x * v.x + this.y * v.y + this.z * v.z
+	}
+
 	from_list(list) {
 		this.x = list[0]
 		this.y = list[1]

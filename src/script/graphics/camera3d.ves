@@ -1,6 +1,7 @@
 import "maths.vector" for Vector3
 import "math" for Math
-import "maths" for Matrix44
+import "maths" for Matrix44, Float3
+import "graphics" for Graphics
 
 class Camera3D
 {
@@ -50,5 +51,43 @@ class Camera3D
 		this.position.x = this.position.x + dx
 		this.position.y = this.position.y + dy
 		this.position.z = this.position.z + dz
+	}
+
+	screen2world(screen_pos, fovy) 
+	{
+	    // p = p0 + t * v
+	    // (p - p1) dot n = 0
+		var dir = this.screen2dir(screen_pos, fovy)
+		var n = Vector3(0, 1, 0)
+	    var t = - this.position.dot(n) / dir.dot(n)
+	    return Vector3(this.position.x + t * dir.x, this.position.y + t * dir.y, this.position.z + t * dir.z)
+	}
+
+	screen2dir(screen_pos, fovy)
+	{
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+
+	    var aspect = w / h
+	    var tan_half_fovy = Math.tan(fovy / 2 * 3.1416 / 180.0)
+
+	    var hw = w * 0.5
+	    var hh = h * 0.5
+
+	    var x = (screen_pos.x - hw) / hw * tan_half_fovy * aspect
+	    var y = -(screen_pos.y - hh) / hh * tan_half_fovy
+	    var z = -1
+		var p = Float3.init(x, y, z)
+
+		var inv_rot = Matrix44.init()
+		inv_rot.from_rotate_mat(this.calc_mat())
+
+		inv_rot.inverse()
+		p.transform(inv_rot)
+
+		var ret = Vector3(p.x(), p.y(), p.z())
+		ret.normalize()
+
+		return ret
 	}
 }
