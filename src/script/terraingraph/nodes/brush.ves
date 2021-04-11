@@ -12,6 +12,7 @@ import "gui" for GUI
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.nodes.shader" for Shader
 import "rendergraph.nodes.compute" for Compute
+import "rendergraph.nodes.texture" for Texture
 import "rendergraph.drawlist" for Drawlist
 import "maths.vector" for Vector2
 
@@ -29,6 +30,7 @@ layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) i
 layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 
 uniform sampler2D in_tex;
+uniform sampler2D brush_tex;
 
 uniform UBO
 {
@@ -46,9 +48,11 @@ void main()
     const vec2 tex_coord = pos / float(textureSize(in_tex, 0));
     float dist = distance(tex_coord, brush_pos * 0.5 + 0.5);
     float r = radius * 0.5;
-    if (dist < r) {
+    if (dist < r) 
+    {
         float blend = pow(1.0 - dist / r, 2.0);
-        base.r += blend * force;
+        vec2 uv = pos / float(textureSize(brush_tex, 0));
+        base.r += blend * force * texture(brush_tex, uv).r;
     }
 
     imageStore(out_tex, pos, base);
@@ -62,6 +66,7 @@ class Brush is Node
 		super.init(Brush.name)
 	
 		this.imports = [
+			Pin(this, "in", VAR_TYPE_HEIGHTFIELD),
 			Pin(this, "cam", VAR_TYPE_NODE),
 		]
 		this.exports = [
@@ -76,7 +81,11 @@ class Brush is Node
 		this.force = 0.1
 
 		this.curr_pos = Vector2(0, 0)
+
 		this.added_pos = []
+		this.history = []
+
+		this.default_brush_tex = nil
 
 		this.hf = VarHeightfield()
 	}
@@ -113,6 +122,16 @@ class Brush is Node
 			SHADER = shader
 			COMPUTE = compute
 		}
+		if (!this.default_brush_tex) 
+		{
+			this.default_brush_tex = Texture2D.init(1, 1, "r16f")
+			this.default_brush_tex.upload([0.9], 0, 0, 1, 1)
+		}
+		if (!this.history.isEmpty)
+		{
+			this.load_history(this.history)
+			this.history.clear()
+		}
 	}
 
 	layout() 
@@ -131,7 +150,7 @@ class Brush is Node
 		return "
 %(name).radius = %(this.radius)
 %(name).force = %(this.force)
-%(name).load_history([%(pos_str)])
+%(name).history = [%(pos_str)]
 "
 	}
 
@@ -182,11 +201,21 @@ class Brush is Node
 
 	bind(shader)
 	{
-		var out_tex = HeightfieldProxy(this.exports[0])
+		var out_tex = HeightfieldProxy(Blueprint.query_pin(this.exports, "out"))
 		Blueprint.connect(out_tex, "tex", shader, "out_tex")
 
-		var in_tex = HeightfieldProxy(this.exports[0])
+		var in_tex = HeightfieldProxy(Blueprint.query_pin(this.exports, "out"))
 		Blueprint.connect(in_tex, "tex", shader, "in_tex")
+
+		var brush_tex_pin = Blueprint.get_input_pin(this.imports, "in")
+		if (brush_tex_pin) {
+			var node = HeightfieldProxy(brush_tex_pin)
+			Blueprint.connect(node, "tex", shader, "brush_tex")
+		} else {
+			var node = Texture()
+			node.tex = this.default_brush_tex
+			Blueprint.connect(node, "tex", shader, "brush_tex")		
+		}
 
 		var pos = FieldProxy(this, "curr_pos")
 		Blueprint.connect(pos, "out", shader, "brush_pos")
@@ -200,7 +229,7 @@ class Brush is Node
 
 	update_brush_pos(x, y)
 	{
-		var v_cam = Blueprint.calc_input_value(this, 0)
+		var v_cam = Blueprint.calc_input_value(this, "cam")
 		if (!v_cam or !v_cam.value) {
 			return
 		}
@@ -225,7 +254,6 @@ class Brush is Node
 
 	load_history(pos_list)
 	{
-		this.execute()
 		for (var p in pos_list) 
 		{
 			this.curr_pos.x = p[0]
