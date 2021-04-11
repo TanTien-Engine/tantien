@@ -69,8 +69,11 @@ Based for each editors
 ![](./doc/terraingraph/screenshots/erosion.jpg)
     <em>Noise and erosion</em>
 
+![](./doc/terraingraph/screenshots/brush.gif)
+    <em>Brush</em>
+
 #### Features
-* brushes
+* multiple brushes
 
 #### Nodes
 * generator : constant, gradient, perlin, worley
@@ -78,6 +81,7 @@ Based for each editors
 * filter: clamp, gaussian, incline, inverter, scale_bias, step, transform
 * natural : erosion
 * selector ： select_height, select_slope
+* edit : brush
 * draw : viewer
 
 ## Building
