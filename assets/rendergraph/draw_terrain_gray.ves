@@ -134,6 +134,10 @@ uniform UBO_FS
 {
     vec3 light_pos;
     vec2 inv_res;
+
+    // brush
+    vec2 mouse_pos;
+    float draw_radius;
 } fs;
 
 uniform sampler2D fs_heightmap;
@@ -161,7 +165,7 @@ void main()
     vec3 light_dir = normalize(fs.light_pos - pos);
     float diff = max(dot(N, light_dir), 0.0);
     vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
-    FragColor = vec4(diffuse, 1.0);
+    vec3 final = diffuse;
 
     //FragColor = vec4(N, 1.0);
 
@@ -188,6 +192,14 @@ void main()
     //    }
     //}
     //FragColor = colors[curr_level];
+
+    float dist = length(pos - vec3(fs.mouse_pos.x, pos.y, fs.mouse_pos.y));
+    if (dist < fs.draw_radius) {
+        float blend = pow(1.0 - dist / fs.draw_radius, 1.0);
+        final.r += 0.6 * blend;
+    }
+
+    FragColor = vec4(final, 1.0); 
 }
 "
 node1.cs = ""
@@ -228,7 +240,7 @@ var node5 = Input()
 node5.var_name = "tes_heightmap"
 node5.var_type = "texture"
 
-_editor.add_node(node5, -204.39431471226, -414.00510651966)
+_editor.add_node(node5, -192.07851987472, -325.74191018398)
 
 var node6 = Proxy()
 
@@ -236,6 +248,20 @@ node6.real_name = "view_cam"
 node6.init_real_node(_editor.popup_nodes, "Camera3D")
 
 _editor.add_node(node6, -223.05257443076, -190.79010489722)
+
+var node7 = Input()
+
+node7.var_name = "fs.mouse_pos"
+node7.var_type = "num2"
+
+_editor.add_node(node7, -191.297647651, -372.80012313566)
+
+var node8 = Input()
+
+node8.var_name = "fs.draw_radius"
+node8.var_type = "num"
+
+_editor.add_node(node8, -190.27132794413, -422.06332026702)
 
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "next", node0, "prev")
@@ -248,3 +274,5 @@ Blueprint.connect(node6, "mat", node1, "tes.view")
 Blueprint.connect(node6, "mat", node1, "tcs.view")
 Blueprint.connect(node6, "zoom", node4, "fovy")
 Blueprint.connect(node6, "pos", node1, "tcs.cam_pos")
+Blueprint.connect(node7, "var", node1, "fs.mouse_pos")
+Blueprint.connect(node8, "var", node1, "fs.draw_radius")

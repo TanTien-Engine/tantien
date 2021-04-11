@@ -3,11 +3,14 @@ import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD
 import "terraingraph.heightfield_proxy" for HeightfieldProxy
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_NODE
+import "blueprint.variant" for VAR_TYPE_NODE, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
 import "editor.rendergraph" for Rendergraph
 import "editor.node_cache" for NODE_CACHE
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.nodes.number" for Number
+import "blueprint.nodes.number2" for Number2
+import "maths.vector" for Vector2
 
 class Viewer is Node
 {
@@ -18,6 +21,9 @@ class Viewer is Node
 		this.imports = [
 			Pin(this, "hf",  VAR_TYPE_HEIGHTFIELD),
 			Pin(this, "cam", VAR_TYPE_NODE),
+
+			Pin(this, "brush_pos", VAR_TYPE_NUMBER2),
+			Pin(this, "brush_radius", VAR_TYPE_NUMBER),
 		]
 
 		this.layout()
@@ -27,7 +33,9 @@ class Viewer is Node
 		this.gray = true
 
 		this.draw_node_gray = nil
-		this.draw_node_splatmap = nil		
+		this.draw_node_splatmap = nil
+
+		this.brush_pos = Vector2(0, 0)
 	}
 
 	execute() 
@@ -55,6 +63,23 @@ class Viewer is Node
 		var cam = Blueprint.calc_input_value(this, 1)
 		if (cam and cam.value) {
 			Blueprint.connect(cam.value, "this", draw, "view_cam")
+		}
+
+		var brush_pos = Blueprint.calc_input_value(this, 2)
+		if (brush_pos and brush_pos.value)
+		{
+			var pos_node = Number2()
+			pos_node.value.x = brush_pos.value.x
+			pos_node.value.y = brush_pos.value.y
+			Blueprint.connect(pos_node, "v2", draw, "fs.mouse_pos")
+		}
+
+		var brush_radius = Blueprint.calc_input_value(this, 3)
+		if (brush_radius)
+		{
+			var r_node = Number()
+			r_node.value = brush_radius.value
+			Blueprint.connect(r_node, "v", draw, "fs.draw_radius")
 		}
 
 		draw.execute()
