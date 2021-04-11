@@ -3,6 +3,7 @@
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
 #include "modules/script/Proxy.h"
+#include "modules/maths/float16.h"
 
 #include <unirender/Device.h>
 #include <unirender/Context.h>
@@ -711,7 +712,8 @@ void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
         } else if (std::is_same<T, float>::value) {
             data.push_back((float)ves_tonumber(-1));
         } else {
-            data.push_back(std::numeric_limits<T>::max() * ves_tonumber(-1));
+            short f16 = FloatToFloat16((float)ves_tonumber(-1));
+            data.push_back(f16);
         }
         ves_pop(1);
     }
