@@ -72,6 +72,9 @@ Based for each editors
 ![](./doc/terraingraph/screenshots/brush.gif)
     <em>Brush</em>
 
+![](./doc/terraingraph/screenshots/noise_brush.gif)
+    <em>Noise brush</em>
+
 #### Features
 * multiple brushes
 
