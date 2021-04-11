@@ -116,11 +116,17 @@ class Blueprint
 		conn.update()
 	}
 
-	static query_pin(pins, name)
+	static query_pin(pins, slot)
 	{
-		for (var p in pins) {
-			if (p.name == name) {
-				return p
+		if (slot is Num) {
+			if (slot >= 0 and slot < pins.count) {
+				return pins[slot]
+			}
+		} else if (slot is String) {
+			for (var p in pins) {
+				if (p.name == slot) {
+					return p
+				}
 			}
 		}
 		return nil
@@ -144,19 +150,28 @@ class Blueprint
 		conn.update()
 	}
 
-	static get_input_node(curr_node, input_slot)
+	static get_input_pin(curr_node, input_slot)
 	{
-		var pin = curr_node.imports[input_slot]
+		var pin = this.query_pin(curr_node.imports, input_slot)
 		if (pin.conns.isEmpty) {
 			return nil
 		} else {
-			return pin.conns.front().from.node
+			return pin.conns.front().from
 		}
+	}
+
+	static get_input_node(curr_node, input_slot)
+	{
+		var pin = this.get_input_pin(curr_node, input_slot)
+		if (pin) {
+			return pin.node
+		}
+		return nil
 	}
 
 	static calc_input_value(curr_node, input_slot)
 	{
-		var pin = curr_node.imports[input_slot]
+		var pin = this.query_pin(curr_node.imports, input_slot)
 		if (pin.conns.isEmpty) {
 			return nil
 		} else {
