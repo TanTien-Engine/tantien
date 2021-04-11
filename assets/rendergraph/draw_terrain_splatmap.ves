@@ -146,6 +146,10 @@ uniform UBO_FS
     vec4 layer_height_bias;
     vec4 layer_slope_scale;
     vec4 layer_slope_bias;    
+
+    // brush
+    vec2 mouse_pos;
+    float draw_radius;    
 } fs;
 
 uniform sampler2D fs_heightmap;
@@ -277,9 +281,18 @@ void main()
     splat_col = mix(splat_col, textureSample(splatmap2, tex_coord).rgb, lerp_weights.y);
     splat_col = mix(splat_col, textureSample(splatmap3, tex_coord).rgb, lerp_weights.z);
 
-    FragColor = vec4(diffuse * splat_col, 1.0);
+    vec3 final = diffuse * splat_col;
+
+    float dist = length(pos - vec3(fs.mouse_pos.x, pos.y, fs.mouse_pos.y));
+    if (dist < fs.draw_radius) {
+        float blend = pow(1.0 - dist / fs.draw_radius, 1.0);
+        final.r += 0.6 * blend;
+    }
+
+    FragColor = vec4(final, 1.0);
 }
 "
+node1.cs = ""
 node1.execute()
 node1.set_uniform("tcs.lod_level", [ 13 ])
 node1.set_uniform("tes.height_scale", [ 0.1 ])
@@ -310,7 +323,7 @@ var node4 = Input()
 node4.var_name = "tes_heightmap"
 node4.var_type = "texture"
 
-_editor.add_node(node4, -334.39431471226, -34.00510651966)
+_editor.add_node(node4, -251.06667315772, 79.375127070942)
 
 var node5 = Texture()
 node5.gamma_correction = false
@@ -424,6 +437,20 @@ node13.zfar = 100
 
 _editor.add_node(node13, -134.60698499512, 344.54891007019)
 
+var node14 = Input()
+
+node14.var_name = "fs.mouse_pos"
+node14.var_type = "num2"
+
+_editor.add_node(node14, -247.05421839203, 31.474460990285)
+
+var node15 = Input()
+
+node15.var_name = "fs.draw_radius"
+node15.var_type = "num"
+
+_editor.add_node(node15, -247.0542146495, -17.702509322296)
+
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "next", node0, "prev")
 Blueprint.connect(node3, "out", node0, "va")
@@ -446,3 +473,5 @@ Blueprint.connect(node12, "zoom", node13, "fovy")
 Blueprint.connect(node12, "pos", node1, "tcs.cam_pos")
 Blueprint.connect(node13, "mat", node1, "tcs.projection")
 Blueprint.connect(node13, "mat", node1, "tes.projection")
+Blueprint.connect(node14, "var", node1, "fs.mouse_pos")
+Blueprint.connect(node15, "var", node1, "fs.draw_radius")
