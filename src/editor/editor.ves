@@ -59,7 +59,7 @@ import "blueprint.nodes.proxy" for Proxy
 
 class Editor
 {
-	load()
+	load(import_base_nodes)
 	{
 		this.scene_stack = SceneStack()
 
@@ -79,15 +79,18 @@ class Editor
 
 //		this.filepath = ""
 //		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__9.ssao.ves"
-//		this.filepath = "samples/rendergraph/nodes/compute.ves"
-		this.filepath = "samples/terraingraph/demo/test.ves"
+		this.filepath = "samples/shadergraph/nodes/rectangle.ves"
+//		this.filepath = "assets/rendergraph/draw_terrain_gray.ves"
 
 		this.hide_nodes = false
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport, Proxy ]) {
-			this.add_popup_node(node)
+		if (import_base_nodes)
+		{
+			for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport, Proxy ]) {
+				this.add_popup_node(node)
+			}
 		}
 
 		this.script_stack = []
@@ -205,7 +208,7 @@ class Editor
 	}
 
 	mousepressed(x, y, btn)
-	{
+	{		
 		GUI.mouse_input(this.gui_top, btn, MOUSE_DOWN, x, y, 0, 0, 1)
 		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DOWN, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 

@@ -117,14 +117,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;SPVGENTWO_LOGGING=1;SPVGENTWO_REPLACE_PLACEMENTNEW=1;SPVGENTWO_REPLACE_TRAITS=1;SPVGENTWO_BUILD_EXAMPLES=1;SPVGENTWO_BUILD_DISASSEMBLER=1;SPVGENTWO_BUILD_REFLECT=1;CMAKE_INTDIR="Debug";_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;spirv-cross-cored.lib;spirv-cross-utild.lib;spirv-cross-glsld.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -144,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;SPIRV-Tools.lib;SPIRV-Tools-link.lib;SPIRV-Tools-opt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -165,6 +167,30 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\primitive\platform\msvc\projects\primitive_new.vcxproj">
       <Project>{58617bd0-9ac3-4d6c-bf12-3c9c7cb79946}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shaderlink\platform\msvc\projects\shaderlink.vcxproj">
+      <Project>{8013df52-454d-4f3b-b48b-88426f55bff5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Cross\cmake_out\spirv-cross-core.vcxproj">
+      <Project>{4fd7b7a9-a780-3845-aa5e-46f1ba109734}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Cross\cmake_out\spirv-cross-glsl.vcxproj">
+      <Project>{2a00037a-353f-3329-9a2f-590327d1e083}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Cross\cmake_out\spirv-cross-util.vcxproj">
+      <Project>{0eb2d8f7-27fc-3a29-8c95-82082c9a9fb4}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Tools\cmake_out\source\link\SPIRV-Tools-link.vcxproj">
+      <Project>{8583a3f7-fb59-3e2f-9317-a3c610edc308}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Tools\cmake_out\source\SPIRV-Tools-static.vcxproj">
+      <Project>{e72f4ad1-a584-3624-b202-62881967fe4d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SpvGenTwo\cmake_out\SpvGenTwoCommon.vcxproj">
+      <Project>{6fd16473-d97b-3c91-a52a-e81501ffbb22}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SpvGenTwo\cmake_out\SpvGenTwoLib.vcxproj">
+      <Project>{aa802bb8-edeb-34d7-b2f1-ea3339289ce3}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\shadertrans\platform\msvc\projects\shadertrans_new.vcxproj">
       <Project>{0af51930-759c-4389-8420-2bf6cb10beff}</Project>
@@ -211,6 +237,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\editor\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

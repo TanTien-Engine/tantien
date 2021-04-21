@@ -1,0 +1,27 @@
+import "shader" for ShaderTools
+import "render" for Render
+import "blueprint.node_helper" for NodeHelper as bp_NodeHelper
+import "blueprint.pin" for Pin
+
+class NodeHelper
+{
+	static init_pins_from_code(node, code, name)
+	{
+		code = "#version 330 core\n" + code
+		var args = Render.get_shader_func_argus("pixel", code, "glsl", name)
+		for (var i in 0..args.count - 1) 
+		{
+			var v = args[i]
+			var pin_type = bp_NodeHelper.type_var_to_pin(v[1])
+			node.imports.add(Pin(node, v[0], pin_type))
+		}
+		var v = args[args.count - 1]
+		if (v[1] != "void")
+		{
+			var pin_type = bp_NodeHelper.type_var_to_pin(v[1])
+			node.exports.add(Pin(node, "ret", pin_type))
+		}
+
+		node.layout()
+	}
+}

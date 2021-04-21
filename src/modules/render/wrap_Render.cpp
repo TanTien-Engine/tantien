@@ -31,11 +31,6 @@
 #include <guard/check.h>
 #include <model/Model.h>
 
-#include <glslang/glslang/Public/ShaderLang.h>
-
-#include <spirv-cross/spirv.hpp>
-#include <spirv-cross/spirv_glsl.hpp>
-
 #include <array>
 
 //#define SHADER_DEBUG_PRINT
@@ -200,6 +195,9 @@ const char* unif_type_to_string(shadertrans::ShaderReflection::VarType type)
         break;
     case shadertrans::ShaderReflection::VarType::Image:
         ret = "image";
+        break;
+    case shadertrans::ShaderReflection::VarType::Void:
+        ret = "void";
         break;
     default:
         assert(0);
@@ -1336,9 +1334,10 @@ void w_Render_set_viewport()
     tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
-void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* lang_str,
-                         std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
+std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* lang_str, bool no_link)
 {
+    std::vector<unsigned int> spirv;
+
     shadertrans::ShaderStage stage;
     if (strcmp(stage_str, "vertex") == 0) {
         stage = shadertrans::ShaderStage::VertexShader;
@@ -1353,22 +1352,28 @@ void get_shader_uniforms(const char* stage_str, const char* shader_str, const ch
     } else if (strcmp(stage_str, "compute") == 0) {
         stage = shadertrans::ShaderStage::ComputeShader;
     } else {
-        return;
+        return spirv;
     }
 
-    std::vector<unsigned int> spirv;
     if (strcmp(lang_str, "glsl") == 0) {
-        shadertrans::ShaderTrans::GLSL2SpirV(stage, shader_str, spirv);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, shader_str, spirv, no_link);
     } else if (strcmp(lang_str, "hlsl") == 0) {
         shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, spirv);
     }
 
+    return spirv;
+}
+
+void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* lang_str,
+                         std::vector<shadertrans::ShaderReflection::Variable>& uniforms)
+{
+    auto spirv = shader_string_to_spirv(stage_str, shader_str, lang_str, false);
     if (!spirv.empty()) {
         shadertrans::ShaderReflection::GetUniforms(spirv, uniforms);
     }
 }
 
-int count_uniform_num(const std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
+int count_uniform_num(const std::vector<shadertrans::ShaderReflection::Variable>& uniforms)
 {
     int num = 0;
     for (auto& unif : uniforms)
@@ -1385,63 +1390,63 @@ int count_uniform_num(const std::vector<shadertrans::ShaderReflection::Uniform>&
     return num;
 }
 
-void push_uniforms(const std::vector<shadertrans::ShaderReflection::Uniform>& uniforms)
+void push_variants(const std::vector<shadertrans::ShaderReflection::Variable>& variants)
 {
-    ves_newlist(uniforms.size());
+    ves_newlist(variants.size());
 
-    for (int i = 0, n = uniforms.size(); i < n; ++i)
+    for (int i = 0, n = variants.size(); i < n; ++i)
     {
         // name + type + value[]
         ves_newlist(3);
 
-        auto& unif = uniforms[i];
-        if (unif.type == shadertrans::ShaderReflection::VarType::Array || 
-            unif.type == shadertrans::ShaderReflection::VarType::Struct)
+        auto& var = variants[i];
+        if (var.type == shadertrans::ShaderReflection::VarType::Array || 
+            var.type == shadertrans::ShaderReflection::VarType::Struct)
         {
             // name
-            ves_pushstring(unif.name.c_str());
+            ves_pushstring(var.name.c_str());
             ves_seti(-2, 0);
             ves_pop(1);
 
             // type
-            ves_pushstring(unif_type_to_string(unif.type));
+            ves_pushstring(unif_type_to_string(var.type));
             ves_seti(-2, 1);
             ves_pop(1);
 
             // value
-            push_uniforms(unif.children);
+            push_variants(var.children);
             ves_seti(-2, 2);
             ves_pop(1);
         }
         else 
         {
-            assert(unif.children.empty());
+            assert(var.children.empty());
 
             // name
-            ves_pushstring(unif.name.c_str());
+            ves_pushstring(var.name.c_str());
             ves_seti(-2, 0);
             ves_pop(1);
 
             // type
-            ves_pushstring(unif_type_to_string(unif.type));
+            ves_pushstring(unif_type_to_string(var.type));
             ves_seti(-2, 1);
             ves_pop(1);
 
             // value
-            if (unif.type == shadertrans::ShaderReflection::VarType::Sampler ||
-                unif.type == shadertrans::ShaderReflection::VarType::Image)
+            if (var.type == shadertrans::ShaderReflection::VarType::Sampler ||
+                var.type == shadertrans::ShaderReflection::VarType::Image)
             {
                 ves_newlist(0);
             }
-            else if (unif.type == shadertrans::ShaderReflection::VarType::Mat2 || 
-                     unif.type == shadertrans::ShaderReflection::VarType::Mat3 || 
-                     unif.type == shadertrans::ShaderReflection::VarType::Mat4)
+            else if (var.type == shadertrans::ShaderReflection::VarType::Mat2 || 
+                     var.type == shadertrans::ShaderReflection::VarType::Mat3 || 
+                     var.type == shadertrans::ShaderReflection::VarType::Mat4)
             {
                 ves_newlist(0);
             }
             else
             {
-                const int num = get_value_number_size(unif.type);
+                const int num = get_value_number_size(var.type);
                 ves_newlist(num);
                 for (int i = 0; i < num; ++i) {
                     ves_pushnumber(0);
@@ -1463,15 +1468,34 @@ void w_Render_get_shader_uniforms()
     const char* code  = ves_tostring(2);
     const char* lang  = ves_tostring(3);
 
-    std::vector<shadertrans::ShaderReflection::Uniform> uniforms;
+    std::vector<shadertrans::ShaderReflection::Variable> uniforms;
     if (strlen(code) != 0) {
         get_shader_uniforms(stage, code, lang, uniforms);
     }
 
     ves_pop(4);
 
-    push_uniforms(uniforms);
+    push_variants(uniforms);
 } 
+
+void w_Render_get_shader_func_argus()
+{
+    const char* stage = ves_tostring(1);
+    const char* code = ves_tostring(2);
+    const char* lang = ves_tostring(3);
+    const char* name = ves_tostring(4);
+
+    auto spirv = shader_string_to_spirv(stage, code, lang, true);
+
+    shadertrans::ShaderReflection::Function func;
+    shadertrans::ShaderReflection::GetFunction(spirv, name, func);
+
+    ves_pop(5);
+
+    auto vars = func.arguments;
+    vars.push_back(func.ret_type);
+    push_variants(vars);
+}
 
 }
 
@@ -1500,6 +1524,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_)") == 0) return w_Render_get_shader_uniforms;
+    if (strcmp(signature, "static Render.get_shader_func_argus(_,_,_,_)") == 0) return w_Render_get_shader_func_argus;
     if (strcmp(signature, "static Render.get_fbo(_)") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;

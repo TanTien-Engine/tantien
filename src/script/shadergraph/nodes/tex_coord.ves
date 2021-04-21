@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER2
+
+class TexCoord is Node
+{
+	init()
+	{
+		super.init(TexCoord.name)	
+
+		this.exports = [
+			Pin(this, "uv", VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+	}
+
+	gen_shader(gen)
+	{
+		this.inst = gen.add_input("TexCoord", "vec2")
+	}
+
+	calc_inst(gen, idx) 
+	{
+		return this.inst
+	}
+}

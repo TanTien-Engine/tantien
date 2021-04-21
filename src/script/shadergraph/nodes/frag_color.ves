@@ -1,0 +1,43 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER
+
+class FragColor is Node
+{
+	init()
+	{
+		super.init(FragColor.name)	
+
+		this.imports = [
+			Pin(this, "x", VAR_TYPE_NUMBER),
+			Pin(this, "y", VAR_TYPE_NUMBER),
+			Pin(this, "z", VAR_TYPE_NUMBER),
+			Pin(this, "w", VAR_TYPE_NUMBER),
+		]
+
+		this.layout()
+	}
+
+	gen_shader(gen)
+	{
+		gen.import_all()
+
+		var frag_col = gen.add_output("FragColor", "vec4")
+
+		for (var i in 0..4)
+		{
+			var conns = this.imports[i].conns
+			if (!conns.isEmpty)
+			{
+				var f_pin = conns.front().from
+				var src = f_pin.node.calc_inst(gen, f_pin.slot_idx)
+				var dst = gen.op_access_chain(frag_col, i)
+				gen.op_store(dst, src)
+			}
+		}
+
+		gen.op_return()
+
+		gen.finish_main()
+	}
+}

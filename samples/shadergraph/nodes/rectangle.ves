@@ -1,0 +1,25 @@
+var node0 = Rectangle()
+
+_editor.add_node(node0, -30.797312281818, 50.469884536364)
+
+var node1 = Combine()
+
+_editor.add_node(node1, 176.75705996524, -101.08108737282)
+
+var node2 = FragColor()
+
+_editor.add_node(node2, 169.28855878175, 33.953808826368)
+
+var node3 = TexCoord()
+
+_editor.add_node(node3, -167.26364561792, 35.04834115353)
+
+var node4 = Ellipse()
+
+_editor.add_node(node4, -31, -56)
+
+Blueprint.connect(node0, "ret", node1, "x")
+Blueprint.connect(node0, "ret", node2, "x")
+Blueprint.connect(node3, "uv", node0, "uv")
+Blueprint.connect(node3, "uv", node4, "uv")
+Blueprint.connect(node4, "ret", node2, "y")

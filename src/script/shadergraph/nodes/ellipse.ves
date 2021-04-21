@@ -1,0 +1,47 @@
+import "blueprint.node" for Node
+import "shadergraph.node_helper" for NodeHelper
+
+var block = "
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Ellipse-Node.html
+float ellipse(vec2 uv, float width, float height)
+{
+    float d = length((uv * 2 - 1) / vec2(width, height));
+    return clamp((1 - d) / fwidth(d), 0.0, 1.0);
+}
+"
+
+class Ellipse is Node
+{
+	init() 
+	{
+		super.init(Ellipse.name)
+
+		NodeHelper.init_pins_from_code(this, block, "ellipse")
+	}
+
+	gen_shader(gen)
+	{
+		var code = "#version 330 core\n" + block	
+		this.func = gen.add_lib("pixel", code)
+		gen.add_link_decl(this.func, "sg_Ellipse", true)
+	}
+
+	calc_inst(gen, idx) 
+	{
+		var func = gen.create_decl_func(this.func)
+		gen.add_link_decl(func, "sg_Ellipse", false)
+
+		var uv
+		if (!this.imports[0].conns.isEmpty) {
+			var f_pin = this.imports[0].conns.front().from
+			uv = f_pin.node.calc_inst(gen, f_pin.slot_idx)
+		} else {
+			uv = gen.op_const_float2(0, 0)
+		}
+
+		var width = gen.op_const_float(0.5)
+		var height = gen.op_const_float(0.8)
+
+		return gen.op_call(func, [uv, width, height])
+	}
+}

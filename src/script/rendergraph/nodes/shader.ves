@@ -3,8 +3,9 @@ import "rendergraph.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
+import "blueprint.node_helper" for NodeHelper
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
+import "blueprint.variant" for VAR_TYPE_ARRAY
 import "maths" for Matrix44
 import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_TEXTURE
 import "math" for Math
@@ -87,7 +88,7 @@ class Shader is Node
 				this.add_uniform_to_imports(u)
 			}
 		} else {
-			var pin_type = this.type_uniform_to_pin(unif[1])
+			var pin_type = NodeHelper.type_var_to_pin(unif[1])
 			var pin = Pin(this, unif[0], pin_type)
 			pin.unif = unif
 			this.imports.add(pin)
@@ -252,7 +253,7 @@ class Shader is Node
 				y = y - DEFAULT_HEIGHT
 			}
 
-			var region = 10
+			var region = 1.0
 			if (unif[1] == "int" or unif[1] == "int2" or unif[1] == "int3" or unif[1] == "int4") {
 				region = 10
 			}
@@ -486,28 +487,5 @@ class Shader is Node
 		for (var unif in this.uniforms) {
 			this.update_uniforms(frame, unif)
 		}
-	}
-
-	type_uniform_to_pin(unif_type)
-	{
-		var pin_type = VAR_TYPE_UNKNOWN
-		if (unif_type == "bool" or unif_type == "int" or unif_type == "float") {
-			pin_type = VAR_TYPE_NUMBER
-		} else if (unif_type == "int2" or unif_type == "float2") {
-			pin_type = VAR_TYPE_NUMBER2
-		} else if (unif_type == "int3" or unif_type == "float3") {
-			pin_type = VAR_TYPE_NUMBER3
-		} else if (unif_type == "int4" or unif_type == "float4") {
-			pin_type = VAR_TYPE_NUMBER4
-		} else if (unif_type == "mat2") {
-			pin_type = VAR_TYPE_MATRIX2
-		} else if (unif_type == "mat3") {
-			pin_type = VAR_TYPE_MATRIX3
-		} else if (unif_type == "mat4") {
-			pin_type = VAR_TYPE_MATRIX4
-		} else if (unif_type == "sampler" or unif_type == "image") {
-			pin_type = VAR_TYPE_TEXTURE
-		}
-		return pin_type
 	}
 }
