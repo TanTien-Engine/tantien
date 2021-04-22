@@ -17,6 +17,9 @@
 #include "modules/system/System.h"
 #include "modules/system/wrap_System.h"
 #include "modules/system/system.ves.inc"
+#include "modules/shader/wrap_Shader.h"
+#include "modules/shader/shader.ves.inc"
+
 #include "modules/render/Render.h"
 
 #include <GL/gl3w.h>
@@ -92,7 +95,10 @@ VesselLoadModuleResult read_module(const char* module)
         source = modelModuleSource;
     } else if (strcmp(module, "system") == 0) {
         source = systemModuleSource;
-    } else {
+    } else if (strcmp(module, "shader") == 0) {
+        source = shaderModuleSource;
+    }
+    else {
         source = file_search(module, "src/script/");
         if (!source) {
             source = file_search(module, "src/modules/");
@@ -140,6 +146,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::SystemBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::ShaderBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -181,6 +190,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::SystemBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::ShaderBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
@@ -253,7 +265,7 @@ int main(int argc, char* argv[])
     ves_pushstring("load()");
     ves_call(0, 0);
 
-    const char* dir_path = "samples/terraingraph";
+    const char* dir_path = "samples/shadergraph";
     for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) 
     {
         auto filepath = std::filesystem::absolute(p).string();
