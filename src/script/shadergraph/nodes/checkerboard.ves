@@ -1,0 +1,104 @@
+import "shadergraph.node_helper" for NodeHelper
+import "blueprint.node" for Node
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "maths.vector" for Vector3
+
+var block = "
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Checkerboard-Node.html
+vec3 checkerboard(vec2 uv, vec3 col_a, vec3 col_b, vec2 freq)
+{
+    vec2 st = (uv.xy + 0.5) * freq;
+    vec4 derivatives = vec4(dFdx(st), dFdy(st));
+    vec2 duv_length = sqrt(vec2(dot(derivatives.xz, derivatives.xz), dot(derivatives.yw, derivatives.yw)));
+    float width = 1.0;
+    vec2 distance3 = 4.0 * abs(fract(st + 0.25) - 0.5) - width;
+    vec2 scale = 0.35 / duv_length.xy;
+    float freq_limiter = sqrt(clamp(1.1f - max(duv_length.x, duv_length.y), 0.0, 1.0));
+    vec2 vector_alpha = clamp(distance3 * scale.xy, -1.0, 1.0);
+    float alpha = clamp(0.5f + 0.5f * vector_alpha.x * vector_alpha.y * freq_limiter, 0.0, 1.0);
+    return mix(col_a, col_b, alpha);
+}
+"
+
+class Checkerboard is Node
+{
+	init() 
+	{
+		super.init(Checkerboard.name)
+
+		NodeHelper.init_pins_from_code(this, block, "checkerboard")
+
+		this.col_a = Vector3(1, 0, 0)
+		this.col_b = Vector3(1, 1, 0)		
+		this.freq_x = 5
+		this.freq_y = 5
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
+	}
+
+	to_string(name) {
+		return "
+%(name).freq_x = %(this.freq_x)
+%(name).freq_y = %(this.freq_y)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var freq_x = GUI.slider(ctx, "freq_x", this.freq_x, x, y, this.style.width - 20, 1, false)
+		if (freq_x != this.freq_x) {
+			this.freq_x = freq_x
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		var freq_y = GUI.slider(ctx, "freq_y", this.freq_y, x, y, this.style.width - 20, 1, false)
+		if (freq_y != this.freq_y) {
+			this.freq_y = freq_y
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+
+		return dirty
+	}
+
+	gen_shader(gen)
+	{
+		var code = "#version 330 core\n" + block
+		var lib = gen.add_lib("pixel", code)		
+		this.func = gen.get_func(lib, 0)
+		gen.add_link_decl(this.func, "sg_Checkerboard", true)
+	}
+
+	calc_inst(gen, idx) 
+	{
+		var func = gen.create_decl_func(this.func)
+		gen.add_link_decl(func, "sg_Checkerboard", false)
+
+		var uv = NodeHelper.calc_input_inst(gen, this, "uv")
+		if (!uv) {
+			uv = gen.op_const_float2(0, 0)
+		}
+
+		var col_a = gen.op_const_float3(this.col_a.x, this.col_a.y, this.col_a.z)
+		var col_b = gen.op_const_float3(this.col_b.x, this.col_b.y, this.col_b.z)
+
+		var freq = NodeHelper.calc_input_inst(gen, this, "freq")
+		if (!freq) {
+			freq = gen.op_const_float2(this.freq_x, this.freq_y)
+		}
+
+		return gen.op_call(func, [uv, col_a, col_b, freq])
+	}
+}

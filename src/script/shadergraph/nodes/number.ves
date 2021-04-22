@@ -1,0 +1,18 @@
+import "blueprint.nodes.number" for Number as bp_Number
+
+class Number is bp_Number
+{
+	init()
+	{
+		super.init()	
+	}
+
+	gen_shader(gen)
+	{
+	}
+
+	calc_inst(gen, idx) 
+	{
+		return gen.op_const_float(this.value)
+	}
+}

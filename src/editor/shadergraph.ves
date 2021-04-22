@@ -3,9 +3,15 @@ import "render" for Render, Shader, VertexArray
 import "shader" for ShaderGen
 import "blueprint.blueprint" for Blueprint
 
-import "shadergraph.nodes.rectangle" for Rectangle
+import "shadergraph.nodes.checkerboard" for Checkerboard
+import "shadergraph.nodes.combine" for Combine
 import "shadergraph.nodes.ellipse" for Ellipse
 import "shadergraph.nodes.frag_color" for FragColor
+import "shadergraph.nodes.number" for Number
+import "shadergraph.nodes.polygon" for Polygon
+import "shadergraph.nodes.rectangle" for Rectangle
+import "shadergraph.nodes.rounded_polygon" for RoundedPolygon
+import "shadergraph.nodes.rounded_rectangle" for RoundedRectangle
 import "shadergraph.nodes.tex_coord" for TexCoord
 
 class Shadergraph is Editor
@@ -16,7 +22,18 @@ class Shadergraph is Editor
 
 		this.code = ""
 
-		for (var node in [ Rectangle, Ellipse, FragColor, TexCoord ]) {
+		for (var node in [ 
+// channel
+Combine, 
+// input-basic
+Number,
+// input-geometry
+TexCoord,
+// procedural-shapes
+Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
+// utility-shader
+FragColor
+		]) {
 			super.add_popup_node(node)
 		}
 
@@ -49,7 +66,7 @@ void main()
 		"
 		this.prog = Shader.init(this.vs, "", "", "", this.fs)		
 
-		this.va = VertexArray.init([0.5, 0.5, 0, 1, 0, 0, 1, 1, 0.5, -0.5, 0, 0, 1, 0, 1, 0, -0.5, -0.5, 0, 0, 0, 1, 0, 0, -0.5, 0.5, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
+		this.va = VertexArray.init([1, 1, 0, 1, 0, 0, 1, 1, 1, -1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
 	}
 
 	rebuild_shader()
@@ -79,6 +96,9 @@ void main()
 			}
 
 			this.fs = linker.link()
+
+			System.print(this.fs)
+
 			this.prog = Shader.init(this.vs, "", "", "", this.fs)
 		}
 	}
@@ -99,9 +119,15 @@ void main()
 	{
 		var ret = super.load_file_imports()
 		ret = ret + "
-import \"shadergraph.nodes.rectangle\" for Rectangle
+import \"shadergraph.nodes.checkerboard\" for Checkerboard
+import \"shadergraph.nodes.combine\" for Combine
 import \"shadergraph.nodes.ellipse\" for Ellipse
 import \"shadergraph.nodes.frag_color\" for FragColor
+import \"shadergraph.nodes.number\" for Number
+import \"shadergraph.nodes.polygon\" for Polygon
+import \"shadergraph.nodes.rectangle\" for Rectangle
+import \"shadergraph.nodes.rounded_polygon\" for RoundedPolygon
+import \"shadergraph.nodes.rounded_rectangle\" for RoundedRectangle
 import \"shadergraph.nodes.tex_coord\" for TexCoord
 "
 		return ret

@@ -2,6 +2,7 @@ import "shader" for ShaderTools
 import "render" for Render
 import "blueprint.node_helper" for NodeHelper as bp_NodeHelper
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 
 class NodeHelper
 {
@@ -23,5 +24,17 @@ class NodeHelper
 		}
 
 		node.layout()
+	}
+
+	static calc_input_inst(gen, curr_node, input_slot)
+	{
+		var pin = Blueprint.query_pin(curr_node.imports, input_slot)
+		if (pin.conns.isEmpty) {
+			return nil
+		} else {
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			return f_pin.node.calc_inst(gen, f_pin.slot_idx)
+		}	
 	}
 }

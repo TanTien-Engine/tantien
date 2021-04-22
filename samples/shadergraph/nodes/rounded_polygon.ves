@@ -1,17 +1,19 @@
 var node0 = FragColor()
 
-_editor.add_node(node0, 162.65590922969, 5.191095441506)
+_editor.add_node(node0, 159.65590922969, 4.191095441506)
 
 var node1 = TexCoord()
 
 _editor.add_node(node1, -166.4965532062, -15.210862452781)
 
-var node2 = Rectangle()
+var node2 = RoundedPolygon()
 
-node2.width = 0.74444442987442
-node2.height = 0.45555555820465
+node2.sides = 5
+node2.width = 0.5
+node2.height = 0.5
+node2.roundness = 0.1
 
-_editor.add_node(node2, -17, -54)
+_editor.add_node(node2, -7, -96)
 
 Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node2, "ret", node0, "grey")
