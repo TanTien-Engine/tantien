@@ -5,9 +5,9 @@ import "gui" for GUI
 
 var block = "
 // https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Ellipse-Node.html
-float ellipse(vec2 uv, float width, float height)
+float ellipse(vec2 st, float width, float height)
 {
-    float d = length((uv * 2 - 1) / vec2(width, height));
+    float d = length((st * 2 - 1) / vec2(width, height));
     return clamp((1 - d) / fwidth(d), 0.0, 1.0);
 }
 "
@@ -75,9 +75,9 @@ class Ellipse is Node
 		var func = gen.create_decl_func(this.func)
 		gen.add_link_decl(func, "sg_Ellipse", false)
 
-		var uv = NodeHelper.calc_input_inst(gen, this, "uv")
-		if (!uv) {
-			uv = gen.op_const_float2(0, 0)
+		var st = NodeHelper.calc_input_inst(gen, this, "st")
+		if (!st) {
+			st = gen.op_const_float2(0, 0)
 		}
 		var width = NodeHelper.calc_input_inst(gen, this, "width")
 		if (!width) {
@@ -88,6 +88,6 @@ class Ellipse is Node
 			height = gen.op_const_float(this.height)
 		}
 
-		return gen.op_call(func, [uv, width, height])
+		return gen.op_call(func, [st, width, height])
 	}
 }

@@ -6,11 +6,11 @@ import "gui" for GUI
 var block = "
 
 // https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Rounded-Rectangle-Node.html
-float rounded_rectangle(vec2 uv, float width, float height, float radius)
+float rounded_rectangle(vec2 st, float width, float height, float radius)
 {
     float _radius = max(min(min(abs(radius * 2), abs(width)), abs(height)), 1e-5);
-    vec2 st = abs(uv * 2 - 1) - vec2(width, height) + _radius;
-    float d = length(max(vec2(0, 0), st)) / _radius;
+    vec2 _st = abs(st * 2 - 1) - vec2(width, height) + _radius;
+    float d = length(max(vec2(0, 0), _st)) / _radius;
     return clamp((1 - d) / fwidth(d), 0.0, 1.0);
 }
 
@@ -88,9 +88,9 @@ class RoundedRectangle is Node
 		var func = gen.create_decl_func(this.func)
 		gen.add_link_decl(func, "sg_RoundedRectangle", false)
 
-		var uv = NodeHelper.calc_input_inst(gen, this, "uv")
-		if (!uv) {
-			uv = gen.op_const_float2(0, 0)
+		var st = NodeHelper.calc_input_inst(gen, this, "st")
+		if (!st) {
+			st = gen.op_const_float2(0, 0)
 		}
 		var width = NodeHelper.calc_input_inst(gen, this, "width")
 		if (!width) {
@@ -105,6 +105,6 @@ class RoundedRectangle is Node
 			radius = gen.op_const_float(this.radius)
 		}
 
-		return gen.op_call(func, [uv, width, height, radius])
+		return gen.op_call(func, [st, width, height, radius])
 	}
 }

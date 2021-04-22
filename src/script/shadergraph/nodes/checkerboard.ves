@@ -6,13 +6,13 @@ import "maths.vector" for Vector3
 
 var block = "
 // https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Checkerboard-Node.html
-vec3 checkerboard(vec2 uv, vec3 col_a, vec3 col_b, vec2 freq)
+vec3 checkerboard(vec2 st, vec3 col_a, vec3 col_b, vec2 freq)
 {
-    vec2 st = (uv.xy + 0.5) * freq;
-    vec4 derivatives = vec4(dFdx(st), dFdy(st));
+    vec2 _st = (st.xy + 0.5) * freq;
+    vec4 derivatives = vec4(dFdx(_st), dFdy(_st));
     vec2 duv_length = sqrt(vec2(dot(derivatives.xz, derivatives.xz), dot(derivatives.yw, derivatives.yw)));
     float width = 1.0;
-    vec2 distance3 = 4.0 * abs(fract(st + 0.25) - 0.5) - width;
+    vec2 distance3 = 4.0 * abs(fract(_st + 0.25) - 0.5) - width;
     vec2 scale = 0.35 / duv_length.xy;
     float freq_limiter = sqrt(clamp(1.1f - max(duv_length.x, duv_length.y), 0.0, 1.0));
     vec2 vector_alpha = clamp(distance3 * scale.xy, -1.0, 1.0);
@@ -86,9 +86,9 @@ class Checkerboard is Node
 		var func = gen.create_decl_func(this.func)
 		gen.add_link_decl(func, "sg_Checkerboard", false)
 
-		var uv = NodeHelper.calc_input_inst(gen, this, "uv")
-		if (!uv) {
-			uv = gen.op_const_float2(0, 0)
+		var st = NodeHelper.calc_input_inst(gen, this, "st")
+		if (!st) {
+			st = gen.op_const_float2(0, 0)
 		}
 
 		var col_a = gen.op_const_float3(this.col_a.x, this.col_a.y, this.col_a.z)
@@ -99,6 +99,6 @@ class Checkerboard is Node
 			freq = gen.op_const_float2(this.freq_x, this.freq_y)
 		}
 
-		return gen.op_call(func, [uv, col_a, col_b, freq])
+		return gen.op_call(func, [st, col_a, col_b, freq])
 	}
 }
