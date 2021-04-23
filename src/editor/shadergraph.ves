@@ -95,7 +95,7 @@ void main()
 			{
 				if (node["node_func"]) {
 					node.node_func.gen_shader(linker)
-				} else {
+				} else if (node.has_method("gen_shader(_)")) {
 					node.gen_shader(linker)
 				}
 			}
