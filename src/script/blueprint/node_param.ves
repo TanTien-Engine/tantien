@@ -1,0 +1,65 @@
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "math" for Math
+import "maths.vector" for Vector2, Vector3, Vector4
+
+class NodeParam
+{
+	init(name, value)
+	{
+		this.name = name
+		this.value = value
+
+		this.region = 1.0
+		this.integer = false
+
+		this.gui = true
+		this.serialize = true
+	}
+
+	to_string(name) 
+	{
+		if (this.serialize) 
+		{
+			if (this.value is Vector2) {
+				return "%(name).query_param(\"%(this.name)\").value.set(%(this.value.x), %(this.value.y))\n"
+			} else if (this.value is Vector3) {
+				return "%(name).query_param(\"%(this.name)\").value.set(%(this.value.x), %(this.value.y), %(this.value.z))\n"
+			} else if (this.value is Vector4) {
+				return "%(name).query_param(\"%(this.name)\").value.set(%(this.value.x), %(this.value.y), %(this.value.z), %(this.value.w))\n"
+			} else {
+				return "%(name).query_param(\"%(this.name)\").value = %(this.value)\n"
+			}
+		}
+	}
+
+	gui_height()
+	{
+		if (this.gui) {
+			return 1
+		} else {
+			return 0
+		}
+	}	
+
+	draw_gui(ctx, pos, width)
+	{
+		if (!this.gui) {
+			return false
+		}
+		
+		var dirty = false
+
+		var value = GUI.slider(ctx, this.name, this.value, pos.x, pos.y, width - 20, this.region, false)
+		if (this.integer) {
+			value = Math.floor(value)
+		}
+		if (value != this.value) {
+			this.value = value
+			dirty = true
+		}
+		pos.y = pos.y - DEFAULT_HEIGHT
+
+		return dirty
+	}	
+}

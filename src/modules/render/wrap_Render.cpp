@@ -1497,6 +1497,19 @@ void w_Render_get_shader_func_argus()
     push_variants(vars);
 }
 
+void w_Render_get_shader_func_index()
+{
+    const char* stage = ves_tostring(1);
+    const char* code = ves_tostring(2);
+    const char* lang = ves_tostring(3);
+    const char* name = ves_tostring(4);
+
+    auto spirv = shader_string_to_spirv(stage, code, lang, true);
+
+    int idx = shadertrans::ShaderReflection::GetFuncIndex(spirv, name);
+    ves_set_number(0, (double)idx);
+}
+
 }
 
 namespace tt
@@ -1525,6 +1538,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
     if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_)") == 0) return w_Render_get_shader_uniforms;
     if (strcmp(signature, "static Render.get_shader_func_argus(_,_,_,_)") == 0) return w_Render_get_shader_func_argus;
+    if (strcmp(signature, "static Render.get_shader_func_index(_,_,_,_)") == 0) return w_Render_get_shader_func_index;
     if (strcmp(signature, "static Render.get_fbo(_)") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;

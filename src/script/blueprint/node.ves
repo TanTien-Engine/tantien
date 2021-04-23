@@ -4,6 +4,7 @@ import "maths" for Float2
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_render" for NodeRender
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_param" for NodeParam
 
 class Style
 {
@@ -29,6 +30,8 @@ class Node
 		this.style = Style()
 
 		this.pos = Vector2()
+
+		this.params = []
 
 		// for aabb update
 		this.aabb_dirty = false
@@ -84,13 +87,37 @@ class Node
 		}
 
 		this.aabb_dirty = true
+
+		for (var p in this.params) {
+			this.style.height = this.style.height + DEFAULT_HEIGHT * p.gui_height()
+		}
 	}
 
-	to_string(name) {
-		return ""
+	to_string(name) 
+	{
+		var ret = ""
+		for (var p in this.params) {
+			ret = ret + p.to_string(name)
+		}
+		return ret
 	}
 
-	draw_gui(ctx) {}
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var pos = Vector2()
+		pos.x = this.pos.x - this.style.width * 0.5
+		pos.y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		for (var p in this.params) {
+			if (p.draw_gui(ctx, pos, this.style.width)) {
+				dirty = true
+			}
+		}		
+
+		return dirty
+	}
 
 	on_key_pressed(key) {}
 	on_key_released(key) {}
@@ -116,5 +143,15 @@ class Node
 				Blueprint.disconnect(p.conns.front())
 			}
 		}
+	}
+
+	query_param(name)
+	{
+		for (var p in this.params) {
+			if (p.name == name) {
+				return p
+			}
+		}	
+		return nil	
 	}
 }

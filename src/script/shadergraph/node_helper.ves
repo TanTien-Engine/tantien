@@ -26,15 +26,22 @@ class NodeHelper
 		node.layout()
 	}
 
-	static calc_input_inst(gen, curr_node, input_slot)
+	static calc_input_inst(gen, node, slot)
 	{
-		var pin = Blueprint.query_pin(curr_node.imports, input_slot)
-		if (pin.conns.isEmpty) {
+		var pin = Blueprint.query_pin(node.imports, slot)
+		if (pin.conns.isEmpty) 
+		{
 			return nil
-		} else {
+		} 
+		else 
+		{
 			var f_pin = pin.conns.front().from
 			var f_node = f_pin.node
-			return f_pin.node.calc_inst(gen, f_pin.slot_idx)
-		}	
+			if (f_node["node_func"] != nil) {
+				return f_node.node_func.calc_inst(gen, f_pin.slot_idx)
+			} else {
+				return f_node.calc_inst(gen, f_pin.slot_idx)
+			}
+		}
 	}
 }

@@ -1,9 +1,7 @@
-import "shadergraph.node_helper" for NodeHelper
 import "blueprint.node" for Node
-import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
+import "shadergraph.node_function" for NodeFunction
 
-var block = "
+var CODE = "
 // https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Ellipse-Node.html
 float ellipse(vec2 st, float width, float height)
 {
@@ -18,76 +16,9 @@ class Ellipse is Node
 	{
 		super.init(Ellipse.name)
 
-		NodeHelper.init_pins_from_code(this, block, "ellipse")
-
-		this.width = 0.5
-		this.height = 0.5
-	}
-
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
-	to_string(name) {
-		return "
-%(name).width = %(this.width)
-%(name).height = %(this.height)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var width = GUI.slider(ctx, "width", this.width, x, y, this.style.width - 20, 1, false)
-		if (width != this.width) {
-			this.width = width
-			dirty = true
-		}
-		y = y - DEFAULT_HEIGHT
-
-		var height = GUI.slider(ctx, "height", this.height, x, y, this.style.width - 20, 1, false)
-		if (height != this.height) {
-			this.height = height
-			dirty = true
-		}
-		y = y - DEFAULT_HEIGHT
-
-		return dirty
-	}
-
-	gen_shader(gen)
-	{
-		var code = "#version 330 core\n" + block	
-		var lib = gen.add_lib("pixel", code)
-		this.func = gen.get_func(lib, 0)
-		gen.add_link_decl(this.func, "sg_Ellipse", true)
-	}
-
-	calc_inst(gen, idx) 
-	{
-		var func = gen.create_decl_func(this.func)
-		gen.add_link_decl(func, "sg_Ellipse", false)
-
-		var st = NodeHelper.calc_input_inst(gen, this, "st")
-		if (!st) {
-			st = gen.op_const_float2(0, 0)
-		}
-		var width = NodeHelper.calc_input_inst(gen, this, "width")
-		if (!width) {
-			width = gen.op_const_float(this.width)
-		}
-		var height = NodeHelper.calc_input_inst(gen, this, "height")
-		if (!height) {
-			height = gen.op_const_float(this.height)
-		}
-
-		return gen.op_call(func, [st, width, height])
+		this.node_func = NodeFunction(this, CODE, "ellipse", [
+			["width", 0.5],
+			["height", 0.5],
+		])
 	}
 }
