@@ -17,6 +17,8 @@
 #include "modules/system/System.h"
 #include "modules/system/wrap_System.h"
 #include "modules/system/system.ves.inc"
+#include "modules/shader/wrap_Shader.h"
+#include "modules/shader/shader.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -91,6 +93,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = modelModuleSource;
     } else if (strcmp(module, "system") == 0) {
         source = systemModuleSource;
+    } else if (strcmp(module, "shader") == 0) {
+        source = shaderModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -139,6 +143,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::SystemBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::ShaderBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -180,6 +187,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::SystemBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::ShaderBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
@@ -268,8 +278,10 @@ int main(int argc, char* argv[])
     ves_pushstring("load()");
     ves_call(0, 0);
 
-    save_dir("samples");
-    save_dir("assets");
+    //save_dir("samples");
+    //save_dir("assets");
+
+    save_dir("samples/shadergraph");
 
     ves_free_vm();
 
