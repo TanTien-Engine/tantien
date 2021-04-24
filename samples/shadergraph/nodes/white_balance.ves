@@ -1,0 +1,18 @@
+var node0 = WhiteBalance()
+node0.query_param("temperature").value = 0.5
+node0.query_param("tint").value = 0.5
+
+_editor.add_node(node0, -40, 150)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 114, 190)
+
+var node2 = Number3()
+
+node2.value.set(0.5, 0.5, 0)
+
+_editor.add_node(node2, -196, 160)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "v3", node0, "rgb")

@@ -1,0 +1,18 @@
+var node0 = Flipbook()
+node0.query_param("width").value = 1
+node0.query_param("height").value = 1
+node0.query_param("tile").value = 0.9
+node0.query_param("invert").value.set(0, 0)
+
+_editor.add_node(node0, -116, 63.5)
+
+var node1 = TexCoord()
+
+_editor.add_node(node1, -273, 135.5)
+
+var node2 = FragColor()
+
+_editor.add_node(node2, 46, 144.52066115702)
+
+Blueprint.connect(node0, "ret", node2, "rg")
+Blueprint.connect(node1, "uv", node0, "uv")

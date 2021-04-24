@@ -1,0 +1,16 @@
+var node0 = TilingAndOffset()
+node0.query_param("tiling").value.set(1, 1.1)
+node0.query_param("offset").value.set(0.1, 0)
+
+_editor.add_node(node0, -86.363636363636, 498.86362804066)
+
+var node1 = TexCoord()
+
+_editor.add_node(node1, -228.18182095614, 517.95453435724)
+
+var node2 = FragColor()
+
+_editor.add_node(node2, 59.999996185303, 531.59087579901)
+
+Blueprint.connect(node0, "ret", node2, "rg")
+Blueprint.connect(node1, "uv", node0, "uv")
