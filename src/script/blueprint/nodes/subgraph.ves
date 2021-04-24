@@ -7,17 +7,17 @@ import "blueprint.nodes.input" for Input
 import "blueprint.nodes.output" for Output
 import "blueprint.nodes.property" for Property
 import "blueprint.nodes.proxy" for Proxy
-import "blueprint.nodes.camera3d" for Camera3D
+import "blueprint.nodes.camera3d" for Camera3d
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 
-class SubGraph is Node
+class Subgraph is Node
 {
 	init()
 	{
-		super.init(SubGraph.name)
+		super.init(Subgraph.name)
 
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT)
@@ -244,7 +244,7 @@ class SubGraph is Node
 		this.exec_list = sub_editor.build_exec_list(this.all_nodes)
 
 		for (var node in this.all_nodes) {
-			if (node is Camera3D) {
+			if (node is Camera3d) {
 				this.op_node = node
 			}
 		}

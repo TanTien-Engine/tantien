@@ -193,7 +193,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -733.34811374976, 659.17193283298)
 
-var node5 = Camera3D()
+var node5 = Camera3d()
 
 node5.cam.position.set(-2.0833028954365, 1.744076305107, 21.570873673811)
 node5.cam.yaw = -1166.9
@@ -275,12 +275,12 @@ node14.init_ports(4, 1)
 
 _editor.add_node(node14, -812.90593243376, 127.18911322842)
 
-var node15 = SubGraph()
+var node15 = Subgraph()
 node15.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node15, 796.00860281038, 1220.7973339574)
 
-var node16 = SubGraph()
+var node16 = Subgraph()
 node16.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
 node16.set_prop_value("tonemap", 1)
 node16.set_prop_value("gamma_correct", 1)

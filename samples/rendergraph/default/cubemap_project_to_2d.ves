@@ -5,7 +5,7 @@ node0.set_sampler("linear repeat")
 
 _editor.add_node(node0, 203.81910637772, -801.64788621246)
 
-var node1 = SubGraph()
+var node1 = Subgraph()
 node1.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node1, 482.12741975388, -759.19653164321)
@@ -58,7 +58,7 @@ node8.set_sampler("linear repeat")
 
 _editor.add_node(node8, 147.35082967317, -325.05069808899)
 
-var node9 = SubGraph()
+var node9 = Subgraph()
 node9.load_from_file(_editor, "assets/rendergraph/cubemap_project_to_2d.ves")
 
 _editor.add_node(node9, 977.83464900672, -271.81798222346)
@@ -69,7 +69,7 @@ node10.once = false
 
 _editor.add_node(node10, 1163.0830078125, -285.40804443359)
 
-var node11 = Camera2D()
+var node11 = Camera2d()
 
 node11.x = 0
 node11.y = 0

@@ -59,7 +59,7 @@ node3.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
 _editor.add_node(node3, 260.7587880509, 859.25768422459)
 
-var node4 = Camera3D()
+var node4 = Camera3d()
 
 node4.cam.position.set(-6.0960994302672, 2.1272538986933, 5.9922856476635)
 node4.cam.yaw = -409.8
@@ -411,7 +411,7 @@ node20.init_rbo(1024, 1024, "depth_component")
 
 _editor.add_node(node20, 1009.7430703248, -1232.5799933328)
 
-var node21 = Camera3D()
+var node21 = Camera3d()
 
 node21.cam.position.set(7.6322342785631, 16.984345708486, -1.7379706063585)
 node21.cam.yaw = -164.2
@@ -464,7 +464,7 @@ node27.title = "Input"
 
 _editor.add_node(node27, -218.56462711719, 554.67486801563)
 
-var node28 = SubGraph()
+var node28 = Subgraph()
 node28.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node28, -555.78948568975, -1255.3757692954)
@@ -476,7 +476,7 @@ node29.set_sampler("linear repeat")
 
 _editor.add_node(node29, -801.19636369733, -1287.4261468564)
 
-var node30 = SubGraph()
+var node30 = Subgraph()
 node30.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
 node30.set_prop_value("tonemap", 1.8140017986298)
 node30.set_prop_value("gamma_correct", 1.906494140625)
@@ -531,7 +531,7 @@ node37.set_sampler("linear repeat")
 
 _editor.add_node(node37, -762.27880696735, -926.0823915986)
 
-var node38 = SubGraph()
+var node38 = Subgraph()
 node38.load_from_file(_editor, "assets/rendergraph/create_irradiance_cubemap.ves")
 
 _editor.add_node(node38, -932.63319506458, -278.95834538578)

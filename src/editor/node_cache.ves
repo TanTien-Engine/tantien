@@ -1,4 +1,4 @@
-import "blueprint.nodes.subgraph" for SubGraph
+import "blueprint.nodes.subgraph" for Subgraph
 
 class NodeCache
 {
@@ -19,7 +19,7 @@ class NodeCache
 			return nil
 		}
 
-		var node = SubGraph()
+		var node = Subgraph()
 		node.dummy = true
 		if (sub_editor) {
 			node.load_from_file(this.editor, filepath, sub_editor)		

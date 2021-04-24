@@ -224,7 +224,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -930.95156257078, -237.18715044365)
 
-var node5 = Camera3D()
+var node5 = Camera3d()
 
 node5.cam.position.set(-2.0833028954365, 1.744076305107, 21.570873673811)
 node5.cam.yaw = -1533.4
@@ -307,12 +307,12 @@ node14.use_cache = false
 
 _editor.add_node(node14, -1010.5093812548, -769.16997004821)
 
-var node15 = SubGraph()
+var node15 = Subgraph()
 node15.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node15, -1476.9280264241, 226.72508847101)
 
-var node16 = SubGraph()
+var node16 = Subgraph()
 node16.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
 node16.set_prop_value("tonemap", 1)
 node16.set_prop_value("gamma_correct", 1)
@@ -331,17 +331,17 @@ node18.once = true
 
 _editor.add_node(node18, -398.45562998953, 249.66293305829)
 
-var node19 = SubGraph()
+var node19 = Subgraph()
 node19.load_from_file(_editor, "assets/rendergraph/create_irradiance_cubemap.ves")
 
 _editor.add_node(node19, -1198.9896440133, 299.99157197682)
 
-var node20 = SubGraph()
+var node20 = Subgraph()
 node20.load_from_file(_editor, "assets/rendergraph/create_brdf_lut.ves")
 
 _editor.add_node(node20, -944.98997192508, 300.61358458318)
 
-var node21 = SubGraph()
+var node21 = Subgraph()
 node21.load_from_file(_editor, "assets/rendergraph/create_prefilter_cubemap.ves")
 
 _editor.add_node(node21, -675.23622920311, 244.35478655029)

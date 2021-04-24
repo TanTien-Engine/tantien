@@ -88,7 +88,7 @@ class Editor
 		this.all_nodes = {}
 		if (import_base_nodes)
 		{
-			for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2D, Camera3D, Perspective, Orthographic, LookAt, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, SubGraph, Merge, Commentary, Viewport, Proxy ]) {
+			for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2d, Camera3d, Perspective, Orthographic, Lookat, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, Subgraph, Merge, Commentary, Viewport, Proxy ]) {
 				this.add_popup_node(node)
 			}
 		}
@@ -756,7 +756,7 @@ import \"editor\" for _editor
 
 		var node = scene.selection.front()
 		var bp_node = node.components["bp"]
-		if (!(bp_node is SubGraph)) {
+		if (!(bp_node is Subgraph)) {
 			return false
 		}
 

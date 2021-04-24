@@ -240,7 +240,7 @@ node14.set_sampler("linear repeat")
 
 _editor.add_node(node14, -1129.784475707, 22.636798680584)
 
-var node15 = SubGraph()
+var node15 = Subgraph()
 node15.load_from_file(_editor, "assets/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node15, -888.04974758251, 51.132305848634)
@@ -276,7 +276,7 @@ node21.value = 1
 
 _editor.add_node(node21, 296.6653137207, -263.70376586914)
 
-var node22 = SubGraph()
+var node22 = Subgraph()
 node22.load_from_file(_editor, "assets/rendergraph/draw_skybox.ves")
 node22.set_prop_value("tonemap", 1.6668492555618)
 node22.set_prop_value("gamma_correct", 1.9826387166977)
@@ -298,7 +298,7 @@ node24.zfar = 100
 
 _editor.add_node(node24, -461.53686187898, -429.78966851056)
 
-var node25 = Camera3D()
+var node25 = Camera3d()
 
 node25.cam.position.set(0, 0, 3)
 node25.cam.yaw = 46.6
