@@ -1,7 +1,7 @@
 import "shadergraph.node_helper" for NodeHelper
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class FragColor is Node
 {
@@ -12,6 +12,7 @@ class FragColor is Node
 		this.imports = [
 			Pin(this, "rgba", VAR_TYPE_NUMBER4),
 			Pin(this, "rgb",  VAR_TYPE_NUMBER3),
+			Pin(this, "rg",   VAR_TYPE_NUMBER2),			
 			Pin(this, "grey", VAR_TYPE_NUMBER),			
 		]
 
@@ -27,21 +28,48 @@ class FragColor is Node
 		var rgba = NodeHelper.calc_input_inst(gen, this, "rgba")
 		if (!rgba) 
 		{
+			var r = nil
+			var g = nil
+			var b = nil
+			var a = gen.op_const_float(1.0)
+
 			var rgb = NodeHelper.calc_input_inst(gen, this, "rgb")
-			if (rgb) {
-				var a = gen.op_const_float(1.0)
-				rgba = gen.op_compose_float4(rgb, a)
-			} else {
-				var grey = NodeHelper.calc_input_inst(gen, this, "grey")
-				if (grey) {
-					var a = gen.op_const_float(1.0)
-					rgba = gen.op_compose_float4(grey, grey, grey, a)
+			if (rgb) 
+			{
+				r = gen.op_compose_extract(rgb, 0)
+				g = gen.op_compose_extract(rgb, 1)
+				b = gen.op_compose_extract(rgb, 2)
+			} 
+			else 
+			{
+				var rg = NodeHelper.calc_input_inst(gen, this, "rg")
+				if (rg) 
+				{
+					r = gen.op_compose_extract(rg, 0)
+					g = gen.op_compose_extract(rg, 1)
+					b = gen.op_const_float(0.0)
+				} 
+				else 
+				{
+					var grey = NodeHelper.calc_input_inst(gen, this, "grey")
+					if (grey) 
+					{
+						r = grey
+						g = grey
+						b = grey
+					}
+					else
+					{
+						r = gen.op_const_float(0.0)
+						g = r
+						b = r
+					}
 				}
 			}
+
+			rgba = gen.op_compose_float4(r, g, b, a)			
 		}
-		if (rgba) {
-			gen.op_store(frag_col, rgba)
-		}
+		gen.op_store(frag_col, rgba)
 
 		gen.op_return()
 
