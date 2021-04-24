@@ -73,6 +73,27 @@ const char* file_search(const char* module, const char* dir)
     return ret;
 }
 
+void read_module_complete(const char* module, VesselLoadModuleResult result)
+{
+    if (!result.source) {
+        return;
+    }
+
+    if (!strcmp(module, "render") == 0 &&
+        !strcmp(module, "graphics") == 0 &&
+        !strcmp(module, "maths") == 0 &&
+        !strcmp(module, "geometry") == 0 &&
+        !strcmp(module, "gui") == 0 &&
+        !strcmp(module, "image") == 0 &&
+        !strcmp(module, "filesystem") == 0 &&
+        !strcmp(module, "model") == 0 &&
+        !strcmp(module, "system") == 0 &&
+        !strcmp(module, "shader") == 0) {
+        free((void*)result.source);
+        result.source = NULL;
+    }
+}
+
 VesselLoadModuleResult read_module(const char* module)
 {
     const char* source = nullptr;
@@ -108,8 +129,9 @@ VesselLoadModuleResult read_module(const char* module)
 
     VesselLoadModuleResult result;
     result.source = source;
-    result.on_complete = NULL;
+    result.on_complete = read_module_complete;
     return result;
+}
 
 void expand_modules_complete(VesselExpandModulesResult result)
 {
