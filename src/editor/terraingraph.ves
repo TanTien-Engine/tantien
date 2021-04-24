@@ -2,25 +2,7 @@ import "editor.editor" for Editor
 import "render" for Render
 import "blueprint.blueprint" for Blueprint
 import "terraingraph.node" for Node
-
-import "terraingraph.nodes.constant" for Constant
-import "terraingraph.nodes.viewer" for Viewer
-import "terraingraph.nodes.gradient" for Gradient
-import "terraingraph.nodes.perlin" for Perlin
-import "terraingraph.nodes.worley" for Worley
-import "terraingraph.nodes.combiner" for Combiner
-import "terraingraph.nodes.clamp" for Clamp
-import "terraingraph.nodes.gaussian" for Gaussian
-import "terraingraph.nodes.incline" for Incline
-import "terraingraph.nodes.inverter" for Inverter
-import "terraingraph.nodes.scale_bias" for ScaleBias
-import "terraingraph.nodes.step" for Step
-import "terraingraph.nodes.transform" for Transform
-import "terraingraph.nodes.select_height" for SelectHeight
-import "terraingraph.nodes.select_slope" for SelectSlope
-import "terraingraph.nodes.erosion" for Erosion
-import "terraingraph.nodes.thermal_weathering" for ThermalWeathering
-import "terraingraph.nodes.brush" for Brush
+import "terraingraph.nodes.*"
 
 class Terraingraph is Editor
 {
@@ -73,27 +55,6 @@ class Terraingraph is Editor
 
 	load_file_imports()
 	{
-		var ret = super.load_file_imports()
-		ret = ret + "
-import \"terraingraph.nodes.constant\" for Constant
-import \"terraingraph.nodes.viewer\" for Viewer
-import \"terraingraph.nodes.gradient\" for Gradient
-import \"terraingraph.nodes.perlin\" for Perlin
-import \"terraingraph.nodes.worley\" for Worley
-import \"terraingraph.nodes.combiner\" for Combiner
-import \"terraingraph.nodes.clamp\" for Clamp
-import \"terraingraph.nodes.gaussian\" for Gaussian
-import \"terraingraph.nodes.incline\" for Incline
-import \"terraingraph.nodes.inverter\" for Inverter
-import \"terraingraph.nodes.scale_bias\" for ScaleBias
-import \"terraingraph.nodes.step\" for Step
-import \"terraingraph.nodes.transform\" for Transform
-import \"terraingraph.nodes.select_height\" for SelectHeight
-import \"terraingraph.nodes.select_slope\" for SelectSlope
-import \"terraingraph.nodes.erosion\" for Erosion
-import \"terraingraph.nodes.thermal_weathering\" for ThermalWeathering
-import \"terraingraph.nodes.brush\" for Brush
-"
-		return ret
+		return super.load_file_imports() + "\nimport \"terraingraph.nodes.*\"\n"
 	}
 }
