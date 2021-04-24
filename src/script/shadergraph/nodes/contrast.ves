@@ -1,0 +1,23 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Contrast-Node.html
+vec3 contrast(vec3 col, float contrast)
+{
+    float midpoint = pow(0.5, 2.2);
+    return (col - midpoint) * contrast + midpoint;
+}
+"
+
+class Contrast is Node
+{
+	init() 
+	{
+		super.init(Contrast.name)
+
+		this.node_func = NodeFunction(this, CODE, "contrast", [
+			["contrast", 0.5, { "region" : 5.0 }],
+		])
+	}
+}

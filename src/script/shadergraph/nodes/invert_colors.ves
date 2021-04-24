@@ -1,0 +1,53 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER4
+import "blueprint.node_param" for NodeParam
+import "shadergraph.node_helper" for NodeHelper
+
+class InvertColors is Node
+{
+	init()
+	{
+		super.init(InvertColors.name)
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_NUMBER4),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_NUMBER4),
+		]
+
+		this.params.add(NodeParam("r", false))
+		this.params.add(NodeParam("g", false))
+		this.params.add(NodeParam("b", false))
+		this.params.add(NodeParam("a", false))
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx) 
+	{
+		var val = NodeHelper.calc_input_inst(gen, this, 0)
+		if (!val) {
+			return nil
+		}
+
+		var r = gen.op_compose_extract(val, 0)
+		var g = gen.op_compose_extract(val, 1)
+		var b = gen.op_compose_extract(val, 2)
+		var a = gen.op_compose_extract(val, 3)
+
+		var br = this.query_param("r").value
+		var bg = this.query_param("g").value
+		var bb = this.query_param("b").value
+		var ba = this.query_param("a").value
+
+		var one = gen.op_const_float(1.0)
+		if (br) { r = gen.op_sub(one, r) }
+		if (bg) { g = gen.op_sub(one, g) }
+		if (bb) { b = gen.op_sub(one, b) }
+		if (ba) { a = gen.op_sub(one, a) }
+
+		return gen.op_compose_float4(r, g, b, a)
+	}
+}

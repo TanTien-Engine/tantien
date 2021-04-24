@@ -1,0 +1,14 @@
+import "blueprint.nodes.number3" for Number3 as bp_Number3
+
+class Number3 is bp_Number3
+{
+	init()
+	{
+		super.init()	
+	}
+
+	calc_inst(gen, idx) 
+	{
+		return gen.op_const_float3(this.value.x, this.value.y, this.value.z)
+	}
+}

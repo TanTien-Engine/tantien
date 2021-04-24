@@ -209,6 +209,72 @@ void w_shadergen_op_compose_float4_2()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_op_compose_extract()
+{
+    spvgentwo::Instruction* comp = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    int index = (int)ves_tonumber(2);
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->ComposeExtract(comp, index);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_op_dot()
+{
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Dot(a, b);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_op_add()
+{
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Add(a, b);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_op_sub()
+{
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Sub(a, b);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_op_mul()
+{
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Mul(a, b);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_op_div()
+{
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Div(a, b);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_op_store()
 {
     spvgentwo::Instruction* dst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
@@ -216,14 +282,6 @@ void w_ShaderGen_op_store()
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
     linker->Store(dst, src);
-}
-
-void w_ShaderGen_op_comp_float3()
-{
-    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
-    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-    spvgentwo::Instruction* z = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
-
 }
 
 void w_ShaderGen_op_return()
@@ -350,12 +408,17 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.op_const_float4(_,_,_,_)") == 0) return w_ShaderGen_op_const_float4;
     if (strcmp(signature, "ShaderGen.op_call(_,_)") == 0) return w_ShaderGen_op_call;
     if (strcmp(signature, "ShaderGen.op_access_chain(_,_)") == 0) return w_ShaderGen_op_access_chain;
-    if (strcmp(signature, "ShaderGen.op_comp_float3(_,_,_)") == 0) return w_ShaderGen_op_comp_float3;
-    if (strcmp(signature, "ShaderGen.op_store(_,_)") == 0) return w_ShaderGen_op_store;
     if (strcmp(signature, "ShaderGen.op_compose_float2(_,_)") == 0) return w_shadergen_op_compose_float2;
     if (strcmp(signature, "ShaderGen.op_compose_float3(_,_,_)") == 0) return w_shadergen_op_compose_float3;
     if (strcmp(signature, "ShaderGen.op_compose_float4(_,_,_,_)") == 0) return w_shadergen_op_compose_float4;
     if (strcmp(signature, "ShaderGen.op_compose_float4(_,_)") == 0) return w_shadergen_op_compose_float4_2;
+    if (strcmp(signature, "ShaderGen.op_compose_extract(_,_)") == 0) return w_shadergen_op_compose_extract;
+    if (strcmp(signature, "ShaderGen.op_dot(_,_)") == 0) return w_shadergen_op_dot;
+    if (strcmp(signature, "ShaderGen.op_add(_,_)") == 0) return w_shadergen_op_add;
+    if (strcmp(signature, "ShaderGen.op_sub(_,_)") == 0) return w_shadergen_op_sub;
+    if (strcmp(signature, "ShaderGen.op_mul(_,_)") == 0) return w_shadergen_op_mul;
+    if (strcmp(signature, "ShaderGen.op_div(_,_)") == 0) return w_shadergen_op_div;
+    if (strcmp(signature, "ShaderGen.op_store(_,_)") == 0) return w_ShaderGen_op_store;
     if (strcmp(signature, "ShaderGen.op_return()") == 0) return w_ShaderGen_op_return;
 
     if (strcmp(signature, "ShaderGen.add_lib(_,_)") == 0) return w_ShaderGen_add_lib;

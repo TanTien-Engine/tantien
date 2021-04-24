@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Replace-Color-Node.html
+vec3 replace_color(vec3 rgb, vec3 from, vec3 to, float range, float fuzziness)
+{
+    float distance = distance(from, rgb);
+    return mix(to, rgb, clamp((distance - range) / max(fuzziness, 1e-5f), 0.0, 1.0));
+}
+"
+
+class ReplaceColor is Node
+{
+	init() 
+	{
+		super.init(ReplaceColor.name)
+
+		this.node_func = NodeFunction(this, CODE, "replace_color", [
+			["from", Vector3(0, 0, 0)],
+			["to",   Vector3(1, 1, 1)],
+			["range", 0.5],
+			["fuzziness", 0.1],
+		])
+	}
+}
