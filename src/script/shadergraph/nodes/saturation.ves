@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Saturation-Node.html
+vec3 saturation(vec3 rgb, float saturation)
+{
+    float luma = dot(rgb, vec3(0.2126729, 0.7151522, 0.0721750));
+    vec3 luma3 = vec3(luma, luma, luma);
+    return luma3 + vec3(saturation, saturation, saturation) * (rgb - luma3);
+}
+"
+
+class Saturation is Node
+{
+	init() 
+	{
+		super.init(Saturation.name)
+
+		this.node_func = NodeFunction(this, CODE, "saturation", [
+			["saturation", 1.0, { "region" : 5.0 }],
+		])
+	}
+}

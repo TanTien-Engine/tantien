@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// https://stackoverflow.com/questions/7610631/glsl-mod-vs-hlsl-fmod
+float fmod(float x, float y)
+{
+    //return x – y * trunc(x/y);
+    return x - y * floor(x/y);
+}
+
+// https://docs.unity3d.com/Packages/com.unity.shadergraph@9.0/manual/Flipbook-Node.html
+vec2 flipbook(vec2 uv, float width, float height, float tile, vec2 invert)
+{
+    float _tile = fmod(tile, width * height);
+    vec2 tile_count = vec2(1.0, 1.0) / vec2(width, height);
+    float tile_y = abs(invert.y * height - (floor(_tile * tile_count.x) + invert.y * 1));
+    float tile_x = abs(invert.x * width - ((_tile - width * floor(_tile * tile_count.x)) + invert.x * 1));
+    return (uv + vec2(tile_x, tile_y)) * tile_count;
+}
+"
+
+class Flipbook is Node
+{
+	init() 
+	{
+		super.init(Flipbook.name)
+
+		this.node_func = NodeFunction(this, CODE, "flipbook", [
+			["width", 1.0],
+			["height", 1.0],
+			["tile", 1.0],
+			["invert", Vector2(0.0, 0.0)],			
+		])
+	}
+}

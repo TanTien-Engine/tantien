@@ -14,7 +14,7 @@ class Shadergraph is Editor
 
 		for (var node in [ 
 // artistic-adjustment
-ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor,
+ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
 // channel
 Combine, 
 // input-basic
@@ -24,7 +24,9 @@ TexCoord,
 // procedural-shapes
 Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
 // utility-shader
-FragColor
+FragColor,
+// uv
+Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
 		]) {
 			super.add_popup_node(node)
 		}

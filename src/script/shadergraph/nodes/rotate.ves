@@ -1,0 +1,32 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+vec2 rotate(vec2 uv, vec2 center, float rotation)
+{
+    vec2 st = uv - center;
+    float s = sin(rotation);
+    float c = cos(rotation);
+    mat2 rMatrix = mat2(c, -s, s, c);
+    rMatrix *= 0.5;
+    rMatrix += 0.5;
+    rMatrix = rMatrix * 2 - 1;
+    st.xy = rMatrix * st.xy;
+    st += center;
+    return st;
+}
+"
+
+class Rotate is Node
+{
+	init() 
+	{
+		super.init(Rotate.name)
+
+		this.node_func = NodeFunction(this, CODE, "rotate", [
+			["center", Vector2(0.5, 0.5)],
+			["rotation", 0.0],
+		])
+	}
+}

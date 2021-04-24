@@ -1,0 +1,23 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+vec2 tiling_and_offset(vec2 uv, vec2 tiling, vec2 offset)
+{
+    return uv * tiling + offset;
+}
+"
+
+class TilingAndOffset is Node
+{
+	init() 
+	{
+		super.init(TilingAndOffset.name)
+
+		this.node_func = NodeFunction(this, CODE, "tiling_and_offset", [
+			["tiling", Vector2(1.0, 1.0)],
+			["offset", Vector2(0.0, 0.0)],
+		])
+	}
+}

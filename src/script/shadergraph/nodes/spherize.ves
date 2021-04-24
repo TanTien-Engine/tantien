@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+vec2 spherize(vec2 uv, vec2 center, vec2 strength, vec2 offset)
+{
+    vec2 delta = uv - center;
+    float delta2 = dot(delta.xy, delta.xy);
+    float delta4 = delta2 * delta2;
+    vec2 delta_offset = delta4 * strength;
+    return uv + delta * delta_offset + offset;
+}
+"
+
+class Spherize is Node
+{
+	init() 
+	{
+		super.init(Spherize.name)
+
+		this.node_func = NodeFunction(this, CODE, "spherize", [
+			["center",   Vector2(0.5, 0.5)],
+			["strength", Vector2(1.0, 1.0)],
+			["offset",   Vector2(0.0, 0.0)],
+		])
+	}
+}
