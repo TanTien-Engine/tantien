@@ -198,17 +198,6 @@ void w_shadergen_op_compose_float4()
     ves_set_number(0, pointer2double(ret));
 }
 
-void w_shadergen_op_compose_float4_2()
-{
-    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
-    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-
-    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    auto ret = linker->ComposeFloat4(a, b);
-
-    ves_set_number(0, pointer2double(ret));
-}
-
 void w_shadergen_op_compose_extract()
 {
     spvgentwo::Instruction* comp = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
@@ -411,7 +400,6 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.op_compose_float2(_,_)") == 0) return w_shadergen_op_compose_float2;
     if (strcmp(signature, "ShaderGen.op_compose_float3(_,_,_)") == 0) return w_shadergen_op_compose_float3;
     if (strcmp(signature, "ShaderGen.op_compose_float4(_,_,_,_)") == 0) return w_shadergen_op_compose_float4;
-    if (strcmp(signature, "ShaderGen.op_compose_float4(_,_)") == 0) return w_shadergen_op_compose_float4_2;
     if (strcmp(signature, "ShaderGen.op_compose_extract(_,_)") == 0) return w_shadergen_op_compose_extract;
     if (strcmp(signature, "ShaderGen.op_dot(_,_)") == 0) return w_shadergen_op_dot;
     if (strcmp(signature, "ShaderGen.op_add(_,_)") == 0) return w_shadergen_op_add;

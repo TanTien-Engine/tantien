@@ -24,7 +24,6 @@ foreign class ShaderGen
 	foreign op_compose_float2(x, y)
 	foreign op_compose_float3(x, y, z)
 	foreign op_compose_float4(x, y, z, w)
-	foreign op_compose_float4(a, b)
 	foreign op_compose_extract(comp, idx)
 	foreign op_dot(a, b)
 	foreign op_add(a, b)
