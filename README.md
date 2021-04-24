@@ -96,6 +96,13 @@ Based for each editors
 * use spir-v AST instead of combine shader strings
 
 #### Nodes
+* artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
+* channel ： Combine, 
+* input-basic ： Number, Number2, Number3, Number4,
+* input-geometry ： TexCoord,
+* procedural-shapes ： Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
+* utility-shader ： FragColor,
+* uv ： Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
 
 ## Building
 First clone the project & submodules:
