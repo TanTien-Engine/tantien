@@ -27,6 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <filesystem>
 
 #include <assert.h>
 
@@ -110,6 +111,57 @@ VesselLoadModuleResult read_module(const char* module)
     result.on_complete = NULL;
     return result;
 
+void expand_modules_complete(VesselExpandModulesResult result)
+{
+    for (int i = 0; i < result.num; ++i) {
+        free((char*)result.modules[i]);
+    }
+    free((char**)result.modules);
+}
+
+VesselExpandModulesResult expand_modules(const char* path)
+{
+    VesselExpandModulesResult ret;
+    ret.num = 0;
+    ret.modules = nullptr;
+
+    std::string relative = path;
+    auto pos = relative.find_first_of('*');
+    if (pos == std::string::npos) {
+        return ret;
+    }
+    relative = relative.substr(0, pos);
+    for (auto& c : relative) {
+        if (c == '.') {
+            c = '/';
+        }
+    }
+    std::string absolute;
+    if (std::filesystem::is_directory("src/script/" + relative)) {
+        absolute = "src/script/" + relative;
+    }
+
+    if (absolute.empty()) {
+        return ret;
+    }
+
+    std::vector<std::string> paths;
+    for (auto& p : std::filesystem::recursive_directory_iterator(absolute)) 
+    {
+        auto filename = p.path().filename().string();
+        if (filename.size() > 4 && strncmp(&filename[filename.size() - 4], ".ves", 4) == 0) {
+            paths.push_back(filename.substr(0, filename.size() - 4));
+        }
+    }
+
+    ret.num = (int)paths.size();
+    ret.modules = (const char**)malloc(sizeof(const char*) * ret.num);
+    for (int i = 0; i < ret.num; ++i) {
+        ret.modules[i] = _strdup(paths[i].c_str());
+    }
+    ret.on_complete = expand_modules_complete;
+
+    return ret;
 }
 
 VesselForeignClassMethods bind_foreign_class(const char* module, const char* className)
@@ -502,6 +554,7 @@ int main(int argc, char* argv[])
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
+    cfg.expand_modules_fn = expand_modules;
     cfg.bind_foreign_class_fn = bind_foreign_class;
     cfg.bind_foreign_method_fn = bind_foreign_method;
     cfg.write_fn = write;

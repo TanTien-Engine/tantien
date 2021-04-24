@@ -2,17 +2,7 @@ import "editor.editor" for Editor
 import "render" for Render, Shader, VertexArray
 import "shader" for ShaderGen
 import "blueprint.blueprint" for Blueprint
-
-import "shadergraph.nodes.checkerboard" for Checkerboard
-import "shadergraph.nodes.combine" for Combine
-import "shadergraph.nodes.ellipse" for Ellipse
-import "shadergraph.nodes.frag_color" for FragColor
-import "shadergraph.nodes.number" for Number
-import "shadergraph.nodes.polygon" for Polygon
-import "shadergraph.nodes.rectangle" for Rectangle
-import "shadergraph.nodes.rounded_polygon" for RoundedPolygon
-import "shadergraph.nodes.rounded_rectangle" for RoundedRectangle
-import "shadergraph.nodes.tex_coord" for TexCoord
+import "shadergraph.nodes.*"
 
 class Shadergraph is Editor
 {
@@ -122,19 +112,6 @@ void main()
 
 	load_file_imports()
 	{
-		var ret = super.load_file_imports()
-		ret = ret + "
-import \"shadergraph.nodes.checkerboard\" for Checkerboard
-import \"shadergraph.nodes.combine\" for Combine
-import \"shadergraph.nodes.ellipse\" for Ellipse
-import \"shadergraph.nodes.frag_color\" for FragColor
-import \"shadergraph.nodes.number\" for Number
-import \"shadergraph.nodes.polygon\" for Polygon
-import \"shadergraph.nodes.rectangle\" for Rectangle
-import \"shadergraph.nodes.rounded_polygon\" for RoundedPolygon
-import \"shadergraph.nodes.rounded_rectangle\" for RoundedRectangle
-import \"shadergraph.nodes.tex_coord\" for TexCoord
-"
-		return ret
+		return super.load_file_imports() + "\nimport \"shadergraph.nodes.*\"\n"
 	}
 }
