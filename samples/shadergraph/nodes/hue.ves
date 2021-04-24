@@ -1,0 +1,17 @@
+var node0 = Hue()
+node0.query_param("offset").value = 0.1
+
+_editor.add_node(node0, -66, 72)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 99, 82)
+
+var node2 = Number3()
+
+node2.value.set(0.5, 0.5, 0)
+
+_editor.add_node(node2, -218, 52)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "v3", node0, "rgb")
