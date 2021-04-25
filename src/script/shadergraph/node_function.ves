@@ -1,4 +1,5 @@
 import "shadergraph.node_helper" for NodeHelper
+import "shadergraph.variant" for VAR_TYPE_FUNCTION
 import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.node_param" for NodeParam
 import "render" for Render
@@ -39,44 +40,51 @@ class NodeFunction
 		gen.add_link_decl(this.func, this.decl_name, true)
 	}
 
+	calc_inst_from_pin(gen, pin)
+	{
+		var inst = NodeHelper.calc_input_inst(gen, this.node, pin.name)
+		if (!inst) 
+		{
+			var param = this.node.query_param(pin.name)
+			if (param)
+			{
+				if (pin.type == VAR_TYPE_NUMBER) {
+					inst = gen.op_const_float(param.value)
+				} else if (pin.type == VAR_TYPE_NUMBER2) {
+					inst = gen.op_const_float2(param.value.x, param.value.y)
+				} else if (pin.type == VAR_TYPE_NUMBER3) {
+					inst = gen.op_const_float3(param.value.x, param.value.y, param.value.z)
+				} else if (pin.type == VAR_TYPE_NUMBER4) {
+					inst = gen.op_const_float4(param.value.x, param.value.y, param.value.z, param.value.w)
+				}
+			}
+			else
+			{
+				if (pin.type == VAR_TYPE_NUMBER) {
+					inst = gen.op_const_float(0)
+				} else if (pin.type == VAR_TYPE_NUMBER2) {
+					inst = gen.op_const_float2(0, 0)
+				} else if (pin.type == VAR_TYPE_NUMBER3) {
+					inst = gen.op_const_float3(0, 0, 0)
+				} else if (pin.type == VAR_TYPE_NUMBER4) {
+					inst = gen.op_const_float4(0, 0, 0, 0)
+				}
+			}
+		}
+		return inst
+	}
+
 	calc_inst(gen, idx) 
 	{
 		var func = gen.create_decl_func(this.func)
 		gen.add_link_decl(func, this.decl_name, false)
 
 		var params = []
-		for (var pin in this.node.imports)
-		{
-			var inst = NodeHelper.calc_input_inst(gen, this.node, pin.name)
-			if (!inst) 
-			{
-				var param = this.node.query_param(pin.name)
-				if (param)
-				{
-					if (pin.type == VAR_TYPE_NUMBER) {
-						inst = gen.op_const_float(param.value)
-					} else if (pin.type == VAR_TYPE_NUMBER2) {
-						inst = gen.op_const_float2(param.value.x, param.value.y)
-					} else if (pin.type == VAR_TYPE_NUMBER3) {
-						inst = gen.op_const_float3(param.value.x, param.value.y, param.value.z)
-					} else if (pin.type == VAR_TYPE_NUMBER4) {
-						inst = gen.op_const_float4(param.value.x, param.value.y, param.value.z, param.value.w)
-					}
-				}
-				else
-				{
-					if (pin.type == VAR_TYPE_NUMBER) {
-						inst = gen.op_const_float(0)
-					} else if (pin.type == VAR_TYPE_NUMBER2) {
-						inst = gen.op_const_float2(0, 0)
-					} else if (pin.type == VAR_TYPE_NUMBER3) {
-						inst = gen.op_const_float3(0, 0, 0)
-					} else if (pin.type == VAR_TYPE_NUMBER4) {
-						inst = gen.op_const_float4(0, 0, 0, 0)
-					}
-				}
+		for (var pin in this.node.imports) {
+			if (pin.type != VAR_TYPE_FUNCTION) {
+				var inst = this.calc_inst_from_pin(gen, pin)
+				params.add(inst)
 			}
-			params.add(inst)
 		}
 		return gen.op_call(func, params)
 	}

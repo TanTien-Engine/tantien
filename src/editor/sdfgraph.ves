@@ -1,0 +1,119 @@
+import "editor.editor" for Editor
+import "render" for Render, Shader, VertexArray
+import "shader" for ShaderGen
+import "blueprint.blueprint" for Blueprint
+import "sdfgraph.nodes.*"
+import "shadergraph.nodes.frag_color" for FragColor
+import "shadergraph.nodes.tex_coord" for TexCoord
+
+class Sdfgraph is Editor
+{
+	load()
+	{
+		super.load(false)
+
+		this.code = ""
+
+		for (var node in [ 
+// primitive
+Sphere, 
+// tools
+Sdf,
+// shadergraph
+FragColor, TexCoord,
+		]) {
+			super.add_popup_node(node)
+		}
+
+		this.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+out vec3 ourColor;
+out vec2 TexCoord;
+
+void main() 
+{
+   ourColor = aColor;
+   TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+   gl_Position = vec4(aPos, 1.0);
+}
+		"
+		this.fs = "
+#version 330
+in vec3 ourColor;
+
+layout(location = 0) out vec4 FragColor;
+
+void main() 
+{
+   FragColor = vec4(ourColor, 1.0);
+}
+		"
+		this.prog = Shader.init(this.vs, "", "", "", this.fs)		
+
+		this.va = VertexArray.init([1, 1, 0, 1, 0, 0, 1, 1, 1, -1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
+	}
+
+	rebuild_shader()
+	{
+		var scene = this.scene_stack.root()
+
+		var frag_color = nil
+
+		var nodes = []
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			nodes.add(bp_node)
+			if (bp_node is FragColor) {
+				frag_color = bp_node
+			}
+		}
+
+		if (frag_color) 
+		{
+			var linker = ShaderGen.init()
+
+			var prev_nodes = Blueprint.get_precursor_nodes(frag_color)
+			var list = Blueprint.topo_sort(prev_nodes)
+			for (var node in list) 
+			{
+				if (node["node_func"]) {
+					node.node_func.gen_shader(linker)
+				} else if (node.has_method("gen_shader(_)")) {
+					node.gen_shader(linker)
+				}
+			}
+
+			this.fs = linker.link()
+
+			System.print(this.fs)
+
+			this.prog = Shader.init(this.vs, "", "", "", this.fs)
+		}
+	}
+
+	draw_preview()
+	{
+		if (this.scene_stack.bp_dirty) {
+			this.rebuild_shader()
+			this.scene_stack.bp_dirty = false
+		}
+
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		Render.draw("triangles", this.prog, this.va, { "depth_test" : false, "cull" : "disable" })
+	}
+
+	load_file_imports()
+	{
+		return super.load_file_imports() + "
+import \"sdfgraph.nodes.*\"
+import \"shadergraph.nodes.frag_color\" for FragColor
+import \"shadergraph.nodes.tex_coord\" for TexCoord
+"
+	}
+}

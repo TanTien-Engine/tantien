@@ -1,0 +1,22 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float sphere(vec3 p, float s)
+{
+    return length(p) - s;
+}
+"
+
+class Sphere is Node
+{
+	init() 
+	{
+		super.init(Sphere.name)
+
+		this.node_func = NodeFunction(this, CODE, "sphere", [
+			["s", 0.5],
+		])
+	}
+}

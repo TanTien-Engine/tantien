@@ -1,0 +1,14 @@
+var node0 = Sdf()
+
+_editor.add_node(node0, 20, 1)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 180, -1)
+
+var node2 = TexCoord()
+
+_editor.add_node(node2, -133, 11)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "uv", node0, "st")
