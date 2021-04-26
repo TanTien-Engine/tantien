@@ -10,5 +10,23 @@ var node2 = TexCoord()
 
 _editor.add_node(node2, -133, 11)
 
+var node3 = Function()
+
+_editor.add_node(node3, -130, -49)
+
+var node4 = Sphere()
+
+_editor.add_node(node4, -263, -71)
+
+var node5 = Input()
+
+node5.var_name = "p"
+node5.var_type = "num3"
+
+_editor.add_node(node5, -411.70663208008, -53.118964233398)
+
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
+Blueprint.connect(node3, "func", node0, "f_scene(p)")
+Blueprint.connect(node4, "ret", node3, "ret")
+Blueprint.connect(node5, "var", node4, "p")

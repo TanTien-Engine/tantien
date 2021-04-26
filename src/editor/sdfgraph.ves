@@ -5,6 +5,8 @@ import "blueprint.blueprint" for Blueprint
 import "sdfgraph.nodes.*"
 import "shadergraph.nodes.frag_color" for FragColor
 import "shadergraph.nodes.tex_coord" for TexCoord
+import "shadergraph.nodes.function" for Function
+import "blueprint.nodes.input" for Input
 
 class Sdfgraph is Editor
 {
@@ -18,7 +20,7 @@ class Sdfgraph is Editor
 // primitive
 Sphere, 
 // tools
-Sdf,
+Sdf, Function, Input,
 // shadergraph
 FragColor, TexCoord,
 		]) {
@@ -81,10 +83,13 @@ void main()
 			var list = Blueprint.topo_sort(prev_nodes)
 			for (var node in list) 
 			{
-				if (node["node_func"]) {
-					node.node_func.gen_shader(linker)
-				} else if (node.has_method("gen_shader(_)")) {
-					node.gen_shader(linker)
+				{
+					if (node["node_func"]) {
+						node.node_func.gen_shader(linker)
+					} 
+					if (node.has_method("gen_shader(_)")) {
+						node.gen_shader(linker)
+					}
 				}
 			}
 
@@ -114,6 +119,8 @@ void main()
 import \"sdfgraph.nodes.*\"
 import \"shadergraph.nodes.frag_color\" for FragColor
 import \"shadergraph.nodes.tex_coord\" for TexCoord
+import \"shadergraph.nodes.function\" for Function
+import \"blueprint.nodes.input\" for Input
 "
 	}
 }

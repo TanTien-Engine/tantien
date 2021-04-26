@@ -301,12 +301,29 @@ void w_ShaderGen_get_func()
     ves_set_number(0, (double)(uintptr_t)(func));
 }
 
+void w_ShaderGen_func_replace()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Function* from = (spvgentwo::Function*)double2pointer(ves_tonumber(1));
+    spvgentwo::Function* to = (spvgentwo::Function*)double2pointer(ves_tonumber(2));
+
+    linker->ReplaceFunc(from, to);
+}
+
+void w_ShaderGen_get_main_module()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Module* main = linker->GetMainModule();
+    ves_set_number(0, pointer2double(main));
+}
+
 void w_ShaderGen_create_decl_func()
 {
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    spvgentwo::Function* func = (spvgentwo::Function*)double2pointer(ves_tonumber(1));
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+    spvgentwo::Function* func = (spvgentwo::Function*)double2pointer(ves_tonumber(2));
 
-    auto ret = linker->CreateDeclFunc(func);
+    auto ret = linker->CreateDeclFunc(module, func);
     ves_set_number(0, pointer2double(ret));
 }
 
@@ -380,6 +397,13 @@ void w_Shader_disassemble()
     ves_set_lstring(0, text.c_str(), text.size());
 }
 
+void w_Shader_print()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+    linker->Print(*module);
+}
+
 }
 
 namespace tt
@@ -412,12 +436,17 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.add_lib(_,_)") == 0) return w_ShaderGen_add_lib;
     if (strcmp(signature, "ShaderGen.get_func(_,_)") == 0) return w_ShaderGen_get_func;
 
-    if (strcmp(signature, "ShaderGen.create_decl_func(_)") == 0) return w_ShaderGen_create_decl_func;
+    if (strcmp(signature, "ShaderGen.func_replace(_,_)") == 0) return w_ShaderGen_func_replace;
+
+    if (strcmp(signature, "ShaderGen.get_main_module()") == 0) return w_ShaderGen_get_main_module;
+    if (strcmp(signature, "ShaderGen.create_decl_func(_,_)") == 0) return w_ShaderGen_create_decl_func;
     if (strcmp(signature, "ShaderGen.add_link_decl(_,_,_)") == 0) return w_ShaderGen_add_link_decl;
 
     if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
     if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;
     if (strcmp(signature, "ShaderGen.link()") == 0) return w_ShaderGen_link;
+
+    if (strcmp(signature, "ShaderGen.print(_)") == 0) return w_Shader_print;
 
     if (strcmp(signature, "static ShaderTools.code2spirv(_,_,_)") == 0) return w_Shader_code2spirv;
     if (strcmp(signature, "static ShaderTools.disassemble(_)") == 0) return w_Shader_disassemble;

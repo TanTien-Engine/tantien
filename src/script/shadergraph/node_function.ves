@@ -26,6 +26,8 @@ class NodeFunction
 		this.func_name = func_name
 		this.decl_name = "sg_" + node.name
 
+		this.module = nil
+
 		node.layout()
 	}
 
@@ -33,9 +35,9 @@ class NodeFunction
 	{
 		var code = "#version 330 core\n" + this.code
 
-		var lib = gen.add_lib("pixel", code)
+		this.module = gen.add_lib("pixel", code)
 		var index = Render.get_shader_func_index("pixel", code, "glsl", this.func_name)
-		this.func = gen.get_func(lib, index - 1)	// skip main()
+		this.func = gen.get_func(this.module, index - 1)	// skip main()
 
 		gen.add_link_decl(this.func, this.decl_name, true)
 	}
@@ -76,7 +78,7 @@ class NodeFunction
 
 	calc_inst(gen, idx) 
 	{
-		var func = gen.create_decl_func(this.func)
+		var func = gen.create_decl_func(gen.get_main_module(), this.func)
 		gen.add_link_decl(func, this.decl_name, false)
 
 		var params = []

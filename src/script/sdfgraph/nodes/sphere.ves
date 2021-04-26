@@ -3,9 +3,9 @@ import "shadergraph.node_function" for NodeFunction
 
 var CODE = "
 // from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-float sphere(vec3 p, float s)
+float sphere(vec3 p)
 {
-    return length(p) - s;
+    return length(p) - 0.5;
 }
 "
 
@@ -15,8 +15,6 @@ class Sphere is Node
 	{
 		super.init(Sphere.name)
 
-		this.node_func = NodeFunction(this, CODE, "sphere", [
-			["s", 0.5],
-		])
+		this.node_func = NodeFunction(this, CODE, "sphere", [])
 	}
 }

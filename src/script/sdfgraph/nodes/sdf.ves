@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "shadergraph.node_function" for NodeFunction
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
+import "render" for Render
 
 var CODE = "
 const int MAX_MARCHING_STEPS = 255;
@@ -9,15 +10,9 @@ const float MIN_DIST = 0.0;
 const float MAX_DIST = 100.0;
 const float EPSILON = 0.0001;
 
-float sdSphere(vec3 p, float s)
-{
-    return length(p) - s;
-}
-
 float f_scene(vec3 p)
 {
-	return sdSphere(p, 0.5);
-    //return 0;
+    return 0;
 }
 
 float shortest_distance_to_surface(vec3 eye, vec3 marchingDirection, float start, float end)
@@ -142,7 +137,44 @@ class Sdf is Node
 
 		this.node_func = NodeFunction(this, CODE, "sdf", [])
 
-        this.imports.add(Pin(this, "f_scene", VAR_TYPE_FUNCTION))
+        this.imports.add(Pin(this, "f_scene(p)", VAR_TYPE_FUNCTION))
         this.layout()
 	}
+
+    gen_shader(gen)
+    {
+        var func_idx = this.imports.count - 1
+        if (this.imports[func_idx].conns.isEmpty) {
+            return
+        }
+
+        var func_pin = this.imports[func_idx].conns.front().from
+        var func_node = func_pin.node
+
+        if (func_node.imports[0].conns.isEmpty) {
+            return
+        }
+        var f_pin = func_node.imports[0].conns.front().from
+        var f_node = f_pin.node
+        if (f_node["node_func"] == nil) {
+            return
+        }
+
+        var f_node_func = f_node.node_func
+        if (f_node_func["func"] == nil) {
+            return
+        }
+
+        var f_func = f_node_func.func
+
+        var code = "#version 330 core\n" + CODE
+        var index = Render.get_shader_func_index("pixel", code, "glsl", "f_scene")
+
+        var func = gen.get_func(this.node_func.module, index - 1)    // skip main()
+
+        var func_new = gen.create_decl_func(this.node_func.module, f_func)
+        gen.add_link_decl(func_new, f_node_func.decl_name, false)
+
+        gen.func_replace(func, func_new)
+    }
 }

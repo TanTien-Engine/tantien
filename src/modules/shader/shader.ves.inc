@@ -36,12 +36,17 @@ foreign class ShaderGen
 	foreign add_lib(stage, glsl)
 	foreign get_func(lib, index)
 
-	foreign create_decl_func(func)
+	foreign func_replace(from, to)
+
+	foreign get_main_module()
+	foreign create_decl_func(module, func)
 	foreign add_link_decl(func, name, is_export)
 
 	foreign import_all()
 	foreign finish_main()
 	foreign link()
+
+	foreign print(lib)
 }
 
 );
