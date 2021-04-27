@@ -6,7 +6,7 @@ import "sdfgraph.nodes.*"
 import "shadergraph.nodes.frag_color" for FragColor
 import "shadergraph.nodes.tex_coord" for TexCoord
 import "shadergraph.nodes.function" for Function
-import "blueprint.nodes.input" for Input
+import "shadergraph.nodes.parameter" for Parameter
 
 class Sdfgraph is Editor
 {
@@ -19,8 +19,10 @@ class Sdfgraph is Editor
 		for (var node in [ 
 // primitive
 Sphere, Box, Cone,
+// operation-combinations
+Union,
 // tools
-Sdf, Function, Input,
+Sdf, Function, Parameter,
 // shadergraph
 FragColor, TexCoord,
 		]) {
@@ -120,7 +122,7 @@ import \"sdfgraph.nodes.*\"
 import \"shadergraph.nodes.frag_color\" for FragColor
 import \"shadergraph.nodes.tex_coord\" for TexCoord
 import \"shadergraph.nodes.function\" for Function
-import \"blueprint.nodes.input\" for Input
+import \"shadergraph.nodes.parameter\" for Parameter
 "
 	}
 }

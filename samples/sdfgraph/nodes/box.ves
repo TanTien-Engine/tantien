@@ -14,20 +14,19 @@ var node3 = Function()
 
 _editor.add_node(node3, -130, -49)
 
-var node4 = Input()
+var node4 = Box()
+node4.query_param("b").value.set(0.8, 0.5, 0.5)
 
-node4.var_name = "p"
-node4.var_type = "num3"
+_editor.add_node(node4, -289.59367425112, -59.121932071738)
 
-_editor.add_node(node4, -428.30385904545, -24.022591034846)
+var node5 = Parameter()
 
-var node5 = Box()
-node5.query_param("b").value.set(0.8, 0.5, 0.5)
+node5.var_name = "p"
 
-_editor.add_node(node5, -284.1295666082, -31.801393857135)
+_editor.add_node(node5, -441.1114452428, -51.110209108922)
 
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
 Blueprint.connect(node3, "func", node0, "f_scene(p)")
-Blueprint.connect(node4, "var", node5, "p")
-Blueprint.connect(node5, "ret", node3, "ret")
+Blueprint.connect(node4, "ret", node3, "ret")
+Blueprint.connect(node5, "var", node4, "p")

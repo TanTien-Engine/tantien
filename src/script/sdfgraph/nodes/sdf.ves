@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "shadergraph.node_function" for NodeFunction
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
 import "shadergraph.node_helper" for NodeHelper
+import "shadergraph.nodes.parameter" for Parameter
 import "render" for Render
 import "blueprint.blueprint" for Blueprint
 
@@ -176,31 +177,32 @@ class Sdf is Node
 
         var caller = gen.create_func(this.node_func.module, "f_scene", "float", [ "vec3" ])
         var pos = gen.get_func_param(caller, 0)
-        var args = this.get_func_args(gen, callee_src, pos, f_node, caller)
+
+        var prev_nodes = Blueprint.get_precursor_nodes(f_node)
+        for (var node in prev_nodes) {
+            if (node is Parameter) {
+                if (node.var_name == "p") {
+                    node.var_inst = pos
+                }
+            }
+        }        
+        var args = this.get_func_args(gen, callee_src, f_node, caller)
+        
         var ret = gen.func_call(caller, callee, args)
         gen.func_return_value(caller, ret)
 
         gen.func_replace(old_func, caller)
     }
 
-    get_func_args(gen, callee_src, pos, f_node, caller)
+    get_func_args(gen, callee_src, f_node, caller)
     {
         var args = []
-
         var names = gen.get_func_args(callee_src)
         for (var name in names)
         {
-            if (name == "p")
-            {
-                args.add(pos)
-            }
-            else
-            {
-                var pin = Blueprint.query_pin(f_node.imports, name)
-                args.add(f_node.node_func.calc_inst_from_pin(gen, pin, this.node_func.module, caller))
-            }
-        }    
-
+            var pin = Blueprint.query_pin(f_node.imports, name)
+            args.add(f_node.node_func.calc_inst_from_pin(gen, pin, this.node_func.module, caller))
+        }
         return args
     }
 }

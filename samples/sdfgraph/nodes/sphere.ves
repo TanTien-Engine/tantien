@@ -15,15 +15,15 @@ var node3 = Function()
 _editor.add_node(node3, -130, -49)
 
 var node4 = Sphere()
+node4.query_param("s").value = 0.5
 
 _editor.add_node(node4, -263, -71)
 
-var node5 = Input()
+var node5 = Parameter()
 
 node5.var_name = "p"
-node5.var_type = "num3"
 
-_editor.add_node(node5, -411.70663208008, -53.118964233398)
+_editor.add_node(node5, -404.22872694479, -49.744185811224)
 
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
