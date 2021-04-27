@@ -34,10 +34,9 @@ class NodeFunction
 	gen_shader(gen)
 	{
 		var code = "#version 330 core\n" + this.code
-
 		this.module = gen.add_lib("pixel", code)
-		var index = Render.get_shader_func_index("pixel", code, "glsl", this.func_name)
-		this.func = gen.get_func(this.module, index - 1)	// skip main()
+
+		this.func = gen.query_func(this.module, this.func_name)
 
 		gen.add_link_decl(this.func, this.decl_name, true)
 	}
