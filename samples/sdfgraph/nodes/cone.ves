@@ -1,0 +1,34 @@
+var node0 = Sdf()
+
+_editor.add_node(node0, 20, 1)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 180, -1)
+
+var node2 = TexCoord()
+
+_editor.add_node(node2, -133, 11)
+
+var node3 = Function()
+
+_editor.add_node(node3, -130, -49)
+
+var node4 = Input()
+
+node4.var_name = "p"
+node4.var_type = "num3"
+
+_editor.add_node(node4, -411.70663208008, -53.118964233398)
+
+var node5 = Cone()
+node5.query_param("c").value.set(0.2, 0.5)
+node5.query_param("h").value = 0.8
+
+_editor.add_node(node5, -271.29700685862, -83.557895530908)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "uv", node0, "st")
+Blueprint.connect(node3, "func", node0, "f_scene(p)")
+Blueprint.connect(node4, "var", node5, "p")
+Blueprint.connect(node5, "ret", node3, "ret")
