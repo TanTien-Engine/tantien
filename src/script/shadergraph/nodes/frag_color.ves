@@ -25,33 +25,35 @@ class FragColor is Node
 
 		var frag_col = gen.add_output("FragColor", "vec4")
 
-		var rgba = NodeHelper.calc_input_inst(gen, this, "rgba")
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+		var rgba = NodeHelper.calc_input_inst(gen, this, "rgba", module, func)
 		if (!rgba) 
 		{
 			var r = nil
 			var g = nil
 			var b = nil
-			var a = gen.op_const_float(1.0)
+			var a = gen.module_const_float(module, 1.0)
 
-			var rgb = NodeHelper.calc_input_inst(gen, this, "rgb")
+			var rgb = NodeHelper.calc_input_inst(gen, this, "rgb", module, func)
 			if (rgb) 
 			{
-				r = gen.op_compose_extract(rgb, 0)
-				g = gen.op_compose_extract(rgb, 1)
-				b = gen.op_compose_extract(rgb, 2)
+				r = gen.compose_extract(func, rgb, 0)
+				g = gen.compose_extract(func, rgb, 1)
+				b = gen.compose_extract(func, rgb, 2)
 			} 
 			else 
 			{
-				var rg = NodeHelper.calc_input_inst(gen, this, "rg")
+				var rg = NodeHelper.calc_input_inst(gen, this, "rg", module, func)
 				if (rg) 
 				{
-					r = gen.op_compose_extract(rg, 0)
-					g = gen.op_compose_extract(rg, 1)
-					b = gen.op_const_float(0.0)
+					r = gen.compose_extract(func, rg, 0)
+					g = gen.compose_extract(func, rg, 1)
+					b = gen.module_const_float(module, 0.0)
 				} 
 				else 
 				{
-					var grey = NodeHelper.calc_input_inst(gen, this, "grey")
+					var grey = NodeHelper.calc_input_inst(gen, this, "grey", module, func)
 					if (grey) 
 					{
 						r = grey
@@ -60,18 +62,18 @@ class FragColor is Node
 					}
 					else
 					{
-						r = gen.op_const_float(0.0)
+						r = gen.module_const_float(module, 0.0)
 						g = r
 						b = r
 					}
 				}
 			}
 
-			rgba = gen.op_compose_float4(r, g, b, a)			
+			rgba = gen.compose_float4(func, r, g, b, a)			
 		}
-		gen.op_store(frag_col, rgba)
+		gen.store(func, frag_col, rgba)
 
-		gen.op_return()
+		gen.func_return(func)
 
 		gen.finish_main()
 	}

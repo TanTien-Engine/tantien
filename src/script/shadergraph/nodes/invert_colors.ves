@@ -25,29 +25,29 @@ class InvertColors is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx) 
+	calc_inst(gen, idx, module, func) 
 	{
-		var val = NodeHelper.calc_input_inst(gen, this, 0)
+		var val = NodeHelper.calc_input_inst(gen, this, 0, module, func)
 		if (!val) {
 			return nil
 		}
 
-		var r = gen.op_compose_extract(val, 0)
-		var g = gen.op_compose_extract(val, 1)
-		var b = gen.op_compose_extract(val, 2)
-		var a = gen.op_compose_extract(val, 3)
+		var r = gen.compose_extract(func, val, 0)
+		var g = gen.compose_extract(func, val, 1)
+		var b = gen.compose_extract(func, val, 2)
+		var a = gen.compose_extract(func, val, 3)
 
 		var br = this.query_param("r").value
 		var bg = this.query_param("g").value
 		var bb = this.query_param("b").value
 		var ba = this.query_param("a").value
 
-		var one = gen.op_const_float(1.0)
-		if (br) { r = gen.op_sub(one, r) }
-		if (bg) { g = gen.op_sub(one, g) }
-		if (bb) { b = gen.op_sub(one, b) }
-		if (ba) { a = gen.op_sub(one, a) }
+		var one = gen.module_const_float(module, 1.0)
+		if (br) { r = gen.sub(func, one, r) }
+		if (bg) { g = gen.sub(func, one, g) }
+		if (bb) { b = gen.sub(func, one, b) }
+		if (ba) { a = gen.sub(func, one, a) }
 
-		return gen.op_compose_float4(r, g, b, a)
+		return gen.compose_float4(func, r, g, b, a)
 	}
 }

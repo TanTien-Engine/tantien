@@ -8,31 +8,31 @@ class Combine is bp_Combine
 		super.init()	
 	}
 
-	calc_inst(gen, idx) 
+	calc_inst(gen, idx, module, func)
 	{
-		var x = NodeHelper.calc_input_inst(gen, this, "x")
+		var x = NodeHelper.calc_input_inst(gen, this, "x", module, func)
 		if (!x) {
-			x = gen.op_const_float(0.0)
+			x = gen.module_const_float(module, 0.0)
 		}
-		var y = NodeHelper.calc_input_inst(gen, this, "y")
+		var y = NodeHelper.calc_input_inst(gen, this, "y", module, func)
 		if (!y) {
-			y = gen.op_const_float(0.0)
+			y = gen.module_const_float(module, 0.0)
 		}
-		var z = NodeHelper.calc_input_inst(gen, this, "z")
+		var z = NodeHelper.calc_input_inst(gen, this, "z", module, func)
 		if (!z) {
-			z = gen.op_const_float(0.0)
+			z = gen.module_const_float(module, 0.0)
 		}
-		var w = NodeHelper.calc_input_inst(gen, this, "w")
+		var w = NodeHelper.calc_input_inst(gen, this, "w", module, func)
 		if (!w) {
-			w = gen.op_const_float(0.0)
+			w = gen.module_const_float(module, 0.0)
 		}
 
 		if (idx == 0) {
-			return gen.op_compose_float4(x, y, z, w)
+			return gen.compose_float4(func, x, y, z, w)
 		} else if (idx == 1) {
-			return gen.op_compose_float3(x, y, z)
+			return gen.compose_float3(func, x, y, z)
 		} else if (idx == 2) {
-			return gen.op_compose_float2(x, y)
+			return gen.compose_float2(func, x, y)
 		}
 	}
 }

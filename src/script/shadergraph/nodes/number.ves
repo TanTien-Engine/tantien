@@ -7,8 +7,8 @@ class Number is bp_Number
 		super.init()	
 	}
 
-	calc_inst(gen, idx) 
+	calc_inst(gen, idx, module, func) 
 	{
-		return gen.op_const_float(this.value)
+		return gen.module_const_float(module, this.value)
 	}
 }

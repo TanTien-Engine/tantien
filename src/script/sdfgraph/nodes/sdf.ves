@@ -167,30 +167,27 @@ class Sdf is Node
             return
         }
 
-        var f_func = f_node_func.func
+        var callee_src = f_node_func.func
 
-        var code = "#version 330 core\n" + CODE
-        var index = Render.get_shader_func_index("pixel", code, "glsl", "f_scene")
+        var old_func = gen.query_func(this.node_func.module, "f_scene")
 
-        var func = gen.get_func(this.node_func.module, index - 1)    // skip main()
+        var callee = gen.create_decl_func(this.node_func.module, callee_src)
+        gen.add_link_decl(callee, f_node_func.decl_name, false)
 
-        var in_func = gen.create_decl_func(this.node_func.module, f_func)
-        gen.add_link_decl(in_func, f_node_func.decl_name, false)
+        var caller = gen.create_func(this.node_func.module, "f_scene", "float", [ "vec3" ])
+        var pos = gen.get_func_param(caller, 0)
+        var args = this.get_func_args(gen, callee_src, pos, f_node, caller)
+        var ret = gen.func_call(caller, callee, args)
+        gen.func_return_value(caller, ret)
 
-        var func_new = gen.create_func(this.node_func.module, "f_scene", "float", [ "vec3" ])
-        var pos = gen.get_func_param(func_new, 0)
-        var args = this.get_func_args(gen, f_func, pos, f_node)
-        var ret = gen.func_call(func_new, in_func, args)
-        gen.func_return(func_new, ret)
-
-        gen.func_replace(func, func_new)
+        gen.func_replace(old_func, caller)
     }
 
-    get_func_args(gen, func, pos, f_node)
+    get_func_args(gen, callee_src, pos, f_node, caller)
     {
         var args = []
 
-        var names = gen.get_func_args(func)
+        var names = gen.get_func_args(callee_src)
         for (var name in names)
         {
             if (name == "p")
@@ -200,7 +197,7 @@ class Sdf is Node
             else
             {
                 var pin = Blueprint.query_pin(f_node.imports, name)
-                args.add(f_node.node_func.calc_inst_from_pin(gen, pin, this.node_func.module))
+                args.add(f_node.node_func.calc_inst_from_pin(gen, pin, this.node_func.module, caller))
             }
         }    
 
