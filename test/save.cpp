@@ -223,9 +223,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int width = 640;
-    int height = 480;
-
     glfwSetErrorCallback(error_callback);
 
     if(glfwInit() == GL_FALSE) {
@@ -236,14 +233,14 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     GLFWwindow *window;
-    if((window = glfwCreateWindow(width, height, "glfw3", 0, 0)) == 0) {
+    if((window = glfwCreateWindow(100, 100, "save", 0, 0)) == 0) {
         std::cerr << "failed to open window" << std::endl;
         glfwTerminate();
         return 1;
     }
-
     glfwMakeContextCurrent(window);
 
     if(gl3wInit()) {
