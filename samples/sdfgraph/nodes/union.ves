@@ -1,4 +1,5 @@
 var node0 = Sdf()
+node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
@@ -8,7 +9,7 @@ _editor.add_node(node1, 180, -1)
 
 var node2 = TexCoord()
 
-_editor.add_node(node2, -133, 11)
+_editor.add_node(node2, -133, 53)
 
 var node3 = Function()
 
@@ -34,6 +35,10 @@ node7.var_name = "p"
 
 _editor.add_node(node7, -592.97960562009, -57.436337754942)
 
+var node8 = Viewport()
+
+_editor.add_node(node8, -132, -4)
+
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
 Blueprint.connect(node3, "func", node0, "f_scene(p)")
@@ -42,3 +47,4 @@ Blueprint.connect(node5, "ret", node3, "ret")
 Blueprint.connect(node6, "ret", node5, "d1")
 Blueprint.connect(node7, "var", node6, "p")
 Blueprint.connect(node7, "var", node4, "p")
+Blueprint.connect(node8, "size", node0, "screen_size")
