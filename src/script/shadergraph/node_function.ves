@@ -50,25 +50,25 @@ class NodeFunction
 			if (param)
 			{
 				if (pin.type == VAR_TYPE_NUMBER) {
-					inst = gen.module_const_float(module, param.value)
+					inst = gen.const_float(module, param.value)
 				} else if (pin.type == VAR_TYPE_NUMBER2) {
-					inst = gen.module_const_float2(module, param.value.x, param.value.y)
+					inst = gen.const_float2(module, param.value.x, param.value.y)
 				} else if (pin.type == VAR_TYPE_NUMBER3) {
-					inst = gen.module_const_float3(module, param.value.x, param.value.y, param.value.z)
+					inst = gen.const_float3(module, param.value.x, param.value.y, param.value.z)
 				} else if (pin.type == VAR_TYPE_NUMBER4) {
-					inst = gen.module_const_float4(module, param.value.x, param.value.y, param.value.z, param.value.w)
+					inst = gen.const_float4(module, param.value.x, param.value.y, param.value.z, param.value.w)
 				}
 			}
 			else
 			{
 				if (pin.type == VAR_TYPE_NUMBER) {
-					inst = gen.module_const_float(module, 0)
+					inst = gen.const_float(module, 0)
 				} else if (pin.type == VAR_TYPE_NUMBER2) {
-					inst = gen.module_const_float2(module, 0, 0)
+					inst = gen.const_float2(module, 0, 0)
 				} else if (pin.type == VAR_TYPE_NUMBER3) {
-					inst = gen.module_const_float3(module, 0, 0, 0)
+					inst = gen.const_float3(module, 0, 0, 0)
 				} else if (pin.type == VAR_TYPE_NUMBER4) {
-					inst = gen.module_const_float4(module, 0, 0, 0, 0)
+					inst = gen.const_float4(module, 0, 0, 0, 0)
 				}
 			}
 		}

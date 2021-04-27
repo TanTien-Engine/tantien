@@ -44,10 +44,10 @@ foreign class ShaderGen
 	foreign func_return(func)
 	foreign func_return_value(func, inst)
 
-	foreign module_const_float(module, x)
-	foreign module_const_float2(module, x, y)
-	foreign module_const_float3(module, x, y, z)
-	foreign module_const_float4(module, x, y, z, w)
+	foreign const_float(module, x)
+	foreign const_float2(module, x, y)
+	foreign const_float3(module, x, y, z)
+	foreign const_float4(module, x, y, z, w)
 
 	foreign import_all()
 	foreign finish_main()

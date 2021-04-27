@@ -12,19 +12,19 @@ class Combine is bp_Combine
 	{
 		var x = NodeHelper.calc_input_inst(gen, this, "x", module, func)
 		if (!x) {
-			x = gen.module_const_float(module, 0.0)
+			x = gen.const_float(module, 0.0)
 		}
 		var y = NodeHelper.calc_input_inst(gen, this, "y", module, func)
 		if (!y) {
-			y = gen.module_const_float(module, 0.0)
+			y = gen.const_float(module, 0.0)
 		}
 		var z = NodeHelper.calc_input_inst(gen, this, "z", module, func)
 		if (!z) {
-			z = gen.module_const_float(module, 0.0)
+			z = gen.const_float(module, 0.0)
 		}
 		var w = NodeHelper.calc_input_inst(gen, this, "w", module, func)
 		if (!w) {
-			w = gen.module_const_float(module, 0.0)
+			w = gen.const_float(module, 0.0)
 		}
 
 		if (idx == 0) {

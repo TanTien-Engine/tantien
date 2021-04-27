@@ -42,7 +42,7 @@ class InvertColors is Node
 		var bb = this.query_param("b").value
 		var ba = this.query_param("a").value
 
-		var one = gen.module_const_float(module, 1.0)
+		var one = gen.const_float(module, 1.0)
 		if (br) { r = gen.sub(func, one, r) }
 		if (bg) { g = gen.sub(func, one, g) }
 		if (bb) { b = gen.sub(func, one, b) }

@@ -33,7 +33,7 @@ class FragColor is Node
 			var r = nil
 			var g = nil
 			var b = nil
-			var a = gen.module_const_float(module, 1.0)
+			var a = gen.const_float(module, 1.0)
 
 			var rgb = NodeHelper.calc_input_inst(gen, this, "rgb", module, func)
 			if (rgb) 
@@ -49,7 +49,7 @@ class FragColor is Node
 				{
 					r = gen.compose_extract(func, rg, 0)
 					g = gen.compose_extract(func, rg, 1)
-					b = gen.module_const_float(module, 0.0)
+					b = gen.const_float(module, 0.0)
 				} 
 				else 
 				{
@@ -62,7 +62,7 @@ class FragColor is Node
 					}
 					else
 					{
-						r = gen.module_const_float(module, 0.0)
+						r = gen.const_float(module, 0.0)
 						g = r
 						b = r
 					}
