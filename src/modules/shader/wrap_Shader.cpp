@@ -288,7 +288,7 @@ void w_ShaderGen_add_lib()
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
     auto lib = linker->AddLibrary(stage, code_str);
-    ves_set_number(0, (double)(uintptr_t)(lib.get()));
+    ves_set_number(0, pointer2double(lib.get()));
 }
 
 void w_ShaderGen_get_func()
@@ -298,7 +298,7 @@ void w_ShaderGen_get_func()
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
     auto func = linker->GetFunction(*module, index);
-    ves_set_number(0, (double)(uintptr_t)(func));
+    ves_set_number(0, pointer2double(func));
 }
 
 void w_ShaderGen_func_replace()
