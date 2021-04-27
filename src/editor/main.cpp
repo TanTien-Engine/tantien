@@ -546,7 +546,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     GLFWwindow *window;
-    if((window = glfwCreateWindow(width, height, "glfw3", 0, 0)) == 0) {
+    if((window = glfwCreateWindow(width, height, argv[1], 0, 0)) == 0) {
         std::cerr << "failed to open window" << std::endl;
         glfwTerminate();
         return 1;
@@ -583,9 +583,9 @@ int main(int argc, char* argv[])
     ves_set_config(&cfg);
 
     char code[255];
-    std::string cls = argv[1];
-    cls[0] = std::toupper(cls[0]);
-    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls.c_str(), cls.c_str());
+    std::string cls_name = argv[1];
+    cls_name[0] = std::toupper(cls_name[0]);
+    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
     ves_interpret("editor", code);
 
     ves_getglobal("_editor");
