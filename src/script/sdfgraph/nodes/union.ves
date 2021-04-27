@@ -1,0 +1,17 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float op_union(float d1, float d2) { return min(d1, d2); }
+"
+
+class Union is Node
+{
+	init() 
+	{
+		super.init(Union.name)
+
+		this.node_func = NodeFunction(this, CODE, "op_union", [])
+	}
+}
