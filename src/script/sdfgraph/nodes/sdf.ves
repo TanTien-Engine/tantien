@@ -6,8 +6,11 @@ import "shadergraph.node_helper" for NodeHelper
 import "shadergraph.nodes.parameter" for Parameter
 import "render" for Render
 import "blueprint.blueprint" for Blueprint
+import "maths.vector" for Vector3
 
 var CODE = "
+// from http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+
 const int MAX_MARCHING_STEPS = 255;
 const float MIN_DIST = 0.0;
 const float MAX_DIST = 100.0;
@@ -41,16 +44,29 @@ vec3 ray_dir(float fov, vec2 size, vec2 frag_coord)
     return normalize(vec3(xy, -z));
 }
 
-mat3 viewMatrix(vec3 eye, vec3 center, vec3 up)
+/**
+ * Return a transform matrix that will transform a ray from view space
+ * to world coordinates, given the eye point, the camera target, and an up vector.
+ *
+ * This assumes that the center of the camera is aligned with the negative z axis in
+ * view space when calculating the ray marching direction. See rayDirection.
+ */
+mat4 view_matrix(vec3 eye, vec3 center, vec3 up) 
 {
     // Based on gluLookAt man page
     vec3 f = normalize(center - eye);
     vec3 s = normalize(cross(f, up));
     vec3 u = cross(s, f);
-    return mat3(s, u, -f);
+    return mat4(
+        vec4(s, 0.0),
+        vec4(u, 0.0),
+        vec4(-f, 0.0),
+        vec4(0.0, 0.0, 0.0, 1)
+    );
 }
 
-vec3 estimateNormal(vec3 p) {
+vec3 estimate_normal(vec3 p) 
+{
     return normalize(vec3(
         f_scene(vec3(p.x + EPSILON, p.y, p.z)) - f_scene(vec3(p.x - EPSILON, p.y, p.z)),
         f_scene(vec3(p.x, p.y + EPSILON, p.z)) - f_scene(vec3(p.x, p.y - EPSILON, p.z)),
@@ -58,9 +74,10 @@ vec3 estimateNormal(vec3 p) {
     ));
 }
 
-vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity) {
-    vec3 N = estimateNormal(p);
+vec3 phong_contrib_for_light(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
+                             vec3 lightPos, vec3 lightIntensity) 
+{
+    vec3 N = estimate_normal(p);
     vec3 L = normalize(lightPos - p);
     vec3 V = normalize(eye - p);
     vec3 R = normalize(reflect(-L, N));
@@ -81,7 +98,8 @@ vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
     return lightIntensity * (k_d * dotLN + k_s * pow(dotRV, alpha));
 }
 
-vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) {
+vec3 phong_illumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) 
+{
     const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
@@ -92,26 +110,28 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 e
                           4.0 * cos(iTime));
     vec3 light1Intensity = vec3(0.4, 0.4, 0.4);
 
-    color += phongContribForLight(k_d, k_s, alpha, p, eye,
-                                  light1Pos,
-                                  light1Intensity);
+    color += phong_contrib_for_light(k_d, k_s, alpha, p, eye,
+                                     light1Pos,
+                                     light1Intensity);
 
     vec3 light2Pos = vec3(2.0 * sin(0.37 * iTime),
                           2.0 * cos(0.37 * iTime),
                           2.0);
     vec3 light2Intensity = vec3(0.4, 0.4, 0.4);
 
-    color += phongContribForLight(k_d, k_s, alpha, p, eye,
-                                  light2Pos,
-                                  light2Intensity);
+    color += phong_contrib_for_light(k_d, k_s, alpha, p, eye,
+                                     light2Pos,
+                                     light2Intensity);
     return color;
 }
 
-vec3 sdf(vec2 st)
+vec3 sdf(vec2 st, vec2 screen_size, vec3 eye)
 {
-    vec3 dir = ray_dir(45.0, vec2(1, 1), st);
-    vec3 eye = vec3(0.0, 0.0, 7.0);
-    float dist = shortest_distance_to_surface(eye, dir, MIN_DIST, MAX_DIST);
+    vec3 view_dir = ray_dir(45.0, screen_size, st * screen_size);
+    mat4 view_to_world = view_matrix(eye, vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+    vec3 world_dir = (view_to_world * vec4(view_dir, 0.0)).xyz;
+
+    float dist = shortest_distance_to_surface(eye, world_dir, MIN_DIST, MAX_DIST);
 
     if (dist > MAX_DIST - EPSILON) {
         // Didn't hit anything
@@ -119,14 +139,14 @@ vec3 sdf(vec2 st)
     }
 
     // The closest point on the surface to the eyepoint along the view ray
-    vec3 p = eye + dist * dir;
+    vec3 p = eye + dist * world_dir;
 
     vec3 K_a = vec3(0.2, 0.2, 0.2);
     vec3 K_d = vec3(0.7, 0.2, 0.2);
     vec3 K_s = vec3(1.0, 1.0, 1.0);
     float shininess = 10.0;
 
-    vec3 color = phongIllumination(K_a, K_d, K_s, shininess, p, eye);
+    vec3 color = phong_illumination(K_a, K_d, K_s, shininess, p, eye);
 
     return color;
 }
@@ -138,7 +158,9 @@ class Sdf is Node
 	{
 		super.init(Sdf.name)
 
-		this.node_func = NodeFunction(this, CODE, "sdf", [])
+		this.node_func = NodeFunction(this, CODE, "sdf", [
+            ["eye", Vector3(8.0, 5.0, 7.0)],
+        ])
 
         this.imports.add(Pin(this, "f_scene(p)", VAR_TYPE_FUNCTION))
         this.layout()
@@ -187,7 +209,7 @@ class Sdf is Node
             }
         }        
         var args = this.get_func_args(gen, callee_src, f_node, caller)
-        
+
         var ret = gen.func_call(caller, callee, args)
         gen.func_return_value(caller, ret)
 

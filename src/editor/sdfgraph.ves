@@ -3,6 +3,7 @@ import "render" for Render, Shader, VertexArray
 import "shader" for ShaderGen
 import "blueprint.blueprint" for Blueprint
 import "sdfgraph.nodes.*"
+import "blueprint.nodes.viewport" for Viewport
 import "shadergraph.nodes.frag_color" for FragColor
 import "shadergraph.nodes.tex_coord" for TexCoord
 import "shadergraph.nodes.function" for Function
@@ -22,7 +23,7 @@ Sphere, Box, Cone,
 // operation-combinations
 Union, SmoothUnion,
 // tools
-Sdf, Function, Parameter,
+Sdf, Function, Parameter, Viewport,
 // shadergraph
 FragColor, TexCoord,
 		]) {
@@ -119,6 +120,7 @@ void main()
 	{
 		return super.load_file_imports() + "
 import \"sdfgraph.nodes.*\"
+import \"blueprint.nodes.viewport\" for Viewport
 import \"shadergraph.nodes.frag_color\" for FragColor
 import \"shadergraph.nodes.tex_coord\" for TexCoord
 import \"shadergraph.nodes.function\" for Function
