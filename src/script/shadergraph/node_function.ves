@@ -1,6 +1,7 @@
 import "shadergraph.node_helper" for NodeHelper
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
 import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "render" for Render
 
@@ -61,14 +62,30 @@ class NodeFunction
 			}
 			else
 			{
-				if (pin.type == VAR_TYPE_NUMBER) {
-					inst = gen.const_float(module, 0)
-				} else if (pin.type == VAR_TYPE_NUMBER2) {
-					inst = gen.const_float2(module, 0, 0)
-				} else if (pin.type == VAR_TYPE_NUMBER3) {
-					inst = gen.const_float3(module, 0, 0, 0)
-				} else if (pin.type == VAR_TYPE_NUMBER4) {
-					inst = gen.const_float4(module, 0, 0, 0, 0)
+				var v = Blueprint.calc_input_value(this.node, pin.slot_idx)
+				if (v)
+				{
+					if (pin.type == VAR_TYPE_NUMBER) {
+						inst = gen.const_float(module, v)
+					} else if (pin.type == VAR_TYPE_NUMBER2) {
+						inst = gen.const_float2(module, v.value.x, v.value.y)
+					} else if (pin.type == VAR_TYPE_NUMBER3) {
+						inst = gen.const_float3(module, v.value.x, v.value.y, v.value.z)
+					} else if (pin.type == VAR_TYPE_NUMBER4) {
+						inst = gen.const_float4(module, v.value.x, v.value.y, v.value.z, v.value.w)
+					}
+				}
+				else
+				{
+					if (pin.type == VAR_TYPE_NUMBER) {
+						inst = gen.const_float(module, 0)
+					} else if (pin.type == VAR_TYPE_NUMBER2) {
+						inst = gen.const_float2(module, 0, 0)
+					} else if (pin.type == VAR_TYPE_NUMBER3) {
+						inst = gen.const_float3(module, 0, 0, 0)
+					} else if (pin.type == VAR_TYPE_NUMBER4) {
+						inst = gen.const_float4(module, 0, 0, 0, 0)
+					}
 				}
 			}
 		}
