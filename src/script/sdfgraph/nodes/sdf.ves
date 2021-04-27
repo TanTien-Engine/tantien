@@ -2,7 +2,9 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "shadergraph.node_function" for NodeFunction
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
+import "shadergraph.node_helper" for NodeHelper
 import "render" for Render
+import "blueprint.blueprint" for Blueprint
 
 var CODE = "
 const int MAX_MARCHING_STEPS = 255;
@@ -172,9 +174,36 @@ class Sdf is Node
 
         var func = gen.get_func(this.node_func.module, index - 1)    // skip main()
 
-        var func_new = gen.create_decl_func(this.node_func.module, f_func)
-        gen.add_link_decl(func_new, f_node_func.decl_name, false)
+        var in_func = gen.create_decl_func(this.node_func.module, f_func)
+        gen.add_link_decl(in_func, f_node_func.decl_name, false)
+
+        var func_new = gen.create_func(this.node_func.module, "f_scene", "float", [ "vec3" ])
+        var pos = gen.get_func_param(func_new, 0)
+        var args = this.get_func_args(gen, f_func, pos, f_node)
+        var ret = gen.func_call(func_new, in_func, args)
+        gen.func_return(func_new, ret)
 
         gen.func_replace(func, func_new)
+    }
+
+    get_func_args(gen, func, pos, f_node)
+    {
+        var args = []
+
+        var names = gen.get_func_args(func)
+        for (var name in names)
+        {
+            if (name == "p")
+            {
+                args.add(pos)
+            }
+            else
+            {
+                var pin = Blueprint.query_pin(f_node.imports, name)
+                args.add(f_node.node_func.calc_inst_from_pin(gen, pin, this.node_func.module))
+            }
+        }    
+
+        return args
     }
 }

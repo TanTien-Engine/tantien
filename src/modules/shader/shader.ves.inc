@@ -42,6 +42,17 @@ foreign class ShaderGen
 	foreign create_decl_func(module, func)
 	foreign add_link_decl(func, name, is_export)
 
+	foreign create_func(module, name, ret, args)
+	foreign get_func_param(func, index)
+	foreign get_func_args(func)
+	foreign func_call(caller, callee, args)
+	foreign func_return(func, inst)
+
+	foreign module_const_float(module, x)
+	foreign module_const_float2(module, x, y)
+	foreign module_const_float3(module, x, y, z)
+	foreign module_const_float4(module, x, y, z, w)
+
 	foreign import_all()
 	foreign finish_main()
 	foreign link()
