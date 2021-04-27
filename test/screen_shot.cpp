@@ -1,4 +1,5 @@
-﻿#include "modules/render/wrap_Render.h"
+﻿#include "tantien.h"
+#include "modules/render/wrap_Render.h"
 #include "modules/render/render.ves.inc"
 #include "modules/graphics/wrap_Graphics.h"
 #include "modules/graphics/graphics.ves.inc"
@@ -19,8 +20,6 @@
 #include "modules/system/system.ves.inc"
 #include "modules/shader/wrap_Shader.h"
 #include "modules/shader/shader.ves.inc"
-
-#include "modules/render/Render.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -316,7 +315,7 @@ int main(int argc, char* argv[])
 
     tt::System::Instance()->SetWindow(window);
 
-    tt::Render::Instance()->SetViewport(0, 0, width, height);
+    tt_on_size(1024, 1024);
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
