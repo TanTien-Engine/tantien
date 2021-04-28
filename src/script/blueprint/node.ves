@@ -133,6 +133,16 @@ class Node
 
 	disconnect()
 	{
+		if (this.imports.count == 1 and 
+		    this.exports.count == 1 and 
+		    !this.imports[0].conns.isEmpty and 
+		    !this.exports[0].conns.isEmpty)
+		{
+			var from = this.imports[0].conns[0].from
+			var to = this.exports[0].conns[0].to
+			Blueprint.connect(from, to)
+		}
+
 		for (var p in this.imports) {
 			while (!p.conns.isEmpty) {
 				Blueprint.disconnect(p.conns.front())
