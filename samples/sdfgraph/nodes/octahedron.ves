@@ -11,28 +11,23 @@ var node2 = TexCoord()
 
 _editor.add_node(node2, -128, 59)
 
-var node3 = Function()
+var node3 = Parameter()
 
-_editor.add_node(node3, -130, -49)
+node3.var_name = "p"
 
-var node4 = Parameter()
+_editor.add_node(node3, -293.4914452428, -54.740209108922)
 
-node4.var_name = "p"
+var node4 = Viewport()
 
-_editor.add_node(node4, -441.1114452428, -51.110209108922)
+_editor.add_node(node4, -127, 6)
 
-var node5 = Viewport()
+var node5 = Octahedron()
+node5.query_param("s").value = 0.6
 
-_editor.add_node(node5, -127, 6)
-
-var node6 = Octahedron()
-node6.query_param("s").value = 0.6
-
-_editor.add_node(node6, -272, -67.5)
+_editor.add_node(node5, -124.38, -71.13)
 
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "func", node0, "f_scene(p)")
-Blueprint.connect(node4, "var", node6, "p")
-Blueprint.connect(node5, "size", node0, "screen_size")
-Blueprint.connect(node6, "ret", node3, "ret")
+Blueprint.connect(node3, "var", node5, "p")
+Blueprint.connect(node4, "size", node0, "screen_size")
+Blueprint.connect(node5, "ret", node0, "f_scene(p)")

@@ -11,40 +11,30 @@ var node2 = TexCoord()
 
 _editor.add_node(node2, -128, 59)
 
-var node3 = Function()
+var node3 = Parameter()
 
-_editor.add_node(node3, -130, -49)
+node3.var_name = "p"
 
-var node4 = Parameter()
+_editor.add_node(node3, -420.70591588197, -47.814493635393)
 
-node4.var_name = "p"
+var node4 = Viewport()
 
-_editor.add_node(node4, -660.70591588197, -48.814493635393)
+_editor.add_node(node4, -127, 6)
 
-var node5 = Viewport()
+var node5 = Elongate()
+node5.query_param("h").value = 0.5
 
-_editor.add_node(node5, -127, 6)
+_editor.add_node(node5, -123.08805346184, -76.972052517423)
 
-var node6 = Elongate()
-node6.query_param("h").value = 0.5
+var node6 = Torus()
+node6.query_param("t").value.set(0.8, 0.25)
 
-_editor.add_node(node6, -262.08805346184, -81.972052517423)
-
-var node7 = Function()
-
-_editor.add_node(node7, -397.29845720258, -108.46092375922)
-
-var node8 = Torus()
-node8.query_param("t").value.set(0.8, 0.25)
-
-_editor.add_node(node8, -530.27808288722, -119.69923595229)
+_editor.add_node(node6, -276.27808288722, -110.69923595229)
 
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "func", node0, "f_scene(p)")
-Blueprint.connect(node4, "var", node6, "p")
-Blueprint.connect(node4, "var", node8, "p")
-Blueprint.connect(node5, "size", node0, "screen_size")
-Blueprint.connect(node6, "ret", node3, "ret")
-Blueprint.connect(node7, "func", node6, "primitive(p)")
-Blueprint.connect(node8, "ret", node7, "ret")
+Blueprint.connect(node3, "var", node5, "p")
+Blueprint.connect(node3, "var", node6, "p")
+Blueprint.connect(node4, "size", node0, "screen_size")
+Blueprint.connect(node5, "ret", node0, "f_scene(p)")
+Blueprint.connect(node6, "ret", node5, "primitive(p)")

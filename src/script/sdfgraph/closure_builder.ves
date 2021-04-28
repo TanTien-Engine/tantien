@@ -5,7 +5,12 @@ class ClosureBuilder
 {
 	static gen_primitive3d(gen, node, proxy_name)
 	{
-        var f_node = this.get_func_node_input(node)
+        var f_idx = node.imports.count - 1
+        if (node.imports[f_idx].conns.isEmpty) {
+            return nil
+        }
+        var f_pin = node.imports[f_idx].conns.front().from
+        var f_node = f_pin.node
         if (!f_node) {
             return
         }
@@ -16,25 +21,7 @@ class ClosureBuilder
             gen.func_replace(old_func, new_func)
         }		
 	}
-
-    static get_func_node_input(node)
-    {
-        var func_idx = node.imports.count - 1
-        if (node.imports[func_idx].conns.isEmpty) {
-            return nil
-        }
-
-        var func_pin = node.imports[func_idx].conns.front().from
-        var func_node = func_pin.node
-
-        if (func_node.imports[0].conns.isEmpty) {
-            return nil
-        }
-        var f_pin = func_node.imports[0].conns.front().from
-        var f_node = f_pin.node
-        return f_node
-    }
-
+    
     static build_real_func(node, gen, f_node, proxy_name)
     {
         if (f_node["node_func"] == nil) {

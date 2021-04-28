@@ -11,31 +11,26 @@ var node2 = TexCoord()
 
 _editor.add_node(node2, -128, 59)
 
-var node3 = Function()
+var node3 = Parameter()
 
-_editor.add_node(node3, -130, -49)
+node3.var_name = "p"
 
-var node4 = Parameter()
+_editor.add_node(node3, -289.8614452428, -48.690209108922)
 
-node4.var_name = "p"
+var node4 = Viewport()
 
-_editor.add_node(node4, -441.1114452428, -51.110209108922)
+_editor.add_node(node4, -127, 6)
 
-var node5 = Viewport()
+var node5 = Rhombus()
+node5.query_param("la").value = 0.4
+node5.query_param("lb").value = 0.8
+node5.query_param("h").value = 0.1
+node5.query_param("ra").value = 0.2
 
-_editor.add_node(node5, -127, 6)
-
-var node6 = Rhombus()
-node6.query_param("la").value = 0.4
-node6.query_param("lb").value = 0.8
-node6.query_param("h").value = 0.1
-node6.query_param("ra").value = 0.2
-
-_editor.add_node(node6, -283, -133.5)
+_editor.add_node(node5, -131.75, -131.08)
 
 Blueprint.connect(node0, "ret", node1, "rgb")
 Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "func", node0, "f_scene(p)")
-Blueprint.connect(node4, "var", node6, "p")
-Blueprint.connect(node5, "size", node0, "screen_size")
-Blueprint.connect(node6, "ret", node3, "ret")
+Blueprint.connect(node3, "var", node5, "p")
+Blueprint.connect(node4, "size", node0, "screen_size")
+Blueprint.connect(node5, "ret", node0, "f_scene(p)")
