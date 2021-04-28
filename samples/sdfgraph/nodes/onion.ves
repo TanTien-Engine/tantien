@@ -1,0 +1,45 @@
+var node0 = Sdf()
+node0.query_param("eye").value.set(8, 5, 7)
+
+_editor.add_node(node0, 20, 1)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 180, -1)
+
+var node2 = TexCoord()
+
+_editor.add_node(node2, -128, 59)
+
+var node3 = Parameter()
+
+node3.var_name = "p"
+
+_editor.add_node(node3, -445.02938946229, -59.936458922865)
+
+var node4 = Viewport()
+
+_editor.add_node(node4, -127, 6)
+
+var node5 = Onion()
+node5.query_param("thickness").value = 0.01
+
+_editor.add_node(node5, -120.98659342968, -83.644053594443)
+
+var node6 = Torus()
+node6.query_param("t").value.set(0.8, 0.25)
+
+_editor.add_node(node6, -277.47691600866, -44.863060020487)
+
+var node7 = Sphere()
+node7.query_param("s").value = 0.5
+
+_editor.add_node(node7, -282.14256535393, -130.79092970117)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "uv", node0, "st")
+Blueprint.connect(node3, "var", node6, "p")
+Blueprint.connect(node3, "var", node7, "p")
+Blueprint.connect(node4, "size", node0, "screen_size")
+Blueprint.connect(node5, "ret", node0, "f_scene(p)")
+Blueprint.connect(node7, "ret", node5, "sdf")
