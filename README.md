@@ -113,6 +113,12 @@ Based for each editors
 * primitive : Sphere, Box, Cone,
 * operation-combinations : Union, SmoothUnion,
 
+* primitive : Sphere, Box, RoundBox, BoxFrame, Torus, CappedTorus, Link, InfiniteCylinder, Cone, InfiniteCone, Plane, HexagonalPrism, TriangularPrism, Capsule, VerticalCapsule, VertCappedCylinder, CappedCylinder, RoundedCylinder, VertCappedCone, CappedCone, SolidAngle, VertRoundCone, RoundCone, Ellipsoid, Rhombus, Octahedron, Pyramid, Triangle, Quad,
+* operation-alterations : Elongate, Rounding, Onion,
+* operation-combinations : Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersection,
+* operation-positioning : Symmetry, InfiniteRepetition, FiniteRepetition,
+* operation-deformations and distortions : Displace, Twist, Bend,
+
 ## Building
 First clone the project & submodules:
 ```
