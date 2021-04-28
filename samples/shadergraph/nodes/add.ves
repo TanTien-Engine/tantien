@@ -1,0 +1,23 @@
+var node0 = FragColor()
+
+_editor.add_node(node0, 211.911, -166.114)
+
+var node1 = Add()
+
+_editor.add_node(node1, 41.278694781206, -165.57207621089)
+
+var node2 = Number3()
+
+node2.value.set(0.5, 0, 0)
+
+_editor.add_node(node2, -110.94352306019, -112.13893821023)
+
+var node3 = Number3()
+
+node3.value.set(0, 0.4, 0)
+
+_editor.add_node(node3, -110.03442382812, -226.22985562411)
+
+Blueprint.connect(node1, "v", node0, "rgb")
+Blueprint.connect(node2, "v3", node1, "a")
+Blueprint.connect(node3, "v3", node1, "b")
