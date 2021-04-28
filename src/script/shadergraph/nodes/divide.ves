@@ -1,0 +1,26 @@
+import "blueprint.nodes.divide" for Divide as bp_Subtract
+import "shadergraph.node_helper" for NodeHelper
+
+class Divide is bp_Subtract
+{
+	init()
+	{
+		super.init()	
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var a = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var b = NodeHelper.calc_input_inst(gen, this, 1, module, func)
+		
+		if (!a and !b) {
+			return nil
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
+		} else {
+			return gen.div(func, a, b)
+		}
+	}
+}
