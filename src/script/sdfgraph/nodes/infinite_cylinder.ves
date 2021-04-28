@@ -1,0 +1,23 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float infinite_cylinder(vec3 p, vec3 c)
+{
+    return length(p.xz - c.xy) - c.z;
+}
+"
+
+class InfiniteCylinder is Node
+{
+	init() 
+	{
+		super.init(InfiniteCylinder.name)
+
+		this.node_func = NodeFunction(this, CODE, "infinite_cylinder", [
+			["c", Vector3(0.0, 0.0, 0.5)],
+		])
+	}
+}

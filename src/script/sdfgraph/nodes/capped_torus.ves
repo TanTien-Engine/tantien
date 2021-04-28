@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float capped_torus(vec3 p, float ang, float ra, float rb)
+{
+	vec2 sc = vec2(sin(ang), cos(ang));
+	vec3 _p = p;
+    _p.x = abs(_p.x);
+    float k = (sc.y * _p.x > sc.x * _p.y) ? dot(_p.xy, sc) : length(_p.xy);
+    return sqrt(dot(_p, _p) + ra * ra - 2.0 * ra * k) - rb;
+}
+"
+
+class CappedTorus is Node
+{
+	init() 
+	{
+		super.init(CappedTorus.name)
+
+		this.node_func = NodeFunction(this, CODE, "capped_torus", [
+			["ang", 2.2],
+			["ra", 0.8],
+			["rb", 0.2],			
+		])
+	}
+}

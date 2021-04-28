@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float link(vec3 p, float le, float r1, float r2)
+{
+    vec3 q = vec3(p.x, max(abs(p.y) - le, 0.0), p.z);
+    return length(vec2(length(q.xy) - r1,q.z)) - r2;
+}
+"
+
+class Link is Node
+{
+	init() 
+	{
+		super.init(Link.name)
+
+		this.node_func = NodeFunction(this, CODE, "link", [
+			["le", 0.5],
+			["r1", 0.8],
+			["r2", 0.2],
+		])
+	}
+}

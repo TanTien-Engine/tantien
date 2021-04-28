@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float infinite_cone(vec3 p, float ang)
+{
+    vec2 c = vec2(sin(ang), cos(ang));
+    vec2 q = vec2(length(p.xz), -p.y);
+    float d = length(q - c * max(dot(q, c), 0.0));
+    return d * ((q.x * c.y - q.y * c.x < 0.0) ? -1.0 : 1.0);
+}
+"
+
+class InfiniteCone is Node
+{
+	init() 
+	{
+		super.init(InfiniteCone.name)
+
+		this.node_func = NodeFunction(this, CODE, "infinite_cone", [
+			["ang", 0.5],
+		])
+	}
+}

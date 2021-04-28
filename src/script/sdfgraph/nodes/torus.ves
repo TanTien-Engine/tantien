@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float torus(vec3 p, vec2 t)
+{
+    vec2 q = vec2(length(p.xz) - t.x, p.y);
+    return length(q) - t.y;
+}
+"
+
+class Torus is Node
+{
+	init() 
+	{
+		super.init(Torus.name)
+
+		this.node_func = NodeFunction(this, CODE, "torus", [
+			["t", Vector2(0.8, 0.25)],
+		])
+	}
+}

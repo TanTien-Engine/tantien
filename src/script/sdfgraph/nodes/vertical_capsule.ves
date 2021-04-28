@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float vertical_capsule( vec3 p, float h, float r )
+{
+  p.y -= clamp( p.y, 0.0, h );
+  return length( p ) - r;
+}
+"
+
+class VerticalCapsule is Node
+{
+	init() 
+	{
+		super.init(VerticalCapsule.name)
+
+		this.node_func = NodeFunction(this, CODE, "vertical_capsule", [
+			["h", 1.5],
+			["r", 0.2],
+		])
+	}
+}

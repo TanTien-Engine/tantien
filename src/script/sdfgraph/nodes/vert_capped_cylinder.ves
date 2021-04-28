@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float vert_capped_cylinder(vec3 p, float h, float r)
+{
+    vec2 d = abs(vec2(length(p.xz), p.y)) - vec2(h, r);
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+"
+
+class VertCappedCylinder is Node
+{
+	init() 
+	{
+		super.init(VertCappedCylinder.name)
+
+		this.node_func = NodeFunction(this, CODE, "vert_capped_cylinder", [
+			["h", 0.8],
+			["r", 0.5],			
+		])
+	}
+}

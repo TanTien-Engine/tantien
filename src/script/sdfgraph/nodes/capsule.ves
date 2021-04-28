@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float capsule(vec3 p, vec3 a, vec3 b, float r)
+{
+    vec3 pa = p - a, ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h) - r;
+}
+"
+
+class Capsule is Node
+{
+	init() 
+	{
+		super.init(Capsule.name)
+
+		this.node_func = NodeFunction(this, CODE, "capsule", [
+			["a", Vector3(0, 0, 0)],
+			["b", Vector3(1.5, 0, 0)],
+			["r", 0.2],
+		])
+	}
+}

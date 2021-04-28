@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float solid_angle(vec3 p, float ang, float ra)
+{
+    vec2 c = vec2(sin(ang), cos(ang));
+    vec2 q = vec2(length(p.xz), p.y);
+    float l = length(q) - ra;
+    float m = length(q - c * clamp(dot(q, c), 0.0, ra));
+    return max(l, m * sign(c.y * q.x - c.x * q.y));
+}
+"
+
+class SolidAngle is Node
+{
+	init() 
+	{
+		super.init(SolidAngle.name)
+
+		this.node_func = NodeFunction(this, CODE, "solid_angle", [
+			["ang", 0.8],
+			["ra", 1.0],
+		])
+	}
+}

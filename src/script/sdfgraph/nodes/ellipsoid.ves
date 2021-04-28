@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// bound (not exact!) 
+float ellipsoid(vec3 p, vec3 r)
+{
+    float k0 = length(p / r);
+    float k1 = length(p / (r * r));
+    return k0 * (k0 - 1.0) / k1;
+}
+"
+
+class Ellipsoid is Node
+{
+	init() 
+	{
+		super.init(Ellipsoid.name)
+
+		this.node_func = NodeFunction(this, CODE, "ellipsoid", [
+			["r", Vector3(1.2, 0.3, 0.6)],
+		])
+	}
+}

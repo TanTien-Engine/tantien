@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// bound
+float tri_prism(vec3 p, vec2 h)
+{
+    vec3 q = abs(p);
+    return max(q.z - h.y, max(q.x * 0.866025 + p.y * 0.5, -p.y) - h.x * 0.5);
+}
+"
+
+class TriangularPrism is Node
+{
+	init() 
+	{
+		super.init(TriangularPrism.name)
+
+		this.node_func = NodeFunction(this, CODE, "tri_prism", [
+			["h", Vector2(0.6, 0.2)],
+		])
+	}
+}

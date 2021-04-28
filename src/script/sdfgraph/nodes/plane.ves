@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float plane(vec3 p, vec3 n, float h)
+{
+    // n must be normalized
+    return dot(p, n) + h;
+}
+"
+
+class Plane is Node
+{
+	init() 
+	{
+		super.init(Plane.name)
+
+		this.node_func = NodeFunction(this, CODE, "plane", [
+			["n", Vector3(0.707, 0.707, 0)],
+			["h", 0],
+		])
+	}
+}

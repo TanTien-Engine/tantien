@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float rounded_cylinder(vec3 p, float ra, float rb, float h)
+{
+    vec2 d = vec2(length(p.xz) - 2.0 * ra + rb, abs(p.y) - h);
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - rb;
+}
+"
+
+class RoundedCylinder is Node
+{
+	init() 
+	{
+		super.init(RoundedCylinder.name)
+
+		this.node_func = NodeFunction(this, CODE, "rounded_cylinder", [
+			["ra", 0.3],	
+			["rb", 0.1], 
+			["h", 0.8], 
+		])
+	}
+}
