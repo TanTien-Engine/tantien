@@ -139,6 +139,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +147,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;spirv-cross-core.lib;spirv-cross-util.lib;spirv-cross-glsl.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;SPIRV-Tools.lib;SPIRV-Tools-link.lib;SPIRV-Tools-opt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -182,6 +183,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Tools\cmake_out\source\link\SPIRV-Tools-link.vcxproj">
       <Project>{8583a3f7-fb59-3e2f-9317-a3c610edc308}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Tools\cmake_out\source\opt\SPIRV-Tools-opt.vcxproj">
+      <Project>{386d45ba-57d8-31d3-bc43-465ce744b459}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\shadertrans\external\SPIRV-Tools\cmake_out\source\SPIRV-Tools-static.vcxproj">
       <Project>{e72f4ad1-a584-3624-b202-62881967fe4d}</Project>
