@@ -1,0 +1,38 @@
+var node0 = Sdf()
+node0.query_param("eye").value.set(8, 5, 7)
+
+_editor.add_node(node0, 20, 1)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 180, -1)
+
+var node2 = TexCoord()
+
+_editor.add_node(node2, -128, 59)
+
+var node3 = Function()
+
+_editor.add_node(node3, -130, -49)
+
+var node4 = Parameter()
+
+node4.var_name = "p"
+
+_editor.add_node(node4, -441.1114452428, -51.110209108922)
+
+var node5 = Viewport()
+
+_editor.add_node(node5, -127, 6)
+
+var node6 = InfiniteCone()
+node6.query_param("ang").value = 0.5
+
+_editor.add_node(node6, -288.43288626656, -60.437753430896)
+
+Blueprint.connect(node0, "ret", node1, "rgb")
+Blueprint.connect(node2, "uv", node0, "st")
+Blueprint.connect(node3, "func", node0, "f_scene(p)")
+Blueprint.connect(node4, "var", node6, "p")
+Blueprint.connect(node5, "size", node0, "screen_size")
+Blueprint.connect(node6, "ret", node3, "ret")
