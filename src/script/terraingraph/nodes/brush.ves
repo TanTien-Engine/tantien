@@ -143,6 +143,12 @@ class Brush is Node
 	
 	to_string(name) 
 	{
+		if (!this.history.isEmpty) {
+			for (var p in this.history) {
+				this.added_pos.add(p)
+			}
+		}
+
 		var pos_str = ""
 		for (var p in this.added_pos) {
 			pos_str = pos_str + "[%(p.x), %(p.y)],"
@@ -150,7 +156,7 @@ class Brush is Node
 		return "
 %(name).radius = %(this.radius)
 %(name).force = %(this.force)
-%(name).history = [%(pos_str)]
+%(name).history = %(this.added_pos)
 "
 	}
 
