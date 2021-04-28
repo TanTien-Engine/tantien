@@ -1,6 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "maths.vector" for Vector2, Vector3, Vector4
 
 class Add is Node
 {
@@ -9,11 +11,11 @@ class Add is Node
 		super.init(Add.name)
 
 		this.imports = [
-			Pin(this, "a", VAR_TYPE_NUMBER),
-			Pin(this, "b", VAR_TYPE_NUMBER)
+			Pin(this, "a", VAR_TYPE_ANY),
+			Pin(this, "b", VAR_TYPE_ANY)
 		]
 		this.exports = [
-			Pin(this, "v", VAR_TYPE_NUMBER)
+			Pin(this, "v", VAR_TYPE_ANY)
 		]
 
 		this.layout()
@@ -21,18 +23,46 @@ class Add is Node
 
 	calc(idx)
 	{
-		var a = 0
-		var b = 0
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			a = f_pin.node.calc(f_pin.slot_idx).value
+		var a = Blueprint.calc_input_value(this, 0)
+		var b = Blueprint.calc_input_value(this, 1)
+		if (!a and !b) {
+			return Variant(VAR_TYPE_NUMBER, 0)
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
 		}
-		conns = this.imports[1].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			b = f_pin.node.calc(f_pin.slot_idx).value
+
+		var ret = [0, 0, 0, 0]
+		this.add_to(a, ret)
+		this.add_to(b, ret)
+		if (a.type == VAR_TYPE_NUMBER4 or b.type == VAR_TYPE_NUMBER4) {
+			return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
+		} else if (a.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER3) {
+			return Variant(VAR_TYPE_NUMBER3, Vector3(ret[0], ret[1], ret[2]))
+		} else if (a.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER3) {
+			return Variant(VAR_TYPE_NUMBER2, Vector2(ret[0], ret[1]))
+		} else {
+			return Variant(VAR_TYPE_NUMBER, ret[0])
 		}
-		return Variant(VAR_TYPE_NUMBER, a + b)
+	}
+
+	static add_to(v, ret)
+	{
+		if (v.type == VAR_TYPE_NUMBER) {
+			ret[0] = ret[0] + v.value
+		} else if (v.type == VAR_TYPE_NUMBER2) {
+			ret[0] = ret[0] + v.value.x
+			ret[1] = ret[1] + v.value.y			
+		} else if (v.type == VAR_TYPE_NUMBER3) {
+			ret[0] = ret[0] + v.value.x
+			ret[1] = ret[1] + v.value.y
+			ret[2] = ret[2] + v.value.z
+		} else if (v.type == VAR_TYPE_NUMBER4) {
+			ret[0] = ret[0] + v.value.x
+			ret[1] = ret[1] + v.value.y
+			ret[2] = ret[2] + v.value.z
+			ret[3] = ret[3] + v.value.w
+		}
 	}
 }
