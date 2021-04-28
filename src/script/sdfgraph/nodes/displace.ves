@@ -3,37 +3,34 @@ import "blueprint.pin" for Pin
 import "shadergraph.node_function" for NodeFunction
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
 import "sdfgraph.closure_builder" for ClosureBuilder
+import "maths.vector" for Vector3
 
 var CODE = "
 // from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-
 float primitive(vec3 p)
 {
     return 0;
 }
-
-float elongate(vec3 p, vec3 h)
+float displacement(vec3 p)
 {
-    vec3 q = abs(p) - h;
-    return primitive(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+//    return sin(20*p.x)*sin(20*p.y)*sin(20*p.z);    
+    return sin(2*p.x)*sin(2*p.y)*sin(2*p.z);    
 }
-
-float elongate2(vec3 p, vec3 h)
+float displace(vec3 p)
 {
-    vec3 q = p - clamp(p, -h, h);
-    return primitive(q);
+    float d1 = primitive(p);
+    float d2 = displacement(p);
+    return d1+d2;
 }
 "
 
-class Elongate is Node
+class Displace is Node
 {
 	init() 
 	{
-		super.init(Elongate.name)
+		super.init(Displace.name)
 
-		this.node_func = NodeFunction(this, CODE, "elongate2", [
-			["h", 0.5],
-		])
+		this.node_func = NodeFunction(this, CODE, "displace", [])
 
         this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))
         this.layout()

@@ -6,34 +6,24 @@ import "sdfgraph.closure_builder" for ClosureBuilder
 
 var CODE = "
 // from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-
 float primitive(vec3 p)
 {
     return 0;
 }
-
-float elongate(vec3 p, vec3 h)
+float symmetry(vec3 p)
 {
-    vec3 q = abs(p) - h;
-    return primitive(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
-}
-
-float elongate2(vec3 p, vec3 h)
-{
-    vec3 q = p - clamp(p, -h, h);
-    return primitive(q);
+    p.xz = abs(p.xz);
+    return primitive(p);
 }
 "
 
-class Elongate is Node
+class Symmetry is Node
 {
 	init() 
 	{
-		super.init(Elongate.name)
+		super.init(Symmetry.name)
 
-		this.node_func = NodeFunction(this, CODE, "elongate2", [
-			["h", 0.5],
-		])
+		this.node_func = NodeFunction(this, CODE, "symmetry", [])
 
         this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))
         this.layout()

@@ -20,9 +20,13 @@ class Sdfgraph is Editor
 // primitive
 Sphere, Box, RoundBox, BoxFrame, Torus, CappedTorus, Link, InfiniteCylinder, Cone, InfiniteCone, Plane, HexagonalPrism, TriangularPrism, Capsule, VerticalCapsule, VertCappedCylinder, CappedCylinder, RoundedCylinder, VertCappedCone, CappedCone, SolidAngle, VertRoundCone, RoundCone, Ellipsoid, Rhombus, Octahedron, Pyramid, Triangle, Quad,
 // operation-alterations
-Elongate,
+Elongate, Rounding, Onion,
 // operation-combinations
-Union, SmoothUnion,
+Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersection,
+// operation-positioning
+Symmetry, InfiniteRepetition, FiniteRepetition,
+// operation-deformations and distortions
+Displace, Twist, Bend,
 // tools
 Sdf, Parameter, Viewport,
 // shadergraph
@@ -99,7 +103,7 @@ void main()
 
 			this.fs = linker.link()
 
-			//System.print(this.fs)
+			System.print(this.fs)
 
 			this.prog = Shader.init(this.vs, "", "", "", this.fs)
 		}

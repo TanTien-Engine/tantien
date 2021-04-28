@@ -1,0 +1,22 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float smooth_intersection(float d1, float d2, float k) 
+{
+    float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+    return mix( d2, d1, h ) + k*h*(1.0-h);
+}"
+
+class SmoothIntersection is Node
+{
+	init() 
+	{
+		super.init(SmoothIntersection.name)
+
+		this.node_func = NodeFunction(this, CODE, "smooth_intersection", [
+			["k", 0.5],
+		])
+	}
+}

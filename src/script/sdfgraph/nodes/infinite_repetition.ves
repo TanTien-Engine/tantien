@@ -3,36 +3,29 @@ import "blueprint.pin" for Pin
 import "shadergraph.node_function" for NodeFunction
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
 import "sdfgraph.closure_builder" for ClosureBuilder
+import "maths.vector" for Vector3
 
 var CODE = "
 // from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-
 float primitive(vec3 p)
 {
     return 0;
 }
-
-float elongate(vec3 p, vec3 h)
+float infinite_rep(vec3 p, vec3 c)
 {
-    vec3 q = abs(p) - h;
-    return primitive(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
-}
-
-float elongate2(vec3 p, vec3 h)
-{
-    vec3 q = p - clamp(p, -h, h);
+    vec3 q = mod(p+0.5*c,c)-0.5*c;
     return primitive(q);
 }
 "
 
-class Elongate is Node
+class InfiniteRepetition is Node
 {
 	init() 
 	{
-		super.init(Elongate.name)
+		super.init(InfiniteRepetition.name)
 
-		this.node_func = NodeFunction(this, CODE, "elongate2", [
-			["h", 0.5],
+		this.node_func = NodeFunction(this, CODE, "infinite_rep", [
+			["c", Vector3(5, 5, 5)],
 		])
 
         this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))

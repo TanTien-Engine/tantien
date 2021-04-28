@@ -1,0 +1,22 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float onion(float sdf, float thickness)
+{
+    return abs(sdf) - thickness;
+}
+"
+
+class Onion is Node
+{
+	init() 
+	{
+		super.init(Onion.name)
+
+		this.node_func = NodeFunction(this, CODE, "onion", [
+			["thickness", 0.1],
+		])
+	}
+}

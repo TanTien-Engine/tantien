@@ -1,0 +1,17 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float subtraction(float d1, float d2) { return max(d1,-d2); }
+"
+
+class Subtraction is Node
+{
+	init() 
+	{
+		super.init(Subtraction.name)
+
+		this.node_func = NodeFunction(this, CODE, "subtraction", [])
+	}
+}
