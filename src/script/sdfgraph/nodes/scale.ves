@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "shadergraph.node_helper" for NodeHelper
+import "maths.vector" for Vector3
+
+class Scale is Node
+{
+	init()
+	{
+		super.init(Scale.name)
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_NUMBER3)
+		]
+
+		this.params.add(NodeParam("val", Vector3(1, 1, 1)))
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var pos = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		if (!pos) {
+			return nil
+		}
+
+		var val = this.query_param("val").value
+		var x = gen.const_float(module, val.x)
+		var y = gen.const_float(module, val.y)
+		var z = gen.const_float(module, val.z)
+		var val_inst = gen.compose_float3(func, x, y, z)
+
+		return gen.div(func, pos, val_inst)
+	}
+}

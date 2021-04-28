@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "shadergraph.node_helper" for NodeHelper
+import "maths.vector" for Vector3
+
+class Translate is Node
+{
+	init()
+	{
+		super.init(Translate.name)
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_NUMBER3)
+		]
+
+		this.params.add(NodeParam("offset", Vector3(0, 0, 0)))
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var val = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		if (!val) {
+			return nil
+		}
+
+		var offset = this.query_param("offset").value
+		var x = gen.const_float(module, offset.x)
+		var y = gen.const_float(module, offset.y)
+		var z = gen.const_float(module, offset.z)		
+		var off_inst = gen.compose_float3(func, x, y, z)
+
+		return gen.sub(func, val, off_inst)
+	}
+}
