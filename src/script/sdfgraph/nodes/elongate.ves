@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "shadergraph.node_function" for NodeFunction
+import "shadergraph.variant" for VAR_TYPE_FUNCTION
+import "sdfgraph.closure_builder" for ClosureBuilder
+
+var CODE = "
+// from https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+float primitive(vec3 p)
+{
+    return 0;
+}
+float elongate(vec3 p, vec3 h)
+{
+    vec3 q = abs(p) - h;
+    return primitive(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+"
+
+class Elongate is Node
+{
+	init() 
+	{
+		super.init(Elongate.name)
+
+		this.node_func = NodeFunction(this, CODE, "elongate", [
+			["h", 0.5],
+		])
+
+        this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))
+        this.layout()
+	}
+
+    gen_shader(gen)
+    {
+        ClosureBuilder.gen_primitive3d(gen, this, "primitive")
+    }	
+}

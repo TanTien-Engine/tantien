@@ -1,0 +1,84 @@
+import "blueprint.blueprint" for Blueprint
+import "shadergraph.nodes.parameter" for Parameter
+
+class ClosureBuilder
+{
+	static gen_primitive3d(gen, node, proxy_name)
+	{
+        var f_node = this.get_func_node_input(node)
+        if (!f_node) {
+            return
+        }
+
+        var new_func = this.build_real_func(node, gen, f_node, proxy_name)
+        if (new_func) {
+            var old_func = gen.query_func(node.node_func.module, proxy_name)
+            gen.func_replace(old_func, new_func)
+        }		
+	}
+
+    static get_func_node_input(node)
+    {
+        var func_idx = node.imports.count - 1
+        if (node.imports[func_idx].conns.isEmpty) {
+            return nil
+        }
+
+        var func_pin = node.imports[func_idx].conns.front().from
+        var func_node = func_pin.node
+
+        if (func_node.imports[0].conns.isEmpty) {
+            return nil
+        }
+        var f_pin = func_node.imports[0].conns.front().from
+        var f_node = f_pin.node
+        return f_node
+    }
+
+    static build_real_func(node, gen, f_node, proxy_name)
+    {
+        if (f_node["node_func"] == nil) {
+            return nil
+        }
+
+        var node_func = f_node.node_func
+        if (node_func["func"] == nil) {
+            return nil
+        }
+
+        var callee_src = node_func.func
+
+        var callee = gen.create_decl_func(node.node_func.module, callee_src)
+        gen.add_link_decl(callee, node_func.decl_name, false)
+
+        var caller = gen.create_func(node.node_func.module, proxy_name, "float", [ "vec3" ])
+        var pos = gen.get_func_param(caller, 0)
+
+        var prev_nodes = Blueprint.get_precursor_nodes(f_node)
+        for (var pn in prev_nodes) {
+            if (pn is Parameter) {
+                if (pn.var_name == "p") {
+                    pn.var_inst = pos
+                }
+            }
+        }        
+        var args = this.get_func_args(node, gen, callee_src, f_node, caller)
+
+        var ret = gen.func_call(caller, callee, args)
+        gen.func_return_value(caller, ret)
+
+        return caller
+    }
+
+    static get_func_args(node, gen, callee_src, f_node, caller)
+    {
+        var args = []
+        var names = gen.get_func_args(callee_src)
+        for (var name in names)
+        {
+            var pin = Blueprint.query_pin(f_node.imports, name)
+            args.add(f_node.node_func.calc_inst_from_pin(gen, pin, node.node_func.module, caller))
+        }
+        return args
+    }	
+}
