@@ -11,9 +11,10 @@ foreign class ShaderGen
 {
 	init() {}
 
-	foreign add_uniform(module, name, type)
 	foreign add_input(name, type)
 	foreign add_output(name, type)
+	foreign add_uniform(module, name, type)
+	foreign get_unif_num()
 
 	foreign access_chain(func, base, index)
 	foreign compose_float2(func, x, y)

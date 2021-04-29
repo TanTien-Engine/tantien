@@ -60,17 +60,6 @@ int w_ShaderGen_finalize(void* data)
     return sizeof(tt::Proxy<shadertrans::ShaderLink>);
 }
 
-void w_ShaderGen_add_uniform()
-{
-    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
-    const char* name = ves_tostring(2);
-    const char* type = ves_tostring(3);
-
-    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    auto unif = linker->AddUniform(module, name, type);
-    ves_set_number(0, pointer2double(unif));
-} 
-
 void w_ShaderGen_add_input()
 {
     const char* name = ves_tostring(1);
@@ -89,6 +78,23 @@ void w_ShaderGen_add_output()
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
     auto output = linker->AddOutput(name, type);
     ves_set_number(0, pointer2double(output));
+}
+
+void w_ShaderGen_add_uniform()
+{
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+    const char* name = ves_tostring(2);
+    const char* type = ves_tostring(3);
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto unif = linker->AddUniform(module, name, type);
+    ves_set_number(0, pointer2double(unif));
+}
+
+void w_ShaderGen_get_unif_num()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    ves_set_number(0, linker->GetUniformNum());
 }
 
 void w_ShaderGen_access_chain()
@@ -530,9 +536,10 @@ namespace tt
 
 VesselForeignMethodFn ShaderBindMethod(const char* signature)
 {
-    if (strcmp(signature, "ShaderGen.add_uniform(_,_,_)") == 0) return w_ShaderGen_add_uniform;
     if (strcmp(signature, "ShaderGen.add_input(_,_)") == 0) return w_ShaderGen_add_input;
     if (strcmp(signature, "ShaderGen.add_output(_,_)") == 0) return w_ShaderGen_add_output;
+    if (strcmp(signature, "ShaderGen.add_uniform(_,_,_)") == 0) return w_ShaderGen_add_uniform;
+    if (strcmp(signature, "ShaderGen.get_unif_num()") == 0) return w_ShaderGen_get_unif_num;
 
     if (strcmp(signature, "ShaderGen.access_chain(_,_,_)") == 0) return w_ShaderGen_access_chain;
     if (strcmp(signature, "ShaderGen.compose_float2(_,_,_)") == 0) return w_shadergen_compose_float2;

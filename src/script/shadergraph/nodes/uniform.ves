@@ -19,17 +19,27 @@ class Uniform is Node
 		this.layout()
 
 		this.params.add(NodeParam("unif_name", ""))
-		this.params.add(NodeParam("unif_type", ""))
+		this.params.add(NodeParam("unif_type", "float"))
 
-		this.value = nil
+		this.unif = nil
 	}
+
+    gen_shader(gen)
+    {
+    	this.unif = nil
+    }
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var name = this.query_param("unif_name").value
-		var type = this.query_param("unif_type").value
-		var unif = gen.add_uniform(module, name, type)
+		if (!this.unif) 
+		{
+			var name = "unif_%(gen.get_unif_num())"
+			this.query_param("unif_name").value = name
 
-		return gen.load(func, unif)
+			var type = this.query_param("unif_type").value
+
+			this.unif = gen.add_uniform(module, name, type)
+		}
+		return gen.load(func, this.unif)
 	}
 }
