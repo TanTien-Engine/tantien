@@ -21,7 +21,9 @@ class NodeParam
 	{
 		if (this.serialize) 
 		{
-			if (this.value is Vector2) {
+			if (this.value is String) {
+				return "%(name).query_param(\"%(this.name)\").value = \"%(this.value)\"\n"
+			} else if (this.value is Vector2) {
 				return "%(name).query_param(\"%(this.name)\").value.set(%(this.value.x), %(this.value.y))\n"
 			} else if (this.value is Vector3) {
 				return "%(name).query_param(\"%(this.name)\").value.set(%(this.value.x), %(this.value.y), %(this.value.z))\n"
