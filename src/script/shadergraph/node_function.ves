@@ -35,7 +35,7 @@ class NodeFunction
 	gen_shader(gen)
 	{
 		var code = "#version 330 core\n" + this.code
-		this.module = gen.add_lib("pixel", code)
+		this.module = gen.add_module("pixel", code, this.decl_name)
 
 		this.func = gen.query_func(this.module, this.func_name)
 

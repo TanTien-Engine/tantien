@@ -234,15 +234,16 @@ void w_ShaderGen_store()
     linker->Store(func, dst, src);
 }
 
-void w_ShaderGen_add_lib()
+void w_ShaderGen_add_module()
 {
     const char* stage_str = ves_tostring(1);
     const char* code_str = ves_tostring(2);
+    const char* name = ves_tostring(3);
 
     auto stage = to_shader_stage(stage_str);
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    auto lib = linker->AddLibrary(stage, code_str);
+    auto lib = linker->AddModule(stage, code_str, name);
     ves_set_number(0, pointer2double(lib.get()));
 }
 
@@ -542,7 +543,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
 
-    if (strcmp(signature, "ShaderGen.add_lib(_,_)") == 0) return w_ShaderGen_add_lib;
+    if (strcmp(signature, "ShaderGen.add_module(_,_,_)") == 0) return w_ShaderGen_add_module;
     if (strcmp(signature, "ShaderGen.query_func(_,_)") == 0) return w_ShaderGen_query_func;
 
     if (strcmp(signature, "ShaderGen.func_replace(_,_)") == 0) return w_ShaderGen_func_replace;

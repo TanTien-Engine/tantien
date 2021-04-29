@@ -28,7 +28,7 @@ foreign class ShaderGen
 	foreign negate(func, v)
 	foreign store(func, dst, src)
 
-	foreign add_lib(stage, glsl)
+	foreign add_module(stage, glsl, name)
 	foreign query_func(lib, name)
 
 	foreign func_replace(from, to)
