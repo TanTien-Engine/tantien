@@ -2,11 +2,9 @@ import "editor.editor" for Editor
 import "render" for Render, Shader, VertexArray
 import "shader" for ShaderGen
 import "blueprint.blueprint" for Blueprint
-import "sdfgraph.nodes.*"
 import "blueprint.nodes.viewport" for Viewport
-import "shadergraph.nodes.frag_color" for FragColor
-import "shadergraph.nodes.tex_coord" for TexCoord
-import "shadergraph.nodes.parameter" for Parameter
+import "shadergraph.nodes.*"
+import "sdfgraph.nodes.*"
 
 class Sdfgraph is Editor
 {
@@ -27,10 +25,8 @@ Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersec
 Translate, Scale, Rotate, Symmetry, InfiniteRepetition, FiniteRepetition,
 // operation-deformations and distortions
 Displace, Twist, Bend,
-// tools
-Sdf, Parameter, Viewport,
 // shadergraph
-FragColor, TexCoord,
+Sdf, Parameter, Viewport, FragColor, TexCoord, Number, Number2, Number3, Number4, Combine, Negate,
 		]) {
 			super.add_popup_node(node)
 		}
@@ -124,11 +120,9 @@ void main()
 	load_file_imports()
 	{
 		return super.load_file_imports() + "
-import \"sdfgraph.nodes.*\"
 import \"blueprint.nodes.viewport\" for Viewport
-import \"shadergraph.nodes.frag_color\" for FragColor
-import \"shadergraph.nodes.tex_coord\" for TexCoord
-import \"shadergraph.nodes.parameter\" for Parameter
+import \"shadergraph.nodes.*\"
+import \"sdfgraph.nodes.*\"
 "
 	}
 }
