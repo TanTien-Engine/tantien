@@ -22,6 +22,10 @@ class Negate is Node
 	calc_inst(gen, idx, module, func) 
 	{
 		var v = NodeHelper.calc_input_inst(gen, this, 0, module, func)
-		return gen.negate(func, v)
+		if (v) {
+			return gen.negate(func, v)		
+		} else {
+			return nil
+		}
 	}
 }
