@@ -1,0 +1,27 @@
+var node0 = FragColor()
+
+_editor.add_node(node0, 197.36554545455, -153.38672727273)
+
+var node1 = Uniform()
+node1.query_param("unif_name").value = "test"
+node1.query_param("unif_type").value = "float"
+
+_editor.add_node(node1, 38.114654545455, -183.56694545455)
+
+var node2 = Number()
+
+node2.value = 2.4686856269836
+
+_editor.add_node(node2, -273.21818181818, -213.53636363636)
+
+var node3 = Sin()
+
+_editor.add_node(node3, -120.20141046697, -179.72312233665)
+
+var node4 = Time()
+
+_editor.add_node(node4, -275.65594759854, -151.54129721902)
+
+Blueprint.connect(node1, "v", node0, "grey")
+Blueprint.connect(node2, "v", node3, "v")
+Blueprint.connect(node3, "v", node1, "v")
