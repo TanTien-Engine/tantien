@@ -62,11 +62,12 @@ int w_ShaderGen_finalize(void* data)
 
 void w_ShaderGen_add_uniform()
 {
-    const char* name = ves_tostring(1);
-    const char* type = ves_tostring(2);
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+    const char* name = ves_tostring(2);
+    const char* type = ves_tostring(3);
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    auto unif = linker->AddUniform(name, type);
+    auto unif = linker->AddUniform(module, name, type);
     ves_set_number(0, pointer2double(unif));
 } 
 
@@ -232,6 +233,16 @@ void w_ShaderGen_store()
 
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
     linker->Store(func, dst, src);
+}
+
+void w_ShaderGen_load()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* val = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Load(func, val);
+    ves_set_number(0, pointer2double(ret));
 }
 
 void w_ShaderGen_add_module()
@@ -526,7 +537,7 @@ namespace tt
 
 VesselForeignMethodFn ShaderBindMethod(const char* signature)
 {
-    if (strcmp(signature, "ShaderGen.add_uniform(_,_)") == 0) return w_ShaderGen_add_uniform;
+    if (strcmp(signature, "ShaderGen.add_uniform(_,_,_)") == 0) return w_ShaderGen_add_uniform;
     if (strcmp(signature, "ShaderGen.add_input(_,_)") == 0) return w_ShaderGen_add_input;
     if (strcmp(signature, "ShaderGen.add_output(_,_)") == 0) return w_ShaderGen_add_output;
 
@@ -542,6 +553,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
+    if (strcmp(signature, "ShaderGen.load(_,_)") == 0) return w_ShaderGen_load;
 
     if (strcmp(signature, "ShaderGen.add_module(_,_,_)") == 0) return w_ShaderGen_add_module;
     if (strcmp(signature, "ShaderGen.query_func(_,_)") == 0) return w_ShaderGen_query_func;

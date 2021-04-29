@@ -24,7 +24,7 @@ TexCoord,
 // procedural-shapes
 Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
 // utility-shader
-FragColor,
+FragColor, Uniform,
 // uv
 Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
 // math
@@ -61,6 +61,7 @@ void main()
 }
 		"
 		this.prog = Shader.init(this.vs, "", "", "", this.fs)		
+		this.uniforms = []
 
 		this.va = VertexArray.init([1, 1, 0, 1, 0, 0, 1, 1, 1, -1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
 	}
@@ -80,6 +81,8 @@ void main()
 				frag_color = bp_node
 			}
 		}
+
+		this.uniforms.clear()
 
 		if (frag_color) 
 		{
@@ -113,6 +116,15 @@ void main()
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
+		for (var unif in this.uniforms) 
+		{
+			var v = Blueprint.calc_input_value(unif, 0)
+			if (v and v.value is Num)
+			{
+				var name = unif.query_param("unif_name").value
+				this.prog.set_uniform_value([name, "float", [v.value]])		
+			}
+		}
 		Render.draw("triangles", this.prog, this.va, { "depth_test" : false, "cull" : "disable" })
 	}
 

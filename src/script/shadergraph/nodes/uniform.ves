@@ -1,0 +1,35 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.node_param" for NodeParam
+
+class Uniform is Node
+{
+	init()
+	{
+		super.init(Uniform.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+
+		this.params.add(NodeParam("unif_name", ""))
+		this.params.add(NodeParam("unif_type", ""))
+
+		this.value = nil
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var name = this.query_param("unif_name").value
+		var type = this.query_param("unif_type").value
+		var unif = gen.add_uniform(module, name, type)
+
+		return gen.load(func, unif)
+	}
+}

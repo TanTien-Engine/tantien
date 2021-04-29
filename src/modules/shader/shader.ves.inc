@@ -11,7 +11,7 @@ foreign class ShaderGen
 {
 	init() {}
 
-	foreign add_uniform(name, type)
+	foreign add_uniform(module, name, type)
 	foreign add_input(name, type)
 	foreign add_output(name, type)
 
@@ -27,6 +27,7 @@ foreign class ShaderGen
 	foreign div(func, a, b)
 	foreign negate(func, v)
 	foreign store(func, dst, src)
+	foreign load(func, val)
 
 	foreign add_module(stage, glsl, name)
 	foreign query_func(lib, name)
