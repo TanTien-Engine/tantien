@@ -475,13 +475,6 @@ void w_ShaderGen_finish_main()
     linker->FinishMain();
 }
 
-void w_ShaderGen_link()
-{
-    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
-    auto glsl = linker->Link();
-    ves_set_lstring(0, glsl.c_str(), glsl.size());
-}
-
 void w_Shader_code2spirv()
 {
     const char* stage_str = ves_tostring(1);
@@ -581,7 +574,6 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
     if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;
-    if (strcmp(signature, "ShaderGen.link()") == 0) return w_ShaderGen_link;
 
     if (strcmp(signature, "ShaderGen.print(_)") == 0) return w_Shader_print;
 

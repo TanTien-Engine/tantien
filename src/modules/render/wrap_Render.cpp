@@ -26,6 +26,7 @@
 #include <unirender/WritePixelBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
+#include <shadertrans/ShaderLink.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
 #include <guard/check.h>
@@ -38,6 +39,17 @@
 namespace
 {
 
+void read_shader(std::vector<unsigned int>& dst, int src, shadertrans::ShaderStage stage)
+{
+    if (ves_type(src) == VES_TYPE_STRING) {
+        const char* str = ves_tostring(src);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, str, dst);
+    } else {
+        auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(src))->obj;
+        dst = linker->Link();
+    }
+}
+
 void w_Shader_allocate()
 {
     std::shared_ptr<ur::ShaderProgram> prog = nullptr;
@@ -45,38 +57,31 @@ void w_Shader_allocate()
     int num = ves_argnum();
     if (num == 6)
     {
-        const char* vs_str = ves_tostring(1);
-        const char* tcs_str = ves_tostring(2);
-        const char* tes_str = ves_tostring(3);
-        const char* gs_str = ves_tostring(4);
-        const char* fs_str = ves_tostring(5);
-        if (strlen(vs_str) != 0)
-        {
-            std::vector<unsigned int> vs, tcs, tes, gs, fs;
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader,   vs_str,  vs);
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessCtrlShader, tcs_str, tcs);
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::TessEvalShader, tes_str, tes);
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::GeometryShader, gs_str,  gs);
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader,    fs_str,  fs);
+        std::vector<unsigned int> vs, tcs, tes, gs, fs;
+        read_shader(vs, 1, shadertrans::ShaderStage::VertexShader);
+        read_shader(tcs, 2, shadertrans::ShaderStage::TessCtrlShader);
+        read_shader(tes, 3, shadertrans::ShaderStage::TessEvalShader);
+        read_shader(gs, 4, shadertrans::ShaderStage::GeometryShader);
+        read_shader(fs, 5, shadertrans::ShaderStage::PixelShader);
 
+        if (!vs.empty()) 
+        {
 #ifdef SHADER_DEBUG_PRINT
             std::string vs_glsl, fs_glsl;
             shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::VertexShader, vs, vs_glsl);
             shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::PixelShader, fs, fs_glsl);
             printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
-
             prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
         }
     }
     else if (num == 2)
     {
-        const char* cs_str = ves_tostring(1);
-        if (strlen(cs_str) != 0)
-        {
-            std::vector<unsigned int> cs;
-            shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::ComputeShader, cs_str, cs);
+        std::vector<unsigned int> cs;
+        read_shader(cs, 1, shadertrans::ShaderStage::ComputeShader);
 
+        if (!cs.empty())
+        {
 #ifdef SHADER_DEBUG_PRINT
             std::string cs_glsl;
             shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);

@@ -55,7 +55,6 @@ foreign class ShaderGen
 
 	foreign import_all()
 	foreign finish_main()
-	foreign link()
 
 	foreign print(lib)
 }
