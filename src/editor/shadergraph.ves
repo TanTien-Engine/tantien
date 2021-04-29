@@ -2,6 +2,7 @@ import "editor.editor" for Editor
 import "render" for Render, Shader, VertexArray
 import "shader" for ShaderGen
 import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
 import "shadergraph.nodes.*"
 
 var DEFAULT_VS = "
@@ -47,7 +48,7 @@ ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalanc
 // channel
 Combine, 
 // input-basic
-Number, Number2, Number3, Number4,
+Number, Number2, Number3, Number4, Time,
 // input-geometry
 TexCoord,
 // procedural-shapes
@@ -57,7 +58,7 @@ FragColor, Uniform,
 // uv
 Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
 // math
-Add, Subtract, Multiply, Divide, Negate,
+Add, Subtract, Multiply, Divide, Negate, Sin, Cos,
 		]) {
 			super.add_popup_node(node)
 		}
@@ -132,6 +133,9 @@ Add, Subtract, Multiply, Divide, Negate,
 
 	load_file_imports()
 	{
-		return super.load_file_imports() + "\nimport \"shadergraph.nodes.*\"\n"
+		return super.load_file_imports() + "
+import \"blueprint.nodes.*\"
+import \"shadergraph.nodes.*\"
+"
 	}
 }
