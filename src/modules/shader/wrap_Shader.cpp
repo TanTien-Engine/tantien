@@ -213,6 +213,17 @@ void w_shadergen_div()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_negate()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Negate(func, v);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_store()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -420,6 +431,26 @@ void w_ShaderGen_const_float4()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_ShaderGen_const_mat3()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+
+    float m[9];
+    const int len = ves_len(2);
+    GD_ASSERT(len == 9, "error m size");
+    std::vector<unsigned int> spirv(len);
+    for (int i = 0; i < len; ++i)
+    {
+        ves_geti(2, i);
+        m[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    auto ret = linker->ConstMatrix3(module, m);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_import_all()
 {
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
@@ -508,6 +539,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.sub(_,_,_)") == 0) return w_shadergen_sub;
     if (strcmp(signature, "ShaderGen.mul(_,_,_)") == 0) return w_shadergen_mul;
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
+    if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
 
     if (strcmp(signature, "ShaderGen.add_lib(_,_)") == 0) return w_ShaderGen_add_lib;
@@ -531,6 +563,8 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.const_float2(_,_,_)") == 0) return w_ShaderGen_const_float2;
     if (strcmp(signature, "ShaderGen.const_float3(_,_,_,_)") == 0) return w_ShaderGen_const_float3;
     if (strcmp(signature, "ShaderGen.const_float4(_,_,_,_,_)") == 0) return w_ShaderGen_const_float4;
+
+    if (strcmp(signature, "ShaderGen.const_mat3(_,_)") == 0) return w_ShaderGen_const_mat3;
 
     if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
     if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;

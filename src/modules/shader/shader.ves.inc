@@ -25,6 +25,7 @@ foreign class ShaderGen
 	foreign sub(func, a, b)
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
+	foreign negate(func, v)
 	foreign store(func, dst, src)
 
 	foreign add_lib(stage, glsl)
@@ -48,6 +49,8 @@ foreign class ShaderGen
 	foreign const_float2(module, x, y)
 	foreign const_float3(module, x, y, z)
 	foreign const_float4(module, x, y, z, w)
+
+	foreign const_mat3(module, m)
 
 	foreign import_all()
 	foreign finish_main()

@@ -1,0 +1,67 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "shadergraph.node_helper" for NodeHelper
+import "maths.vector" for Vector3
+import "math" for Math
+
+class Rotate is Node
+{
+	init()
+	{
+		super.init(Rotate.name)
+
+		this.imports = [
+			Pin(this, "in", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_NUMBER3)
+		]
+
+		this.params.add(NodeParam("theta", 0.0))
+
+		var axis = NodeParam("axis", 0)
+		axis.region = 2.0
+		axis.integer = true
+		this.params.add(axis)
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var val = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		if (!val) {
+			return nil
+		}
+
+		var theta = this.query_param("theta").value
+		var c = Math.cos(theta)
+		var s = Math.sin(theta)
+
+		var mat = nil
+		var axis = this.query_param("axis").value
+		if (axis == 0) {
+			mat = gen.const_mat3(module, [
+				1, 0, 0,
+				0, c, -s,
+				0, s, c,
+			])
+		} else if (axis == 1) {
+			mat = gen.const_mat3(module, [
+				c, 0, s,
+				0, 1, 0,
+				-s, 0, c,
+			])
+		} else {
+			mat = gen.const_mat3(module, [
+				c, -s, 0,
+				s, c, 0,
+				0, 0, 1,
+			])
+		}
+
+		return gen.mul(func, mat, val)
+	}
+}

@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER
+import "shadergraph.node_helper" for NodeHelper
+
+class Negate is Node
+{
+	init()
+	{
+		super.init(Negate.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var v = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		return gen.negate(func, v)
+	}
+}
