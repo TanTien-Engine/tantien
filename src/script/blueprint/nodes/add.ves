@@ -34,8 +34,8 @@ class Add is Node
 		}
 
 		var ret = [0, 0, 0, 0]
-		this.add_to(a, ret)
-		this.add_to(b, ret)
+		Add.add_to(a, ret)
+		Add.add_to(b, ret)
 		if (a.type == VAR_TYPE_NUMBER4 or b.type == VAR_TYPE_NUMBER4) {
 			return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
 		} else if (a.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER3) {
