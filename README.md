@@ -114,14 +114,20 @@ Based for each editors
     <em>Sample from Jamie Wong's tutorial <a href="http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/">Ray Marching and Signed Distance Functions</a></em>
 
 #### Nodes
-* primitive : Sphere, Box, Cone,
-* operation-combinations : Union, SmoothUnion,
-
 * primitive : Sphere, Box, RoundBox, BoxFrame, Torus, CappedTorus, Link, InfiniteCylinder, Cone, InfiniteCone, Plane, HexagonalPrism, TriangularPrism, Capsule, VerticalCapsule, VertCappedCylinder, CappedCylinder, RoundedCylinder, VertCappedCone, CappedCone, SolidAngle, VertRoundCone, RoundCone, Ellipsoid, Rhombus, Octahedron, Pyramid, Triangle, Quad,
 * operation-alterations : Elongate, Rounding, Onion,
 * operation-combinations : Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersection,
 * operation-positioning : Symmetry, InfiniteRepetition, FiniteRepetition,
 * operation-deformations and distortions : Displace, Twist, Bend,
+
+### noisegraph
+
+![](./doc/noisegraph/screenshots/ridged_turbulence.jpg)
+
+#### Nodes
+* noise : PerlinNoise, BillowedNoise, RidgedNoise,
+* turbulence : Turbulence, IqTurbulence, SwissTurbulence, JordanTurbulence, Erosion1Turbulence, Erosion2Turbulence, DistortTurbulence,
+* deriv : PerlinNoisePseudoDeriv, PerlinNoiseDeriv, NoiseDeriv,
 
 ## Building
 First clone the project & submodules:
