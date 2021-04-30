@@ -1,0 +1,47 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "noisegraph.nodes.noise_deriv" for CODE as Deriv_CODE
+import "maths.vector" for Vector2
+
+var CODE = Deriv_CODE + "
+// from https://www.decarpentier.nl/scape
+float erosion2_turbulence(vec2 p, vec2 pdistort, mat4 octaveAmps, float seed, float octaves, float lacunarity)
+{
+    vec3 sum = vec3(0.5, 0.0, 0.0);
+    float freq = 1.0;
+    vec2 dsum = vec2(0,0);
+    vec2 dsumo = dsum;
+    float amp2 = 1.0f;
+    for(int i=0; i < octaves; i++)
+    {
+        float amp = amp2 * octaveAmps[i/4][i\%4];
+        vec3 n = noise_deriv((p)*freq, seed + i);
+        vec3 n2 = noise_deriv((p)*freq + 0.01 * n.yz, seed + i);
+
+        n.x += 5 * (n.x - n2.x) * (n.x - n2.x);
+        n.x *= exp(-dot(n.yz, n.yz));
+
+        dsumo = dsum;
+        dsum += amp * n.yz;
+        sum += amp * n;
+        freq *= lacunarity;
+        amp2 *= (1 + 0.02 * dot(n.yz, n.yz));
+    }
+    return sum.x;
+}
+"
+
+class Erosion2Turbulence is Node
+{
+	init()
+	{
+		super.init(Erosion2Turbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "erosion2_turbulence", [
+			["pdistort", Vector2(0.5, 0.5)],
+            ["seed", 0],
+			["octaves", 5],
+			["lacunarity", 3],
+		])
+	}
+}

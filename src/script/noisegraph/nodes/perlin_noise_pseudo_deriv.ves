@@ -1,0 +1,60 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://www.decarpentier.nl/scape
+uniform sampler2D perlin_perm2d_tex;
+uniform sampler2D perlin_grad2d_tex;
+vec3 perlin_noise_pseudo_deriv(vec2 p, float seed)
+{
+	// Calculate 2D integer coordinates i and fraction p.
+	vec2 i = floor(p);
+	vec2 f = p - i;
+
+	// Get weights from the coordinate fraction
+	vec2 w = f * f * f * (f * (f * 6 - 15) + 10);
+	vec4 w4 = vec4(1, w.x, w.y, w.x * w.y);
+
+	// Get pseudo derivative weights
+	vec2 dw = f * f * (f * (30 * f - 60) + 30);
+
+	// Get the four randomly permutated indices from the noise lattice nearest to
+	// p and offset these numbers with the seed number.
+	vec4 perm = texture(perlin_perm2d_tex, i / 256) + seed;
+
+	// Permutate the four offseted indices again and get the 2D gradient for each
+	// of the four permutated coordinates-seed pairs.
+	vec4 g1 = texture(perlin_grad2d_tex, perm.xy) * 2 - 1;
+	vec4 g2 = texture(perlin_grad2d_tex, perm.zw) * 2 - 1;
+
+	// Evaluate the four lattice gradients at p
+	float a = dot(g1.xy, f);
+	float b = dot(g2.xy, f + vec2(-1,  0));
+	float c = dot(g1.zw, f + vec2( 0, -1));
+	float d = dot(g2.zw, f + vec2(-1, -1));
+
+	// Bi-linearly blend between the gradients, using w4 as blend factors.
+	vec4 grads = vec4(a, b - a, c - a, a - b - c + d);
+	float n = dot(grads, w4);
+
+	// Calculate pseudo derivates
+	float dx = dw.x * (grads.y + grads.w*w.y);
+	float dy = dw.y * (grads.z + grads.w*w.x);
+
+	// Return the noise value, roughly normalized in the range [-1, 1]
+	// Also return the pseudo dn/dx and dn/dy, scaled by the same factor
+	return vec3(n, dx, dy) * 1.5;
+}
+"
+
+class PerlinNoisePseudoDeriv is Node
+{
+	init() 
+	{
+		super.init(PerlinNoisePseudoDeriv.name)
+
+		this.node_func = NodeFunction(this, CODE, "perlin_noise_pseudo_deriv", [
+			["seed", 0],
+		])
+	}
+}

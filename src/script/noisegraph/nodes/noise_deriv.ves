@@ -1,0 +1,44 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+// from https://www.decarpentier.nl/scape
+uniform sampler2D perlin_perm2d_tex;
+uniform sampler2D perlin_grad2d_tex;
+vec3 noise_deriv(vec2 p, float seed)
+{
+    vec2 P = floor(p);
+    p -= P;
+    vec2 w = p * p * p * (p * (p * 6 - 15) + 10); // 6p^5 - 15p^4 + 10p^3
+    vec2 dw = p * p * (p * (p * 30 - 60) + 30); // 30p^4 - 60p^3 + 30p^2
+    vec2 dwp = p * p * p * (p * (p * 36 - 75) + 40); // 36p^5 - 75p^4 + 40p^3
+
+    vec4 AA = texture(perlin_perm2d_tex, P / 256) + seed / 256;
+    vec4 G1 = texture(perlin_grad2d_tex, AA.xy) * 2 - 1;
+    vec4 G2 = texture(perlin_grad2d_tex, AA.zw) * 2 - 1;
+
+    float k0 = G1.x*p.x + G1.y*p.y; // a
+    float k1 = (G2.x-G1.x)*p.x + (G2.y-G1.y)*p.y - G2.x; // b - a
+    float k2 = (G1.z-G1.x)*p.x + (G1.w-G1.y)*p.y - G1.w; // c - a
+    float k3 = (G1.x-G2.x-G1.z+G2.z)*p.x + (G1.y-G2.y-G1.w+G2.w)*p.y + G2.x + G1.w - G2.z - G2.w; // a - b - c + d
+
+    float n = k0 + k1*w.x + k2*w.y + k3*w.x*w.y;
+
+    float dx = (G1.x + (G1.z-G1.x)*w.y) + ((G2.y-G1.y)*p.y - G2.x + ((G1.y-G2.y-G1.w+G2.w)*p.y + G2.x + G1.w - G2.z - G2.w)*w.y)*dw.x + ((G2.x-G1.x) + (G1.x-G2.x-G1.z+G2.z)*w.y)*dwp.x;
+    float dy = (G1.y + (G2.y-G1.y)*w.x) + ((G1.z-G1.x)*p.x - G1.w + ((G1.x-G2.x-G1.z+G2.z)*p.x + G2.x + G1.w - G2.z - G2.w)*w.x)*dw.y + ((G1.w-G1.y) + (G1.y-G2.y-G1.w+G2.w)*w.x)*dwp.y;
+
+    return vec3(n, dx, dy) * 1.5;
+}
+"
+
+class NoiseDeriv is Node
+{
+	init() 
+	{
+		super.init(NoiseDeriv.name)
+
+		this.node_func = NodeFunction(this, CODE, "noise_deriv", [
+			["seed", 0],
+		])
+	}
+}

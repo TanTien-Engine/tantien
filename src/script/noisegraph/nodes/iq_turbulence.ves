@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "noisegraph.nodes.perlin_noise_pseudo_deriv" for CODE as Deriv_CODE
+
+var CODE = Deriv_CODE + "
+// from https://www.decarpentier.nl/scape
+float iq_turbulence(vec2 p, float seed, float octaves, float lacunarity, float gain)
+{
+	float sum = 0.5;
+	float freq = 1.0, amp = 1.0;
+	vec2 dsum = vec2(0,0);
+	for (int i=0; i < octaves; i++)
+	{
+		vec3 n = perlin_noise_pseudo_deriv(p*freq, seed + i / 256.0);
+		dsum += n.yz;
+		sum += amp * n.x / (1 + dot(dsum, dsum));
+		freq *= lacunarity;
+		amp *= gain;
+	}
+	return sum;
+}
+"
+
+class IqTurbulence is Node
+{
+	init()
+	{
+		super.init(IqTurbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "iq_turbulence", [
+			["seed", 0],
+			["octaves", 4],
+			["lacunarity", 3],
+			["gain", 0.5],
+		])
+	}
+}

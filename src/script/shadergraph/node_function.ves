@@ -1,6 +1,6 @@
 import "shadergraph.node_helper" for NodeHelper
 import "shadergraph.variant" for VAR_TYPE_FUNCTION
-import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "render" for Render
@@ -85,6 +85,12 @@ class NodeFunction
 						inst = gen.const_float3(module, 0, 0, 0)
 					} else if (pin.type == VAR_TYPE_NUMBER4) {
 						inst = gen.const_float4(module, 0, 0, 0, 0)
+					} else if (pin.type == VAR_TYPE_MATRIX2) {
+						inst = gen.const_mat2(module, [1, 0, 1, 0])
+					} else if (pin.type == VAR_TYPE_MATRIX3) {
+						inst = gen.const_mat3(module, [1, 0, 0, 0, 1, 0, 0, 0, 1])
+					} else if (pin.type == VAR_TYPE_MATRIX4) {
+						inst = gen.const_mat4(module, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 					}
 				}
 			}

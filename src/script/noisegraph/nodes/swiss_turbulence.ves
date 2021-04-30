@@ -1,0 +1,40 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "noisegraph.nodes.perlin_noise_deriv" for CODE as Deriv_CODE
+
+var CODE = Deriv_CODE + "
+// from https://www.decarpentier.nl/scape
+float swiss_turbulence(vec2 p, float seed, float octaves,
+                       float lacunarity, float gain,
+					   float warp)
+{
+     float sum = 0;
+     float freq = 1.0, amp = 1.0;
+     vec2 dsum = vec2(0,0);
+     for(int i=0; i < octaves; i++)
+     {
+         vec3 n = perlin_noise_deriv((p + warp * dsum)*freq, seed + i / 256.0);
+         sum += amp * (1 - abs(n.x));
+         dsum += amp * n.yz * -n.x;
+         freq *= lacunarity;
+         amp *= gain * clamp(sum, 0.0, 1.0);
+    }
+    return sum;
+}
+"
+
+class SwissTurbulence is Node
+{
+	init()
+	{
+		super.init(SwissTurbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "swiss_turbulence", [
+			["seed", 0],
+			["octaves", 5],
+			["lacunarity", 4],
+			["gain", 0.1],
+			["warp", 2],
+		])
+	}
+}

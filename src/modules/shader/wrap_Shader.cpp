@@ -460,6 +460,26 @@ void w_ShaderGen_const_float4()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_ShaderGen_const_mat2()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+
+    float m[4];
+    const int len = ves_len(2);
+    GD_ASSERT(len == 4, "error m size");
+    std::vector<unsigned int> spirv(len);
+    for (int i = 0; i < len; ++i)
+    {
+        ves_geti(2, i);
+        m[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    auto ret = linker->ConstMatrix2(module, m);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_const_mat3()
 {
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
@@ -477,6 +497,26 @@ void w_ShaderGen_const_mat3()
     }
 
     auto ret = linker->ConstMatrix3(module, m);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_ShaderGen_const_mat4()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+
+    float m[16];
+    const int len = ves_len(2);
+    GD_ASSERT(len == 16, "error m size");
+    std::vector<unsigned int> spirv(len);
+    for (int i = 0; i < len; ++i)
+    {
+        ves_geti(2, i);
+        m[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    auto ret = linker->ConstMatrix4(module, m);
     ves_set_number(0, pointer2double(ret));
 }
 
@@ -589,7 +629,9 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.const_float3(_,_,_,_)") == 0) return w_ShaderGen_const_float3;
     if (strcmp(signature, "ShaderGen.const_float4(_,_,_,_,_)") == 0) return w_ShaderGen_const_float4;
 
+    if (strcmp(signature, "ShaderGen.const_mat2(_,_)") == 0) return w_ShaderGen_const_mat2;
     if (strcmp(signature, "ShaderGen.const_mat3(_,_)") == 0) return w_ShaderGen_const_mat3;
+    if (strcmp(signature, "ShaderGen.const_mat4(_,_)") == 0) return w_ShaderGen_const_mat4;
 
     if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
     if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;

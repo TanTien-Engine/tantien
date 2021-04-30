@@ -1,0 +1,49 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "shadergraph.node_function" for NodeFunction
+import "shadergraph.variant" for VAR_TYPE_FUNCTION
+import "noisegraph.closure_builder" for ClosureBuilder
+
+var CODE = "
+// from https://www.decarpentier.nl/scape
+float noise(vec2 p, float seed)
+{
+    return 0;
+}
+float turbulence(vec2 p, float seed, float octaves, float lacunarity, float gain)
+{
+	float sum = 0;
+	float freq = 1.0, amp = 1.0;
+	for (int i=0; i < octaves; i++)
+	{
+		float n = noise(p*freq, seed + i / 256.0);
+		sum += n*amp;
+		freq *= lacunarity;
+		amp *= gain;
+	}
+	return sum;
+}
+"
+
+class Turbulence is Node
+{
+	init() 
+	{
+		super.init(Turbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "turbulence", [
+			["seed", 0],
+			["octaves", 5],
+			["lacunarity", 3],
+			["gain", 0.5],			
+		])
+
+        this.imports.add(Pin(this, "noise(p,seed)", VAR_TYPE_FUNCTION))
+        this.layout()
+	}
+
+    gen_shader(gen)
+    {
+        ClosureBuilder.gen_noise(gen, this, "noise")
+    }
+}

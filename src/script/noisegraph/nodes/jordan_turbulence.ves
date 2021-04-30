@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "noisegraph.nodes.perlin_noise_deriv" for CODE as Deriv_CODE
+
+var CODE = Deriv_CODE + "
+// from https://www.decarpentier.nl/scape
+float jordan_turbulence(vec2 p, float seed, float octaves, float lacunarity,
+                        float gain1, float gain,
+                        float warp0, float warp,
+                        float damp0, float damp,
+                        float damp_scale)
+{
+    vec3 n = perlin_noise_deriv(p, seed);
+    vec3 n2 = n * n.x;
+    float sum = n2.x;
+    vec2 dsum_warp = warp0*n2.yz;
+    vec2 dsum_damp = damp0*n2.yz;
+
+    float amp = gain1;
+    float freq = lacunarity;
+    float damped_amp = amp * gain;
+
+    for(int i=1; i < octaves; i++)
+    {
+        n = perlin_noise_deriv(p * freq + dsum_warp.xy, seed + i / 256.0);
+        n2 = n * n.x;
+        sum += damped_amp * n2.x;
+        dsum_warp += warp * n2.yz;
+        dsum_damp += damp * n2.yz;
+        freq *= lacunarity;
+        amp *= gain;
+        damped_amp = amp * (1-damp_scale/(1+dot(dsum_damp,dsum_damp)));
+    }
+    return sum;
+}
+"
+
+class JordanTurbulence is Node
+{
+	init()
+	{
+		super.init(JordanTurbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "jordan_turbulence", [
+			["seed", 0],
+			["octaves", 5],
+			["lacunarity", 3],
+			["gain1", 0.8],
+            ["gain", 0.6],
+            ["warp0", 1],
+			["warp", 1],
+            ["damp_scale", 0.2],
+		])
+	}
+}

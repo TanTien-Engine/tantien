@@ -1,0 +1,44 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "shadergraph.node_function" for NodeFunction
+import "maths.vector" for Vector4
+import "noisegraph.nodes.perlin_noise" for CODE as Perlin_CODE
+
+var CODE =  Perlin_CODE + "
+// from https://www.decarpentier.nl/scape
+float transform_noise(vec2 p, float seed, vec4 transform)
+{
+  return transform.x + transform.y * abs(transform.z + transform.w * perlin_noise(p, seed));
+}
+
+vec2 distort_turbulence(vec2 p, mat4 octaveAmps, float seed, vec4 noiseTransform, float octaves, float lacunarity)
+{
+	vec2 sum = vec2(0);
+	float freq = 1.0, amp = 1.0;
+	for(int i=0; i < octaves; i++)
+	{
+		amp = octaveAmps[i/4][i\%4];
+		float nx = transform_noise(p*freq, seed + i, noiseTransform);
+		float ny = transform_noise(p*freq, seed + i + 50, noiseTransform);
+		vec2 n = vec2(nx, ny);
+		sum += n * amp;
+		freq *= lacunarity;
+	}
+	return sum;
+}
+"
+
+class DistortTurbulence is Node
+{
+	init() 
+	{
+		super.init(DistortTurbulence.name)
+
+		this.node_func = NodeFunction(this, CODE, "distort_turbulence", [
+			["seed", 0],
+			["noiseTransform", Vector4(0, 0, 0, 0)],
+			["octaves", 5],
+			["lacunarity", 3],
+		])
+	}
+}

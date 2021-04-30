@@ -53,7 +53,9 @@ foreign class ShaderGen
 	foreign const_float3(module, x, y, z)
 	foreign const_float4(module, x, y, z, w)
 
+	foreign const_mat2(module, m)
 	foreign const_mat3(module, m)
+	foreign const_mat4(module, m)
 
 	foreign import_all()
 	foreign finish_main()

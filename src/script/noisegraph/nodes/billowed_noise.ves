@@ -1,0 +1,23 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+import "noisegraph.nodes.perlin_noise" for CODE as Perlin_CODE
+
+var CODE = Perlin_CODE + "
+// from https://www.decarpentier.nl/scape
+float billowed_noise(vec2 p, float seed)
+{
+	return abs(perlin_noise(p, seed));
+}
+"
+
+class BillowedNoise is Node
+{
+	init()
+	{
+		super.init(BillowedNoise.name)
+
+		this.node_func = NodeFunction(this, CODE, "billowed_noise", [
+			["seed", 0],
+		])
+	}
+}
