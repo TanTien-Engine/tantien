@@ -97,17 +97,21 @@ Based for each editors
 
 #### Nodes
 * artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
-* channel ： Combine, 
-* input-basic ： Number, Number2, Number3, Number4,
-* input-geometry ： TexCoord,
-* procedural-shapes ： Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
-* utility-shader ： FragColor,
-* uv ： Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
+* channel : Combine, 
+* input-basic : Number, Number2, Number3, Number4, Time,
+* input-geometry : TexCoord,
+* procedural-shapes : Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
+* utility-shader : FragColor, Uniform,
+* uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
+* math : Add, Subtract, Multiply, Divide, Negate, Sin, Cos, RotateX, RotateY, RotateZ,
+* tools : Sdf, Parameter, Viewport,
 
 ### sdfgraph
 
-![](./doc/sdfgraph/screenshots/smooth_union.jpg)
-    <em>Test</em>
+![](./doc/sdfgraph/screenshots/combine.gif)
+
+![](./doc/sdfgraph/screenshots/combine.jpg)
+    <em>Sample from Jamie Wong's tutorial <a href="http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/">Ray Marching and Signed Distance Functions</a></em>
 
 #### Nodes
 * primitive : Sphere, Box, Cone,
