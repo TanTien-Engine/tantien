@@ -1,7 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
 
 class Uniform is Node
 {
@@ -19,7 +21,6 @@ class Uniform is Node
 		this.layout()
 
 		this.params.add(NodeParam("unif_name", ""))
-		this.params.add(NodeParam("unif_type", "float"))
 
 		this.unif = nil
 	}
@@ -31,15 +32,39 @@ class Uniform is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		if (!this.unif) 
-		{
-			var name = "unif_%(gen.get_unif_num())"
-			this.query_param("unif_name").value = name
-
-			var type = this.query_param("unif_type").value
-
-			this.unif = gen.add_uniform(module, name, type)
+		if (!this.unif) {
+			this.unif = this.create_unif(gen, module)
 		}
-		return gen.load(func, this.unif)
+		if (this.unif) {
+			return gen.load(func, this.unif)
+		} else {
+			return nil
+		}
+	}
+
+	create_unif(gen, module)
+	{
+		var val = Blueprint.calc_input_value(this, 0)
+		if (!val) {
+			return nil
+		}
+
+		var name = "unif_%(gen.get_unif_num())"
+		this.query_param("unif_name").value = name
+
+		var type = ""
+		if (val.type == VAR_TYPE_NUMBER) {
+			type = "float"
+		} else if (val.type == VAR_TYPE_NUMBER2) {
+			type = "vec2"
+		} else if (val.type == VAR_TYPE_NUMBER3) {
+			type = "vec3"
+		} else if (val.type == VAR_TYPE_NUMBER4) {
+			type = "vec4"
+		} else {
+			return nil
+		}
+
+		return gen.add_uniform(module, name, type)
 	}
 }
