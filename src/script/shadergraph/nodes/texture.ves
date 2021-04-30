@@ -1,0 +1,31 @@
+import "rendergraph.nodes.texture" for Texture as rg_Texture
+
+class Texture is rg_Texture
+{
+	init()
+	{
+		super.init()
+
+		this.unif = nil
+		this.unif_name = ""
+	}
+
+    gen_shader(gen)
+    {
+    	this.unif = nil
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.unif) {
+			this.unif_name = "unif_%(gen.get_unif_num())"
+			this.unif = gen.add_uniform(module, this.unif_name, "texture")
+		}
+
+		if (this.unif) {
+			return gen.load(func, this.unif)
+		} else {
+			return nil
+		}
+	}
+}
