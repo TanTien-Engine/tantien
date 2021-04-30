@@ -1,0 +1,33 @@
+var node0 = TexCoord()
+
+_editor.add_node(node0, -188, 50)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 266.74380165289, 29.51239669421)
+
+var node2 = Multiply()
+
+_editor.add_node(node2, -28, -6)
+
+var node3 = Number()
+
+node3.value = 10
+
+_editor.add_node(node3, -352, -69)
+
+var node4 = Uniform()
+node4.query_param("unif_name").value = "unif_0"
+
+_editor.add_node(node4, -198, -54.5)
+
+var node5 = BillowedNoise()
+node5.query_param("seed").value = 0.21352887153625
+
+_editor.add_node(node5, 118.50609058173, -14.253689246723)
+
+Blueprint.connect(node0, "uv", node2, "a")
+Blueprint.connect(node2, "v", node5, "p")
+Blueprint.connect(node3, "v", node4, "v")
+Blueprint.connect(node4, "v", node2, "b")
+Blueprint.connect(node5, "ret", node1, "grey")

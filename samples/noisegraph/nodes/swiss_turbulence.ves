@@ -1,0 +1,37 @@
+var node0 = TexCoord()
+
+_editor.add_node(node0, -128.1657634143, 195.63427395387)
+
+var node1 = FragColor()
+
+_editor.add_node(node1, 429.86580561437, 199.97460077863)
+
+var node2 = Multiply()
+
+_editor.add_node(node2, 27.221080166023, 163.488226485)
+
+var node3 = Number()
+
+node3.value = 10
+
+_editor.add_node(node3, -252.65258831054, 131.38824516909)
+
+var node4 = Uniform()
+node4.query_param("unif_name").value = "unif_0"
+
+_editor.add_node(node4, -127.44075874328, 142.50140158877)
+
+var node5 = SwissTurbulence()
+node5.query_param("seed").value = 0
+node5.query_param("octaves").value = 5
+node5.query_param("lacunarity").value = 4
+node5.query_param("gain").value = 0.1
+node5.query_param("warp").value = 2
+
+_editor.add_node(node5, 217, 69.5)
+
+Blueprint.connect(node0, "uv", node2, "a")
+Blueprint.connect(node2, "v", node5, "p")
+Blueprint.connect(node3, "v", node4, "v")
+Blueprint.connect(node4, "v", node2, "b")
+Blueprint.connect(node5, "ret", node1, "grey")

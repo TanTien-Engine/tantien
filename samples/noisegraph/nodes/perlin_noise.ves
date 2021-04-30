@@ -1,0 +1,33 @@
+var node0 = PerlinNoise()
+node0.query_param("seed").value = 0.58301198482513
+
+_editor.add_node(node0, 108.52892561984, -19.743801652893)
+
+var node1 = TexCoord()
+
+_editor.add_node(node1, -188, 50)
+
+var node2 = FragColor()
+
+_editor.add_node(node2, 266.74380165289, 29.51239669421)
+
+var node3 = Multiply()
+
+_editor.add_node(node3, -28, -6)
+
+var node4 = Number()
+
+node4.value = 10
+
+_editor.add_node(node4, -352, -69)
+
+var node5 = Uniform()
+node5.query_param("unif_name").value = "unif_0"
+
+_editor.add_node(node5, -198, -54.5)
+
+Blueprint.connect(node0, "ret", node2, "grey")
+Blueprint.connect(node1, "uv", node3, "a")
+Blueprint.connect(node3, "v", node0, "p")
+Blueprint.connect(node4, "v", node5, "v")
+Blueprint.connect(node5, "v", node3, "b")

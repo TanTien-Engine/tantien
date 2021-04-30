@@ -1,0 +1,56 @@
+var node0 = PerlinNoise()
+node0.query_param("seed").value = 0.58301198482513
+
+_editor.add_node(node0, 76.8986695914, 52.469429503136)
+
+var node1 = TexCoord()
+
+_editor.add_node(node1, -128.1657634143, 195.63427395387)
+
+var node2 = FragColor()
+
+_editor.add_node(node2, 461.96743801653, 212.2688429752)
+
+var node3 = Multiply()
+
+_editor.add_node(node3, 27.221080166023, 163.488226485)
+
+var node4 = Number()
+
+node4.value = 10
+
+_editor.add_node(node4, -252.65258831054, 131.38824516909)
+
+var node5 = Uniform()
+node5.query_param("unif_name").value = "unif_0"
+
+_editor.add_node(node5, -127.44075874328, 142.50140158877)
+
+var node6 = Turbulence()
+node6.query_param("seed").value = 0
+node6.query_param("octaves").value = 5
+node6.query_param("lacunarity").value = 3
+node6.query_param("gain").value = 0.5
+
+_editor.add_node(node6, 255.37549112436, 88.565526267266)
+
+var node7 = Parameter()
+
+node7.var_name = "p"
+
+_editor.add_node(node7, -52.49628553955, 80.841604025289)
+
+var node8 = Parameter()
+
+node8.var_name = "seed"
+
+_editor.add_node(node8, -53.625234973759, 36.248165476707)
+
+Blueprint.connect(node0, "ret", node6, "noise(p,seed)")
+Blueprint.connect(node1, "uv", node3, "a")
+Blueprint.connect(node3, "v", node6, "p")
+Blueprint.connect(node4, "v", node5, "v")
+Blueprint.connect(node5, "v", node3, "b")
+Blueprint.connect(node6, "ret", node2, "grey")
+Blueprint.connect(node7, "var", node0, "p")
+Blueprint.connect(node8, "var", node0, "seed")
