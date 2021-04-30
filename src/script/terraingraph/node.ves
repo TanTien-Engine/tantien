@@ -1,7 +1,5 @@
 import "blueprint.node" for Node as bp_Node
 import "blueprint.blueprint" for Blueprint
-import "terraingraph.style" for COL_PIN_HEIGHTFIELD
-import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD
 
 class Node is bp_Node
 {
@@ -12,25 +10,6 @@ class Node is bp_Node
 		this.dirty = true
 	}
 	
-	layout() 
-	{
-		super.layout()
-
-		for (var p in this.imports) {
-			this.init_pin_color(p)
-		}
-		for (var p in this.exports) {
-			this.init_pin_color(p)
-		}
-	}
-
-	init_pin_color(pin)
-	{
-		if (pin.type == VAR_TYPE_HEIGHTFIELD) {
-			pin.color = COL_PIN_HEIGHTFIELD
-		}
-	}
-
 	make_dirty()
 	{
 		this.dirty = true

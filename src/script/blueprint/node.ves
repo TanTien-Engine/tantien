@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_render" for NodeRender
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_param" for NodeParam
+import "blueprint.node_style" for PIN_COLOR_MAP
 
 class Style
 {
@@ -90,6 +91,27 @@ class Node
 
 		for (var p in this.params) {
 			this.style.height = this.style.height + DEFAULT_HEIGHT * p.gui_height()
+		}
+
+		// pin color
+		for (var p in this.imports) {
+			this.init_pin_color(p)
+		}
+		for (var p in this.exports) {
+			this.init_pin_color(p)
+		}
+	}
+
+	init_pin_color(pin)
+	{
+		var type = pin.type
+		if (pin.type is List) {
+			type = pin.type[0]
+		}	
+
+		var col = PIN_COLOR_MAP[type]
+		if (col) {
+			pin.color = col
 		}
 	}
 

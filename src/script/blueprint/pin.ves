@@ -1,5 +1,4 @@
-import "blueprint.node_style" for COL_PIN_DEFAULT, COL_PIN_PORT, COL_PIN_ANY, COL_PIN_ARRAY, COL_PIN_NUM, COL_PIN_NUM2, COL_PIN_NUM3, COL_PIN_NUM4, COL_PIN_MAT2, COL_PIN_MAT3, COL_PIN_MAT4
-import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_UNKNOWN, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
+import "blueprint.node_style" for COL_PIN_DEFAULT
 
 class Pin
 {
@@ -17,26 +16,5 @@ class Pin
 		this.stop_port_pass = false
 
 		this.color = COL_PIN_DEFAULT
-		if (type == VAR_TYPE_PORT) {
-			this.color = COL_PIN_PORT
-		} else if (type == VAR_TYPE_ANY) {
-			this.color = COL_PIN_ANY		
-		} else if (type == VAR_TYPE_ARRAY) {
-			this.color = COL_PIN_ARRAY		
-		} else if (type == VAR_TYPE_NUMBER) {
-			this.color = COL_PIN_NUM		
-		} else if (type == VAR_TYPE_NUMBER2) {
-			this.color = COL_PIN_NUM2		
-		} else if (type == VAR_TYPE_NUMBER3) {
-			this.color = COL_PIN_NUM3		
-		} else if (type == VAR_TYPE_NUMBER4) {
-			this.color = COL_PIN_NUM4		
-		} else if (type == VAR_TYPE_MATRIX2) {
-			this.color = COL_PIN_MAT2		
-		} else if (type == VAR_TYPE_MATRIX3) {
-			this.color = COL_PIN_MAT3		
-		} else if (type == VAR_TYPE_MATRIX4) {
-			this.color = COL_PIN_MAT4		
-		}
 	}
 }
