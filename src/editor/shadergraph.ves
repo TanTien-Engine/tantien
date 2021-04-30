@@ -38,11 +38,18 @@ class Shadergraph is Editor
 {
 	load()
 	{
+		this.load(true)
+	}
+
+	load(import_base_nodes)
+	{
 		super.load(false)
 
 		this.code = ""
 
-		for (var node in [ 
+		if (import_base_nodes)
+		{
+			for (var node in [ 
 // artistic-adjustment
 ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
 // channel
@@ -61,8 +68,9 @@ Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twir
 Add, Subtract, Multiply, Divide, Negate, Sin, Cos, RotateX, RotateY, RotateZ,
 // tools
 Parameter, Viewport, Texture, SampleTexture,
-		]) {
-			super.add_popup_node(node)
+			]) {
+				super.add_popup_node(node)
+			}
 		}
 
 		this.prog = Shader.init(DEFAULT_VS, "", "", "", DEFAULT_FS)
@@ -101,7 +109,8 @@ Parameter, Viewport, Texture, SampleTexture,
 			{
 				if (node["node_func"]) {
 					node.node_func.gen_shader(linker)
-				} else if (node.has_method("gen_shader(_)")) {
+				} 
+				if (node.has_method("gen_shader(_)")) {
 					node.gen_shader(linker)
 				}
 

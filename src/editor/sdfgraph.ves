@@ -1,47 +1,13 @@
-import "editor.editor" for Editor
-import "render" for Render, Shader, VertexArray
-import "shader" for ShaderGen
-import "blueprint.blueprint" for Blueprint
+import "editor.shadergraph" for Shadergraph
 import "blueprint.nodes.*"
 import "shadergraph.nodes.*"
 import "sdfgraph.nodes.*"
 
-var DEFAULT_VS = "
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-out vec3 ourColor;
-out vec2 TexCoord;
-
-void main() 
-{
-   ourColor = aColor;
-   TexCoord = vec2(aTexCoord.x, aTexCoord.y);
-   gl_Position = vec4(aPos, 1.0);
-}
-"
-
-var DEFAULT_FS = "
-#version 330
-in vec3 ourColor;
-
-layout(location = 0) out vec4 FragColor;
-
-void main() 
-{
-   FragColor = vec4(ourColor, 1.0);
-}
-"
-
-class Sdfgraph is Editor
+class Sdfgraph is Shadergraph
 {
 	load()
 	{
 		super.load(false)
-
-		this.code = ""
 
 		for (var node in [ 
 // primitive
@@ -61,84 +27,6 @@ Add, Subtract, Multiply, Divide, Time, Sin, Cos, Commentary,
 		]) {
 			super.add_popup_node(node)
 		}
-
-		this.prog = Shader.init(DEFAULT_VS, "", "", "", DEFAULT_FS)		
-		this.uniforms = []
-		this.textures = []
-
-		this.va = VertexArray.init([1, 1, 0, 1, 0, 0, 1, 1, 1, -1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
-	}
-
-	rebuild_shader()
-	{
-		var scene = this.scene_stack.root()
-
-		var frag_color = nil
-
-		var nodes = []
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			nodes.add(bp_node)
-			if (bp_node is FragColor) {
-				frag_color = bp_node
-			}
-		}
-
-		this.uniforms.clear()
-		this.textures.clear()
-
-		if (frag_color) 
-		{
-			var linker = ShaderGen.init()
-
-			var prev_nodes = Blueprint.get_precursor_nodes(frag_color)
-			var list = Blueprint.topo_sort(prev_nodes)
-			for (var node in list) 
-			{
-				if (node["node_func"]) {
-					node.node_func.gen_shader(linker)
-				} 
-				if (node.has_method("gen_shader(_)")) {
-					node.gen_shader(linker)
-				}
-
-				if (node is Uniform) {
-					this.uniforms.add(node)
-				}
-				if (node is Texture) {
-					this.textures.add(node)
-				}
-			}
-
-			this.prog = Shader.init(DEFAULT_VS, "", "", "", linker)
-		}
-	}
-
-	draw_preview()
-	{
-		if (this.scene_stack.bp_dirty) {
-			this.rebuild_shader()
-			this.scene_stack.bp_dirty = false
-		}
-
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		for (var unif in this.uniforms) 
-		{
-			var v = Blueprint.calc_input_value(unif, 0)
-			if (v and v.value is Num) {
-				var name = unif.query_param("unif_name").value
-				this.prog.set_uniform_value([name, "float", [v.value]])
-			}
-		}
-		for (var tex in this.textures)
-		{
-			if (tex.tex) {
-				this.prog.set_uniform_value([tex.unif_name, "sampler", [tex.tex, "linear_clamp"]])
-			}
-		}
-		Render.draw("triangles", this.prog, this.va, { "depth_test" : false, "cull" : "disable" })
 	}
 
 	load_file_imports()
