@@ -73,12 +73,25 @@ class Viewer is Node
 			pos_node.value.y = brush_pos.value.y
 			Blueprint.connect(pos_node, "v2", draw, "fs.mouse_pos")
 		}
+		else
+		{
+			var pos_node = Number2()
+			pos_node.value.x = 0
+			pos_node.value.y = 0
+			Blueprint.connect(pos_node, "v2", draw, "fs.mouse_pos")
+		}
 
 		var brush_radius = Blueprint.calc_input_value(this, 3)
 		if (brush_radius)
 		{
 			var r_node = Number()
 			r_node.value = brush_radius.value
+			Blueprint.connect(r_node, "v", draw, "fs.draw_radius")
+		}
+		else
+		{
+			var r_node = Number()
+			r_node.value = 0
 			Blueprint.connect(r_node, "v", draw, "fs.draw_radius")
 		}
 
