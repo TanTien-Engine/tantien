@@ -29,6 +29,7 @@ class Subgraph is Node
 		this.layout()
 
 		this.filepath = ""
+		this.file_content = nil
 
 		this.all_nodes   = []
 		this.in_nodes    = []
@@ -90,7 +91,17 @@ class Subgraph is Node
 
 	to_string(name) 
 	{
-		var ret = "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
+		var ret = ""
+		if (this.file_content) {
+			var source = this.file_content.replace("\"", "\\\"")
+			ret = ret + "
+%(name).file_content = \"\n%(source)\"
+%(name).load_from_string(_editor, %(name).file_content, _editor, \"subgraph\")
+"
+		} else if (this.filepath != "") {
+			ret = ret + "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
+		}
+
 		for (var prop in this.prop_nodes) 
 		{
 			var val = nil
@@ -203,12 +214,7 @@ class Subgraph is Node
 		return dirty
 	}
 
-	load_from_file(editor, filepath)
-	{
-		this.load_from_file(editor, filepath, editor)
-	}
-
-	load_from_file(editor, filepath, sub_editor)
+	load_from_string(editor, str, sub_editor, module_name)
 	{
 		this.all_nodes.clear()
 		this.in_nodes.clear()
@@ -216,6 +222,39 @@ class Subgraph is Node
 		this.proxy_nodes.clear()		
 		this.out_nodes.clear()
 
+		if (!str) {
+			return false
+		}
+
+		var old_func = editor.add_node
+		editor.add_node = this.add_node
+
+		var header = "import \"editor\" for _editor\n" + sub_editor.load_file_imports()
+		var source = header + str
+		Basic.loadstring(module_name, source)
+
+		editor.add_node = old_func
+
+		if (sub_editor.has_method("build_exec_list(_)")) {
+			this.exec_list = sub_editor.build_exec_list(this.all_nodes)		
+		}
+
+		for (var node in this.all_nodes) {
+			if (node is Camera3d) {
+				this.op_node = node
+			}
+		}
+
+		return true
+	}
+
+	load_from_file(editor, filepath)
+	{
+		this.load_from_file(editor, filepath, editor)
+	}
+
+	load_from_file(editor, filepath, sub_editor)
+	{
 		var absolute = Filesystem.get_absolute_path(filepath)
 		var old_dir = Filesystem.get_asset_base_dir()
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(absolute))
@@ -224,29 +263,11 @@ class Subgraph is Node
 		IO.close(file)
 		Filesystem.set_asset_base_dir(old_dir)
 
-		if (!body) {
-			return
-		}
-
-		this.filepath = filepath
-
-		var old_func = editor.add_node
-		editor.add_node = this.add_node
-
-		this.title = Filesystem.get_filename(this.filepath)
-
-		var header = "import \"editor\" for _editor\n" + sub_editor.load_file_imports()
-		var source = header + body
-		Basic.loadstring(filepath, source)
-
-		editor.add_node = old_func
-
-		this.exec_list = sub_editor.build_exec_list(this.all_nodes)
-
-		for (var node in this.all_nodes) {
-			if (node is Camera3d) {
-				this.op_node = node
-			}
+		var module_name = filepath
+		if (this.load_from_string(editor, body, sub_editor, module_name))
+		{
+			this.filepath = filepath
+			this.title = Filesystem.get_filename(filepath)
 		}
 	}
 

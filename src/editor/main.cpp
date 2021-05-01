@@ -308,9 +308,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
     if (key == GLFW_KEY_O && action == GLFW_PRESS && ctrl_pressed) {
-        ves_pushstring("");
-        ves_pushstring("loadfromfile(_)");
-        ves_call(1, 0);
+        ves_pushstring("loadfromfile()");
+        ves_call(0, 0);
     } else if (key == GLFW_KEY_S && action == GLFW_PRESS && ctrl_pressed) {
         ves_pushstring("savetofile()");
         ves_call(0, 0);
