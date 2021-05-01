@@ -1,11 +1,22 @@
 import "blueprint.node_style" for PIN_COLOR_MAP
 import "terraingraph.style" for COL_PIN_HEIGHTFIELD
 import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD
+import "blueprint.blueprint" for Blueprint
 
 class NodeHelper
 {
 	static regist_pins_color()
 	{
 		PIN_COLOR_MAP[VAR_TYPE_HEIGHTFIELD] = COL_PIN_HEIGHTFIELD
+	}
+
+	static make_node_dirty(node)
+	{
+		node.dirty = true
+
+		var nodes = Blueprint.get_successor_nodes(node)
+		for (var node in nodes) {
+			node.dirty = true
+		}
 	}
 }

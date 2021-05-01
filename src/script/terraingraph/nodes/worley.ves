@@ -1,4 +1,5 @@
-import "terraingraph.node" for Node
+import "blueprint.node" for Node
+import "terraingraph.node_helper" for NodeHelper
 import "terraingraph.style" for HEIGHTFIELD_SIZE
 import "terraingraph.heightfield_proxy" for HeightfieldProxy
 import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
@@ -240,7 +241,7 @@ class Worley is Node
 		y = y - DEFAULT_HEIGHT
 
 		if (dirty) {
-			this.make_dirty()
+			NodeHelper.make_node_dirty(this)
 		}
 
 		return dirty
