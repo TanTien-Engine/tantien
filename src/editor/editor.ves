@@ -20,6 +20,7 @@ import "maths" for Matrix44
 import "image" for ImageData
 import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.*"
+import "math" for Math
 
 class Editor
 {
@@ -376,19 +377,33 @@ class Editor
 
 		var ITEM_WIDTH = 120
 		var ITEM_HEIGHT = 25
-		GUI.frame(this.gui_top, x, y - ITEM_HEIGHT * (num - 1), ITEM_WIDTH, ITEM_HEIGHT * num)
+		var Y_MAX = 35
 
+		var frame_w = Math.ceil(num / Y_MAX) * ITEM_WIDTH
+		var frame_h = Math.min(num, Y_MAX) * ITEM_HEIGHT
+		GUI.frame(this.gui_top, x, y - frame_h + ITEM_HEIGHT, frame_w, frame_h)
+
+		var y_begin = y
+		var y_num = 0
 		for (var node in this.popup_nodes) 
 		{
 			var show = true
 			if (prev_pin) {
 				show = this.is_var_type_match(prev_pin, this.all_nodes[node.name])
 			}
-			if (show) {
+			if (show)
+			{
 				if (GUI.selectable(this.gui_top, node.name, false, x, y, ITEM_WIDTH)) {
 					return node()
 				}
 				y = y - ITEM_HEIGHT
+
+				y_num = y_num + 1
+				if (y_num == Y_MAX)	{
+					x = x + ITEM_WIDTH
+					y = y_begin
+					y_num = 0
+				}
 			}
 		}
 		return nil
