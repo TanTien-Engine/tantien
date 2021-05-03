@@ -1,7 +1,4 @@
 import "editor.shadergraph" for Shadergraph
-import "blueprint.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
 import "image" for ImageData
 import "render" for Texture2D
 
@@ -9,25 +6,22 @@ class Noisegraph is Shadergraph
 {
 	load()
 	{
-		super.load(false)
+		super.load()
 
-		for (var node in [ 
-// noise
-PerlinNoise, BillowedNoise, RidgedNoise,
-// turbulence
-Turbulence, IqTurbulence, SwissTurbulence, JordanTurbulence, Erosion1Turbulence, Erosion2Turbulence, DistortTurbulence,
-// deriv
-PerlinNoisePseudoDeriv, PerlinNoiseDeriv, NoiseDeriv,
-// shadergraph
-TexCoord, FragColor, Multiply, Number, Uniform, Parameter,
-		]) {
-			super.add_popup_node(node)
-		}
+		this.prepare_nodes()
 
 		var perlin_perm2d_img = ImageData.init("assets/textures/noise/perlin_perm2d.png")
 		this.perlin_perm2d_tex = Texture2D.init(perlin_perm2d_img, false)
 		var perlin_grad2d_img = ImageData.init("assets/textures/noise/perlin_grad2d.png")
 		this.perlin_grad2d_tex = Texture2D.init(perlin_grad2d_img, false)
+	}
+
+	prepare_nodes()
+	{
+		import "editor.noisenodes" for NOISE_NODES
+		for (var node in NOISE_NODES) {
+			super.add_popup_node(node)
+		}
 	}
 
 	draw_preview()
@@ -41,8 +35,6 @@ TexCoord, FragColor, Multiply, Number, Uniform, Parameter,
 	load_file_imports()
 	{
 		return super.load_file_imports() + "
-import \"blueprint.nodes.*\"
-import \"shadergraph.nodes.*\"
 import \"noisegraph.nodes.*\"
 "
 	}

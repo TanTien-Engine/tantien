@@ -10,13 +10,19 @@ class Rendergraph is Editor
 {
 	load()
 	{
-		super.load(true)
+		super.load()
+
+		this.prepare_nodes()
 
 		rg_Rendergraph.regist()
 
 		this.drawlist = nil
+	}
 
-		for (var node in [ Clear, Draw, Shader, VertexArray, Pass, Cubemap, PrimitiveShape, Texture, RenderTarget, RenderBuffer, Model, Compute ]) {
+	prepare_nodes()
+	{
+		import "editor.rendernodes" for RENDER_NODES
+		for (var node in RENDER_NODES) {
 			super.add_popup_node(node)
 		}
 	}
@@ -52,6 +58,8 @@ class Rendergraph is Editor
 
 	load_file_imports()
 	{
-		return super.load_file_imports() + "\nimport \"rendergraph.nodes.*\"\n"
+		return super.load_file_imports() + "
+import \"rendergraph.nodes.*\"
+"
 	}
 }

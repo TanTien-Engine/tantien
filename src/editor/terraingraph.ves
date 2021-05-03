@@ -3,20 +3,31 @@ import "render" for Render
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.rendergraph" for Rendergraph
 import "terraingraph.terraingraph" for Terraingraph as tg_Terraingraph
-import "terraingraph.nodes.*"
+import "terraingraph.nodes.viewer" for Viewer
 
 class Terraingraph is Editor
 {
 	load()
 	{
-		super.load(true)
+		super.load()
 
 		Rendergraph.regist()
 		tg_Terraingraph.regist()
 
 		this.drawlist = []
 
-		for (var node in [ Constant, Viewer, Gradient, Perlin, Worley, Combiner, Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform, SelectHeight, SelectSlope, Erosion, ThermalWeathering, Brush ]) {
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		import "editor.bpnodes" for BP_NODES		
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.terrainnodes" for TERRAIN_NODES
+		for (var node in TERRAIN_NODES) {
 			super.add_popup_node(node)
 		}
 	}
@@ -59,6 +70,8 @@ class Terraingraph is Editor
 
 	load_file_imports()
 	{
-		return super.load_file_imports() + "\nimport \"terraingraph.nodes.*\"\n"
+		return super.load_file_imports() + "
+import \"terraingraph.nodes.*\"
+"
 	}
 }

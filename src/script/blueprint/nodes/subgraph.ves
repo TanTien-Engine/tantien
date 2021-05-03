@@ -17,7 +17,12 @@ class Subgraph is Node
 {
 	init()
 	{
-		super.init(Subgraph.name)
+		this.init(Subgraph.name)
+	}
+
+	init(name)
+	{
+		super.init(name)
 
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT)
@@ -367,5 +372,14 @@ class Subgraph is Node
 		if (this.op_node) {
 			this.op_node.on_mouse_scrolled(x, y, dx, dy)
 		}	
+	}
+
+	setup_popup_nodes(editor)
+	{
+	}
+
+	import_files_header()
+	{
+		return ""
 	}
 }

@@ -24,7 +24,7 @@ import "math" for Math
 
 class Editor
 {
-	load(import_base_nodes)
+	load()
 	{
 		this.scene_stack = SceneStack()
 
@@ -52,12 +52,6 @@ class Editor
 
 		this.popup_nodes = []
 		this.all_nodes = {}
-		if (import_base_nodes)
-		{
-			for (var node in [ Number, Number2, Number3, Number4, Combine, Time, Sin, Cos, Radians, Add, Subtract, Multiply, Divide, Matrix, Translate, Rotate, Scale, Camera2d, Camera3d, Perspective, Orthographic, Lookat, For, Array, Print, Clamp, Fetch, Custom, Input, Output, Property, Subgraph, Merge, Commentary, Viewport, Proxy ]) {
-				this.add_popup_node(node)
-			}
-		}
 
 		this.script_stack = []
 
@@ -75,6 +69,12 @@ class Editor
 		tb.align_hori = 2
 		tb.align_vert = 1
 		this.TB_TITLE = tb
+	}
+
+	clear_nodes()
+	{
+		this.popup_nodes.clear()
+		this.all_nodes.clear()		
 	}
 
 	update()
@@ -252,6 +252,16 @@ class Editor
 		}
 	}
 
+	setup_popup_nodes()
+	{
+		var subgraph = this.scene_stack.top().ud
+		if (subgraph) {
+			subgraph.setup_popup_nodes(this)
+		} else {
+			this.prepare_nodes()
+		}
+	}
+
 	draw_scenes_nav_bar()
 	{
 		if (this.scene_stack.count() <= 1) {
@@ -269,6 +279,9 @@ class Editor
 					this.scene_stack.pop()
 					this.filepath = this.scene_stack.top().filepath
 				}
+
+				this.setup_popup_nodes()
+
 				return
 			}
 			x = x + 50
@@ -512,6 +525,14 @@ import \"editor\" for _editor
 
 		var scene = this.scene_stack.top()
 
+		// header
+		if (file is MemFile) {
+			var scene = this.scene_stack.top()
+			file.write(scene.ud.import_files_header())
+		} else {
+			file.write(this.load_file_imports())
+		}
+
 		// nodes
 		var index = 0
 		for (var node in scene.nodes) 
@@ -737,12 +758,15 @@ import \"editor\" for _editor
 			return false
 		}
 
+		bp_node.setup_popup_nodes(this)
+
 		var name = Filesystem.get_filename(bp_node.filepath)
 		var next_scene = Scene(name)
 		next_scene.filepath = bp_node.filepath
 		next_scene.ud = bp_node
 		this.scene_stack.push(next_scene)
 		if (bp_node.file_content) {
+			this.filepath = ""
 			this.loadfromstring(bp_node.file_content)
 		} else {
 			this.loadfromfile(bp_node.filepath)

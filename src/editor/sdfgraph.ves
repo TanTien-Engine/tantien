@@ -1,30 +1,18 @@
 import "editor.shadergraph" for Shadergraph
-import "blueprint.nodes.*"
-import "shadergraph.nodes.*"
-import "sdfgraph.nodes.*"
 
 class Sdfgraph is Shadergraph
 {
 	load()
 	{
-		super.load(false)
+		super.load()
 
-		for (var node in [ 
-// primitive
-Sphere, Box, RoundBox, BoxFrame, Torus, CappedTorus, Link, InfiniteCylinder, Cone, InfiniteCone, Plane, HexagonalPrism, TriangularPrism, Capsule, VerticalCapsule, VertCappedCylinder, CappedCylinder, RoundedCylinder, VertCappedCone, CappedCone, SolidAngle, VertRoundCone, RoundCone, Ellipsoid, Rhombus, Octahedron, Pyramid, Triangle, Quad,
-// operation-alterations
-Elongate, Rounding, Onion,
-// operation-combinations
-Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersection,
-// operation-positioning
-Translate, Scale, Rotate, Symmetry, InfiniteRepetition, FiniteRepetition,
-// operation-deformations and distortions
-Displace, Twist, Bend,
-// shadergraph
-Sdf, Parameter, Viewport, FragColor, TexCoord, Number, Number2, Number3, Number4, Combine, Negate, Uniform, RotateX, RotateY, RotateZ,
-// blueprint
-Add, Subtract, Multiply, Divide, Time, Sin, Cos, Commentary,
-		]) {
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		import "editor.sdfnodes" for SDF_NODES
+		for (var node in SDF_NODES) {
 			super.add_popup_node(node)
 		}
 	}
@@ -32,8 +20,6 @@ Add, Subtract, Multiply, Divide, Time, Sin, Cos, Commentary,
 	load_file_imports()
 	{
 		return super.load_file_imports() + "
-import \"blueprint.nodes.*\"
-import \"shadergraph.nodes.*\"
 import \"sdfgraph.nodes.*\"
 "
 	}
