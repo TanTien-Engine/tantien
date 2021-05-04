@@ -414,6 +414,15 @@ void w_ShaderGen_func_return_value()
     linker->ReturnValue(func, inst);
 }
 
+void w_ShaderGen_variable_float()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+
+    auto ret = linker->VariableFloat(func);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_const_float()
 {
     auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
@@ -532,6 +541,14 @@ void w_ShaderGen_finish_main()
     linker->FinishMain();
 }
 
+void w_ShaderGen_connect_cs_main()
+{
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    const char* main_glsl = ves_tostring(1);
+    auto glsl = linker->ConnectCSMain(main_glsl);
+    ves_set_lstring(0, glsl.c_str(), glsl.size());
+}
+
 void w_Shader_code2spirv()
 {
     const char* stage_str = ves_tostring(1);
@@ -616,13 +633,15 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.get_main_func()") == 0) return w_ShaderGen_get_main_func;
     if (strcmp(signature, "ShaderGen.create_decl_func(_,_)") == 0) return w_ShaderGen_create_decl_func;
     if (strcmp(signature, "ShaderGen.add_link_decl(_,_,_)") == 0) return w_ShaderGen_add_link_decl;
-
+    
     if (strcmp(signature, "ShaderGen.create_func(_,_,_,_)") == 0) return w_ShaderGen_create_func;
     if (strcmp(signature, "ShaderGen.get_func_param(_,_)") == 0) return w_ShaderGen_get_func_param;
     if (strcmp(signature, "ShaderGen.get_func_args(_)") == 0) return w_ShaderGen_get_func_args;
     if (strcmp(signature, "ShaderGen.func_call(_,_,_)") == 0) return w_ShaderGen_func_call;
     if (strcmp(signature, "ShaderGen.func_return(_)") == 0) return w_ShaderGen_func_return;
     if (strcmp(signature, "ShaderGen.func_return_value(_,_)") == 0) return w_ShaderGen_func_return_value;
+
+    if (strcmp(signature, "ShaderGen.variable_float(_)") == 0) return w_ShaderGen_variable_float;
 
     if (strcmp(signature, "ShaderGen.const_float(_,_)") == 0) return w_ShaderGen_const_float;
     if (strcmp(signature, "ShaderGen.const_float2(_,_,_)") == 0) return w_ShaderGen_const_float2;
@@ -635,6 +654,8 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
     if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;
+
+    if (strcmp(signature, "ShaderGen.connect_cs_main(_)") == 0) return w_ShaderGen_connect_cs_main;
 
     if (strcmp(signature, "ShaderGen.print(_)") == 0) return w_Shader_print;
 

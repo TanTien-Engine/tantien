@@ -48,6 +48,8 @@ foreign class ShaderGen
 	foreign func_return(func)
 	foreign func_return_value(func, inst)
 
+	foreign variable_float(func)
+
 	foreign const_float(module, x)
 	foreign const_float2(module, x, y)
 	foreign const_float3(module, x, y, z)
@@ -59,6 +61,8 @@ foreign class ShaderGen
 
 	foreign import_all()
 	foreign finish_main()
+
+	foreign connect_cs_main(glsl)
 
 	foreign print(lib)
 }

@@ -1,0 +1,190 @@
+import "blueprint.nodes.subgraph" for Subgraph
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "terraingraph.style" for HEIGHTFIELD_SIZE
+import "terraingraph.heightfield_proxy" for HeightfieldProxy
+import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
+import "rendergraph.nodes.shader" for Shader
+import "rendergraph.nodes.compute" for Compute
+import "rendergraph.nodes.texture" for Texture
+import "rendergraph.drawlist" for Drawlist
+import "shadergraph.nodes.uniform" for Uniform
+import "shadergraph.node_helper" for NodeHelper
+import "render" for Texture2D
+import "shader" for ShaderGen
+
+var DARWLIST = nil
+var SHADER   = nil
+var COMPUTE  = nil
+
+var CS = ""
+
+class Shadergraph is Subgraph
+{
+	init() 
+	{
+		super.init(Shadergraph.name)
+
+		this.imports.clear()
+		this.exports.clear()
+
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
+		]
+
+		this.layout()
+
+		this.hf = VarHeightfield()
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
+	}
+
+	execute()
+	{
+		if (!this.hf.tex) {
+			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
+		}
+		if (this.dirty) {
+			this.rebuild_shader()
+		}
+		if (!DARWLIST) 
+		{
+			var shader = Shader()
+			shader.cs = CS
+			shader.execute()
+
+			var perm2d_tex = Texture()
+			perm2d_tex.init_texture("assets/textures/noise/perlin_perm2d.png")
+			Blueprint.connect(perm2d_tex, "tex", shader, "perlin_perm2d_tex")
+
+			var grad2d_tex = Texture()
+			grad2d_tex.init_texture("assets/textures/noise/perlin_grad2d.png")
+			Blueprint.connect(grad2d_tex, "tex", shader, "perlin_grad2d_tex")
+
+			var compute = Compute()
+			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
+
+			Blueprint.connect(shader, "out", compute, "shader")
+
+			DARWLIST = Drawlist([compute])
+
+			SHADER = shader
+			COMPUTE = compute
+		}
+
+		if (this.dirty) 
+		{
+			COMPUTE.dirty = true
+			this.bind(SHADER)
+			DARWLIST.draw()
+
+			this.dirty = false
+		}
+	}
+
+	rebuild_shader()
+	{
+		import "blueprint.nodes.output"	for Output
+
+		var output = nil
+		for (var node in this.all_nodes) {
+			if (node is Output) {
+				output = node
+			}
+		}
+
+		if (!output) {
+			return
+		}
+
+		var prev_nodes = Blueprint.get_precursor_nodes(output)
+		if (prev_nodes.count < 2) {
+			return
+		}
+
+		var list = Blueprint.topo_sort(prev_nodes)
+		var gen = ShaderGen.init()
+		for (var i in 0..list.count - 1)
+		{
+			var node = list[i]
+			if (node["node_func"]) {
+				node.node_func.gen_shader(gen)
+			} 
+			if (node.has_method("gen_shader(_)")) {
+				node.gen_shader(gen)
+			}
+
+			if (node is Uniform) {
+				this.uniforms.add(node)
+			}
+			if (node is Texture) {
+				this.textures.add(node)
+			}
+		}
+
+		gen.import_all()
+
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+
+		var dst = gen.variable_float(func)
+		var grey = NodeHelper.calc_input_inst(gen, list[list.count - 1], 0, module, func)
+		gen.store(func, dst, grey)
+
+		gen.func_return(func)
+
+		gen.finish_main()
+
+		CS = gen.connect_cs_main("
+#define LOCAL_SIZE 32
+
+layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
+
+layout(binding = 0, r16f) writeonly uniform image2D out_tex;
+
+void main()
+{
+	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    vec2 tex_coords = pos / float(imageSize(out_tex));
+    //float v = perlin_noise(tex_coords * 10, 0.0);
+    float v = turbulence(tex_coords, 0, 5, 3, 0.5);
+    imageStore(out_tex, pos, vec4(v));
+}
+")
+
+		System.print(CS)
+	}
+
+	bind(shader)
+	{
+		var pout = HeightfieldProxy(this.exports[0])
+		Blueprint.connect(pout, "tex", shader, "out_tex")
+	}
+
+	setup_popup_nodes(editor)
+	{
+		editor.clear_nodes()
+
+		import "editor.noisenodes" for NOISE_NODES
+		for (var node in NOISE_NODES) {
+			editor.add_popup_node(node)
+		}
+
+		import "blueprint.nodes.output"	for Output
+		editor.add_popup_node(Output)
+	}
+
+	import_files_header()
+	{
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
+import \"shadergraph.nodes.*\"
+import \"noisegraph.nodes.*\"
+"
+	}
+}
