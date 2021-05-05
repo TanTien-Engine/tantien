@@ -3,6 +3,7 @@
 #include "modules/filesystem/Filesystem.h"
 #include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
+#include "modules/maths/float16.h"
 
 #include <gimg_import.h>
 #include <gimg_typedef.h>
@@ -183,7 +184,7 @@ void w_ImageData_get_pixel()
     case GPF_R16:
     {
         unsigned short* pixels = (unsigned short*)img->pixels;
-        ves_set_number(0, (double)pixels[y * img->width + x] / 0xffff);
+        ves_set_number(0, Float16ToFloat(pixels[y * img->width + x]));
     }
         break;
     case GPF_RGB:
