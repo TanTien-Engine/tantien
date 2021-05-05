@@ -1,0 +1,66 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "terraingraph.nodes.*"
+var node0 = Viewer()
+
+node0.gray = true
+
+_editor.add_node(node0, 282.897368, 323.02243)
+
+var node1 = Camera3d()
+
+node1.cam.position.set(0.84910460519739, 1.4828905344536, 2.5175276125537)
+node1.cam.yaw = -116.6
+node1.cam.pitch = -28.5
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.20714285969734
+
+_editor.add_node(node1, 81.997368, 238.02243)
+
+var node2 = Shadergraph()
+
+node2.file_content = "
+
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
+import \"shadergraph.nodes.*\"
+import \"noisegraph.nodes.*\"
+var node0 = PerlinNoise()
+node0.query_param(\"seed\").value = 0.34088975191116
+
+_editor.add_node(node0, -249.52709839052, 223.31443096973)
+
+var node1 = Output()
+
+node1.var_name = \"ret\"
+node1.var_type = \"num\"
+
+_editor.add_node(node1, 144.49841571677, 340.09526887285)
+
+var node2 = Turbulence()
+node2.query_param(\"seed\").value = 0
+node2.query_param(\"octaves\").value = 5
+node2.query_param(\"lacunarity\").value = 3
+node2.query_param(\"gain\").value = 0.5
+
+_editor.add_node(node2, -73.662624597012, 252.50177423834)
+
+var node3 = Parameter()
+
+node3.var_name = \"p\"
+
+_editor.add_node(node3, -403.24343250025, 245.23237583495)
+
+Blueprint.connect(node0, \"ret\", node2, \"noise(p,seed)\")
+Blueprint.connect(node2, \"ret\", node1, \"var\")
+Blueprint.connect(node3, \"var\", node0, \"p\")
+"
+node2.load_from_string(_editor, node2.file_content, _editor, "subgraph")
+
+_editor.add_node(node2, 27.173606618652, 426.13579076172)
+
+Blueprint.connect(node1, "this", node0, "cam")
+Blueprint.connect(node2, "out", node0, "hf")

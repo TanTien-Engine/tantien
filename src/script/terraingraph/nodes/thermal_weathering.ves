@@ -183,7 +183,7 @@ class ThermalWeathering is Node
 		}
 
 		y = y - DEFAULT_HEIGHT
-		var amplitude = GUI.slider(ctx, "amplitude", this.amplitude, x, y, this.style.width - 20, 0.001, false)
+		var amplitude = GUI.slider(ctx, "amplitude", this.amplitude, x, y, this.style.width - 20, 0.1, false)
 		if (amplitude != this.amplitude) {
 			this.amplitude = amplitude
 			dirty = true

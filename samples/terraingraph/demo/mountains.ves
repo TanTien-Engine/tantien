@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "terraingraph.nodes.*"
 var node0 = Viewer()
 
 node0.gray = false
@@ -40,17 +45,17 @@ _editor.add_node(node4, 41.833755013629, 182.28949536769)
 
 var node5 = Erosion()
 
-node5.iter = 200000
-node5.radius = 2
-node5.kq = 4
-node5.min_slope = 0.013
-node5.kw = 0.01
-node5.kr = 0.008
-node5.kd = 0.3
-node5.ki = 0.76
-node5.g = 4
+node5.iter = 755555
+node5.radius = 1.6942986249924
+node5.kq = 10
+node5.min_slope = 0.012055262923241
+node5.kw = 0.090276323258877
+node5.kr = 0.012721930630505
+node5.kd = 0.18054097890854
+node5.ki = 0.60276317596436
+node5.g = 4.3609652519226
 
-_editor.add_node(node5, 231, 144.5)
+_editor.add_node(node5, 231.7513148009, 144.5)
 
 Blueprint.connect(node1, "this", node0, "cam")
 Blueprint.connect(node2, "out", node4, "b")

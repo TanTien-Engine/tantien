@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "terraingraph.nodes.*"
 var node0 = Viewer()
 
 node0.gray = true
@@ -6,9 +11,9 @@ _editor.add_node(node0, 282.897368, 323.02243)
 
 var node1 = Camera3d()
 
-node1.cam.position.set(-1.5708654207181, 0.7544028714694, -0.67403869285696)
-node1.cam.yaw = 14
-node1.cam.pitch = -34.8
+node1.cam.position.set(-0.82900856071515, 0.59073380521476, -0.70605388523679)
+node1.cam.yaw = 40.5
+node1.cam.pitch = -36.8
 node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.20714285969734
@@ -27,17 +32,17 @@ _editor.add_node(node2, -185.81874023565, 492.96391077615)
 
 var node3 = Erosion()
 
-node3.iter = 200000
-node3.radius = 2
-node3.kq = 4
-node3.min_slope = 0.013
-node3.kw = 0.01
-node3.kr = 0.008
-node3.kd = 0.3
-node3.ki = 0.76
-node3.g = 4
+node3.iter = 796007
+node3.radius = 0.84896385669708
+node3.kq = 7.9600749015808
+node3.min_slope = 0.010142371989787
+node3.kw = 0.016267416998744
+node3.kr = 0.015253481455147
+node3.kd = 0.39600750803947
+node3.ki = 0.79600745439529
+node3.g = 10
 
-_editor.add_node(node3, 29.496560662067, 492.15031386102)
+_editor.add_node(node3, 31.359324631244, 492.15031386102)
 
 Blueprint.connect(node1, "this", node0, "cam")
 Blueprint.connect(node2, "out", node3, "in")
