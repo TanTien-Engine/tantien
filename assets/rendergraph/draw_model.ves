@@ -1,0 +1,91 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, -10.492079074999, 33.045530735999)
+
+var node1 = Model()
+node1.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
+
+_editor.add_node(node1, -169.48240633091, -63.807067086194)
+
+var node2 = Shader()
+
+node2.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;	
+};
+
+void main()
+{
+    TexCoords = aTexCoords;    
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{    
+    FragColor = texture(texture_diffuse1, vec2(TexCoords.x, 1.0 - TexCoords.y));
+}
+"
+node2.cs = ""
+node2.execute()
+
+_editor.add_node(node2, -200.37606979578, 18.412290452596)
+
+var node3 = Clear()
+
+node3.masks = [ "color", "depth" ]
+node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
+
+_editor.add_node(node3, -181.40594233567, 154.09172663351)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
+
+_editor.add_node(node4, -432.87257632775, -118.09155541126)
+
+var node5 = Proxy()
+
+node5.real_name = "view_cam"
+node5.init_real_node(_editor.popup_nodes, "Camera3d")
+
+_editor.add_node(node5, -436.71043095019, 30.024114070605)
+
+Blueprint.connect(node1, "model", node0, "model")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "next", node0, "prev")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node5, "zoom", node4, "fovy")

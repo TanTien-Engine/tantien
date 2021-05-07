@@ -1,0 +1,75 @@
+import "editor.editor" for Editor
+import "rendergraph.rendergraph" for Rendergraph
+import "render" for Render
+import "pbrgraph.nodes.viewer" for Viewer
+import "blueprint.blueprint" for Blueprint
+
+class Pbrgraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+
+		Rendergraph.regist()
+
+		this.drawlist = []
+	}
+
+	prepare_nodes()
+	{
+		import "editor.bpnodes" for BP_NODES
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.pbrnodes" for PBR_NODES
+		for (var node in PBR_NODES) {
+			super.add_popup_node(node)
+		}
+	}
+
+	rebuild()
+	{
+		var scene = this.scene_stack.root()
+
+		for (var node in scene.nodes) {
+			node.components["bp"].dirty = true
+		}
+
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Viewer) 
+			{
+				var prev_nodes = Blueprint.get_precursor_nodes(bp_node)
+				this.drawlist = Blueprint.topo_sort(prev_nodes)
+				return
+			}
+		}
+	}
+
+	draw_preview()
+	{
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		if (this.scene_stack.bp_dirty) {
+			this.rebuild()
+			this.scene_stack.bp_dirty = false
+		}
+
+		for (var node in this.drawlist) {
+			if (node.has_method("execute()")) {
+				node.execute()
+			}
+		}
+	}
+
+	load_file_imports()
+	{
+		return super.load_file_imports() + "
+import \"pbrgraph.nodes.*\"
+"
+	}
+}
