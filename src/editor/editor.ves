@@ -721,6 +721,8 @@ import \"editor\" for _editor
 
 		var img_path = this.filepath.replace(".ves", ".jpg")
 
+		Filesystem.remove_file(img_path)
+
 		var fbo = Framebuffer.init()
 
 		var rbo_color = RenderBuffer.init(TEX_SIZE, TEX_SIZE, "rgb")

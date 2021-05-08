@@ -2,6 +2,7 @@
 #include "modules/filesystem/Filesystem.h"
 
 #include <filesystem>
+#include <cstdio>
 
 #include <string.h>
 
@@ -78,6 +79,13 @@ void w_Filesystem_get_directory_files()
     }
 }
 
+void w_Filesystem_remove_file()
+{
+    const char* path = ves_tostring(1);
+    int ret = remove(path);
+    ves_set_boolean(0, ret == 0);
+}
+
 }
 
 namespace tt
@@ -91,6 +99,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
     if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
+    if (strcmp(signature, "static Filesystem.remove_file(_)") == 0) return w_Filesystem_remove_file;
 
     return NULL;
 }
