@@ -32,16 +32,16 @@ class Compute is Node
 			return
 		}
 
-		var shader = Blueprint.get_input_node(this, 1)
-		if (!shader or !shader.prog) {
+		var v_shader = Blueprint.calc_input_value(this, 1).value
+		if (!v_shader or !v_shader.prog) {
 			return
 		}
 
-		var count = shader.get_frame_count()
+		var count = v_shader.get_frame_count()
 		for (var i in 0..count) 
 		{
-			shader.update_uniforms(i)
-			Render.compute(shader.prog, this.num_groups[0], this.num_groups[1], this.num_groups[2])
+			v_shader.update_uniforms(i)
+			Render.compute(v_shader.prog, this.num_groups[0], this.num_groups[1], this.num_groups[2])
 		}
 
 		this.dirty = false

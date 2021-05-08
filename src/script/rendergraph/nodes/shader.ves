@@ -1,14 +1,13 @@
-import "render" for Shader as tt_Shader, Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.blueprint" for Blueprint
-import "gui" for GUI
+import "blueprint.variant" for Variant
 import "blueprint.node_helper" for NodeHelper
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "blueprint.variant" for VAR_TYPE_ARRAY
+import "rendergraph.variant" for VAR_TYPE_SHADER
+import "rendergraph.variates.shader" for Shader as var_Shader
+import "gui" for GUI
 import "maths" for Matrix44
-import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_TEXTURE
-import "math" for Math
+import "render" for Shader as tt_Shader, Render
 
 class Shader is Node
 {
@@ -27,7 +26,7 @@ class Shader is Node
 		this.fs  = ""
 		this.cs  = ""
 
-		this.prog = nil
+		this.shader = var_Shader(this)
 		this.dirty = true
 
 		this.uniforms = []
@@ -35,6 +34,11 @@ class Shader is Node
 		this.layout()
 
 		this.fold_array = true
+	}
+
+	calc(idx)
+	{
+		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
 	init_shader_uniforms(unif)
@@ -101,17 +105,18 @@ class Shader is Node
 			return
 		}
 
-		this.prog = nil
+		this.shader.prog = nil
 		if (this.cs != "") {
-			this.prog = tt_Shader.init(this.cs)
+			this.shader.prog = tt_Shader.init(this.cs)
 		} else {
-			this.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)		
+			this.shader.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)
 		}
 
-		if (this.prog)
+		if (this.shader.prog)
 		{
 			this.uniforms = this.get_shader_uniforms()
 			for (var unif in this.uniforms) {
+				System.print("+ %(unif[0])")
 				this.add_uniform_to_imports(unif)
 			}
 
@@ -270,7 +275,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.set_uniform_value(unif)
+			    	this.shader.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -293,7 +298,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.set_uniform_value(unif)
+			    	this.shader.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -323,7 +328,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.set_uniform_value(unif)
+			    	this.shader.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -360,7 +365,7 @@ class Shader is Node
 			    }
 
 			    if (unif_dirty) {
-			    	this.prog.set_uniform_value(unif)
+			    	this.shader.prog.set_uniform_value(unif)
 			    	dirty = true
 			    }
 			}
@@ -385,107 +390,5 @@ class Shader is Node
 		}
 
 		return dirty
-	}
-
-	get_frame_count()
-	{
-		var count = 1
-		for (var i in 0..this.imports.count) 
-		{
-			if (this.imports[i].unif[1] != "array") {
-				var v = Blueprint.calc_input_value(this, i)
-				if (v.value is List) {
-					count = Math.max(count, v.value.count)
-				}
-			}
-		}
-		return count
-	}
-
-	update_uniforms(frame, unif)
-	{
-		if (unif[1] == "array" or unif[1] == "struct") {
-			for (var u in unif[2]) {
-				this.update_uniforms(frame, u)
-			}
-		} else {
-			this.prog.set_uniform_value(unif)
-		}
-	}
-
-	set_uniform_value(dst, src)
-	{
-		if (dst[1] == "float" or dst[1] == "int") {
-			dst[2][0] = src
-		} else if (dst[1] == "float2" or dst[1] == "int2") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-		} else if (dst[1] == "float3" or dst[1] == "int3") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-			dst[2][2] = src.z
-		}  else if (dst[1] == "float4" or dst[1] == "int4") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-			dst[2][2] = src.z
-			dst[2][3] = src.w
-		} else if (dst[1] == "mat2" or dst[1] == "mat3" or dst[1] == "mat4") {
-			dst[2] = [src]
-		} else if (dst[1] == "sampler" or dst[1] == "image") {
-			dst[2] = [src.tex, src.sampler]
-		}
-	}
-
-	update_unif_values_from_conns(frame)
-	{
-		for (var pin in this.imports)
-		{
-			var conns = pin.conns
-			if (!conns.isEmpty)
-			{
-				var f_pin = conns.front().from
-				var val = f_pin.node.calc(f_pin.slot_idx)
-				if (val)
-				{
-					var unif = pin.unif
-
-					var _v = nil
-					if (val.type == VAR_TYPE_ARRAY)
-					{
-						if (unif[1] == "array")
-						{
-							var n = Math.min(val.value.count, unif[2].count)
-							for (var i in 0..n) {
-								this.set_uniform_value(unif[2][i], val.value[i].value)
-							}
-						}
-						else
-						{
-							if (frame < val.value.count) {
-								_v = val.value[frame].value
-							} else if (!val.value.isEmpty) {
-								_v = val.value[val.value.count - 1].value
-							}
-						}
-					}
-					else
-					{
-						_v = val.value
-					}
-					if (_v) {
-						this.set_uniform_value(unif, _v)
-					}
-				}
-			}
-		}
-	}
-
-	update_uniforms(frame)
-	{
-		this.update_unif_values_from_conns(frame)
-
-		for (var unif in this.uniforms) {
-			this.update_uniforms(frame, unif)
-		}
 	}
 }

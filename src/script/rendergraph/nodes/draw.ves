@@ -59,8 +59,8 @@ class Draw is Node
 			return
 		}
 
-		var shader = Blueprint.get_input_node(this, 1)
-		if (!shader or !shader.prog) {
+		var v_shader = Blueprint.calc_input_value(this, 1).value
+		if (!v_shader or !v_shader.prog) {
 			return
 		}
 
@@ -69,7 +69,7 @@ class Draw is Node
 		var model = Blueprint.calc_input_value(this, 4).value
 		if (model and model.model)
 		{
-			this.draw_model(shader, model.model, v_fbo)
+			this.draw_model(v_shader, model.model, v_fbo)
 			return
 		}
 
@@ -83,7 +83,7 @@ class Draw is Node
 			return
 		}
 
-		var count = shader.get_frame_count()
+		var count = v_shader.get_frame_count()
 		if (va is List) {
 			count = Math.max(count, va.count)
 			if (va.isEmpty)	{
@@ -97,7 +97,7 @@ class Draw is Node
 
 		for (var i in 0..count) 
 		{
-			shader.update_uniforms(i)
+			v_shader.update_uniforms(i)
 
 			var _va = va
 			if (va is List) 
@@ -122,7 +122,7 @@ class Draw is Node
 			if (_fbo) {
 				_fbo.bind()
 			}
-			Render.draw(this.prim_types[this.prim_selected], shader.prog, _va, this.render_state)
+			Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state)
 			if (_fbo) {
 				_fbo.unbind()
 			}
