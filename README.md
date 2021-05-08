@@ -14,9 +14,8 @@ Procedural content generation
 Use editors to generate each component
 
 ### Fast iteration
-* Less c&cpp parts, more scripts
-* Edit assets in runtime directly
-* Hot update
+* Light c&cpp parts, more heavy on scripts
+* Edit assets at runtime directly
 
 ## Editors
 
