@@ -58,7 +58,7 @@ class ShaderUniforms
 		if ((!node.fold_array and unif[1] == "array") or unif[1] == "struct")
 		{
 			for (var u in unif[2]) {
-				node.layout(u)
+				ShaderUniforms.layout(node, u)
 			}
 		}
 		else
