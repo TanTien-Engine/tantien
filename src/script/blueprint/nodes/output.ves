@@ -2,6 +2,8 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
 
 class Output is Node
 {
@@ -21,6 +23,13 @@ class Output is Node
 		this.value = nil
 	}
 
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
 	to_string(name) 
 	{
 		var f_pin = Blueprint.get_first_connect_pin(this.imports[0])
@@ -33,4 +42,16 @@ class Output is Node
 %(name).var_type = \"%(this.var_type)\"
 "
 	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
+
+		GUI.label(ctx, this.var_name, x, y)
+
+		return dirty
+	}	
 }
