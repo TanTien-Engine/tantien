@@ -5,9 +5,9 @@ import "blueprint.node_helper" for NodeHelper
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
+import "rendergraph.components.shader_uniforms" for ShaderUniforms
 import "gui" for GUI
-import "maths" for Matrix44
-import "render" for Shader as tt_Shader, Render
+import "render" for Shader as tt_Shader
 
 class Shader is Node
 {
@@ -41,62 +41,16 @@ class Shader is Node
 		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
-	init_shader_uniforms(unif)
-	{
-		if (unif[1] == "array" or unif[1] == "struct")
-		{
-			for (var u in unif[2]) {
-				this.init_shader_uniforms(u)
-			}		
-		}
-		else
-		{
-			if (unif[1] == "mat4") {
-				unif[2] = [ Matrix44.init() ]
-			} else if (unif[1] == "sampler") {
-				unif[2] = [ nil, nil ]
-			}
-		}
-	}
-
-	get_shader_uniforms(stage, code, uniforms)
-	{
-		var unifs = Render.get_shader_uniforms(stage, code, "glsl")
-
-		// init
-		for (var unif in unifs) {
-			this.init_shader_uniforms(unif)
-		}
-
-		for (var unif in unifs) {
-			uniforms.add(unif)
-		}		
-	}
-
 	get_shader_uniforms()
 	{
 		var uniforms = []
-		this.get_shader_uniforms("vertex",    this.vs,  uniforms)
-		this.get_shader_uniforms("tess_ctrl", this.tcs, uniforms)
-		this.get_shader_uniforms("tess_eval", this.tes, uniforms)
-		this.get_shader_uniforms("geometry",  this.gs,  uniforms)
-		this.get_shader_uniforms("pixel",     this.fs,  uniforms)
-		this.get_shader_uniforms("compute",   this.cs,  uniforms)		
+		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  uniforms)
+		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, uniforms)
+		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, uniforms)
+		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  uniforms)
+		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  uniforms)
+		ShaderUniforms.get_shader_uniforms("compute",   this.cs,  uniforms)		
 		return uniforms
-	}
-
-	add_uniform_to_imports(unif)
-	{
-		if ((!this.fold_array and unif[1] == "array") or unif[1] == "struct") {
-			for (var u in unif[2]) {
-				this.add_uniform_to_imports(u)
-			}
-		} else {
-			var pin_type = NodeHelper.type_var_to_pin(unif[1])
-			var pin = Pin(this, unif[0], pin_type)
-			pin.unif = unif
-			this.imports.add(pin)
-		}
 	}
 
 	execute() 
@@ -116,36 +70,14 @@ class Shader is Node
 		{
 			this.uniforms = this.get_shader_uniforms()
 			for (var unif in this.uniforms) {
-				System.print("+ %(unif[0])")
-				this.add_uniform_to_imports(unif)
+				//System.print("+ %(unif[0])")
+				ShaderUniforms.add_uniform_to_imports(this, unif)
 			}
 
 			this.layout()
 		}
 
 		this.dirty = false
-	}
-
-	layout(unif)
-	{
-		if ((!this.fold_array and unif[1] == "array") or unif[1] == "struct")
-		{
-			for (var u in unif[2]) {
-				this.layout(u)
-			}
-		}
-		else
-		{
-			if (unif[1] == "float" or unif[1] == "int") {
-				this.style.height = this.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT
-			} else if (unif[1] == "float2" or unif[1] == "int2") {
-				this.style.height = this.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 2
-			} else if (unif[1] == "float3" or unif[1] == "int3") {
-				this.style.height = this.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 3
-			} else if (unif[1] == "float4" or unif[1] == "int4") {
-				this.style.height = this.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 4
-			}
-		}
 	}
 
 	layout() 
@@ -155,7 +87,7 @@ class Shader is Node
 		this.style.width = 180
 
 		for (var unif in this.uniforms) {
-			this.layout(unif)
+			ShaderUniforms.layout(this, unif)
 		}
 	}
 
@@ -233,147 +165,6 @@ class Shader is Node
 		return code
 	}
 
-	draw_gui(ctx, unif, x, y)
-	{
-		var dirty = false
-
-		if (unif[1] == "array" or unif[1] == "struct")
-		{
-			var skip = unif[1] == "array" and this.fold_array
-			if (!skip) 
-			{
-				for (var u in unif[2]) {
-					var y_d = this.draw_gui(ctx, u, x, y)
-					y = y_d[0]
-					if (y_d[1]) {
-						dirty = true
-					}
-				}
-			}
-		}
-		else
-		{			
-			if (unif[1] != "sampler" and unif[1] != "image" and unif[1] != "mat2" and unif[1] != "mat3" and unif[1] != "mat4") {
-		    	GUI.label(ctx, unif[0], x, y)
-				y = y - DEFAULT_HEIGHT
-			}
-
-			var region = 1.0
-			if (unif[1] == "int" or unif[1] == "int2" or unif[1] == "int3" or unif[1] == "int4") {
-				region = 10
-			}
-
-			if (unif[1] == "float" or unif[1] == "int")
-			{
-				var unif_dirty = false
-
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
-			    	unif_dirty = true
-			    }
-
-			    if (unif_dirty) {
-			    	this.shader.prog.set_uniform_value(unif)
-			    	dirty = true
-			    }
-			}
-			else if (unif[1] == "float2" or unif[1] == "int2")
-			{
-				var unif_dirty = false
-
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
-			    	unif_dirty = true
-			    }
-
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
-			    	unif_dirty = true
-			    }
-
-			    if (unif_dirty) {
-			    	this.shader.prog.set_uniform_value(unif)
-			    	dirty = true
-			    }
-			}
-			else if (unif[1] == "float3" or unif[1] == "int3")
-			{
-				var unif_dirty = false
-
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
-			    	unif_dirty = true
-			    }
-
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
-			    	unif_dirty = true
-			    }
-
-			    var b = GUI.slider(ctx, "z", unif[2][2], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (b != unif[2][2]) {
-			    	unif[2][2] = b
-			    	unif_dirty = true
-			    }
-
-			    if (unif_dirty) {
-			    	this.shader.prog.set_uniform_value(unif)
-			    	dirty = true
-			    }
-			}
-			else if (unif[1] == "float4" or unif[1] == "int4")
-			{
-				var unif_dirty = false
-
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
-			    	unif_dirty = true
-			    }
-
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
-			    	unif_dirty = true
-			    }
-
-			    var b = GUI.slider(ctx, "z", unif[2][2], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (b != unif[2][2]) {
-			    	unif[2][2] = b
-			    	unif_dirty = true
-			    }
-
-			    var a = GUI.slider(ctx, "w", unif[2][3], x, y, this.style.width - 20, region, false)
-				y = y - DEFAULT_HEIGHT
-			    if (a != unif[2][3]) {
-			    	unif[2][3] = a
-			    	unif_dirty = true
-			    }
-
-			    if (unif_dirty) {
-			    	this.shader.prog.set_uniform_value(unif)
-			    	dirty = true
-			    }
-			}
-		}
-
-		return [y, dirty]
-	}
-
 	draw_gui(ctx) 
 	{
 		var dirty = false
@@ -382,7 +173,7 @@ class Shader is Node
 		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
 		for (var unif in this.uniforms) {
-			var y_d = this.draw_gui(ctx, unif, x, y)
+			var y_d = ShaderUniforms.draw_gui(this, ctx, unif, x, y)
 			y = y_d[0]
 			if (y_d[1]) {
 				dirty = true

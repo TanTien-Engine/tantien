@@ -1,8 +1,7 @@
 import "editor.editor" for Editor
 import "rendergraph.rendergraph" for Rendergraph
+import "rendergraph.drawlist" for Drawlist
 import "render" for Render
-import "pbrgraph.nodes.viewer" for Viewer
-import "blueprint.blueprint" for Blueprint
 
 class Pbrgraph is Editor
 {
@@ -14,7 +13,7 @@ class Pbrgraph is Editor
 
 		Rendergraph.regist()
 
-		this.drawlist = []
+		this.drawlist = nil
 	}
 
 	prepare_nodes()
@@ -24,51 +23,50 @@ class Pbrgraph is Editor
 			super.add_popup_node(node)
 		}
 
+		import "editor.rendernodes" for RENDER_NODES
+		for (var node in RENDER_NODES) {
+			super.add_popup_node(node)
+		}
+
 		import "editor.pbrnodes" for PBR_NODES
 		for (var node in PBR_NODES) {
 			super.add_popup_node(node)
 		}
 	}
 
-	rebuild()
+	build_exec_list(nodes)
+	{
+		var drawlist = Drawlist(nodes)
+		return drawlist.lists
+	}
+
+	rebuild_drawlist()
 	{
 		var scene = this.scene_stack.root()
 
+		var nodes = []
 		for (var node in scene.nodes) {
-			node.components["bp"].dirty = true
+			nodes.add(node.components["bp"])
 		}
-
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node is Viewer) 
-			{
-				var prev_nodes = Blueprint.get_precursor_nodes(bp_node)
-				this.drawlist = Blueprint.topo_sort(prev_nodes)
-				return
-			}
-		}
+		this.drawlist = Drawlist(nodes)
 	}
 
 	draw_preview()
 	{
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		if (this.scene_stack.bp_dirty) {
-			this.rebuild()
+		if (!this.drawlist or this.scene_stack.bp_dirty) {
+			this.rebuild_drawlist()
 			this.scene_stack.bp_dirty = false
 		}
 
-		for (var node in this.drawlist) {
-			if (node.has_method("execute()")) {
-				node.execute()
-			}
-		}
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		this.drawlist.draw()
 	}
 
 	load_file_imports()
 	{
 		return super.load_file_imports() + "
+import \"rendergraph.nodes.*\"
 import \"pbrgraph.nodes.*\"
 "
 	}

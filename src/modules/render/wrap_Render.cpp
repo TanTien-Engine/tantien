@@ -1176,36 +1176,78 @@ void w_Render_draw()
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
 
+void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model::Mesh& mesh)
+{
+    auto ctx = tt::Render::Instance()->Context();
+
+    auto& geo = mesh.geometry;
+    ds.vertex_array = geo.vertex_array;
+    GD_ASSERT(geo.sub_geometries.size() == geo.sub_geometry_materials.size(), "error size.");
+    for (int i = 0, n = geo.sub_geometries.size(); i < n; ++i)
+    {
+        auto& mat = model.materials[geo.sub_geometry_materials[i]];
+        if (ds.program)
+        {
+            if (mat->diffuse_tex >= 0) {
+                int slot = ds.program->QueryTexSlot("texture_diffuse1");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model.textures[mat->diffuse_tex].second);
+                }
+            }
+            if (mat->normal_tex >= 0) {
+                int slot = ds.program->QueryTexSlot("tex_normal");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model.textures[mat->normal_tex].second);
+                }
+            }
+            if (mat->occlusion_tex >= 0) {
+                int slot = ds.program->QueryTexSlot("tex_occlusion");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model.textures[mat->occlusion_tex].second);
+                }
+            }
+            if (mat->emissive_tex >= 0) {
+                int slot = ds.program->QueryTexSlot("tex_emissive");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model.textures[mat->emissive_tex].second);
+                }
+            }
+            if (mat->metallic_roughness_tex >= 0) {
+                int slot = ds.program->QueryTexSlot("tex_metallic_roughness");
+                if (slot >= 0) {
+                    ctx->SetTexture(slot, model.textures[mat->metallic_roughness_tex].second);
+                }
+            }
+        }
+        ds.offset = geo.sub_geometries[i].offset;
+        ds.count = geo.sub_geometries[i].count;
+        ctx->Draw(ur::PrimitiveType::Triangles, ds, nullptr);
+    }
+}
+
 void w_Render_draw_model()
 {
     ur::DrawState ds;
-
     ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
-
-    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
-
     prepare_render_state(ds.render_state, 3);
 
-    auto ctx = tt::Render::Instance()->Context();
-
-    auto& meshes = model->meshes;
-    for (auto& mesh : meshes)
+    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
+    if (!model->nodes.empty()) 
     {
-        auto& geo = mesh->geometry;
-        ds.vertex_array = geo.vertex_array;
-        GD_ASSERT(geo.sub_geometries.size() == geo.sub_geometry_materials.size(), "error size.");
-        for (int i = 0, n = geo.sub_geometries.size(); i < n; ++i)
+        // fixme
+        auto unif = ds.program->QueryUniform("model");
+        for (auto& node : model->nodes) 
         {
-            auto& mat = model->materials[geo.sub_geometry_materials[i]];
-            if (mat->diffuse_tex >= 0 && ds.program) {
-                int slot = ds.program->QueryTexSlot("texture_diffuse1");
-                if (slot >= 0) {
-                    ctx->SetTexture(slot, model->textures[mat->diffuse_tex].second);
-                }
+            if (unif) {
+                unif->SetValue(node->mat.x, 16);
             }
-            ds.offset = geo.sub_geometries[i].offset;
-            ds.count = geo.sub_geometries[i].count;
-            ctx->Draw(ur::PrimitiveType::Triangles, ds, nullptr);
+            draw_mesh(ds, *model, *model->meshes[node->mesh]);
+        }
+    } 
+    else 
+    {
+        for (auto& mesh : model->meshes) {
+            draw_mesh(ds, *model, *mesh);
         }
     }
 }
