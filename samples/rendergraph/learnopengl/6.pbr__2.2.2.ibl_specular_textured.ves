@@ -1,6 +1,11 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Perspective()
 
-node0.fovy = 16
+node0.fovy = 45
 node0.aspect = 0
 node0.znear = 0.10000000149012
 node0.zfar = 100
@@ -9,10 +14,10 @@ _editor.add_node(node0, -915.95156257078, -215.18715044365)
 
 var node1 = Camera3d()
 
-node1.cam.position.set(5.3061817911309, 1.0829397564822, -22.364970504325)
-node1.cam.yaw = -1337.1
-node1.cam.pitch = -2.4
-node1.cam.zoom = 16
+node1.cam.position.set(-0.16943259494248, -0.031310069130555, 9.4667649381922)
+node1.cam.yaw = -94.6
+node1.cam.pitch = 0.7
+node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.35880517959595
 
@@ -84,7 +89,7 @@ _editor.add_node(node10, -333.69155981944, -455.69758730283)
 var node11 = Subgraph()
 node11.load_from_file(_editor, "assets/rendergraph/pbr_ibl_textured_prepare.ves")
 
-_editor.add_node(node11, -647.55749501686, 149.7376406591)
+_editor.add_node(node11, -648.38114810196, 142.17379758031)
 
 var node12 = Subgraph()
 node12.load_from_file(_editor, "assets/rendergraph/pbr_ibl_textured_sphere.ves")
@@ -99,7 +104,7 @@ _editor.add_node(node13, -389.52637537327, 206.97996002275)
 
 var node14 = Print()
 
-_editor.add_node(node14, -425.69393830599, 71.120382615038)
+_editor.add_node(node14, -196.60302921508, 102.02947352413)
 
 var node15 = Clear()
 
@@ -327,23 +332,23 @@ Blueprint.connect(node8, "tex", node12, "roughnessMap")
 Blueprint.connect(node9, "tex", node12, "aoMap")
 Blueprint.connect(node10, "mat", node12, "model")
 Blueprint.connect(node11, "next", node13, "prev")
-Blueprint.connect(node11, "tex", node3, "skybox")
-Blueprint.connect(node11, "tex", node12, "irradianceMap")
-Blueprint.connect(node11, "tex", node22, "irradianceMap")
-Blueprint.connect(node11, "tex", node29, "irradianceMap")
-Blueprint.connect(node11, "tex", node36, "irradianceMap")
-Blueprint.connect(node11, "tex", node43, "irradianceMap")
-Blueprint.connect(node11, "tex", node12, "prefilterMap")
-Blueprint.connect(node11, "tex", node22, "prefilterMap")
-Blueprint.connect(node11, "tex", node29, "prefilterMap")
-Blueprint.connect(node11, "tex", node36, "prefilterMap")
-Blueprint.connect(node11, "tex", node43, "prefilterMap")
-Blueprint.connect(node11, "tex", node14, "value")
-Blueprint.connect(node11, "tex", node12, "brdfLUT")
-Blueprint.connect(node11, "tex", node22, "brdfLUT")
-Blueprint.connect(node11, "tex", node29, "brdfLUT")
-Blueprint.connect(node11, "tex", node36, "brdfLUT")
-Blueprint.connect(node11, "tex", node43, "brdfLUT")
+Blueprint.connect(node11, "cubemap", node3, "skybox")
+Blueprint.connect(node11, "irradiance", node12, "irradianceMap")
+Blueprint.connect(node11, "irradiance", node22, "irradianceMap")
+Blueprint.connect(node11, "irradiance", node29, "irradianceMap")
+Blueprint.connect(node11, "irradiance", node36, "irradianceMap")
+Blueprint.connect(node11, "irradiance", node43, "irradianceMap")
+Blueprint.connect(node11, "brdf", node12, "brdfLUT")
+Blueprint.connect(node11, "brdf", node22, "brdfLUT")
+Blueprint.connect(node11, "brdf", node29, "brdfLUT")
+Blueprint.connect(node11, "brdf", node36, "brdfLUT")
+Blueprint.connect(node11, "brdf", node43, "brdfLUT")
+Blueprint.connect(node11, "prefilter", node12, "prefilterMap")
+Blueprint.connect(node11, "prefilter", node22, "prefilterMap")
+Blueprint.connect(node11, "prefilter", node29, "prefilterMap")
+Blueprint.connect(node11, "prefilter", node36, "prefilterMap")
+Blueprint.connect(node11, "prefilter", node43, "prefilterMap")
+Blueprint.connect(node11, "prefilter", node14, "value")
 Blueprint.connect(node12, "next", node22, "prev")
 Blueprint.connect(node15, "next", node12, "prev")
 Blueprint.connect(node16, "tex", node22, "albedoMap")
