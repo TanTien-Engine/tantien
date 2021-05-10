@@ -7,6 +7,7 @@
 #include <model/Model.h>
 
 #include <memory>
+#include <array>
 
 #include <string.h>
 
@@ -39,6 +40,48 @@ int w_Model_finalize(void* data)
     return sizeof(tt::Proxy<model::Model>);
 }
 
+void w_Model_get_pbr_textures()
+{
+    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(0))->obj;
+
+    ves_newlist(5);
+
+    if (model->materials.empty()) 
+    {
+        for (int i = 0; i < 5; ++i)
+        {
+            ves_pushnil();
+            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
+            ves_seti(-2, i);
+            ves_pop(1);
+        }
+
+        ves_insert(0);
+        return;
+    }
+
+    auto& material = *model->materials.front();
+    std::array<int, 5> textures_idx = {
+        material.diffuse_tex,
+        material.metallic_roughness_tex,
+        material.emissive_tex,
+        material.occlusion_tex,
+        material.normal_tex,
+    };
+    for (int i = 0; i < 5; ++i)
+    {
+        ves_pushnil();
+        ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
+        if (material.diffuse_tex >= 0) {
+            *tex = model->textures[textures_idx[i]].second;
+        }
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+
+    ves_insert(0);
+}
+
 }
 
 namespace tt
@@ -46,6 +89,8 @@ namespace tt
 
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Model.get_pbr_textures(_)") == 0) return w_Model_get_pbr_textures;
+
     return NULL;
 }
 

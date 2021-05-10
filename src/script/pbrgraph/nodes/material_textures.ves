@@ -1,0 +1,52 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.variant" for VAR_TYPE_MODEL, VAR_TYPE_TEXTURE, VarTexture
+import "render" for Texture2D
+
+class MaterialTextures is Node
+{
+	init()
+	{
+		super.init(MaterialTextures.name)
+
+		this.imports = [
+			Pin(this, "model", VAR_TYPE_MODEL),
+		]
+		this.exports = [
+			Pin(this, "albedo",          VAR_TYPE_TEXTURE),
+			Pin(this, "metal_roughness", VAR_TYPE_TEXTURE),
+			Pin(this, "emissive",        VAR_TYPE_TEXTURE),
+			Pin(this, "ao",              VAR_TYPE_TEXTURE),
+			Pin(this, "normal",          VAR_TYPE_TEXTURE),
+		]
+
+		this.layout()
+	}
+
+	calc(idx)
+	{
+		var v_model = Blueprint.calc_input_value(this, 0)
+		if (!v_model or !v_model.value) {
+			return nil
+		}
+
+		var model = v_model.value.model
+		if (!model) {
+			return nil
+		}
+
+		var textures = model.get_pbr_textures(Texture2D)
+		var ret = VarTexture()
+		ret.tex = textures[idx]
+		return Variant(VAR_TYPE_TEXTURE, ret)
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.width = 180
+	}
+}
