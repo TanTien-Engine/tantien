@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 
 class Divide is Node
@@ -23,16 +24,16 @@ class Divide is Node
 	{
 		var a = 0
 		var b = 0
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			a = f_pin.node.calc(f_pin.slot_idx).value
+		
+		var v_a = Blueprint.calc_input_value(this, 0)
+		if (v_a) {
+			a = v_a.value
 		}
-		conns = this.imports[1].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			b = f_pin.node.calc(f_pin.slot_idx).value
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (v_b) {
+			b = v_b.value
 		}
+
 		if (b == 0) {
 			return Variant(VAR_TYPE_NUMBER, 0)
 		} else {

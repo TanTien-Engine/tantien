@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY, VAR_TYPE_ARRAY
 
 class Array is Node
@@ -26,13 +27,12 @@ class Array is Node
 		if (idx == 0) {
 			return Variant(VAR_TYPE_ARRAY, this.list)
 		} else if (idx == 1) {
-			var conns = this.imports[0].conns
-			if (!conns.isEmpty) {
-				var f_pin = conns.front().from
-				var idx = f_pin.node.calc(f_pin.slot_idx).value
+			var v_index = Blueprint.calc_input_value(this, 0)
+			if (v_index) {
+				var idx = v_index.value
 				if (idx < this.list.count) {
 					return Variant(VAR_TYPE_ANY, this.list[idx])
-				}
+				}			
 			}
 		}
 	}

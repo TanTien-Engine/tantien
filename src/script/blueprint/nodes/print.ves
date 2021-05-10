@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_PORT
-import "blueprint.node_layout" for DEFAULT_HEIGHT, TITLE_HEIGHT
+import "blueprint.node_layout" for DEFAULT_HEIGHT
 
 class Print is Node
 {
@@ -10,7 +11,11 @@ class Print is Node
 		super.init(Print.name)
 
 		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
 			Pin(this, "value", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.layout()
@@ -20,17 +25,14 @@ class Print is Node
 	{
 		super.draw(mt, cam_mt)
 
-		var conns = this.imports[0].conns
-		if (conns.isEmpty) {
+		var v = Blueprint.calc_input_value(this, 1)
+		if (!v) {
 			return
 		}
 
-		var f_pin = conns.front().from
-		var variant = f_pin.node.calc(f_pin.slot_idx)
-
 		var hh = this.style.height * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
-		variant.print(this.pos.x, y, this.style.width, cam_mt)
+		v.print(this.pos.x, y, this.style.width, cam_mt)
 	}
 
 	layout() 

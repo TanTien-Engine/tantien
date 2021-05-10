@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "maths.vector" for Vector2, Vector3, Vector4
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
@@ -31,10 +32,9 @@ class Combine is Node
 		var ret = [0, 0, 0, 0]
 		for (var i in 0..4) 
 		{
-			var conns = this.imports[i].conns
-			if (!conns.isEmpty) {
-				var f_pin = conns.front().from
-				ret[i] = f_pin.node.calc(f_pin.slot_idx).value
+			var v_num = Blueprint.calc_input_value(this, i)
+			if (v_num) {
+				ret[i] = v_num.value
 			}
 		}
 		if (idx == 0) {

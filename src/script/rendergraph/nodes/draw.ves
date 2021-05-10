@@ -74,10 +74,9 @@ class Draw is Node
 		}
 
 		var va = nil
-		var conns = this.imports[2].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			va = f_pin.node.calc(f_pin.slot_idx).value
+		var v_va = Blueprint.calc_input_value(this, 2)
+		if (v_va) {
+			va = v_va.value
 		}
 		if (!va) {
 			return

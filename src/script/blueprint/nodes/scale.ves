@@ -46,10 +46,9 @@ class Scale is Node
 		}
 
 		var mat = Matrix44.init()
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			mat = f_pin.node.calc(f_pin.slot_idx).value
+		var v_mat = Blueprint.calc_input_value(this, 0)
+		if (v_mat) {
+			mat = v_mat.value
 		}
 
 		mat.scale(this.sx, this.sy, this.sz)

@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "render" for Cubemap as tt_Cubemap
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
@@ -43,16 +44,11 @@ class Cubemap is Node
 		if (!this.tex)
 		{
 			var cube_texs = []
-			for (var p in this.imports) 
+			for (var i in 0..6)
 			{
-				var conns = p.conns
-				if (!conns.isEmpty) 
-				{
-					var f_pin = conns.front().from
-					var v = f_pin.node.calc(f_pin.slot_idx)
-					if (v and v.type == VAR_TYPE_TEXTURE and v.value.tex) {
-						cube_texs.add(v.value.tex)
-					}
+				var v = Blueprint.calc_input_value(this, i)
+				if (v and v.type == VAR_TYPE_TEXTURE and v.value.tex) {
+					cube_texs.add(v.value.tex)
 				}
 			}
 			if (cube_texs.count == 6) {

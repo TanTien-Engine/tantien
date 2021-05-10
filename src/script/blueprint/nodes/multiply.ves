@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "maths" for Matrix44, Float3
 import "maths.vector" for Vector3
@@ -23,18 +24,8 @@ class Multiply is Node
 
 	calc(idx)
 	{
-		var a = nil
-		var b = nil
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			a = f_pin.node.calc(f_pin.slot_idx)
-		}
-		conns = this.imports[1].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			b = f_pin.node.calc(f_pin.slot_idx)
-		}
+		var a = Blueprint.calc_input_value(this, 0)
+		var b = Blueprint.calc_input_value(this, 1)
 		if (!a or !b) {
 			return Variant(VAR_TYPE_UNKNOWN, nil)
 		}

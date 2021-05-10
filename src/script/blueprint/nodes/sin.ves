@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "math" for Math
 
@@ -21,12 +22,11 @@ class Sin is Node
 
 	calc(idx)
 	{
-		var v = 0
-		var conns = this.imports[0].conns
-		if (!conns.isEmpty) {
-			var f_pin = conns.front().from
-			v = f_pin.node.calc(f_pin.slot_idx).value
+		var num = 0
+		var v_num = Blueprint.calc_input_value(this, 0)
+		if (v_num) {
+			num = v_num.value
 		}
-		return Variant(VAR_TYPE_NUMBER, Math.sin(v))
+		return Variant(VAR_TYPE_NUMBER, Math.sin(num))
 	}
 }
