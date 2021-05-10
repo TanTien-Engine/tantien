@@ -1,5 +1,7 @@
 #include "modules/filesystem/Filesystem.h"
 
+#include <filesystem>
+
 namespace tt
 {
 
@@ -15,8 +17,11 @@ Filesystem::~Filesystem()
 
 bool Filesystem::IsExists(const char* filepath)
 {
-	struct stat buffer;
-	return (stat(filepath, &buffer) == 0);
+//	struct stat buffer;
+//	return (stat(filepath, &buffer) == 0);
+
+	return std::filesystem::exists(filepath) 
+		&& std::filesystem::is_regular_file(filepath);
 }
 
 }
