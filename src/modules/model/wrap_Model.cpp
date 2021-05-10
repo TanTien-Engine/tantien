@@ -23,7 +23,9 @@ void w_Model_allocate()
         model->LoadFromFile(filepath);
     } else {
         std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;
-        model->LoadFromFile(path);
+        if (tt::Filesystem::IsExists(path.c_str())) {
+            model->LoadFromFile(path);
+        }
     }    
 
     auto proxy = (tt::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Model>));
