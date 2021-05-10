@@ -48,12 +48,22 @@ class Subgraph is Node
 
 	calc(idx)
 	{
-		var name = this.exports[idx].name
+		var name = nil
+		if (idx is Num) {
+			name = this.exports[idx].name
+		} else if (idx is String) {
+			name = idx
+		}
+		if (!name) {
+			return nil
+		}
+
 		for (var node in this.out_nodes) {
 			if (node.var_name == name) {
 				return Blueprint.calc_input_value(node, 0)
 			}
 		}
+		return nil
 	}
 
 	execute()
