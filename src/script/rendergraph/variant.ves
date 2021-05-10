@@ -38,7 +38,8 @@ class VarTexture
 		else if (this.tex is Texture2D)
 		{
 			var scale = width / this.tex.get_width()
-			Graphics.draw_texture(this.tex, x, y - DEFAULT_HEIGHT, scale)
+			var h = this.tex.get_height() * scale
+			Graphics.draw_texture(this.tex, x, y - h * 0.5, scale)
 		}
 	}
 }
