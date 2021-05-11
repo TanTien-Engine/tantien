@@ -11,10 +11,11 @@ class Combine is Node
 		super.init(Combine.name)
 
 		this.imports = [
-			Pin(this, "x", VAR_TYPE_NUMBER),
-			Pin(this, "y", VAR_TYPE_NUMBER),
-			Pin(this, "z", VAR_TYPE_NUMBER),
-			Pin(this, "w", VAR_TYPE_NUMBER),
+			Pin(this, "x",   VAR_TYPE_NUMBER),
+			Pin(this, "y",   VAR_TYPE_NUMBER),
+			Pin(this, "z",   VAR_TYPE_NUMBER),
+			Pin(this, "w",   VAR_TYPE_NUMBER),
+			Pin(this, "xyz", VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "xyzw", VAR_TYPE_NUMBER4),
@@ -30,13 +31,28 @@ class Combine is Node
 	calc(idx)
 	{
 		var ret = [0, 0, 0, 0]
-		for (var i in 0..4) 
+
+		var v_xyz = Blueprint.calc_input_value(this, 4)
+		if (v_xyz) 
 		{
-			var v_num = Blueprint.calc_input_value(this, i)
-			if (v_num) {
-				ret[i] = v_num.value
+			ret[0] = v_xyz.value.x
+			ret[1] = v_xyz.value.y
+			ret[2] = v_xyz.value.z
+		} 
+		else 
+		{
+			for (var i in 0..3) {
+				var v_num = Blueprint.calc_input_value(this, i)
+				if (v_num) {
+					ret[i] = v_num.value
+				}
 			}
 		}
+		var v_w = Blueprint.calc_input_value(this, 3)
+		if (v_w) {
+			ret[3] = v_w.value
+		}
+
 		if (idx == 0) {
 			return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
 		} else if (idx == 1) {
@@ -44,5 +60,7 @@ class Combine is Node
 		} else if (idx == 2) {
 			return Variant(VAR_TYPE_NUMBER2, Vector2(ret[0], ret[1]))
 		}
-	}	
+
+		return nil		
+	}
 }

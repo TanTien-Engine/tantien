@@ -26,6 +26,12 @@ class Combine is bp_Combine
 		if (!w) {
 			w = gen.const_float(module, 0.0)
 		}
+		var xyz = NodeHelper.calc_input_inst(gen, this, "xyz", module, func)
+		if (xyz) {
+			x = gen.compose_extract(func, xyz, 0)
+			y = gen.compose_extract(func, xyz, 1)
+			z = gen.compose_extract(func, xyz, 2)
+		}
 
 		if (idx == 0) {
 			return gen.compose_float4(func, x, y, z, w)
@@ -33,8 +39,8 @@ class Combine is bp_Combine
 			return gen.compose_float3(func, x, y, z)
 		} else if (idx == 2) {
 			return gen.compose_float2(func, x, y)
-		} else {
-			return nil
 		}
+
+		return nil
 	}
 }
