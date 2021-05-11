@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+
+class InputProxy is Node
+{
+	init(node, slot)
+	{
+		super.init(InputProxy.name)
+
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_ANY)
+		]		
+
+		this.layout()
+
+		this.node = node
+		this.slot = slot
+	}
+
+	calc(idx)
+	{
+		return Blueprint.calc_input_value(this.node, this.slot)
+	}
+}

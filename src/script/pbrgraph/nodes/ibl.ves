@@ -1,0 +1,117 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "blueprint.blueprint" for Blueprint
+import "blueprint.input_proxy" for InputProxy
+import "editor.rendergraph" for Rendergraph
+import "editor.node_cache" for NODE_CACHE
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
+
+uniform UBO
+{
+	vec3 albedo;
+	float metallic;
+	float roughness;
+	float ao;
+
+	vec3 N;
+	vec3 V;
+	vec3 F;	
+};
+
+vec3 calc_ibl_contribution()
+{
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;  
+
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse    = irradiance * albedo;
+	
+	vec3 R = reflect(-V, N); 
+
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R,  roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf  = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular) * ao;
+
+    return ambient;
+}
+"
+
+class Ibl is Node
+{
+	init()
+	{
+		super.init(Ibl.name)
+
+		this.imports = [
+			Pin(this, "equirectangular", VAR_TYPE_TEXTURE),
+		]
+		this.exports = [
+			// debug
+			Pin(this, "cubemap",    VAR_TYPE_TEXTURE),
+			Pin(this, "irradiance", VAR_TYPE_TEXTURE),
+			Pin(this, "brdf",       VAR_TYPE_TEXTURE),
+			Pin(this, "prefilter",  VAR_TYPE_TEXTURE),			
+		]
+
+		this.node_func = NodeFunction(this, CODE, "calc_ibl_contribution", [])
+
+		this.layout()
+
+		this.texture_prepare = nil
+		this.equirectangular_proxy = nil
+	}
+
+	calc(idx) 
+	{
+		if (idx == 0 or idx == 1 or idx == 2 or idx == 3)
+		{
+			if (!this.texture_prepare) {
+				return nil
+			}
+
+			if (idx == 0) {
+				return this.texture_prepare.calc("cubemap")
+			} else if (idx == 1) {
+				return this.texture_prepare.calc("irradiance")
+			} else if (idx == 2) {
+				return this.texture_prepare.calc("brdf")
+			} else if (idx == 3) {
+				return this.texture_prepare.calc("prefilter")
+			}
+		}
+
+		return nil
+	}
+
+	execute()
+	{
+		if (!this.texture_prepare) 
+		{
+			var draw_editor = Rendergraph()
+			this.texture_prepare = NODE_CACHE.fetch("assets/rendergraph/pbr_ibl_textured_prepare.ves", draw_editor)
+
+			this.equirectangular_proxy = InputProxy(this, "equirectangular")
+			Blueprint.connect(this.equirectangular_proxy, "out", this.texture_prepare, "equirectangularMap")			
+		}
+
+		this.texture_prepare.execute()
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.width = 180
+	}
+}

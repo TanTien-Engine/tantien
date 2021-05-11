@@ -1,0 +1,84 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, -393.43070828495, 83.424663615873)
+
+var node1 = Clear()
+
+node1.masks = [ "color", "depth" ]
+node1.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node1, -617.0537109375, 259.97229003906)
+
+var node2 = Model()
+node2.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
+
+_editor.add_node(node2, -620.7962328616, -90.470044440534)
+
+var node3 = Camera3d()
+
+node3.cam.position.set(-1.1535617025172, -0.3473622588541, 2.3757527358582)
+node3.cam.yaw = 293
+node3.cam.pitch = 7.3
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.22059369087219
+
+_editor.add_node(node3, -883.54656113989, 102.47398078293)
+
+var node4 = Perspective()
+
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
+
+_editor.add_node(node4, -876.37232372093, -53.624352123038)
+
+var node5 = Pbr()
+
+node5.execute()
+
+_editor.add_node(node5, -618.7285021515, 52.246260501334)
+
+var node6 = Number3()
+
+node6.value.set(0, 10, 4.0500082969666)
+
+_editor.add_node(node6, -876.45005448756, -176.73550891148)
+
+var node7 = Ibl()
+
+_editor.add_node(node7, -994.59954413268, 451.38792655643)
+
+var node8 = Texture()
+node8.gamma_correction = false
+node8.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
+node8.set_sampler("linear repeat")
+
+_editor.add_node(node8, -1230.830764634, 412.03720903167)
+
+var node9 = Print()
+
+_editor.add_node(node9, -773.24098258383, 428.05328056258)
+
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "model", node0, "model")
+Blueprint.connect(node3, "mat", node5, "view")
+Blueprint.connect(node3, "zoom", node4, "fovy")
+Blueprint.connect(node3, "pos", node5, "cam_pos")
+Blueprint.connect(node4, "mat", node5, "projection")
+Blueprint.connect(node5, "out", node0, "shader")
+Blueprint.connect(node6, "v3", node5, "light_pos")
+Blueprint.connect(node7, "brdf", node9, "value")
+Blueprint.connect(node8, "tex", node7, "equirectangular")
+Blueprint.connect(node9, "next", node1, "prev")
