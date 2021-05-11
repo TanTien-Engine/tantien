@@ -1,5 +1,5 @@
 import "blueprint.nodes.subtract" for Subtract as bp_Subtract
-import "shadergraph.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
 
 class Subtract is bp_Subtract
 {
@@ -10,8 +10,8 @@ class Subtract is bp_Subtract
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var a = NodeHelper.calc_input_inst(gen, this, 0, module, func)
-		var b = NodeHelper.calc_input_inst(gen, this, 1, module, func)
+		var a = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var b = Blueprint.calc_input_inst(gen, this, 1, module, func)
 		
 		if (!a and !b) {
 			return nil

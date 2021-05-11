@@ -3,7 +3,6 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "shadergraph.node_helper" for NodeHelper
 import "maths.vector" for Vector3
 
 class Translate is Node
@@ -27,12 +26,12 @@ class Translate is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var pos = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var pos = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		if (!pos) {
 			return nil
 		}
 
-		var offset = NodeHelper.calc_input_inst(gen, this, 1, module, func)
+		var offset = Blueprint.calc_input_inst(gen, this, 1, module, func)
 		if (offset)
 		{
 			return gen.sub(func, pos, offset)

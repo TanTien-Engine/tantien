@@ -1,4 +1,4 @@
-import "shadergraph.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
@@ -27,7 +27,7 @@ class FragColor is Node
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var rgba = NodeHelper.calc_input_inst(gen, this, "rgba", module, func)
+		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func)
 		if (!rgba) 
 		{
 			var r = nil
@@ -35,7 +35,7 @@ class FragColor is Node
 			var b = nil
 			var a = gen.const_float(module, 1.0)
 
-			var rgb = NodeHelper.calc_input_inst(gen, this, "rgb", module, func)
+			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func)
 			if (rgb) 
 			{
 				r = gen.compose_extract(func, rgb, 0)
@@ -44,7 +44,7 @@ class FragColor is Node
 			} 
 			else 
 			{
-				var rg = NodeHelper.calc_input_inst(gen, this, "rg", module, func)
+				var rg = Blueprint.calc_input_inst(gen, this, "rg", module, func)
 				if (rg) 
 				{
 					r = gen.compose_extract(func, rg, 0)
@@ -53,7 +53,7 @@ class FragColor is Node
 				} 
 				else 
 				{
-					var grey = NodeHelper.calc_input_inst(gen, this, "grey", module, func)
+					var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func)
 					if (grey) 
 					{
 						r = grey

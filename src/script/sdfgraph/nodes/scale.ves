@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
-import "shadergraph.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
 import "maths.vector" for Vector3
 
 class Scale is Node
@@ -25,7 +25,7 @@ class Scale is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var pos = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var pos = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		if (!pos) {
 			return nil
 		}

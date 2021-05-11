@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
-import "shadergraph.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
 
 class GammaCorrection is Node
 {
@@ -21,7 +21,7 @@ class GammaCorrection is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var x = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var x = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		var y = gen.const_float3(module, 1.0/2.2, 1.0/2.2, 1.0/2.2)
 		return gen.pow(func, x, y)
 	}

@@ -6,7 +6,6 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
-import "shadergraph.node_helper" for NodeHelper
 import "shader" for ShaderGen
 import "render" for Shader
 import "gui" for GUI
@@ -138,7 +137,7 @@ class Shadergraph is Node
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var rgba = NodeHelper.calc_input_inst(gen, this, "rgba", module, func)
+		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func)
 		if (!rgba) {
 			var r = gen.const_float(module, 0.0)
 			var g = gen.const_float(module, 0.0)

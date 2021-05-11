@@ -107,7 +107,7 @@ class Blueprint
 	{
 		// input pin only has one conn
 		if (!to.conns.isEmpty) {
-			Blueprint.disconnect(to.conns.front())
+			this.disconnect(to.conns.front())
 		}
 
 		var conn = Connecting(from, to)
@@ -179,6 +179,27 @@ class Blueprint
 			var f_node = f_pin.node
 			return f_node.calc(f_pin.slot_idx)
 		}	
+	}
+
+	static calc_input_inst(gen, node, slot, module, func)
+	{
+		var pin = this.query_pin(node.imports, slot)
+		if (pin.conns.isEmpty) 
+		{
+			return nil
+		} 
+		else 
+		{
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			if (f_node["node_func"] != nil) {
+				return f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func)
+			} else if (f_node.has_method("calc_inst(_,_,_,_)")) {
+				return f_node.calc_inst(gen, f_pin.slot_idx, module, func)
+			} else {
+				return nil
+			}
+		}
 	}
 
 	static get_first_connect_pin(pin)

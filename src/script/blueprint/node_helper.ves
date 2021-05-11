@@ -1,4 +1,6 @@
+import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
+import "render" for Render
 
 class NodeHelper
 {
@@ -21,5 +23,25 @@ class NodeHelper
 			pin_type = VAR_TYPE_MATRIX4
 		}
 		return pin_type
+	}
+
+	static init_pins_from_code(node, code, name)
+	{
+		code = "#version 330 core\n" + code
+		var args = Render.get_shader_func_argus("pixel", code, "glsl", name)
+		for (var i in 0..args.count - 1) 
+		{
+			var v = args[i]
+			var pin_type = this.type_var_to_pin(v[1])
+			node.imports.add(Pin(node, v[0], pin_type))
+		}
+		var v = args[args.count - 1]
+		if (v[1] != "void")
+		{
+			var pin_type = this.type_var_to_pin(v[1])
+			node.exports.add(Pin(node, "ret", pin_type))
+		}
+
+		node.layout()
 	}
 }

@@ -2,8 +2,8 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
-import "shadergraph.node_helper" for NodeHelper
 
 class SampleTexture is Node
 {
@@ -26,12 +26,12 @@ class SampleTexture is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var img = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var img = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		if (!img) {
 			return nil
 		}
 
-		var uv = NodeHelper.calc_input_inst(gen, this, 1, module, func)
+		var uv = Blueprint.calc_input_inst(gen, this, 1, module, func)
 		if (!uv) {
 			return nil
 		}

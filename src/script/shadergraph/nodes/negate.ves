@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER
-import "shadergraph.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
 
 class Negate is Node
 {
@@ -21,7 +21,7 @@ class Negate is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		var v = NodeHelper.calc_input_inst(gen, this, 0, module, func)
+		var v = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		if (v) {
 			return gen.negate(func, v)		
 		} else {
