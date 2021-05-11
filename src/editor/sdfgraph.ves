@@ -11,6 +11,11 @@ class Sdfgraph is Shadergraph
 
 	prepare_nodes()
 	{
+		import "editor.shadernodes" for SHADER_NODES
+		for (var node in SHADER_NODES) {
+			super.add_popup_node(node)
+		}
+		
 		import "editor.sdfnodes" for SDF_NODES
 		for (var node in SDF_NODES) {
 			super.add_popup_node(node)
