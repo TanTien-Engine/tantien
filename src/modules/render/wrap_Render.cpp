@@ -1227,8 +1227,14 @@ void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model:
 
 void w_Render_draw_model()
 {
+    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    if (!prog) {
+        return;
+    }
+
     ur::DrawState ds;
-    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    ds.program = prog;
+
     prepare_render_state(ds.render_state, 3);
 
     auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
