@@ -270,6 +270,51 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     return NULL;
 }
 
+void auto_test(const char* name)
+{
+    ves_init_vm();
+
+    tt_on_size(1024, 1024);
+
+    VesselConfiguration cfg;
+    cfg.load_module_fn = read_module;
+    cfg.expand_modules_fn = expand_modules;
+    cfg.bind_foreign_class_fn = bind_foreign_class;
+    cfg.bind_foreign_method_fn = bind_foreign_method;
+    cfg.write_fn = write;
+    ves_set_config(&cfg);
+
+    char code[255];
+    std::string cls = name;
+    cls[0] = std::toupper(cls[0]);
+    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", name, cls.c_str(), cls.c_str());
+    ves_interpret("editor", code);
+
+    ves_getglobal("_editor");
+    ves_pushstring("load()");
+    ves_call(0, 0);
+
+//    auto dir_path = "samples/shadergraph";
+    auto dir_path = std::string("samples/") + name;
+    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) 
+    {
+        auto filepath = std::filesystem::absolute(p).string();
+        if (filepath.find(".ves") == std::string::npos) {
+            continue;
+        }
+
+        printf("++ %s\n", filepath.c_str());
+        ves_pushstring(filepath.c_str());
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
+
+        ves_pushstring("print_screen()");
+        ves_call(0, 0);        
+    }    
+
+    ves_free_vm();
+}
+
 }
 
 int main(int argc, char* argv[])
@@ -311,48 +356,21 @@ int main(int argc, char* argv[])
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
 
-    ves_init_vm();
-
     tt::System::Instance()->SetWindow(window);
 
-    tt_on_size(1024, 1024);
-
-    VesselConfiguration cfg;
-    cfg.load_module_fn = read_module;
-    cfg.expand_modules_fn = expand_modules;
-    cfg.bind_foreign_class_fn = bind_foreign_class;
-    cfg.bind_foreign_method_fn = bind_foreign_method;
-    cfg.write_fn = write;
-    ves_set_config(&cfg);
-
-    char code[255];
-    std::string cls = argv[1];
-    cls[0] = std::toupper(cls[0]);
-    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls.c_str(), cls.c_str());
-    ves_interpret("editor", code);
-
-    ves_getglobal("_editor");
-    ves_pushstring("load()");
-    ves_call(0, 0);
-
-    const char* dir_path = "samples/sdfgraph";
-    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) 
+    if (strcmp(argv[1], "all") == 0)
     {
-        auto filepath = std::filesystem::absolute(p).string();
-        if (filepath.find(".ves") == std::string::npos) {
-            continue;
+        for (const auto& entry : std::filesystem::directory_iterator("samples/")) {
+            const auto name = entry.path().filename().string();
+            if (entry.is_directory()) {
+                auto_test(name.c_str());
+            }
         }
-
-        printf("++ %s\n", filepath.c_str());
-        ves_pushstring(filepath.c_str());
-        ves_pushstring("loadfromfile(_)");
-        ves_call(1, 0);
-
-        ves_pushstring("print_screen()");
-        ves_call(0, 0);        
-    }    
-
-    ves_free_vm();
+    }
+    else
+    {
+        auto_test(argv[1]);
+    }
 
     glfwDestroyWindow(window);
     glfwTerminate();
