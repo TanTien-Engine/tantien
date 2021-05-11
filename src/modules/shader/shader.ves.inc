@@ -27,6 +27,7 @@ foreign class ShaderGen
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
 	foreign negate(func, v)
+	foreign pow(func, x, y)
 	foreign store(func, dst, src)
 	foreign load(func, val)
 	foreign image_sample(func, img, uv)

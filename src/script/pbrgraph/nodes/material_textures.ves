@@ -23,21 +23,18 @@ class MaterialTextures is Node
 		]
 
 		this.layout()
+
+		this.unif = [nil, nil, nil, nil, nil]
+		this.unif_name = ["", "", "", "", ""]
 	}
 
 	calc(idx)
 	{
-		var v_model = Blueprint.calc_input_value(this, 0)
-		if (!v_model or !v_model.value) {
+		var textures = this.get_model_textures()
+		if (textures.isEmpty) {
 			return nil
 		}
 
-		var model = v_model.value.model
-		if (!model) {
-			return nil
-		}
-
-		var textures = model.get_pbr_textures(Texture2D)
 		var ret = VarTexture()
 		ret.tex = textures[idx]
 		return Variant(VAR_TYPE_TEXTURE, ret)
@@ -48,5 +45,54 @@ class MaterialTextures is Node
 		super.layout()
 
 		this.style.width = 180
+	}
+
+    gen_shader(gen)
+    {
+    	this.unif = [nil, nil, nil, nil, nil]
+    	this.unif_name = ["", "", "", "", ""]
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.unif[idx]) {
+			this.unif_name[idx] = "unif_%(gen.get_unif_num())"
+			this.unif[idx] = gen.add_uniform(module, this.unif_name[idx], "texture")
+		}
+
+		if (this.unif[idx]) {
+			return gen.load(func, this.unif[idx])
+		} else {
+			return nil
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		var textures = this.get_model_textures()
+		if (textures.isEmpty) {
+			return
+		}
+
+		for (var i in 0..5) {
+			if (textures[i] and this.unif[i]) {
+				prog.set_uniform_value([this.unif_name[i], "sampler", [textures[i], "linear_clamp"]])			
+			}
+		}		
+	}
+
+	get_model_textures()
+	{
+		var v_model = Blueprint.calc_input_value(this, 0)
+		if (!v_model or !v_model.value) {
+			return []
+		}
+
+		var model = v_model.value.model
+		if (!model) {
+			return []
+		}
+
+		return model.get_pbr_textures(Texture2D)
 	}
 }

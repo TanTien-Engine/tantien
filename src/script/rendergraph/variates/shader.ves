@@ -15,7 +15,8 @@ class Shader
 		var count = 1
 		for (var i in 0..this.node.imports.count) 
 		{
-			if (this.node.imports[i].unif[1] != "array") {
+			var pin = this.node.imports[i]
+			if (pin["unif"] and pin.unif[1] != "array") {
 				var v = Blueprint.calc_input_value(this.node, i)
 				if (v.value is List) {
 					count = Math.max(count, v.value.count)
@@ -32,16 +33,16 @@ class Shader
 			var val = Blueprint.calc_input_value(this.node, i)
 			if (val)
 			{
-				var unif = this.node.imports[i].unif
+				var pin = this.node.imports[i]
 
 				var _v = nil
 				if (val.type == VAR_TYPE_ARRAY)
 				{
-					if (unif[1] == "array")
+					if (pin["unif"] and pin.unif[1] == "array")
 					{
 						var n = Math.min(val.value.count, unif[2].count)
 						for (var i in 0..n) {
-							this.set_uniform_value(unif[2][i], val.value[i].value)
+							this.set_uniform_value(pin.unif[2][i], val.value[i].value)
 						}
 					}
 					else
@@ -57,8 +58,8 @@ class Shader
 				{
 					_v = val.value
 				}
-				if (_v) {
-					this.set_uniform_value(unif, _v)
+				if (_v and pin["unif"]) {
+					this.set_uniform_value(pin.unif, _v)
 				}
 			}
 		}

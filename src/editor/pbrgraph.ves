@@ -1,6 +1,7 @@
 import "editor.editor" for Editor
 import "rendergraph.rendergraph" for Rendergraph
 import "rendergraph.drawlist" for Drawlist
+import "pbrgraph.nodes.shadergraph" for Shadergraph
 import "render" for Render
 
 class Pbrgraph is Editor
@@ -14,6 +15,7 @@ class Pbrgraph is Editor
 		Rendergraph.regist()
 
 		this.drawlist = nil
+		this.shadergraph = nil
 	}
 
 	prepare_nodes()
@@ -25,6 +27,11 @@ class Pbrgraph is Editor
 
 		import "editor.rendernodes" for RENDER_NODES
 		for (var node in RENDER_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.shadernodes" for SHADER_NODES
+		for (var node in SHADER_NODES) {
 			super.add_popup_node(node)
 		}
 
@@ -45,8 +52,15 @@ class Pbrgraph is Editor
 		var scene = this.scene_stack.root()
 
 		var nodes = []
-		for (var node in scene.nodes) {
-			nodes.add(node.components["bp"])
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			nodes.add(bp_node)
+
+			if (bp_node is Shadergraph) {
+				this.shadergraph = bp_node
+				this.shadergraph.rebuild_shader()
+			}
 		}
 		this.drawlist = Drawlist(nodes)
 	}
@@ -60,6 +74,10 @@ class Pbrgraph is Editor
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
+		if (this.shadergraph) {
+			this.shadergraph.bind_uniforms()
+		}
+
 		this.drawlist.draw()
 	}
 
@@ -67,6 +85,7 @@ class Pbrgraph is Editor
 	{
 		return super.load_file_imports() + "
 import \"rendergraph.nodes.*\"
+import \"shadergraph.nodes.*\"
 import \"pbrgraph.nodes.*\"
 "
 	}

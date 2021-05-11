@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "shadergraph.node_function" for NodeFunction
+
+var CODE = "
+vec3 srgb_to_linear(vec3 srgb)
+{
+#ifdef SRGB_FAST_APPROXIMATION
+    vec3 linear = pow(srgb, vec3(2.2));
+#else //SRGB_FAST_APPROXIMATION
+    vec3 bLess = step(vec3(0.04045), srgb);
+    vec3 linear = mix(srgb / vec3(12.92), pow((srgb + vec3(0.055)) / vec3(1.055), vec3(2.4)), bLess);
+#endif //SRGB_FAST_APPROXIMATION
+    return linear;
+}
+"
+
+class SrgbToLinear is Node
+{
+	init()
+	{
+		super.init(SrgbToLinear.name)
+
+		this.node_func = NodeFunction(this, CODE, "srgb_to_linear", [])	
+	}
+}

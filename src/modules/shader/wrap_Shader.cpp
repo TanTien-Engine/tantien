@@ -231,6 +231,18 @@ void w_shadergen_negate()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_pow()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(0))->obj;
+    auto ret = linker->Pow(func, x, y);
+
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_store()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -620,6 +632,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.mul(_,_,_)") == 0) return w_shadergen_mul;
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
+    if (strcmp(signature, "ShaderGen.pow(_,_,_)") == 0) return w_shadergen_pow;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
     if (strcmp(signature, "ShaderGen.load(_,_)") == 0) return w_ShaderGen_load;
     if (strcmp(signature, "ShaderGen.image_sample(_,_,_)") == 0) return w_ShaderGen_image_sample;
