@@ -24,6 +24,10 @@ class Number2 is Node
 		return Variant(VAR_TYPE_NUMBER2, this.value)
 	}
 
+	calc_inst(gen, idx, module, func) {
+		return gen.const_float2(module, this.value.x, this.value.y)
+	}
+
 	layout() 
 	{
 		super.layout()
