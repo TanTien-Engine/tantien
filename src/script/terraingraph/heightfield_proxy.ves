@@ -21,7 +21,7 @@ class HeightfieldProxy is Node
 		this.dummy = true
 	}
 
-	calc(idx)
+	calc_value(idx)
 	{
 		if (!this.pin) {
 			return
@@ -31,7 +31,7 @@ class HeightfieldProxy is Node
 		if (this.pin.is_input) {
 			hf = Blueprint.calc_input_value(this.pin.node, this.pin.slot_idx)
 		} else {
-			hf = this.pin.node.calc(this.pin.slot_idx)
+			hf = this.pin.node.calc_value(this.pin.slot_idx)
 		}
 
 		if (!hf or !hf.value or !hf.value.tex) {

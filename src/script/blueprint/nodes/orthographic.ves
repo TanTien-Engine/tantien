@@ -25,7 +25,7 @@ class Orthographic is Node
 		this.far    = -1
 	}
 
-	calc(idx) 
+	calc_value(idx) 
 	{
 		var mat = Matrix44.init()
 		mat.orthographic(this.left, this.right, this.bottom, this.top, this.near, this.far)

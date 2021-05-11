@@ -23,7 +23,7 @@ class CubemapTrans is Node
 		this.dummy = true
 	}
 
-	calc(idx)
+	calc_value(idx)
 	{
 		return Variant(VAR_TYPE_MATRIX4, this.mat)
 	}
@@ -46,7 +46,7 @@ class CubemapProxy is Node
 		this.dummy = true
 	}
 
-	calc(idx)
+	calc_value(idx)
 	{
 		var ret = VarTexture()
 		ret.tex = this.tex
