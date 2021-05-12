@@ -19,6 +19,9 @@ class SampleTexture is Node
 			Pin(this, "rgba", VAR_TYPE_NUMBER4),
 			Pin(this, "rgb",  VAR_TYPE_NUMBER3),
 			Pin(this, "r",    VAR_TYPE_NUMBER),
+			Pin(this, "g",    VAR_TYPE_NUMBER),
+			Pin(this, "b",    VAR_TYPE_NUMBER),
+			Pin(this, "a",    VAR_TYPE_NUMBER),
 		]
 
 		this.layout()
@@ -46,7 +49,13 @@ class SampleTexture is Node
 			return gen.compose_float3(func, r, g, b)
 		} else if (idx == 2) {
 			return gen.compose_extract(func, rgba, 0)
-		}
+		} else if (idx == 3) {
+			return gen.compose_extract(func, rgba, 1)
+		} else if (idx == 4) {
+			return gen.compose_extract(func, rgba, 2)
+		} else if (idx == 5) {
+			return gen.compose_extract(func, rgba, 3)
+		} 
 
 		return nil
 	}
