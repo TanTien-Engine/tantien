@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+
+class WorldPos is Node
+{
+	init()
+	{
+		super.init(WorldPos.name)	
+
+		this.exports = [
+			Pin(this, "pos", VAR_TYPE_NUMBER3),
+		]
+
+		this.layout()
+	}
+
+	gen_shader(gen)
+	{
+		this.inst = gen.add_input("WorldPos", "vec3")
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		return gen.load(func, this.inst)
+	}
+}

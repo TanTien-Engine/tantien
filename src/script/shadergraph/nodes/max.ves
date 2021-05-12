@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class Max is Node
+{
+	init()
+	{
+		super.init(Max.name)
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_ANY),
+			Pin(this, "b", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "max", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var a = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var b = Blueprint.calc_input_inst(gen, this, 1, module, func)
+
+		if (!a and !b) {
+			return nil
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
+		} else {
+			return gen.max(func, a, b)
+		}
+	}
+}

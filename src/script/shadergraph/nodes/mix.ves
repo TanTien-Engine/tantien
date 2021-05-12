@@ -1,0 +1,31 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+
+class Mix is Node
+{
+	init()
+	{
+		super.init(Mix.name)
+
+		this.imports = [
+			Pin(this, "x", VAR_TYPE_ANY),
+			Pin(this, "y", VAR_TYPE_ANY),
+			Pin(this, "a", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "mix", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var x = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var y = Blueprint.calc_input_inst(gen, this, 1, module, func)
+		var a = Blueprint.calc_input_inst(gen, this, 2, module, func)
+		return gen.mix(func, x, y, a)
+	}
+}

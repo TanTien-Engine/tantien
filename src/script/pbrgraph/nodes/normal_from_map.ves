@@ -1,0 +1,32 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://learnopengl.com/PBR/Lighting
+vec3 normal_from_map(sampler2D normal_map, vec2 tex_coords, vec3 world_pos, vec3 normal)
+{
+    vec3 tangent_normal = texture(normal_map, tex_coords).xyz * 2.0 - 1.0;
+
+    vec3 Q1  = dFdx(world_pos);
+    vec3 Q2  = dFdy(world_pos);
+    vec2 st1 = dFdx(tex_coords);
+    vec2 st2 = dFdy(tex_coords);
+
+    vec3 N   = normalize(normal);
+    vec3 T   = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B   = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangent_normal);
+}
+"
+
+class NormalFromMap is Node
+{
+	init()
+	{
+		super.init(NormalFromMap.name)
+
+		this.node_func = NodeFunction(this, CODE, "normal_from_map", [])	
+	}
+}

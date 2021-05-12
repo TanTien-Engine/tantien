@@ -1,0 +1,39 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://learnopengl.com/PBR/Lighting
+const float PI = 3.14159265359;
+vec3 calc_brdf(float D, float G, vec3 F, vec3 N, vec3 V, vec3 L, vec3 albedo, float metallic)
+{
+	vec3 nominator    = D * G * F;
+	float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+	vec3 specular = nominator / denominator;
+
+	// kS is equal to Fresnel
+	vec3 kS = F;
+	// for energy conservation, the diffuse and specular light can't
+	// be above 1.0 (unless the surface emits light); to preserve this
+	// relationship the diffuse component (kD) should equal 1.0 - kS.
+	vec3 kD = vec3(1.0) - kS;
+	// multiply kD by the inverse metalness such that only non-metals 
+	// have diffuse lighting, or a linear blend if partly metal (pure metals
+	// have no diffuse light).
+	kD *= 1.0 - metallic;  
+
+	// scale light by NdotL
+	float NdotL = max(dot(N, L), 0.0);
+
+	return (kD * albedo / PI + specular) * NdotL;
+}
+"
+
+class Brdf is Node
+{
+	init()
+	{
+		super.init(Brdf.name)
+
+		this.node_func = NodeFunction(this, CODE, "calc_brdf", [])	
+	}
+}
