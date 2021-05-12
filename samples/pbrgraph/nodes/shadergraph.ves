@@ -7,16 +7,16 @@ import "shadergraph.nodes.*"
 import "pbrgraph.nodes.*"
 var node0 = MaterialTextures()
 
-_editor.add_node(node0, -946.32332444779, 50.09291797145)
+_editor.add_node(node0, -1008.3233244478, 48.09291797145)
 
 var node1 = Model()
 node1.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
 
-_editor.add_node(node1, -1195.5760971751, -516.54469475582)
+_editor.add_node(node1, -1127.9346771751, -437.62970475582)
 
 var node2 = Print()
 
-_editor.add_node(node2, -685.66691188282, 286.81555179552)
+_editor.add_node(node2, -953.66691188282, 296.81555179552)
 
 var node3 = Draw()
 
@@ -24,29 +24,29 @@ node3.set_prim_type("triangles")
 node3.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node3.skip = false
 
-_editor.add_node(node3, 1105.5137695508, -419.63859168457)
+_editor.add_node(node3, 804.1137695508, -371.31379829614)
 
 var node4 = Shadergraph()
 
-_editor.add_node(node4, 853.60416197266, -301.10646199219)
+_editor.add_node(node4, 559.6677983363, -227.32712314921)
 
 var node5 = Clear()
 
 node5.masks = [ "color", "depth" ]
 node5.values = { "color" : [ 128, 128, 128, 255 ] }
 
-_editor.add_node(node5, 846.02561792969, -132.13693518555)
+_editor.add_node(node5, 550.98925429333, -58.357596342573)
 
 var node6 = Camera3d()
 
-node6.cam.position.set(-0.8328773864479, -1.3610526510844, 2.6672008122016)
-node6.cam.yaw = -77.7
-node6.cam.pitch = 24.5
+node6.cam.position.set(-1.1535617025172, -0.3473622588541, 2.3757527358582)
+node6.cam.yaw = -65.4
+node6.cam.pitch = 10.5
 node6.cam.zoom = 45
 node6.cam.update_vectors()
 node6.speed = 0.19878049194813
 
-_editor.add_node(node6, 525.56458922839, -250.84554865283)
+_editor.add_node(node6, 252.88139322216, -152.85027821055)
 
 var node7 = Perspective()
 
@@ -55,7 +55,7 @@ node7.aspect = 0
 node7.znear = 0.1
 node7.zfar = 100
 
-_editor.add_node(node7, 678.21652085664, -349.52901910689)
+_editor.add_node(node7, 393.9051618913, -277.44310205408)
 
 var node8 = SampleTexture()
 
@@ -63,11 +63,11 @@ _editor.add_node(node8, -654.42965741199, -6.213133972083)
 
 var node9 = TexCoord()
 
-_editor.add_node(node9, -900.25651963775, -165.32895415142)
+_editor.add_node(node9, -919.25651963775, -141.32895415142)
 
 var node10 = SrgbToLinear()
 
-_editor.add_node(node10, -350.3674917626, -103.33299899586)
+_editor.add_node(node10, -374.40956539145, -76.285666163403)
 
 var node11 = Split()
 
@@ -75,48 +75,110 @@ _editor.add_node(node11, -499.10789154844, -27.008500361782)
 
 var node12 = Combine()
 
-_editor.add_node(node12, 475.63995158904, -13.411665429051)
+_editor.add_node(node12, 250.76769745836, 22.491472707317)
 
 var node13 = GammaCorrection()
 
-_editor.add_node(node13, 337.97266036869, -82.999252710853)
+_editor.add_node(node13, 74.151705064302, -20.960971612995)
 
 var node14 = SampleTexture()
 
-_editor.add_node(node14, -621.19601776558, -303.81814078798)
+_editor.add_node(node14, -651.19601776558, -311.81814078798)
 
 var node15 = SrgbToLinear()
 
-_editor.add_node(node15, -441.91883554844, -295.92034839781)
+_editor.add_node(node15, -444.92409475205, -277.13747837527)
 
 var node16 = Add()
 
-_editor.add_node(node16, -18.264056143471, -238.72478152264)
+_editor.add_node(node16, -84.495010313263, -262.94694530927)
 
 var node17 = SampleTexture()
 
-_editor.add_node(node17, -651.04205578267, -124.08836076124)
+_editor.add_node(node17, -655.04205578267, -155.08836076124)
 
 var node18 = Multiply()
 
-_editor.add_node(node18, -195.96330756414, -146.40087034972)
+_editor.add_node(node18, -219.72994918697, -193.68088537601)
+
+var node19 = NormalFromMap()
+
+_editor.add_node(node19, -217.84439257209, 625.30857637035)
+
+var node20 = Normal()
+
+_editor.add_node(node20, -367.81619651434, 624.81287945516)
+
+var node21 = Number3()
+
+node21.value.set(-5, 1, 5)
+
+_editor.add_node(node21, -365.80141417344, 471.82847535288)
+
+var node22 = WorldPos()
+
+_editor.add_node(node22, -364.69445954021, 572.66873663003)
+
+var node23 = DistributionGgx()
+
+_editor.add_node(node23, 78.72428608585, 635.32834350678)
+
+var node24 = SampleTexture()
+
+_editor.add_node(node24, -650.72911848432, 155.30303306922)
+
+var node25 = GeometrySmith()
+
+_editor.add_node(node25, 83.50606279794, 525.30267527305)
+
+var node26 = FresnelSchlick()
+
+_editor.add_node(node26, 88.99731153114, 410.93061110887)
+
+var node27 = Brdf()
+
+_editor.add_node(node27, 267.81744963317, 451.65846911043)
+
+var node28 = LightingDirs()
+
+_editor.add_node(node28, -217.03442932855, 514.35287692684)
+
+var node29 = Commentary()
+
+node29.set_size(339.43542480469, 314.75936889648)
+node29.title = "Dirs"
+
+_editor.add_node(node29, -304.22147815938, 717.86304989981)
+
+var node30 = Commentary()
+
+node30.set_size(338.79895019531, 347.28750610352)
+node30.title = "BRDF"
+
+_editor.add_node(node30, 180.82557455818, 718.57739248641)
 
 Blueprint.connect(node0, "albedo", node8, "tex")
 Blueprint.connect(node0, "albedo", node2, "value")
+Blueprint.connect(node0, "metal_roughness", node24, "tex")
 Blueprint.connect(node0, "emissive", node14, "tex")
 Blueprint.connect(node0, "ao", node17, "tex")
+Blueprint.connect(node0, "normal", node19, "normal_map")
 Blueprint.connect(node1, "model", node0, "model")
 Blueprint.connect(node1, "model", node3, "model")
 Blueprint.connect(node4, "shader", node3, "shader")
 Blueprint.connect(node5, "next", node3, "prev")
 Blueprint.connect(node6, "mat", node4, "view")
 Blueprint.connect(node6, "zoom", node7, "fovy")
+Blueprint.connect(node6, "pos", node28, "cam_pos")
 Blueprint.connect(node7, "mat", node4, "projection")
 Blueprint.connect(node8, "rgba", node11, "xyzw")
 Blueprint.connect(node9, "uv", node8, "uv")
 Blueprint.connect(node9, "uv", node14, "uv")
 Blueprint.connect(node9, "uv", node17, "uv")
-Blueprint.connect(node10, "ret", node18, "a")
+Blueprint.connect(node9, "uv", node19, "tex_coords")
+Blueprint.connect(node9, "uv", node24, "uv")
+Blueprint.connect(node10, "ret", node27, "albedo")
+Blueprint.connect(node10, "ret", node26, "albedo")
 Blueprint.connect(node11, "w", node12, "w")
 Blueprint.connect(node11, "xyz", node10, "srgb")
 Blueprint.connect(node12, "xyzw", node4, "rgba")
@@ -126,3 +188,25 @@ Blueprint.connect(node15, "ret", node16, "b")
 Blueprint.connect(node16, "v", node13, "linear")
 Blueprint.connect(node17, "r", node18, "b")
 Blueprint.connect(node18, "v", node16, "a")
+Blueprint.connect(node19, "ret", node23, "N")
+Blueprint.connect(node19, "ret", node25, "N")
+Blueprint.connect(node19, "ret", node27, "N")
+Blueprint.connect(node20, "normal", node19, "normal")
+Blueprint.connect(node21, "v3", node28, "light_pos")
+Blueprint.connect(node22, "pos", node28, "world_pos")
+Blueprint.connect(node22, "pos", node19, "world_pos")
+Blueprint.connect(node23, "ret", node27, "D")
+Blueprint.connect(node24, "g", node23, "roughness")
+Blueprint.connect(node24, "g", node25, "roughness")
+Blueprint.connect(node24, "b", node27, "metallic")
+Blueprint.connect(node24, "b", node26, "metallic")
+Blueprint.connect(node25, "ret", node27, "G")
+Blueprint.connect(node26, "ret", node27, "F")
+Blueprint.connect(node27, "ret", node18, "a")
+Blueprint.connect(node28, "V", node25, "V")
+Blueprint.connect(node28, "V", node26, "V")
+Blueprint.connect(node28, "V", node27, "V")
+Blueprint.connect(node28, "L", node25, "L")
+Blueprint.connect(node28, "L", node27, "L")
+Blueprint.connect(node28, "H", node23, "H")
+Blueprint.connect(node28, "H", node26, "H")
