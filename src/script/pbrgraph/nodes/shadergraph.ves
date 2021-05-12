@@ -17,8 +17,8 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 
 out vec2 TexCoord;
-out vec3 fragpos;
-out vec3 normal;
+out vec3 WorldPos;
+out vec3 Normal;
 
 uniform UBO
 {
@@ -32,9 +32,9 @@ void main()
     TexCoord = aTexCoords;
 
 	vec4 pos = model * vec4(aPos, 1.0);
-	fragpos = vec3(pos.xyz) / pos.w;
+	WorldPos = vec3(pos.xyz) / pos.w;
 
-	normal = normalize(vec3(model * vec4(aNormal.xyz, 0.0)));
+	Normal = normalize(vec3(model * vec4(aNormal.xyz, 0.0)));
 
     gl_Position = projection * view * pos;
 }
