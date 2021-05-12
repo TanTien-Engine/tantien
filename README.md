@@ -96,14 +96,12 @@ Based for each editors
 
 #### Nodes
 * artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
-* channel : Combine, 
-* input-basic : Number, Number2, Number3, Number4, Time,
-* input-geometry : TexCoord,
+* input-geometry : Normal, TexCoord, WorldPos, 
 * procedural-shapes : Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
 * utility-shader : FragColor, Uniform,
 * uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
-* math : Add, Subtract, Multiply, Divide, Negate, Sin, Cos, RotateX, RotateY, RotateZ,
-* tools : Sdf, Parameter, Viewport,
+* math : Dot, Negate, Normalize, Max, Min, Mix, RotateX, RotateY, RotateZ, 
+* tools : Parameter, SampleTexture,
 
 ### sdfgraph
 
@@ -127,6 +125,16 @@ Based for each editors
 * noise : PerlinNoise, BillowedNoise, RidgedNoise,
 * turbulence : Turbulence, IqTurbulence, SwissTurbulence, JordanTurbulence, Erosion1Turbulence, Erosion2Turbulence, DistortTurbulence,
 * deriv : PerlinNoisePseudoDeriv, PerlinNoiseDeriv, NoiseDeriv,
+
+### pbrgraph
+
+![](./doc/pbrgraph/screenshots/standard_model.jpg)
+
+#### Nodes
+* framework : MaterialTextures, Shadergraph,
+* tools : SrgbToLinear, GammaCorrection, NormalFromMap, LightingDirs,
+* brdf : DistributionGgx, FresnelSchlick, GeometrySmith, 
+* components : Brdf, Ibl,
 
 ## Building
 First clone the project & submodules:
