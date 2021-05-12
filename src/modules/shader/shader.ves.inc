@@ -7,6 +7,12 @@ foreign class ShaderTools
 	foreign static disassemble(spirv)
 }
 
+foreign class SpirvGenTwo
+{
+	foreign static get_type(inst)
+	foreign static is_vector(inst)	
+}
+
 foreign class ShaderGen
 {
 	init() {}

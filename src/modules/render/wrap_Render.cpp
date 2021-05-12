@@ -26,7 +26,7 @@
 #include <unirender/WritePixelBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
-#include <shadertrans/ShaderLink.h>
+#include <shadertrans/ShaderBuilder.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
 #include <guard/check.h>
@@ -45,8 +45,8 @@ void read_shader(std::vector<unsigned int>& dst, int src, shadertrans::ShaderSta
         const char* str = ves_tostring(src);
         shadertrans::ShaderTrans::GLSL2SpirV(stage, str, dst);
     } else {
-        auto linker = ((tt::Proxy<shadertrans::ShaderLink>*)ves_toforeign(src))->obj;
-        dst = linker->Link();
+        auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(src))->obj;
+        dst = builder->Link();
     }
 }
 
