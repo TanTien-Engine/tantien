@@ -409,6 +409,9 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
 void w_Shader_set_uniform_value()
 {
     auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
+    if (!prog) {
+        return;
+    }
 
     GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "unknown type");
 
