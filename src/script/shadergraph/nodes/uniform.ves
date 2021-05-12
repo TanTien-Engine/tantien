@@ -20,7 +20,7 @@ class Uniform is Node
 
 		this.layout()
 
-		this.params.add(NodeParam("unif_name", ""))
+		this.params.add(NodeParam("unif_name", "unif"))
 
 		this.unif = nil
 	}
@@ -32,9 +32,31 @@ class Uniform is Node
 
 	calc_inst(gen, idx, module, func) 
 	{
-		if (!this.unif) {
-			this.unif = this.create_unif(gen, module)
+		if (!this.unif) 
+		{
+			var val = Blueprint.calc_input_value(this, 0)
+			if (!val) {
+				return nil
+			}
+
+			var name = this.query_param("unif_name").value
+
+			var type = ""
+			if (val.type == VAR_TYPE_NUMBER) {
+				type = "float"
+			} else if (val.type == VAR_TYPE_NUMBER2) {
+				type = "vec2"
+			} else if (val.type == VAR_TYPE_NUMBER3) {
+				type = "vec3"
+			} else if (val.type == VAR_TYPE_NUMBER4) {
+				type = "vec4"
+			} else {
+				return nil
+			}
+
+			this.unif = gen.add_uniform(module, name, type)
 		}
+
 		if (this.unif) {
 			return gen.load(func, this.unif)
 		} else {
@@ -42,29 +64,38 @@ class Uniform is Node
 		}
 	}
 
-	create_unif(gen, module)
+	bind_uniforms(prog)
 	{
 		var val = Blueprint.calc_input_value(this, 0)
 		if (!val) {
 			return nil
 		}
 
-		var name = "unif_%(gen.get_unif_num())"
-		this.query_param("unif_name").value = name
-
 		var type = ""
+		var value = []
 		if (val.type == VAR_TYPE_NUMBER) {
 			type = "float"
+			value.add(val.value)
 		} else if (val.type == VAR_TYPE_NUMBER2) {
-			type = "vec2"
+			type = "float2"
+			value.add(val.value.x)
+			value.add(val.value.y)
 		} else if (val.type == VAR_TYPE_NUMBER3) {
-			type = "vec3"
+			type = "float3"
+			value.add(val.value.x)
+			value.add(val.value.y)
+			value.add(val.value.z)
 		} else if (val.type == VAR_TYPE_NUMBER4) {
-			type = "vec4"
+			type = "float4"
+			value.add(val.value.x)
+			value.add(val.value.y)
+			value.add(val.value.z)
+			value.add(val.value.w)			
 		} else {
 			return nil
 		}
 
-		return gen.add_uniform(module, name, type)
+		var name = this.query_param("unif_name").value
+		prog.set_uniform_value([name, type, value])
 	}
 }

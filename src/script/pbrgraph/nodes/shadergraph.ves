@@ -59,7 +59,6 @@ class Shadergraph is Node
 		this.shader = var_Shader(this)
 		this.dirty = true
 
-		//this.uniforms = []
 		this.fold_array = true		
 
 		var uniforms = []
@@ -98,6 +97,8 @@ class Shadergraph is Node
 
 	rebuild_shader()
 	{
+		this.uniform_nodes = []
+
 		var gen = ShaderGen.init()
 
 		var prev_nodes = Blueprint.get_precursor_nodes(this)
@@ -109,6 +110,9 @@ class Shadergraph is Node
 			} 
 			if (node.has_method("gen_shader(_)")) {
 				node.gen_shader(gen)
+			}
+			if (node.has_method("bind_uniforms(_)")) {
+				this.uniform_nodes.add(node)
 			}
 		}
 
@@ -154,15 +158,9 @@ class Shadergraph is Node
 
 	bind_uniforms()
 	{
-		var prog = this.shader.prog
-		if (prog)
-		{
-			var prev_nodes = Blueprint.get_precursor_nodes(this)
-			for (var node in prev_nodes)
-			{
-				if (node.has_method("bind_uniforms(_)")) {
-					node.bind_uniforms(prog)
-				}
+		if (this.shader.prog) {
+			for (var node in this.uniform_nodes) {
+				node.bind_uniforms(this.shader.prog)
 			}
 		}
 	}

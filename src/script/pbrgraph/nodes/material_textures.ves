@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
 import "rendergraph.variant" for VAR_TYPE_MODEL, VAR_TYPE_TEXTURE, VarTexture
 import "render" for Texture2D
 
@@ -24,8 +25,9 @@ class MaterialTextures is Node
 
 		this.layout()
 
+		this.params.add(NodeParam("unif_name", ["u_albedo_tex", "u_metal_roughness_tex", "u_emissive_tex", "u_ao_tex", "u_normal_tex"]))
+
 		this.unif = [nil, nil, nil, nil, nil]
-		this.unif_name = ["", "", "", "", ""]
 	}
 
 	calc_value(idx)
@@ -50,14 +52,13 @@ class MaterialTextures is Node
     gen_shader(gen)
     {
     	this.unif = [nil, nil, nil, nil, nil]
-    	this.unif_name = ["", "", "", "", ""]
     }
 
 	calc_inst(gen, idx, module, func) 
 	{
 		if (!this.unif[idx]) {
-			this.unif_name[idx] = "unif_%(gen.get_unif_num())"
-			this.unif[idx] = gen.add_uniform(module, this.unif_name[idx], "texture")
+			var name = this.query_param("unif_name").value[idx]
+			this.unif[idx] = gen.add_uniform(module, name, "texture")
 		}
 
 		if (this.unif[idx]) {
@@ -76,7 +77,8 @@ class MaterialTextures is Node
 
 		for (var i in 0..5) {
 			if (textures[i] and this.unif[i]) {
-				prog.set_uniform_value([this.unif_name[i], "sampler", [textures[i], "linear_clamp"]])			
+				var name = this.query_param("unif_name").value[i]
+				prog.set_uniform_value([name, "sampler", [textures[i], "linear_clamp"]])			
 			}
 		}		
 	}

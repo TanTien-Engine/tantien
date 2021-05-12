@@ -1,4 +1,5 @@
 import "rendergraph.nodes.texture" for Texture as rg_Texture
+import "blueprint.node_param" for NodeParam
 
 class Texture is rg_Texture
 {
@@ -6,8 +7,9 @@ class Texture is rg_Texture
 	{
 		super.init()
 
+		this.params.add(NodeParam("unif_name", "u_tex"))
+
 		this.unif = nil
-		this.unif_name = ""
 	}
 
     gen_shader(gen)
@@ -18,8 +20,8 @@ class Texture is rg_Texture
 	calc_inst(gen, idx, module, func) 
 	{
 		if (!this.unif) {
-			this.unif_name = "unif_%(gen.get_unif_num())"
-			this.unif = gen.add_uniform(module, this.unif_name, "texture")
+			var name = this.query_param("unif_name").value
+			this.unif = gen.add_uniform(module, name, "texture")
 		}
 
 		if (this.unif) {
@@ -27,5 +29,11 @@ class Texture is rg_Texture
 		} else {
 			return nil
 		}
+	}
+
+	bind_uniforms(prog)
+	{
+		var name = this.query_param("unif_name").value
+		prog.set_uniform_value([name, "sampler", [this.tex, "linear_clamp"]])
 	}
 }
