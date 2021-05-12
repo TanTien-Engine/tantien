@@ -105,6 +105,43 @@ void w_SpirvGenTwo_is_vector()
     ves_set_boolean(0, shadertrans::SpirvGenTwo::IsVector(*inst));
 }
 
+void w_SpirvGenTwo_get_vector_num()
+{
+    spvgentwo::Instruction* inst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+    ves_set_number(0, shadertrans::SpirvGenTwo::GetVectorNum(*inst));
+}
+
+void w_SpirvGenTwo_add()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Add(func, a, b);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_SpirvGenTwo_sub()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Sub(func, a, b);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_SpirvGenTwo_mix()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
+
+    auto ret = shadertrans::SpirvGenTwo::Mix(func, x, y, a);
+    ves_set_number(0, pointer2double(ret));
+}
+
 // ShaderGen
 
 void w_ShaderGen_allocate()
@@ -221,26 +258,6 @@ void w_shadergen_dot()
     ves_set_number(0, pointer2double(ret));
 }
 
-void w_shadergen_add()
-{
-    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
-    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
-
-    auto ret = shadertrans::SpirvGenTwo::Add(func, a, b);
-    ves_set_number(0, pointer2double(ret));
-}
-
-void w_shadergen_sub()
-{
-    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
-    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
-
-    auto ret = shadertrans::SpirvGenTwo::Sub(func, a, b);
-    ves_set_number(0, pointer2double(ret));
-}
-
 void w_shadergen_mul()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -280,7 +297,32 @@ void w_shadergen_pow()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_normalize()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
+    auto ret = shadertrans::SpirvGenTwo::Normalize(func, v);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_max()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Max(func, x, y);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_shadergen_min()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Min(func, x, y);
     ves_set_number(0, pointer2double(ret));
 }
 
@@ -604,7 +646,12 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "static SpirvGenTwo.get_type(_)") == 0) return w_SpirvGenTwo_get_type;
     if (strcmp(signature, "static SpirvGenTwo.is_vector(_)") == 0) return w_SpirvGenTwo_is_vector;
+    if (strcmp(signature, "static SpirvGenTwo.get_vector_num(_)") == 0) return w_SpirvGenTwo_get_vector_num;
 
+    if (strcmp(signature, "static SpirvGenTwo.add(_,_,_)") == 0) return w_SpirvGenTwo_add;
+    if (strcmp(signature, "static SpirvGenTwo.sub(_,_,_)") == 0) return w_SpirvGenTwo_sub;
+    if (strcmp(signature, "static SpirvGenTwo.mix(_,_,_,_)") == 0) return w_SpirvGenTwo_mix;
+    
     // ShaderGen
 
     if (strcmp(signature, "ShaderGen.add_input(_,_)") == 0) return w_ShaderGen_add_input;
@@ -618,12 +665,13 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.compose_float4(_,_,_,_,_)") == 0) return w_shadergen_compose_float4;
     if (strcmp(signature, "ShaderGen.compose_extract(_,_,_)") == 0) return w_shadergen_compose_extract;
     if (strcmp(signature, "ShaderGen.dot(_,_,_)") == 0) return w_shadergen_dot;
-    if (strcmp(signature, "ShaderGen.add(_,_,_)") == 0) return w_shadergen_add;
-    if (strcmp(signature, "ShaderGen.sub(_,_,_)") == 0) return w_shadergen_sub;
     if (strcmp(signature, "ShaderGen.mul(_,_,_)") == 0) return w_shadergen_mul;
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
     if (strcmp(signature, "ShaderGen.pow(_,_,_)") == 0) return w_shadergen_pow;
+    if (strcmp(signature, "ShaderGen.normalize(_,_)") == 0) return w_shadergen_normalize;
+    if (strcmp(signature, "ShaderGen.max(_,_,_)") == 0) return w_shadergen_max;
+    if (strcmp(signature, "ShaderGen.min(_,_,_)") == 0) return w_shadergen_min;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
     if (strcmp(signature, "ShaderGen.load(_,_)") == 0) return w_ShaderGen_load;
     if (strcmp(signature, "ShaderGen.image_sample(_,_,_)") == 0) return w_ShaderGen_image_sample;

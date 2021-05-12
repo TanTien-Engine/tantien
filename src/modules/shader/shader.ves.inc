@@ -10,12 +10,116 @@ foreign class ShaderTools
 foreign class SpirvGenTwo
 {
 	foreign static get_type(inst)
-	foreign static is_vector(inst)	
+	foreign static is_vector(inst)
+	foreign static get_vector_num(inst)
+
+	foreign static add(func, a, b)
+	foreign static sub(func, a, b)
+	foreign static mix(func, x, y, a)
 }
 
 foreign class ShaderGen
 {
 	init() {}
+
+	type_cast(func, from, to)
+	{
+		if (SpirvGenTwo.is_vector(from) or 
+		    !SpirvGenTwo.is_vector(to)) {
+		    return from
+		}
+
+		var num = SpirvGenTwo.get_vector_num(to)
+		if (num == 2) {
+			return this.compose_float2(func, from, from)
+		} else if (num == 3) {
+			return this.compose_float3(func, from, from, from)
+		} else if (num == 4) {
+			return this.compose_float4(func, from, from, from, from)
+		}
+
+		return from
+	}
+
+	add(func, a, b)
+	{
+		if (!a and !b) {
+			return nil
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
+		}
+
+		if (SpirvGenTwo.is_vector(a) and
+		    !SpirvGenTwo.is_vector(b)) {
+		    b = this.type_cast(func, b, a)
+		} else if (!SpirvGenTwo.is_vector(a) and
+		    SpirvGenTwo.is_vector(b)) {
+		    a = this.type_cast(func, a, b)
+		}
+
+		return SpirvGenTwo.add(func, a, b)
+	}
+
+	sub(func, a, b)
+	{
+		if (!a and !b) {
+			return nil
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
+		}
+
+		if (SpirvGenTwo.is_vector(a) and
+		    !SpirvGenTwo.is_vector(b)) {
+		    b = this.type_cast(func, b, a)
+		} else if (!SpirvGenTwo.is_vector(a) and
+		    SpirvGenTwo.is_vector(b)) {
+		    a = this.type_cast(func, a, b)
+		}
+
+		return SpirvGenTwo.sub(func, a, b)
+	}
+
+	mix(func, x, y, a)
+	{
+		if (!x and !y) {
+			return nil
+		} else if (!x) {
+			return y
+		} else if (!y) {
+			return x
+		}
+
+		if (!SpirvGenTwo.is_vector(x) and 
+		    !SpirvGenTwo.is_vector(y)) {
+		    return SpirvGenTwo.mix(func, x, y, a)
+		}
+
+		if (!SpirvGenTwo.is_vector(x) or 
+		    !SpirvGenTwo.is_vector(y) or 
+		    SpirvGenTwo.get_vector_num(x) != SpirvGenTwo.get_vector_num(y)) {
+		    return nil
+		}
+
+		var num = SpirvGenTwo.get_vector_num(x)
+		var comp = []
+		for (var i in 0..num) {
+			var mix = SpirvGenTwo.mix(func, this.compose_extract(func, x, i), this.compose_extract(func, y, i), a)
+			comp.add(mix)
+		}
+		if (num == 2) {
+			return this.compose_float2(func, comp[0], comp[1])
+		} else if (num == 3) {
+			return this.compose_float3(func, comp[0], comp[1], comp[2])
+		} else if (num == 4) {
+			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+		}
+
+		return nil
+	}
 
 	foreign add_input(name, type)
 	foreign add_output(name, type)
@@ -28,12 +132,13 @@ foreign class ShaderGen
 	foreign compose_float4(func, x, y, z, w)
 	foreign compose_extract(func, comp, idx)
 	foreign dot(func, a, b)
-	foreign add(func, a, b)
-	foreign sub(func, a, b)
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
 	foreign negate(func, v)
 	foreign pow(func, x, y)
+	foreign normalize(func, v)
+	foreign max(func, a, b)
+	foreign min(func, a, b)
 	foreign store(func, dst, src)
 	foreign load(func, val)
 	foreign image_sample(func, img, uv)
