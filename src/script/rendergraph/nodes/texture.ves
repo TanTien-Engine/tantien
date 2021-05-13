@@ -1,12 +1,13 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.node_param" for NodeParam
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "image" for ImageData
 import "graphics" for Graphics
 import "render" for Texture2D
-import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
-import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 
 class Texture is Node
 {
@@ -31,6 +32,10 @@ class Texture is Node
 		this.format = "rgba8"
 
 		this.gamma_correction = false
+
+		this.params.add(NodeParam("unif_name", "u_tex"))
+
+		this.unif = nil
 
 		// for gui
 		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
@@ -72,6 +77,31 @@ class Texture is Node
 			}
 			return Variant(VAR_TYPE_NUMBER, height)
 		}
+	}
+
+    gen_shader(gen)
+    {
+    	this.unif = nil
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.unif) {
+			var name = this.query_param("unif_name").value
+			this.unif = gen.add_uniform(module, name, "texture")
+		}
+
+		if (this.unif) {
+			return gen.load(func, this.unif)
+		} else {
+			return nil
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		var name = this.query_param("unif_name").value
+		prog.set_uniform_value([name, "sampler", [this.tex, "linear_clamp"]])
 	}
 
 	draw(mt, cam_mt)
