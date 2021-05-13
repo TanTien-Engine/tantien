@@ -304,15 +304,26 @@ class Editor
 				this.add_node(new_node, pos[0], pos[1])
 				if (this.prev_pin)
 				{
-					if (this.prev_pin.is_input) {
-						if (!new_node.exports.isEmpty) {
-							Blueprint.connect(new_node.exports[0], this.prev_pin)
-							this.scene_stack.bp_dirty = true
+					if (this.prev_pin.is_input) 
+					{
+						if (!new_node.exports.isEmpty) 
+						{
+							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.exports)
+							if (idx >= 0) {
+								Blueprint.connect(new_node.exports[idx], this.prev_pin)
+								this.scene_stack.bp_dirty = true
+							}
 						}
-					} else {
-						if (!new_node.imports.isEmpty) {
-							Blueprint.connect(this.prev_pin, new_node.imports[0])
-							this.scene_stack.bp_dirty = true
+					} 
+					else 
+					{
+						if (!new_node.imports.isEmpty) 
+						{
+							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.imports)
+							if (idx >= 0) {
+								Blueprint.connect(this.prev_pin, new_node.imports[idx])
+								this.scene_stack.bp_dirty = true
+							}
 						}
 					}
 				}
@@ -331,7 +342,49 @@ class Editor
 		Graphics.on_cam_update(this.camera.pos.x, this.camera.pos.y, this.camera.scale)
 	}
 
-	is_var_type_match(pin, node)
+	query_matched_pin_idx(pin, pins)
+	{
+		for (var i in 0..pins.count) {
+			if (this.is_pin_pin_type_match(pin, pins[i])) {
+				return i
+			}
+		}
+		return -1
+	}
+
+	is_pin_pin_type_match(a, b)
+	{
+		var types = []
+		if (a.type is List) {
+			for (var type in a.type) {
+				types.add(type)
+			}
+		} else {
+			types.add(a.type)
+		}
+		if (types.contains(VAR_TYPE_ANY)) {
+			return true
+		}
+
+		if (b.type == VAR_TYPE_ANY) {
+			return true
+		}
+		if (b.type is List) {
+			for (var type in b.type) {
+				if (types.contains(type)) {
+					return true
+				}				
+			}
+		} else {
+			if (types.contains(b.type)) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	is_pin_node_type_match(pin, node)
 	{
 		var types = []
 		if (pin.type is List) {
@@ -378,7 +431,7 @@ class Editor
 		if (prev_pin)
 		{
 			for (var node in this.popup_nodes) {
-				if (this.is_var_type_match(prev_pin, this.all_nodes[node.name])) {
+				if (this.is_pin_node_type_match(prev_pin, this.all_nodes[node.name])) {
 					num = num + 1
 				}
 			}
@@ -402,7 +455,7 @@ class Editor
 		{
 			var show = true
 			if (prev_pin) {
-				show = this.is_var_type_match(prev_pin, this.all_nodes[node.name])
+				show = this.is_pin_node_type_match(prev_pin, this.all_nodes[node.name])
 			}
 			if (show)
 			{
