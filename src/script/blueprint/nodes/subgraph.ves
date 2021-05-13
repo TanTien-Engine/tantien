@@ -66,6 +66,16 @@ class Subgraph is Node
 		return nil
 	}
 
+	calc_inst(gen, idx, module, func) 
+	{
+		var name = this.exports[idx].name
+		for (var node in this.out_nodes) {
+			if (node.var_name == name) {
+				return Blueprint.calc_input_inst(gen, node, 0, module, func)
+			}
+		}		
+	}
+
 	execute()
 	{
 		// setup input vars

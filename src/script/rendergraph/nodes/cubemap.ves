@@ -37,6 +37,8 @@ class Cubemap is Node
 		this.format = "rgba8"
 
 		this.preview = false
+
+		this.unif = nil		
 	}
 
 	calc_value(idx)
@@ -74,6 +76,25 @@ class Cubemap is Node
 				list.add(tex)
 			}
 			return Variant(VAR_TYPE_ARRAY, list)
+		}
+	}
+
+    gen_shader(gen)
+    {
+    	this.unif = nil
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.unif) {
+			var name = this.query_param("unif_name").value
+			this.unif = gen.add_uniform(module, name, "cubemap")
+		}
+
+		if (this.unif) {
+			return gen.load(func, this.unif)
+		} else {
+			return nil
 		}
 	}
 
