@@ -128,7 +128,9 @@ Based for each editors
 
 ### pbrgraph
 
-![](./doc/pbrgraph/screenshots/standard_model.jpg)
+![](./doc/pbrgraph/screenshots/ibl.gif)
+
+![](./doc/pbrgraph/screenshots/ibl.jpg)
 
 #### Nodes
 * framework : MaterialTextures, Shadergraph,

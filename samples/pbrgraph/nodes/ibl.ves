@@ -25,7 +25,7 @@ node3.set_prim_type("triangles")
 node3.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node3.skip = false
 
-_editor.add_node(node3, 804.1137695508, -371.31379829614)
+_editor.add_node(node3, 795.6437695508, -335.01379829614)
 
 var node4 = Shadergraph()
 
@@ -116,7 +116,7 @@ _editor.add_node(node21, -293.57074435343, 581.70031951089)
 
 var node22 = DistributionGgx()
 
-_editor.add_node(node22, 78.72428608585, 635.32834350678)
+_editor.add_node(node22, 83.269740631305, 651.69197987042)
 
 var node23 = SampleTexture()
 
@@ -124,7 +124,7 @@ _editor.add_node(node23, -650.72911848432, 155.30303306922)
 
 var node24 = GeometrySmith()
 
-_editor.add_node(node24, 83.50606279794, 525.30267527305)
+_editor.add_node(node24, 88.051517343395, 541.66631163669)
 
 var node25 = FresnelSchlick()
 
@@ -132,7 +132,7 @@ _editor.add_node(node25, 88.99731153114, 410.93061110887)
 
 var node26 = Brdf()
 
-_editor.add_node(node26, 267.81744963317, 451.65846911043)
+_editor.add_node(node26, 272.36290417862, 468.02210547407)
 
 var node27 = LightingDirs()
 
@@ -150,16 +150,16 @@ var node29 = Commentary()
 node29.set_size(338.79895019531, 347.28750610352)
 node29.title = "BRDF"
 
-_editor.add_node(node29, 180.82557455818, 718.57739248641)
+_editor.add_node(node29, 179.32102910363, 713.16102885005)
 
 var node30 = Ibl()
 
-_editor.add_node(node30, 475.33852748168, 155.0557663388)
+_editor.add_node(node30, 1006.5285274817, 416.4157663388)
 
 var node31 = Subgraph()
 node31.load_from_file(_editor, "assets/rendergraph/pbr_ibl_textured_prepare.ves")
 
-_editor.add_node(node31, 607.63841266241, 875.06900623182)
+_editor.add_node(node31, 756.46841266241, 508.43900623182)
 
 var node32 = Texture()
 node32.query_param("unif_name").value = "u_tex"
@@ -167,11 +167,11 @@ node32.gamma_correction = false
 node32.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
 node32.set_sampler("linear repeat")
 
-_editor.add_node(node32, 348.31478536487, 864.04942202148)
+_editor.add_node(node32, 497.14478536487, 497.41942202148)
 
 var node33 = Print()
 
-_editor.add_node(node33, 831.01453212763, 903.61414552604)
+_editor.add_node(node33, 1002.8345321276, 644.67414552604)
 
 var node34 = Add()
 
@@ -202,6 +202,13 @@ var node39 = OrbitCamera()
 node39.query_param("speed").value = 0.21313136816025
 
 _editor.add_node(node39, 371.54543512518, -83.954537131573)
+
+var node40 = Commentary()
+
+node40.set_size(689.86041259766, 404.38333129883)
+node40.title = "IBL"
+
+_editor.add_node(node40, 732.19012695313, 714.77574351917)
 
 Blueprint.connect(node0, "albedo", node8, "tex")
 Blueprint.connect(node0, "albedo", node2, "value")
