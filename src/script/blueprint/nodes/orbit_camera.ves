@@ -1,0 +1,73 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.node_param" for NodeParam
+import "graphics.camera3d" for Camera3D
+import "maths.vector" for Vector2, Vector3
+import "math" for Math
+
+class OrbitCamera is Node
+{
+	init()
+	{
+		super.init(OrbitCamera.name)
+
+		this.exports = [
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
+		]
+
+		this.cam = Camera3D()
+		this.cam.position = Vector3(0, 0, 0)
+		this.cam.update_vectors()
+
+		this.last_pos = nil
+
+		this.params.add(NodeParam("speed", 0.01))
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		return Variant(VAR_TYPE_MATRIX4, this.cam.calc_mat())
+	}
+
+	on_key_pressed(key) 
+	{
+		if (key == "escape") 
+		{
+			this.cam.position = Vector3(0, 0, 0)
+		    this.cam.yaw   = -90.0
+		    this.cam.pitch = 0
+			this.cam.zoom = 45.0
+			this.cam.update_vectors()
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		this.last_pos = Vector2(x, y) 
+	}
+
+	on_mouse_released(x, y, btn) 
+	{ 
+		this.last_pos = nil 
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{		
+		var dx = x - this.last_pos.x
+		var dy = this.last_pos.y - y
+		this.last_pos.set(x, y)
+
+		var speed = this.query_param("speed").value
+
+		var rot_around_x_max = Math.pi() / 2 - 0.01
+        var rot_around_y = dx * speed
+        var rot_around_x = dy * speed
+        rot_around_x = Math.clamp(rot_around_x, -rot_around_x_max, rot_around_x_max)
+        this.cam.rotate(rot_around_y, rot_around_x)
+
+		this.cam.update_vectors()
+	}
+}

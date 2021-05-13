@@ -23,7 +23,8 @@ out vec3 Normal;
 
 uniform UBO
 {
-	mat4 model;
+	mat4 local_trans;
+	mat4 world_trans;
 	mat4 view;
 	mat4 projection;
 };
@@ -31,6 +32,8 @@ uniform UBO
 void main()
 {
     TexCoord = aTexCoords;
+
+    mat4 model = world_trans * local_trans;
 
 	vec4 pos = model * vec4(aPos, 1.0);
 	WorldPos = vec3(pos.xyz) / pos.w;

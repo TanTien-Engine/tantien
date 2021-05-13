@@ -53,6 +53,12 @@ class Camera3D
 		this.position.z = this.position.z + dz
 	}
 
+	rotate(yaw, pitch)
+	{
+		this.yaw = this.yaw + yaw
+		this.pitch = this.pitch + pitch		
+	}
+
 	screen2world(screen_pos, fovy) 
 	{
 	    // p = p0 + t * v

@@ -1243,8 +1243,7 @@ void w_Render_draw_model()
     auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
     if (!model->nodes.empty()) 
     {
-        // fixme
-        auto unif = ds.program->QueryUniform("model");
+        auto unif = ds.program->QueryUniform("local_trans");
         for (auto& node : model->nodes) 
         {
             if (unif) {
