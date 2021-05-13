@@ -173,6 +173,11 @@ node33.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
 _editor.add_node(node33, -621.33824147325, 456.80372374249)
 
+var node34 = OrbitCamera()
+node34.query_param("speed").value = 0.28373855352402
+
+_editor.add_node(node34, 387.26497073944, -177.01195812736)
+
 Blueprint.connect(node0, "albedo", node8, "tex")
 Blueprint.connect(node0, "albedo", node2, "value")
 Blueprint.connect(node0, "metal_roughness", node24, "tex")
@@ -229,3 +234,4 @@ Blueprint.connect(node28, "H", node26, "H")
 Blueprint.connect(node31, "v", node28, "light_pos")
 Blueprint.connect(node32, "v", node31, "v")
 Blueprint.connect(node33, "v3", node32, "b")
+Blueprint.connect(node34, "mat", node4, "world_trans")

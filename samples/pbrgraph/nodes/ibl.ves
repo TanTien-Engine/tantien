@@ -40,14 +40,14 @@ _editor.add_node(node5, 550.98925429333, -58.357596342573)
 
 var node6 = Camera3d()
 
-node6.cam.position.set(-1.1535617025172, -0.3473622588541, 2.3757527358582)
-node6.cam.yaw = -65.4
-node6.cam.pitch = 10.5
+node6.cam.position.set(0, 0, 3)
+node6.cam.yaw = -90
+node6.cam.pitch = 0
 node6.cam.zoom = 45
 node6.cam.update_vectors()
 node6.speed = 0.19878049194813
 
-_editor.add_node(node6, 252.88139322216, -152.85027821055)
+_editor.add_node(node6, 250.15412049489, -172.85027821055)
 
 var node7 = Perspective()
 
@@ -171,7 +171,7 @@ _editor.add_node(node32, 348.31478536487, 864.04942202148)
 
 var node33 = Print()
 
-_editor.add_node(node33, 1002.8750628686, 896.65228793265)
+_editor.add_node(node33, 831.01453212763, 903.61414552604)
 
 var node34 = Add()
 
@@ -197,6 +197,11 @@ var node38 = Number3()
 node38.value.set(5.0367026329041, 5.0367026329041, 5.0367026329041)
 
 _editor.add_node(node38, -568.20661928755, 446.6756059466)
+
+var node39 = OrbitCamera()
+node39.query_param("speed").value = 0.21313136816025
+
+_editor.add_node(node39, 371.54543512518, -83.954537131573)
 
 Blueprint.connect(node0, "albedo", node8, "tex")
 Blueprint.connect(node0, "albedo", node2, "value")
@@ -258,9 +263,9 @@ Blueprint.connect(node27, "L", node26, "L")
 Blueprint.connect(node27, "H", node22, "H")
 Blueprint.connect(node27, "H", node25, "H")
 Blueprint.connect(node30, "ret", node34, "a")
+Blueprint.connect(node31, "cubemap", node33, "value")
 Blueprint.connect(node31, "irradiance", node30, "irradianceMap")
 Blueprint.connect(node31, "brdf", node30, "brdfLUT")
-Blueprint.connect(node31, "prefilter", node33, "value")
 Blueprint.connect(node31, "prefilter", node30, "prefilterMap")
 Blueprint.connect(node32, "tex", node31, "equirectangularMap")
 Blueprint.connect(node34, "v", node13, "linear")
@@ -268,3 +273,4 @@ Blueprint.connect(node35, "v", node27, "light_pos")
 Blueprint.connect(node36, "v", node35, "v")
 Blueprint.connect(node37, "v3", node36, "a")
 Blueprint.connect(node38, "v3", node36, "b")
+Blueprint.connect(node39, "mat", node4, "world_trans")
