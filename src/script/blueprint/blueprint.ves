@@ -172,7 +172,7 @@ class Blueprint
 	static calc_input_value(curr_node, input_slot)
 	{
 		var pin = this.query_pin(curr_node.imports, input_slot)
-		if (pin.conns.isEmpty) {
+		if (!pin or pin.conns.isEmpty) {
 			return nil
 		} else {
 			var f_pin = pin.conns.front().from
@@ -184,7 +184,7 @@ class Blueprint
 	static calc_input_inst(gen, node, slot, module, func)
 	{
 		var pin = this.query_pin(node.imports, slot)
-		if (pin.conns.isEmpty) 
+		if (!pin or pin.conns.isEmpty) 
 		{
 			return nil
 		} 
