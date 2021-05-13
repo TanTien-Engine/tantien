@@ -2,9 +2,10 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_param" for NodeParam
 import "render" for Cubemap as tt_Cubemap
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
-import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "graphics" for Graphics
 import "gui" for GUI
 import "rendergraph.draw_cubemap" for DRAW_CUBEMAP
@@ -37,6 +38,8 @@ class Cubemap is Node
 		this.format = "rgba8"
 
 		this.preview = false
+
+		this.params.add(NodeParam("unif_name", "u_cube_tex"))
 
 		this.unif = nil		
 	}
@@ -98,6 +101,12 @@ class Cubemap is Node
 		}
 	}
 
+	bind_uniforms(prog)
+	{
+		var name = this.query_param("unif_name").value
+		prog.set_uniform_value([name, "sampler", [this.tex, "linear_clamp"]])
+	}
+
 	draw(mt, cam_mt)
 	{
 		super.draw(mt, cam_mt)
@@ -109,7 +118,7 @@ class Cubemap is Node
 
 	to_string(name) 
 	{
-		return "
+		return super.to_string(name) + "
 %(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")
 "
 	}

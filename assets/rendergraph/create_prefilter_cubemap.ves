@@ -1,7 +1,15 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.skip = false
 
 _editor.add_node(node0, 201.5802241559, 331.0448724385)
 
@@ -31,6 +39,9 @@ void main()
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -143,7 +154,7 @@ void main()
     FragColor = vec4(prefilteredColor, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, -14.749751273145, 379.23929381911)
@@ -152,6 +163,7 @@ var node3 = PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, 17.574015125081, 228.0304245447)
 
@@ -206,6 +218,7 @@ _editor.script_stack.clear()
 _editor.script_stack.add(capture_views)
 "
 node9.init_ports(0, 1)
+node9.use_cache = false
 
 _editor.add_node(node9, -356.78707918211, 365.2285525693)
 
@@ -214,6 +227,7 @@ var node10 = Fetch()
 _editor.add_node(node10, -176.82361764384, 377.7266535079)
 
 var node11 = Cubemap()
+node11.query_param("unif_name").value = "u_prefilter_cubemap"
 
 node11.init_texture(32, 32, "rgb16f")
 
@@ -222,7 +236,7 @@ _editor.add_node(node11, -340.65024463212, -12.842887032788)
 var node12 = Input()
 
 node12.var_name = "environmentMap"
-node12.var_type = "texture"
+node12.var_type = "unknown"
 
 _editor.add_node(node12, -184.14451766593, 287.83664353992)
 

@@ -131,7 +131,8 @@ class Texture is Node
 
 	to_string(name) 
 	{
-		var ret = "%(name).gamma_correction = %(this.gamma_correction)\n"
+		var ret = super.to_string(name)
+		ret = ret + "%(name).gamma_correction = %(this.gamma_correction)\n"
 		if (this.width != 0 and this.height != 0) {
 			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
 		} else {

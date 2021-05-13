@@ -1,7 +1,15 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("tri_strip")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.skip = false
 
 _editor.add_node(node0, 261.90909090909, 136.5)
 
@@ -27,6 +35,9 @@ void main()
 	gl_Position = vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec2 FragColor;
@@ -142,7 +153,7 @@ void main()
     FragColor = integratedBRDF;
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, 14.99999861284, 189.22726162997)
@@ -151,6 +162,7 @@ var node3 = PrimitiveShape()
 
 node3.type = "quad"
 node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, 36.81818043102, 81.95451216264)
 
@@ -162,6 +174,7 @@ node4.height = 512
 _editor.add_node(node4, 39.54545177113, -88.04548783736)
 
 var node5 = Texture()
+node5.query_param("unif_name").value = "u_brdf_lut"
 node5.gamma_correction = false
 node5.init_texture(512, 512, "rg16f")
 node5.set_sampler("linear repeat")

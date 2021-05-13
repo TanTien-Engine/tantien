@@ -146,6 +146,17 @@ class Subgraph is Node
 		return ret
 	}
 
+	shader_build(builder, gen)
+	{
+		for (var node in this.all_nodes) {
+			if (node is Subgraph) {
+				node.shader_build(builder, gen)
+			} else {
+				builder.build(node, gen)
+			}
+		}
+	}	
+
 	draw_gui(ctx) 
 	{
 		var dirty = false
