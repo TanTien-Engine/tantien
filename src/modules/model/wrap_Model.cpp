@@ -51,7 +51,6 @@ void w_Model_get_pbr_textures()
         for (int i = 0; i < 5; ++i)
         {
             ves_pushnil();
-            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
             ves_seti(-2, i);
             ves_pop(1);
         }
@@ -71,8 +70,8 @@ void w_Model_get_pbr_textures()
     for (int i = 0; i < 5; ++i)
     {
         ves_pushnil();
-        ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
-        if (material.diffuse_tex >= 0) {
+        if (textures_idx[i] >= 0) {
+            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
             *tex = model->textures[textures_idx[i]].second;
         }
         ves_seti(-2, i);
