@@ -1,0 +1,41 @@
+import "blueprint.blueprint" for Blueprint
+import "shader" for ShaderGen
+
+class ShaderBuilder
+{
+	init()
+	{
+		this.uniform_nodes = []
+	}
+
+	build(node)
+	{
+		this.uniform_nodes = []
+
+		var gen = ShaderGen.init()
+
+		var prev_nodes = Blueprint.get_precursor_nodes(node)
+		var list = Blueprint.topo_sort(prev_nodes)
+		for (var node in list) 
+		{
+			if (node["node_func"]) {
+				node.node_func.gen_shader(gen)
+			} 
+			if (node.has_method("gen_shader(_)")) {
+				node.gen_shader(gen)
+			}
+			if (node.has_method("bind_uniforms(_)")) {
+				this.uniform_nodes.add(node)
+			}
+		}
+
+		return gen
+	}
+
+	bind_uniforms(prog)
+	{
+		for (var node in this.uniform_nodes) {
+			node.bind_uniforms(prog)
+		}
+	}
+}

@@ -6,6 +6,7 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
+import "shadergraph.shader_builder" for ShaderBuilder
 import "shader" for ShaderGen
 import "render" for Shader
 import "gui" for GUI
@@ -84,41 +85,6 @@ class Shadergraph is Node
 		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 	
-	execute() 
-	{
-		if (!this.dirty) {
-			return
-		}
-
-		this.rebuild_shader()
-
-		this.dirty = false
-	}
-
-	rebuild_shader()
-	{
-		this.uniform_nodes = []
-
-		var gen = ShaderGen.init()
-
-		var prev_nodes = Blueprint.get_precursor_nodes(this)
-		var list = Blueprint.topo_sort(prev_nodes)
-		for (var node in list) 
-		{
-			if (node["node_func"]) {
-				node.node_func.gen_shader(gen)
-			} 
-			if (node.has_method("gen_shader(_)")) {
-				node.gen_shader(gen)
-			}
-			if (node.has_method("bind_uniforms(_)")) {
-				this.uniform_nodes.add(node)
-			}
-		}
-
-		this.shader.prog = Shader.init(DEFAULT_VS, "", "", "", gen)
-	}
-
 	draw_gui(ctx)
 	{
 		var dirty = false
@@ -156,12 +122,17 @@ class Shadergraph is Node
 		gen.finish_main()
 	}
 
+	rebuild_shader()
+	{
+		this.builder = ShaderBuilder()
+		var gen = this.builder.build(this)
+		this.shader.prog = Shader.init(DEFAULT_VS, "", "", "", gen)
+	}
+
 	bind_uniforms()
 	{
-		if (this.shader.prog) {
-			for (var node in this.uniform_nodes) {
-				node.bind_uniforms(this.shader.prog)
-			}
+		if (this.builder) {
+			this.builder.bind_uniforms(this.shader.prog)		
 		}
 	}
 }

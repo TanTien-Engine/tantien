@@ -9,7 +9,7 @@ import "rendergraph.nodes.shader" for Shader
 import "rendergraph.nodes.compute" for Compute
 import "rendergraph.nodes.texture" for Texture
 import "rendergraph.drawlist" for Drawlist
-import "shadergraph.nodes.uniform" for Uniform
+import "shadergraph.shader_builder" for ShaderBuilder
 import "render" for Texture2D
 import "shader" for ShaderGen
 
@@ -79,51 +79,39 @@ class Shadergraph is Subgraph
 		{
 			COMPUTE.dirty = true
 			this.bind(SHADER)
+
+			if (this.builder) {
+				this.builder.bind_uniforms(SHADER.shader.prog)
+			}
+
 			DARWLIST.draw()
 
 			this.dirty = false
 		}
 	}
 
-	rebuild_shader()
+	find_output_node()
 	{
 		import "blueprint.nodes.output"	for Output
 
-		var output = nil
 		for (var node in this.all_nodes) {
 			if (node is Output) {
-				output = node
+				return node
 			}
 		}
 
-		if (!output) {
+		return nil
+	}
+
+	rebuild_shader()
+	{
+		var node = this.find_output_node()
+		if (!node) {
 			return
 		}
 
-		var prev_nodes = Blueprint.get_precursor_nodes(output)
-		if (prev_nodes.count < 2) {
-			return
-		}
-
-		var list = Blueprint.topo_sort(prev_nodes)
-		var gen = ShaderGen.init()
-		for (var i in 0..list.count - 1)
-		{
-			var node = list[i]
-			if (node["node_func"]) {
-				node.node_func.gen_shader(gen)
-			} 
-			if (node.has_method("gen_shader(_)")) {
-				node.gen_shader(gen)
-			}
-
-			if (node is Uniform) {
-				this.uniforms.add(node)
-			}
-			if (node is Texture) {
-				this.textures.add(node)
-			}
-		}
+		this.builder = ShaderBuilder()
+		var gen = this.builder.build(node)
 
 		gen.import_all()
 
@@ -131,7 +119,7 @@ class Shadergraph is Subgraph
 		var func = gen.get_main_func()
 
 		var dst = gen.variable_float(func)
-		var grey = Blueprint.calc_input_inst(gen, list[list.count - 1], 0, module, func)
+		var grey = Blueprint.calc_input_inst(gen, node, 0, module, func)
 		gen.store(func, dst, grey)
 
 		gen.func_return(func)
