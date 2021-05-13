@@ -6,6 +6,7 @@ import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pbrgraph.nodes.*"
 var node0 = MaterialTextures()
+node0.query_param("unif_name").value = [ "u_albedo_tex", "u_metal_roughness_tex", "u_emissive_tex", "u_ao_tex", "u_normal_tex" ]
 
 _editor.add_node(node0, -1008.3233244478, 48.09291797145)
 
@@ -39,9 +40,9 @@ _editor.add_node(node5, 550.98925429333, -58.357596342573)
 
 var node6 = Camera3d()
 
-node6.cam.position.set(-1.1535617025172, -0.3473622588541, 2.3757527358582)
-node6.cam.yaw = -65.4
-node6.cam.pitch = 10.5
+node6.cam.position.set(-2.0178092715404, 0.35372460577945, 2.6138461113479)
+node6.cam.yaw = -54
+node6.cam.pitch = -8.5
 node6.cam.zoom = 45
 node6.cam.update_vectors()
 node6.speed = 0.19878049194813
@@ -103,21 +104,21 @@ _editor.add_node(node18, -219.72994918697, -193.68088537601)
 
 var node19 = NormalFromMap()
 
-_editor.add_node(node19, -217.84439257209, 625.30857637035)
+_editor.add_node(node19, -185.05974671457, 632.82172437937)
 
 var node20 = Normal()
 
-_editor.add_node(node20, -367.81619651434, 624.81287945516)
+_editor.add_node(node20, -335.03155065682, 632.32602746418)
 
 var node21 = Number3()
 
-node21.value.set(-5, 1, 5)
+node21.value.set(3.813015460968, 5.813015460968, 7.5211386680603)
 
-_editor.add_node(node21, -365.80141417344, 471.82847535288)
+_editor.add_node(node21, -620.01224857317, 567.36004327518)
 
 var node22 = WorldPos()
 
-_editor.add_node(node22, -364.69445954021, 572.66873663003)
+_editor.add_node(node22, -331.90981368269, 580.18188463905)
 
 var node23 = DistributionGgx()
 
@@ -141,14 +142,14 @@ _editor.add_node(node27, 267.81744963317, 451.65846911043)
 
 var node28 = LightingDirs()
 
-_editor.add_node(node28, -217.03442932855, 514.35287692684)
+_editor.add_node(node28, -184.24978347103, 521.86602493586)
 
 var node29 = Commentary()
 
-node29.set_size(339.43542480469, 314.75936889648)
+node29.set_size(614.72918701172, 314.75936889648)
 node29.title = "Dirs"
 
-_editor.add_node(node29, -304.22147815938, 717.86304989981)
+_editor.add_node(node29, -402.57541573195, 715.81400953371)
 
 var node30 = Commentary()
 
@@ -156,6 +157,21 @@ node30.set_size(338.79895019531, 347.28750610352)
 node30.title = "BRDF"
 
 _editor.add_node(node30, 180.82557455818, 718.57739248641)
+
+var node31 = Uniform()
+node31.query_param("unif_name").value = "u_light_pos"
+
+_editor.add_node(node31, -322.36199072265, 503.64136079222)
+
+var node32 = Subtract()
+
+_editor.add_node(node32, -470.95670281254, 537.35978609037)
+
+var node33 = Number3()
+
+node33.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
+
+_editor.add_node(node33, -621.33824147325, 456.80372374249)
 
 Blueprint.connect(node0, "albedo", node8, "tex")
 Blueprint.connect(node0, "albedo", node2, "value")
@@ -192,7 +208,7 @@ Blueprint.connect(node19, "ret", node23, "N")
 Blueprint.connect(node19, "ret", node25, "N")
 Blueprint.connect(node19, "ret", node27, "N")
 Blueprint.connect(node20, "normal", node19, "normal")
-Blueprint.connect(node21, "v3", node28, "light_pos")
+Blueprint.connect(node21, "v3", node32, "a")
 Blueprint.connect(node22, "pos", node28, "world_pos")
 Blueprint.connect(node22, "pos", node19, "world_pos")
 Blueprint.connect(node23, "ret", node27, "D")
@@ -210,3 +226,6 @@ Blueprint.connect(node28, "L", node25, "L")
 Blueprint.connect(node28, "L", node27, "L")
 Blueprint.connect(node28, "H", node23, "H")
 Blueprint.connect(node28, "H", node26, "H")
+Blueprint.connect(node31, "v", node28, "light_pos")
+Blueprint.connect(node32, "v", node31, "v")
+Blueprint.connect(node33, "v3", node32, "b")
