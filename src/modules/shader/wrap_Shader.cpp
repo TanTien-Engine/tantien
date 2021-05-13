@@ -142,6 +142,16 @@ void w_SpirvGenTwo_mix()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_SpirvGenTwo_pow()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Pow(func, x, y);
+    ves_set_number(0, pointer2double(ret));
+}
+
 // ShaderGen
 
 void w_ShaderGen_allocate()
@@ -278,16 +288,6 @@ void w_shadergen_negate()
     spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Negate(func, v);
-    ves_set_number(0, pointer2double(ret));
-}
-
-void w_shadergen_pow()
-{
-    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
-    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-    spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
-
-    auto ret = shadertrans::SpirvGenTwo::Pow(func, x, y);
     ves_set_number(0, pointer2double(ret));
 }
 
@@ -645,7 +645,8 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "static SpirvGenTwo.add(_,_,_)") == 0) return w_SpirvGenTwo_add;
     if (strcmp(signature, "static SpirvGenTwo.sub(_,_,_)") == 0) return w_SpirvGenTwo_sub;
     if (strcmp(signature, "static SpirvGenTwo.mix(_,_,_,_)") == 0) return w_SpirvGenTwo_mix;
-    
+    if (strcmp(signature, "static SpirvGenTwo.pow(_,_,_)") == 0) return w_SpirvGenTwo_pow;
+
     // ShaderGen
 
     if (strcmp(signature, "ShaderGen.add_input(_,_)") == 0) return w_ShaderGen_add_input;
@@ -661,7 +662,6 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.mul(_,_,_)") == 0) return w_shadergen_mul;
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
-    if (strcmp(signature, "ShaderGen.pow(_,_,_)") == 0) return w_shadergen_pow;
     if (strcmp(signature, "ShaderGen.normalize(_,_)") == 0) return w_shadergen_normalize;
     if (strcmp(signature, "ShaderGen.max(_,_,_)") == 0) return w_shadergen_max;
     if (strcmp(signature, "ShaderGen.min(_,_,_)") == 0) return w_shadergen_min;

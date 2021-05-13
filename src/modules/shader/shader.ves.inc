@@ -16,6 +16,7 @@ foreign class SpirvGenTwo
 	foreign static add(func, a, b)
 	foreign static sub(func, a, b)
 	foreign static mix(func, x, y, a)
+	foreign static pow(func, x, y)
 }
 
 foreign class ShaderGen
@@ -121,6 +122,15 @@ foreign class ShaderGen
 		return nil
 	}
 
+	pow(func, x, y)
+	{
+		if (!x or !y) {
+			return nil
+		}
+
+		return SpirvGenTwo.pow(func, x, y)
+	}
+
 	foreign add_input(name, type)
 	foreign add_output(name, type)
 	foreign add_uniform(module, name, type)
@@ -134,7 +144,6 @@ foreign class ShaderGen
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
 	foreign negate(func, v)
-	foreign pow(func, x, y)
 	foreign normalize(func, v)
 	foreign max(func, a, b)
 	foreign min(func, a, b)
