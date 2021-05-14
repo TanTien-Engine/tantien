@@ -104,7 +104,7 @@ foreign class Render
 	foreign static get_shader_uniforms(stage, code, lang)
 	foreign static get_shader_func_argus(stage, code, lang, name)
 
-	foreign static get_fbo(cls)
+	foreign static get_fbo()
 	foreign static set_fbo(fbo)	
 
 	// [x, y, w, h]

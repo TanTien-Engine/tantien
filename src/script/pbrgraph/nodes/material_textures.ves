@@ -4,7 +4,6 @@ import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "rendergraph.variant" for VAR_TYPE_MODEL, VAR_TYPE_TEXTURE, VarTexture
-import "render" for Texture2D
 
 class MaterialTextures is Node
 {
@@ -95,6 +94,6 @@ class MaterialTextures is Node
 			return []
 		}
 
-		return model.get_pbr_textures(Texture2D)
+		return model.get_pbr_textures()
 	}
 }

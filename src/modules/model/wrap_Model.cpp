@@ -70,8 +70,11 @@ void w_Model_get_pbr_textures()
     for (int i = 0; i < 5; ++i)
     {
         ves_pushnil();
-        if (textures_idx[i] >= 0) {
-            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 1, sizeof(std::shared_ptr<ur::Texture>));
+        if (textures_idx[i] >= 0) 
+        {
+            ves_import_class("render", "Texture2D");
+            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(2, -1, sizeof(std::shared_ptr<ur::Texture>));
+            ves_pop(1);
             *tex = model->textures[textures_idx[i]].second;
         }
         ves_seti(-2, i);
@@ -88,7 +91,7 @@ namespace tt
 
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Model.get_pbr_textures(_)") == 0) return w_Model_get_pbr_textures;
+    if (strcmp(signature, "Model.get_pbr_textures()") == 0) return w_Model_get_pbr_textures;
 
     return NULL;
 }

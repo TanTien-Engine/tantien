@@ -5,7 +5,7 @@ foreign class Model
 {
 	init(filepath) {}
 
-	foreign get_pbr_textures(tex_cls)
+	foreign get_pbr_textures()
 }
 
 );
