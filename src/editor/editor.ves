@@ -562,6 +562,16 @@ import \"editor\" for _editor
 		IO.close(file)
 	}
 
+	query_node_idx(node_set, bp_node)
+	{
+		for (var i in 0..node_set.count) {
+			if (node_set[i].components["bp"] == bp_node) {
+				return i
+			}
+		}
+		return -1
+	}
+
 	savetofile()
 	{
 		class MemFile {
@@ -606,13 +616,16 @@ import \"editor\" for _editor
 		}
 
 		// connections
-		var f_idx = 0
-		for (var f_node in scene.nodes) 
+		var bp_nodes = []
+		for (var f_node in scene.nodes) {
+			bp_nodes.add(f_node.components["bp"])		
+		}
+		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
+		for (var f_node in sorted_nodes) 
 		{
+			var f_idx = this.query_node_idx(scene.nodes, f_node)
 			var f_name = "node%(f_idx)"
-
-			var f_bp = f_node.components["bp"]
-			for (var f_pin in f_bp.exports)
+			for (var f_pin in f_node.exports)
 			{
 				for (var f_conn in f_pin.conns)
 				{
@@ -631,8 +644,6 @@ import \"editor\" for _editor
 					}
 				}
 			}
-
-			f_idx = f_idx + 1
 		}
 
 		if (file is MemFile) 
@@ -652,10 +663,10 @@ import \"editor\" for _editor
 		var scene = this.scene_stack.top()
 
 		// nodes
-		var index = 0	
 		for (var node in scene.selection) 
 		{
 			var bp = node.components["bp"]
+			var index = this.query_node_idx(scene.nodes, bp)
 			var trans = node.components["transform"]
 
 			var name = "node%(index)"
@@ -666,18 +677,19 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 "
 			this.clipboard = this.clipboard + source
 			ext_clipboard = ext_clipboard + source
-
-			index = index + 1
 		}
 
 		// connections
-		var t_idx = 0
-		for (var t_node in scene.selection) 
+		var bp_nodes = []
+		for (var node in scene.selection) {
+			bp_nodes.add(node.components["bp"])		
+		}
+		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
+		for (var t_node in sorted_nodes) 
 		{
+			var t_idx = this.query_node_idx(scene.nodes, t_node)
 			var t_name = "node%(t_idx)"
-
-			var t_bp = t_node.components["bp"]
-			for (var t_pin in t_bp.imports)
+			for (var t_pin in t_node.imports)
 			{
 				for (var t_conn in t_pin.conns)
 				{
@@ -710,8 +722,6 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 					}
 				}
 			}
-
-			t_idx = t_idx + 1
 		}
 
 		this.cam_pos_on_copy = Vector2(this.camera.pos.x, this.camera.pos.y)
