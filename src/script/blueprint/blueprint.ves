@@ -114,6 +114,9 @@ class Blueprint
 		from.conns.add(conn)
 		to.conns.add(conn)
 		conn.update()
+
+		from.node.on_connected(from)
+		to.node.on_connected(to)
 	}
 
 	static query_pin(pins, slot)
@@ -148,6 +151,9 @@ class Blueprint
 		conn.from.conns.remove(conn)
 		conn.to.conns.remove(conn)
 		conn.update()
+
+		conn.from.node.on_disconnected(conn.from)
+		conn.to.node.on_disconnected(conn.to)
 	}
 
 	static get_input_pin(curr_node, input_slot)

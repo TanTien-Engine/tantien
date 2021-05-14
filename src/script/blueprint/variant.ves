@@ -10,6 +10,7 @@ var VAR_TYPE_PORT     = "port"
 var VAR_TYPE_UNKNOWN  = "unknown"
 var VAR_TYPE_ANY      = "any"
 
+var VAR_TYPE_TABLE    = "table"
 var VAR_TYPE_ARRAY    = "array"
 var VAR_TYPE_FUNCTION = "func"
 
@@ -22,54 +23,35 @@ var VAR_TYPE_MATRIX2  = "mat2"
 var VAR_TYPE_MATRIX3  = "mat3"
 var VAR_TYPE_MATRIX4  = "mat4"
 
+fun get_value_type(value)
+{
+	if (value is Variant) {
+		return value.type
+	} else if (value is List) {
+		return VAR_TYPE_ARRAY
+	} else if (value is Map) {
+		return VAR_TYPE_TABLE
+	} else if (value is Num) {
+		return VAR_TYPE_NUMBER
+	} else if (value is Vector2) {
+		return VAR_TYPE_NUMBER2
+	} else if (value is Vector3) {
+		return VAR_TYPE_NUMBER3
+	} else if (value is Vector4) {
+		return VAR_TYPE_NUMBER4
+	} else if (value is Matrix44) {
+		return VAR_TYPE_MATRIX4
+	} else {
+		return VAR_TYPE_ANY
+	}
+}
+
 class Variant
 {
 	init(value)
 	{
-		if (value is Variant)
-		{
-			this.type = value.type
-			this.value = value.value
-		}
-		else if (value is List)
-		{
-			var list = []
-			for (var v in value) {
-				list.add(Variant(v))
-			}
-			this.type = VAR_TYPE_ARRAY
-			this.value = list
-		}
-		else if (value is Num)
-		{
-			this.type = VAR_TYPE_NUMBER
-			this.value = value
-		}
-		else if (value is Vector2)
-		{
-			this.type = VAR_TYPE_NUMBER2
-			this.value = value
-		}
-		else if (value is Vector3)
-		{
-			this.type = VAR_TYPE_NUMBER3
-			this.value = value
-		}
-		else if (value is Vector4)
-		{
-			this.type = VAR_TYPE_NUMBER4
-			this.value = value
-		}
-		else if (value is Matrix44)
-		{
-			this.type = VAR_TYPE_MATRIX4
-			this.value = value
-		}
-		else
-		{
-			this.type = VAR_TYPE_ANY
-			this.value = value
-		}
+		this.type = get_value_type(value)
+		this.value = value
 	}
 
 	init(type, value)

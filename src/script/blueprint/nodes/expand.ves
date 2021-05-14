@@ -1,0 +1,76 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class Expand is Node
+{
+	init() 
+	{
+		super.init(Expand.name)
+
+		this.imports = [
+			Pin(this, "data", [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
+		]
+
+		this.export_values = []
+
+		this.layout()
+	}
+
+	layout()
+	{
+		super.layout()
+
+		this.style.width = 180
+	}
+
+	calc_value(idx)
+	{
+		return this.export_values[idx]
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input) {
+			this.setup_data()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input) {
+			this.setup_data()
+		}
+	}
+
+	setup_data()
+	{
+		this.exports.clear()
+		this.export_values.clear()
+
+		var data = Blueprint.calc_input_value(this, 0)
+		if (!data) {
+			this.layout()
+			return
+		}
+
+		if (data.type == VAR_TYPE_TABLE)
+		{
+			for (var entry in data.value) {
+				var v = Variant(entry.value)
+				this.exports.add(Pin(this, entry.key, v.type))
+				this.export_values.add(v)
+			}
+		}
+		else if (data.type == VAR_TYPE_ARRAY)
+		{
+			for (var i in 0..data.value.count) {
+				this.exports.add(Pin(this, "%(i)", v.type))
+				this.export_values.add(v)
+			}
+		}
+
+		this.layout()
+	}
+}
