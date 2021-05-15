@@ -1,0 +1,64 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Expand()
+
+_editor.add_node(node0, 347.38545503312, -27.25315509744)
+
+var node1 = Gltf()
+node1.init_model("assets/models/SheenChair/SheenChair.gltf")
+
+_editor.add_node(node1, 175.55229342617, -3.5348008492143)
+
+var node2 = Expand()
+
+_editor.add_node(node2, 572.99869828703, -110.73134345626)
+
+var node3 = Expand()
+
+_editor.add_node(node3, 794.59512091713, -124.33831138586)
+
+var node4 = Subgraph()
+node4.load_from_file(_editor, "assets/rendergraph/draw_gltf_va.ves")
+
+_editor.add_node(node4, 1114.8889409091, 105.97716363636)
+
+var node5 = Pass()
+
+node5.once = false
+
+_editor.add_node(node5, 1326.8658750681, 137.57970777735)
+
+var node6 = Camera3d()
+
+node6.cam.position.set(-1.0600709931657, 1.0977300358766, 0.75870531361301)
+node6.cam.yaw = -37.2
+node6.cam.pitch = -27
+node6.cam.zoom = 45
+node6.cam.update_vectors()
+node6.speed = 0.1819109171629
+
+_editor.add_node(node6, 850.8459035601, 219.48524946691)
+
+var node7 = Expand()
+
+_editor.add_node(node7, 572.23832469914, 46.141301367894)
+
+var node8 = Expand()
+
+_editor.add_node(node8, 794.88080388849, 32.666541012851)
+
+Blueprint.connect(node6, "this", node4, "view_cam")
+Blueprint.connect(node1, "desc", node0, "data")
+Blueprint.connect(node0, "SheenChair_fabric", node7, "data")
+Blueprint.connect(node0, "SheenChair_label", node2, "data")
+Blueprint.connect(node7, "va", node4, "va")
+Blueprint.connect(node7, "occlusion", node8, "data")
+Blueprint.connect(node8, "tex_coord", node4, "texcoord")
+Blueprint.connect(node8, "texture", node4, "diffuse_tex")
+Blueprint.connect(node4, "next", node5, "prev")
+Blueprint.connect(node2, "base_color", node3, "data")

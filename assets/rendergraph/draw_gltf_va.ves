@@ -1,0 +1,117 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Draw()
+
+node0.set_prim_type("triangles")
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, 11.240167232071, -13.523568493438)
+
+var node1 = Shader()
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoords0;
+layout (location = 3) in vec2 aTexCoords1;
+
+out vec2 TexCoords;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+	int texcoord;
+};
+
+void main()
+{
+	if (texcoord == 0) {
+    	TexCoords = aTexCoords0;
+	} else {
+    	TexCoords = aTexCoords1;	
+	}
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D diffuse_tex;
+
+void main()
+{    
+    FragColor = texture(diffuse_tex, TexCoords);
+}
+"
+node1.cs = ""
+node1.execute()
+
+_editor.add_node(node1, -197.37606979578, -120.5877095474)
+
+var node2 = Clear()
+
+node2.masks = [ "color", "depth" ]
+node2.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node2, -181.40594233567, 154.09172663351)
+
+var node3 = Perspective()
+
+node3.fovy = 45
+node3.aspect = 0
+node3.znear = 0.1
+node3.zfar = 100
+
+_editor.add_node(node3, -421.69599251269, -42.960075321102)
+
+var node4 = Proxy()
+
+node4.real_name = "view_cam"
+node4.init_real_node(_editor.popup_nodes, "Camera3d")
+
+_editor.add_node(node4, -425.53384713513, 105.15559416076)
+
+var node5 = Input()
+
+node5.var_name = "va"
+node5.var_type = "va"
+
+_editor.add_node(node5, -175.85512834516, -269.41153260327)
+
+var node6 = Input()
+
+node6.var_name = "diffuse_tex"
+node6.var_type = "unknown"
+
+_editor.add_node(node6, -393.83784445497, -221.19656339265)
+
+var node7 = Input()
+
+node7.var_name = "texcoord"
+node7.var_type = "num"
+
+_editor.add_node(node7, -393, -151.5)
+
+Blueprint.connect(node7, "var", node1, "texcoord")
+Blueprint.connect(node6, "var", node1, "diffuse_tex")
+Blueprint.connect(node5, "var", node0, "va")
+Blueprint.connect(node4, "mat", node1, "view")
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node3, "mat", node1, "projection")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "next", node0, "prev")

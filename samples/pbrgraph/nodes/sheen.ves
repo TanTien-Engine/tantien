@@ -1,0 +1,224 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = MaterialTextures()
+node0.query_param("unif_name").value = [ "u_albedo_tex", "u_metal_roughness_tex", "u_emissive_tex", "u_ao_tex", "u_normal_tex" ]
+
+_editor.add_node(node0, -1008.3233244478, 48.09291797145)
+
+var node1 = Model()
+node1.init_model("assets/models/SheenChair/SheenChair.gltf")
+
+_editor.add_node(node1, -1342.810710233, -240.78522691961)
+
+var node2 = Print()
+
+_editor.add_node(node2, -816.36599588763, 280.30468215053)
+
+var node3 = Draw()
+
+node3.set_prim_type("triangles")
+node3.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node3.skip = false
+
+_editor.add_node(node3, 804.1137695508, -371.31379829614)
+
+var node4 = Shadergraph()
+
+_editor.add_node(node4, 559.6677983363, -227.32712314921)
+
+var node5 = Clear()
+
+node5.masks = [ "color", "depth" ]
+node5.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node5, 550.98925429333, -58.357596342573)
+
+var node6 = Camera3d()
+
+node6.cam.position.set(-0.7205396994172, 1.1644244260178, 0.90434144186099)
+node6.cam.yaw = -54.7
+node6.cam.pitch = -37.4
+node6.cam.zoom = 45
+node6.cam.update_vectors()
+node6.speed = 0.19878049194813
+
+_editor.add_node(node6, 252.88139322216, -152.85027821055)
+
+var node7 = Perspective()
+
+node7.fovy = 45
+node7.aspect = 0
+node7.znear = 0.1
+node7.zfar = 100
+
+_editor.add_node(node7, 393.9051618913, -277.44310205408)
+
+var node8 = SampleTexture()
+
+_editor.add_node(node8, -654.42965741199, -6.213133972083)
+
+var node9 = TexCoord()
+
+_editor.add_node(node9, -919.25651963775, -141.32895415142)
+
+var node10 = SrgbToLinear()
+
+_editor.add_node(node10, -374.40956539145, -76.285666163403)
+
+var node11 = Split()
+
+_editor.add_node(node11, -499.10789154844, -27.008500361782)
+
+var node12 = Combine()
+
+_editor.add_node(node12, 246.28085557659, 2.5572038491053)
+
+var node13 = GammaCorrection()
+
+_editor.add_node(node13, 45.969886882484, -90.051880703904)
+
+var node14 = SampleTexture()
+
+_editor.add_node(node14, -655.04205578267, -155.08836076124)
+
+var node15 = Multiply()
+
+_editor.add_node(node15, -219.72994918697, -193.68088537601)
+
+var node16 = NormalFromMap()
+
+_editor.add_node(node16, -185.05974671457, 632.82172437937)
+
+var node17 = Normal()
+
+_editor.add_node(node17, -335.03155065682, 632.32602746418)
+
+var node18 = Number3()
+
+node18.value.set(3.813015460968, 5.813015460968, 7.5211386680603)
+
+_editor.add_node(node18, -620.01224857317, 567.36004327518)
+
+var node19 = WorldPos()
+
+_editor.add_node(node19, -331.90981368269, 580.18188463905)
+
+var node20 = DistributionGgx()
+
+_editor.add_node(node20, 78.72428608585, 635.32834350678)
+
+var node21 = GeometrySmith()
+
+_editor.add_node(node21, 83.50606279794, 525.30267527305)
+
+var node22 = FresnelSchlick()
+
+_editor.add_node(node22, 88.99731153114, 410.93061110887)
+
+var node23 = Brdf()
+
+_editor.add_node(node23, 267.81744963317, 451.65846911043)
+
+var node24 = LightingDirs()
+
+_editor.add_node(node24, -184.24978347103, 521.86602493586)
+
+var node25 = Commentary()
+
+node25.set_size(614.72918701172, 314.75936889648)
+node25.title = "Dirs"
+
+_editor.add_node(node25, -402.57541573195, 715.81400953371)
+
+var node26 = Commentary()
+
+node26.set_size(338.79895019531, 347.28750610352)
+node26.title = "BRDF"
+
+_editor.add_node(node26, 180.82557455818, 718.57739248641)
+
+var node27 = Uniform()
+node27.query_param("unif_name").value = "u_light_pos"
+
+_editor.add_node(node27, -322.36199072265, 503.64136079222)
+
+var node28 = Subtract()
+
+_editor.add_node(node28, -470.95670281254, 537.35978609037)
+
+var node29 = Number3()
+
+node29.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
+
+_editor.add_node(node29, -621.33824147325, 456.80372374249)
+
+var node30 = OrbitCamera()
+node30.query_param("speed").value = 0.28373855352402
+
+_editor.add_node(node30, 387.26497073944, -177.01195812736)
+
+var node31 = Expand()
+
+_editor.add_node(node31, -1277.6751901313, -440.05149985622)
+
+var node32 = Gltf()
+node32.init_model("assets/models/SheenChair/SheenChair.gltf")
+
+_editor.add_node(node32, -1429.9533300781, -410.03127685547)
+
+var node33 = Expand()
+
+_editor.add_node(node33, -1117.4981251559, -422.60961526551)
+
+Blueprint.connect(node0, "albedo", node8, "tex")
+Blueprint.connect(node0, "ao", node14, "tex")
+Blueprint.connect(node0, "ao", node2, "value")
+Blueprint.connect(node0, "normal", node16, "normal_map")
+Blueprint.connect(node1, "model", node0, "model")
+Blueprint.connect(node1, "model", node3, "model")
+Blueprint.connect(node4, "shader", node3, "shader")
+Blueprint.connect(node5, "next", node3, "prev")
+Blueprint.connect(node6, "mat", node4, "view")
+Blueprint.connect(node6, "zoom", node7, "fovy")
+Blueprint.connect(node6, "pos", node24, "cam_pos")
+Blueprint.connect(node7, "mat", node4, "projection")
+Blueprint.connect(node8, "rgba", node11, "xyzw")
+Blueprint.connect(node9, "uv", node8, "uv")
+Blueprint.connect(node9, "uv", node14, "uv")
+Blueprint.connect(node9, "uv", node16, "tex_coords")
+Blueprint.connect(node10, "ret", node23, "albedo")
+Blueprint.connect(node10, "ret", node22, "albedo")
+Blueprint.connect(node11, "w", node12, "w")
+Blueprint.connect(node11, "xyz", node10, "srgb")
+Blueprint.connect(node12, "xyzw", node4, "rgba")
+Blueprint.connect(node13, "non-linear", node12, "xyz")
+Blueprint.connect(node14, "r", node15, "b")
+Blueprint.connect(node15, "v", node13, "linear")
+Blueprint.connect(node16, "ret", node20, "N")
+Blueprint.connect(node16, "ret", node21, "N")
+Blueprint.connect(node16, "ret", node23, "N")
+Blueprint.connect(node17, "normal", node16, "normal")
+Blueprint.connect(node18, "v3", node28, "a")
+Blueprint.connect(node19, "pos", node24, "world_pos")
+Blueprint.connect(node19, "pos", node16, "world_pos")
+Blueprint.connect(node20, "ret", node23, "D")
+Blueprint.connect(node21, "ret", node23, "G")
+Blueprint.connect(node22, "ret", node23, "F")
+Blueprint.connect(node23, "ret", node15, "a")
+Blueprint.connect(node24, "V", node21, "V")
+Blueprint.connect(node24, "V", node22, "V")
+Blueprint.connect(node24, "V", node23, "V")
+Blueprint.connect(node24, "L", node21, "L")
+Blueprint.connect(node24, "L", node23, "L")
+Blueprint.connect(node24, "H", node20, "H")
+Blueprint.connect(node24, "H", node22, "H")
+Blueprint.connect(node27, "v", node24, "light_pos")
+Blueprint.connect(node28, "v", node27, "v")
+Blueprint.connect(node29, "v3", node28, "b")
+Blueprint.connect(node30, "mat", node4, "world_trans")
+Blueprint.connect(node32, "info", node31, "data")
