@@ -8,4 +8,11 @@ foreign class Model
 	foreign get_pbr_textures()
 }
 
+foreign class glTF
+{
+	init(filepath) {}
+
+	foreign get_desc()
+}
+
 );

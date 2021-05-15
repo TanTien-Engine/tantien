@@ -24,7 +24,7 @@ std::shared_ptr<ur::VertexArray> build_vertex_array(const ur::Device& dev, const
         stride = 3;
         break;
     case ur::VertexLayoutType::PosTex:
-        vertex_type = model::VERTEX_FLAG_TEXCOORDS;
+        vertex_type = model::VERTEX_FLAG_TEXCOORDS0;
         stride = 3 + 2;
         break;
     case ur::VertexLayoutType::PosNorm:
@@ -32,7 +32,7 @@ std::shared_ptr<ur::VertexArray> build_vertex_array(const ur::Device& dev, const
         stride = 3 + 3;
         break;
     case ur::VertexLayoutType::PosNormTex:
-        vertex_type = model::VERTEX_FLAG_NORMALS | model::VERTEX_FLAG_TEXCOORDS;
+        vertex_type = model::VERTEX_FLAG_NORMALS | model::VERTEX_FLAG_TEXCOORDS0;
         stride = 3 + 3 + 2;
         break;
     default:
@@ -73,7 +73,7 @@ std::shared_ptr<ur::VertexArray> build_vertex_array(const ur::Device& dev, const
         ));
         ptr += 3 * 4;
     }
-    if (vertex_type & model::VERTEX_FLAG_TEXCOORDS)
+    if (vertex_type & model::VERTEX_FLAG_TEXCOORDS0)
     {
         vbuf_attrs.push_back(std::make_shared<ur::VertexInputAttribute>(
             vbuf_attrs.size(), ur::ComponentDataType::Float, 2, ptr, size

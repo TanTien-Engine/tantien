@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_TABLE
+import "model" for glTF
+import "render" for Texture2D, VertexArray
+
+class Gltf is Node
+{
+	init()
+	{
+		super.init(Gltf.name)
+
+		this.exports = [
+			Pin(this, "desc", VAR_TYPE_TABLE),
+		]
+
+		this.layout()
+
+		this.model = nil
+
+		this.model_filepath = ""
+
+		this.model_desc = {}
+	}
+
+	calc_value(idx)
+	{
+		return Variant(this.model_desc)
+	}
+
+	to_string(name) 
+	{
+		return "%(name).init_model(\"%(this.model_filepath)\")\n"
+	}
+
+	init_model(filepath)
+	{
+		this.model_filepath = filepath
+		this.model = glTF.init(filepath)
+		this.model_desc = this.model.get_desc()
+	}
+}
