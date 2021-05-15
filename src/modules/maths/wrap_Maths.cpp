@@ -81,6 +81,7 @@ void w_Float3_allocate()
     sm::vec3* v3 = (sm::vec3*)ves_set_newforeign(0, 0, sizeof(sm::vec3));
     v3->x = 0;
     v3->y = 0;
+    v3->z = 0;
 }
 
 int w_Float3_finalize(void* data)
@@ -295,33 +296,33 @@ void w_Matrix44_lookat()
     sm::vec3 eye, center, up;
 
     ves_getfield(1, "x");
-    eye.x = ves_tonumber(-1);
+    eye.x = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(1, "y");
-    eye.y = ves_tonumber(-1);
+    eye.y = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(1, "z");
-    eye.z = ves_tonumber(-1);
+    eye.z = (float)ves_tonumber(-1);
     ves_pop(1);
 
     ves_getfield(2, "x");
-    center.x = ves_tonumber(-1);
+    center.x = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(2, "y");
-    center.y = ves_tonumber(-1);
+    center.y = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(2, "z");
-    center.z = ves_tonumber(-1);
+    center.z = (float)ves_tonumber(-1);
     ves_pop(1);
-
+    
     ves_getfield(3, "x");
-    up.x = ves_tonumber(-1);
+    up.x = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(3, "y");
-    up.y = ves_tonumber(-1);
+    up.y = (float)ves_tonumber(-1);
     ves_pop(1);
     ves_getfield(3, "z");
-    up.z = ves_tonumber(-1);
+    up.z = (float)ves_tonumber(-1);
     ves_pop(1);
 
     *mt = sm::mat4::LookAt(eye, center, up);
