@@ -1334,7 +1334,7 @@ void w_Render_clear()
 void w_Render_get_fbo()
 {
     ves_import_class("render", "Framebuffer");
-    std::shared_ptr<ur::Framebuffer>* fbo = (std::shared_ptr<ur::Framebuffer>*)ves_set_newforeign(0, -1, sizeof(std::shared_ptr<ur::Framebuffer>));
+    std::shared_ptr<ur::Framebuffer>* fbo = (std::shared_ptr<ur::Framebuffer>*)ves_set_newforeign(0, 1, sizeof(std::shared_ptr<ur::Framebuffer>));
     ves_pop(1);
     *fbo = tt::Render::Instance()->Context()->GetFramebuffer();
 }

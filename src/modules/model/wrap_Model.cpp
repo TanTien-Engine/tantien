@@ -76,7 +76,7 @@ void w_Model_get_pbr_textures()
         if (textures_idx[i] >= 0) 
         {
             ves_import_class("render", "Texture2D");
-            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(2, -1, sizeof(std::shared_ptr<ur::Texture>));
+            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(2, 3, sizeof(std::shared_ptr<ur::Texture>));
             ves_pop(1);
             *tex = model->textures[textures_idx[i]].second;
         }
