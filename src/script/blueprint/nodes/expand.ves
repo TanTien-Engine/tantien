@@ -46,6 +46,11 @@ class Expand is Node
 
 	setup_data()
 	{
+		for (var p in this.exports) {
+			while (!p.conns.isEmpty) {
+				Blueprint.disconnect(p.conns.front())
+			}
+		}
 		this.exports.clear()
 		this.export_values.clear()
 
