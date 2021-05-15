@@ -71,6 +71,7 @@ class Expand is Node
 		else if (data.type == VAR_TYPE_ARRAY)
 		{
 			for (var i in 0..data.value.count) {
+				var v = Variant(data.value[i])
 				this.exports.add(Pin(this, "%(i)", v.type))
 				this.export_values.add(v)
 			}
