@@ -93,3 +93,18 @@ class VarModel
 		this.model = nil
 	}
 }
+
+fun value_to_variant(variant, value)
+{
+	if (value is Texture2D)
+	{
+		variant.type = VAR_TYPE_TEXTURE
+		variant.value = VarTexture()
+		variant.value.tex = value
+		return true
+	}
+	else
+	{
+		return false
+	}
+}

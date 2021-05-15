@@ -23,6 +23,8 @@ var VAR_TYPE_MATRIX2  = "mat2"
 var VAR_TYPE_MATRIX3  = "mat3"
 var VAR_TYPE_MATRIX4  = "mat4"
 
+var VAR_BUILDER_FUNCS = []
+
 fun get_value_type(value)
 {
 	if (value is Variant) {
@@ -50,8 +52,11 @@ class Variant
 {
 	init(value)
 	{
-		this.type = get_value_type(value)
-		this.value = value
+		for (var func in VAR_BUILDER_FUNCS) {
+			if (func(this, value)) {
+				return
+			}
+		}
 
 		if (value is Float2)
 		{
