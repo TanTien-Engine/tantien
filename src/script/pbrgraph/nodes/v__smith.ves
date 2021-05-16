@@ -3,7 +3,7 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-float geometry_schlick_ggx(float NdotV, float roughness)
+float V_SchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
     float k = (r*r) / 8.0;
@@ -13,23 +13,23 @@ float geometry_schlick_ggx(float NdotV, float roughness)
 
     return nom / denom;
 }
-float geometry_smith(vec3 N, vec3 V, vec3 L, float roughness)
+float V_Smith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = geometry_schlick_ggx(NdotV, roughness);
-    float ggx1 = geometry_schlick_ggx(NdotL, roughness);
+    float ggx2 = V_SchlickGGX(NdotV, roughness);
+    float ggx1 = V_SchlickGGX(NdotL, roughness);
 
     return ggx1 * ggx2;
 }
 "
 
-class GeometrySmith is Node
+class V_Smith is Node
 {
 	init()
 	{
-		super.init(GeometrySmith.name)
+		super.init(V_Smith.name)
 
-		this.node_func = NodeFunction(this, CODE, "geometry_smith", [])	
+		this.node_func = NodeFunction(this, CODE, "V_Smith", [])	
 	}
 }

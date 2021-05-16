@@ -4,7 +4,7 @@ import "blueprint.node_function" for NodeFunction
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
 const float PI = 3.14159265359;
-float distribution_ggx(vec3 N, vec3 H, float roughness)
+float D_GGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness*roughness;
     float a2 = a*a;
@@ -19,12 +19,12 @@ float distribution_ggx(vec3 N, vec3 H, float roughness)
 }
 "
 
-class DistributionGgx is Node
+class D_GGX is Node
 {
 	init()
 	{
-		super.init(DistributionGgx.name)
+		super.init(D_GGX.name)
 
-		this.node_func = NodeFunction(this, CODE, "distribution_ggx", [])	
+		this.node_func = NodeFunction(this, CODE, "D_GGX", [])	
 	}
 }

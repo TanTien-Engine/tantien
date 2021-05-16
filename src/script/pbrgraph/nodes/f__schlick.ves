@@ -3,11 +3,11 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-vec3 fresnel_schlick(float cosTheta, vec3 F0)
+vec3 F_Schlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
-vec3 fresnel_schlick2(vec3 H, vec3 V, vec3 albedo, float metallic)
+vec3 F_Schlick2(vec3 H, vec3 V, vec3 albedo, float metallic)
 {
 	float cosTheta = max(dot(H, V), 0.0);
 
@@ -20,12 +20,12 @@ vec3 fresnel_schlick2(vec3 H, vec3 V, vec3 albedo, float metallic)
 }
 "
 
-class FresnelSchlick is Node
+class F_Schlick is Node
 {
 	init()
 	{
-		super.init(FresnelSchlick.name)
+		super.init(F_Schlick.name)
 
-		this.node_func = NodeFunction(this, CODE, "fresnel_schlick2", [])	
+		this.node_func = NodeFunction(this, CODE, "F_Schlick2", [])	
 	}
 }
