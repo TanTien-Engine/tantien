@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
 
 class Expand is Node
 {
@@ -14,6 +15,7 @@ class Expand is Node
 		]
 
 		this.export_values = []
+		this.uniforms = []
 
 		this.layout()
 	}
@@ -28,6 +30,59 @@ class Expand is Node
 	calc_value(idx)
 	{
 		return this.export_values[idx]
+	}
+
+    gen_shader(gen)
+    {
+    	this.uniforms = List.filled(this.exports.count, nil)
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		// todo: only support texture
+
+		var value = this.export_values[idx]
+		if (value.type != VAR_TYPE_TEXTURE) {
+			return nil
+		}
+
+		if (!this.uniforms[idx]) {
+			var name = this.get_unif_name(idx)
+			this.uniforms[idx] = gen.add_uniform(module, name, "texture")
+		}
+
+		if (this.uniforms[idx]) {
+			return gen.load(func, this.uniforms[idx])
+		} else {
+			return nil
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		for (var i in 0..this.exports.count)
+		{
+			var value = this.export_values[i]
+			var unif = this.uniforms[i]
+			if (value.type == VAR_TYPE_TEXTURE and value.value and unif)
+			{
+				var name = this.get_unif_name(i)
+				prog.set_uniform_value([name, "sampler", [value.value.tex, "linear_clamp"]])			
+			}
+		}	
+	}
+
+	get_unif_name(index)
+	{
+		var name = ""
+		
+		var prev_pin = Blueprint.get_input_pin(this, 0)
+		if (prev_pin) {
+			name = name + prev_pin.name
+		}
+
+		name = name + "_" + this.exports[index].name	
+		return name
 	}
 
 	on_connected(pin)
@@ -78,5 +133,7 @@ class Expand is Node
 		}
 
 		this.layout()
+
+		this.uniforms = List.filled(this.exports.count, nil)
 	}
 }
