@@ -39,7 +39,7 @@ class Texture is Node
 
 		// for gui
 		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
-		this.set_sampler("linear repeat")
+		this.set_sampler("linear clamp")
 		this.fomat_items = ["rgb", "rgba8", "rgba16f", "rg16f", "r16"]
 		this.format_selected = 0
 	}
@@ -50,15 +50,7 @@ class Texture is Node
 		{
 			var ret = VarTexture()
 			ret.tex = this.tex
-			if (this.sampler_selected == 0) {
-				ret.sampler = "nearest_clamp"
-			} else if (this.sampler_selected == 1) {
-				ret.sampler = "linear_clamp"
-			} else if (this.sampler_selected == 2) {
-				ret.sampler = "nearest_repeat"
-			} else if (this.sampler_selected == 3) {
-				ret.sampler = "linear_repeat"
-			}
+			ret.sampler = this.get_curr_sampler()
 			return Variant(VAR_TYPE_TEXTURE, ret)
 		}
 		else if (idx == 1)
@@ -101,7 +93,7 @@ class Texture is Node
 	bind_uniforms(prog)
 	{
 		var name = this.query_param("unif_name").value
-		prog.set_uniform_value([name, "sampler", [this.tex, "linear_clamp"]])
+		prog.set_uniform_value([name, "sampler", [this.tex, this.get_curr_sampler()]])
 	}
 
 	draw(mt, cam_mt)
@@ -191,6 +183,21 @@ class Texture is Node
 				this.sampler_selected = i
 				return
 			}
+		}
+	}
+
+	get_curr_sampler()
+	{
+		if (this.sampler_selected == 0) {
+			return "nearest_clamp"
+		} else if (this.sampler_selected == 1) {
+			return "linear_clamp"
+		} else if (this.sampler_selected == 2) {
+			return "nearest_repeat"
+		} else if (this.sampler_selected == 3) {
+			return "linear_repeat"
+		} else {
+			return "linear_clamp"
 		}
 	}
 }
