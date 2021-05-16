@@ -106,6 +106,9 @@ class NodeFunction
 		for (var pin in this.node.imports) {
 			if (pin.type != VAR_TYPE_FUNCTION) {
 				var inst = this.calc_inst_from_pin(gen, pin, module, func)
+				if (!inst) {
+					return nil
+				}
 				params.add(inst)
 			}
 		}
