@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_NUMBER2
+import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
 
 class TexCoord is Node
 {
@@ -8,6 +9,9 @@ class TexCoord is Node
 	{
 		super.init(TexCoord.name)	
 
+		this.imports = [
+			Pin(this, "set_id", VAR_TYPE_NUMBER),
+		]
 		this.exports = [
 			Pin(this, "uv", VAR_TYPE_NUMBER2),
 		]
@@ -17,7 +21,12 @@ class TexCoord is Node
 
 	gen_shader(gen)
 	{
-		this.inst = gen.add_input("TexCoord", "vec2")
+		var v_set_id = Blueprint.calc_input_value(this, 0)
+		if (v_set_id and v_set_id.value != 0) {
+			this.inst = gen.add_input("TexCoord2", "vec2")
+		} else {
+			this.inst = gen.add_input("TexCoord", "vec2")
+		}
 	}
 
 	calc_inst(gen, idx, module, func) 
