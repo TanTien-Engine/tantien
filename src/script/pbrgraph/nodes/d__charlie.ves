@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/KhronosGroup/glTF-Sample-Viewer
+const float PI = 3.14159265359;
+float D_Charlie(vec3 N, vec3 H, float sheen_roughness)
+{
+    float NdotH = max(dot(N, H), 0.0);
+    float _sheen_roughness = max(sheen_roughness, 0.000001); //clamp (0,1]
+    float alphaG = _sheen_roughness * _sheen_roughness;
+    float invR = 1.0 / alphaG;
+    float cos2h = NdotH * NdotH;
+    float sin2h = 1.0 - cos2h;
+    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
+}
+"
+
+class D_Charlie is Node
+{
+	init()
+	{
+		super.init(D_Charlie.name)
+
+		this.node_func = NodeFunction(this, CODE, "D_Charlie", [])	
+	}
+}
