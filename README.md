@@ -131,11 +131,17 @@ Based for each editors
 ![](./doc/pbrgraph/screenshots/ibl.gif)
 
 ![](./doc/pbrgraph/screenshots/ibl.jpg)
+    <em>IBL</em>
+
+![](./doc/pbrgraph/screenshots/sheen.jpg)
+    <em>Sheen</em>
 
 #### Nodes
 * framework : MaterialTextures, Shadergraph,
 * tools : SrgbToLinear, GammaCorrection, NormalFromMap, LightingDirs,
-* brdf : DistributionGgx, FresnelSchlick, GeometrySmith, 
+* distribution : D_GGX, D_Charlie,
+* fresnel : F_Schlick, 
+* visibility : V_Smith, V_Sheen,
 * components : Brdf, Ibl,
 
 ## Building
