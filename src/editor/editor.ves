@@ -623,8 +623,11 @@ import \"editor\" for _editor
 		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
 		for (var f_node in sorted_nodes) 
 		{
+			var f_name = nil
 			var f_idx = this.query_node_idx(scene.nodes, f_node)
-			var f_name = "node%(f_idx)"
+			if (f_idx >= 0) {
+				f_name = "node%(f_idx)"
+			}
 			for (var f_pin in f_node.exports)
 			{
 				for (var f_conn in f_pin.conns)
@@ -669,7 +672,10 @@ import \"editor\" for _editor
 			var index = this.query_node_idx(scene.nodes, bp)
 			var trans = node.components["transform"]
 
-			var name = "node%(index)"
+			var name = nil
+			if (index >= 0) {
+				name = "node%(index)"
+			}
 			var source = "
 var %(name) = %(bp.name)()
 %(bp.to_string(name))
@@ -687,21 +693,25 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
 		for (var t_node in sorted_nodes) 
 		{
+			var t_name = nil
 			var t_idx = this.query_node_idx(scene.nodes, t_node)
-			var t_name = "node%(t_idx)"
+			if (t_idx >= 0) {
+				t_name = "node%(t_idx)"			
+			}
 			for (var t_pin in t_node.imports)
 			{
 				for (var t_conn in t_pin.conns)
 				{
 					var f_name = nil
 					// find in selection
-					var f_idx = 0
 					for (var node in scene.selection) {
 						var f_bp = node.components["bp"]
 						if (f_bp == t_conn.from.node) {
-							f_name = "node%(f_idx)"
+							var f_idx = this.query_node_idx(scene.nodes, f_bp)
+							if (f_idx >= 0) {
+								f_name = "node%(f_idx)"							
+							}
 						}
-						f_idx = f_idx + 1
 					}
 					if (f_name) {
 						ext_clipboard = ext_clipboard + "Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n"	
@@ -710,11 +720,9 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 					// find in scene
 					if (!f_name)
 					{
-						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
-							var f_bp = scene.nodes[f_idx].components["bp"]
-							if (f_bp == t_conn.from.node) {
-								f_name = "_editor.scene_stack.top().nodes[%(f_idx)].components[\"bp\"]"
-							}
+						var f_idx = this.query_node_idx(scene.nodes, t_conn.from.node)
+						if (f_idx >= 0) {
+							f_name = "_editor.scene_stack.top().nodes[%(f_idx)].components[\"bp\"]"
 						}
 					}
 					if (f_name) {
