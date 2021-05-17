@@ -1243,12 +1243,7 @@ void w_Render_draw_model()
     auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
     if (!model->nodes.empty()) 
     {
-        auto unif = ds.program->QueryUniform("local_trans");
-        for (auto& node : model->nodes) 
-        {
-            if (unif) {
-                unif->SetValue(node->mat.x, 16);
-            }
+        for (auto& node : model->nodes) {
             draw_mesh(ds, *model, *model->meshes[node->mesh]);
         }
     } 
