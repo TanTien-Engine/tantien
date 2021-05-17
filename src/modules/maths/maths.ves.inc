@@ -101,6 +101,7 @@ foreign class Matrix44
 	foreign lookat(eye, center, up)
 
 	foreign from_rotate_mat(mat)
+	foreign from_quaternion(x, y, z, w)
 
 	foreign transform_mat2d(mt)
 	foreign transform_mat4(mt)

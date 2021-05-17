@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
 import "maths" for Matrix44
 
 class Matrix is Node
@@ -9,6 +10,9 @@ class Matrix is Node
 	{
 		super.init(Matrix.name)
 
+		this.imports = [
+			Pin(this, "quat", VAR_TYPE_NUMBER4),
+		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
@@ -16,7 +20,18 @@ class Matrix is Node
 		this.layout()
 	}
 
-	calc_value(idx) {
-		return Variant(VAR_TYPE_MATRIX4, Matrix44.init())
+	calc_value(idx) 
+	{
+		var v_quat = Blueprint.calc_input_value(this, 0)
+		if (v_quat) 
+		{
+			var mat = Matrix44.init()
+			mat.from_quaternion(v_quat.value.x, v_quat.value.y, v_quat.value.z, v_quat.value.w)
+			return Variant(VAR_TYPE_MATRIX4, mat)
+		}
+		else
+		{
+			return Variant(VAR_TYPE_MATRIX4, Matrix44.init())
+		}
 	}
 }

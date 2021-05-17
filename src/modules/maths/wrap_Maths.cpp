@@ -337,6 +337,18 @@ void w_Matrix44_from_rotate_mat()
     *mt = sm::mat4(rot);    
 }
 
+void w_Matrix44_from_quaternion()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+
+    float x = (float)ves_tonumber(1);
+    float y = (float)ves_tonumber(2);
+    float z = (float)ves_tonumber(3);
+    float w = (float)ves_tonumber(4);
+
+    *mt = sm::mat4(sm::Quaternion(x, y, z, w));
+}
+
 void w_Matrix44_transform_mat2d()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
@@ -425,6 +437,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
     if (strcmp(signature, "Matrix44.from_rotate_mat(_)") == 0) return w_Matrix44_from_rotate_mat;
+    if (strcmp(signature, "Matrix44.from_quaternion(_,_,_,_)") == 0) return w_Matrix44_from_quaternion;
     if (strcmp(signature, "Matrix44.transform_mat2d(_)") == 0) return w_Matrix44_transform_mat2d;
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
     if (strcmp(signature, "Matrix44.get_scale()") == 0) return w_Matrix44_get_scale;
