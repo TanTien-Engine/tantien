@@ -26,9 +26,9 @@ float lambdaSheen(float cosTheta, float alphaG)
 }
 float V_Sheen(vec3 N, vec3 V, vec3 L, float sheenRoughness)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    
+    float NdotV = clamp(dot(N, V), 0.0, 1.0);
+    float NdotL = clamp(dot(N, L), 0.0, 1.0);
+
     float _sheenRoughness = max(sheenRoughness, 0.000001); //clamp (0,1]
     float alphaG = _sheenRoughness * _sheenRoughness;
 
