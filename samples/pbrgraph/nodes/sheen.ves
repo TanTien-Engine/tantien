@@ -8,7 +8,7 @@ import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 1585.5610077553, -146.99102565068)
@@ -26,14 +26,14 @@ _editor.add_node(node2, 1332.4364924978, 165.96517630288)
 
 var node3 = Camera3d()
 
-node3.cam.position.set(-0.10694447958841, 0.75296573650667, 0.5188992194414)
-node3.cam.yaw = -77.5
-node3.cam.pitch = -45.3
+node3.cam.position.set(-0.36951313472003, 0.8263592500856, 0.90213256978423)
+node3.cam.yaw = -70.4
+node3.cam.pitch = -20.7
 node3.cam.zoom = 45
 node3.cam.update_vectors()
 node3.speed = 0.091084942221642
 
-_editor.add_node(node3, 1012.4374837154, 59.766247730257)
+_editor.add_node(node3, 990.10042668439, 6.1442273764558)
 
 var node4 = Perspective()
 
@@ -46,11 +46,11 @@ _editor.add_node(node4, 1175.3524000959, -53.120329408623)
 
 var node5 = SampleTexture()
 
-_editor.add_node(node5, -374.70141091243, -267.61003978453)
+_editor.add_node(node5, -623.79232000334, -168.51913069362)
 
 var node6 = TexCoord()
 
-_editor.add_node(node6, -509.61851963775, -285.26095415142)
+_editor.add_node(node6, -758.70942872866, -186.17004506051)
 
 var node7 = Split()
 
@@ -58,11 +58,11 @@ _editor.add_node(node7, -342.60742873852, 207.02448310929)
 
 var node8 = Combine()
 
-_editor.add_node(node8, 1014.2900772522, 222.70642277555)
+_editor.add_node(node8, 1006.2900772522, 238.70642277555)
 
 var node9 = NormalFromMap()
 
-_editor.add_node(node9, -416.05974671457, 614.82172437937)
+_editor.add_node(node9, -409.44817646664, 623.08618718929)
 
 var node10 = Normal()
 
@@ -70,9 +70,9 @@ _editor.add_node(node10, -566.03155065682, 614.32602746418)
 
 var node11 = Number3()
 
-node11.value.set(5.3853554725647, 10, 5.4964666366577)
+node11.value.set(4.6462063789368, 8.3128728866577, 7.0906505584717)
 
-_editor.add_node(node11, -859.46821732774, 551.61398767788)
+_editor.add_node(node11, -847.81583774794, 616.98091958127)
 
 var node12 = WorldPos()
 
@@ -92,7 +92,7 @@ _editor.add_node(node15, -13.639052105225, 320.2033383816)
 
 var node16 = Brdf()
 
-_editor.add_node(node16, 171.47944963317, 354.41146911043)
+_editor.add_node(node16, 170.72813483227, 414.51665318256)
 
 var node17 = LightingDirs()
 
@@ -115,17 +115,17 @@ _editor.add_node(node19, 84.487574558179, 621.33039248641)
 var node20 = Uniform()
 node20.query_param("unif_name").value = "u_light_pos"
 
-_editor.add_node(node20, -553.36199072265, 485.64136079222)
+_editor.add_node(node20, -553.36199072265, 447.66766004315)
 
 var node21 = Subtract()
 
-_editor.add_node(node21, -701.95670281254, 519.35978609037)
+_editor.add_node(node21, -711.49505255012, 561.07740395573)
 
 var node22 = Number3()
 
-node22.value.set(4.9264731407166, 4.9264731407166, 4.9264731407166)
+node22.value.set(5, 5, 5)
 
-_editor.add_node(node22, -852.33824147325, 438.80372374249)
+_editor.add_node(node22, -844.35224147325, 512.00872374249)
 
 var node23 = OrbitCamera()
 node23.query_param("speed").value = 0.28373855352402
@@ -147,11 +147,11 @@ _editor.add_node(node26, -1397.5028600526, 179.87421193219)
 
 var node27 = Expand()
 
-_editor.add_node(node27, -658.75122490945, -45.846373368966)
+_editor.add_node(node27, -929.66031581854, 32.335444812853)
 
 var node28 = TexCoord()
 
-_editor.add_node(node28, -447.56529170191, -53.08762774987)
+_editor.add_node(node28, -737.82192683213, 56.091480209199)
 
 var node29 = Expand()
 
@@ -159,7 +159,7 @@ _editor.add_node(node29, -952.2893435131, 231.31781181151)
 
 var node30 = SampleTexture()
 
-_editor.add_node(node30, -650.64510198545, 200.02188487909)
+_editor.add_node(node30, -649.73601107636, 213.65824851545)
 
 var node31 = TexCoord()
 
@@ -171,7 +171,7 @@ _editor.add_node(node32, -502.52223798095, 236.43534811601)
 
 var node33 = Expand()
 
-_editor.add_node(node33, -682.33916226691, -215.35174408289)
+_editor.add_node(node33, -931.43007135782, -116.26083499198)
 
 var node34 = Multiply()
 
@@ -179,24 +179,24 @@ _editor.add_node(node34, 403.70351943361, 335.73700443848)
 
 var node35 = D_Charlie()
 
-_editor.add_node(node35, 151.00941365178, 838.04158700108)
+_editor.add_node(node35, 149.14338413094, 842.57507962087)
 
 var node36 = Number()
 
-node36.value = 1.0066256523132
+node36.value = 2.10546875
 
 _editor.add_node(node36, -212.94923936624, 795.13907085581)
 
 var node37 = Uniform()
-node37.query_param("unif_name").value = "unif"
+node37.query_param("unif_name").value = "u_sheen_roughness"
 
-_editor.add_node(node37, -61.857672831969, 790.17882541378)
+_editor.add_node(node37, -61.106358031067, 796.18934382099)
 
 var node38 = Number()
 
 node38.value = 1
 
-_editor.add_node(node38, 846.36275920096, 275.72926215176)
+_editor.add_node(node38, 862.7263955646, 217.54744396994)
 
 var node39 = Combine()
 
@@ -204,19 +204,19 @@ _editor.add_node(node39, 613.70411115362, 781.45895303961)
 
 var node40 = Multiply()
 
-_editor.add_node(node40, 318.11023993646, 819.01357440822)
+_editor.add_node(node40, 303.56478539101, 819.92266531731)
 
 var node41 = V_Sheen()
 
-_editor.add_node(node41, 153.31023527466, 733.8772906439)
+_editor.add_node(node41, 150.36207599592, 743.19284286028)
 
 var node42 = Add()
 
-_editor.add_node(node42, 815.60234505262, 671.054619795)
+_editor.add_node(node42, 795.49973381161, 740.76517516499)
 
 var node43 = Dot()
 
-_editor.add_node(node43, 320.00244273955, 747.75668270467)
+_editor.add_node(node43, 305.23190421448, 750.49047510583)
 
 var node44 = Multiply()
 
@@ -241,14 +241,19 @@ var node47 = Commentary()
 node47.set_size(454.42916870117, 112.82499694824)
 node47.title = "Normal"
 
-_editor.add_node(node47, -561.61202275695, 20.504699097902)
+_editor.add_node(node47, -832.52111366604, 98.686517279721)
 
 var node48 = Commentary()
 
 node48.set_size(543.52917480469, 202.19583129883)
 node48.title = "AO"
 
-_editor.add_node(node48, -529.9236798247, -149.68996486191)
+_editor.add_node(node48, -779.01458891561, -50.599055771)
+
+var node49 = Uniform()
+node49.query_param("unif_name").value = "u_cam_pos"
+
+_editor.add_node(node49, -558.22847373158, 504.62822882302)
 
 Blueprint.connect(node38, "v", node8, "w")
 Blueprint.connect(node36, "v", node37, "v")
@@ -283,15 +288,16 @@ Blueprint.connect(node11, "v3", node21, "a")
 Blueprint.connect(node21, "v", node20, "v")
 Blueprint.connect(node20, "v", node17, "light_pos")
 Blueprint.connect(node10, "normal", node9, "normal")
-Blueprint.connect(node10, "normal", node41, "N")
 Blueprint.connect(node9, "ret", node13, "N")
 Blueprint.connect(node9, "ret", node14, "N")
 Blueprint.connect(node9, "ret", node16, "N")
 Blueprint.connect(node9, "ret", node35, "N")
 Blueprint.connect(node9, "ret", node43, "a")
+Blueprint.connect(node9, "ret", node41, "N")
 Blueprint.connect(node3, "mat", node1, "view")
 Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node3, "pos", node17, "cam_pos")
+Blueprint.connect(node3, "pos", node49, "v")
+Blueprint.connect(node49, "v", node17, "cam_pos")
 Blueprint.connect(node17, "V", node14, "V")
 Blueprint.connect(node17, "V", node15, "V")
 Blueprint.connect(node17, "V", node16, "V")
@@ -307,9 +313,7 @@ Blueprint.connect(node43, "dot", node44, "b")
 Blueprint.connect(node41, "ret", node40, "b")
 Blueprint.connect(node35, "ret", node40, "a")
 Blueprint.connect(node40, "v", node44, "a")
-Blueprint.connect(node44, "v", node39, "x")
-Blueprint.connect(node44, "v", node39, "y")
-Blueprint.connect(node44, "v", node39, "z")
+Blueprint.connect(node44, "v", node39, "grey")
 Blueprint.connect(node39, "xyz", node42, "a")
 Blueprint.connect(node15, "ret", node16, "F")
 Blueprint.connect(node14, "ret", node16, "G")
