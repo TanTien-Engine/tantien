@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER4
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.blueprint" for Blueprint
 import "maths" for Matrix44
 
@@ -11,7 +11,9 @@ class Matrix is Node
 		super.init(Matrix.name)
 
 		this.imports = [
-			Pin(this, "quat", VAR_TYPE_NUMBER4),
+			Pin(this, "scaling",     VAR_TYPE_NUMBER3),
+			Pin(this, "rotation",    VAR_TYPE_NUMBER4),
+			Pin(this, "translation", VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
@@ -22,16 +24,26 @@ class Matrix is Node
 
 	calc_value(idx) 
 	{
-		var v_quat = Blueprint.calc_input_value(this, 0)
-		if (v_quat) 
-		{
-			var mat = Matrix44.init()
-			mat.from_quaternion(v_quat.value.x, v_quat.value.y, v_quat.value.z, v_quat.value.w)
-			return Variant(VAR_TYPE_MATRIX4, mat)
+		var mat = Matrix44.init()
+
+		var v_scaling = Blueprint.calc_input_value(this, 0)
+		if (v_scaling) {
+			mat.scale(v_scaling.value.x, v_scaling.value.y, v_scaling.value.z)
 		}
-		else
+
+		var v_rotation = Blueprint.calc_input_value(this, 1)
+		if (v_rotation) 
 		{
-			return Variant(VAR_TYPE_MATRIX4, Matrix44.init())
+			var rot_mat = Matrix44.init()
+			rot_mat.from_quaternion(v_rotation.value.x, v_rotation.value.y, v_rotation.value.z, v_rotation.value.w)
+			mat.transform_mat4(rot_mat)
 		}
+
+		var v_translation = Blueprint.calc_input_value(this, 2)
+		if (v_translation) {
+			mat.translate(v_translation.value.x, v_translation.value.y, v_translation.value.z)	
+		}
+
+		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 }
