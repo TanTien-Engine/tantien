@@ -90,7 +90,7 @@ var node15 = F_Schlick()
 
 _editor.add_node(node15, -13.639052105225, 320.2033383816)
 
-var node16 = Brdf()
+var node16 = BRDF()
 
 _editor.add_node(node16, 170.72813483227, 414.51665318256)
 
@@ -130,7 +130,7 @@ _editor.add_node(node22, -844.35224147325, 512.00872374249)
 var node23 = OrbitCamera()
 node23.query_param("speed").value = 0.28373855352402
 
-_editor.add_node(node23, 1168.712208944, 47.310814518097)
+_editor.add_node(node23, -986.56470016433, -316.5201555715)
 
 var node24 = Expand()
 
@@ -255,6 +255,14 @@ node49.query_param("unif_name").value = "u_cam_pos"
 
 _editor.add_node(node49, -558.22847373158, 504.62822882302)
 
+var node50 = Matrix()
+
+_editor.add_node(node50, -988.45300490309, -393.41816810134)
+
+var node51 = Multiply()
+
+_editor.add_node(node51, -832.47308508605, -341.82112118958)
+
 Blueprint.connect(node38, "v", node8, "w")
 Blueprint.connect(node36, "v", node37, "v")
 Blueprint.connect(node37, "v", node41, "sheenRoughness")
@@ -265,6 +273,9 @@ Blueprint.connect(node26, "va", node0, "va")
 Blueprint.connect(node26, "base_color", node29, "data")
 Blueprint.connect(node26, "normal", node27, "data")
 Blueprint.connect(node26, "occlusion", node33, "data")
+Blueprint.connect(node26, "translation", node50, "translation")
+Blueprint.connect(node26, "rotation", node50, "rotation")
+Blueprint.connect(node50, "mat", node51, "b")
 Blueprint.connect(node33, "tex_coord", node6, "set_id")
 Blueprint.connect(node33, "texture", node5, "tex")
 Blueprint.connect(node6, "uv", node5, "uv")
@@ -280,7 +291,8 @@ Blueprint.connect(node7, "xyz", node16, "albedo")
 Blueprint.connect(node27, "tex_coord", node28, "set_id")
 Blueprint.connect(node27, "texture", node9, "normal_map")
 Blueprint.connect(node28, "uv", node9, "tex_coords")
-Blueprint.connect(node23, "mat", node1, "world_trans")
+Blueprint.connect(node23, "mat", node51, "a")
+Blueprint.connect(node51, "v", node1, "model")
 Blueprint.connect(node22, "v3", node21, "b")
 Blueprint.connect(node12, "pos", node17, "world_pos")
 Blueprint.connect(node12, "pos", node9, "world_pos")
