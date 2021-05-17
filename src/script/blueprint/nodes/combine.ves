@@ -11,11 +11,12 @@ class Combine is Node
 		super.init(Combine.name)
 
 		this.imports = [
-			Pin(this, "x",   VAR_TYPE_NUMBER),
-			Pin(this, "y",   VAR_TYPE_NUMBER),
-			Pin(this, "z",   VAR_TYPE_NUMBER),
-			Pin(this, "w",   VAR_TYPE_NUMBER),
-			Pin(this, "xyz", VAR_TYPE_NUMBER3),
+			Pin(this, "x",    VAR_TYPE_NUMBER),
+			Pin(this, "y",    VAR_TYPE_NUMBER),
+			Pin(this, "z",    VAR_TYPE_NUMBER),
+			Pin(this, "w",    VAR_TYPE_NUMBER),
+			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
+			Pin(this, "grey", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
 			Pin(this, "xyzw", VAR_TYPE_NUMBER4),
@@ -41,10 +42,17 @@ class Combine is Node
 		} 
 		else 
 		{
-			for (var i in 0..3) {
-				var v_num = Blueprint.calc_input_value(this, i)
-				if (v_num) {
-					ret[i] = v_num.value
+			var v_grey = Blueprint.calc_input_value(this, 5)
+			if (v_grey) {
+				for (var i in 0..3) {
+					ret[i] = v_grey.value
+				}
+			} else {
+				for (var i in 0..3) {
+					var v_num = Blueprint.calc_input_value(this, i)
+					if (v_num) {
+						ret[i] = v_num.value
+					}
 				}
 			}
 		}
@@ -87,6 +95,12 @@ class Combine is Node
 			x = gen.compose_extract(func, xyz, 0)
 			y = gen.compose_extract(func, xyz, 1)
 			z = gen.compose_extract(func, xyz, 2)
+		}
+		var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func)
+		if (grey) {
+			x = grey
+			y = grey
+			z = grey
 		}
 
 		if (idx == 0) {
