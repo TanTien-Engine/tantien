@@ -28,11 +28,11 @@ vec3 calc_brdf(float D, float G, vec3 F, vec3 N, vec3 V, vec3 L, vec3 albedo, fl
 }
 "
 
-class Brdf is Node
+class BRDF is Node
 {
 	init()
 	{
-		super.init(Brdf.name)
+		super.init(BRDF.name)
 
 		this.node_func = NodeFunction(this, CODE, "calc_brdf", [])	
 	}

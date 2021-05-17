@@ -24,11 +24,11 @@ vec3 calc_ibl(samplerCube irradianceMap, samplerCube prefilterMap, sampler2D brd
 }
 "
 
-class Ibl is Node
+class IBL is Node
 {
 	init()
 	{
-		super.init(Ibl.name)
+		super.init(IBL.name)
 
 		this.node_func = NodeFunction(this, CODE, "calc_ibl", [])
 	}
