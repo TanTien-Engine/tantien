@@ -1,4 +1,5 @@
 import "blueprint.connecting" for Connecting
+import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class Blueprint
 {
@@ -190,22 +191,40 @@ class Blueprint
 	static calc_input_inst(gen, node, slot, module, func)
 	{
 		var pin = this.query_pin(node.imports, slot)
-		if (!pin or pin.conns.isEmpty) 
-		{
+		if (!pin or pin.conns.isEmpty) {
 			return nil
-		} 
-		else 
-		{
-			var f_pin = pin.conns.front().from
-			var f_node = f_pin.node
-			if (f_node["node_func"] != nil) {
-				return f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func)
-			} else if (f_node.has_method("calc_inst(_,_,_,_)")) {
-				return f_node.calc_inst(gen, f_pin.slot_idx, module, func)
-			} else {
-				return nil
-			}
 		}
+
+		var inst = nil
+
+		var f_pin = pin.conns.front().from
+		var f_node = f_pin.node
+		if (f_node["node_func"] != nil) {
+			inst = f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func)
+		} else if (f_node.has_method("calc_inst(_,_,_,_)")) {
+			inst = f_node.calc_inst(gen, f_pin.slot_idx, module, func)
+		}
+
+		if (inst) {
+			return inst
+		}
+
+		var value = this.calc_input_value(node, slot)
+		if (!value) {
+			return nil
+		}
+
+		if (value.type == VAR_TYPE_NUMBER) {
+			return gen.const_float(module, value.value)
+		} else if (value.type == VAR_TYPE_NUMBER2) {
+			return gen.const_float2(module, value.value.x, value.value.y)	
+		} else if (value.type == VAR_TYPE_NUMBER3) {
+			return gen.const_float3(module, value.value.x, value.value.y, value.value.z)	
+		} else if (value.type == VAR_TYPE_NUMBER4) {
+			return gen.const_float4(module, value.value.x, value.value.y, value.value.z, value.value.w)	
+		}
+
+		return nil
 	}
 
 	static get_first_connect_pin(pin)

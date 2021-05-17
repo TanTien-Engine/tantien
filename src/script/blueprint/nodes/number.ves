@@ -23,10 +23,6 @@ class Number is Node
 		return Variant(VAR_TYPE_NUMBER, this.value)
 	}
 
-	calc_inst(gen, idx, module, func) {
-		return gen.const_float(module, this.value)
-	}
-
 	layout() 
 	{
 		super.layout()

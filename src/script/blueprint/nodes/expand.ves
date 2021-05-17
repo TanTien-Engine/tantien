@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
 
@@ -52,22 +52,6 @@ class Expand is Node
 			} else {
 				return nil
 			}
-		}
-		else if (value.type == VAR_TYPE_NUMBER)
-		{
-			return gen.const_float(module, value.value)
-		}
-		else if (value.type == VAR_TYPE_NUMBER2)
-		{
-			return gen.const_float2(module, value.value.x, value.value.y)	
-		}
-		else if (value.type == VAR_TYPE_NUMBER3)
-		{
-			return gen.const_float3(module, value.value.x, value.value.y, value.value.z)	
-		}		
-		else if (value.type == VAR_TYPE_NUMBER4)
-		{
-			return gen.const_float4(module, value.value.x, value.value.y, value.value.z, value.value.w)	
 		}
 		else
 		{
