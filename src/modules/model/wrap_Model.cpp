@@ -43,50 +43,6 @@ int w_Model_finalize(void* data)
     return sizeof(tt::Proxy<model::Model>);
 }
 
-void w_Model_get_pbr_textures()
-{
-    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(0))->obj;
-
-    ves_newlist(5);
-
-    if (model->materials.empty()) 
-    {
-        for (int i = 0; i < 5; ++i)
-        {
-            ves_pushnil();
-            ves_seti(-2, i);
-            ves_pop(1);
-        }
-
-        ves_insert(0);
-        return;
-    }
-
-    auto& material = *model->materials.front();
-    std::array<int, 5> textures_idx = {
-        material.diffuse_tex,
-        material.metallic_roughness_tex,
-        material.emissive_tex,
-        material.occlusion_tex,
-        material.normal_tex,
-    };
-    for (int i = 0; i < 5; ++i)
-    {
-        ves_pushnil();
-        if (textures_idx[i] >= 0) 
-        {
-            ves_import_class("render", "Texture2D");
-            ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(2, 3, sizeof(std::shared_ptr<ur::Texture>));
-            ves_pop(1);
-            *tex = model->textures[textures_idx[i]].second;
-        }
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
-
-    ves_insert(0);
-}
-
 void w_glTF_allocate()
 {
     auto dev = tt::Render::Instance()->Device();
@@ -327,7 +283,6 @@ namespace tt
 
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
-    if (strcmp(signature, "Model.get_pbr_textures()") == 0) return w_Model_get_pbr_textures;
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
 
     return NULL;
