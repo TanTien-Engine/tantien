@@ -17,6 +17,7 @@ foreign class SpirvGenTwo
 	foreign static sub(func, a, b)
 	foreign static mix(func, x, y, a)
 	foreign static pow(func, x, y)
+	foreign static sqrt(func, v)
 }
 
 foreign class ShaderGen
@@ -129,6 +130,29 @@ foreign class ShaderGen
 		}
 
 		return SpirvGenTwo.pow(func, x, y)
+	}
+
+	sqrt(func, v)
+	{
+		if (!SpirvGenTwo.is_vector(v)) {
+			return SpirvGenTwo.sqrt(func, v)
+		}
+
+		var num = SpirvGenTwo.get_vector_num(v)
+		var comp = []
+		for (var i in 0..num) {
+			var sqrt = SpirvGenTwo.sqrt(func, this.compose_extract(func, v, i))
+			comp.add(sqrt)
+		}
+		if (num == 2) {
+			return this.compose_float2(func,  comp[0], comp[1])
+		} else if (num == 3) {
+			return this.compose_float3(func, comp[0], comp[1], comp[2])
+		} else if (num == 4) {
+			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+		}
+
+		return from		
 	}
 
 	foreign add_input(name, type)

@@ -1,0 +1,31 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class Sqrt is Node
+{
+	init()
+	{
+		super.init(Sqrt.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var v = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		if (v) {
+			return gen.sqrt(func, v)		
+		} else {
+			return nil
+		}
+	}
+}
