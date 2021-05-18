@@ -81,6 +81,10 @@ void w_glTF_get_desc()
     ves_newmap();
     for (auto& node : model->scene->nodes)
     {
+        if (!node->mesh) {
+            continue;
+        }
+
         ves_newmap();
 
         assert(node->mesh->primitives.size() == 1);
