@@ -274,6 +274,16 @@ void w_glTF_get_desc()
             ves_setfield(-2, "rotation");
             ves_pop(1);
         }
+        // scale
+        {
+            ves_pushnil();
+            ves_import_class("maths", "Float3");
+            sm::vec3* scale = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
+            memcpy(scale->xyz, node->scale.xyz, sizeof(float) * 3);
+            ves_pop(1);
+            ves_setfield(-2, "scale");
+            ves_pop(1);
+        }
 
         ves_setfield(-2, node->name.c_str());
         ves_pop(1);
