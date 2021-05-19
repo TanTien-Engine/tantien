@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_helper" for NodeHelper
 import "gui" for GUI
 
 class Output is Node
@@ -37,9 +38,11 @@ class Output is Node
 			this.var_name = f_pin.name
 			this.var_type = f_pin.type
 		}
+
+		var type_str = NodeHelper.var_type_to_string(this.var_type)
 		return "
 %(name).var_name = \"%(this.var_name)\"
-%(name).var_type = \"%(this.var_type)\"
+%(name).var_type = %(type_str)
 "
 	}
 

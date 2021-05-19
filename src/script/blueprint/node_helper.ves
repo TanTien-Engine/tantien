@@ -44,4 +44,30 @@ class NodeHelper
 
 		node.layout()
 	}
+
+	static var_type_to_string(var_type)
+	{
+		if (var_type is String)
+		{
+			return "\"%(var_type)\""
+		}
+		else if (var_type is List)
+		{
+			var ret = ""
+			for (var type in var_type)
+			{
+				var str = this.var_type_to_string(type)
+				if (ret == "") {
+					ret = str
+				} else {
+					ret = ret + ", %(str)"
+				}
+			}
+			return "[ %(ret) ]"
+		}
+		else
+		{
+			return ""
+		}
+	}
 }
