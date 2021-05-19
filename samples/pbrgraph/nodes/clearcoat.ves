@@ -6,16 +6,16 @@ import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pbrgraph.nodes.*"
 var node0 = Gltf()
-node0.init_model("assets/models/WaterBottle/WaterBottle.gltf")
+node0.init_model("assets/models/ToyCar/ToyCar.gltf")
 
-_editor.add_node(node0, -350.9141649633, 107.46787718149)
+_editor.add_node(node0, -379.8376225363, 103.2693107596)
 
 var node1 = Expand()
 
-_editor.add_node(node1, -149.86453383767, 107.65464115436)
+_editor.add_node(node1, -178.78799141067, 103.45607473247)
 
 var node2 = Subgraph()
-node2.load_from_file(_editor, "assets/blueprints/pbrgraph/standard_model.ves")
+node2.load_from_file(_editor, "assets/blueprints/pbrgraph/clearcoat.ves")
 
 _editor.add_node(node2, 208.90666940454, 94.188335167885)
 
@@ -28,14 +28,14 @@ _editor.add_node(node3, 416.33221579578, 272.57063583501)
 
 var node4 = Camera3d()
 
-node4.cam.position.set(0, 0, 3)
-node4.cam.yaw = -90
-node4.cam.pitch = 0
+node4.cam.position.set(-0.096572794566669, 0.060522103484915, 0.12684191527631)
+node4.cam.yaw = -52.8
+node4.cam.pitch = -19
 node4.cam.zoom = 8
 node4.cam.update_vectors()
 node4.speed = 0.038704462349415
 
-_editor.add_node(node4, -55.41861995706, 366.1529835832)
+_editor.add_node(node4, -54.735606501695, 366.1529835832)
 
 var node5 = Draw()
 
@@ -61,11 +61,11 @@ _editor.add_node(node7, -55.81618439048, 209.68358753226)
 var node8 = OrbitCamera()
 node8.query_param("speed").value = 0.5761501789093
 
-_editor.add_node(node8, -48.853511256022, 45.713510347437)
+_editor.add_node(node8, -6.5066770233875, 36.151321972326)
 
 var node9 = Number3()
 
-node9.value.set(3.9574704170227, 5.1277923583984, 6.5722370147705)
+node9.value.set(5.9574708938599, 4.7352480888367, 4.7352480888367)
 
 _editor.add_node(node9, -135.61723819031, -121.93370262886)
 
@@ -89,7 +89,7 @@ Blueprint.connect(node4, "pos", node2, "cam_pos")
 Blueprint.connect(node7, "mat", node6, "projection")
 Blueprint.connect(node3, "next", node5, "prev")
 Blueprint.connect(node0, "desc", node1, "data")
-Blueprint.connect(node1, "WaterBottle", node2, "model")
+Blueprint.connect(node1, "ToyCar", node2, "model")
 Blueprint.connect(node2, "frag_out", node6, "rgba")
 Blueprint.connect(node2, "model_mat", node6, "model")
 Blueprint.connect(node2, "va", node5, "va")

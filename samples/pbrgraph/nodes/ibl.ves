@@ -5,342 +5,92 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pbrgraph.nodes.*"
-var node0 = Draw()
+var node0 = Gltf()
+node0.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
 
-node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
-node0.skip = false
+_editor.add_node(node0, -350.9141649633, 107.46787718149)
 
-_editor.add_node(node0, 774.38503755081, -451.93682429614)
+var node1 = Expand()
 
-var node1 = Shadergraph()
+_editor.add_node(node1, -149.86453383767, 107.65464115436)
 
-_editor.add_node(node1, 559.1364293363, -259.86561014921)
+var node2 = Subgraph()
+node2.load_from_file(_editor, "assets/blueprints/pbrgraph/ibl.ves")
 
-var node2 = Clear()
+_editor.add_node(node2, 208.90666940454, 94.188335167885)
 
-node2.masks = [ "color", "depth" ]
-node2.values = { "color" : [ 128, 128, 128, 255 ] }
+var node3 = Clear()
 
-_editor.add_node(node2, 550.98925429333, -58.357596342573)
+node3.masks = [ "color", "depth" ]
+node3.values = { "color" : [ 128, 128, 128, 255 ] }
 
-var node3 = Camera3d()
+_editor.add_node(node3, 416.33221579578, 272.57063583501)
 
-node3.cam.position.set(0, 0, 3)
-node3.cam.yaw = -90
-node3.cam.pitch = 0
-node3.cam.zoom = 45
-node3.cam.update_vectors()
-node3.speed = 0.19878049194813
+var node4 = Camera3d()
 
-_editor.add_node(node3, 250.15412049489, -172.85027821055)
+node4.cam.position.set(0, 0, 3)
+node4.cam.yaw = -90
+node4.cam.pitch = 0
+node4.cam.zoom = 45
+node4.cam.update_vectors()
+node4.speed = 0.038704462349415
 
-var node4 = Perspective()
+_editor.add_node(node4, -54.735606501695, 366.1529835832)
 
-node4.fovy = 45
-node4.aspect = 0
-node4.znear = 0.1
-node4.zfar = 100
+var node5 = Draw()
 
-_editor.add_node(node4, 393.9051618913, -277.44310205408)
+node5.set_prim_type("triangles")
+node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node5.skip = false
 
-var node5 = SampleTexture()
+_editor.add_node(node5, 591.55883007207, 220.989817974)
 
-_editor.add_node(node5, -654.42965741199, -6.213133972083)
+var node6 = Shadergraph()
 
-var node6 = SrgbToLinear()
+_editor.add_node(node6, 416.76610699781, 94.70625602916)
 
-_editor.add_node(node6, -374.40956539145, -76.285666163403)
+var node7 = Perspective()
 
-var node7 = Split()
+node7.fovy = 45
+node7.aspect = 0
+node7.znear = 0.1
+node7.zfar = 100
 
-_editor.add_node(node7, -499.10789154844, -27.008500361782)
+_editor.add_node(node7, -55.81618439048, 209.68358753226)
 
-var node8 = Combine()
+var node8 = OrbitCamera()
+node8.query_param("speed").value = 0.5761501789093
 
-_editor.add_node(node8, 250.76769745836, 22.491472707317)
+_editor.add_node(node8, -6.5066770233875, 36.151321972326)
 
-var node9 = GammaCorrection()
+var node9 = Number3()
 
-_editor.add_node(node9, 74.151705064302, -20.960971612995)
+node9.value.set(2.9055700302124, 5.1277923583984, 6.5722370147705)
 
-var node10 = SampleTexture()
+_editor.add_node(node9, -135.61723819031, -121.93370262886)
 
-_editor.add_node(node10, -651.19601776558, -311.81814078798)
+var node10 = Subtract()
 
-var node11 = SrgbToLinear()
+_editor.add_node(node10, 14.365203290491, -159.70427863758)
 
-_editor.add_node(node11, -444.92409475205, -277.13747837527)
+var node11 = Number3()
 
-var node12 = Add()
+node11.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
-_editor.add_node(node12, -84.495010313263, -262.94694530927)
+_editor.add_node(node11, -136.94323109041, -232.49002216155)
 
-var node13 = SampleTexture()
-
-_editor.add_node(node13, -655.04205578267, -155.08836076124)
-
-var node14 = Multiply()
-
-_editor.add_node(node14, -219.72994918697, -193.68088537601)
-
-var node15 = NormalFromMap()
-
-_editor.add_node(node15, -146.72067738531, 634.34015925121)
-
-var node16 = Normal()
-
-_editor.add_node(node16, -296.69248132756, 633.84446233602)
-
-var node17 = WorldPos()
-
-_editor.add_node(node17, -293.57074435343, 581.70031951089)
-
-var node18 = D_GGX()
-
-_editor.add_node(node18, 83.269740631305, 649.21264102744)
-
-var node19 = SampleTexture()
-
-_editor.add_node(node19, -650.72911848432, 155.30303306922)
-
-var node20 = V_Smith()
-
-_editor.add_node(node20, 83.092839657445, 540.01341907471)
-
-var node21 = F_Schlick()
-
-_editor.add_node(node21, 84.03863384519, 413.40994995185)
-
-var node22 = BRDF()
-
-_editor.add_node(node22, 272.36290417862, 468.02210547407)
-
-var node23 = LightingDirs()
-
-_editor.add_node(node23, -145.91071414177, 523.3844598077)
-
-var node24 = Commentary()
-
-node24.set_size(587.82604980469, 314.75936889648)
-node24.title = "Dirs"
-
-_editor.add_node(node24, -358.9754493746, 716.16962810965)
-
-var node25 = Commentary()
-
-node25.set_size(338.79895019531, 347.28750610352)
-node25.title = "BRDF"
-
-_editor.add_node(node25, 179.32102910363, 713.16102885005)
-
-var node26 = IBL()
-
-_editor.add_node(node26, 1000.6721274817, 420.8080663388)
-
-var node27 = Subgraph()
-node27.load_from_file(_editor, "assets/rendergraph/pbr_ibl_textured_prepare.ves")
-
-_editor.add_node(node27, 756.46841266241, 508.43900623182)
-
-var node28 = Texture()
-node28.query_param("unif_name").value = "u_tex"
-node28.gamma_correction = false
-node28.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
-node28.set_sampler("linear repeat")
-
-_editor.add_node(node28, 497.14478536487, 497.41942202148)
-
-var node29 = Print()
-
-_editor.add_node(node29, 1002.8345321276, 644.67414552604)
-
-var node30 = Add()
-
-_editor.add_node(node30, 69.351076690073, -272.54231816834)
-
-var node31 = Uniform()
-node31.query_param("unif_name").value = "u_light_pos"
-
-_editor.add_node(node31, -292.96966060931, 461.66503039618)
-
-var node32 = Subtract()
-
-_editor.add_node(node32, -437.82854044062, 458.57533934295)
-
-var node33 = Number3()
-
-node33.value.set(7.0229558944702, 6.2451782226563, 9.5785112380981)
-
-_editor.add_node(node33, -568.20659434248, 553.92567202381)
-
-var node34 = Number3()
-
-node34.value.set(5.0367026329041, 5.0367026329041, 5.0367026329041)
-
-_editor.add_node(node34, -568.20661928755, 446.6756059466)
-
-var node35 = OrbitCamera()
-node35.query_param("speed").value = 0.18758273124695
-
-_editor.add_node(node35, -1032.8456768207, -423.12744471985)
-
-var node36 = Commentary()
-
-node36.set_size(689.86041259766, 404.38333129883)
-node36.title = "IBL"
-
-_editor.add_node(node36, 732.19012695313, 714.77574351917)
-
-var node37 = TexCoord()
-
-_editor.add_node(node37, -770.11078210677, 315.88392903543)
-
-var node38 = Gltf()
-node38.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
-
-_editor.add_node(node38, -1911.0779351866, 54.448294457727)
-
-var node39 = Expand()
-
-_editor.add_node(node39, -1732.377874914, 52.539895997013)
-
-var node40 = Expand()
-
-_editor.add_node(node40, -1519.7643017771, -16.979543155703)
-
-var node41 = Expand()
-
-_editor.add_node(node41, -987.05236508059, 179.40178317636)
-
-var node42 = TexCoord()
-
-_editor.add_node(node42, -821.09963687791, 208.39730038259)
-
-var node43 = Expand()
-
-_editor.add_node(node43, -999.92621507757, 25.917083956797)
-
-var node44 = TexCoord()
-
-_editor.add_node(node44, -829.20587804154, 46.82845131117)
-
-var node45 = Expand()
-
-_editor.add_node(node45, -980.76840552079, -282.48817566172)
-
-var node46 = TexCoord()
-
-_editor.add_node(node46, -824.84073420773, -263.47991088364)
-
-var node47 = Expand()
-
-_editor.add_node(node47, -987.01177043296, -115.03687006084)
-
-var node48 = TexCoord()
-
-_editor.add_node(node48, -826.68118889405, -104.0676866413)
-
-var node49 = Expand()
-
-_editor.add_node(node49, -955.35209581289, 310.08198318465)
-
-var node50 = Matrix()
-
-_editor.add_node(node50, -1035.8345037452, -505.15015614236)
-
-var node51 = Uniform()
-node51.query_param("unif_name").value = "u_cam_pos"
-
-_editor.add_node(node51, -295.1552734375, 520.04495849609)
-
-var node52 = Multiply()
-
-_editor.add_node(node52, -859.86600732715, -461.02625664462)
-
-Blueprint.connect(node38, "desc", node39, "data")
-Blueprint.connect(node39, "node_damagedHelmet_-6514", node40, "data")
-Blueprint.connect(node40, "normal", node49, "data")
-Blueprint.connect(node40, "occlusion", node47, "data")
-Blueprint.connect(node40, "metallic_roughness", node41, "data")
-Blueprint.connect(node40, "va", node0, "va")
-Blueprint.connect(node40, "base_color", node43, "data")
-Blueprint.connect(node40, "translation", node50, "translation")
-Blueprint.connect(node40, "emissive", node45, "data")
-Blueprint.connect(node40, "rotation", node50, "rotation")
-Blueprint.connect(node50, "mat", node52, "b")
-Blueprint.connect(node49, "tex_coord", node37, "set_id")
-Blueprint.connect(node49, "texture", node15, "normal_map")
-Blueprint.connect(node37, "uv", node15, "tex_coords")
-Blueprint.connect(node47, "tex_coord", node48, "set_id")
-Blueprint.connect(node47, "texture", node13, "tex")
-Blueprint.connect(node48, "uv", node13, "uv")
-Blueprint.connect(node13, "r", node14, "b")
-Blueprint.connect(node13, "r", node26, "ao")
-Blueprint.connect(node45, "tex_coord", node46, "set_id")
-Blueprint.connect(node45, "texture", node10, "tex")
-Blueprint.connect(node46, "uv", node10, "uv")
-Blueprint.connect(node10, "rgb", node11, "srgb")
-Blueprint.connect(node11, "ret", node12, "b")
-Blueprint.connect(node43, "tex_coord", node44, "set_id")
-Blueprint.connect(node43, "texture", node5, "tex")
-Blueprint.connect(node44, "uv", node5, "uv")
-Blueprint.connect(node5, "rgba", node7, "xyzw")
-Blueprint.connect(node7, "w", node8, "w")
-Blueprint.connect(node7, "xyz", node6, "srgb")
-Blueprint.connect(node6, "ret", node22, "albedo")
-Blueprint.connect(node6, "ret", node21, "albedo")
-Blueprint.connect(node6, "ret", node26, "albedo")
-Blueprint.connect(node41, "tex_coord", node42, "set_id")
-Blueprint.connect(node41, "texture", node19, "tex")
-Blueprint.connect(node42, "uv", node19, "uv")
-Blueprint.connect(node19, "g", node18, "roughness")
-Blueprint.connect(node19, "g", node20, "roughness")
-Blueprint.connect(node19, "g", node26, "roughness")
-Blueprint.connect(node19, "b", node22, "metallic")
-Blueprint.connect(node19, "b", node21, "metallic")
-Blueprint.connect(node19, "b", node26, "metallic")
-Blueprint.connect(node35, "mat", node52, "a")
-Blueprint.connect(node52, "v", node1, "model")
-Blueprint.connect(node34, "v3", node32, "b")
-Blueprint.connect(node33, "v3", node32, "a")
-Blueprint.connect(node32, "v", node31, "v")
-Blueprint.connect(node31, "v", node23, "light_pos")
-Blueprint.connect(node28, "tex", node27, "equirectangularMap")
-Blueprint.connect(node27, "cubemap", node29, "value")
-Blueprint.connect(node27, "irradiance", node26, "irradianceMap")
-Blueprint.connect(node27, "brdf", node26, "brdfLUT")
-Blueprint.connect(node27, "prefilter", node26, "prefilterMap")
-Blueprint.connect(node17, "pos", node23, "world_pos")
-Blueprint.connect(node17, "pos", node15, "world_pos")
-Blueprint.connect(node16, "normal", node15, "normal")
-Blueprint.connect(node15, "ret", node18, "N")
-Blueprint.connect(node15, "ret", node20, "N")
-Blueprint.connect(node15, "ret", node22, "N")
-Blueprint.connect(node15, "ret", node26, "N")
-Blueprint.connect(node3, "mat", node1, "view")
-Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node3, "pos", node51, "v")
-Blueprint.connect(node51, "v", node23, "cam_pos")
-Blueprint.connect(node23, "V", node20, "V")
-Blueprint.connect(node23, "V", node21, "V")
-Blueprint.connect(node23, "V", node22, "V")
-Blueprint.connect(node23, "V", node26, "V")
-Blueprint.connect(node23, "L", node20, "L")
-Blueprint.connect(node23, "L", node22, "L")
-Blueprint.connect(node23, "H", node18, "H")
-Blueprint.connect(node23, "H", node21, "H")
-Blueprint.connect(node21, "ret", node22, "F")
-Blueprint.connect(node21, "ret", node26, "F")
-Blueprint.connect(node26, "ret", node30, "a")
-Blueprint.connect(node20, "ret", node22, "G")
-Blueprint.connect(node18, "ret", node22, "D")
-Blueprint.connect(node22, "ret", node14, "a")
-Blueprint.connect(node14, "v", node12, "a")
-Blueprint.connect(node12, "v", node30, "b")
-Blueprint.connect(node30, "v", node9, "linear")
-Blueprint.connect(node9, "non-linear", node8, "xyz")
-Blueprint.connect(node8, "xyzw", node1, "rgba")
-Blueprint.connect(node4, "mat", node1, "projection")
-Blueprint.connect(node1, "shader", node0, "shader")
-Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node11, "v3", node10, "b")
+Blueprint.connect(node9, "v3", node10, "a")
+Blueprint.connect(node10, "v", node2, "light_pos")
+Blueprint.connect(node8, "mat", node2, "local_mat")
+Blueprint.connect(node4, "mat", node6, "view")
+Blueprint.connect(node4, "zoom", node7, "fovy")
+Blueprint.connect(node4, "pos", node2, "cam_pos")
+Blueprint.connect(node7, "mat", node6, "projection")
+Blueprint.connect(node3, "next", node5, "prev")
+Blueprint.connect(node0, "desc", node1, "data")
+Blueprint.connect(node1, "node_damagedHelmet_-6514", node2, "model")
+Blueprint.connect(node2, "frag_out", node6, "rgba")
+Blueprint.connect(node2, "model_mat", node6, "model")
+Blueprint.connect(node2, "va", node5, "va")
+Blueprint.connect(node6, "shader", node5, "shader")
