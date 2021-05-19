@@ -11,19 +11,19 @@ _editor.add_node(node0, -860.66032153175, -293.92469061649)
 
 var node1 = SrgbToLinear()
 
-_editor.add_node(node1, 197.90741731916, 400.16582797046)
+_editor.add_node(node1, 288.65741731916, 230.76582797046)
 
 var node2 = Split()
 
-_editor.add_node(node2, 55.67278899701, 391.72092436549)
+_editor.add_node(node2, 146.42278899701, 222.32092436549)
 
 var node3 = Combine()
 
-_editor.add_node(node3, 615.44449173115, 382.12759015367)
+_editor.add_node(node3, 954.24449173115, 213.93759015367)
 
 var node4 = GammaCorrection()
 
-_editor.add_node(node4, 484.35107285789, 280.68775196992)
+_editor.add_node(node4, 823.15107285789, 112.49775196992)
 
 var node5 = SampleTexture()
 
@@ -31,11 +31,11 @@ _editor.add_node(node5, -874.73547226845, -535.50189878476)
 
 var node6 = SrgbToLinear()
 
-_editor.add_node(node6, -25.53893875205, 190.66374362473)
+_editor.add_node(node6, 65.21106124795, 21.26374362473)
 
 var node7 = Add()
 
-_editor.add_node(node7, 320.94995826368, 276.6394389094)
+_editor.add_node(node7, 440.73995826368, 95.1394389094)
 
 var node8 = SampleTexture()
 
@@ -43,7 +43,7 @@ _editor.add_node(node8, -834.29243861255, -81.27498190075)
 
 var node9 = Multiply()
 
-_editor.add_node(node9, 153.13369886567, 276.79221681989)
+_editor.add_node(node9, 243.88369886567, 107.39221681989)
 
 var node10 = NormalFromMap()
 
@@ -128,7 +128,7 @@ _editor.add_node(node27, -997.56167011305, -835.43701459506)
 
 var node28 = Multiply()
 
-_editor.add_node(node28, -163.01396548698, 324.41354018881)
+_editor.add_node(node28, -72.26396548698, 155.01354018881)
 
 var node29 = Mix()
 
@@ -187,10 +187,10 @@ _editor.add_node(node40, -1099.7544652641, 504.3727140108)
 
 var node41 = Commentary()
 
-node41.set_size(1122.8187255859, 345.78125)
+node41.set_size(1390.4239501953, 337.4104309082)
 node41.title = "Layers"
 
-_editor.add_node(node41, 314.10491594141, 500.85548451953)
+_editor.add_node(node41, 533.11491594141, 326.61548451953)
 
 var node42 = Fetch()
 node42.index = "base_color"
@@ -304,7 +304,7 @@ var node63 = Output()
 node63.var_name = "frag_out"
 node63.var_type = "num4"
 
-_editor.add_node(node63, 782.7520751953, 421.98010253906)
+_editor.add_node(node63, 1121.5520751953, 253.79010253906)
 
 var node64 = Output()
 
@@ -341,6 +341,50 @@ node68.var_type = "vec3"
 
 _editor.add_node(node68, -860.45862790196, 741.2632790748)
 
+var node69 = IBL()
+
+_editor.add_node(node69, 1524.9393636089, 657.92324747948)
+
+var node70 = Subgraph()
+node70.load_from_file(_editor, "assets/rendergraph/pbr_ibl_textured_prepare.ves")
+
+_editor.add_node(node70, 1300.5317929624, 782.92358913182)
+
+var node71 = Texture()
+node71.query_param("unif_name").value = "u_tex"
+node71.gamma_correction = false
+node71.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
+node71.set_sampler("linear repeat")
+
+_editor.add_node(node71, 1041.2081656649, 771.90400492148)
+
+var node72 = Print()
+
+_editor.add_node(node72, 1528.8347466659, 933.83505060744)
+
+var node73 = Commentary()
+
+node73.set_size(740.78540039063, 443.92083740234)
+node73.title = "IBL"
+
+_editor.add_node(node73, 1284.9458098531, 997.10647771917)
+
+var node74 = Add()
+
+_editor.add_node(node74, 630.50068115234, 91.800104980467)
+
+var node75 = Pass()
+
+node75.once = true
+
+_editor.add_node(node75, 1528.3369894404, 811.66991234823)
+
+Blueprint.connect(node71, "tex", node70, "equirectangularMap")
+Blueprint.connect(node70, "next", node75, "prev")
+Blueprint.connect(node70, "cubemap", node72, "value")
+Blueprint.connect(node70, "irradiance", node69, "irradianceMap")
+Blueprint.connect(node70, "brdf", node69, "brdfLUT")
+Blueprint.connect(node70, "prefilter", node69, "prefilterMap")
 Blueprint.connect(node68, "var", node20, "v")
 Blueprint.connect(node20, "v", node17, "light_pos")
 Blueprint.connect(node67, "var", node27, "a")
@@ -368,12 +412,14 @@ Blueprint.connect(node56, "item", node24, "set_id")
 Blueprint.connect(node24, "uv", node5, "uv")
 Blueprint.connect(node5, "rgb", node6, "srgb")
 Blueprint.connect(node6, "ret", node7, "b")
+Blueprint.connect(node6, "ret", node69, "albedo")
 Blueprint.connect(node50, "item", node51, "items")
 Blueprint.connect(node50, "item", node52, "items")
 Blueprint.connect(node52, "item", node8, "tex")
 Blueprint.connect(node51, "item", node25, "set_id")
 Blueprint.connect(node25, "uv", node8, "uv")
 Blueprint.connect(node8, "r", node9, "b")
+Blueprint.connect(node8, "r", node69, "ao")
 Blueprint.connect(node47, "item", node48, "items")
 Blueprint.connect(node47, "item", node49, "items")
 Blueprint.connect(node49, "item", node14, "tex")
@@ -381,8 +427,10 @@ Blueprint.connect(node48, "item", node22, "set_id")
 Blueprint.connect(node22, "uv", node14, "uv")
 Blueprint.connect(node14, "g", node13, "roughness")
 Blueprint.connect(node14, "g", node15, "roughness")
+Blueprint.connect(node14, "g", node69, "roughness")
 Blueprint.connect(node14, "b", node29, "a")
 Blueprint.connect(node14, "b", node38, "metallic")
+Blueprint.connect(node14, "b", node69, "metallic")
 Blueprint.connect(node44, "item", node45, "items")
 Blueprint.connect(node44, "item", node46, "items")
 Blueprint.connect(node46, "item", node10, "normal_map")
@@ -410,6 +458,7 @@ Blueprint.connect(node12, "pos", node10, "world_pos")
 Blueprint.connect(node17, "V", node15, "V")
 Blueprint.connect(node17, "V", node16, "V")
 Blueprint.connect(node17, "V", node31, "V")
+Blueprint.connect(node17, "V", node69, "V")
 Blueprint.connect(node17, "L", node15, "L")
 Blueprint.connect(node17, "L", node31, "L")
 Blueprint.connect(node17, "L", node36, "b")
@@ -417,6 +466,7 @@ Blueprint.connect(node17, "H", node13, "H")
 Blueprint.connect(node17, "H", node16, "H")
 Blueprint.connect(node16, "ret", node31, "F")
 Blueprint.connect(node16, "ret", node38, "F")
+Blueprint.connect(node16, "ret", node69, "F")
 Blueprint.connect(node38, "ret", node37, "b")
 Blueprint.connect(node37, "v", node34, "b")
 Blueprint.connect(node11, "normal", node10, "normal")
@@ -424,6 +474,8 @@ Blueprint.connect(node10, "ret", node13, "N")
 Blueprint.connect(node10, "ret", node15, "N")
 Blueprint.connect(node10, "ret", node31, "N")
 Blueprint.connect(node10, "ret", node36, "a")
+Blueprint.connect(node10, "ret", node69, "N")
+Blueprint.connect(node69, "ret", node74, "a")
 Blueprint.connect(node36, "dot", node35, "b")
 Blueprint.connect(node15, "ret", node31, "G")
 Blueprint.connect(node13, "ret", node31, "D")
@@ -431,6 +483,7 @@ Blueprint.connect(node31, "ret", node34, "a")
 Blueprint.connect(node34, "v", node35, "a")
 Blueprint.connect(node35, "v", node9, "a")
 Blueprint.connect(node9, "v", node7, "a")
-Blueprint.connect(node7, "v", node4, "linear")
+Blueprint.connect(node7, "v", node74, "b")
+Blueprint.connect(node74, "v", node4, "linear")
 Blueprint.connect(node4, "non-linear", node3, "xyz")
 Blueprint.connect(node3, "xyzw", node63, "var")

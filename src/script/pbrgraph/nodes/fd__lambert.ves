@@ -1,0 +1,20 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/google/filament
+const float PI = 3.14159265359;
+float Fd_Lambert() {
+    return 1.0 / PI;
+}
+"
+
+class Fd_Lambert is Node
+{
+	init()
+	{
+		super.init(Fd_Lambert.name)
+
+		this.node_func = NodeFunction(this, CODE, "Fd_Lambert", [])	
+	}
+}

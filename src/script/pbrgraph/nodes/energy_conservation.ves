@@ -3,13 +3,8 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-const float PI = 3.14159265359;
-vec3 calc_brdf(float D, float G, vec3 F, vec3 N, vec3 V, vec3 L, vec3 albedo, float metallic)
+vec3 energy_conservation(vec3 F, float metallic)
 {
-	vec3 nominator    = D * G * F;
-	float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-	vec3 specular = nominator / denominator;
-
 	// kS is equal to Fresnel
 	vec3 kS = F;
 	// for energy conservation, the diffuse and specular light can't
@@ -21,19 +16,18 @@ vec3 calc_brdf(float D, float G, vec3 F, vec3 N, vec3 V, vec3 L, vec3 albedo, fl
 	// have no diffuse light).
 	kD *= 1.0 - metallic;  
 
-	// scale light by NdotL
-	float NdotL = max(dot(N, L), 0.0);
-
-	return (kD * albedo / PI + specular) * NdotL;
+	return kD;
 }
 "
 
-class BRDF is Node
+class EnergyConservation is Node
 {
 	init()
 	{
-		super.init(BRDF.name)
+		super.init(EnergyConservation.name)
 
-		this.node_func = NodeFunction(this, CODE, "calc_brdf", [])	
+		this.node_func = NodeFunction(this, CODE, "energy_conservation", [
+			["metallic", 0.0],
+		])
 	}
 }

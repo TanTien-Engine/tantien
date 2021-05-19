@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/google/filament
+float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL) 
+{
+    // Heitz 2014, \"Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs\"
+    // TODO: lambdaV can be pre-computed for all the lights, it should be moved out of this function
+    float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
+    float lambdaL = NoV * length(vec3(at * ToL, ab * BoL, NoL));
+    float v = 0.5 / (lambdaV + lambdaL);
+    return v;
+}
+"
+
+class V_SmithGGXCorrelated_Anisotropic is Node
+{
+	init()
+	{
+		super.init(V_SmithGGXCorrelated_Anisotropic.name)
+
+		this.node_func = NodeFunction(this, CODE, "V_SmithGGXCorrelated_Anisotropic", [])	
+	}
+}

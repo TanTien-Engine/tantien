@@ -1,14 +1,20 @@
 import "pbrgraph.nodes.*"
 
 var PBR_NODES = [
-// distribution
-D_GGX, D_Charlie,
-// fresnel
+// Specular BRDF distribution
+D_GGX, D_GGX_Anisotropic, D_Charlie,
+// Specular BRDF visibility
+V_Kelemen, V_Neubelt, V_Sheen, V_Smith, V_SmithGGXCorrelated, V_SmithGGXCorrelated_Anisotropic,
+// Specular BRDF fresnel
 F_Schlick, 
-// visibility
-V_Neubelt, V_Sheen, V_Smith, 
+// Specular BRDF
+Fr_CookTorrance,
+// Diffuse BRDF
+Fd_Burley, Fd_Lambert, Fd_Wrap,
+// BRDF tools
+EnergyConservation,
 // components
-BRDF, IBL,
+IBL,
 // tools
-Shadergraph, SrgbToLinear, GammaCorrection, NormalFromMap, LightingDirs,
+Shadergraph, SrgbToLinear, GammaCorrection, NormalFromMap, LightingDirs, TBN,
 ]

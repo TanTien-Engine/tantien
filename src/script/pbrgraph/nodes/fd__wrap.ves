@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/google/filament
+// Energy conserving wrap diffuse term, does *not* include the divide by pi
+float sq(float x) {
+    return x * x;
+}
+float Fd_Wrap(vec3 N, vec3 L, float w) 
+{
+	float NoL = clamp(dot(N, L), 0.0, 1.0);
+    return clamp((NoL + w) / sq(1.0 + w), 0.0, 1.0);
+}
+"
+
+class Fd_Wrap is Node
+{
+	init()
+	{
+		super.init(Fd_Wrap.name)
+
+		this.node_func = NodeFunction(this, CODE, "Fd_Wrap", [])	
+	}
+}

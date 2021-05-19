@@ -1,0 +1,30 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/google/filament
+const float PI = 3.14159265359;
+float D_GGX_Anisotropic(float at, float ab, float ToH, float BoH, float NoH) 
+{
+    // Burley 2012, \"Physically-Based Shading at Disney\"
+
+    // The values at and ab are perceptualRoughness^2, a2 is therefore perceptualRoughness^4
+    // The dot product below computes perceptualRoughness^8. We cannot fit in fp16 without clamping
+    // the roughness to too high values so we perform the dot product and the division in fp32
+    float a2 = at * ab;
+    vec3 d = vec3(ab * ToH, at * BoH, a2 * NoH);
+    float d2 = dot(d, d);
+    float b2 = a2 / d2;
+    return a2 * b2 * b2 * (1.0 / PI);
+}
+"
+
+class D_GGX_Anisotropic is Node
+{
+	init()
+	{
+		super.init(D_GGX_Anisotropic.name)
+
+		this.node_func = NodeFunction(this, CODE, "D_GGX_Anisotropic", [])	
+	}
+}
