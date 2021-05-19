@@ -94,7 +94,8 @@ class Shadergraph is Subgraph
 	{
 		import "blueprint.nodes.output"	for Output
 
-		for (var node in this.all_nodes) {
+		for (var item in this.all_items) {
+			var node = item[0]
 			if (node is Output) {
 				return node
 			}

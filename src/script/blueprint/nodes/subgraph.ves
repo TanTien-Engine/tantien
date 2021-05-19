@@ -36,7 +36,7 @@ class Subgraph is Node
 		this.filepath = ""
 		this.file_content = nil
 
-		this.all_nodes   = []
+		this.all_items   = []
 		this.in_nodes    = []
 		this.out_nodes   = []
 		this.prop_nodes  = []
@@ -148,7 +148,9 @@ class Subgraph is Node
 
 	shader_build(builder, gen)
 	{
-		for (var node in this.all_nodes) {
+		for (var item in this.all_items) 
+		{
+			var node = item[0]
 			if (node is Subgraph) {
 				node.shader_build(builder, gen)
 			} else {
@@ -252,7 +254,7 @@ class Subgraph is Node
 
 	load_from_string(editor, str, sub_editor, module_name)
 	{
-		this.all_nodes.clear()
+		this.all_items.clear()
 		this.in_nodes.clear()
 		this.prop_nodes.clear()
 		this.proxy_nodes.clear()		
@@ -271,11 +273,18 @@ class Subgraph is Node
 
 		editor.add_node = old_func
 
-		if (sub_editor.has_method("build_exec_list(_)")) {
-			this.exec_list = sub_editor.build_exec_list(this.all_nodes)		
+		if (sub_editor.has_method("build_exec_list(_)")) 
+		{
+			var all_nodes = []
+			for (var item in this.all_items) {
+				all_nodes.add(item[0])
+			}
+
+			this.exec_list = sub_editor.build_exec_list(all_nodes)		
 		}
 
-		for (var node in this.all_nodes) {
+		for (var item in this.all_items) {
+			var node = item[0]
 			if (node is Camera3d) {
 				this.op_node = node
 			}
@@ -309,7 +318,7 @@ class Subgraph is Node
 
 	add_node(node, x, y)
 	{
-		this.all_nodes.add(node)
+		this.all_items.add([node, x, y])
 
 		var dirty = false
 		if (node is Input) 

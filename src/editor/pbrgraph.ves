@@ -67,7 +67,9 @@ class Pbrgraph is Editor
 			{
 				// init subgraph
 				bp_node.execute()
-				for (var c_node in bp_node.all_nodes) {
+				for (var c_item in bp_node.all_items) 
+				{
+					var c_node = c_item[0]
 					if (c_node is Shadergraph) {
 						this.shadergraph = c_node
 						this.shadergraph.rebuild_shader()

@@ -562,6 +562,17 @@ import \"editor\" for _editor
 		IO.close(file)
 	}
 
+	load_from_subgraph(subgraph)
+	{
+		for (var item in subgraph.all_items) {
+			this.add_node(item[0], item[1], item[2])
+		}
+
+		this.nodes_op.comm_op.rebuild()
+
+		this.scene_stack.bp_dirty = true
+	}
+
 	query_node_idx(node_set, bp_node)
 	{
 		for (var i in 0..node_set.count) {
@@ -842,7 +853,8 @@ import \"editor\" for _editor
 			this.filepath = ""
 			this.loadfromstring(bp_node.file_content)
 		} else {
-			this.loadfromfile(bp_node.filepath)
+			//this.loadfromfile(bp_node.filepath)
+			this.load_from_subgraph(bp_node)
 		}
 
 		return true
