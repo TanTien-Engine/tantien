@@ -34,10 +34,6 @@ class Fetch is Node
 			return nil
 		}
 
-		if (!this.index) {
-			this.init_index(v_items)
-		}
-
 		if (v_items.type == VAR_TYPE_TABLE) {		
 			return Variant(this.fetch_table_value(v_items.value))
 		} else if (v_items.type == VAR_TYPE_ARRAY) {
@@ -156,10 +152,10 @@ class Fetch is Node
 
 	to_string(name) 
 	{
-		if (this.index is Num) {
-			return "%(name).index = %(this.index)\n"
-		} else if (this.index is String) {
+		if (this.index is String) {
 			return "%(name).index = \"%(this.index)\"\n"
+		} else {
+			return "%(name).index = %(this.index)\n"
 		}
 	}
 
@@ -173,8 +169,8 @@ class Fetch is Node
 		var v_items = Blueprint.calc_input_value(this, 0)
 		if (v_items and v_items.value and v_items.type == VAR_TYPE_TABLE)
 		{
-			var selected = -1		
-			var keys = []
+			var selected = 0
+			var keys = ["null"]
 			for (var entry in v_items.value) 
 			{
 				if (entry.key == this.index) {
@@ -184,8 +180,13 @@ class Fetch is Node
 			}
 
 			var item = GUI.combo(ctx, "index", selected, keys, x, y, 120)
-			if (item != selected) {
-				this.index = keys[item]
+			if (item != selected) 
+			{
+				if (item == 0) {
+					this.index = nil
+				} else {
+					this.index = keys[item]				
+				}
 				dirty = true
 			}
 			y = y - DEFAULT_HEIGHT
@@ -196,18 +197,5 @@ class Fetch is Node
 		}
 
 		return dirty
-	}
-
-	init_index(v_items)
-	{
-		if (v_items.type == VAR_TYPE_TABLE) 
-		{
-			for (var entry in v_items.value) {
-				this.index = entry.key
-				return
-			}
-		} else if (v_items.type == VAR_TYPE_ARRAY) {
-			this.index = 0
-		}		
 	}
 }
