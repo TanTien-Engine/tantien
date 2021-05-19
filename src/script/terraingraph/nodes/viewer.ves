@@ -45,7 +45,7 @@ class Viewer is Node
 		{
 			if (!this.draw_node_gray) {
 				var draw_editor = Rendergraph()
-				this.draw_node_gray = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_gray.ves", draw_editor)
+				this.draw_node_gray = NODE_CACHE.fetch("assets/blueprints/rendergraph/draw_terrain_gray.ves", draw_editor)
 				Blueprint.connect(this.hf_proxy, "tex", this.draw_node_gray, "tes_heightmap")
 			}
 			draw = this.draw_node_gray
@@ -54,7 +54,7 @@ class Viewer is Node
 		{
 			if (!this.draw_node_splatmap) {
 				var draw_editor = Rendergraph()
-				this.draw_node_splatmap = NODE_CACHE.fetch("assets/rendergraph/draw_terrain_splatmap.ves", draw_editor)
+				this.draw_node_splatmap = NODE_CACHE.fetch("assets/blueprints/rendergraph/draw_terrain_splatmap.ves", draw_editor)
 				Blueprint.connect(this.hf_proxy, "tex", this.draw_node_splatmap, "tes_heightmap")
 			}
 			draw = this.draw_node_splatmap
