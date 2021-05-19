@@ -93,6 +93,8 @@ foreign class ShaderGen
 			return y
 		} else if (!y) {
 			return x
+		} else if (!a) {
+			return x
 		}
 
 		if (!SpirvGenTwo.is_vector(x) and 
