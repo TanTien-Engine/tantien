@@ -103,20 +103,20 @@ void w_glTF_get_desc()
             ves_pop(1);
         }
         // emissive
-        if (material->emissive)
+        auto& emissive = material->emissive;
+        ves_newmap();
+        // factor
         {
-            auto& emissive = material->emissive;
-            ves_newmap();
-            // factor
-            {
-                ves_pushnil();
-                ves_import_class("maths", "Float3");
-                sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
-                memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
-                ves_pop(1);
-                ves_setfield(-2, "factor");
-                ves_pop(1);
-            }
+            ves_pushnil();
+            ves_import_class("maths", "Float3");
+            sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
+            memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
+            ves_pop(1);
+            ves_setfield(-2, "factor");
+            ves_pop(1);
+        }
+        if (emissive->texture)
+        {
             // texture
             {
                 ves_pushnil();
@@ -133,14 +133,14 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
-            ves_setfield(-2, "emissive");
-            ves_pop(1);
         }
+        ves_setfield(-2, "emissive");
+        ves_pop(1);
         // normal
-        if (material->normal)
+        auto& normal = material->normal;
+        ves_newmap();
+        if (normal->texture)
         {
-            auto& normal = material->normal;
-            ves_newmap();
             // texture
             {
                 ves_pushnil();
@@ -157,14 +157,14 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
-            ves_setfield(-2, "normal");
-            ves_pop(1);
         }
+        ves_setfield(-2, "normal");
+        ves_pop(1);
         // occlusion
-        if (material->occlusion)
+        auto& occlusion = material->occlusion;
+        ves_newmap();
+        if (occlusion->texture)
         {
-            auto& occlusion = material->occlusion;
-            ves_newmap();
             // texture
             {
                 ves_pushnil();
@@ -181,26 +181,26 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
-            ves_setfield(-2, "occlusion");
+        }
+        ves_setfield(-2, "occlusion");
+        ves_pop(1);
+        // metallic_roughness
+        auto& metallic_roughness = material->metallic_roughness;
+        ves_newmap();
+        // metallic_factor
+        {
+            ves_pushnumber(metallic_roughness->metallic_factor);
+            ves_setfield(-2, "metallic_factor");
             ves_pop(1);
         }
-        // metallic_roughness
-        if (material->metallic_roughness)
+        // roughness_factor
         {
-            auto& metallic_roughness = material->metallic_roughness;
-            ves_newmap();
-            // metallic_factor
-            {
-                ves_pushnumber(metallic_roughness->metallic_factor);
-                ves_setfield(-2, "metallic_factor");
-                ves_pop(1);
-            }
-            // roughness_factor
-            {
-                ves_pushnumber(metallic_roughness->roughness_factor);
-                ves_setfield(-2, "roughness_factor");
-                ves_pop(1);
-            }
+            ves_pushnumber(metallic_roughness->roughness_factor);
+            ves_setfield(-2, "roughness_factor");
+            ves_pop(1);
+        }
+        if (metallic_roughness->texture)
+        {
             // texture
             {
                 ves_pushnil();
@@ -217,24 +217,24 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
-            ves_setfield(-2, "metallic_roughness");
+        }
+        ves_setfield(-2, "metallic_roughness");
+        ves_pop(1);
+        // base_color
+        auto& base_color = material->base_color;
+        ves_newmap();
+        // factor
+        {
+            ves_pushnil();
+            ves_import_class("maths", "Float4");
+            sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
+            memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
+            ves_pop(1);
+            ves_setfield(-2, "factor");
             ves_pop(1);
         }
-        // base_color
-        if (material->base_color)
+        if (base_color->texture)
         {
-            auto& base_color = material->base_color;
-            ves_newmap();
-            // factor
-            {
-                ves_pushnil();
-                ves_import_class("maths", "Float4");
-                sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
-                memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
-                ves_pop(1);
-                ves_setfield(-2, "factor");
-                ves_pop(1);
-            }
             // texture
             {
                 ves_pushnil();
@@ -251,9 +251,9 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
-            ves_setfield(-2, "base_color");
-            ves_pop(1);
         }
+        ves_setfield(-2, "base_color");
+        ves_pop(1);
         // translation
         {
             ves_pushnil();
