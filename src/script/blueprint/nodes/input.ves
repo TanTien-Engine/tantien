@@ -38,10 +38,13 @@ class Input is Node
 
 	to_string(name) 
 	{
-		var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
-		if (t_pin) {
-			this.var_name = t_pin.name
-			this.var_type = t_pin.type
+		if (this.var_name == "in")
+		{
+			var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
+			if (t_pin) {
+				this.var_name = t_pin.name
+				this.var_type = t_pin.type
+			}
 		}
 
 		var type_str = NodeHelper.var_type_to_string(this.var_type)
