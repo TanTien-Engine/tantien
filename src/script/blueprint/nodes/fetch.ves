@@ -1,7 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_STRING, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "gui" for GUI
 
 class Fetch is Node
 {
@@ -10,24 +13,195 @@ class Fetch is Node
 		super.init(Fetch.name)
 
 		this.imports = [
-			Pin(this, "items", VAR_TYPE_ANY),
-			Pin(this, "index", VAR_TYPE_NUMBER),
+			Pin(this, "items", [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
+			Pin(this, "index", [ VAR_TYPE_NUMBER, VAR_TYPE_STRING ]),
 		]
 		this.exports = [
 			Pin(this, "item", VAR_TYPE_ANY)
 		]
 
 		this.layout()
+
+		this.index = nil
+
+		this.uniform = nil
 	}
 
 	calc_value(idx)
 	{
-		var items = Blueprint.calc_input_value(this, 0)
-		var index = Blueprint.calc_input_value(this, 1)
-		if (items and index and items.value is List and index.value is Num) {
-			if (index.value < items.value.count) {
-				return Variant(items.value[index.value])
+		var v_items = Blueprint.calc_input_value(this, 0)
+		if (!v_items or !v_items.value) {
+			return nil
+		}
+
+		if (!this.index) {
+			this.init_index(v_items)
+		}
+
+		if (v_items.type == VAR_TYPE_TABLE) {		
+			return Variant(this.fetch_table_value(v_items.value))
+		} else if (v_items.type == VAR_TYPE_ARRAY) {
+			return Variant(this.fetch_array_value(v_items.value))
+		} else {
+			return nil
+		}
+	}
+
+    gen_shader(gen)
+    {
+    	this.uniform = nil
+    }
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.uniform)
+		{
+			var val = this.calc_value(0)
+			if (!val) {
+				return nil
+			}
+
+			if (val.type == VAR_TYPE_TEXTURE) {
+				var name = this.get_unif_name()
+				this.uniform = gen.add_uniform(module, name, "texture")
 			}
 		}
+
+		if (this.uniform) {
+			return gen.load(func, this.uniform)
+		} else {
+			return nil
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		var value = this.calc_value(0)
+		if (!value) {
+			return
+		}
+
+		if (value.type == VAR_TYPE_TEXTURE and value.value and this.uniform)
+		{
+			var name = this.get_unif_name()
+			prog.set_uniform_value([name, "sampler", [value.value.tex, "linear_repeat"]])
+		}
+	}
+
+	get_unif_name()
+	{
+		var name = ""
+
+		var node = this
+		while (node and node is Fetch)
+		{
+			if (name == "") {
+				name = "%(node.index)"
+			} else {
+				name = "%(node.index)_" + name			
+			}
+			node = Blueprint.get_input_node(node, 0)
+		}
+
+		return "u_" + name
+	}
+
+	fetch_table_value(table)
+	{
+		var v_index = Blueprint.calc_input_value(this, 1)
+		if (v_index)
+		{
+			if (v_index.type == VAR_TYPE_STRING and v_index.value) {
+				return table[v_index.value]
+			} else {
+				return nil
+			}
+		}
+
+		if (this.index and this.index is String) {
+			return table[this.index]
+		} else {
+			return nil
+		}
+	}
+
+	fetch_array_value(array)
+	{
+		var v_index = Blueprint.calc_input_value(this, 1)
+		if (v_index)
+		{
+			if (v_index.type == VAR_TYPE_NUMBER and v_index.value) {
+				return array[v_index.value]
+			} else {
+				return nil
+			}
+		}
+
+		if (this.index and this.index is Num) {
+			return array[this.index]
+		} else {
+			return nil
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.width = 180
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		if (this.index is Num) {
+			return "%(name).index = %(this.index)\n"
+		} else if (this.index is String) {
+			return "%(name).index = \"%(this.index)\"\n"
+		}
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var v_items = Blueprint.calc_input_value(this, 0)
+		if (v_items and v_items.value and v_items.type == VAR_TYPE_TABLE)
+		{
+			var selected = -1		
+			var keys = []
+			for (var entry in v_items.value) 
+			{
+				if (entry.key == this.index) {
+					selected = keys.count
+				}
+				keys.add(entry.key)
+			}
+
+			var item = GUI.combo(ctx, "index", selected, keys, x, y, 120)
+			if (item != selected) {
+				this.index = keys[item]
+				dirty = true
+			}
+			y = y - DEFAULT_HEIGHT
+		}
+
+		return dirty
+	}
+
+	init_index(v_items)
+	{
+		if (v_items.type == VAR_TYPE_TABLE) 
+		{
+			for (var entry in v_items.value) {
+				this.index = entry.key
+				return
+			}
+		} else if (v_items.type == VAR_TYPE_ARRAY) {
+			this.index = 0
+		}		
 	}
 }
