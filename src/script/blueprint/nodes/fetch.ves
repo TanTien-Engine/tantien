@@ -190,6 +190,10 @@ class Fetch is Node
 			}
 			y = y - DEFAULT_HEIGHT
 		}
+		else if (this.index and this.index is String) 
+		{
+			GUI.label(ctx, this.index, x, y + DEFAULT_HEIGHT * 0.5)
+		}
 
 		return dirty
 	}
