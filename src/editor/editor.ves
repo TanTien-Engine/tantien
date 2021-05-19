@@ -43,10 +43,8 @@ class Editor
 		this.right_press_pos = nil
 
 //		this.filepath = ""
-//		this.filepath = "samples/rendergraph/learnopengl/5.advanced_lighting__9.ssao.ves"
-//		this.filepath = "assets/rendergraph/draw_terrain_gray.ves"
-		this.filepath = "samples/sdfgraph/nodes/cone.ves"
-//		this.filepath = "samples/shadergraph/nodes/polygon.ves"
+//		this.filepath = "assets/blueprints/pbrgraph/clearcoat.ves"
+		this.filepath = "samples/pbrgraph/nodes/sheen.ves"
 
 		this.hide_nodes = false
 
@@ -564,6 +562,8 @@ import \"editor\" for _editor
 
 	load_from_subgraph(subgraph)
 	{
+		this.filepath = subgraph.filepath
+		
 		for (var item in subgraph.all_items) {
 			this.add_node(item[0], item[1], item[2])
 		}
