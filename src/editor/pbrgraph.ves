@@ -2,6 +2,7 @@ import "editor.editor" for Editor
 import "rendergraph.rendergraph" for Rendergraph
 import "rendergraph.drawlist" for Drawlist
 import "pbrgraph.nodes.shadergraph" for Shadergraph
+import "blueprint.nodes.subgraph" for Subgraph
 import "render" for Render
 
 class Pbrgraph is Editor
@@ -57,9 +58,21 @@ class Pbrgraph is Editor
 			var bp_node = node.components["bp"]
 			nodes.add(bp_node)
 
-			if (bp_node is Shadergraph) {
+			if (bp_node is Shadergraph) 
+			{
 				this.shadergraph = bp_node
 				this.shadergraph.rebuild_shader()
+			} 
+			else if (bp_node is Subgraph) 
+			{
+				// init subgraph
+				bp_node.execute()
+				for (var c_node in bp_node.all_nodes) {
+					if (c_node is Shadergraph) {
+						this.shadergraph = c_node
+						this.shadergraph.rebuild_shader()
+					}
+				}
 			}
 		}
 		this.drawlist = Drawlist(nodes)

@@ -1,0 +1,77 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Gltf()
+node0.init_model("assets/models/WaterBottle/WaterBottle.gltf")
+
+_editor.add_node(node0, -350.9141649633, 107.46787718149)
+
+var node1 = Expand()
+
+_editor.add_node(node1, -149.86453383767, 107.65464115436)
+
+var node2 = Subgraph()
+node2.load_from_file(_editor, "assets/blueprints/pbrgraph/standard_model.ves")
+
+_editor.add_node(node2, 208.90666940454, 94.188335167885)
+
+var node3 = Clear()
+
+node3.masks = [ "color", "depth" ]
+node3.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node3, 416.33221579578, 272.57063583501)
+
+var node4 = Camera3d()
+
+node4.cam.position.set(-0.48178384888343, 0.019787316697322, -0.13026188880904)
+node4.cam.yaw = 15.2
+node4.cam.pitch = -1.7
+node4.cam.zoom = 45
+node4.cam.update_vectors()
+node4.speed = 0.038704462349415
+
+_editor.add_node(node4, -55.41861995706, 366.1529835832)
+
+var node5 = Draw()
+
+node5.set_prim_type("triangles")
+node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node5.skip = false
+
+_editor.add_node(node5, 591.55883007207, 220.989817974)
+
+var node6 = Shadergraph()
+
+_editor.add_node(node6, 416.76610699781, 94.70625602916)
+
+var node7 = Perspective()
+
+node7.fovy = 45
+node7.aspect = 0
+node7.znear = 0.1
+node7.zfar = 100
+
+_editor.add_node(node7, -55.81618439048, 209.68358753226)
+
+var node8 = OrbitCamera()
+node8.query_param("speed").value = 0.5761501789093
+
+_editor.add_node(node8, -48.853511256022, 45.713510347437)
+
+Blueprint.connect(node8, "mat", node2, "local_mat")
+Blueprint.connect(node4, "mat", node6, "view")
+Blueprint.connect(node4, "zoom", node7, "fovy")
+Blueprint.connect(node4, "pos", node2, "cam_pos")
+Blueprint.connect(node7, "mat", node6, "projection")
+Blueprint.connect(node3, "next", node5, "prev")
+Blueprint.connect(node0, "desc", node1, "data")
+Blueprint.connect(node1, "WaterBottle", node2, "model")
+Blueprint.connect(node2, "frag_out", node6, "rgba")
+Blueprint.connect(node2, "model_mat", node6, "model")
+Blueprint.connect(node2, "va", node5, "va")
+Blueprint.connect(node6, "shader", node5, "shader")
