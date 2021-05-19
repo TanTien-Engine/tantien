@@ -130,14 +130,16 @@ class Fetch is Node
 		var v_index = Blueprint.calc_input_value(this, 1)
 		if (v_index)
 		{
-			if (v_index.type == VAR_TYPE_NUMBER and v_index.value) {
+			if (v_index.type == VAR_TYPE_NUMBER and v_index.value and 
+			    v_index.value < array.count and v_index.value >= 0) {
 				return array[v_index.value]
 			} else {
 				return nil
 			}
 		}
 
-		if (this.index and this.index is Num) {
+		if (this.index and this.index is Num and
+			this.index < array.count and this.index >= 0) {
 			return array[this.index]
 		} else {
 			return nil
