@@ -516,8 +516,13 @@ class Editor
 
 	add_node_from_file(filepath, x, y)
 	{
+		var old_dir = Filesystem.get_asset_base_dir()
+		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(filepath))
+
 		var node = Subgraph()
 		node.load_from_file(this, filepath)
+
+		Filesystem.set_asset_base_dir(old_dir)
 
 		var pos = GUI.trans_scr_pos_to_proj(x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 		this.add_node(node, pos[0], pos[1])
@@ -563,10 +568,14 @@ import \"editor\" for _editor
 			return
 		}
 
+		var old_dir = Filesystem.get_asset_base_dir()
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
+
 		var file = IO.open(this.filepath, "r")
 		this.loadfromstring(file.read())
 		IO.close(file)
+
+		Filesystem.set_asset_base_dir(old_dir)
 	}
 
 	load_from_subgraph(subgraph)
@@ -599,6 +608,7 @@ import \"editor\" for _editor
 			write(str) { this.str = this.str + str }	
 		}		
 
+		var old_dir = Filesystem.get_asset_base_dir()
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 		var file = IO.open(this.filepath, "w")
 
@@ -676,6 +686,8 @@ import \"editor\" for _editor
 		} else {
 			IO.close(file)
 		}
+
+		Filesystem.set_asset_base_dir(old_dir)
 	}
 
 	copy_to_clipboard()

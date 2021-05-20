@@ -117,14 +117,18 @@ class Subgraph is Node
 	to_string(name) 
 	{
 		var ret = ""
-		if (this.file_content) {
+		if (this.file_content) 
+		{
 			var source = this.file_content.replace("\"", "\\\"")
 			ret = ret + "
 %(name).file_content = \"\n%(source)\"
 %(name).load_from_string(_editor, %(name).file_content, _editor, \"subgraph\")
 "
-		} else if (this.filepath != "") {
-			var relative = Filesystem.get_relative_path(this.filepath)
+		} 
+		else if (this.filepath != "") 
+		{
+			var absolute = Filesystem.get_absolute_path(this.filepath)
+			var relative = Filesystem.get_relative_path(absolute)
 			ret = ret + "%(name).load_from_file(_editor, \"%(relative)\")\n"
 		}
 
@@ -307,14 +311,15 @@ class Subgraph is Node
 		var file = IO.open(absolute, "r")
 		var body = file.read()
 		IO.close(file)
-		Filesystem.set_asset_base_dir(old_dir)
 
 		var module_name = filepath
 		if (this.load_from_string(editor, body, sub_editor, module_name))
 		{
-			this.filepath = filepath
+			this.filepath = absolute
 			this.title = Filesystem.get_filename(filepath)
 		}
+
+		Filesystem.set_asset_base_dir(old_dir)		
 	}
 
 	add_node(node, x, y)
