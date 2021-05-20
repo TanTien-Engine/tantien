@@ -173,6 +173,7 @@ foreign class ShaderGen
 	foreign normalize(func, v)
 	foreign max(func, a, b)
 	foreign min(func, a, b)
+	foreign clamp(func, x, min, max)
 	foreign store(func, dst, src)
 	foreign load(func, val)
 	foreign image_sample(func, img, uv)

@@ -329,6 +329,17 @@ void w_shadergen_min()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_clamp()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* x = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* min = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+    spvgentwo::Instruction* max = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
+
+    auto ret = shadertrans::SpirvGenTwo::Clamp(func, x, min, max);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_store()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -675,6 +686,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.normalize(_,_)") == 0) return w_shadergen_normalize;
     if (strcmp(signature, "ShaderGen.max(_,_,_)") == 0) return w_shadergen_max;
     if (strcmp(signature, "ShaderGen.min(_,_,_)") == 0) return w_shadergen_min;
+    if (strcmp(signature, "ShaderGen.clamp(_,_,_,_)") == 0) return w_shadergen_clamp;
     if (strcmp(signature, "ShaderGen.store(_,_,_)") == 0) return w_ShaderGen_store;
     if (strcmp(signature, "ShaderGen.load(_,_)") == 0) return w_ShaderGen_load;
     if (strcmp(signature, "ShaderGen.image_sample(_,_,_)") == 0) return w_ShaderGen_image_sample;
