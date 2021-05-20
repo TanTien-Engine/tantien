@@ -363,12 +363,26 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
         return;
     }
 
-    ves_pushstring("clear()");
-    ves_call(0, 0);
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
 
-    ves_pushstring(paths[0]);
-    ves_pushstring("loadfromfile(_)");
-    ves_call(1, 0);
+    if (y < 50)
+    {
+        ves_pushstring("clear()");
+        ves_call(0, 0);
+
+        ves_pushstring(paths[0]);
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
+    }
+    else
+    {
+        ves_pushstring(paths[0]);
+        ves_pushnumber(x);
+        ves_pushnumber(y);
+        ves_pushstring("add_node_from_file(_,_,_)");
+        ves_call(3, 0);
+    }
 }
 
 void call_mousemoved(double x, double y, int button)

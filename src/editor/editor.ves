@@ -514,6 +514,15 @@ class Editor
 		return node
 	}
 
+	add_node_from_file(filepath, x, y)
+	{
+		var node = Subgraph()
+		node.load_from_file(this, filepath)
+
+		var pos = GUI.trans_scr_pos_to_proj(x, y, 0, 0, 1)
+		this.add_node(node, pos[0], pos[1])
+	}
+	
 	load_file_imports()
 	{
 		return "
