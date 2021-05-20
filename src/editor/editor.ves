@@ -519,7 +519,7 @@ class Editor
 		var node = Subgraph()
 		node.load_from_file(this, filepath)
 
-		var pos = GUI.trans_scr_pos_to_proj(x, y, 0, 0, 1)
+		var pos = GUI.trans_scr_pos_to_proj(x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 		this.add_node(node, pos[0], pos[1])
 	}
 	
