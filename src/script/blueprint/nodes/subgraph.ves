@@ -124,7 +124,8 @@ class Subgraph is Node
 %(name).load_from_string(_editor, %(name).file_content, _editor, \"subgraph\")
 "
 		} else if (this.filepath != "") {
-			ret = ret + "%(name).load_from_file(_editor, \"%(this.filepath)\")\n"
+			var relative = Filesystem.get_relative_path(this.filepath)
+			ret = ret + "%(name).load_from_file(_editor, \"%(relative)\")\n"
 		}
 
 		for (var prop in this.prop_nodes) 

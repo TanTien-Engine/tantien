@@ -53,6 +53,17 @@ void w_Filesystem_get_absolute_path()
     }
 }
 
+void w_Filesystem_get_relative_path()
+{
+    const char* path = ves_tostring(1);
+    auto& dir = tt::Filesystem::Instance()->GetAssetBaseDir();
+    auto relative = std::filesystem::relative(path, dir);
+
+    std::string formated = relative.string();
+    std::replace(formated.begin(), formated.end(), '\\', '/');
+    ves_set_lstring(0, formated.c_str(), formated.size());
+}
+
 void w_Filesystem_get_filename()
 {
     const char* path = ves_tostring(1);
@@ -97,6 +108,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.set_asset_base_dir(_)") == 0) return w_Filesystem_setAssetBaseDir;
     if (strcmp(signature, "static Filesystem.get_asset_base_dir()") == 0) return w_Filesystem_get_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
+    if (strcmp(signature, "static Filesystem.get_relative_path(_)") == 0) return w_Filesystem_get_relative_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
     if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
     if (strcmp(signature, "static Filesystem.remove_file(_)") == 0) return w_Filesystem_remove_file;
