@@ -24,16 +24,13 @@ float lambdaSheen(float cosTheta, float alphaG)
         return exp(2.0 * lambdaSheenNumericHelper(0.5, alphaG) - lambdaSheenNumericHelper(1.0 - cosTheta, alphaG));
     }
 }
-float V_Sheen(vec3 N, vec3 V, vec3 L, float sheenRoughness)
+float V_Sheen(float NoV, float NoL, float sheenRoughness)
 {
-    float NdotV = clamp(dot(N, V), 0.0, 1.0);
-    float NdotL = clamp(dot(N, L), 0.0, 1.0);
-
     float _sheenRoughness = max(sheenRoughness, 0.000001); //clamp (0,1]
     float alphaG = _sheenRoughness * _sheenRoughness;
 
-    return clamp(1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) *
-        (4.0 * NdotV * NdotL)), 0.0, 1.0);
+    return clamp(1.0 / ((1.0 + lambdaSheen(NoV, alphaG) + lambdaSheen(NoL, alphaG)) *
+        (4.0 * NoV * NoL)), 0.0, 1.0);
 }
 "
 

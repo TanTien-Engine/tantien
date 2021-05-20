@@ -9,8 +9,7 @@ float pow5(float x) {
     float x2 = x * x;
     return x2 * x2 * x;
 }
-vec3 F_Schlick(const vec3 f0, float f90, vec3 V, vec3 H) {
-    float VoH = clamp(dot(V, H), 0.0, 1.0);
+vec3 F_Schlick(const vec3 f0, float f90, float VoH) {
     return f0 + (f90 - f0) * pow5(1.0 - VoH);
 }
 "

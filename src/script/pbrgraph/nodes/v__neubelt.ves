@@ -5,11 +5,9 @@ var CODE = "
 // Neubelt and Pettineo 2013, \"Crafting a Next-gen Material Pipeline for The Order: 1886\"
 // from https://github.com/google/filament
 #define MIN_N_DOT_V 1e-4
-float V_Neubelt(vec3 N, vec3 V, vec3 L)
+float V_Neubelt(float NoV, float NoL)
 {
-	float NdotV = max(MIN_N_DOT_V, clamp(dot(N, V), 0.0, 1.0));
-    float NdotL = clamp(dot(N, L), 0.0, 1.0);
-    return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+    return 1.0 / (4.0 * (NoL + NoV - NoL * NoV));
 }
 "
 

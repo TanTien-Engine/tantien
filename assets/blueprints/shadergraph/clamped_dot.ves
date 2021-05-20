@@ -1,0 +1,42 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+var node0 = Input()
+
+node0.var_name = "a"
+node0.var_type = "any"
+
+_editor.add_node(node0, -133.60014564, -22.832908550001)
+
+var node1 = Input()
+
+node1.var_name = "b"
+node1.var_type = "any"
+
+_editor.add_node(node1, -134.62114564, -119.44490855)
+
+var node2 = Dot()
+
+_editor.add_node(node2, 26, -66.5)
+
+var node3 = Clamp()
+
+node3.min = 0
+node3.max = 1
+
+_editor.add_node(node3, 195, -78.5)
+
+var node4 = Output()
+
+node4.var_name = "dot"
+node4.var_type = "any"
+
+_editor.add_node(node4, 352, -69.5)
+
+Blueprint.connect(node1, "var", node2, "b")
+Blueprint.connect(node0, "var", node2, "a")
+Blueprint.connect(node2, "dot", node3, "v")
+Blueprint.connect(node3, "v", node4, "var")

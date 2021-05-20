@@ -4,15 +4,14 @@ import "blueprint.node_function" for NodeFunction
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
 const float PI = 3.14159265359;
-float D_GGX(vec3 N, vec3 H, float roughness)
+float D_GGX(float NoH, float roughness)
 {
     float a = roughness*roughness;
     float a2 = a*a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
+    float NoH2 = NoH*NoH;
 
     float nom   = a2;
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    float denom = (NoH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
 
     return nom / denom;

@@ -3,22 +3,20 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-float V_SchlickGGX(float NdotV, float roughness)
+float V_SchlickGGX(float NoV, float roughness)
 {
     float r = (roughness + 1.0);
     float k = (r*r) / 8.0;
 
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
+    float nom   = NoV;
+    float denom = NoV * (1.0 - k) + k;
 
     return nom / denom;
 }
-float V_Smith(vec3 N, vec3 V, vec3 L, float roughness)
+float V_Smith(float NoV, float NoL, float roughness)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = V_SchlickGGX(NdotV, roughness);
-    float ggx1 = V_SchlickGGX(NdotL, roughness);
+    float ggx2 = V_SchlickGGX(NoV, roughness);
+    float ggx1 = V_SchlickGGX(NoL, roughness);
 
     return ggx1 * ggx2;
 }

@@ -5,13 +5,12 @@ var CODE = "
 // Estevez and Kulla 2017, \"Production Friendly Microfacet Sheen BRDF\"
 // code from https://github.com/KhronosGroup/glTF-Sample-Viewer and https://github.com/google/filament
 const float PI = 3.14159265359;
-float D_Charlie(vec3 N, vec3 H, float sheen_roughness)
+float D_Charlie(float NoH, float sheen_roughness)
 {
-    float NdotH = max(dot(N, H), 0.0);
     float _sheen_roughness = max(sheen_roughness, 0.000001); //clamp (0,1]
     float alphaG = _sheen_roughness * _sheen_roughness;
     float invR = 1.0 / alphaG;
-    float cos2h = NdotH * NdotH;
+    float cos2h = NoH * NoH;
     float sin2h = max(1.0 - cos2h, 0.0078125); // 2^(-14/2), so sin2h^2 > 0 in fp16
     return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
 }

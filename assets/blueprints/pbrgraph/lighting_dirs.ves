@@ -1,0 +1,95 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Input()
+
+node0.var_name = "N"
+node0.var_type = "num3"
+
+_editor.add_node(node0, -289.54337138515, 24.625392796908)
+
+var node1 = Input()
+
+node1.var_name = "V"
+node1.var_type = "num3"
+
+_editor.add_node(node1, -285.43893862782, -148.39038481391)
+
+var node2 = Input()
+
+node2.var_name = "L"
+node2.var_type = "num3"
+
+_editor.add_node(node2, -286.43893862782, -222.39038481391)
+
+var node3 = Input()
+
+node3.var_name = "H"
+node3.var_type = "num3"
+
+_editor.add_node(node3, -288.58301721162, -51.766365093451)
+
+var node4 = Output()
+
+node4.var_name = "NoV"
+node4.var_type = "num"
+
+_editor.add_node(node4, 204.91977529401, -43.391451571061)
+
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+
+_editor.add_node(node5, 13.181818181818, -60.636363636364)
+
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+
+_editor.add_node(node6, 16.181818181818, -165.63636363636)
+
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+
+_editor.add_node(node7, 13.181818181818, 43.363636363636)
+
+var node8 = Output()
+
+node8.var_name = "NoL"
+node8.var_type = "num"
+
+_editor.add_node(node8, 218.3937680044, -146.6506675958)
+
+var node9 = Output()
+
+node9.var_name = "NoH"
+node9.var_type = "num"
+
+_editor.add_node(node9, 205.60278874938, 48.132351447859)
+
+var node10 = Subgraph()
+node10.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+
+_editor.add_node(node10, 13.181818181818, -284.63636363636)
+
+var node11 = Output()
+
+node11.var_name = "VoH"
+node11.var_type = "num"
+
+_editor.add_node(node11, 212.80547609687, -269.59308956151)
+
+Blueprint.connect(node3, "var", node7, "b")
+Blueprint.connect(node3, "var", node10, "b")
+Blueprint.connect(node2, "var", node6, "b")
+Blueprint.connect(node1, "var", node5, "b")
+Blueprint.connect(node1, "var", node10, "a")
+Blueprint.connect(node10, "dot", node11, "var")
+Blueprint.connect(node0, "var", node5, "a")
+Blueprint.connect(node0, "var", node6, "a")
+Blueprint.connect(node0, "var", node7, "a")
+Blueprint.connect(node7, "dot", node9, "var")
+Blueprint.connect(node6, "dot", node8, "var")
+Blueprint.connect(node5, "dot", node4, "var")

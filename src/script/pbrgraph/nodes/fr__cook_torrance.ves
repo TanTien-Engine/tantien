@@ -3,10 +3,10 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-vec3 Fr_CookTorrance(float D, float G, vec3 F, vec3 N, vec3 V, vec3 L) 
+vec3 Fr_CookTorrance(float D, float G, vec3 F, float NoV, float NoL) 
 {
 	vec3 nominator    = D * G * F;
-	float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+	float denominator = 4 * NoV * NoL + 0.001; // 0.001 to prevent divide by zero.
 	vec3 specular = nominator / denominator;
 	return specular;
 }
