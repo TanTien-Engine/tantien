@@ -37,7 +37,6 @@ class Subgraph is Node
 		this.file_content = nil
 
 		this.all_items   = []
-		this.in_nodes    = []
 		this.out_nodes   = []
 		this.prop_nodes  = []
 		this.proxy_nodes = []
@@ -82,12 +81,6 @@ class Subgraph is Node
 		for (var i in 1..this.imports.count) 
 		{
 			var name = this.imports[i].name
-			for (var node in this.in_nodes)	{
-				if (node.var_name == name) {
-					node.value = Blueprint.calc_input_value(this, i)
-				}
-				// todo break
-			}
 			for (var node in this.proxy_nodes) {
 				if (node.real_name == name) {
 					node.real_node = Blueprint.calc_input_value(this, i).value
@@ -260,7 +253,6 @@ class Subgraph is Node
 	load_from_string(editor, str, sub_editor, module_name)
 	{
 		this.all_items.clear()
-		this.in_nodes.clear()
 		this.prop_nodes.clear()
 		this.proxy_nodes.clear()		
 		this.out_nodes.clear()
@@ -306,6 +298,7 @@ class Subgraph is Node
 	load_from_file(editor, filepath, sub_editor)
 	{
 		var absolute = Filesystem.get_absolute_path(filepath)
+
 		var old_dir = Filesystem.get_asset_base_dir()
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(absolute))
 		var file = IO.open(absolute, "r")
@@ -329,7 +322,9 @@ class Subgraph is Node
 		var dirty = false
 		if (node is Input) 
 		{
-			this.in_nodes.add(node)
+			node.parent_node = this
+			node.parent_pin_idx = this.imports.count
+
 			this.imports.add(Pin(this, node.var_name, node.var_type))
 			dirty = true
 		} 

@@ -21,7 +21,8 @@ class Input is Node
 		this.var_name = "in"
 		this.var_type = VAR_TYPE_ANY
 
-		this.value = nil
+		this.parent_node = nil
+		this.parent_pin_idx = -1
 	}
 
 	layout() 
@@ -33,7 +34,12 @@ class Input is Node
 
 	calc_value(idx)
 	{
-		return this.value
+		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		return Blueprint.calc_input_inst(gen, this.parent_node, this.parent_pin_idx, module, func)
 	}
 
 	to_string(name) 
