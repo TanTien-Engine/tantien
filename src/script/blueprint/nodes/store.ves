@@ -1,0 +1,77 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "shader" for SpirvGenTwo
+
+class Store is Node
+{
+	init() 
+	{
+		super.init(Store.name)
+
+		this.imports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.var_name = "store"
+
+		this.inst = nil
+	}
+
+	gen_shader(gen)
+	{
+		this.inst = nil
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		if (!this.inst) {
+			var v = Blueprint.calc_input_inst(gen, this, 0, module, func)
+			this.inst = SpirvGenTwo.add_variable(func, this.var_name, v)
+		}
+
+		return this.inst
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		if (this.var_name == "store")
+		{
+			var f_pin = Blueprint.get_first_connect_pin(this.imports[0])
+			if (f_pin) {
+				this.var_name = f_pin.name
+			}
+		}
+
+		return "
+%(name).var_name = \"%(this.var_name)\"
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
+
+		GUI.label(ctx, this.var_name, x, y)
+
+		return dirty
+	}
+}

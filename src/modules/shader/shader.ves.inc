@@ -19,6 +19,8 @@ foreign class SpirvGenTwo
 	foreign static pow(func, x, y)
 	foreign static sqrt(func, v)
 	foreign static dot(func, a, b)
+
+	foreign static add_variable(func, name, value)
 }
 
 foreign class ShaderGen

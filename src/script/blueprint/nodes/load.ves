@@ -1,0 +1,69 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+
+class Load is Node
+{
+	init() 
+	{
+		super.init(Load.name)
+
+		this.imports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.var_name = "load"
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var v = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		if (v) {
+			return gen.load(func, v)
+		} else {
+			return nil
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		if (this.var_name == "load")
+		{
+			var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
+			if (t_pin) {
+				this.var_name = t_pin.name
+			}
+		}
+
+		return "
+%(name).var_name = \"%(this.var_name)\"
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
+
+		GUI.label(ctx, this.var_name, x, y)
+
+		return dirty
+	}		
+}
