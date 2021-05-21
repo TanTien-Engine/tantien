@@ -24,15 +24,6 @@ class Dot is Node
 	{
 		var a = Blueprint.calc_input_inst(gen, this, 0, module, func)
 		var b = Blueprint.calc_input_inst(gen, this, 1, module, func)
-
-		if (!a and !b) {
-			return nil
-		} else if (!a) {
-			return b
-		} else if (!b) {
-			return a
-		} else {
-			return gen.dot(func, a, b)
-		}
+		return gen.dot(func, a, b)
 	}
 }

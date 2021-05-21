@@ -18,6 +18,7 @@ foreign class SpirvGenTwo
 	foreign static mix(func, x, y, a)
 	foreign static pow(func, x, y)
 	foreign static sqrt(func, v)
+	foreign static dot(func, a, b)
 }
 
 foreign class ShaderGen
@@ -157,6 +158,15 @@ foreign class ShaderGen
 		return from		
 	}
 
+	dot(func, a, b)
+	{
+		if (!a or !b) {
+			return nil
+		}
+
+		return SpirvGenTwo.dot(func, a, b)
+	}
+
 	foreign add_input(name, type)
 	foreign add_output(name, type)
 	foreign add_uniform(module, name, type)
@@ -166,7 +176,6 @@ foreign class ShaderGen
 	foreign compose_float3(func, x, y, z)
 	foreign compose_float4(func, x, y, z, w)
 	foreign compose_extract(func, comp, idx)
-	foreign dot(func, a, b)
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
 	foreign negate(func, v)

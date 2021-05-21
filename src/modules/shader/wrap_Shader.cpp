@@ -161,6 +161,16 @@ void w_SpirvGenTwo_sqrt()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_SpirvGenTwo_dot()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Dot(func, a, b);
+    ves_set_number(0, pointer2double(ret));
+}
+
 // ShaderGen
 
 void w_ShaderGen_allocate()
@@ -261,16 +271,6 @@ void w_shadergen_compose_extract()
     ves_set_number(0, pointer2double(ret));
 }
 
-void w_shadergen_dot()
-{
-    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
-    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
-    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
-
-    auto ret = shadertrans::SpirvGenTwo::Dot(func, a, b);
-    ves_set_number(0, pointer2double(ret));
-}
-
 void w_shadergen_mul()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -337,7 +337,11 @@ void w_shadergen_clamp()
     spvgentwo::Instruction* max = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
 
     auto ret = shadertrans::SpirvGenTwo::Clamp(func, x, min, max);
-    ves_set_number(0, pointer2double(ret));
+    if (!ret) {
+        ves_set_nil(0);
+    } else {
+        ves_set_number(0, pointer2double(ret));
+    }
 }
 
 void w_ShaderGen_store()
@@ -490,6 +494,13 @@ void w_ShaderGen_func_call()
         ves_geti(3, i);
         args[i] = (spvgentwo::Instruction*)(double2pointer(ves_tonumber(-1)));
         ves_pop(1);
+    }
+
+    for (auto& arg : args) {
+        if (!arg) {
+            ves_set_nil(0);
+            return;
+        }
     }
 
     auto ret = shadertrans::SpirvGenTwo::FuncCall(caller, callee, args);
@@ -667,6 +678,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "static SpirvGenTwo.mix(_,_,_,_)") == 0) return w_SpirvGenTwo_mix;
     if (strcmp(signature, "static SpirvGenTwo.pow(_,_,_)") == 0) return w_SpirvGenTwo_pow;
     if (strcmp(signature, "static SpirvGenTwo.sqrt(_,_)") == 0) return w_SpirvGenTwo_sqrt;
+    if (strcmp(signature, "static SpirvGenTwo.dot(_,_,_)") == 0) return w_SpirvGenTwo_dot;
 
     // ShaderGen
 
@@ -679,7 +691,6 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.compose_float3(_,_,_,_)") == 0) return w_shadergen_compose_float3;
     if (strcmp(signature, "ShaderGen.compose_float4(_,_,_,_,_)") == 0) return w_shadergen_compose_float4;
     if (strcmp(signature, "ShaderGen.compose_extract(_,_,_)") == 0) return w_shadergen_compose_extract;
-    if (strcmp(signature, "ShaderGen.dot(_,_,_)") == 0) return w_shadergen_dot;
     if (strcmp(signature, "ShaderGen.mul(_,_,_)") == 0) return w_shadergen_mul;
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.negate(_,_)") == 0) return w_shadergen_negate;
