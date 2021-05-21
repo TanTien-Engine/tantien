@@ -26,7 +26,7 @@ class Add is Node
 		var a = Blueprint.calc_input_value(this, 0)
 		var b = Blueprint.calc_input_value(this, 1)
 		if (!a and !b) {
-			return Variant(VAR_TYPE_NUMBER, 0)
+			return nil
 		} else if (!a) {
 			return b
 		} else if (!b) {
@@ -45,6 +45,8 @@ class Add is Node
 		} else {
 			return Variant(VAR_TYPE_NUMBER, ret[0])
 		}
+
+		return nil
 	}
 
 	calc_inst(gen, idx, module, func) 

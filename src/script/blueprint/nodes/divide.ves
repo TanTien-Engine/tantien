@@ -22,14 +22,21 @@ class Divide is Node
 
 	calc_value(idx)
 	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (!v_a and !v_b) {
+			return nil
+		} else if (!v_a) {
+			return v_b
+		} else if (!v_b) {
+			return v_a
+		}
+
 		var a = 0
 		var b = 0
-		
-		var v_a = Blueprint.calc_input_value(this, 0)
 		if (v_a) {
 			a = v_a.value
 		}
-		var v_b = Blueprint.calc_input_value(this, 1)
 		if (v_b) {
 			b = v_b.value
 		}

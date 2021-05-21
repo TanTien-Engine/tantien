@@ -27,7 +27,7 @@ class Subtract is Node
 		var a = Blueprint.calc_input_value(this, 0)
 		var b = Blueprint.calc_input_value(this, 1)
 		if (!a and !b) {
-			return Variant(VAR_TYPE_NUMBER, 0)
+			return nil
 		} else if (!a) {
 			return b
 		} else if (!b) {
