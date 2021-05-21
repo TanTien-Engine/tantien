@@ -21,6 +21,8 @@ class Store is Node
 
 		this.layout()
 
+		this.exports[0].hide = true
+
 		this.var_name = "store"
 
 		this.inst = nil
@@ -73,5 +75,15 @@ class Store is Node
 		GUI.label(ctx, this.var_name, x, y)
 
 		return dirty
+	}
+
+	on_selected() 
+	{
+		this.exports[0].hide = false
+	}
+
+	on_deselected() 
+	{
+		this.exports[0].hide = true
 	}
 }

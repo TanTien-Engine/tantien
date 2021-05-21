@@ -22,6 +22,8 @@ class Scene
 
 	delete(node) 
 	{
+		this.selection_remove(node)
+
 		for (var i in 0..this.nodes.count) {
 			if (this.nodes[i] == node) {
 				this.nodes.removeAt(i)
@@ -33,7 +35,7 @@ class Scene
 	clear()
 	{
 		this.nodes.clear()
-		this.selection.clear()
+		this.selection_clear()
 	}
 
 	update()
@@ -63,13 +65,43 @@ class Scene
 		}
 	}
 
+	selection_clear()
+	{
+		for (var node in this.selection) {
+			var bp_node = node.components["bp"]
+			bp_node.on_deselected()
+		}
+
+		this.selection.clear()
+	}
+
+	selection_add(node)
+	{		
+		this.selection.add(node)
+
+		var bp_node = node.components["bp"]
+		bp_node.on_selected()
+	}
+
+	selection_remove(node)
+	{
+		var bp_node = node.components["bp"]
+		bp_node.on_deselected()
+
+		this.selection.remove(node)
+	}
+
 	on_enter_in()
 	{
+		this.selection_clear()
+
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 	}
 
 	on_leave_out()
 	{
+		this.selection_clear()
+		
 		if (this.ud and (this.ud is Subgraph)) {
 			this.ud.sync_from_scene(this)
 		}

@@ -27,13 +27,13 @@ class Node2dSelect is EditOP
 		if (sel) 
 		{
 			if (!scene.selection.contains(sel)) {
-				scene.selection.clear()
-				scene.selection.add(sel)			
+				scene.selection_clear()
+				scene.selection_add(sel)
 			}
 		} 
 		else 
 		{
-			scene.selection.clear()
+			scene.selection_clear()
 		}
 
 		this.first_pos = Vector2(x, y)
@@ -52,7 +52,7 @@ class Node2dSelect is EditOP
 		var selected = this.query_by_rect(p0, p1, this.first_pos.x < x)
 		var scene = this.scene_stack.top()
 		for (var node in selected) {
-			scene.selection.add(node)
+			scene.selection_add(node)
 		}
 
 		this.first_pos = nil

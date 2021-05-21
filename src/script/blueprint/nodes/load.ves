@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.nodes.store" for Store
 import "gui" for GUI
 
 class Load is Node
@@ -19,6 +20,8 @@ class Load is Node
 		]
 
 		this.layout()
+
+		this.imports[0].hide = true
 
 		this.var_name = "load"
 	}
@@ -44,6 +47,13 @@ class Load is Node
 	{
 		if (this.var_name == "load")
 		{
+			var f_node = Blueprint.get_input_node(this, 0)
+			if (f_node is Store) {
+				this.var_name = f_node.var_name
+			}
+		}
+		if (this.var_name == "load")
+		{
 			var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
 			if (t_pin) {
 				this.var_name = t_pin.name
@@ -65,5 +75,15 @@ class Load is Node
 		GUI.label(ctx, this.var_name, x, y)
 
 		return dirty
-	}		
+	}
+
+	on_selected() 
+	{
+		this.imports[0].hide = false
+	}
+
+	on_deselected() 
+	{
+		this.imports[0].hide = true
+	}
 }

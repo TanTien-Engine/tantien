@@ -724,7 +724,7 @@ import \"editor\" for _editor
 			var source = "
 var %(name) = %(bp.name)()
 %(bp.to_string(name))
-_editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
+_editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
 "
 			this.clipboard = this.clipboard + source
 			ext_clipboard = ext_clipboard + source
@@ -794,7 +794,7 @@ _editor.scene_stack.top().selection.add(_editor.add_node(%(name), %(trans.positi
 
 		var scene = this.scene_stack.top()
 
-		scene.selection.clear()
+		scene.selection_clear()
 
 		var header = "
 import \"editor\" for _editor
@@ -875,6 +875,8 @@ import \"editor\" for _editor
 		if (!(bp_node is Subgraph)) {
 			return false
 		}
+
+		scene.on_leave_out()
 
 		bp_node.setup_popup_nodes(this)
 

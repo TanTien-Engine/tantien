@@ -35,13 +35,17 @@ class NodeRender
 	{
 		for (var pin in node.imports)
 		{
-			var p_pos = NodeLayout.calc_pin_pos(pin)
-			this.draw_pin(p_pos.x, p_pos.y, pin)
+			if (!pin.hide) {
+				var p_pos = NodeLayout.calc_pin_pos(pin)
+				this.draw_pin(p_pos.x, p_pos.y, pin)
+			}
 		}
 		for (var pin in node.exports)
 		{
-			var p_pos = NodeLayout.calc_pin_pos(pin)
-			this.draw_pin(p_pos.x, p_pos.y, pin)
+			if (!pin.hide) {
+				var p_pos = NodeLayout.calc_pin_pos(pin)
+				this.draw_pin(p_pos.x, p_pos.y, pin)
+			}
 		}
 	}
 
@@ -51,7 +55,7 @@ class NodeRender
 
 		for (var o in node.exports) {
 			for (var c in o.conns) {
-				if (!c.to.node.dummy) {
+				if (!c.to.node.dummy and (!c.from.hide or !c.to.hide)) {
 					this.draw_conn(pt, c)
 				}
 			}
