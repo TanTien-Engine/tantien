@@ -11,12 +11,8 @@ float pow5(float x) {
 float F_Schlick(float f0, float f90, float VoH) {
     return f0 + (f90 - f0) * pow5(1.0 - VoH);
 }
-float Fd_Burley(float roughness, vec3 N, vec3 V, vec3 L, vec3 H) 
+float Fd_Burley(float roughness, float NoV, float NoL, float LoH)
 {
-    float NoV = clamp(dot(N, V), 0.0, 1.0);
-    float NoL = clamp(dot(N, L), 0.0, 1.0);
-    float LoH = clamp(dot(L, H), 0.0, 1.0);
-
     // Burley 2012, \"Physically-Based Shading at Disney\"
     float f90 = 0.5 + 2.0 * roughness * LoH * LoH;
     float lightScatter = F_Schlick(1.0, f90, NoL);

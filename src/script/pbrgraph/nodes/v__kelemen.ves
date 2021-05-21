@@ -4,9 +4,8 @@ import "blueprint.node_function" for NodeFunction
 var CODE = "
 // Kelemen 2001, \"A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling\"
 // from https://github.com/google/filament
-float V_Kelemen(vec3 L, vec3 H) 
+float V_Kelemen(float LoH) 
 {
-	float LoH = clamp(dot(L, H), 0.0, 1.0);
     return 0.25 / (LoH * LoH);
 }
 "

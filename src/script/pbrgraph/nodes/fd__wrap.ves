@@ -7,9 +7,8 @@ var CODE = "
 float sq(float x) {
     return x * x;
 }
-float Fd_Wrap(vec3 N, vec3 L, float w) 
+float Fd_Wrap(float NoL, float w) 
 {
-	float NoL = clamp(dot(N, L), 0.0, 1.0);
     return clamp((NoL + w) / sq(1.0 + w), 0.0, 1.0);
 }
 "
