@@ -511,5 +511,15 @@ class Subgraph is Node
 				this.remove_node(i_graph)
 			}
 		}
+
+		// pos
+		for (var i in 0..scene.nodes.count)
+		{
+			var src = scene.nodes[i]
+			var dst = this.all_items[i]
+			var trans = src.components["transform"]
+			dst[1] = trans.position.x
+			dst[2] = trans.position.y
+		}
 	}
 }
