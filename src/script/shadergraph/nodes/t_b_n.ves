@@ -3,14 +3,7 @@ import "blueprint.node_function" for NodeFunction
 
 var CODE = "
 // from https://learnopengl.com/PBR/Lighting
-struct TBN_Info
-{
-    vec3 T;
-    vec3 B;
-    vec3 N;
-    mat3 TBN;   
-};
-TBN_Info build_tbn(vec3 world_pos, vec3 normal, vec2 tex_coords)
+mat3 build_tbn(vec3 world_pos, vec3 normal, vec2 tex_coords)
 {
     vec3 Q1  = dFdx(world_pos);
     vec3 Q2  = dFdy(world_pos);
@@ -22,14 +15,7 @@ TBN_Info build_tbn(vec3 world_pos, vec3 normal, vec2 tex_coords)
     vec3 B   = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
-    TBN_Info info;
-
-    info.T = T;
-    info.B = B;
-    info.N = N;
-    info.TBN = TBN;
-
-    return info;
+    return TBN;
 }
 "
 

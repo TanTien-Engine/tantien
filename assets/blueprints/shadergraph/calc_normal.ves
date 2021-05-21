@@ -1,0 +1,80 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Multiply()
+
+_editor.add_node(node0, -421.26359148137, 174.63677643613)
+
+var node1 = Number()
+
+node1.value = 2
+
+_editor.add_node(node1, -575.37878992147, 152.63687470269)
+
+var node2 = Subtract()
+
+_editor.add_node(node2, -263.41230237857, 172.9838561309)
+
+var node3 = Number()
+
+node3.value = 1
+
+_editor.add_node(node3, -416.30499349427, 105.21521821364)
+
+var node4 = TBN()
+
+_editor.add_node(node4, -258.88176293937, 47.183951524847)
+
+var node5 = Multiply()
+
+_editor.add_node(node5, -85.838426955967, 137.21674585025)
+
+var node6 = Input()
+
+node6.var_name = "world_pos"
+node6.var_type = "num3"
+
+_editor.add_node(node6, -582.04134504777, 19.489246071707)
+
+var node7 = Input()
+
+node7.var_name = "normal"
+node7.var_type = "num3"
+
+_editor.add_node(node7, -582.72440813667, -45.397029770083)
+
+var node8 = Input()
+
+node8.var_name = "tex_coords"
+node8.var_type = "num2"
+
+_editor.add_node(node8, -580.53871562937, -114.10813815684)
+
+var node9 = Input()
+
+node9.var_name = "normal_map"
+node9.var_type = "num3"
+
+_editor.add_node(node9, -585.04659893207, 226.23745518742)
+
+var node10 = Output()
+
+node10.var_name = "normal"
+node10.var_type = "num3"
+
+_editor.add_node(node10, 60.332767443233, 139.08492567227)
+
+Blueprint.connect(node9, "var", node0, "a")
+Blueprint.connect(node8, "var", node4, "tex_coords")
+Blueprint.connect(node7, "var", node4, "normal")
+Blueprint.connect(node6, "var", node4, "world_pos")
+Blueprint.connect(node4, "ret", node5, "a")
+Blueprint.connect(node3, "v", node2, "b")
+Blueprint.connect(node1, "v", node0, "b")
+Blueprint.connect(node0, "v", node2, "a")
+Blueprint.connect(node2, "v", node5, "b")
+Blueprint.connect(node5, "v", node10, "var")

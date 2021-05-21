@@ -5,91 +5,160 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pbrgraph.nodes.*"
-var node0 = Input()
+var node0 = Output()
 
-node0.var_name = "N"
-node0.var_type = "num3"
+node0.var_name = "NoV"
+node0.var_type = "num"
 
-_editor.add_node(node0, -289.54337138515, 24.625392796908)
+_editor.add_node(node0, 204.91977529401, -43.391451571061)
 
-var node1 = Input()
+var node1 = Subgraph()
+node1.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-node1.var_name = "V"
-node1.var_type = "num3"
+_editor.add_node(node1, 13.181818181818, -60.636363636364)
 
-_editor.add_node(node1, -285.43893862782, -148.39038481391)
+var node2 = Subgraph()
+node2.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-var node2 = Input()
+_editor.add_node(node2, 16.181818181818, -165.63636363636)
 
-node2.var_name = "L"
-node2.var_type = "num3"
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-_editor.add_node(node2, -286.43893862782, -222.39038481391)
-
-var node3 = Input()
-
-node3.var_name = "H"
-node3.var_type = "num3"
-
-_editor.add_node(node3, -288.58301721162, -51.766365093451)
+_editor.add_node(node3, 13.181818181818, 43.363636363636)
 
 var node4 = Output()
 
-node4.var_name = "NoV"
+node4.var_name = "NoL"
 node4.var_type = "num"
 
-_editor.add_node(node4, 204.91977529401, -43.391451571061)
+_editor.add_node(node4, 218.3937680044, -146.6506675958)
 
-var node5 = Subgraph()
-node5.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+var node5 = Output()
 
-_editor.add_node(node5, 13.181818181818, -60.636363636364)
+node5.var_name = "NoH"
+node5.var_type = "num"
+
+_editor.add_node(node5, 205.60278874938, 48.132351447859)
 
 var node6 = Subgraph()
 node6.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-_editor.add_node(node6, 16.181818181818, -165.63636363636)
+_editor.add_node(node6, 13.181818181818, -284.63636363636)
 
-var node7 = Subgraph()
-node7.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+var node7 = Output()
 
-_editor.add_node(node7, 13.181818181818, 43.363636363636)
+node7.var_name = "VoH"
+node7.var_type = "num"
 
-var node8 = Output()
+_editor.add_node(node7, 212.80547609687, -269.59308956151)
 
-node8.var_name = "NoL"
-node8.var_type = "num"
+var node8 = Subgraph()
+node8.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-_editor.add_node(node8, 218.3937680044, -146.6506675958)
+_editor.add_node(node8, 13.181818181818, -409.62782596817)
 
 var node9 = Output()
 
-node9.var_name = "NoH"
+node9.var_name = "LoH"
 node9.var_type = "num"
 
-_editor.add_node(node9, 205.60278874938, 48.132351447859)
+_editor.add_node(node9, 203.29796105664, -387.13521437785)
 
-var node10 = Subgraph()
-node10.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+var node10 = Input()
 
-_editor.add_node(node10, 13.181818181818, -284.63636363636)
+node10.var_name = "normal"
+node10.var_type = "num3"
 
-var node11 = Output()
+_editor.add_node(node10, -1054.3320855259, -0.51696166992001)
 
-node11.var_name = "VoH"
-node11.var_type = "num"
+var node11 = Input()
 
-_editor.add_node(node11, 212.80547609687, -269.59308956151)
+node11.var_name = "world_pos"
+node11.var_type = "num3"
 
-Blueprint.connect(node3, "var", node7, "b")
-Blueprint.connect(node3, "var", node10, "b")
-Blueprint.connect(node2, "var", node6, "b")
-Blueprint.connect(node1, "var", node5, "b")
-Blueprint.connect(node1, "var", node10, "a")
-Blueprint.connect(node10, "dot", node11, "var")
-Blueprint.connect(node0, "var", node5, "a")
-Blueprint.connect(node0, "var", node6, "a")
-Blueprint.connect(node0, "var", node7, "a")
-Blueprint.connect(node7, "dot", node9, "var")
-Blueprint.connect(node6, "dot", node8, "var")
-Blueprint.connect(node5, "dot", node4, "var")
+_editor.add_node(node11, -1057.4952711007, -325.88240118908)
+
+var node12 = Input()
+
+node12.var_name = "cam_pos"
+node12.var_type = "num3"
+
+_editor.add_node(node12, -1058.6163079151, -99.073610805908)
+
+var node13 = Input()
+
+node13.var_name = "light_pos"
+node13.var_type = "num3"
+
+_editor.add_node(node13, -1055.5029121585, -216.50058921647)
+
+var node14 = Subtract()
+
+_editor.add_node(node14, -859.5150589434, -169.27899279808)
+
+var node15 = Normalize()
+
+_editor.add_node(node15, -700.2363114306, -158.76059048638)
+
+var node16 = Commentary()
+
+node16.set_size(350, 80)
+node16.title = "V"
+
+_editor.add_node(node16, -782.5289925063, -108.00351443658)
+
+var node17 = Subtract()
+
+_editor.add_node(node17, -870.3927344961, -300.09512001227)
+
+var node18 = Normalize()
+
+_editor.add_node(node18, -702.6241192778, -293.48355228645)
+
+var node19 = Commentary()
+
+node19.set_size(350, 80)
+node19.title = "L"
+
+_editor.add_node(node19, -781.5113183594, -242.65949462891)
+
+var node20 = Add()
+
+_editor.add_node(node20, -489.59033203125, -221.20034790039)
+
+var node21 = Normalize()
+
+_editor.add_node(node21, -333.59033203125, -219.20034790039)
+
+var node22 = Commentary()
+
+node22.set_size(350, 80)
+node22.title = "H"
+
+_editor.add_node(node22, -407.5113183594, -162.65949462891)
+
+Blueprint.connect(node13, "var", node17, "a")
+Blueprint.connect(node12, "var", node14, "a")
+Blueprint.connect(node11, "var", node14, "b")
+Blueprint.connect(node11, "var", node17, "b")
+Blueprint.connect(node17, "v", node18, "v")
+Blueprint.connect(node18, "v", node20, "b")
+Blueprint.connect(node18, "v", node2, "b")
+Blueprint.connect(node18, "v", node8, "a")
+Blueprint.connect(node14, "v", node15, "v")
+Blueprint.connect(node15, "v", node20, "a")
+Blueprint.connect(node15, "v", node1, "b")
+Blueprint.connect(node15, "v", node6, "a")
+Blueprint.connect(node20, "v", node21, "v")
+Blueprint.connect(node21, "v", node3, "b")
+Blueprint.connect(node21, "v", node6, "b")
+Blueprint.connect(node21, "v", node8, "b")
+Blueprint.connect(node8, "dot", node9, "var")
+Blueprint.connect(node6, "dot", node7, "var")
+Blueprint.connect(node10, "var", node3, "a")
+Blueprint.connect(node10, "var", node1, "a")
+Blueprint.connect(node10, "var", node2, "a")
+Blueprint.connect(node3, "dot", node5, "var")
+Blueprint.connect(node2, "dot", node4, "var")
+Blueprint.connect(node1, "dot", node0, "var")
