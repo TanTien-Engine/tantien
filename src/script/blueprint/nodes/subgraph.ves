@@ -312,7 +312,9 @@ class Subgraph is Node
 			this.title = Filesystem.get_filename(filepath)
 		}
 
-		Filesystem.set_asset_base_dir(old_dir)		
+		if (old_dir != "") {
+			Filesystem.set_asset_base_dir(old_dir)
+		}
 	}
 
 	add_node(node, x, y)

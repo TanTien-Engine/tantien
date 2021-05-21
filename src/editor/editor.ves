@@ -529,7 +529,9 @@ class Editor
 		var node = Subgraph()
 		node.load_from_file(this, filepath)
 
-		Filesystem.set_asset_base_dir(old_dir)
+		if (old_dir != "") {
+			Filesystem.set_asset_base_dir(old_dir)
+		}
 
 		var pos = GUI.trans_scr_pos_to_proj(x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 		this.add_node(node, pos[0], pos[1])
@@ -582,7 +584,9 @@ import \"editor\" for _editor
 		this.loadfromstring(file.read())
 		IO.close(file)
 
-		Filesystem.set_asset_base_dir(old_dir)
+		if (old_dir != "") {
+			Filesystem.set_asset_base_dir(old_dir)
+		}
 	}
 
 	load_from_subgraph(subgraph)
@@ -694,7 +698,9 @@ import \"editor\" for _editor
 			IO.close(file)
 		}
 
-		Filesystem.set_asset_base_dir(old_dir)
+		if (old_dir != "") {
+			Filesystem.set_asset_base_dir(old_dir)
+		}
 	}
 
 	copy_to_clipboard()
