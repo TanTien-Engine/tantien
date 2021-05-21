@@ -28,7 +28,7 @@ void w_Filesystem_get_file_dir()
     ves_set_lstring(0, directory.c_str(), directory.size());
 }
 
-void w_Filesystem_setAssetBaseDir()
+void w_Filesystem_set_asset_base_dir()
 {
     const char* directory = ves_tostring(1);
     tt::Filesystem::Instance()->SetAssetBaseDir(directory);
@@ -111,7 +111,7 @@ namespace tt
 VesselForeignMethodFn FilesystemBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Filesystem.get_file_dir(_)") == 0) return w_Filesystem_get_file_dir;
-    if (strcmp(signature, "static Filesystem.set_asset_base_dir(_)") == 0) return w_Filesystem_setAssetBaseDir;
+    if (strcmp(signature, "static Filesystem.set_asset_base_dir(_)") == 0) return w_Filesystem_set_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_asset_base_dir()") == 0) return w_Filesystem_get_asset_base_dir;
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_relative_path(_)") == 0) return w_Filesystem_get_relative_path;
