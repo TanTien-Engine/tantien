@@ -1,3 +1,6 @@
+import "blueprint.nodes.subgraph" for Subgraph
+import "filesystem" for Filesystem
+
 class Scene
 {
 	init(name) 
@@ -12,7 +15,8 @@ class Scene
 		this.messages = {}
 	}
 
-	add(node) {
+	add(node) 
+	{
 		this.nodes.add(node)
 	}
 
@@ -56,6 +60,18 @@ class Scene
 		var handler = this.messages[msg]
 		if (handler) {
 			handler(args)
+		}
+	}
+
+	on_enter_in()
+	{
+		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
+	}
+
+	on_leave_out()
+	{
+		if (this.ud and (this.ud is Subgraph)) {
+			this.ud.sync_from_scene(this)
 		}
 	}
 }

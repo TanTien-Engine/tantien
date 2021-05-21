@@ -363,6 +363,63 @@ class Subgraph is Node
 		}
 	}
 
+	remove_node(index)
+	{
+		if (index < 0 or index >= this.all_items.count) {
+			return false
+		}
+
+		var node = this.all_items[index][0]
+
+		node.disconnect()
+		this.all_items.removeAt(index)
+
+		if (node is Input) 
+		{
+			for (var i in 0..this.imports.count) {
+				if (node.var_name == this.imports[i].name) {
+					this.imports.removeAt(i)
+					return true
+				}
+			}
+		}
+		else if (node is Output)
+		{
+			for (var i in 0..this.out_nodes.count) {
+				if (this.out_nodes[i] == node) {
+					this.out_nodes.removeAt(i)
+					this.exports.removeAt(i)
+					return true
+				}
+			}
+		}
+		else if (node is Property)
+		{
+			for (var i in 0..this.prop_nodes.count) {
+				if (this.prop_nodes[i] == node) {
+					this.prop_nodes.removeAt(i)
+					return true
+				}
+			}
+		}
+		else if (node is Proxy)
+		{
+			for (var i in 0..this.proxy_nodes.count) {
+				if (this.proxy_nodes[i] == node) {
+					this.proxy_nodes.removeAt(i)
+				}
+			}
+			for (var i in 0..this.imports.count) {
+				if (node.real_name == this.imports[i].name) {
+					this.imports.removeAt(i)
+					return true
+				}
+			}
+		}
+
+		return true
+	}
+
 	set_prop_value(name, value)
 	{
 		for (var prop in this.prop_nodes) 
@@ -422,5 +479,35 @@ class Subgraph is Node
 	import_files_header()
 	{
 		return ""
+	}
+
+	sync_from_scene(scene)
+	{
+		var i_scene = 0
+		var i_graph = 0
+		while (i_scene < scene.nodes.count or
+		       i_graph < this.all_items.count)
+		{
+			if (i_scene < scene.nodes.count and i_graph < this.all_items.count and 
+			    scene.nodes[i_scene].components["bp"] == this.all_items[i_graph][0])
+			{
+				i_scene = i_scene + 1
+				i_graph = i_graph + 1
+			}
+			else if (i_graph == this.all_items.count)
+			{
+				var node = scene.nodes[i_scene]
+				var bp = node.components["bp"]
+				var trans = node.components["transform"]
+				this.add_node(bp, trans.position.x, trans.position.y)
+
+				i_scene = i_scene + 1
+				i_graph = i_graph + 1
+			}
+			else
+			{
+				this.remove_node(i_graph)
+			}
+		}
 	}
 }

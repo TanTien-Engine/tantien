@@ -273,16 +273,23 @@ class Editor
 			var scene = this.scene_stack.scenes[i]
 			if (GUI.button(this.gui_top, scene.name, x, y, 0, 0)) 
 			{
-				while (this.scene_stack.scenes.count > i + 1) {
+				while (this.scene_stack.scenes.count > i + 1) 
+				{
+					var old = this.scene_stack.top()
+					old.on_leave_out()
+
 					this.scene_stack.pop()
-					this.filepath = this.scene_stack.top().filepath
+
+					var new = this.scene_stack.top()					
+					this.filepath = new.filepath
+					new.on_enter_in()
 				}
 
 				this.setup_popup_nodes()
 
 				return
 			}
-			x = x + 50
+			x = x + 100
 		}
 	}
 
@@ -870,6 +877,7 @@ import \"editor\" for _editor
 		next_scene.filepath = bp_node.filepath
 		next_scene.ud = bp_node
 		this.scene_stack.push(next_scene)
+		next_scene.on_enter_in()
 		if (bp_node.file_content) {
 			this.filepath = ""
 			this.loadfromstring(bp_node.file_content)
