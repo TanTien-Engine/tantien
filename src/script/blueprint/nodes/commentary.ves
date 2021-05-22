@@ -21,6 +21,8 @@ class Commentary is Node
 		this.children = Set.new()
 
 		this.line_width = 2
+
+		this.title = "Commentary"
 	}
 
 	draw(mt, cam_mt)
@@ -111,5 +113,10 @@ class Commentary is Node
 		ret.w = this.width - this.line_width
 		ret.h = this.height
 		return ret
-	}	
+	}
+
+	get_title()
+	{
+		return this.title
+	}
 }

@@ -24,13 +24,6 @@ class Output is Node
 		this.value = nil
 	}
 
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT
-	}
-
 	to_string(name) 
 	{
 		if (this.var_name == "out")
@@ -49,15 +42,8 @@ class Output is Node
 "
 	}
 
-	draw_gui(ctx) 
+	get_title()
 	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
-
-		GUI.label(ctx, this.var_name, x, y)
-
-		return dirty
-	}	
+		return "%(this.var_name)(O)"
+	}
 }

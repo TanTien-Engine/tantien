@@ -36,13 +36,6 @@ class Load is Node
 		}
 	}
 
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT
-	}
-
 	to_string(name) 
 	{
 		if (this.var_name == "load")
@@ -65,16 +58,13 @@ class Load is Node
 "
 	}
 
-	draw_gui(ctx) 
+	get_title()
 	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
-
-		GUI.label(ctx, this.var_name, x, y)
-
-		return dirty
+		if (this.var_name == "store") {
+			return super.get_title()
+		} else {
+			return "%(this.var_name)(L)"
+		}
 	}
 
 	on_selected() 

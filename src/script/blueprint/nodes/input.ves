@@ -25,13 +25,6 @@ class Input is Node
 		this.parent_pin_idx = -1
 	}
 
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT
-	}
-
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)
@@ -60,15 +53,8 @@ class Input is Node
 "
 	}
 
-	draw_gui(ctx) 
+	get_title()
 	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
-
-		GUI.label(ctx, this.var_name, x, y)
-
-		return dirty
-	}		
+		return "%(this.var_name)(I)"
+	}
 }
