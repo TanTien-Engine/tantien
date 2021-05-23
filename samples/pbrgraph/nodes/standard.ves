@@ -15,9 +15,9 @@ var node1 = Expand()
 _editor.add_node(node1, -149.86453383767, 107.65464115436)
 
 var node2 = Subgraph()
-node2.load_from_file(_editor, "assets/blueprints/pbrgraph/standard_model.ves")
+node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/standard_model.ves")
 
-_editor.add_node(node2, 208.90666940454, 94.188335167885)
+_editor.add_node(node2, 208.90666940454, 93.188335167885)
 
 var node3 = Clear()
 
@@ -65,19 +65,19 @@ _editor.add_node(node8, -6.5066770233875, 36.151321972326)
 
 var node9 = Number3()
 
-node9.value.set(2.9055700302124, 5.1277923583984, 6.5722370147705)
+node9.value.set(5.1760201454163, 7.2871313095093, 5.3982424736023)
 
-_editor.add_node(node9, -135.61723819031, -121.93370262886)
+_editor.add_node(node9, -159.58418033907, -14.495686099934)
 
 var node10 = Subtract()
 
-_editor.add_node(node10, 14.365203290491, -159.70427863758)
+_editor.add_node(node10, -9.6017388582693, -52.266262108654)
 
 var node11 = Number3()
 
 node11.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
-_editor.add_node(node11, -136.94323109041, -232.49002216155)
+_editor.add_node(node11, -160.91017323917, -125.05200563262)
 
 Blueprint.connect(node11, "v3", node10, "b")
 Blueprint.connect(node9, "v3", node10, "a")
