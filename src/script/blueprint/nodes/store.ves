@@ -33,6 +33,11 @@ class Store is Node
 		this.inst = nil
 	}
 
+	calc_value(idx)
+	{
+		return Blueprint.calc_input_value(this, 0)
+	}
+
 	calc_inst(gen, idx, module, func) 
 	{
 		if (!this.inst) {
