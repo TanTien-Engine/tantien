@@ -95,20 +95,32 @@ void w_ShaderTools_disassemble()
 void w_SpirvGenTwo_get_type()
 {
     spvgentwo::Instruction* inst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
-    const char* type = shadertrans::SpirvGenTwo::GetType(*inst);
-    ves_set_lstring(0, type, strlen(type));
+    if (!inst) {
+        ves_set_nil(0);
+    } else {
+        const char* type = shadertrans::SpirvGenTwo::GetType(*inst);
+        ves_set_lstring(0, type, strlen(type));
+    }
 }
 
 void w_SpirvGenTwo_is_vector()
 {
     spvgentwo::Instruction* inst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
-    ves_set_boolean(0, shadertrans::SpirvGenTwo::IsVector(*inst));
+    if (!inst) {
+        ves_set_nil(0);
+    } else {
+        ves_set_boolean(0, shadertrans::SpirvGenTwo::IsVector(*inst));
+    }
 }
 
 void w_SpirvGenTwo_get_vector_num()
 {
     spvgentwo::Instruction* inst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
-    ves_set_number(0, shadertrans::SpirvGenTwo::GetVectorNum(*inst));
+    if (!inst) {
+        ves_set_nil(0);
+    } else {
+        ves_set_number(0, shadertrans::SpirvGenTwo::GetVectorNum(*inst));
+    }
 }
 
 void w_SpirvGenTwo_add()
