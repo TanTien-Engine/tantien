@@ -18,6 +18,8 @@ class Noisegraph is Shadergraph
 
 	prepare_nodes()
 	{
+		this.clear_popup_nodes()
+
 		import "editor.shadernodes" for SHADER_NODES
 		for (var node in SHADER_NODES) {
 			super.add_popup_node(node)

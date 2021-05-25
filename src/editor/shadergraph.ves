@@ -55,6 +55,8 @@ class Shadergraph is Editor
 
 	prepare_nodes()
 	{
+		this.clear_popup_nodes()
+
 		import "editor.bpnodes" for BP_NODES
 		for (var node in BP_NODES) {
 			super.add_popup_node(node)
