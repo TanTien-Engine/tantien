@@ -19,6 +19,7 @@ foreign class SpirvGenTwo
 	foreign static pow(func, x, y)
 	foreign static sqrt(func, v)
 	foreign static dot(func, a, b)
+	foreign static cross(func, a, b)
 
 	foreign static add_variable(func, name, value)
 }
@@ -167,6 +168,15 @@ foreign class ShaderGen
 		}
 
 		return SpirvGenTwo.dot(func, a, b)
+	}
+
+	cross(func, a, b)
+	{
+		if (!a or !b) {
+			return nil
+		}
+
+		return SpirvGenTwo.cross(func, a, b)
 	}
 
 	foreign add_input(name, type)

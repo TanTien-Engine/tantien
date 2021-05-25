@@ -183,6 +183,16 @@ void w_SpirvGenTwo_dot()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_SpirvGenTwo_cross()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::Cross(func, a, b);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_SpirvGenTwo_add_variable()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -701,6 +711,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "static SpirvGenTwo.pow(_,_,_)") == 0) return w_SpirvGenTwo_pow;
     if (strcmp(signature, "static SpirvGenTwo.sqrt(_,_)") == 0) return w_SpirvGenTwo_sqrt;
     if (strcmp(signature, "static SpirvGenTwo.dot(_,_,_)") == 0) return w_SpirvGenTwo_dot;
+    if (strcmp(signature, "static SpirvGenTwo.cross(_,_,_)") == 0) return w_SpirvGenTwo_cross;
     if (strcmp(signature, "static SpirvGenTwo.add_variable(_,_,_)") == 0) return w_SpirvGenTwo_add_variable;
 
     // ShaderGen
