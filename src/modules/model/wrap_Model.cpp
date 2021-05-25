@@ -69,6 +69,36 @@ int w_glTF_finalize(void* data)
     return sizeof(tt::Proxy<model::gltf::Model>);
 }
 
+void load_tex_trans(const model::gltf::Texture::Transform& trans, int slot)
+{
+    ves_newmap();
+    { 
+        ves_pushnil();
+        ves_import_class("maths", "Float2");
+        sm::vec2* scale = (sm::vec2*)ves_set_newforeign(slot + 1, slot + 2, sizeof(sm::vec2));
+        memcpy(scale->xy, trans.offset.xy, sizeof(float) * 2);
+        ves_pop(1);
+        ves_setfield(-2, "offset");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(trans.rotation);
+        ves_setfield(-2, "rotation");
+        ves_pop(1);
+    }
+    {
+        ves_pushnil();
+        ves_import_class("maths", "Float2");
+        sm::vec2* scale = (sm::vec2*)ves_set_newforeign(slot + 1, slot + 2, sizeof(sm::vec2));
+        memcpy(scale->xy, trans.scale.xy, sizeof(float) * 2);
+        ves_pop(1);
+        ves_setfield(-2, "scale");
+        ves_pop(1);
+    }
+    ves_setfield(-2, "tex_trans");
+    ves_pop(1);
+}
+
 void w_glTF_get_desc()
 {
     auto model = ((tt::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
@@ -133,6 +163,10 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
+            // tex_trans
+            if (emissive->texture->transform) {
+                load_tex_trans(*emissive->texture->transform, 3);
+            }
         }
         ves_setfield(-2, "emissive");
         ves_pop(1);
@@ -157,6 +191,10 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
+            // tex_trans
+            if (normal->texture->transform) {
+                load_tex_trans(*normal->texture->transform, 3);
+            }
         }
         ves_setfield(-2, "normal");
         ves_pop(1);
@@ -180,6 +218,10 @@ void w_glTF_get_desc()
                 ves_pushnumber(occlusion->tex_coord);
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
+            }
+            // tex_trans
+            if (occlusion->texture->transform) {
+                load_tex_trans(*occlusion->texture->transform, 3);
             }
         }
         ves_setfield(-2, "occlusion");
@@ -217,6 +259,10 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
+            // tex_trans
+            if (metallic_roughness->texture->transform) {
+                load_tex_trans(*metallic_roughness->texture->transform, 3);
+            }
         }
         ves_setfield(-2, "metallic_roughness");
         ves_pop(1);
@@ -251,9 +297,90 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "tex_coord");
                 ves_pop(1);
             }
+            // tex_trans
+            if (base_color->texture->transform) {
+                load_tex_trans(*base_color->texture->transform, 3);
+            }
         }
         ves_setfield(-2, "base_color");
         ves_pop(1);
+        // sheen
+        if (material->sheen)
+        {
+            ves_newmap();
+            // color_factor
+            {
+                ves_pushnil();
+                ves_import_class("maths", "Float3");
+                sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
+                memcpy(factor->xyz, material->sheen->color_factor.xyz, sizeof(float) * 3);
+                ves_pop(1);
+                ves_setfield(-2, "color_factor");
+                ves_pop(1);
+            }
+            // color_texture
+            if (material->sheen->color_texture)
+            {
+                ves_newmap();
+                // texture
+                {
+                    ves_pushnil();
+                    ves_import_class("render", "Texture2D");
+                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
+                    ves_pop(1);
+                    *tex = material->sheen->color_texture->image;
+                    ves_setfield(-2, "texture");
+                    ves_pop(1);
+                }
+                // tex_coord
+                {
+                    ves_pushnumber(0);
+                    ves_setfield(-2, "tex_coord");
+                    ves_pop(1);
+                }
+                // tex_trans
+                if (base_color->texture->transform) {
+                    load_tex_trans(*material->sheen->color_texture->transform, 4);
+                }
+                ves_setfield(-2, "color_texture");
+                ves_pop(1);
+            }
+            // roughness_factor
+            {
+                ves_pushnumber(material->sheen->roughness_factor);
+                ves_setfield(-2, "roughness_factor");
+                ves_pop(1);
+            }
+            // roughness_texture
+            if (material->sheen->roughness_texture)
+            {
+                ves_newmap();
+                // texture
+                {
+                    ves_pushnil();
+                    ves_import_class("render", "Texture2D");
+                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
+                    ves_pop(1);
+                    *tex = material->sheen->roughness_texture->image;
+                    ves_setfield(-2, "texture");
+                    ves_pop(1);
+                }
+                // tex_coord
+                {
+                    ves_pushnumber(0);
+                    ves_setfield(-2, "tex_coord");
+                    ves_pop(1);
+                }
+                // tex_trans
+                if (base_color->texture->transform) {
+                    load_tex_trans(*material->sheen->roughness_texture->transform, 4);
+                }
+                ves_setfield(-2, "roughness_texture");
+                ves_pop(1);
+            }
+            ves_setfield(-2, "sheen");
+            ves_pop(1);
+        }
         // translation
         {
             ves_pushnil();
