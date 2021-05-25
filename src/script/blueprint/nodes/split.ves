@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX3
+import "maths.vector" for Vector3
 
 class Split is Node
 {
@@ -13,11 +14,12 @@ class Split is Node
 			Pin(this, "xyzw", VAR_TYPE_NUMBER4),
 			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
 			Pin(this, "xy",   VAR_TYPE_NUMBER2),
+			Pin(this, "mat3", VAR_TYPE_MATRIX3),
 		]
 		this.exports = [
-			Pin(this, "x",   VAR_TYPE_NUMBER),
-			Pin(this, "y",   VAR_TYPE_NUMBER),
-			Pin(this, "z",   VAR_TYPE_NUMBER),
+			Pin(this, "x",   [ VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3]),
+			Pin(this, "y",   [ VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3]),
+			Pin(this, "z",   [ VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3]),
 			Pin(this, "w",   VAR_TYPE_NUMBER),
 			Pin(this, "xyz", VAR_TYPE_NUMBER3),
 		]
@@ -112,6 +114,11 @@ class Split is Node
 					var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func)
 					if (xy) {
 						return gen.compose_extract(func, xy, 0)
+					} else {
+						var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func)
+						if (mat3) {
+							return gen.compose_extract(func, mat3, 0)
+						}
 					}
 				}
 			}
@@ -129,6 +136,11 @@ class Split is Node
 					var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func)
 					if (xy) {
 						return gen.compose_extract(func, xy, 1)
+					} else {
+						var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func)
+						if (mat3) {
+							return gen.compose_extract(func, mat3, 1)
+						}
 					}
 				}
 			}
@@ -142,6 +154,11 @@ class Split is Node
 				var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func)
 				if (xyz) {
 					return gen.compose_extract(func, xyz, 2)
+				} else {
+					var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func)
+					if (mat3) {
+						return gen.compose_extract(func, mat3, 2)
+					}
 				}
 			}
 		}
