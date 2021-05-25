@@ -15,6 +15,7 @@ class Combine is Node
 			Pin(this, "y",    VAR_TYPE_NUMBER),
 			Pin(this, "z",    VAR_TYPE_NUMBER),
 			Pin(this, "w",    VAR_TYPE_NUMBER),
+			Pin(this, "xy",   VAR_TYPE_NUMBER2),			
 			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
 			Pin(this, "grey", VAR_TYPE_NUMBER),
 		]
@@ -90,6 +91,11 @@ class Combine is Node
 		if (!w) {
 			w = gen.const_float(module, 0.0)
 		}
+		var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func)
+		if (xy) {
+			x = gen.compose_extract(func, xy, 0)
+			y = gen.compose_extract(func, xy, 1)
+		}		
 		var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func)
 		if (xyz) {
 			x = gen.compose_extract(func, xyz, 0)
