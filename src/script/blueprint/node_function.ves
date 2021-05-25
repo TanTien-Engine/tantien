@@ -99,6 +99,10 @@ class NodeFunction
 
 	calc_inst(gen, idx, module, func)
 	{
+		if (!this["func"]) {
+			return nil
+		}
+
 		var callee = gen.create_decl_func(module, this.func)
 		gen.add_link_decl(callee, this.decl_name, false)
 
