@@ -7,6 +7,7 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "render" for Texture2D, Cubemap
+import "math" for Math
 
 class RenderTarget is Node
 {
@@ -89,17 +90,27 @@ class RenderTarget is Node
 			this.fbo = Framebuffer.init()
 		}
 
-		for (var i in 0..this.imports.count) {
+		for (var i in 0..5) {
 			var v = Blueprint.calc_input_value(this, i)
 			if (v)  {
 				this.attachment(v.value, this.imports[i].name)
 			}
 		}
 
+		var w = this.width
+		var h = this.height
+		var v_mipmap = Blueprint.calc_input_value(this, 5)
+		if (v_mipmap) 
+		{
+			var mip = v_mipmap.value
+            w = this.width * Math.pow(0.5, mip)
+            h = this.height * Math.pow(0.5, mip)
+		}
+
 		var ret = VarFrameBuffer()
 		ret.fbo      = this.fbo
-		ret.width    = this.width
-		ret.height   = this.height
+		ret.width    = w
+		ret.height   = h
 		ret.attached = this.attached
 		return Variant(VAR_TYPE_FRAME_BUFFER, ret)
 	}
