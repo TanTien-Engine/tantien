@@ -381,6 +381,42 @@ void w_glTF_get_desc()
             ves_setfield(-2, "sheen");
             ves_pop(1);
         }
+        // clearcoat
+        if (material->clearcoat)
+        {
+            ves_newmap();
+            // factor
+            {
+                ves_pushnumber(material->clearcoat->factor);
+                ves_setfield(-2, "factor");
+                ves_pop(1);
+            }
+            // texture
+            if (material->clearcoat->texture)
+            {
+                ves_newmap();
+                // texture
+                {
+                    ves_pushnil();
+                    ves_import_class("render", "Texture2D");
+                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
+                    ves_pop(1);
+                    *tex = material->clearcoat->texture->image;
+                    ves_setfield(-2, "texture");
+                    ves_pop(1);
+                }
+                // tex_coord
+                {
+                    ves_pushnumber(material->clearcoat->tex_coord);
+                    ves_setfield(-2, "tex_coord");
+                    ves_pop(1);
+                }
+                ves_setfield(-2, "texture");
+                ves_pop(1);
+            }
+            ves_setfield(-2, "clearcoat");
+            ves_pop(1);
+        }
         // translation
         {
             ves_pushnil();
