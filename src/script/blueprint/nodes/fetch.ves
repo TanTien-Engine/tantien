@@ -200,8 +200,10 @@ class Fetch is Node
 	{
 		if (this.index is String) {
 			return "%(name).index = \"%(this.index)\"\n"
-		} else {
+		} else if (this.index is Num) {
 			return "%(name).index = %(this.index)\n"
+		} else {
+			return ""
 		}
 	}
 
