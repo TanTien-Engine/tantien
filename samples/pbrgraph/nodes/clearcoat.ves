@@ -8,16 +8,16 @@ import "pbrgraph.nodes.*"
 var node0 = Gltf()
 node0.init_model("assets/models/ToyCar/ToyCar.gltf")
 
-_editor.add_node(node0, -379.8376225363, 103.2693107596)
+_editor.add_node(node0, -354.43629568388, 117.945632941)
 
 var node1 = Expand()
 
 _editor.add_node(node1, -178.78799141067, 103.45607473247)
 
 var node2 = Subgraph()
-node2.load_from_file(_editor, "assets/blueprints/pbrgraph/clearcoat.ves")
+node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/clearcoat.ves")
 
-_editor.add_node(node2, 208.90666940454, 94.188335167885)
+_editor.add_node(node2, 216.77772154443, 107.44623088811)
 
 var node3 = Clear()
 
@@ -65,19 +65,19 @@ _editor.add_node(node8, -6.5066770233875, 36.151321972326)
 
 var node9 = Number3()
 
-node9.value.set(5.9574708938599, 4.7352480888367, 4.7352480888367)
+node9.value.set(4.6757965087891, 6.7869071960449, 3.1202409267426)
 
-_editor.add_node(node9, -135.61723819031, -121.93370262886)
+_editor.add_node(node9, -175.08216996771, -29.726886154579)
 
 var node10 = Subtract()
 
-_editor.add_node(node10, 14.365203290491, -159.70427863758)
+_editor.add_node(node10, -25.249577120684, -66.814448707929)
 
 var node11 = Number3()
 
 node11.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
-_editor.add_node(node11, -136.94323109041, -232.49002216155)
+_editor.add_node(node11, -176.55801150158, -139.6001922319)
 
 Blueprint.connect(node11, "v3", node10, "b")
 Blueprint.connect(node9, "v3", node10, "a")
