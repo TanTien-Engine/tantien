@@ -20,6 +20,7 @@ foreign class SpirvGenTwo
 	foreign static sqrt(func, v)
 	foreign static dot(func, a, b)
 	foreign static cross(func, a, b)
+	foreign static negate(func, v)
 
 	foreign static add_variable(func, name, value)
 }
@@ -179,6 +180,29 @@ foreign class ShaderGen
 		return SpirvGenTwo.cross(func, a, b)
 	}
 
+	negate(func, v)
+	{
+		if (!SpirvGenTwo.is_vector(v)) {
+			return SpirvGenTwo.negate(func, v)
+		}
+
+		var num = SpirvGenTwo.get_vector_num(v)
+		var comp = []
+		for (var i in 0..num) {
+			var neg = SpirvGenTwo.negate(func, this.compose_extract(func, v, i))
+			comp.add(neg)
+		}
+		if (num == 2) {
+			return this.compose_float2(func,  comp[0], comp[1])
+		} else if (num == 3) {
+			return this.compose_float3(func, comp[0], comp[1], comp[2])
+		} else if (num == 4) {
+			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+		}
+
+		return from		
+	}
+	
 	foreign add_input(name, type)
 	foreign add_output(name, type)
 	foreign add_uniform(module, name, type)
@@ -190,14 +214,14 @@ foreign class ShaderGen
 	foreign compose_extract(func, comp, idx)
 	foreign mul(func, a, b)
 	foreign div(func, a, b)
-	foreign negate(func, v)
+	foreign reflect(func, I, N)
 	foreign normalize(func, v)
 	foreign max(func, a, b)
 	foreign min(func, a, b)
 	foreign clamp(func, x, min, max)
 	foreign store(func, dst, src)
 	foreign load(func, val)
-	foreign image_sample(func, img, uv)
+	foreign image_sample(func, img, uv, lod)
 
 	foreign add_module(stage, glsl, name)
 	foreign query_func(lib, name)

@@ -12,8 +12,9 @@ class SampleTexture is Node
 		super.init(SampleTexture.name)
 
 		this.imports = [
-			Pin(this, "tex", VAR_TYPE_TEXTURE),
-			Pin(this, "uv",  VAR_TYPE_NUMBER2),
+			Pin(this, "tex",  VAR_TYPE_TEXTURE),
+			Pin(this, "uv",   VAR_TYPE_NUMBER2),
+			Pin(this, "lod",  VAR_TYPE_NUMBER),
 		]
 		this.exports = [
 			Pin(this, "rgba", VAR_TYPE_NUMBER4),
@@ -37,9 +38,10 @@ class SampleTexture is Node
 		var uv = Blueprint.calc_input_inst(gen, this, 1, module, func)
 		if (!uv) {
 			return nil
-		}
+		}		
 
-		var rgba = gen.image_sample(func, img, uv)
+		var lod = Blueprint.calc_input_inst(gen, this, 2, module, func)
+		var rgba = gen.image_sample(func, img, uv, lod)
 		if (idx == 0) {
 			return rgba
 		} else if (idx == 1) {

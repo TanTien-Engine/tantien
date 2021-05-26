@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "blueprint.blueprint" for Blueprint
+
+class Reflect is Node
+{
+	init()
+	{
+		super.init(Reflect.name)
+
+		this.imports = [
+			Pin(this, "I", VAR_TYPE_NUMBER3),
+			Pin(this, "N", VAR_TYPE_NUMBER3)
+		]
+		this.exports = [
+			Pin(this, "R", VAR_TYPE_NUMBER3)
+		]
+
+		this.layout()
+	}
+
+	calc_inst(gen, idx, module, func) 
+	{
+		var I = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var N = Blueprint.calc_input_inst(gen, this, 1, module, func)
+		if (I and N) {
+			return gen.reflect(func, I, N)		
+		} else {
+			return nil
+		}
+	}
+}
