@@ -139,13 +139,16 @@ Based for each editors
 ![](./doc/pbrgraph/screenshots/clearcoat.jpg)
     <em>Clearcoat</em>
 
+![](./doc/pbrgraph/screenshots/car.jpg)
+    <em>Transmission</em>
+
 #### Nodes
 * Specular BRDF distribution : D_GGX, D_GGX_Anisotropic, D_Charlie,
 * Specular BRDF visibility : V_Kelemen, V_Neubelt, V_Sheen, V_Smith, V_SmithGGXCorrelated, V_SmithGGXCorrelated_Anisotropic,
 * Specular BRDF fresnel : F_Schlick, 
 * Specular BRDF : Fr_CookTorrance,
 * Diffuse BRDF : Fd_Burley, Fd_Lambert, Fd_Wrap,
-* Tools : EnergyConservation, Shadergraph, SrgbToLinear, GammaCorrection,
+* Tools : EnergyConservation, Shadergraph, SrgbToLinear, GammaCorrection, IorToRoughness, MirrorLight, IorToF0,
 
 ## Building
 First clone the project & submodules:
