@@ -1165,6 +1165,15 @@ void prepare_render_state(ur::RenderState& rs, int slot)
         rs.clip_plane = ves_toboolean(-1);
     }
     ves_pop(1);
+
+    if (ves_getfield(slot, "blend") == VES_TYPE_BOOL && ves_toboolean(-1)) {
+        rs.blending.enabled = true;
+        rs.blending.separately = false;
+        rs.blending.src = ur::BlendingFactor::SrcAlpha;
+        rs.blending.dst = ur::BlendingFactor::OneMinusSrcAlpha;
+        rs.blending.equation = ur::BlendEquation::Add;
+    }
+    ves_pop(1);
 }
 
 void w_Render_draw()

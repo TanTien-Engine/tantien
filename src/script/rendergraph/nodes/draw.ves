@@ -38,6 +38,7 @@ class Draw is Node
 			"cull" : "disable",
 			"rasterization" : "fill",
 			"clip_plane" : false,
+			"blend" : false,
 		}
 
 		// for gui
@@ -234,6 +235,16 @@ class Draw is Node
 		}
 		y = y - DEFAULT_HEIGHT
 
+		if (this.render_state["blend"] == nil) {
+			this.render_state["blend"] = false
+		}
+		var blend = GUI.checkbox(ctx, "blend", this.render_state["blend"], x, y)
+		if (blend != this.render_state["blend"]) {
+			this.render_state["blend"] = blend
+			dirty = true
+		}
+		y = y - DEFAULT_HEIGHT
+		
 		return dirty
 	}
 
