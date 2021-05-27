@@ -16,7 +16,6 @@ class Pbrgraph is Editor
 		Rendergraph.regist()
 
 		this.drawlist = nil
-		this.shadergraph = nil
 	}
 
 	prepare_nodes()
@@ -50,6 +49,22 @@ class Pbrgraph is Editor
 		return drawlist.lists
 	}
 
+	rebuild_drawlist(node)
+	{
+		if (node is Shadergraph) 
+		{
+			node.rebuild_shader()
+		} 
+		else if (node is Subgraph) 
+		{
+			// init subgraph
+			node.execute()
+			for (var sub_node in node.all_items) {
+				this.rebuild_drawlist(sub_node)
+			}
+		}
+	}
+
 	rebuild_drawlist()
 	{
 		var scene = this.scene_stack.root()
@@ -60,24 +75,7 @@ class Pbrgraph is Editor
 			var bp_node = node.components["bp"]
 			nodes.add(bp_node)
 
-			if (bp_node is Shadergraph) 
-			{
-				this.shadergraph = bp_node
-				this.shadergraph.rebuild_shader()
-			} 
-			else if (bp_node is Subgraph) 
-			{
-				// init subgraph
-				bp_node.execute()
-				for (var c_item in bp_node.all_items) 
-				{
-					var c_node = c_item[0]
-					if (c_node is Shadergraph) {
-						this.shadergraph = c_node
-						this.shadergraph.rebuild_shader()
-					}
-				}
-			}
+			this.rebuild_drawlist(bp_node)
 		}
 		this.drawlist = Drawlist(nodes)
 	}
@@ -90,10 +88,6 @@ class Pbrgraph is Editor
 		}
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		if (this.shadergraph) {
-			this.shadergraph.bind_uniforms()
-		}
 
 		this.drawlist.draw()
 	}

@@ -78,6 +78,11 @@ class Shadergraph is Node
 		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
+	execute() 
+	{
+		this.bind_uniforms()
+	}
+
 	layout() 
 	{
 		super.layout()
