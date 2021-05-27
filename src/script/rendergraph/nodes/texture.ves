@@ -6,7 +6,7 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "image" for ImageData
 import "graphics" for Graphics
-import "render" for Texture2D
+import "render" for Texture2D, TextureSampler
 import "gui" for GUI
 
 class Texture is Node
@@ -24,6 +24,7 @@ class Texture is Node
 		this.layout()
 
 		this.tex = nil
+		this.sampler = nil
 
 		this.tex_filepath = ""
 
@@ -38,8 +39,8 @@ class Texture is Node
 		this.unif = nil
 
 		// for gui
-		this.sampler_items = ["nearest clamp", "linear clamp", "nearest repeat", "linear repeat"]
-		this.set_sampler("linear clamp")
+		this.sampler_items = ["null", "nearest_clamp", "linear_clamp", "linear_clamp_mipmap", "nearest_repeat", "linear_repeat"]
+		this.sampler_selected = 0
 		this.fomat_items = ["rgb", "rgba8", "rgba16f", "rg16f", "r16"]
 		this.format_selected = 0
 	}
@@ -50,7 +51,7 @@ class Texture is Node
 		{
 			var ret = VarTexture()
 			ret.tex = this.tex
-			ret.sampler = this.get_curr_sampler()
+			ret.sampler = this.sampler
 			return Variant(VAR_TYPE_TEXTURE, ret)
 		}
 		else if (idx == 1)
@@ -95,7 +96,7 @@ class Texture is Node
 	bind_uniforms(prog)
 	{
 		var name = this.query_param("unif_name").value
-		prog.set_uniform_value([name, "sampler", [this.tex, this.get_curr_sampler()]])
+		prog.set_uniform_value([name, "sampler", [this.tex, this.sampler]])
 	}
 
 	draw(mt, cam_mt)
@@ -132,7 +133,9 @@ class Texture is Node
 		} else {
 			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"
 		}
-		ret = ret + "%(name).set_sampler(\"%(this.sampler_items[this.sampler_selected])\")\n"
+		if (this.sampler) {
+			ret = ret + "%(name).set_sampler(\"%(this.sampler_items[this.sampler_selected])\")\n"
+		}
 		return ret
 	}
 
@@ -146,6 +149,7 @@ class Texture is Node
 		var item = GUI.combo(ctx, "sampler", this.sampler_selected, this.sampler_items, x, y, 130)
 		if (item != this.sampler_selected) {
 			this.sampler_selected = item
+			this.sampler = TextureSampler.init(this.sampler_items[this.sampler_selected])
 			dirty = true
 		}
 
@@ -183,23 +187,9 @@ class Texture is Node
 		for (var i in 0..this.sampler_items.count) {
 			if (this.sampler_items[i] == name) {
 				this.sampler_selected = i
+				this.sampler = TextureSampler.init(name)
 				return
 			}
-		}
-	}
-
-	get_curr_sampler()
-	{
-		if (this.sampler_selected == 0) {
-			return "nearest_clamp"
-		} else if (this.sampler_selected == 1) {
-			return "linear_clamp"
-		} else if (this.sampler_selected == 2) {
-			return "nearest_repeat"
-		} else if (this.sampler_selected == 3) {
-			return "linear_repeat"
-		} else {
-			return "linear_clamp"
 		}
 	}
 }

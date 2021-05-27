@@ -5,6 +5,7 @@ import "rendergraph.variant" for VAR_TYPE_TEXTURE, VarTexture
 import "editor.node_cache" for NODE_CACHE
 import "maths" for Matrix44
 import "blueprint.blueprint" for Blueprint
+import "render" for TextureSampler
 
 class CubemapTrans is Node
 {
@@ -42,6 +43,7 @@ class CubemapProxy is Node
 		this.layout()
 
 		this.tex = nil
+		this.sampler = nil
 
 		this.dummy = true
 	}
@@ -50,6 +52,7 @@ class CubemapProxy is Node
 	{
 		var ret = VarTexture()
 		ret.tex = this.tex
+		ret.sampler = this.sampler
 		return Variant(VAR_TYPE_TEXTURE, ret)
 	}
 }
@@ -89,6 +92,7 @@ class DrawCubemap
 		this.trans_node.mat = mat
 
 		this.proxy_node.tex = tex
+		this.proxy_node.sampler = TextureSampler.init("linear_clamp_mipmap")
 
 		this.draw_node.execute()
 	}

@@ -1,6 +1,6 @@
 import "editor.shadergraph" for Shadergraph
 import "image" for ImageData
-import "render" for Texture2D
+import "render" for Texture2D, TextureSampler
 
 class Noisegraph is Shadergraph
 {
@@ -14,6 +14,8 @@ class Noisegraph is Shadergraph
 		this.perlin_perm2d_tex = Texture2D.init(perlin_perm2d_img, false)
 		var perlin_grad2d_img = ImageData.init("assets/textures/noise/perlin_grad2d.png")
 		this.perlin_grad2d_tex = Texture2D.init(perlin_grad2d_img, false)
+
+		this.tex_sampler = TextureSampler.init("linear_repeat")
 	}
 
 	prepare_nodes()
@@ -33,8 +35,8 @@ class Noisegraph is Shadergraph
 
 	draw_preview()
 	{
-		this.prog.set_uniform_value(["perlin_perm2d_tex", "sampler", [this.perlin_perm2d_tex, "linear_repeat"]])
-		this.prog.set_uniform_value(["perlin_grad2d_tex", "sampler", [this.perlin_grad2d_tex, "linear_repeat"]])		
+		this.prog.set_uniform_value(["perlin_perm2d_tex", "sampler", [this.perlin_perm2d_tex, this.tex_sampler]])
+		this.prog.set_uniform_value(["perlin_grad2d_tex", "sampler", [this.perlin_grad2d_tex, this.tex_sampler]])
 
 		super.draw_preview()
 	}

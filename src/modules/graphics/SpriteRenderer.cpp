@@ -368,6 +368,7 @@ void SpriteRenderer::Flush(ur::Context& ctx)
 	}
 
     ctx.SetTexture(0, m_tex);
+	ctx.SetTextureSampler(0, nullptr);
 
     auto fbo = ctx.GetFramebuffer();
     ctx.SetFramebuffer(m_fbo);

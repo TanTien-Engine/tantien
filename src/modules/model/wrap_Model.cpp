@@ -99,6 +99,41 @@ void load_tex_trans(const model::gltf::Texture::Transform& trans, int slot)
     ves_pop(1);
 }
 
+void load_texture(const model::gltf::Texture& texture, int slot, int tex_coord = 0)
+{
+    // texture
+    {
+        ves_pushnil();
+        ves_import_class("render", "Texture2D");
+        ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(slot, slot + 1, sizeof(std::shared_ptr<ur::Texture>));
+        ves_pop(1);
+        *tex = texture.image;
+        ves_setfield(-2, "texture");
+        ves_pop(1);
+    }
+    // sampler
+    //if (texture.sampler)
+    //{
+    //    ves_pushnil();
+    //    ves_import_class("render", "TextureSampler");
+    //    std::shared_ptr<ur::TextureSampler>* sampler = (std::shared_ptr<ur::TextureSampler>*)ves_set_newforeign(slot, slot + 1, sizeof(std::shared_ptr<ur::TextureSampler>));
+    //    ves_pop(1);
+    //    *sampler = texture.sampler;
+    //    ves_setfield(-2, "sampler");
+    //    ves_pop(1);
+    //}
+    // tex_coord
+    {
+        ves_pushnumber(tex_coord);
+        ves_setfield(-2, "tex_coord");
+        ves_pop(1);
+    }
+    // tex_trans
+    if (texture.transform) {
+        load_tex_trans(*texture.transform, slot);
+    }
+}
+
 void w_glTF_get_desc()
 {
     auto model = ((tt::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
@@ -145,84 +180,24 @@ void w_glTF_get_desc()
             ves_setfield(-2, "factor");
             ves_pop(1);
         }
-        if (emissive->texture)
-        {
-            // texture
-            {
-                ves_pushnil();
-                ves_import_class("render", "Texture2D");
-                ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 4, sizeof(std::shared_ptr<ur::Texture>));
-                ves_pop(1);
-                *tex = emissive->texture->image;
-                ves_setfield(-2, "texture");
-                ves_pop(1);
-            }
-            // tex_coord
-            {
-                ves_pushnumber(emissive->tex_coord);
-                ves_setfield(-2, "tex_coord");
-                ves_pop(1);
-            }
-            // tex_trans
-            if (emissive->texture->transform) {
-                load_tex_trans(*emissive->texture->transform, 3);
-            }
+        if (emissive->texture) {
+            load_texture(*emissive->texture, 3, emissive->tex_coord);
         }
         ves_setfield(-2, "emissive");
         ves_pop(1);
         // normal
         auto& normal = material->normal;
         ves_newmap();
-        if (normal->texture)
-        {
-            // texture
-            {
-                ves_pushnil();
-                ves_import_class("render", "Texture2D");
-                ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 4, sizeof(std::shared_ptr<ur::Texture>));
-                ves_pop(1);
-                *tex = normal->texture->image;
-                ves_setfield(-2, "texture");
-                ves_pop(1);
-            }
-            // tex_coord
-            {
-                ves_pushnumber(normal->tex_coord);
-                ves_setfield(-2, "tex_coord");
-                ves_pop(1);
-            }
-            // tex_trans
-            if (normal->texture->transform) {
-                load_tex_trans(*normal->texture->transform, 3);
-            }
+        if (normal->texture) {
+            load_texture(*normal->texture, 3, normal->tex_coord);
         }
         ves_setfield(-2, "normal");
         ves_pop(1);
         // occlusion
         auto& occlusion = material->occlusion;
         ves_newmap();
-        if (occlusion->texture)
-        {
-            // texture
-            {
-                ves_pushnil();
-                ves_import_class("render", "Texture2D");
-                ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 4, sizeof(std::shared_ptr<ur::Texture>));
-                ves_pop(1);
-                *tex = occlusion->texture->image;
-                ves_setfield(-2, "texture");
-                ves_pop(1);
-            }
-            // tex_coord
-            {
-                ves_pushnumber(occlusion->tex_coord);
-                ves_setfield(-2, "tex_coord");
-                ves_pop(1);
-            }
-            // tex_trans
-            if (occlusion->texture->transform) {
-                load_tex_trans(*occlusion->texture->transform, 3);
-            }
+        if (occlusion->texture) {
+            load_texture(*occlusion->texture, 3, occlusion->tex_coord);
         }
         ves_setfield(-2, "occlusion");
         ves_pop(1);
@@ -241,28 +216,8 @@ void w_glTF_get_desc()
             ves_setfield(-2, "roughness_factor");
             ves_pop(1);
         }
-        if (metallic_roughness->texture)
-        {
-            // texture
-            {
-                ves_pushnil();
-                ves_import_class("render", "Texture2D");
-                ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 4, sizeof(std::shared_ptr<ur::Texture>));
-                ves_pop(1);
-                *tex = metallic_roughness->texture->image;
-                ves_setfield(-2, "texture");
-                ves_pop(1);
-            }
-            // tex_coord
-            {
-                ves_pushnumber(metallic_roughness->tex_coord);
-                ves_setfield(-2, "tex_coord");
-                ves_pop(1);
-            }
-            // tex_trans
-            if (metallic_roughness->texture->transform) {
-                load_tex_trans(*metallic_roughness->texture->transform, 3);
-            }
+        if (metallic_roughness->texture) {
+            load_texture(*metallic_roughness->texture, 3, metallic_roughness->tex_coord);
         }
         ves_setfield(-2, "metallic_roughness");
         ves_pop(1);
@@ -279,28 +234,8 @@ void w_glTF_get_desc()
             ves_setfield(-2, "factor");
             ves_pop(1);
         }
-        if (base_color->texture)
-        {
-            // texture
-            {
-                ves_pushnil();
-                ves_import_class("render", "Texture2D");
-                ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(3, 4, sizeof(std::shared_ptr<ur::Texture>));
-                ves_pop(1);
-                *tex = base_color->texture->image;
-                ves_setfield(-2, "texture");
-                ves_pop(1);
-            }
-            // tex_coord
-            {
-                ves_pushnumber(base_color->tex_coord);
-                ves_setfield(-2, "tex_coord");
-                ves_pop(1);
-            }
-            // tex_trans
-            if (base_color->texture->transform) {
-                load_tex_trans(*base_color->texture->transform, 3);
-            }
+        if (base_color->texture) {
+            load_texture(*base_color->texture, 3, base_color->tex_coord);
         }
         ves_setfield(-2, "base_color");
         ves_pop(1);
@@ -322,26 +257,7 @@ void w_glTF_get_desc()
             if (material->sheen->color_texture)
             {
                 ves_newmap();
-                // texture
-                {
-                    ves_pushnil();
-                    ves_import_class("render", "Texture2D");
-                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
-                    ves_pop(1);
-                    *tex = material->sheen->color_texture->image;
-                    ves_setfield(-2, "texture");
-                    ves_pop(1);
-                }
-                // tex_coord
-                {
-                    ves_pushnumber(0);
-                    ves_setfield(-2, "tex_coord");
-                    ves_pop(1);
-                }
-                // tex_trans
-                if (base_color->texture->transform) {
-                    load_tex_trans(*material->sheen->color_texture->transform, 4);
-                }
+                load_texture(*material->sheen->color_texture, 4);
                 ves_setfield(-2, "color_texture");
                 ves_pop(1);
             }
@@ -355,26 +271,7 @@ void w_glTF_get_desc()
             if (material->sheen->roughness_texture)
             {
                 ves_newmap();
-                // texture
-                {
-                    ves_pushnil();
-                    ves_import_class("render", "Texture2D");
-                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
-                    ves_pop(1);
-                    *tex = material->sheen->roughness_texture->image;
-                    ves_setfield(-2, "texture");
-                    ves_pop(1);
-                }
-                // tex_coord
-                {
-                    ves_pushnumber(0);
-                    ves_setfield(-2, "tex_coord");
-                    ves_pop(1);
-                }
-                // tex_trans
-                if (base_color->texture->transform) {
-                    load_tex_trans(*material->sheen->roughness_texture->transform, 4);
-                }
+                load_texture(*material->sheen->roughness_texture, 4);
                 ves_setfield(-2, "roughness_texture");
                 ves_pop(1);
             }
@@ -395,22 +292,7 @@ void w_glTF_get_desc()
             if (material->clearcoat->texture)
             {
                 ves_newmap();
-                // texture
-                {
-                    ves_pushnil();
-                    ves_import_class("render", "Texture2D");
-                    ur::TexturePtr* tex = (std::shared_ptr<ur::Texture>*)ves_set_newforeign(4, 5, sizeof(std::shared_ptr<ur::Texture>));
-                    ves_pop(1);
-                    *tex = material->clearcoat->texture->image;
-                    ves_setfield(-2, "texture");
-                    ves_pop(1);
-                }
-                // tex_coord
-                {
-                    ves_pushnumber(material->clearcoat->tex_coord);
-                    ves_setfield(-2, "tex_coord");
-                    ves_pop(1);
-                }
+                load_texture(*material->clearcoat->texture, 4);
                 ves_setfield(-2, "texture");
                 ves_pop(1);
             }

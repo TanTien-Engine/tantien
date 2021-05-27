@@ -283,51 +283,37 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         break;
     case shadertrans::ShaderReflection::VarType::Sampler:
     {
+        auto ctx = tt::Render::Instance()->Context();
         auto slot = prog->QueryTexSlot(name);
         if (slot >= 0)
         {
             int n = ves_len(-1);
 
+            std::shared_ptr<ur::Texture> tex = nullptr;
+            std::shared_ptr<ur::TextureSampler> sampler = nullptr;
+
             // texture
             if (n > 0)
             {
                 ves_geti(-1, 0);
-                if (ves_type(-1) != VES_TYPE_NULL)
-                {
-                    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
-                    if (slot >= 0) {
-                        auto ctx = tt::Render::Instance()->Context();
-                        ctx->SetTexture(slot, tex);
-                    }
+                if (ves_type(-1) != VES_TYPE_NULL) {
+                    tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
                 }
                 ves_pop(1);
             }
 
             // texture sampler
-            if (ves_len(-1) > 1)
+            if (tex && ves_len(-1) > 1)
             {
                 ves_geti(-1, 1);
-                if (ves_type(-1) != VES_TYPE_NULL)
-                {
-                    ur::Device::TextureSamplerType type;
-
-                    auto type_str = ves_tostring(-1);
-                    if (strcmp(type_str, "nearest_clamp") == 0) {
-                        type = ur::Device::TextureSamplerType::NearestClamp;
-                    } else if (strcmp(type_str, "linear_clamp") == 0) {
-                        type = ur::Device::TextureSamplerType::LinearClamp;
-                    } else if (strcmp(type_str, "nearest_repeat") == 0) {
-                        type = ur::Device::TextureSamplerType::NearestRepeat;
-                    } else if (strcmp(type_str, "linear_repeat") == 0) {
-                        type = ur::Device::TextureSamplerType::LinearRepeat;
-                    }
-
-                    auto ctx = tt::Render::Instance()->Context();
-                    auto dev = tt::Render::Instance()->Device();
-                    ctx->SetTextureSampler(slot, dev->GetTextureSampler(type));
+                if (ves_type(-1) != VES_TYPE_NULL) {
+                    sampler = ((tt::Proxy<ur::TextureSampler>*)ves_toforeign(-1))->obj;
                 }
                 ves_pop(1);
             }
+
+            ctx->SetTexture(slot, tex);
+            ctx->SetTextureSampler(slot, sampler);
         }
     }
         break;
@@ -872,6 +858,35 @@ int w_Cubemap_finalize(void* data)
     return sizeof(tt::Proxy<ur::Texture>);
 }
 
+void w_TextureSampler_allocate()
+{
+    std::shared_ptr<ur::TextureSampler> sampler = nullptr;
+
+    auto dev = tt::Render::Instance()->Device();
+    const char* type = ves_tostring(1);
+    if (strcmp(type, "nearest_clamp") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::NearestClamp);
+    } else if (strcmp(type, "linear_clamp") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearClamp);
+    } else if (strcmp(type, "linear_clamp_mipmap") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearClampMipmap);
+    } else if (strcmp(type, "nearest_repeat") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::NearestRepeat);
+    } else if (strcmp(type, "linear_repeat") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearRepeat);
+    }
+
+    auto proxy = (tt::Proxy<ur::TextureSampler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::TextureSampler>));
+    proxy->obj = sampler;
+}
+
+int w_TextureSampler_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::TextureSampler>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::TextureSampler>);
+}
+
 void w_Framebuffer_allocate()
 {
     auto fbo = tt::Render::Instance()->Device()->CreateFramebuffer();
@@ -1195,30 +1210,35 @@ void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model:
                 int slot = ds.program->QueryTexSlot("texture_diffuse1");
                 if (slot >= 0) {
                     ctx->SetTexture(slot, model.textures[mat->diffuse_tex].second);
+                    ctx->SetTextureSampler(slot, nullptr);
                 }
             }
             if (mat->normal_tex >= 0) {
                 int slot = ds.program->QueryTexSlot("tex_normal");
                 if (slot >= 0) {
                     ctx->SetTexture(slot, model.textures[mat->normal_tex].second);
+                    ctx->SetTextureSampler(slot, nullptr);
                 }
             }
             if (mat->occlusion_tex >= 0) {
                 int slot = ds.program->QueryTexSlot("tex_occlusion");
                 if (slot >= 0) {
                     ctx->SetTexture(slot, model.textures[mat->occlusion_tex].second);
+                    ctx->SetTextureSampler(slot, nullptr);
                 }
             }
             if (mat->emissive_tex >= 0) {
                 int slot = ds.program->QueryTexSlot("tex_emissive");
                 if (slot >= 0) {
                     ctx->SetTexture(slot, model.textures[mat->emissive_tex].second);
+                    ctx->SetTextureSampler(slot, nullptr);
                 }
             }
             if (mat->metallic_roughness_tex >= 0) {
                 int slot = ds.program->QueryTexSlot("tex_metallic_roughness");
                 if (slot >= 0) {
                     ctx->SetTexture(slot, model.textures[mat->metallic_roughness_tex].second);
+                    ctx->SetTextureSampler(slot, nullptr);
                 }
             }
         }
@@ -1612,6 +1632,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Cubemap_allocate;
         methods->finalize = w_Cubemap_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "TextureSampler") == 0)
+    {
+        methods->allocate = w_TextureSampler_allocate;
+        methods->finalize = w_TextureSampler_finalize;
         return;
     }
 

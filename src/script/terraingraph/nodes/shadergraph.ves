@@ -58,10 +58,12 @@ class Shadergraph is Subgraph
 
 			var perm2d_tex = Texture()
 			perm2d_tex.init_texture("assets/textures/noise/perlin_perm2d.png")
+			perm2d_tex.set_sampler("linear_repeat")
 			Blueprint.connect(perm2d_tex, "tex", shader, "perlin_perm2d_tex")
 
 			var grad2d_tex = Texture()
 			grad2d_tex.init_texture("assets/textures/noise/perlin_grad2d.png")
+			grad2d_tex.set_sampler("linear_repeat")
 			Blueprint.connect(grad2d_tex, "tex", shader, "perlin_grad2d_tex")
 
 			var compute = Compute()

@@ -4,7 +4,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_param" for NodeParam
-import "render" for Cubemap as tt_Cubemap
+import "render" for Cubemap as tt_Cubemap, TextureSampler
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "graphics" for Graphics
 import "gui" for GUI
@@ -32,6 +32,7 @@ class Cubemap is Node
 		this.layout()
 
 		this.tex = nil
+		this.sampler = nil
 
 		this.width  = 0
 		this.height = 0
@@ -65,6 +66,7 @@ class Cubemap is Node
 		{
 			var ret = VarTexture()
 			ret.tex = this.tex
+			ret.sampler = this.sampler
 			return Variant(VAR_TYPE_TEXTURE, ret)			
 		} 
 		else if (idx == 1) 
@@ -106,7 +108,7 @@ class Cubemap is Node
 	bind_uniforms(prog)
 	{
 		var name = this.query_param("unif_name").value
-		prog.set_uniform_value([name, "sampler", [this.tex, "linear_clamp"]])
+		prog.set_uniform_value([name, "sampler", [this.tex, this.sampler]])
 	}
 
 	draw(mt, cam_mt)
@@ -152,5 +154,6 @@ class Cubemap is Node
 		}
 
 		this.tex = tt_Cubemap.init(width, height, format)
+		this.sampler = TextureSampler.init("linear_clamp_mipmap")
 	}
 }

@@ -68,7 +68,7 @@ class Expand is Node
 			if (value.type == VAR_TYPE_TEXTURE and value.value and unif)
 			{
 				var name = this.get_unif_name(i)
-				prog.set_uniform_value([name, "sampler", [value.value.tex, "linear_repeat"]])
+				prog.set_uniform_value([name, "sampler", [value.value.tex, value.value.sampler]])
 			}
 		}	
 	}

@@ -49,6 +49,12 @@ foreign class Cubemap
 	foreign get_height()	
 }
 
+foreign class TextureSampler
+{
+	// "nearest_clamp", "linear_clamp", "linear_clamp_mipmap", "nearest_repeat", "linear_repeat"
+	init(type) {}
+}
+
 foreign class Framebuffer
 {
 	init() {}

@@ -98,7 +98,7 @@ class Fetch is Node
 		if (value.type == VAR_TYPE_TEXTURE and value.value and this.uniform)
 		{
 			var name = this.get_unif_name2()
-			prog.set_uniform_value([name, "sampler", [value.value.tex, "linear_repeat"]])
+			prog.set_uniform_value([name, "sampler", [value.value.tex, value.value.sampler]])
 		}
 	}
 

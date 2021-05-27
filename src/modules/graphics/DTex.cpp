@@ -189,6 +189,7 @@ void DTex::DebugDraw(ur::Context& ctx) const
 
     auto tex = m_texture_buffer->GetTexture();
     ctx.SetTexture(0, tex);
+    ctx.SetTextureSampler(0, nullptr);
 
     ctx.Draw(ur::PrimitiveType::Triangles, ds, nullptr);
 }
