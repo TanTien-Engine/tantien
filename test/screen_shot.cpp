@@ -303,6 +303,9 @@ void auto_test(const char* name)
             continue;
         }
 
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+       
         printf("++ %s\n", filepath.c_str());
         ves_pushstring(filepath.c_str());
         ves_pushstring("loadfromfile(_)");
