@@ -4,6 +4,7 @@ import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, 
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "render" for Cubemap
 
 class SampleTexture is Node
 {
@@ -41,6 +42,14 @@ class SampleTexture is Node
 		}		
 
 		var lod = Blueprint.calc_input_inst(gen, this, 2, module, func)
+		if (!lod)
+		{
+			var v_tex = Blueprint.calc_input_value(this, 0)
+			if (v_tex and v_tex.value.tex is Cubemap) {
+				lod = gen.const_float(module, 0.0)
+			}
+		}
+
 		var rgba = gen.image_sample(func, img, uv, lod)
 		if (idx == 0) {
 			return rgba
