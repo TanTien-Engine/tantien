@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("patches")
@@ -326,32 +331,36 @@ node4.var_type = "texture"
 _editor.add_node(node4, -251.06667315772, 79.375127070942)
 
 var node5 = Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("assets/textures/terrain/dark_dirt.jpg")
-node5.set_sampler("linear repeat")
+node5.set_sampler("linear_repeat")
 
 _editor.add_node(node5, -398.28562958109, -303.05954756096)
 
 var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("assets/textures/terrain/rock.jpg")
-node6.set_sampler("linear repeat")
+node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -164.60783767928, -303.48366069446)
 
 var node7 = Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("assets/textures/terrain/grass.jpg")
-node7.set_sampler("linear repeat")
+node7.set_sampler("linear_repeat")
 
 _editor.add_node(node7, -405.89994659973, -600.57493158753)
 
 var node8 = Texture()
+node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("assets/textures/terrain/snow.png")
-node8.set_sampler("linear repeat")
+node8.set_sampler("linear_repeat")
 
-_editor.add_node(node8, -164.30512840576, -600.57491890504)
+_editor.add_node(node8, -163.47868212477, -600.57491890504)
 
 var node9 = Custom()
 
@@ -451,27 +460,27 @@ node15.var_type = "num"
 
 _editor.add_node(node15, -247.0542146495, -17.702509322296)
 
-Blueprint.connect(node1, "out", node0, "shader")
-Blueprint.connect(node2, "next", node0, "prev")
-Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "var", node1, "tes_heightmap")
-Blueprint.connect(node4, "var", node1, "fs_heightmap")
-Blueprint.connect(node5, "tex", node1, "splatmap0")
-Blueprint.connect(node6, "tex", node1, "splatmap1")
-Blueprint.connect(node7, "tex", node1, "splatmap2")
-Blueprint.connect(node8, "tex", node1, "splatmap3")
-Blueprint.connect(node9, "out0", node1, "fs.layer_height_scale")
-Blueprint.connect(node9, "out1", node1, "fs.layer_height_bias")
-Blueprint.connect(node9, "out2", node1, "fs.layer_slope_scale")
-Blueprint.connect(node9, "out3", node1, "fs.layer_slope_bias")
-Blueprint.connect(node10, "var", node1, "tes.clip_plane")
-Blueprint.connect(node11, "var", node1, "tcs.model")
-Blueprint.connect(node11, "var", node1, "tes.model")
+Blueprint.connect(node15, "var", node1, "fs.draw_radius")
+Blueprint.connect(node14, "var", node1, "fs.mouse_pos")
 Blueprint.connect(node12, "mat", node1, "tcs.view")
 Blueprint.connect(node12, "mat", node1, "tes.view")
 Blueprint.connect(node12, "zoom", node13, "fovy")
 Blueprint.connect(node12, "pos", node1, "tcs.cam_pos")
 Blueprint.connect(node13, "mat", node1, "tcs.projection")
 Blueprint.connect(node13, "mat", node1, "tes.projection")
-Blueprint.connect(node14, "var", node1, "fs.mouse_pos")
-Blueprint.connect(node15, "var", node1, "fs.draw_radius")
+Blueprint.connect(node11, "var", node1, "tcs.model")
+Blueprint.connect(node11, "var", node1, "tes.model")
+Blueprint.connect(node10, "var", node1, "tes.clip_plane")
+Blueprint.connect(node9, "out0", node1, "fs.layer_height_scale")
+Blueprint.connect(node9, "out1", node1, "fs.layer_height_bias")
+Blueprint.connect(node9, "out2", node1, "fs.layer_slope_scale")
+Blueprint.connect(node9, "out3", node1, "fs.layer_slope_bias")
+Blueprint.connect(node8, "tex", node1, "splatmap3")
+Blueprint.connect(node7, "tex", node1, "splatmap2")
+Blueprint.connect(node6, "tex", node1, "splatmap1")
+Blueprint.connect(node5, "tex", node1, "splatmap0")
+Blueprint.connect(node4, "var", node1, "tes_heightmap")
+Blueprint.connect(node4, "var", node1, "fs_heightmap")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")
+Blueprint.connect(node2, "next", node0, "prev")

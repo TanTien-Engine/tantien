@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Clear()
 
 node0.masks = [ "color", "depth" ]
@@ -8,7 +13,8 @@ _editor.add_node(node0, 156.90238929685, 219.18522882334)
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "cull" : "disable" }
+node1.render_state = { "depth_test" : true, "cull" : "disable", "clip_plane" : false }
+node1.skip = false
 
 _editor.add_node(node1, 384.35404057273, 85.636402239849)
 
@@ -41,6 +47,9 @@ void main()
     gl_Position = projection * view * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -88,7 +97,7 @@ void main()
     FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 node2.set_uniform("lightPos", [ 0, 0, 0 ])
 node2.set_uniform("viewPos", [ 0, 0, 3 ])
@@ -121,15 +130,16 @@ node5.up.set(0, 1, 0)
 _editor.add_node(node5, -228.16132777816, 123.21180247251)
 
 var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/wood.png")
-node6.set_sampler("linear repeat")
+node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -224.53483258756, 6.5953025564666)
 
-Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node6, "tex", node2, "floorTexture")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "mat", node2, "view")
-Blueprint.connect(node6, "tex", node2, "floorTexture")
+Blueprint.connect(node0, "next", node1, "prev")

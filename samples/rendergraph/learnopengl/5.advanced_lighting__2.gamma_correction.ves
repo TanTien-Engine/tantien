@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Clear()
 
 node0.masks = [ "depth", "color" ]
@@ -8,7 +13,8 @@ _editor.add_node(node0, 278.47878435183, 253.33590159159)
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "cull" : "disable" }
+node1.render_state = { "depth_test" : true, "cull" : "disable", "clip_plane" : false }
+node1.skip = false
 
 _editor.add_node(node1, 461.85154757362, 206.05502118664)
 
@@ -41,6 +47,9 @@ void main()
     gl_Position = ubo_vs.projection * ubo_vs.view * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -97,7 +106,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 node2.set_uniform("ubo_fs.lightPositions[0]", [ -3, 0, 0 ])
 node2.set_uniform("ubo_fs.lightPositions[1]", [ -1, 0, 0 ])
@@ -128,9 +137,10 @@ node4.zfar = 100
 _editor.add_node(node4, -202.3871320265, 434.55747558227)
 
 var node5 = Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("resources/textures/wood.png")
-node5.set_sampler("linear repeat")
+node5.set_sampler("linear_repeat")
 
 _editor.add_node(node5, -200.53483258756, 152.59530255647)
 
@@ -145,11 +155,11 @@ node6.speed = 0.10690787434578
 
 _editor.add_node(node6, -202.96711389612, 297.97362508566)
 
-Blueprint.connect(node0, "next", node1, "prev")
-Blueprint.connect(node2, "out", node1, "shader")
-Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
-Blueprint.connect(node5, "tex", node2, "floorTexture")
 Blueprint.connect(node6, "mat", node2, "ubo_vs.view")
 Blueprint.connect(node6, "zoom", node4, "fovy")
 Blueprint.connect(node6, "pos", node2, "ubo_fs.viewPos")
+Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
+Blueprint.connect(node5, "tex", node2, "floorTexture")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node0, "next", node1, "prev")

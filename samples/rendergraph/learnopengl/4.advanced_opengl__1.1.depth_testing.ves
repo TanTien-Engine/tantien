@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Clear()
 
 node0.masks = [ "color", "depth" ]
@@ -8,7 +13,8 @@ _editor.add_node(node0, -181.45454545455, 568.59090909091)
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "always", "cull" : "disable" }
+node1.render_state = { "depth_test" : true, "depth_func" : "always", "cull" : "disable", "clip_plane" : false }
+node1.skip = false
 
 _editor.add_node(node1, 56.80518593489, 434.01631470776)
 
@@ -34,6 +40,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -47,7 +56,7 @@ void main()
     FragColor = texture(texture1, TexCoords);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, -164.03965761902, 389.53503742566)
@@ -80,9 +89,10 @@ node5.attrs = [ 3, 2 ]
 _editor.add_node(node5, -298.56524639287, 169.80069776803)
 
 var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/metal.png")
-node6.set_sampler("linear repeat")
+node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -1092.7043569593, 485.30749424769)
 
@@ -94,13 +104,14 @@ var node8 = PrimitiveShape()
 
 node8.type = "cube"
 node8.layout = [ "position", "texture" ]
+node8.shape_params = {  }
 
 _editor.add_node(node8, -299.85587693749, 22.904105807213)
 
 var node9 = Texture()
+node9.query_param("unif_name").value = "u_tex"
 node9.gamma_correction = false
 node9.init_texture("resources/textures/marble.jpg")
-node9.set_sampler("linear repeat")
 
 _editor.add_node(node9, -1089.977084232, 139.85294879314)
 
@@ -132,18 +143,18 @@ var node14 = Merge()
 
 _editor.add_node(node14, -484.14837646484, 10.860900878905)
 
-Blueprint.connect(node0, "next", node1, "prev")
-Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node13, "mat", node14, "in2")
+Blueprint.connect(node12, "mat", node14, "in1")
+Blueprint.connect(node11, "mat", node14, "in0")
+Blueprint.connect(node14, "list", node2, "model")
+Blueprint.connect(node9, "tex", node10, "in1")
+Blueprint.connect(node8, "out", node7, "in1")
+Blueprint.connect(node6, "tex", node10, "in0")
+Blueprint.connect(node10, "list", node2, "texture1")
+Blueprint.connect(node5, "out", node7, "in0")
+Blueprint.connect(node7, "list", node1, "va")
 Blueprint.connect(node3, "mat", node2, "view")
 Blueprint.connect(node3, "zoom", node4, "fovy")
 Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "out", node7, "in0")
-Blueprint.connect(node6, "tex", node10, "in0")
-Blueprint.connect(node7, "list", node1, "va")
-Blueprint.connect(node8, "out", node7, "in1")
-Blueprint.connect(node9, "tex", node10, "in1")
-Blueprint.connect(node10, "list", node2, "texture1")
-Blueprint.connect(node11, "mat", node14, "in0")
-Blueprint.connect(node12, "mat", node14, "in1")
-Blueprint.connect(node13, "mat", node14, "in2")
-Blueprint.connect(node14, "list", node2, "model")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node0, "next", node1, "prev")

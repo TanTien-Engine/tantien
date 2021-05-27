@@ -1,3 +1,8 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Clear()
 
 node0.masks = [ "color", "depth" ]
@@ -8,7 +13,8 @@ _editor.add_node(node0, -181.45454545455, 568.59090909091)
 var node1 = Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node1.skip = false
 
 _editor.add_node(node1, 83.101203966445, 431.01105550415)
 
@@ -34,6 +40,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -47,7 +56,7 @@ void main()
     FragColor = texture(texture1, TexCoords);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, -164.03965761902, 389.53503742566)
@@ -80,9 +89,10 @@ node5.attrs = [ 3, 2 ]
 _editor.add_node(node5, -298.56524639287, 169.80069776803)
 
 var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/metal.png")
-node6.set_sampler("linear repeat")
+node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -1092.7043569593, 485.30749424769)
 
@@ -94,13 +104,14 @@ var node8 = PrimitiveShape()
 
 node8.type = "cube"
 node8.layout = [ "position", "texture" ]
+node8.shape_params = {  }
 
 _editor.add_node(node8, -299.85587693749, 22.904105807213)
 
 var node9 = Texture()
+node9.query_param("unif_name").value = "u_tex"
 node9.gamma_correction = false
 node9.init_texture("resources/textures/container.jpg")
-node9.set_sampler("linear repeat")
 
 _editor.add_node(node9, -1089.977084232, 139.85294879314)
 
@@ -146,9 +157,9 @@ node16.height = 1024
 _editor.add_node(node16, 446.08815631409, 340.97646638245)
 
 var node17 = Texture()
+node17.query_param("unif_name").value = "u_tex"
 node17.gamma_correction = false
 node17.init_texture(1024, 1024, "rgb")
-node17.set_sampler("linear repeat")
 
 _editor.add_node(node17, 110.81105957031, 230.89253540039)
 
@@ -161,7 +172,8 @@ _editor.add_node(node18, 287.43395453183, 328.90951873689)
 var node19 = Draw()
 
 node19.set_prim_type("tri_strip")
-node19.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node19.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node19.skip = false
 
 _editor.add_node(node19, 701.03755867714, -471.60051400917)
 
@@ -187,6 +199,9 @@ void main()
     gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
 }  
 "
+node21.tcs = ""
+node21.tes = ""
+node21.gs = ""
 node21.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -201,7 +216,7 @@ void main()
     FragColor = vec4(col, 1.0);
 } 
 "
-node21.gs = ""
+node21.cs = ""
 node21.execute()
 
 _editor.add_node(node21, 457.24092062239, -485.2723367816)
@@ -210,29 +225,30 @@ var node22 = PrimitiveShape()
 
 node22.type = "quad"
 node22.layout = [ "position", "texture" ]
+node22.shape_params = {  }
 
 _editor.add_node(node22, 495.48966341323, -587.72433516375)
 
-Blueprint.connect(node0, "next", node1, "prev")
-Blueprint.connect(node1, "next", node15, "prev")
-Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node22, "out", node19, "va")
+Blueprint.connect(node20, "next", node19, "prev")
+Blueprint.connect(node18, "rbo", node16, "depth")
+Blueprint.connect(node17, "tex", node16, "col0")
+Blueprint.connect(node17, "tex", node21, "screenTexture")
+Blueprint.connect(node21, "out", node19, "shader")
+Blueprint.connect(node16, "fbo", node15, "fbo")
+Blueprint.connect(node13, "mat", node14, "in2")
+Blueprint.connect(node12, "mat", node14, "in1")
+Blueprint.connect(node11, "mat", node14, "in0")
+Blueprint.connect(node14, "list", node2, "model")
+Blueprint.connect(node9, "tex", node10, "in1")
+Blueprint.connect(node8, "out", node7, "in1")
+Blueprint.connect(node6, "tex", node10, "in0")
+Blueprint.connect(node10, "list", node2, "texture1")
+Blueprint.connect(node5, "out", node7, "in0")
+Blueprint.connect(node7, "list", node1, "va")
 Blueprint.connect(node3, "mat", node2, "view")
 Blueprint.connect(node3, "zoom", node4, "fovy")
 Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "out", node7, "in0")
-Blueprint.connect(node6, "tex", node10, "in0")
-Blueprint.connect(node7, "list", node1, "va")
-Blueprint.connect(node8, "out", node7, "in1")
-Blueprint.connect(node9, "tex", node10, "in1")
-Blueprint.connect(node10, "list", node2, "texture1")
-Blueprint.connect(node11, "mat", node14, "in0")
-Blueprint.connect(node12, "mat", node14, "in1")
-Blueprint.connect(node13, "mat", node14, "in2")
-Blueprint.connect(node14, "list", node2, "model")
-Blueprint.connect(node16, "fbo", node15, "fbo")
-Blueprint.connect(node17, "tex", node16, "col0")
-Blueprint.connect(node17, "tex", node21, "screenTexture")
-Blueprint.connect(node18, "rbo", node16, "depth")
-Blueprint.connect(node20, "next", node19, "prev")
-Blueprint.connect(node21, "out", node19, "shader")
-Blueprint.connect(node22, "out", node19, "va")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node1, "next", node15, "prev")

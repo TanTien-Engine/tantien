@@ -1,0 +1,69 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_prepare.ves")
+
+_editor.add_node(node0, -63.72747224119, 103.19004818408)
+
+var node1 = Texture()
+node1.query_param("unif_name").value = "u_tex"
+node1.gamma_correction = false
+node1.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
+
+
+_editor.add_node(node1, -325.11034898635, 96.5864918779)
+
+var node2 = Print()
+
+_editor.add_node(node2, 222.22076039386, 47.110803051188)
+
+var node3 = Pass()
+
+node3.once = true
+
+_editor.add_node(node3, 234.52547349694, 198.55641704019)
+
+var node4 = Pass()
+
+node4.once = false
+
+_editor.add_node(node4, 862.00812927751, 403.57504751663)
+
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
+node5.set_prop_value("tonemap", 0)
+node5.set_prop_value("gamma_correct", 0)
+
+_editor.add_node(node5, 633.08254576123, 386.21966603177)
+
+var node6 = Perspective()
+
+node6.fovy = 45
+node6.aspect = 0
+node6.znear = 0.1
+node6.zfar = 100
+
+_editor.add_node(node6, 404.1569519043, 430.84777832031)
+
+var node7 = Camera3d()
+
+node7.cam.position.set(-0.25749191567961, -0.25884679903896, -1.1404768301465)
+node7.cam.yaw = -288.7
+node7.cam.pitch = -4.6
+node7.cam.zoom = 45
+node7.cam.update_vectors()
+node7.speed = 0.24698987603188
+
+_editor.add_node(node7, 212.42141723633, 379.60809326172)
+
+Blueprint.connect(node7, "mat", node5, "view")
+Blueprint.connect(node7, "zoom", node6, "fovy")
+Blueprint.connect(node6, "mat", node5, "projection")
+Blueprint.connect(node1, "tex", node0, "equirectangularMap")
+Blueprint.connect(node0, "next", node3, "prev")
+Blueprint.connect(node0, "cubemap", node2, "value")
+Blueprint.connect(node0, "prefilter", node5, "skybox")
+Blueprint.connect(node5, "next", node4, "prev")
