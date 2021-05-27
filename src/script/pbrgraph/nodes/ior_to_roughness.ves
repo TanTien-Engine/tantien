@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// code from https://github.com/KhronosGroup/glTF-Sample-Viewer
+float ior_to_roughness(float roughness, float ior)
+{
+	float alpha_roughness = roughness * roughness;
+    // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
+    // an IOR of 1.5 results in the default amount of microfacet refraction.
+    alpha_roughness = alpha_roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+    return sqrt(alpha_roughness);
+}
+"
+
+class IorToRoughness is Node
+{
+	init()
+	{
+		super.init(IorToRoughness.name)
+
+		this.node_func = NodeFunction(this, CODE, "ior_to_roughness", [])	
+	}
+}

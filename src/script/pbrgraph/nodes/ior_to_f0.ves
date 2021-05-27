@@ -1,0 +1,20 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// code from https://github.com/KhronosGroup/glTF-Sample-Viewer
+vec3 ior_to_f0(float ior)
+{
+	return vec3(pow((ior - 1.0f) / (ior + 1.0f), 2.0));
+}
+"
+
+class IorToF0 is Node
+{
+	init()
+	{
+		super.init(IorToF0.name)
+
+		this.node_func = NodeFunction(this, CODE, "ior_to_f0", [])	
+	}
+}
