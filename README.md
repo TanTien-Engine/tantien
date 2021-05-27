@@ -136,13 +136,16 @@ Based for each editors
 ![](./doc/pbrgraph/screenshots/sheen.jpg)
     <em>Sheen</em>
 
+![](./doc/pbrgraph/screenshots/clearcoat.jpg)
+    <em>Clearcoat</em>
+
 #### Nodes
-* framework : MaterialTextures, Shadergraph,
-* tools : SrgbToLinear, GammaCorrection, NormalFromMap, LightingDirs,
-* distribution : D_GGX, D_Charlie,
-* fresnel : F_Schlick, 
-* visibility : V_Smith, V_Sheen,
-* components : Brdf, Ibl,
+* Specular BRDF distribution : D_GGX, D_GGX_Anisotropic, D_Charlie,
+* Specular BRDF visibility : V_Kelemen, V_Neubelt, V_Sheen, V_Smith, V_SmithGGXCorrelated, V_SmithGGXCorrelated_Anisotropic,
+* Specular BRDF fresnel : F_Schlick, 
+* Specular BRDF : Fr_CookTorrance,
+* Diffuse BRDF : Fd_Burley, Fd_Lambert, Fd_Wrap,
+* Tools : EnergyConservation, Shadergraph, SrgbToLinear, GammaCorrection,
 
 ## Building
 First clone the project & submodules:
