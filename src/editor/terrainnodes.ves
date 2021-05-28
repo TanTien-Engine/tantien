@@ -1,3 +1,20 @@
 import "terraingraph.nodes.*"
 
-var TERRAIN_NODES = [ Constant, Viewer, Gradient, Perlin, Worley, Combiner, Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform, SelectHeight, SelectSlope, Erosion, ThermalWeathering, Brush, Shadergraph ]
+var TERRAIN_NODES = [ 
+// generator
+Constant, Gradient, Perlin, Worley,
+// combiner
+Combiner,
+// filter
+Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform,
+// natural
+Erosion, ThermalWeathering,
+// selector
+SelectHeight, SelectSlope,
+// edit
+Brush,
+// draw
+Viewer,
+// tools
+Shadergraph, 
+]
