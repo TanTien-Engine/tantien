@@ -1,0 +1,47 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+var node0 = Shadergraph()
+
+_editor.add_node(node0, 90.434213028653, -39.366586214838)
+
+var node1 = Draw()
+
+node1.set_prim_type("tri_strip")
+node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : true }
+node1.skip = false
+
+_editor.add_node(node1, 253.19987589051, -151.12763916689)
+
+var node2 = PrimitiveShape()
+
+node2.type = "quad"
+node2.layout = [ "position", "texture", "tangent_bitangent" ]
+node2.shape_params = {  }
+
+_editor.add_node(node2, 94.53926939514, -169.71186859865)
+
+var node3 = TexCoord()
+
+_editor.add_node(node3, -386.38417015534, -36.41680990225)
+
+var node4 = Combine()
+
+_editor.add_node(node4, -79.832611081203, -78.164864884266)
+
+var node5 = RoundedRectangle()
+node5.query_param("width").value = 0.5
+node5.query_param("height").value = 0.5
+node5.query_param("radius").value = 0.1
+
+_editor.add_node(node5, -230.95088883105, -98.947757380085)
+
+Blueprint.connect(node3, "uv", node5, "st")
+Blueprint.connect(node5, "ret", node4, "grey")
+Blueprint.connect(node4, "xyzw", node0, "rgba")
+Blueprint.connect(node0, "shader", node1, "shader")
+Blueprint.connect(node2, "out", node1, "va")
