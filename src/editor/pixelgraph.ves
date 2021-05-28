@@ -1,0 +1,118 @@
+import "editor.editor" for Editor
+import "rendergraph.rendergraph" for Rendergraph
+import "rendergraph.drawlist" for Drawlist
+import "pixelgraph.nodes.shadergraph" for Shadergraph
+import "blueprint.nodes.subgraph" for Subgraph
+import "rendergraph.nodes.texture" for Texture
+import "render" for Render
+import "filesystem" for Filesystem
+
+class Pixelgraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+
+		Rendergraph.regist()
+
+		this.drawlist = nil
+	}
+
+	prepare_nodes()
+	{
+		this.clear_popup_nodes()
+
+		import "editor.bpnodes" for BP_NODES
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.rendernodes" for RENDER_NODES
+		for (var node in RENDER_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.shadernodes" for SHADER_NODES
+		for (var node in SHADER_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.pixelnodes" for PIXEL_NODES
+		for (var node in PIXEL_NODES) {
+			super.add_popup_node(node)
+		}
+	}
+
+	build_exec_list(nodes)
+	{
+		var drawlist = Drawlist(nodes)
+		return drawlist.lists
+	}
+
+	rebuild_drawlist(node)
+	{
+		if (node is Shadergraph) 
+		{
+			node.rebuild_shader()
+		} 
+		else if (node is Subgraph) 
+		{
+			// init subgraph
+			node.execute()
+			for (var sub_node in node.all_items) {
+				this.rebuild_drawlist(sub_node)
+			}
+		}
+	}
+
+	rebuild_drawlist()
+	{
+		var scene = this.scene_stack.root()
+
+		var nodes = []
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			nodes.add(bp_node)
+
+			this.rebuild_drawlist(bp_node)
+		}
+		this.drawlist = Drawlist(nodes)
+	}
+
+	draw_preview()
+	{
+		if (!this.drawlist or this.scene_stack.bp_dirty) {
+			this.rebuild_drawlist()
+			this.scene_stack.bp_dirty = false
+		}
+
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		this.drawlist.draw()
+	}
+
+	load_file_imports()
+	{
+		return super.load_file_imports() + "
+import \"rendergraph.nodes.*\"
+import \"shadergraph.nodes.*\"
+import \"pixelgraph.nodes.*\"
+"
+	}
+
+	new_node_from_file(filepath) 
+	{ 
+		if (filepath.contains(".png") or filepath.contains(".jpg"))
+		{
+			var node = Texture()
+			var relative = Filesystem.get_relative_path(filepath)
+			node.init_texture(relative)
+			return node
+		}
+
+		return nil 
+	}
+}
