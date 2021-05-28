@@ -27,11 +27,11 @@ _editor.add_node(node2, 94.53926939514, -169.71186859865)
 
 var node3 = SampleTexture()
 
-_editor.add_node(node3, -475.27187287565, 68.32798483889)
+_editor.add_node(node3, -292.25937287565, -75.15381516111)
 
 var node4 = TexCoord()
 
-_editor.add_node(node4, -636.18193490016, 32.08917411154)
+_editor.add_node(node4, -453.16943490016, -111.39262588846)
 
 var node5 = Texture()
 node5.query_param("unif_name").value = "u_tex"
@@ -39,38 +39,33 @@ node5.gamma_correction = false
 node5.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
 node5.set_sampler("linear_repeat")
 
-_editor.add_node(node5, -735.09629405629, 332.86247909168)
+_editor.add_node(node5, -552.08379405629, 189.38067909168)
 
-var node6 = Combine()
+var node6 = ReplaceColor()
+node6.query_param("from").value.set(0, 0, 0)
+node6.query_param("to").value.set(1, 1, 1)
+node6.query_param("range").value = 0.5
+node6.query_param("fuzziness").value = 0.1
 
-_editor.add_node(node6, -89.644628099174, 38.706611570248)
+_editor.add_node(node6, -116.55774793388, -95.01485785124)
 
-var node7 = ReplaceColor()
-node7.query_param("from").value.set(0, 0, 0)
-node7.query_param("to").value.set(1, 1, 1)
-node7.query_param("range").value = 0.5
-node7.query_param("fuzziness").value = 0.1
+var node7 = Number3()
 
-_editor.add_node(node7, -299.57024793388, 48.46694214876)
+node7.value.set(1.0218369960785, 0, 0)
+
+_editor.add_node(node7, -316.26297873259, -225.23639439366)
 
 var node8 = Number3()
 
-node8.value.set(1.0218369960785, 0, 0)
+node8.value.set(0, 0, 0.98381888866425)
 
-_editor.add_node(node8, -499.27547873259, -81.754594393657)
+_editor.add_node(node8, -315.23665188156, -331.46012894455)
 
-var node9 = Number3()
-
-node9.value.set(0, 0, 0.98381888866425)
-
-_editor.add_node(node9, -498.24915188156, -187.97832894455)
-
-Blueprint.connect(node9, "v3", node7, "to")
-Blueprint.connect(node8, "v3", node7, "from")
+Blueprint.connect(node8, "v3", node6, "to")
+Blueprint.connect(node7, "v3", node6, "from")
 Blueprint.connect(node5, "tex", node3, "tex")
 Blueprint.connect(node4, "uv", node3, "uv")
-Blueprint.connect(node3, "rgb", node7, "rgb")
-Blueprint.connect(node7, "ret", node6, "xyz")
-Blueprint.connect(node6, "xyzw", node0, "rgba")
+Blueprint.connect(node3, "rgb", node6, "rgb")
+Blueprint.connect(node6, "ret", node0, "rgb")
 Blueprint.connect(node0, "shader", node1, "shader")
 Blueprint.connect(node2, "out", node1, "va")

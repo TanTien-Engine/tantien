@@ -49,9 +49,14 @@ node6.query_param("a").value = false
 
 _editor.add_node(node6, -260.8333409503, 31.021361779188)
 
+var node7 = Split()
+
+_editor.add_node(node7, -105.86744995117, 32.388995361328)
+
 Blueprint.connect(node5, "tex", node3, "tex")
 Blueprint.connect(node4, "uv", node3, "uv")
 Blueprint.connect(node3, "rgba", node6, "in")
-Blueprint.connect(node6, "out", node0, "rgba")
+Blueprint.connect(node6, "out", node7, "xyzw")
+Blueprint.connect(node7, "xyz", node0, "rgb")
 Blueprint.connect(node0, "shader", node1, "shader")
 Blueprint.connect(node2, "out", node1, "va")

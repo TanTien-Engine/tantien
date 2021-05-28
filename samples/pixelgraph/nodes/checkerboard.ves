@@ -27,21 +27,16 @@ _editor.add_node(node2, 94.53926939514, -169.71186859865)
 
 var node3 = TexCoord()
 
-_editor.add_node(node3, -386.38417015534, -36.41680990225)
+_editor.add_node(node3, -258.12417015534, -36.41680990225)
 
 var node4 = Checkerboard()
 node4.query_param("col_a").value.set(1, 0, 0)
 node4.query_param("col_b").value.set(1, 1, 0)
 node4.query_param("freq").value.set(5, 5)
 
-_editor.add_node(node4, -228.16058509468, -67.521051290616)
-
-var node5 = Combine()
-
-_editor.add_node(node5, -79.832611081203, -78.164864884266)
+_editor.add_node(node4, -99.90058509468, -67.521051290616)
 
 Blueprint.connect(node3, "uv", node4, "st")
-Blueprint.connect(node4, "ret", node5, "xyz")
-Blueprint.connect(node5, "xyzw", node0, "rgba")
+Blueprint.connect(node4, "ret", node0, "rgb")
 Blueprint.connect(node0, "shader", node1, "shader")
 Blueprint.connect(node2, "out", node1, "va")

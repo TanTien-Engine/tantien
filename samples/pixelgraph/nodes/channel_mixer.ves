@@ -27,11 +27,11 @@ _editor.add_node(node2, 94.53926939514, -169.71186859865)
 
 var node3 = SampleTexture()
 
-_editor.add_node(node3, -475.27187287565, 68.32798483889)
+_editor.add_node(node3, -238.52690287565, -66.95485516111)
 
 var node4 = TexCoord()
 
-_editor.add_node(node4, -636.18193490016, 32.08917411154)
+_editor.add_node(node4, -399.43696490016, -103.19366588846)
 
 var node5 = Texture()
 node5.query_param("unif_name").value = "u_tex"
@@ -39,23 +39,18 @@ node5.gamma_correction = false
 node5.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
 node5.set_sampler("linear_repeat")
 
-_editor.add_node(node5, -735.09629405629, 332.86247909168)
+_editor.add_node(node5, -498.35132405629, 197.57963909168)
 
 var node6 = ChannelMixer()
 node6.query_param("r").value.set(0, 1, 0)
 node6.query_param("g").value.set(1, 0, 0)
 node6.query_param("b").value.set(0, 0, 0.5)
 
-_editor.add_node(node6, -313, 97.5)
-
-var node7 = Combine()
-
-_editor.add_node(node7, -107, -36.5)
+_editor.add_node(node6, -76.25503, -37.78284)
 
 Blueprint.connect(node5, "tex", node3, "tex")
 Blueprint.connect(node4, "uv", node3, "uv")
 Blueprint.connect(node3, "rgb", node6, "in")
-Blueprint.connect(node6, "out", node7, "xyz")
-Blueprint.connect(node7, "xyzw", node0, "rgba")
+Blueprint.connect(node6, "out", node0, "rgb")
 Blueprint.connect(node0, "shader", node1, "shader")
 Blueprint.connect(node2, "out", node1, "va")
