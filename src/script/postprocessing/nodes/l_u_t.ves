@@ -1,0 +1,44 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/crosire/reshade-shaders
+
+#ifndef fLUT_TileSizeXY
+    #define fLUT_TileSizeXY 16
+#endif
+#ifndef fLUT_TileAmount
+    #define fLUT_TileAmount 16
+#endif
+
+vec3 LUT(sampler2D src_tex, sampler2D lut_tex, vec2 texcoord, float amount_chroma, float amount_luma)
+{
+    vec4 color = texture(src_tex, texcoord);
+    vec2 texelsize = vec2(1.0 / fLUT_TileSizeXY);
+    texelsize.x /= fLUT_TileAmount;
+
+    vec3 lutcoord = vec3((color.xy*fLUT_TileSizeXY-color.xy+0.5)*texelsize.xy,color.z*fLUT_TileSizeXY-color.z);
+    float lerpfact = fract(lutcoord.z);
+    lutcoord.x += (lutcoord.z-lerpfact)*texelsize.y;
+
+    vec3 lutcolor = mix(texture(lut_tex, lutcoord.xy).xyz, texture(lut_tex, vec2(lutcoord.x+texelsize.y,lutcoord.y)).xyz,lerpfact);
+
+    color.xyz = mix(normalize(color.xyz), normalize(lutcolor.xyz), amount_chroma) * 
+                mix(length(color.xyz),    length(lutcolor.xyz),    amount_luma);
+
+    return color.xyz;
+}
+"
+
+class LUT is Node
+{
+	init() 
+	{
+		super.init(LUT.name)
+
+		this.node_func = NodeFunction(this, CODE, "LUT", [
+            ["amount_chroma", 1.0],     // [0.0, 1.0] Intensity of color/chroma change of the LUT.
+            ["amount_luma", 1.0],       // [0.0, 1.0] Intensity of luma change of the LUT.
+        ])
+	}
+}

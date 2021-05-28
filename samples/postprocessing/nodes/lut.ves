@@ -1,0 +1,59 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Shadergraph()
+
+_editor.add_node(node0, 90.434213028653, -39.366586214838)
+
+var node1 = Draw()
+
+node1.set_prim_type("tri_strip")
+node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : true }
+node1.skip = false
+
+_editor.add_node(node1, 253.19987589051, -151.12763916689)
+
+var node2 = PrimitiveShape()
+
+node2.type = "quad"
+node2.layout = [ "position", "texture" ]
+node2.shape_params = {  }
+
+_editor.add_node(node2, 94.53926939514, -169.71186859865)
+
+var node3 = Texture()
+node3.query_param("unif_name").value = "u_base_tex"
+node3.gamma_correction = false
+node3.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
+node3.set_sampler("linear_repeat")
+
+_editor.add_node(node3, -538.36902132902, 172.77157000077)
+
+var node4 = LUT()
+node4.query_param("amount_chroma").value = 1
+node4.query_param("amount_luma").value = 1
+
+_editor.add_node(node4, -219.00147996247, -96.95485753274)
+
+var node5 = Texture()
+node5.query_param("unif_name").value = "u_lut_tex"
+node5.gamma_correction = false
+node5.init_texture("../../../assets/textures/lut/evening.png")
+
+_editor.add_node(node5, -540.3637111559, -160.33256513822)
+
+var node6 = TexCoord()
+
+_editor.add_node(node6, -502.82358620384, -261.82585560192)
+
+Blueprint.connect(node6, "uv", node4, "texcoord")
+Blueprint.connect(node5, "tex", node4, "lut_tex")
+Blueprint.connect(node3, "tex", node4, "src_tex")
+Blueprint.connect(node4, "ret", node0, "rgb")
+Blueprint.connect(node0, "shader", node1, "shader")
+Blueprint.connect(node2, "out", node1, "va")
