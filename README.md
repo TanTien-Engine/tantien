@@ -28,14 +28,14 @@ Based for each editors
 * ...
 
 #### Nodes
-* math: add, clamp, cos, divide, matrix, multiply, number, number2, number3, number4, radians, sin, subtract
-* camera: camera2d, camera3d, lookat, orthographic, perspective
-* transform: rotate, scale, translate
-* constant: time, viewport
-* data: array, combine, fetch, merge, split
-* control: for
-* tools: commentary, custom, print, proxy
-* subgraph: input, output, property, subgraph
+* math : Number, Number2, Number3, Number4, Matrix, Add, Subtract, Multiply, Divide, Radians, Sin, Cos, Clamp,
+* camera : Camera2d, Camera3d, OrbitCamera, Lookat, Orthographic, Perspective,
+* transform : Scale, Rotate, Translate,
+* constant : Time, Viewport,
+* data : Array, Combine, Fetch, Merge, Split,
+* control : For,
+* tools : Commentary, Custom, Print, Proxy, Expand, Store, Load,
+* subgraph : Input, Output, Property, Subgraph,
 
 ### rendergraph
 
@@ -58,10 +58,10 @@ Based for each editors
 * ...
 
 #### Nodes
-* vertex: model, primitive_shape, vertex_array
-* resource: cubemap, render_buffer, render_target, shader, texture
-* operate: clear, compute, draw
-* control: pass
+* vertex : Model, Gltf, PrimitiveShape, VertexArray,
+* resource : Shader, Texture, Cubemap, RenderTarget, RenderBuffer, 
+* operate : Clear, Compute, Draw,
+* control : Pass,
 
 ### terraingraph
 
@@ -78,30 +78,25 @@ Based for each editors
 * multiple brushes
 
 #### Nodes
-* generator : constant, gradient, perlin, worley
-* combiner : combiner
-* filter: clamp, gaussian, incline, inverter, scale_bias, step, transform
-* natural : erosion
-* selector ： select_height, select_slope
-* edit : brush
-* draw : viewer
+* generator : Constant, Gradient, Perlin, Worley,
+* combiner : Combiner,
+* filter : Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform,
+* natural : Erosion, ThermalWeathering,
+* selector : SelectHeight, SelectSlope,
+* edit : Brush,
+* draw : Viewer,
+* tools : Shadergraph, 
 
 ### shadergraph
-
-![](./doc/shadergraph/screenshots/combine.jpg)
-    <em>Test</em>
 
 #### Features
 * use spir-v AST instead of combine shader strings
 
 #### Nodes
-* artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
 * input-geometry : Normal, TexCoord, WorldPos, 
-* procedural-shapes : Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
 * utility-shader : FragColor, Uniform,
-* uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
-* math : Dot, Negate, Normalize, Max, Min, Mix, RotateX, RotateY, RotateZ, 
-* tools : Parameter, SampleTexture,
+* math : Cross, Dot, Negate, Normalize, Max, Min, Mix, Reflect, RotateX, RotateY, RotateZ, Pow, Sqrt,
+* tools : Parameter, SampleTexture, TBN,
 
 ### sdfgraph
 
@@ -149,6 +144,14 @@ Based for each editors
 * Specular BRDF : Fr_CookTorrance,
 * Diffuse BRDF : Fd_Burley, Fd_Lambert, Fd_Wrap,
 * Tools : EnergyConservation, Shadergraph, SrgbToLinear, GammaCorrection, IorToRoughness, MirrorLight, IorToF0,
+
+### pixelgraph
+
+#### Nodes
+* artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
+* uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
+* procedural-shapes : Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
+* tools : Shadergraph,
 
 ## Building
 First clone the project & submodules:
