@@ -216,6 +216,7 @@ foreign class ShaderGen
 	foreign div(func, a, b)
 	foreign reflect(func, I, N)
 	foreign normalize(func, v)
+	foreign length(func, v)
 	foreign max(func, a, b)
 	foreign min(func, a, b)
 	foreign clamp(func, x, min, max)

@@ -351,6 +351,15 @@ void w_shadergen_normalize()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_shadergen_length()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+
+    auto ret = shadertrans::SpirvGenTwo::Length(func, v);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_shadergen_max()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -741,6 +750,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.div(_,_,_)") == 0) return w_shadergen_div;
     if (strcmp(signature, "ShaderGen.reflect(_,_,_)") == 0) return w_shadergen_reflect;
     if (strcmp(signature, "ShaderGen.normalize(_,_)") == 0) return w_shadergen_normalize;
+    if (strcmp(signature, "ShaderGen.length(_,_)") == 0) return w_shadergen_length;
     if (strcmp(signature, "ShaderGen.max(_,_,_)") == 0) return w_shadergen_max;
     if (strcmp(signature, "ShaderGen.min(_,_,_)") == 0) return w_shadergen_min;
     if (strcmp(signature, "ShaderGen.clamp(_,_,_,_)") == 0) return w_shadergen_clamp;
