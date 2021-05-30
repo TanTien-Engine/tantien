@@ -1,0 +1,66 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Ascii()
+node0.query_param("Ascii_spacing").value = 3
+node0.query_param("Ascii_invert_brightness").value = false
+node0.query_param("Ascii_font").value = 0
+node0.query_param("Ascii_dithering_debug_gradient").value = false
+node0.query_param("Ascii_dithering").value = true
+node0.query_param("Ascii_dithering_intensity").value = 2
+node0.query_param("Ascii_swap_colors").value = false
+node0.query_param("Ascii_font_color_mode").value = 1
+node0.query_param("Ascii_font_color").value.set(1, 1, 1)
+node0.query_param("Ascii_background_color").value.set(0, 0, 0)
+
+_editor.add_node(node0, -189.71389454097, 20.587790382437)
+
+var node1 = Texture()
+node1.query_param("unif_name").value = "u_tex"
+node1.gamma_correction = false
+node1.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node1, -489.60519581326, 201.62893266433)
+
+var node2 = Shadergraph()
+
+_editor.add_node(node2, -46.964083309732, 212.17306231951)
+
+var node3 = Draw()
+
+node3.set_prim_type("tri_strip")
+node3.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node3.skip = false
+
+_editor.add_node(node3, 205.74729179906, 100.48338535283)
+
+var node4 = PrimitiveShape()
+
+node4.type = "quad"
+node4.layout = [ "position", "texture" ]
+node4.shape_params = {  }
+
+_editor.add_node(node4, 8.6047731801693, 89.306794967096)
+
+var node5 = Clear()
+
+node5.masks = [ "color" ]
+node5.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node5, 19.702658176422, 356.6494140625)
+
+var node6 = TexCoord()
+
+_editor.add_node(node6, -324.86908190561, 163.41117648817)
+
+Blueprint.connect(node6, "uv", node0, "texcoord")
+Blueprint.connect(node5, "next", node3, "prev")
+Blueprint.connect(node4, "out", node3, "va")
+Blueprint.connect(node1, "tex", node0, "tex")
+Blueprint.connect(node0, "ret", node2, "rgb")
+Blueprint.connect(node2, "shader", node3, "shader")

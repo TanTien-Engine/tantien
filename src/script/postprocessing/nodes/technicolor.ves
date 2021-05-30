@@ -1,0 +1,47 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * Technicolor version 1.1
+ * Original by DKT70
+ * Optimized by CeeJay.dk
+ */
+
+vec3 technicolor_pass(vec3 color, float Power, vec3 RGBNegativeAmount, float Strength)
+{
+    const vec3 cyanfilter = vec3(0.0, 1.30, 1.0);
+    const vec3 magentafilter = vec3(1.0, 0.0, 1.05);
+    const vec3 yellowfilter = vec3(1.6, 1.6, 0.05);
+    const vec2 redorangefilter = vec2(1.05, 0.620); // RG_
+    const vec2 greenfilter = vec2(0.30, 1.0);       // RG_
+    const vec2 magentafilter2 = magentafilter.rb;     // R_B
+
+    vec3 tcol = color;
+    
+    vec2 negative_mul_r = tcol.rg * (1.0 / (RGBNegativeAmount.r * Power));
+    vec2 negative_mul_g = tcol.rg * (1.0 / (RGBNegativeAmount.g * Power));
+    vec2 negative_mul_b = tcol.rb * (1.0 / (RGBNegativeAmount.b * Power));
+    vec3 output_r = vec3(dot(redorangefilter, negative_mul_r)) + cyanfilter;
+    vec3 output_g = vec3(dot(greenfilter, negative_mul_g)) + magentafilter;
+    vec3 output_b = vec3(dot(magentafilter2, negative_mul_b)) + yellowfilter;
+
+    return mix(tcol, output_r * output_g * output_b, Strength);
+}
+"
+
+class Technicolor is Node
+{
+	init() 
+	{
+		super.init(Technicolor.name)
+
+		this.node_func = NodeFunction(this, CODE, "technicolor_pass", [
+            [ "Power", 4.0 ],                                       // [0.0, 8.0]
+            [ "RGBNegativeAmount", Vector3(0.88, 0.88, 0.88) ],
+            [ "Strength", 0.4 ],                                    // [0.0, 1.0]
+        ])
+	}
+}

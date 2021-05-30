@@ -1,0 +1,71 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * Levels version 1.2
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Allows you to set a new black and a white level.
+ * This increases contrast, but clips any colors outside the new range to either black or white
+ * and so some details in the shadows or highlights can be lost.
+ *
+ * The shader is very useful for expanding the 16-235 TV range to 0-255 PC range.
+ * You might need it if you're playing a game meant to display on a TV with an emulator that does not do this.
+ * But it's also a quick and easy way to uniformly increase the contrast of an image.
+ *
+ * -- Version 1.0 --
+ * First release
+ * -- Version 1.1 --
+ * Optimized to only use 1 instruction (down from 2 - a 100\% performance increase :) )
+ * -- Version 1.2 --
+ * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
+ */
+
+vec3 levels_pass(vec3 color, float BlackPoint, float WhitePoint, bool HighlightClipping)
+{
+    float black_point_float = BlackPoint / 255.0;
+    float white_point_float = WhitePoint == BlackPoint ? (255.0 / 0.00025) : (255.0 / (WhitePoint - BlackPoint)); // Avoid division by zero if the white and black point are the same
+
+    vec3 ret = color;
+    ret = ret * white_point_float - (black_point_float *  white_point_float);
+
+    if (HighlightClipping)
+    {
+        vec3 clipped_colors;
+
+        clipped_colors = (ret.x > 1.0 || ret.y > 1.0 || ret.z > 1.0) // any colors whiter than white?
+            ? vec3(1.0, 0.0, 0.0)
+            : ret;
+        clipped_colors = (ret.x > 1.0 && ret.y > 1.0 && ret.z > 1.0) // all colors whiter than white?
+            ? vec3(1.0, 1.0, 0.0)
+            : clipped_colors;
+        clipped_colors = (ret.x < 0.0 || ret.y < 0.0 || ret.z < 0.0) // any colors blacker than black?
+            ? vec3(0.0, 0.0, 1.0)
+            : clipped_colors;
+        clipped_colors = (ret.x < 0.0 && ret.y < 0.0 && ret.z < 0.0) // all colors blacker than black?
+            ? vec3(0.0, 1.0, 1.0)
+            : clipped_colors;
+
+        ret = clipped_colors;
+    }
+
+    return ret;
+}
+"
+
+class Levels is Node
+{
+	init() 
+	{
+		super.init(Levels.name)
+
+		this.node_func = NodeFunction(this, CODE, "levels_pass", [
+            [ "BlackPoint", 16 ],           // [0, 255]
+            [ "WhitePoint", 235 ],          // [0, 255]
+            [ "HighlightClipping", false ]
+        ])
+	}
+}

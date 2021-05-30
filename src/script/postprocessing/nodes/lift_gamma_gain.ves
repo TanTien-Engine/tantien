@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/crosire/reshade-shaders
+/**
+ * Lift Gamma Gain version 1.1
+ * by 3an and CeeJay.dk
+ */
+
+vec3 lift_gamma_gain_pass(vec3 color, vec3 RGB_Lift, vec3 RGB_Gamma, vec3 RGB_Gain)
+{    
+    vec3 ret = color;
+    
+    // -- Lift --
+    ret = ret * (1.5 - 0.5 * RGB_Lift) + 0.5 * RGB_Lift - 0.5;
+    ret = clamp(ret, 0.0, 1.0); // Is not strictly necessary, but does not cost performance
+    
+    // -- Gain --
+    ret *= RGB_Gain; 
+    
+    // -- Gamma --
+    ret = pow(abs(ret), 1.0 / RGB_Gamma);
+    
+    return clamp(ret, 0.0, 1.0);
+}
+"
+
+class LiftGammaGain is Node
+{
+	init() 
+	{
+		super.init(LiftGammaGain.name)
+
+		this.node_func = NodeFunction(this, CODE, "lift_gamma_gain_pass", [
+            [ "RGB_Lift",  Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]
+            [ "RGB_Gamma", Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]
+            [ "RGB_Gain",  Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]            
+        ])
+	}
+}

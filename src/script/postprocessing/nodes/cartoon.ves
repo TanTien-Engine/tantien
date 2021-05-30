@@ -1,0 +1,39 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * Cartoon
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ */
+
+vec3 cartoon_pass(sampler2D tex, vec2 texcoord, vec2 buf_pixel_sz, float power, float edge_slope)
+{
+    vec3 color = texture(tex, texcoord).rgb;
+    const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
+
+    float diff1 = dot(coefLuma, texture(tex, texcoord + buf_pixel_sz).rgb);
+    diff1 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord - buf_pixel_sz).rgb , diff1));
+    float diff2 = dot(coefLuma, texture(tex, texcoord + buf_pixel_sz * vec2(1, -1)).rgb);
+    diff2 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord + buf_pixel_sz * vec2(-1, 1)).rgb , diff2));
+
+    float edge = dot(vec2(diff1, diff2), vec2(diff1, diff2));
+
+    return clamp(pow(abs(edge), edge_slope) * -power + color, 0.0, 1.0);
+}
+"
+
+class Cartoon is Node
+{
+	init() 
+	{
+		super.init(Cartoon.name)
+
+		this.node_func = NodeFunction(this, CODE, "cartoon_pass", [
+            [ "power", 1.5 ],           // [0.1, 10]
+            [ "edge_slope", 1.5 ],      // [0.1, 6]
+        ])
+	}
+}

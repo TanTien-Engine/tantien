@@ -1,0 +1,92 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/*------------------.
+| :: Description :: |
+'-------------------/
+
+	Monochrome (version 1.1)
+
+	Author: CeeJay.dk
+	License: MIT
+
+	About:
+	Removes color making everything monochrome.
+
+	Ideas for future improvement:
+	* Tinting
+	* Select a hue to keep its color, thus making it stand out against a monochrome background
+	* Try Lab colorspace
+	* Apply color gradient
+	* Add an option to normalize the coefficients
+	* Publish best-selling book titled \"256 shades of grey\"
+
+	History:
+	(*) Feature (+) Improvement	(x) Bugfix (-) Information (!) Compatibility
+	
+	Version 1.0
+	* Converts image to monochrome
+	* Allows users to add saturation back in.
+
+	Version 1.1 
+	* Added many presets based on B/W camera films
+	+ Improved settings UI
+	! Made settings backwards compatible with SweetFX
+
+*/
+
+vec3 monochrome_pass(vec3 color, vec3 custom_coefficients, float preset, float saturation)
+{
+	vec3 Coefficients = vec3(0.21, 0.72, 0.07);
+
+	vec3 Coefficients_array[18] = 
+	vec3[](
+		custom_coefficients, //Custom
+		vec3(0.21, 0.72, 0.07), //sRGB monitor
+		vec3(0.3333333, 0.3333334, 0.3333333), //Equal weight
+		vec3(0.18, 0.41, 0.41), //Agfa 200X
+		vec3(0.25, 0.39, 0.36), //Agfapan 25
+		vec3(0.21, 0.40, 0.39), //Agfapan 100
+		vec3(0.20, 0.41, 0.39), //Agfapan 400 
+		vec3(0.21, 0.42, 0.37), //Ilford Delta 100
+		vec3(0.22, 0.42, 0.36), //Ilford Delta 400
+		vec3(0.31, 0.36, 0.33), //Ilford Delta 400 Pro & 3200
+		vec3(0.28, 0.41, 0.31), //Ilford FP4
+		vec3(0.23, 0.37, 0.40), //Ilford HP5
+		vec3(0.33, 0.36, 0.31), //Ilford Pan F
+		vec3(0.36, 0.31, 0.33), //Ilford SFX
+		vec3(0.21, 0.42, 0.37), //Ilford XP2 Super
+		vec3(0.24, 0.37, 0.39), //Kodak Tmax 100
+		vec3(0.27, 0.36, 0.37), //Kodak Tmax 400
+		vec3(0.25, 0.35, 0.40) //Kodak Tri-X
+	);
+
+	Coefficients = Coefficients_array[int(preset)];
+
+	// Calculate monochrome
+	vec3 grey = vec3(dot(Coefficients, color));
+
+	// Adjust the remaining saturation
+	vec3 ret = mix(grey, color, saturation);
+
+	// Return the result
+	return clamp(ret, 0.0, 1.0);
+}
+"
+
+class Monochrome is Node
+{
+	init() 
+	{
+		super.init(Monochrome.name)
+
+		this.node_func = NodeFunction(this, CODE, "monochrome_pass", [
+			[ "custom_coefficients", Vector3(0.21, 0.72, 0.07) ],
+			[ "preset", 0 ],       		// 0..17
+			[ "saturation", 0.0 ],		// [0.0, 1.0]
+		])
+	}
+}

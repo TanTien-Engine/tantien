@@ -1,0 +1,125 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/*------------------.
+| :: Description :: |
+'-------------------/
+
+    Splitscreen (version 2.0)
+
+    Author: CeeJay.dk
+    License: MIT
+
+    About:
+    Displays the image before and after it has been modified by effects using a splitscreen
+    
+
+    Ideas for future improvement:
+    *
+
+    History:
+    (*) Feature (+) Improvement (x) Bugfix (-) Information (!) Compatibility
+    
+    Version 1.0
+    * Does a splitscreen before/after view
+    
+    Version 2.0
+    * Ported to Reshade 3.x
+    * Added UI settings.
+    * Added Diagonal split mode
+    - Removed curvy mode. I didn't like how it looked.
+    - Threatened other modes to behave or they would be next.
+*/
+
+vec3 splitscreen_pass(vec3 color0, vec3 color1, vec2 texcoord, float mode)
+{
+    vec3 color; 
+
+    // -- Vertical 50/50 split --
+    if (mode == 0)
+        color = (texcoord.x < 0.5 ) ? color0 : color1;
+
+    // -- Vertical 25/50/25 split --
+    if (mode == 1)
+    {
+        //Calculate the distance from center
+        float dist = abs(texcoord.x - 0.5);
+        
+        //Further than 1/4 away from center?
+        dist = clamp(dist - 0.25, 0.0, 1.0);
+        
+        color = dist > 0 ? color0 : color1;
+    }
+
+    // -- Angled 50/50 split --
+    if (mode == 2)
+    {
+        //Calculate the distance from center
+        float dist = ((texcoord.x - 3.0/8.0) + (texcoord.y * 0.25));
+
+        //Further than 1/4 away from center?
+        dist = clamp(dist - 0.25, 0.0, 1.0);
+
+        color = dist > 0 ? color1 : color0;
+    }
+
+    // -- Angled 25/50/25 split --
+    if (mode == 3)
+    {
+        //Calculate the distance from center
+        float dist = ((texcoord.x - 3.0/8.0) + (texcoord.y * 0.25));
+
+        dist = abs(dist - 0.25);
+
+        //Further than 1/4 away from center?
+        dist = clamp(dist - 0.25, 0.0, 1.0);
+
+        color = dist > 0 ? color0 : color1;
+    }
+  
+    // -- Horizontal 50/50 split --
+    if (mode == 4)
+        color =  (texcoord.y < 0.5) ? color0 : color1;
+    
+    // -- Horizontal 25/50/25 split --
+    if (mode == 5)
+    {
+        //Calculate the distance from center
+        float dist = abs(texcoord.y - 0.5);
+        
+        //Further than 1/4 away from center?
+        dist = clamp(dist - 0.25, 0.0, 1.0);
+        
+        color = dist > 0 ? color0 : color1;
+    }
+
+    // -- Diagonal split --
+    if (mode == 6)
+    {
+        //Calculate the distance from center
+        float dist = (texcoord.x + texcoord.y);
+        
+        //Further than 1/2 away from center?
+        //dist = clamp(dist - 1.0, 0.0, 1.0);
+        
+        color = (dist < 1.0) ? color0 : color1;
+    }
+
+    return color;
+}
+"
+
+class Splitscreen is Node
+{
+	init() 
+	{
+		super.init(Splitscreen.name)
+
+		this.node_func = NodeFunction(this, CODE, "splitscreen_pass", [
+            [ "mode", 0 ]
+        ])
+	}
+}

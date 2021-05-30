@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+  Vibrance
+  by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ 
+  Vibrance intelligently boosts the saturation of pixels so pixels that had little color get a larger boost than pixels that had a lot.
+  This avoids oversaturation of pixels that were already very saturated.
+
+  History:
+
+  Version 1.0 by Ceejay.dk
+  - Original 
+  Version 1.1 by CeeJay.dk
+  - Introduced RBG balance to help colorblind users
+  Version 1.1.1
+  - Minor UI improvements for Reshade 3.x
+ */
+
+vec3 vibrance_pass(vec3 color, vec2 texcoord, float Vibrance, vec3 VibranceRGBBalance)
+{
+    vec3 coefLuma = vec3(0.212656, 0.715158, 0.072186);
+    
+    /*
+    if (Vibrance_Luma)
+        coefLuma = vec3(0.333333, 0.333334, 0.333333);
+    */
+    
+    float luma = dot(coefLuma, color);
+
+
+    float max_color = max(color.r, max(color.g, color.b)); // Find the strongest color
+    float min_color = min(color.r, min(color.g, color.b)); // Find the weakest color
+
+    float color_saturation = max_color - min_color; // The difference between the two is the saturation
+
+    // Extrapolate between luma and original by 1 + (1-saturation) - current
+    vec3 coeffVibrance = vec3(VibranceRGBBalance * Vibrance);
+    return mix(vec3(luma), color, 1.0 + (coeffVibrance * (1.0 - (sign(coeffVibrance) * color_saturation))));
+}
+"
+
+class Vibrance is Node
+{
+	init() 
+	{
+		super.init(Vibrance.name)
+
+		this.node_func = NodeFunction(this, CODE, "vibrance_pass", [
+            [ "Vibrance", 0.15 ],       // [-1.0, 1.0]
+            [ "VibranceRGBBalance", Vector3(1.0, 1.0, 1.0) ],
+        ])
+	}
+}

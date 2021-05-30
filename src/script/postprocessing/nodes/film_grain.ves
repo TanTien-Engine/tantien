@@ -1,0 +1,99 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * FilmGrain version 1.0
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Computes a noise pattern and blends it with the image to create a film grain look.
+ */
+
+// todo
+//uniform UBO
+//{
+//    float Timer;
+//};
+const float Timer = 0.0;
+
+vec3 film_grain_pass(vec3 color, vec2 texcoord, float Intensity, float Variance, float Mean, float SignalToNoiseRatio)
+{
+    //float inv_luma = dot(color, vec3(-0.2126, -0.7152, -0.0722)) + 1.0;
+    float inv_luma = dot(color, vec3(-1.0/3.0, -1.0/3.0, -1.0/3.0)) + 1.0; //Calculate the inverted luma so it can be used later to control the variance of the grain
+  
+    /*---------------------.
+    | :: Generate Grain :: |
+    '---------------------*/
+
+    const float PI = 3.1415927;
+    
+    //time counter using requested counter from ReShade
+    float t = Timer * 0.0022337;
+    
+    //PRNG 2D - create two uniform noise values and save one DP2ADD
+    float seed = dot(texcoord, vec2(12.9898, 78.233));// + t;
+    float sine = sin(seed);
+    float cosine = cos(seed);
+    float uniform_noise1 = fract(sine * 43758.5453 + t); //I just salt with t because I can
+    float uniform_noise2 = fract(cosine * 53758.5453 - t); // and it doesn't cost any extra ASM
+
+    //Get settings
+    float stn = SignalToNoiseRatio != 0 ? pow(abs(inv_luma), float(SignalToNoiseRatio)) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
+    float _variance = (Variance*Variance) * stn;
+    float mean = Mean;
+
+    //Box-Muller transform
+    uniform_noise1 = (uniform_noise1 < 0.0001) ? 0.0001 : uniform_noise1; //fix log(0)
+        
+    float r = sqrt(-log(uniform_noise1));
+    r = (uniform_noise1 < 0.0001) ? PI : r; //fix log(0) - PI happened to be the right answer for uniform_noise == ~ 0.0000517.. Close enough and we can reuse a constant.
+    float theta = (2.0 * PI) * uniform_noise2;
+    
+    float gauss_noise1 = _variance * r * cos(theta) + mean;
+    //float gauss_noise2 = _variance * r * sin(theta) + mean; //we can get two gaussians out of it :)
+
+    //gauss_noise1 = (ddx(gauss_noise1) - ddy(gauss_noise1)) * 0.50  + gauss_noise2;
+  
+
+    //Calculate how big the shift should be
+    //float grain = mix(1.0 - Intensity,  1.0 + Intensity, gauss_noise1);
+    float grain = mix(1.0 + Intensity,  1.0 - Intensity, gauss_noise1);
+  
+    //float grain2 = (2.0 * Intensity) * gauss_noise1 + (1.0 - Intensity);
+
+    vec3 out_color;
+         
+    //Apply grain
+    out_color = color * grain;
+  
+    //out_color = (grain-1.0) *2.0 + 0.5;
+  
+    //out_color = mix(color,colorInput.rgb,sqrt(luma));
+
+    /*-------------------------.
+    | :: Debugging features :: |
+    '-------------------------*/
+
+    //color.rgb = fract(gauss_noise1).xxx; //show the noise
+    //color.rgb = (gauss_noise1 > 0.999) ? vec3(1.0,1.0,0.0) : 0.0 ; //does it reach 1.0?
+    
+    return out_color.rgb;
+}
+"
+
+class FilmGrain is Node
+{
+	init() 
+	{
+		super.init(FilmGrain.name)
+
+		this.node_func = NodeFunction(this, CODE, "film_grain_pass", [
+            [ "Intensity", 0.5 ],           // [0.0, 1.0]
+            [ "Variance", 0.5 ],            // [0.0, 1.0]
+            [ "Mean", 0.5 ],                // [0.0, 1.0]
+            [ "SignalToNoiseRatio", 6 ],    // [0, 16]
+        ])
+	}
+}

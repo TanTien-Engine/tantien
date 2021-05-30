@@ -27,33 +27,45 @@ node2.shape_params = {  }
 _editor.add_node(node2, 94.53926939514, -169.71186859865)
 
 var node3 = Texture()
-node3.query_param("unif_name").value = "u_base_tex"
+node3.query_param("unif_name").value = "u_lut_tex"
 node3.gamma_correction = false
-node3.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
-node3.set_sampler("linear_repeat")
+node3.init_texture("../../../assets/textures/lut/evening.png")
 
-_editor.add_node(node3, -538.36902132902, 172.77157000077)
+_editor.add_node(node3, -557.43904754003, 134.72924757949)
 
-var node4 = LUT()
-node4.query_param("amount_chroma").value = 1
-node4.query_param("amount_luma").value = 1
+var node4 = TexCoord()
 
-_editor.add_node(node4, -219.00147996247, -96.95485753274)
+_editor.add_node(node4, -514.43481494505, -2.280742563193)
 
 var node5 = Texture()
-node5.query_param("unif_name").value = "u_lut_tex"
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
-node5.init_texture("../../../assets/textures/lut/evening.png")
+node5.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
-_editor.add_node(node5, -540.3637111559, -160.33256513822)
+_editor.add_node(node5, -777.12582330401, 132.84123855344)
 
-var node6 = TexCoord()
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/postprocessing/lut.ves")
 
-_editor.add_node(node6, -502.82358620384, -261.82585560192)
+_editor.add_node(node6, -173.69872276484, -22.54207362885)
 
-Blueprint.connect(node6, "uv", node4, "texcoord")
-Blueprint.connect(node5, "tex", node4, "lut_tex")
-Blueprint.connect(node3, "tex", node4, "src_tex")
-Blueprint.connect(node4, "ret", node0, "rgb")
+var node7 = Uniform()
+node7.query_param("unif_name").value = "unif"
+
+_editor.add_node(node7, -474.70764078539, -78.847180266992)
+
+var node8 = Number()
+
+node8.value = 0.37196180224419
+
+_editor.add_node(node8, -601.34765147652, -90.610353114184)
+
+Blueprint.connect(node8, "v", node7, "v")
+Blueprint.connect(node7, "v", node6, "chroma")
+Blueprint.connect(node7, "v", node6, "luma")
+Blueprint.connect(node5, "tex", node6, "src_tex")
+Blueprint.connect(node4, "uv", node6, "texcoord")
+Blueprint.connect(node3, "tex", node6, "lut_tex")
+Blueprint.connect(node6, "col", node0, "rgb")
 Blueprint.connect(node0, "shader", node1, "shader")
 Blueprint.connect(node2, "out", node1, "va")

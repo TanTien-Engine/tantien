@@ -1,0 +1,68 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * HDR
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Not actual HDR - It just tries to mimic an HDR look (relatively high performance cost)
+ */
+
+// todo
+//uniform UBO
+//{
+//    vec2 u_pixel_size;
+//};
+const vec2 u_pixel_size = vec2(1.0/2048.0);
+
+vec3 hdr_pass(sampler2D tex, vec2 texcoord, float HDRPower, float radius1, float radius2)
+{
+    vec3 color = texture(tex, texcoord).rgb;
+
+    vec3 bloom_sum1 = texture(tex, texcoord + vec2(1.5, -1.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2(-1.5, -1.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2( 1.5,  1.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2(-1.5,  1.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2( 0.0, -2.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2( 0.0,  2.5) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2(-2.5,  0.0) * radius1 * u_pixel_size).rgb;
+    bloom_sum1 += texture(tex, texcoord + vec2( 2.5,  0.0) * radius1 * u_pixel_size).rgb;
+
+    bloom_sum1 *= 0.005;
+
+    vec3 bloom_sum2 = texture(tex, texcoord + vec2(1.5, -1.5) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2(-1.5, -1.5) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2( 1.5,  1.5) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2(-1.5,  1.5) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2( 0.0, -2.5) * radius2 * u_pixel_size).rgb;  
+    bloom_sum2 += texture(tex, texcoord + vec2( 0.0,  2.5) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2(-2.5,  0.0) * radius2 * u_pixel_size).rgb;
+    bloom_sum2 += texture(tex, texcoord + vec2( 2.5,  0.0) * radius2 * u_pixel_size).rgb;
+
+    bloom_sum2 *= 0.010;
+
+    float dist = radius2 - radius1;
+    vec3 HDR = (color + (bloom_sum2 - bloom_sum1)) * dist;
+    vec3 blend = HDR + color;
+    color = vec3(pow(abs(blend.x), abs(HDRPower)), pow(abs(blend.y), abs(HDRPower)), pow(abs(blend.z), abs(HDRPower))) + HDR; // pow - don't use fractions for HDRpower
+    
+    return clamp(color, 0.0, 1.0);
+}
+"
+
+class FakeHDR is Node
+{
+	init() 
+	{
+		super.init(FakeHDR.name)
+
+		this.node_func = NodeFunction(this, CODE, "hdr_pass", [
+            [ "HDRPower", 1.3 ],        // [0.0, 8.0]
+            [ "radius1", 0.793 ],       // [0.0, 8.0]
+            [ "radius2", 0.87 ],        // [0.0, 8.0]
+        ])
+	}
+}

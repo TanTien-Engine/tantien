@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+
+vec3 tint_pass(vec3 color, vec3 Tint, float Strength)
+{
+	return mix(color, color * Tint * 2.55, Strength);
+}
+"
+
+class Tint is Node
+{
+	init() 
+	{
+		super.init(Tint.name)
+
+		this.node_func = NodeFunction(this, CODE, "tint_pass", [
+			[ "Tint", Vector3(1.0, 1.0, 1.0) ],
+			[ "Strength", 0.58 ],       // [0.0, 1.0]
+		])
+	}
+}

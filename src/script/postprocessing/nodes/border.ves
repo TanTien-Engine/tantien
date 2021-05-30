@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+
+/**
+ * Border version 1.4.1
+ *
+ * -- Version 1.0 by Oomek --
+ * Fixes light, one pixel thick border in some games when forcing MSAA like i.e. Dishonored
+ * -- Version 1.1 by CeeJay.dk --
+ * Optimized the shader. It still does the same but now it runs faster.
+ * -- Version 1.2 by CeeJay.dk --
+ * Added border_width and border_color features
+ * -- Version 1.3 by CeeJay.dk --
+ * Optimized the performance further
+ * -- Version 1.4 by CeeJay.dk --
+ * Added the border_ratio feature
+ * -- Version 1.4.1 by CeeJay.dk --
+ * Cleaned up setting for Reshade 3.x
+ */
+
+vec3 border_pass(vec3 color, vec2 texcoord, vec2 buffer_size, vec2 border_width, float border_ratio, vec3 border_color)
+{
+    // -- calculate the right border_width for a given border_ratio --
+    vec2 border_width_variable = border_width;
+    if (border_width.x == -border_width.y) // If width is not used
+        if (buffer_size.x / buffer_size.y < border_ratio)
+            border_width_variable = vec2(0.0, (buffer_size.y - (buffer_size.x / border_ratio)) * 0.5);
+        else
+            border_width_variable = vec2((buffer_size.x - (buffer_size.y * border_ratio)) * 0.5, 0.0);
+
+    vec2 border = (1.0 / buffer_size * border_width_variable); // Translate integer pixel width to floating point
+    vec2 within_border = clamp((-texcoord * texcoord + texcoord) - (-border * border + border), 0.0, 1.0); // Becomes positive when inside the border and zero when outside
+
+    return (within_border.x > 0 && within_border.y > 0) ? color : border_color;
+}
+"
+
+class Border is Node
+{
+	init() 
+	{
+		super.init(Border.name)
+
+		this.node_func = NodeFunction(this, CODE, "border_pass", [
+            [ "buffer_size", Vector2(1.0, 1.0) ],
+            [ "border_width", Vector2(0.1, 0.1) ],
+            [ "border_ratio", 1.35 ],
+            [ "border_color", Vector3(0.0, 0.0, 0.0) ],
+        ])
+	}
+}

@@ -1,0 +1,104 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * Vignette version 1.3
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * Darkens the edges of the image to make it look more like it was shot with a camera lens.
+ * May cause banding artifacts.
+ */
+
+#define BUFFER_RCP_WIDTH (1.0 / 2048.0)
+#define BUFFER_RCP_HEIGHT (1.0 / 2048.0)
+
+vec3 vignette_pass(vec3 color, vec2 texcoord, float Type, float Ratio, float Radius, float Amount, float Slope, vec2 Center)
+{
+  vec3 ret = color;
+
+  if (Type == 0)
+  {
+    // Set the center
+    vec2 distance_xy = texcoord - Center;
+
+    // Adjust the ratio
+    distance_xy *= vec2((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH), Ratio);
+
+    // Calculate the distance
+    distance_xy /= Radius;
+    float distance = dot(distance_xy, distance_xy);
+
+    // Apply the vignette
+    ret.rgb *= (1.0 + pow(distance, Slope * 0.5) * Amount); //pow - multiply
+  }
+
+  if (Type == 1) // New round (-x*x+x) + (-y*y+y) method.
+  {
+    texcoord = -texcoord * texcoord + texcoord;
+    ret.rgb = clamp(((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH)*(BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH) * Ratio * texcoord.x + texcoord.y) * 4.0, 0.0, 1.0) * ret.rgb;
+  }
+
+  if (Type == 2) // New (-x*x+x) * (-y*y+y) TV style method.
+  {
+    texcoord = -texcoord * texcoord + texcoord;
+    ret.rgb = clamp(texcoord.x * texcoord.y * 100.0, 0.0, 1.0) * ret.rgb;
+  }
+    
+  if (Type == 3)
+  {
+    texcoord = abs(texcoord - 0.5);
+    float tc = dot(vec4(-texcoord.x, -texcoord.x, texcoord.x, texcoord.y), vec4(texcoord.y, texcoord.y, 1.0, 1.0)); //XOR
+
+    tc = clamp(tc - 0.495, 0.0, 1.0);
+    ret.rgb *= (pow((1.0 - tc * 200), 4) + 0.25); //or maybe abs(tc*100-1) (-(tc*100)-1)
+  }
+  
+  if (Type == 4)
+  {
+    texcoord = abs(texcoord - 0.5);
+    float tc = dot(vec4(-texcoord.x, -texcoord.x, texcoord.x, texcoord.y), vec4(texcoord.y, texcoord.y, 1.0, 1.0)); //XOR
+
+    tc = clamp(tc - 0.495, 0.0, 1.0) - 0.0002;
+    ret.rgb *= (pow((1.0 - tc * 200), 4) + 0.0); //or maybe abs(tc*100-1) (-(tc*100)-1)
+  }
+
+  if (Type == 5) // MAD version of 2
+  {
+    texcoord = abs(texcoord - 0.5);
+    float tc = texcoord.x * (-2.0 * texcoord.y + 1.0) + texcoord.y; //XOR
+
+    tc = clamp(tc - 0.495, 0.0, 1.0);
+    ret.rgb *= (pow((-tc * 200 + 1.0), 4) + 0.25); //or maybe abs(tc*100-1) (-(tc*100)-1)
+    //ret.rgb *= (pow(((tc*200.0)-1.0),4)); //or maybe abs(tc*100-1) (-(tc*100)-1)
+  }
+
+  if (Type == 6) // New round (-x*x+x) * (-y*y+y) method.
+  {
+    //texcoord.y /= vec2((BUFFER_RCP_HEIGHT / BUFFER_RCP_WIDTH), Ratio);
+    float tex_xy = dot(vec4(texcoord, texcoord), vec4(-texcoord, 1.0, 1.0)); //dot is actually slower
+    ret.rgb = clamp(tex_xy * 4.0, 0.0, 1.0) * ret.rgb;
+  }
+
+  return ret;
+}
+"
+
+class Vignette is Node
+{
+	init() 
+	{
+		super.init(Vignette.name)
+
+		this.node_func = NodeFunction(this, CODE, "vignette_pass", [
+            [ "Type", 0 ],
+            [ "Ratio", 1.0 ],         // [0.15, 6.0]
+            [ "Radius", 2.0 ],        // [-1.0, 3.0]
+            [ "Amount", -1.0 ],       // [-2.0, 1.0]
+            [ "Slope", 2.0 ],         // [2.0, 16.0]
+            [ "Center", Vector2(0.5, 0.5) ],
+        ])
+	}
+}

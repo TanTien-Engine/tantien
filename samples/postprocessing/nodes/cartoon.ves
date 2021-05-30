@@ -1,0 +1,65 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node0, -588.66074872035, 230.74753325545)
+
+var node1 = Shadergraph()
+
+_editor.add_node(node1, -81.85883534942, 228.08096398466)
+
+var node2 = Draw()
+
+node2.set_prim_type("tri_strip")
+node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node2.skip = false
+
+_editor.add_node(node2, 205.74729179906, 100.48338535283)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
+
+_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+
+var node4 = Clear()
+
+node4.masks = [ "color" ]
+node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node4, 19.702658176422, 356.6494140625)
+
+var node5 = TexCoord()
+
+_editor.add_node(node5, -409.63027777134, 192.79324354142)
+
+var node6 = Cartoon()
+node6.query_param("power").value = 0.5
+node6.query_param("edge_slope").value = 1.5
+
+_editor.add_node(node6, -244.8552522067, 178.65782947663)
+
+var node7 = Number2()
+
+node7.value.set(2048, 2048)
+
+_editor.add_node(node7, -402.77992634252, 115.45622431946)
+
+Blueprint.connect(node7, "v2", node6, "buf_pixel_sz")
+Blueprint.connect(node5, "uv", node6, "texcoord")
+Blueprint.connect(node4, "next", node2, "prev")
+Blueprint.connect(node3, "out", node2, "va")
+Blueprint.connect(node0, "tex", node6, "tex")
+Blueprint.connect(node6, "ret", node1, "rgb")
+Blueprint.connect(node1, "shader", node2, "shader")

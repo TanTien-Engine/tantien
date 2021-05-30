@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/**
+ * Tonemap version 1.1
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ */
+
+vec3 tonemap_pass(vec3 color, vec2 texcoord, float Gamma, float Exposure, float Saturation, float Bleach, float Defog, vec3 FogColor)
+{
+    vec3 ret = color;
+    ret = clamp(ret - Defog * FogColor * 2.55, 0.0, 1.0); // Defog
+    ret *= pow(2.0f, Exposure); // Exposure
+    ret = vec3(pow(ret.x, Gamma), pow(ret.y, Gamma), pow(ret.z, Gamma)); // Gamma
+
+    const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
+    float lum = dot(coefLuma, ret);
+    
+    float L = clamp(10.0 * (lum - 0.45), 0.0, 1.0);
+    vec3 A2 = Bleach * ret;
+
+    vec3 result1 = 2.0f * ret * lum;
+    vec3 result2 = 1.0f - 2.0f * (1.0f - lum) * (1.0f - ret);
+    
+    vec3 newColor = mix(result1, result2, L);
+    vec3 mixRGB = A2 * newColor;
+    ret += ((1.0f - A2) * mixRGB);
+    
+    vec3 middlegray = vec3(dot(ret, vec3(1.0 / 3.0)));
+    vec3 diffcolor = ret - middlegray;
+    ret = (ret + diffcolor * Saturation) / (1 + (diffcolor * Saturation)); // Saturation
+    
+    return ret;
+}
+"
+
+class Tonemap is Node
+{
+	init() 
+	{
+		super.init(Tonemap.name)
+
+		this.node_func = NodeFunction(this, CODE, "tonemap_pass", [
+            [ "Gamma", 1.0 ],                           // [0.0, 2.0]
+            [ "Exposure", 0.0 ],                        // [-1.0, 1.0]
+            [ "Saturation", 0.0 ],                      // [-1.0, 1.0]
+            [ "Bleach", 0.0 ],                          // [0.0, 1.0]
+            [ "Defog", 0.0 ],                           // [0.0, 1.0]
+            [ "FogColor", Vector3(0.0, 0.0, 1.0) ],
+        ])
+	}
+}
