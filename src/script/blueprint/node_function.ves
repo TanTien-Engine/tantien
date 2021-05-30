@@ -1,5 +1,5 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_FUNCTION
+import "blueprint.variant" for VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_FUNCTION
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_helper" for NodeHelper
 import "render" for Render
@@ -49,7 +49,9 @@ class NodeFunction
 			var param = this.node.query_param(pin.name)
 			if (param)
 			{
-				if (pin.type == VAR_TYPE_NUMBER) {
+				if (pin.type == VAR_TYPE_BOOLEAN) {
+					inst = gen.const_bool(module, param.value)
+				} else if (pin.type == VAR_TYPE_NUMBER) {
 					inst = gen.const_float(module, param.value)
 				} else if (pin.type == VAR_TYPE_NUMBER2) {
 					inst = gen.const_float2(module, param.value.x, param.value.y)
