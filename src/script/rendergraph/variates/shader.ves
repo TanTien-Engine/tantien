@@ -67,7 +67,7 @@ class Shader
 
 	set_uniform_value(dst, src)
 	{
-		if (dst[1] == "float" or dst[1] == "int") {
+		if (dst[1] == "float" or dst[1] == "int" or dst[1] == "bool") {
 			dst[2][0] = src
 		} else if (dst[1] == "float2" or dst[1] == "int2") {
 			dst[2][0] = src.x

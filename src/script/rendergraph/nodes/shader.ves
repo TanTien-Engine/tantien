@@ -132,7 +132,7 @@ class Shader is Node
 		} 
 		else 
 		{
-			if (unif[1] == "float" or unif[1] == "int") {
+			if (unif[1] == "float" or unif[1] == "int" or unif[1] == "bool") {
 				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]) ])\n"
 			} else if (unif[1] == "float2" or unif[1] == "int2") {
 				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]), %(unif[2][1]) ])\n"

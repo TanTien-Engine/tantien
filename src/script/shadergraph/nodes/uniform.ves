@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
@@ -44,7 +44,11 @@ class Uniform is Node
 			var name = this.query_param("unif_name").value
 
 			var type = ""
-			if (val.type == VAR_TYPE_NUMBER) {
+			if (val.type == VAR_TYPE_BOOLEAN) {
+				type = "bool"
+			} else if (val.type == VAR_TYPE_INTEGER) {
+				type = "int"
+			} else if (val.type == VAR_TYPE_NUMBER) {
 				type = "float"
 			} else if (val.type == VAR_TYPE_NUMBER2) {
 				type = "vec2"
@@ -76,7 +80,13 @@ class Uniform is Node
 
 		var type = ""
 		var value = []
-		if (val.type == VAR_TYPE_NUMBER) {
+		if (val.type == VAR_TYPE_BOOLEAN) {
+			type = "bool"
+			value.add(val.value)
+		} else if (val.type == VAR_TYPE_INTEGER) {
+			type = "int"
+			value.add(val.value)		
+		} else if (val.type == VAR_TYPE_NUMBER) {
 			type = "float"
 			value.add(val.value)
 		} else if (val.type == VAR_TYPE_NUMBER2) {

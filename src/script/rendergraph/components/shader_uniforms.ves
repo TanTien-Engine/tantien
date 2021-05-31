@@ -65,7 +65,7 @@ class ShaderUniforms
 		}
 		else
 		{
-			if (unif[1] == "float" or unif[1] == "int") {
+			if (unif[1] == "float" or unif[1] == "int" or unif[1] == "bool") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT
 			} else if (unif[1] == "float2" or unif[1] == "int2") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 2
@@ -107,7 +107,22 @@ class ShaderUniforms
 				region = 10
 			}
 
-			if (unif[1] == "float" or unif[1] == "int")
+			if (unif[1] == "bool")
+			{
+				var unif_dirty = false
+
+				var value = GUI.checkbox(ctx, "b", unif[2][0], x, y)
+				if (value != unif[2][0]) {
+					unif[2][0] = value
+					unif_dirty = true
+				}
+
+			    if (unif_dirty) {
+			    	node.shader.prog.set_uniform_value(unif)
+			    	dirty = true
+			    }
+			}
+			else if (unif[1] == "float" or unif[1] == "int")
 			{
 				var unif_dirty = false
 
