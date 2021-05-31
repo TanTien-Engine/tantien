@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "math" for Math
+
+class Integer is Node
+{
+	init() 
+	{
+		super.init(Integer.name)
+
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_INTEGER),
+		]
+
+		this.layout()
+
+		this.value = 0
+	}
+
+	calc_value(idx) {
+		return Variant(VAR_TYPE_INTEGER, this.value)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) {
+		return "
+%(name).value = %(this.value)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var REGION = 10
+		var val =  Math.floor(GUI.slider(ctx, "v", this.value, x, y, this.style.width - 20, REGION, false))
+		if (val != this.value) {
+			this.value = val
+			dirty = true
+		}
+
+		return dirty
+	}
+}

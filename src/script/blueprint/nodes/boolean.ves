@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "gui" for GUI
+import "math" for Math
+
+class Boolean is Node
+{
+	init() 
+	{
+		super.init(Boolean.name)
+
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_BOOLEAN),
+		]
+
+		this.layout()
+
+		this.value = false
+	}
+
+	calc_value(idx) {
+		return Variant(VAR_TYPE_BOOLEAN, this.value)
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) {
+		return "
+%(name).value = %(this.value)
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		var value = GUI.checkbox(ctx, "v", this.value, x, y)
+		if (value != this.value) {
+			this.value = value
+			dirty = true
+		}
+
+		return dirty
+	}
+}
