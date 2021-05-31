@@ -13,6 +13,9 @@ class NodeParam
 		this.region = 1.0
 		this.integer = false
 
+		this.min = nil
+		this.max = nil
+
 		this.gui = true
 		this.serialize = true
 	}
@@ -58,7 +61,11 @@ class NodeParam
 
 		if (this.value is Num)
 		{
-			var value = GUI.slider(ctx, this.name, this.value, pos.x, pos.y, width - 20, this.region, false)
+			var region = this.region
+			if (this.max) {
+				region = this.max
+			}
+			var value = GUI.slider(ctx, this.name, this.value, pos.x, pos.y, width - 20, region, false)
 			if (this.integer) {
 				value = Math.floor(value)
 			}

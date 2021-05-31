@@ -32,8 +32,8 @@ class Cartoon is Node
 		super.init(Cartoon.name)
 
 		this.node_func = NodeFunction(this, CODE, "cartoon_pass", [
-            [ "power", 1.5 ],           // [0.1, 10]
-            [ "edge_slope", 1.5 ],      // [0.1, 6]
+            [ "power",      1.5, { "min" : 0.1, "max" : 10.0 } ],
+            [ "edge_slope", 1.5, { "min" : 0.1, "max" : 6.0 } ],
         ])
 	}
 }

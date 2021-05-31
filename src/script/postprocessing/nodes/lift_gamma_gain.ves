@@ -34,9 +34,9 @@ class LiftGammaGain is Node
 		super.init(LiftGammaGain.name)
 
 		this.node_func = NodeFunction(this, CODE, "lift_gamma_gain_pass", [
-            [ "RGB_Lift",  Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]
-            [ "RGB_Gamma", Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]
-            [ "RGB_Gain",  Vector3(1.0, 1.0, 1.0) ],        // [0.0, 2.0]            
+            [ "RGB_Lift",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
+            [ "RGB_Gamma", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
+            [ "RGB_Gain",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],        
         ])
 	}
 }

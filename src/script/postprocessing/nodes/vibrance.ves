@@ -51,8 +51,8 @@ class Vibrance is Node
 		super.init(Vibrance.name)
 
 		this.node_func = NodeFunction(this, CODE, "vibrance_pass", [
-            [ "Vibrance", 0.15 ],       // [-1.0, 1.0]
-            [ "VibranceRGBBalance", Vector3(1.0, 1.0, 1.0) ],
+            [ "Vibrance", 0.15, { "min" : -1.0, "max" : 1.0 } ],
+            [ "VibranceRGBBalance", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 10.0 } ],
         ])
 	}
 }

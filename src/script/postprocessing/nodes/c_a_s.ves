@@ -136,8 +136,8 @@ class CAS is Node
 		super.init(CAS.name)
 
 		this.node_func = NodeFunction(this, CODE, "cas_pass", [
-            [ "Contrast", 0.0 ],        // [ 0.0, 1.0 ]
-            [ "Sharpening", 1.0 ],      // [ 0.0, 1.0 ]            
+            [ "Contrast",   0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "Sharpening", 1.0, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

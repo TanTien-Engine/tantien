@@ -431,9 +431,9 @@ class Nostalgia is Node
 		super.init(Nostalgia.name)
 
 		this.node_func = NodeFunction(this, CODE, "nostalgia_pass", [
-			[ "Nostalgia_scanlines", 0 ],		// todo combo, 0..2
+			[ "Nostalgia_scanlines", 0, { "integer" : true, "min" : 0, "max" : 2 } ],
 			[ "Nostalgia_dither", true ],
-			[ "Nostalgia_palette", 0 ],			// 0..14
+			[ "Nostalgia_palette", 0, { "integer" : true, "min" : 0, "max" : 14 } ],
 		])
 	}
 }

@@ -85,8 +85,8 @@ class Monochrome is Node
 
 		this.node_func = NodeFunction(this, CODE, "monochrome_pass", [
 			[ "custom_coefficients", Vector3(0.21, 0.72, 0.07) ],
-			[ "preset", 0 ],       		// 0..17
-			[ "saturation", 0.0 ],		// [0.0, 1.0]
+			[ "preset", 0, { "integer" : true, "min" : 0, "max" : 17 } ],
+			[ "saturation", 0.0, { "min" : 0.0, "max" : 1.0 } ],
 		])
 	}
 }

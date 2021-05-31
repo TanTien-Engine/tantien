@@ -60,9 +60,9 @@ class FakeHDR is Node
 		super.init(FakeHDR.name)
 
 		this.node_func = NodeFunction(this, CODE, "hdr_pass", [
-            [ "HDRPower", 1.3 ],        // [0.0, 8.0]
-            [ "radius1", 0.793 ],       // [0.0, 8.0]
-            [ "radius2", 0.87 ],        // [0.0, 8.0]
+            [ "HDRPower", 1.3, { "min" : 0.0, "max" : 8.0 } ],
+            [ "radius1", 0.793, { "min" : 0.0, "max" : 8.0 } ],
+            [ "radius2", 0.87, { "min" : 0.0, "max" : 8.0 } ],
         ])
 	}
 }

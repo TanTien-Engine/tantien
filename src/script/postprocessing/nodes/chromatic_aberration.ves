@@ -35,8 +35,8 @@ class ChromaticAberration is Node
 		super.init(ChromaticAberration.name)
 
 		this.node_func = NodeFunction(this, CODE, "chromatic_aberration_pass", [
-            [ "Shift", Vector2(2.5, -0.5) ],        // [ -10, 10 ]
-            [ "Strength", 0.5 ],                    // [ 0.0, 1.0 ]
+            [ "Shift", Vector2(2.5, -0.5), { "min" : -10.0, "max" : 10.0 } ],
+            [ "Strength", 0.5, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

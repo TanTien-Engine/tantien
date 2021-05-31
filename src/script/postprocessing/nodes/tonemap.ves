@@ -44,11 +44,11 @@ class Tonemap is Node
 		super.init(Tonemap.name)
 
 		this.node_func = NodeFunction(this, CODE, "tonemap_pass", [
-            [ "Gamma", 1.0 ],                           // [0.0, 2.0]
-            [ "Exposure", 0.0 ],                        // [-1.0, 1.0]
-            [ "Saturation", 0.0 ],                      // [-1.0, 1.0]
-            [ "Bleach", 0.0 ],                          // [0.0, 1.0]
-            [ "Defog", 0.0 ],                           // [0.0, 1.0]
+            [ "Gamma", 1.0, { "min" : 0.0, "max" : 2.0 } ],
+            [ "Exposure", 0.0, { "min" : -1.0, "max" : 1.0 } ],
+            [ "Saturation", 0.0, { "min" : -1.0, "max" : 1.0 } ],
+            [ "Bleach", 0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "Defog", 0.0, { "min" : 0.0, "max" : 1.0 } ],
             [ "FogColor", Vector3(0.0, 0.0, 1.0) ],
         ])
 	}

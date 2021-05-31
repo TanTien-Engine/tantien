@@ -285,14 +285,14 @@ class Ascii is Node
 		super.init(Ascii.name)
 
 		this.node_func = NodeFunction(this, CODE, "ascii_pass", [
-            ["Ascii_spacing", 3],     // [0, 5] Character Spacing
+            ["Ascii_spacing", 1, { "integer" : true, "min" : 0, "max" : 255 }],
             ["Ascii_invert_brightness", false],
             ["Ascii_font", 0],
             ["Ascii_dithering_debug_gradient", false],
             ["Ascii_dithering", true],
-            ["Ascii_dithering_intensity", 2.0],     // [0.0, 4.0]
+            ["Ascii_dithering_intensity", 2.0, { "min" : 0.0, "max" : 4.0 }],
             ["Ascii_swap_colors", false],
-            ["Ascii_font_color_mode", 1],           // 0, 1, 2
+            ["Ascii_font_color_mode", 1, { "integer" : true, "min" : 0, "max" : 2 }],
             ["Ascii_font_color", Vector3(1.0, 1.0, 1.0)],
             ["Ascii_background_color", Vector3(0, 0, 0)],            
         ])
