@@ -1,0 +1,291 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+// CRT shader
+// 
+// Copyright (C) 2010-2012 cgwg, Themaister and DOLLS
+// 
+// This program is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
+// any later version.
+
+// Comment the next line to disable interpolation in linear gamma (and gain speed).
+//#define LINEAR_PROCESSING
+
+
+#define CeeJay_aspect vec2(1.0, 0.75)
+
+// A bunch of useful values we'll need in the fragment shader.
+#define sinangle sin(Angle)
+#define cosangle cos(Angle)
+#define stretch maxscale(CurvatureRadius, ViewerDistance, Angle)
+
+// Macros.
+#define FIX(c) max(abs(c), 1e-5);
+
+#ifndef PI
+  #define PI 3.1415927
+#endif
+
+// The size of one texel, in texture-coordinates.
+#define coone 1.0 / rubyTextureSize
+
+#define mod_factor texcoord.x * rubyTextureSize.x * rubyOutputSize.x / rubyInputSize.x
+
+#ifdef LINEAR_PROCESSING
+    #define TEX2D(c) pow(texture(tex, (c)), Gamma)
+#else
+    #define TEX2D(c) texture(tex, (c))
+#endif
+
+// todo
+const vec2 BUFFER_SCREEN_SIZE = vec2(2048, 2048);
+
+float intersect(float CurvatureRadius, float ViewerDistance, vec2 Angle, vec2 xy)
+{
+    float A = dot(xy,xy) + (ViewerDistance * ViewerDistance);
+    float B = 2.0 * (CurvatureRadius * (dot(xy, sinangle) - ViewerDistance * cosangle.x * cosangle.y) - ViewerDistance * ViewerDistance);
+    float C = ViewerDistance * ViewerDistance + 2.0 * CurvatureRadius * ViewerDistance * cosangle.x * cosangle.y; //all constants
+    return (-B - sqrt(B * B -4.0 * A * C)) / (2.0 * A);
+}
+
+vec2 bkwtrans(float CurvatureRadius, float ViewerDistance, vec2 Angle, vec2 xy)
+{
+    float c = intersect(CurvatureRadius, ViewerDistance, Angle, xy);
+    vec2 _point = vec2(c, c) * xy;
+    _point -= vec2(-CurvatureRadius, -CurvatureRadius) * sinangle;
+    _point /= vec2(CurvatureRadius, CurvatureRadius);
+    vec2 tang = sinangle / cosangle;
+    vec2 poc = _point / cosangle;
+    float A = dot(tang, tang) + 1.0;
+    float B = -2.0 * dot(poc, tang);
+    float C = dot(poc, poc) - 1.0;
+    float a = (-B + sqrt(B * B -4.0 * A * C)) / (2.0 * A);
+    vec2 uv = (_point - a * sinangle) / cosangle;
+    float r = CurvatureRadius * acos(a);
+    return uv * r / sin(r / CurvatureRadius);
+}
+vec2 fwtrans(float CurvatureRadius, float ViewerDistance, vec2 Angle, vec2 uv)
+{
+    float r = FIX(sqrt(dot(uv, uv)));
+    uv *= sin(r / CurvatureRadius) / r;
+    float x = 1.0 - cos(r / CurvatureRadius);
+    float D = ViewerDistance / CurvatureRadius + x * cosangle.x * cosangle.y + dot(uv, sinangle);
+    return ViewerDistance * (uv * cosangle - x * sinangle) / D;
+}
+
+vec3 maxscale(float CurvatureRadius, float ViewerDistance, vec2 Angle)
+{
+    vec2 c = bkwtrans(CurvatureRadius, ViewerDistance, Angle, -CurvatureRadius * sinangle / (1.0 + CurvatureRadius / ViewerDistance * cosangle.x * cosangle.y));
+    vec2 a = vec2(0.5, 0.5) * CeeJay_aspect;
+    vec2 lo = vec2(fwtrans(CurvatureRadius, ViewerDistance, Angle, vec2(-a.x, c.y)).x, fwtrans(CurvatureRadius, ViewerDistance, Angle, vec2(c.x,-a.y)).y) / CeeJay_aspect;
+    vec2 hi = vec2(fwtrans(CurvatureRadius, ViewerDistance, Angle, vec2(+a.x, c.y)).x, fwtrans(CurvatureRadius, ViewerDistance, Angle, vec2(c.x, +a.y)).y) / CeeJay_aspect;
+    return vec3((hi + lo) * CeeJay_aspect * 0.5, max(hi.x - lo.x, hi.y - lo.y));
+}
+
+vec2 transform(float CurvatureRadius, float ViewerDistance, vec2 Angle, float Overscan, vec2 coord, vec2 textureSize, vec2 inputSize)
+{
+    coord *= textureSize / inputSize;
+    coord = (coord - 0.5) * CeeJay_aspect * stretch.z + stretch.xy;
+    return (bkwtrans(CurvatureRadius, ViewerDistance, Angle, coord) / vec2(Overscan, Overscan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
+}
+
+vec3 pow3(vec3 x, float y)
+{
+    return vec3(pow(x.x, y), pow(x.y, y), pow(x.z, y));
+}
+
+vec4 pow4(vec4 x, float y)
+{
+    return vec4(pow(x.x, y), pow(x.y, y), pow(x.z, y), pow(x.w, y));
+}
+
+vec4 pow4(vec4 x, vec4 y)
+{
+    return vec4(pow(x.x, y.x), pow(x.y, y.y), pow(x.z, y.z), pow(x.w, y.w));
+}
+
+float corner(float CornerSize, float Overscan, vec2 coord, vec2 textureSize, vec2 inputSize)
+{
+    coord *= textureSize / inputSize;
+    coord = (coord - 0.5) * vec2(Overscan, Overscan) + 0.5;
+    coord = min(coord, 1.0 - coord) * CeeJay_aspect;
+    vec2 cdist = vec2(CornerSize, CornerSize);
+    coord = (cdist - min(coord, cdist));
+    float dist = sqrt(dot(coord, coord));
+    return clamp((cdist.x-dist) * 1000.0, 0.0, 1.0);
+}
+
+// Calculate the influence of a scanline on the current pixel.
+//
+// 'distance' is the distance in texture coordinates from the current
+// pixel to the scanline in question.
+// 'color' is the colour of the scanline at the horizontal location of
+// the current pixel.
+vec4 scanlineWeights(bool ScanlineGaussian, float distance, vec4 color)
+{
+    // \"wid\" controls the width of the scanline beam, for each RGB channel
+    // The \"weights\" lines basically specify the formula that gives
+    // you the profile of the beam, i.e. the intensity as
+    // a function of distance from the vertical center of the
+    // scanline. In this case, it is gaussian if width=2, and
+    // becomes nongaussian for larger widths. Ideally this should
+    // be normalized so that the integral across the beam is
+    // independent of its width. That is, for a narrower beam
+    // \"weights\" should have a higher peak at the center of the
+    // scanline than for a wider beam.
+    if (!ScanlineGaussian)
+    {
+        vec4 wid = 0.3 + 0.1 * pow4(abs(color), 3.0);
+        vec4 weights = vec4(distance / wid);
+        return 0.4 * exp(-weights * weights) / wid;
+    }
+    else
+    {
+        vec4 wid = 2.0 * pow4(abs(color), 4.0) + 2.0;
+        vec4 weights = vec4(distance / 0.3);
+        return 1.4 * exp(-pow4(abs(weights * inversesqrt(0.5 * wid)), abs(wid))) / (0.2 * wid + 0.6);
+    }
+}
+
+vec3 crt_pass(sampler2D tex, vec2 texcoord, float Amount, float Resolution, float Gamma, float MonitorGamma, float Brightness, float ScanlineIntensity, bool ScanlineGaussian, bool Curvature, float CurvatureRadius, float CornerSize, float ViewerDistance, vec2 Angle, float Overscan, bool Oversample)
+{
+    // Here's a helpful diagram to keep in mind while trying to
+    // understand the code:
+    //
+    //  |      |      |      |      |
+    // -------------------------------
+    //  |      |      |      |      |
+    //  |  01  |  11  |  21  |  31  | <-- current scanline
+    //  |      | @    |      |      |
+    // -------------------------------
+    //  |      |      |      |      |
+    //  |  02  |  12  |  22  |  32  | <-- next scanline
+    //  |      |      |      |      |
+    // -------------------------------
+    //  |      |      |      |      |
+    //
+    // Each character-cell represents a pixel on the output
+    // surface, \"@\" represents the current pixel (always somewhere
+    // in the bottom half of the current scan-line, or the top-half
+    // of the next scanline). The grid of lines represents the
+    // edges of the texels of the underlying texture.
+
+    float  Input_ratio = ceil(256 * Resolution);
+    vec2 _Resolution = vec2(Input_ratio, Input_ratio);
+    vec2 rubyTextureSize = _Resolution;
+    vec2 rubyInputSize = _Resolution;
+    vec2 rubyOutputSize = BUFFER_SCREEN_SIZE;
+
+    vec2 orig_xy = Curvature ? transform(CurvatureRadius, ViewerDistance, Angle, Overscan, texcoord, rubyTextureSize, rubyInputSize) : texcoord;
+    float cval = corner(CornerSize, Overscan, orig_xy, rubyTextureSize, rubyInputSize);
+
+    // Of all the pixels that are mapped onto the texel we are
+    // currently rendering, which pixel are we currently rendering?
+    vec2 ratio_scale = orig_xy * rubyTextureSize - 0.5;
+
+    float _filter = fwidth(ratio_scale.y);
+    vec2 uv_ratio = fract(ratio_scale);
+
+    // Snap to the center of the underlying texel.
+    vec2 xy = (floor(ratio_scale) + 0.5) / rubyTextureSize;
+
+    // Calculate Lanczos scaling coefficients describing the effect
+    // of various neighbour texels in a scanline on the current
+    // pixel.
+    vec4 coeffs = PI * vec4(1.0 + uv_ratio.x, uv_ratio.x, 1.0 - uv_ratio.x, 2.0 - uv_ratio.x);
+
+    // Prevent division by zero.
+    coeffs = FIX(coeffs);
+
+    // Lanczos2 kernel.
+    coeffs = 2.0 * sin(coeffs) * sin(coeffs / 2.0) / (coeffs * coeffs);
+
+    // Normalize.
+    coeffs /= dot(coeffs, vec4(1.0));
+
+    // Calculate the effective colour of the current and next
+    // scanlines at the horizontal location of the current pixel,
+    // using the Lanczos coefficients above.
+    vec4 col  = clamp(coeffs * mat4(
+        TEX2D(xy + vec2(-coone.x, 0.0)),
+        TEX2D(xy),
+        TEX2D(xy + vec2(coone.x, 0.0)),
+        TEX2D(xy + vec2(2.0 * coone.x, 0.0))),
+        0.0, 1.0);
+    vec4 col2 = clamp(coeffs * mat4(
+        TEX2D(xy + vec2(-coone.x, coone.y)),
+        TEX2D(xy + vec2(0.0, coone.y)),
+        TEX2D(xy + coone),
+        TEX2D(xy + vec2(2.0 * coone.x, coone.y))),
+        0.0, 1.0);
+
+#ifndef LINEAR_PROCESSING
+    col  = pow4(abs(col) , Gamma);
+    col2 = pow4(abs(col2), Gamma);
+#endif
+
+    // Calculate the influence of the current and next scanlines on
+    // the current pixel.
+    vec4 weights  = scanlineWeights(ScanlineGaussian, uv_ratio.y, col);
+    vec4 weights2 = scanlineWeights(ScanlineGaussian, 1.0 - uv_ratio.y, col2);
+
+//#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
+//    [flatten]
+//#endif
+    if (Oversample)
+    {
+        uv_ratio.y = uv_ratio.y + 1.0 / 3.0 * _filter;
+        weights = (weights + scanlineWeights(ScanlineGaussian, uv_ratio.y, col)) / 3.0;
+        weights2 = (weights2 + scanlineWeights(ScanlineGaussian, abs(1.0 - uv_ratio.y), col2)) / 3.0;
+        uv_ratio.y = uv_ratio.y - 2.0 / 3.0 * _filter;
+        weights = weights + scanlineWeights(ScanlineGaussian, abs(uv_ratio.y), col) / 3.0;
+        weights2 = weights2 + scanlineWeights(ScanlineGaussian, abs(1.0 - uv_ratio.y), col2) / 3.0;
+    }
+
+    vec3 mul_res = (col * weights + col2 * weights2).rgb * cval;
+
+    // dot-mask emulation:
+    // Output pixels are alternately tinted green and magenta.
+    vec3 dotMaskWeights = mix(vec3(1.0, 0.7, 1.0), vec3(0.7, 1.0, 0.7), floor(mod(mod_factor, ScanlineIntensity)));
+    mul_res *= dotMaskWeights * vec3(0.83, 0.83, 1.0) * Brightness;
+
+    // Convert the image gamma for display on our output device.
+    mul_res = pow3(abs(mul_res), 1.0 / MonitorGamma);
+
+    vec3 color = TEX2D(orig_xy).rgb * cval;
+    color = mix(color, mul_res, Amount);
+
+    return clamp(color, 0.0, 1.0);
+}
+
+"
+
+class CRT is Node
+{
+	init() 
+	{
+		super.init(CRT.name)
+
+		this.node_func = NodeFunction(this, CODE, "crt_pass", [
+            [ "Amount", 1.0 ],           // [0.0, 1.0]
+            [ "Resolution", 1.15 ],           // [1.0, 8.0]
+            [ "Gamma", 2.4 ],           // [0.0, 4.0]
+            [ "MonitorGamma", 2.2 ],           // [0.0, 4.0]
+            [ "Brightness", 0.9 ],           // [0.0, 3.0]
+            [ "ScanlineIntensity", 2.0 ],           // [2.0, 4.0]
+            [ "ScanlineGaussian", true ],
+            [ "Curvature", false ],
+            [ "CurvatureRadius", 1.5 ],     // [0.0, 2.0]
+            [ "CornerSize", 0.01 ],     // [0.00, 0.02]
+            [ "ViewerDistance", 2.0 ],  // [0.0, 4.0]
+            [ "Angle", Vector2(0, 0) ], // [-0.2, 0.2]
+            [ "Overscan", 1.01 ],       // [1.0, 1.1]
+            [ "Oversample", true ],
+        ])
+	}
+}

@@ -1,0 +1,36 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/crosire/reshade-shaders
+/**
+ * Color Matrix version 1.0
+ * by Christian Cann Schuldt Jensen ~ CeeJay.dk
+ *
+ * ColorMatrix allow the user to transform the colors using a color matrix
+ */
+
+vec3 color_matrix_pass(vec3 color, vec3 Red, vec3 Green, vec3 Blue, float Strength)
+{
+    mat3 ColorMatrix = mat3(Red, Green, Blue);
+    vec3 ret = mix(color, ColorMatrix * color, Strength);
+
+    return clamp(ret, 0.0, 1.0);
+}
+"
+
+class ColorMatrix is Node
+{
+	init() 
+	{
+		super.init(ColorMatrix.name)
+
+		this.node_func = NodeFunction(this, CODE, "color_matrix_pass", [
+            [ "Red",      Vector3(0.817, 0.183, 0.000) ],
+            [ "Green",    Vector3(0.333, 0.667, 0.000) ],
+            [ "Blue",     Vector3(0.000, 0.125, 0.875) ],  
+            [ "Strength", 1.0 ],        // [ 0.0, 1.0 ]
+        ])
+	}
+}
