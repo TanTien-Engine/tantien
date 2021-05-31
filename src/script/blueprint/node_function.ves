@@ -89,16 +89,13 @@ class NodeFunction
 		var inst = Blueprint.calc_input_inst(gen, this.node, pin.name, module, func)	
 		if (!inst) 
 		{
-			var param = this.node.query_param(pin.name)
-			if (param)
-			{
-				inst = this.calc_value_inst(gen, module, pin.type, param.value)
-			}
-			else
-			{
-				var v = Blueprint.calc_input_value(this.node, pin.slot_idx)
-				if (v) {
-					inst = this.calc_value_inst(gen, module, pin.type, v.value)
+			var v = Blueprint.calc_input_value(this.node, pin.slot_idx)
+			if (v) {
+				inst = this.calc_value_inst(gen, module, pin.type, v.value)
+			} else {
+				var param = this.node.query_param(pin.name)
+				if (param) {
+					inst = this.calc_value_inst(gen, module, pin.type, param.value)
 				} else {
 					inst = this.calc_value_inst(gen, module, pin.type, nil)
 				}
