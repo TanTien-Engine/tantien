@@ -62,8 +62,6 @@ class Shadergraph is Node
 		this.shader = var_Shader(this)
 		this.dirty = true
 
-		this.fold_array = true		
-
 		this.uniforms = []
 		ShaderUniforms.get_shader_uniforms("vertex", this.vs, this.uniforms)
 		for (var unif in this.uniforms) {

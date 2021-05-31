@@ -5,6 +5,8 @@ import "maths" for Matrix44
 import "render" for Render
 import "gui" for GUI
 
+var FOLD_ARRAY = true
+
 class ShaderUniforms
 {
 	static init_shader_uniforms(unif)
@@ -41,7 +43,7 @@ class ShaderUniforms
 
 	static add_uniform_to_imports(node, unif)
 	{
-		if ((!node.fold_array and unif[1] == "array") or unif[1] == "struct") {
+		if ((!FOLD_ARRAY and unif[1] == "array") or unif[1] == "struct") {
 			for (var u in unif[2]) {
 				ShaderUniforms.add_uniform_to_imports(node, u)
 			}
@@ -55,7 +57,7 @@ class ShaderUniforms
 
 	static layout(node, unif)
 	{
-		if ((!node.fold_array and unif[1] == "array") or unif[1] == "struct")
+		if ((!FOLD_ARRAY and unif[1] == "array") or unif[1] == "struct")
 		{
 			for (var u in unif[2]) {
 				ShaderUniforms.layout(node, u)
@@ -81,7 +83,7 @@ class ShaderUniforms
 
 		if (unif[1] == "array" or unif[1] == "struct")
 		{
-			var skip = unif[1] == "array" and node.fold_array
+			var skip = unif[1] == "array" and FOLD_ARRAY
 			if (!skip) 
 			{
 				for (var u in unif[2]) {
