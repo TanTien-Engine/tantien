@@ -24,7 +24,7 @@ var CODE = "
  * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
  */
 
-vec3 levels_pass(vec3 color, float BlackPoint, float WhitePoint, bool HighlightClipping)
+vec3 levels_pass(vec3 color, int BlackPoint, int WhitePoint, bool HighlightClipping)
 {
     float black_point_float = BlackPoint / 255.0;
     float white_point_float = WhitePoint == BlackPoint ? (255.0 / 0.00025) : (255.0 / (WhitePoint - BlackPoint)); // Avoid division by zero if the white and black point are the same

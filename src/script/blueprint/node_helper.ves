@@ -1,5 +1,5 @@
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
 import "render" for Render
 
 class NodeHelper
@@ -9,13 +9,15 @@ class NodeHelper
 		var pin_type = VAR_TYPE_UNKNOWN
 		if (type == "bool") {
 			pin_type = VAR_TYPE_BOOLEAN
-		} else if (type == "int" or type == "float") {
+		} else if (type == "int") {
+			pin_type = VAR_TYPE_INTEGER
+		} else if (type == "float") {
 			pin_type = VAR_TYPE_NUMBER
-		} else if (type == "int2" or type == "float2") {
+		} else if (type == "float2") {
 			pin_type = VAR_TYPE_NUMBER2
-		} else if (type == "int3" or type == "float3") {
+		} else if (type == "float3") {
 			pin_type = VAR_TYPE_NUMBER3
-		} else if (type == "int4" or type == "float4") {
+		} else if (type == "float4") {
 			pin_type = VAR_TYPE_NUMBER4
 		} else if (type == "mat2") {
 			pin_type = VAR_TYPE_MATRIX2

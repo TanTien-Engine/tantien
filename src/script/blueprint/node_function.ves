@@ -1,5 +1,5 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_FUNCTION
+import "blueprint.variant" for VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_FUNCTION
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_helper" for NodeHelper
 import "render" for Render
@@ -41,6 +41,49 @@ class NodeFunction
 		gen.add_link_decl(this.func, this.decl_name, true)
 	}
 
+	calc_value_inst(gen, module, type, value)
+	{
+		if (value)
+		{
+			if (type == VAR_TYPE_BOOLEAN) {
+				return gen.const_bool(module, value)
+			} else if (type == VAR_TYPE_INTEGER) {
+				return gen.const_int(module, value)
+			} else if (type == VAR_TYPE_NUMBER) {
+				return gen.const_float(module, value)
+			} else if (type == VAR_TYPE_NUMBER2) {
+				return gen.const_float2(module, value.x, value.y)
+			} else if (type == VAR_TYPE_NUMBER3) {
+				return gen.const_float3(module, value.x, value.y, value.z)
+			} else if (type == VAR_TYPE_NUMBER4) {
+				return gen.const_float4(module, value.x, value.y, value.z, value.w)
+			}
+		}
+		else
+		{
+			if (type == VAR_TYPE_BOOLEAN) {
+				return gen.const_bool(module, false)
+			} else if (type == VAR_TYPE_INTEGER) {
+				return gen.const_int(module, 0)
+			} else if (type == VAR_TYPE_NUMBER) {
+				return gen.const_float(module, 0.0)
+			} else if (type == VAR_TYPE_NUMBER2) {
+				return gen.const_float2(module, 0.0, 0.0)
+			} else if (type == VAR_TYPE_NUMBER3) {
+				return gen.const_float3(module, 0.0, 0.0, 0.0)
+			} else if (type == VAR_TYPE_NUMBER4) {
+				return gen.const_float4(module, 0.0, 0.0, 0.0, 0.0)
+			} else if (type == VAR_TYPE_MATRIX2) {
+				return gen.const_mat2(module, [1.0, 0.0, 1.0, 0.0])
+			} else if (type == VAR_TYPE_MATRIX3) {
+				return gen.const_mat3(module, [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0])
+			} else if (type == VAR_TYPE_MATRIX4) {
+				return gen.const_mat4(module, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
+			}
+		}
+		return nil
+	}	
+
 	calc_inst_from_pin(gen, pin, module, func)
 	{
 		var inst = Blueprint.calc_input_inst(gen, this.node, pin.name, module, func)	
@@ -49,50 +92,15 @@ class NodeFunction
 			var param = this.node.query_param(pin.name)
 			if (param)
 			{
-				if (pin.type == VAR_TYPE_BOOLEAN) {
-					inst = gen.const_bool(module, param.value)
-				} else if (pin.type == VAR_TYPE_NUMBER) {
-					inst = gen.const_float(module, param.value)
-				} else if (pin.type == VAR_TYPE_NUMBER2) {
-					inst = gen.const_float2(module, param.value.x, param.value.y)
-				} else if (pin.type == VAR_TYPE_NUMBER3) {
-					inst = gen.const_float3(module, param.value.x, param.value.y, param.value.z)
-				} else if (pin.type == VAR_TYPE_NUMBER4) {
-					inst = gen.const_float4(module, param.value.x, param.value.y, param.value.z, param.value.w)
-				}
+				inst = this.calc_value_inst(gen, module, pin.type, param.value)
 			}
 			else
 			{
 				var v = Blueprint.calc_input_value(this.node, pin.slot_idx)
-				if (v)
-				{
-					if (pin.type == VAR_TYPE_NUMBER) {
-						inst = gen.const_float(module, v)
-					} else if (pin.type == VAR_TYPE_NUMBER2) {
-						inst = gen.const_float2(module, v.value.x, v.value.y)
-					} else if (pin.type == VAR_TYPE_NUMBER3) {
-						inst = gen.const_float3(module, v.value.x, v.value.y, v.value.z)
-					} else if (pin.type == VAR_TYPE_NUMBER4) {
-						inst = gen.const_float4(module, v.value.x, v.value.y, v.value.z, v.value.w)
-					}
-				}
-				else
-				{
-					if (pin.type == VAR_TYPE_NUMBER) {
-						inst = gen.const_float(module, 0)
-					} else if (pin.type == VAR_TYPE_NUMBER2) {
-						inst = gen.const_float2(module, 0, 0)
-					} else if (pin.type == VAR_TYPE_NUMBER3) {
-						inst = gen.const_float3(module, 0, 0, 0)
-					} else if (pin.type == VAR_TYPE_NUMBER4) {
-						inst = gen.const_float4(module, 0, 0, 0, 0)
-					} else if (pin.type == VAR_TYPE_MATRIX2) {
-						inst = gen.const_mat2(module, [1, 0, 1, 0])
-					} else if (pin.type == VAR_TYPE_MATRIX3) {
-						inst = gen.const_mat3(module, [1, 0, 0, 0, 1, 0, 0, 0, 1])
-					} else if (pin.type == VAR_TYPE_MATRIX4) {
-						inst = gen.const_mat4(module, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
-					}
+				if (v) {
+					inst = this.calc_value_inst(gen, module, pin.type, v.value)
+				} else {
+					inst = this.calc_value_inst(gen, module, pin.type, nil)
 				}
 			}
 		}

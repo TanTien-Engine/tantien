@@ -18,7 +18,7 @@ var CODE = "
 //};
 const float Timer = 0.0;
 
-vec3 film_grain_pass(vec3 color, vec2 texcoord, float Intensity, float Variance, float Mean, float SignalToNoiseRatio)
+vec3 film_grain_pass(vec3 color, vec2 texcoord, float Intensity, float Variance, float Mean, int SignalToNoiseRatio)
 {
     //float inv_luma = dot(color, vec3(-0.2126, -0.7152, -0.0722)) + 1.0;
     float inv_luma = dot(color, vec3(-1.0/3.0, -1.0/3.0, -1.0/3.0)) + 1.0; //Calculate the inverted luma so it can be used later to control the variance of the grain

@@ -591,6 +591,15 @@ void w_ShaderGen_const_bool()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_ShaderGen_const_int()
+{
+    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
+    int x = (int)ves_tonumber(2);
+
+    auto ret = shadertrans::SpirvGenTwo::ConstInt(module, x);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_const_float()
 {
     spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
@@ -787,7 +796,8 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.variable_float(_)") == 0) return w_ShaderGen_variable_float;
 
     if (strcmp(signature, "ShaderGen.const_bool(_,_)") == 0) return w_ShaderGen_const_bool;
-
+    if (strcmp(signature, "ShaderGen.const_int(_,_)") == 0) return w_ShaderGen_const_int;
+    
     if (strcmp(signature, "ShaderGen.const_float(_,_)") == 0) return w_ShaderGen_const_float;
     if (strcmp(signature, "ShaderGen.const_float2(_,_,_)") == 0) return w_ShaderGen_const_float2;
     if (strcmp(signature, "ShaderGen.const_float3(_,_,_,_)") == 0) return w_ShaderGen_const_float3;

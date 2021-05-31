@@ -23,7 +23,7 @@ var CODE = "
 // todo
 const vec2 BUFFER_PIXEL_SIZE = 1.0 / vec2(2048.0);
 
-vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord, float sharp_strength, float sharp_clamp, float pattern, float offset_bias, bool show_sharpen)
+vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord, float sharp_strength, float sharp_clamp, int pattern, float offset_bias, bool show_sharpen)
 {
     // -- Get the original pixel --
     vec3 ori = texture(tex, texcoord).rgb; // ori = original pixel

@@ -38,7 +38,7 @@ var CODE = "
 
 */
 
-vec3 monochrome_pass(vec3 color, vec3 custom_coefficients, float preset, float saturation)
+vec3 monochrome_pass(vec3 color, vec3 custom_coefficients, int preset, float saturation)
 {
 	vec3 Coefficients = vec3(0.21, 0.72, 0.07);
 
@@ -64,7 +64,7 @@ vec3 monochrome_pass(vec3 color, vec3 custom_coefficients, float preset, float s
 		vec3(0.25, 0.35, 0.40) //Kodak Tri-X
 	);
 
-	Coefficients = Coefficients_array[int(preset)];
+	Coefficients = Coefficients_array[preset];
 
 	// Calculate monochrome
 	vec3 grey = vec3(dot(Coefficients, color));
