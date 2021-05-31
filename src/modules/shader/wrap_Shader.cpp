@@ -259,6 +259,15 @@ void w_ShaderGen_add_uniform()
     ves_set_number(0, pointer2double(unif));
 }
 
+void w_ShaderGen_query_unif_name()
+{
+    spvgentwo::Instruction* unif = (spvgentwo::Instruction*)double2pointer(ves_tonumber(1));
+
+    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto name = builder->QueryUniformName(unif);
+    ves_set_lstring(0, name, strlen(name));
+}
+
 void w_ShaderGen_access_chain()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
@@ -758,6 +767,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.add_input(_,_)") == 0) return w_ShaderGen_add_input;
     if (strcmp(signature, "ShaderGen.add_output(_,_)") == 0) return w_ShaderGen_add_output;
     if (strcmp(signature, "ShaderGen.add_uniform(_,_,_)") == 0) return w_ShaderGen_add_uniform;
+    if (strcmp(signature, "ShaderGen.query_unif_name(_)") == 0) return w_ShaderGen_query_unif_name;
 
     if (strcmp(signature, "ShaderGen.access_chain(_,_,_)") == 0) return w_ShaderGen_access_chain;
     if (strcmp(signature, "ShaderGen.compose_float2(_,_,_)") == 0) return w_shadergen_compose_float2;

@@ -23,11 +23,13 @@ class Uniform is Node
 		this.params.add(NodeParam("unif_name", "unif"))
 
 		this.unif = nil
+		this.unif_name = nil
 	}
 
     gen_shader(gen)
     {
     	this.unif = nil
+    	this.unif_name = nil
     }
 
 	calc_inst(gen, idx, module, func) 
@@ -55,6 +57,7 @@ class Uniform is Node
 			}
 
 			this.unif = gen.add_uniform(module, name, type)
+			this.unif_name = gen.query_unif_name(this.unif)
 		}
 
 		if (this.unif) {
@@ -95,7 +98,6 @@ class Uniform is Node
 			return nil
 		}
 
-		var name = this.query_param("unif_name").value
-		prog.set_uniform_value([name, type, value])
+		prog.set_uniform_value([this.unif_name, type, value])
 	}
 }

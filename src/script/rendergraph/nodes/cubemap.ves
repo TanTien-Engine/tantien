@@ -42,7 +42,8 @@ class Cubemap is Node
 
 		this.params.add(NodeParam("unif_name", "u_cube_tex"))
 
-		this.unif = nil		
+		this.unif = nil
+		this.unif_name = nil
 	}
 
 	calc_value(idx)
@@ -89,13 +90,16 @@ class Cubemap is Node
     gen_shader(gen)
     {
     	this.unif = nil
+    	this.unif_name = nil
     }
 
 	calc_inst(gen, idx, module, func) 
 	{
-		if (!this.unif) {
+		if (!this.unif) 
+		{
 			var name = this.query_param("unif_name").value
 			this.unif = gen.add_uniform(module, name, "cubemap")
+			this.unif_name = gen.query_unif_name(this.unif)
 		}
 
 		if (this.unif) {
@@ -107,8 +111,9 @@ class Cubemap is Node
 
 	bind_uniforms(prog)
 	{
-		var name = this.query_param("unif_name").value
-		prog.set_uniform_value([name, "sampler", [this.tex, this.sampler]])
+		if (this.unif) {
+			prog.set_uniform_value([this.unif_name, "sampler", [this.tex, this.sampler]])
+		}
 	}
 
 	draw(mt, cam_mt)

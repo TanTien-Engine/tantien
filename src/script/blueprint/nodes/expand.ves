@@ -42,13 +42,17 @@ class Expand is Node
 		var value = this.export_values[idx]
 		if (value.type == VAR_TYPE_TEXTURE)
 		{
-			if (!this.uniforms[idx]) {
+			if (!this.uniforms[idx]) 
+			{
 				var name = this.get_unif_name(idx)
-				this.uniforms[idx] = gen.add_uniform(module, name, "texture")
+				var unif = gen.add_uniform(module, name, "texture")
+				var unif_name = gen.query_unif_name(unif)
+
+				this.uniforms[idx] = [unif, unif_name]
 			}
 
 			if (this.uniforms[idx]) {
-				return gen.load(func, this.uniforms[idx])
+				return gen.load(func, this.uniforms[idx][0])
 			} else {
 				return nil
 			}
@@ -67,8 +71,7 @@ class Expand is Node
 			var unif = this.uniforms[i]
 			if (value.type == VAR_TYPE_TEXTURE and value.value and unif)
 			{
-				var name = this.get_unif_name(i)
-				prog.set_uniform_value([name, "sampler", [value.value.tex, value.value.sampler]])
+				prog.set_uniform_value([unif[1], "sampler", [value.value.tex, value.value.sampler]])
 			}
 		}	
 	}

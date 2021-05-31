@@ -28,6 +28,7 @@ class Fetch is Node
 		this.index = nil
 
 		this.uniform = nil
+		this.unif_name = nil
 	}
 
 	calc_value(idx)
@@ -64,6 +65,7 @@ class Fetch is Node
     gen_shader(gen)
     {
     	this.uniform = nil
+    	this.unif_name = nil
     }
 
 	calc_inst(gen, idx, module, func) 
@@ -75,9 +77,11 @@ class Fetch is Node
 				return nil
 			}
 
-			if (val.type == VAR_TYPE_TEXTURE) {
+			if (val.type == VAR_TYPE_TEXTURE) 
+			{
 				var name = this.get_unif_name2()
 				this.uniform = gen.add_uniform(module, name, "texture")
+				this.unif_name = gen.query_unif_name(this.uniform)
 			}
 		}
 
@@ -95,10 +99,8 @@ class Fetch is Node
 			return
 		}
 
-		if (value.type == VAR_TYPE_TEXTURE and value.value and this.uniform)
-		{
-			var name = this.get_unif_name2()
-			prog.set_uniform_value([name, "sampler", [value.value.tex, value.value.sampler]])
+		if (value.type == VAR_TYPE_TEXTURE and value.value and this.uniform) {
+			prog.set_uniform_value([this.unif_name, "sampler", [value.value.tex, value.value.sampler]])
 		}
 	}
 
