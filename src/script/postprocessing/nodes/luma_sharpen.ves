@@ -164,7 +164,7 @@ class LumaSharpen is Node
 		this.node_func = NodeFunction(this, CODE, "luma_sharpen_pass", [
             [ "sharp_strength", 0.65, { "min" : 0.1, "max" : 3.0 } ],
             [ "sharp_clamp", 0.035, { "min" : 0.0, "max" : 1.0 } ],
-            [ "pattern", 0, { "integer" : true, "min" : 0, "max" : 3 } ],
+            [ "pattern", 0, { "integer" : true, "min" : 0, "max" : 3 } ],   // 0: Fast, 1: Normal, 2: Wider, 3: Pyramid shaped
             [ "offset_bias", 1.0, { "min" : 0.0, "max" : 6.0 } ],
             [ "show_sharpen", false ],
         ])
