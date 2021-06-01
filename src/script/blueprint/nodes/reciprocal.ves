@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "maths.vector" for Vector2, Vector3, Vector4
+
+class Reciprocal is Node
+{
+	init() 
+	{
+		super.init(Reciprocal.name)
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var val = Blueprint.calc_input_value(this, 0)
+		if (val.type == VAR_TYPE_NUMBER or val.type == VAR_TYPE_INTEGER) {
+			return Variant(VAR_TYPE_NUMBER, 1.0 / val.value)
+		} else if (val.type == VAR_TYPE_NUMBER2) {
+			return Variant(VAR_TYPE_NUMBER2, Vector2(1.0 / val.value.x, 1.0 / val.value.y))		
+		} else if (val.type == VAR_TYPE_NUMBER3) {
+			return Variant(VAR_TYPE_NUMBER3, Vector3(1.0 / val.value.x, 1.0 / val.value.y, 1.0 / val.value.z))		
+		} else if (val.type == VAR_TYPE_NUMBER4) {
+			return Variant(VAR_TYPE_NUMBER4, Vector4(1.0 / val.value.x, 1.0 / val.value.y, 1.0 / val.value.z, 1.0 / val.value.w))
+		} else {
+			return nil
+		}
+	}
+}

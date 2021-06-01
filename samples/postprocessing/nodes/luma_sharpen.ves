@@ -53,6 +53,16 @@ node6.query_param("show_sharpen").value = false
 
 _editor.add_node(node6, -354.03934157503, 121.13793456731)
 
+var node7 = Reciprocal()
+
+_editor.add_node(node7, -715.21724249637, -101.91925719912)
+
+var node8 = Viewport()
+
+_editor.add_node(node8, -843.91732136355, -100.79031904607)
+
+Blueprint.connect(node8, "size", node7, "v")
+Blueprint.connect(node7, "v", node6, "pixel_size")
 Blueprint.connect(node5, "uv", node6, "texcoord")
 Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node3, "out", node2, "va")

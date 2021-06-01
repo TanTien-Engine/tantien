@@ -25,7 +25,7 @@ node1.query_param("unif_name").value = "u_tex"
 node1.gamma_correction = false
 node1.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
-_editor.add_node(node1, -489.60519581326, 201.62893266433)
+_editor.add_node(node1, -675.13791526238, 246.19829268072)
 
 var node2 = Shadergraph()
 
@@ -56,8 +56,19 @@ _editor.add_node(node5, 19.702658176422, 356.6494140625)
 
 var node6 = TexCoord()
 
-_editor.add_node(node6, -324.86908190561, 163.41117648817)
+_editor.add_node(node6, -352.18962012021, 206.25474777925)
 
+var node7 = Reciprocal()
+
+_editor.add_node(node7, -350.84932723175, 124.44914033443)
+
+var node8 = Viewport()
+
+_editor.add_node(node8, -488.63435806049, 174.39922446927)
+
+Blueprint.connect(node8, "size", node0, "screen_size")
+Blueprint.connect(node8, "size", node7, "v")
+Blueprint.connect(node7, "v", node0, "pixel_size")
 Blueprint.connect(node6, "uv", node0, "texcoord")
 Blueprint.connect(node5, "next", node3, "prev")
 Blueprint.connect(node4, "out", node3, "va")

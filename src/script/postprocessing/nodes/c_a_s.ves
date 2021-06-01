@@ -55,16 +55,15 @@ var CODE = "
 
 uniform UBO
 {
+    vec2 pixel_size;
+
     float Contrast;
     float Sharpening;
 };
 
-// todo
-const vec2 BUFFER_PIXEL_SIZE = 1.0 / vec2(2048.0);
-
 vec4 tex2d_offset(sampler2D tex, vec2 texcoord, ivec2 offset)
 {
-    return texture(tex, texcoord + BUFFER_PIXEL_SIZE * offset);
+    return texture(tex, texcoord + pixel_size * offset);
 }
 
 vec3 cas_pass(sampler2D tex, vec2 texcoord)

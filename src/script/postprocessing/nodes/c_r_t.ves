@@ -15,6 +15,8 @@ var CODE = "
 
 uniform UBO
 {
+    vec2 screen_size;
+
     float Amount;
     float Resolution;
     float Gamma;
@@ -58,9 +60,6 @@ uniform UBO
 #else
     #define TEX2D(c) texture(tex, (c))
 #endif
-
-// todo
-const vec2 BUFFER_SCREEN_SIZE = vec2(2048, 2048);
 
 float intersect(vec2 xy)
 {
@@ -196,7 +195,7 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
     vec2 _Resolution = vec2(Input_ratio, Input_ratio);
     vec2 rubyTextureSize = _Resolution;
     vec2 rubyInputSize = _Resolution;
-    vec2 rubyOutputSize = BUFFER_SCREEN_SIZE;
+    vec2 rubyOutputSize = screen_size;
 
     vec2 orig_xy = Curvature ? transform(texcoord, rubyTextureSize, rubyInputSize) : texcoord;
     float cval = corner(orig_xy, rubyTextureSize, rubyInputSize);

@@ -18,6 +18,8 @@ var CODE = "
 
 uniform UBO
 {
+    vec2 pixel_size;
+
     float sharp_strength;
     float sharp_clamp;
     int pattern;
@@ -28,9 +30,6 @@ uniform UBO
 #define CoefLuma vec3(0.2126, 0.7152, 0.0722)      // BT.709 & sRBG luma coefficient (Monitors and HD Television)
 //#define CoefLuma vec3(0.299, 0.587, 0.114)       // BT.601 luma coefficient (SD Television)
 //#define CoefLuma vec3(1.0/3.0, 1.0/3.0, 1.0/3.0) // Equal weight coefficient
-
-// todo
-const vec2 BUFFER_PIXEL_SIZE = 1.0 / vec2(2048.0);
 
 vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord)
 {
@@ -57,11 +56,11 @@ vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord)
         //   [ 2/9, 8/9, 2/9]  =  [ 2 , 8 , 2 ]
         //   [    , 2/9, 1/9]     [   , 2 , 1 ]
 
-        blur_ori  = texture(tex, texcoord + (BUFFER_PIXEL_SIZE / 3.0) * offset_bias).rgb;  // North West
-        blur_ori += texture(tex, texcoord + (-BUFFER_PIXEL_SIZE / 3.0) * offset_bias).rgb; // South East
+        blur_ori  = texture(tex, texcoord + (pixel_size / 3.0) * offset_bias).rgb;  // North West
+        blur_ori += texture(tex, texcoord + (-pixel_size / 3.0) * offset_bias).rgb; // South East
 
-        //blur_ori += texture(tex, texcoord + (BUFFER_PIXEL_SIZE / 3.0) * offset_bias); // North East
-        //blur_ori += texture(tex, texcoord + (-BUFFER_PIXEL_SIZE / 3.0) * offset_bias); // South West
+        //blur_ori += texture(tex, texcoord + (pixel_size / 3.0) * offset_bias); // North East
+        //blur_ori += texture(tex, texcoord + (-pixel_size / 3.0) * offset_bias); // South West
 
         blur_ori /= 2;  //Divide by the number of texture fetches
 
@@ -76,10 +75,10 @@ vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord)
         //   [ .50,   1, .50]  =  [ 2 , 4 , 2 ]
         //   [ .25, .50, .25]     [ 1 , 2 , 1 ]
 
-        blur_ori  = texture(tex, texcoord + vec2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offset_bias).rgb; // South East
-        blur_ori += texture(tex, texcoord - BUFFER_PIXEL_SIZE * 0.5 * offset_bias).rgb;  // South West
-        blur_ori += texture(tex, texcoord + BUFFER_PIXEL_SIZE * 0.5 * offset_bias).rgb; // North East
-        blur_ori += texture(tex, texcoord - vec2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offset_bias).rgb; // North West
+        blur_ori  = texture(tex, texcoord + vec2(pixel_size.x, -pixel_size.y) * 0.5 * offset_bias).rgb; // South East
+        blur_ori += texture(tex, texcoord - pixel_size * 0.5 * offset_bias).rgb;  // South West
+        blur_ori += texture(tex, texcoord + pixel_size * 0.5 * offset_bias).rgb; // North East
+        blur_ori += texture(tex, texcoord - vec2(pixel_size.x, -pixel_size.y) * 0.5 * offset_bias).rgb; // North West
 
         blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
     }
@@ -94,10 +93,10 @@ vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord)
         //   [ 4 ,16 ,24 ,16 ,   ]
         //   [   ,   , 6 , 4 ,   ]
 
-        blur_ori  = texture(tex, texcoord + BUFFER_PIXEL_SIZE * vec2(0.4, -1.2) * offset_bias).rgb;  // South South East
-        blur_ori += texture(tex, texcoord - BUFFER_PIXEL_SIZE * vec2(1.2, 0.4) * offset_bias).rgb; // West South West
-        blur_ori += texture(tex, texcoord + BUFFER_PIXEL_SIZE * vec2(1.2, 0.4) * offset_bias).rgb; // East North East
-        blur_ori += texture(tex, texcoord - BUFFER_PIXEL_SIZE * vec2(0.4, -1.2) * offset_bias).rgb; // North North West
+        blur_ori  = texture(tex, texcoord + pixel_size * vec2(0.4, -1.2) * offset_bias).rgb;  // South South East
+        blur_ori += texture(tex, texcoord - pixel_size * vec2(1.2, 0.4) * offset_bias).rgb; // West South West
+        blur_ori += texture(tex, texcoord + pixel_size * vec2(1.2, 0.4) * offset_bias).rgb; // East North East
+        blur_ori += texture(tex, texcoord - pixel_size * vec2(0.4, -1.2) * offset_bias).rgb; // North North West
 
         blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
 
@@ -112,10 +111,10 @@ vec3 luma_sharpen_pass(sampler2D tex, vec2 texcoord)
         //   [ .50,    , .50]  =  [ 1 ,   , 1 ]
         //   [ .50, .50, .50]     [ 1 , 1 , 1 ]
 
-        blur_ori  = texture(tex, texcoord + vec2(0.5 * BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y * offset_bias)).rgb;  // South South East
-        blur_ori += texture(tex, texcoord + vec2(offset_bias * -BUFFER_PIXEL_SIZE.x, 0.5 * -BUFFER_PIXEL_SIZE.y)).rgb; // West South West
-        blur_ori += texture(tex, texcoord + vec2(offset_bias * BUFFER_PIXEL_SIZE.x, 0.5 * BUFFER_PIXEL_SIZE.y)).rgb; // East North East
-        blur_ori += texture(tex, texcoord + vec2(0.5 * -BUFFER_PIXEL_SIZE.x, BUFFER_PIXEL_SIZE.y * offset_bias)).rgb; // North North West
+        blur_ori  = texture(tex, texcoord + vec2(0.5 * pixel_size.x, -pixel_size.y * offset_bias)).rgb;  // South South East
+        blur_ori += texture(tex, texcoord + vec2(offset_bias * -pixel_size.x, 0.5 * -pixel_size.y)).rgb; // West South West
+        blur_ori += texture(tex, texcoord + vec2(offset_bias * pixel_size.x, 0.5 * pixel_size.y)).rgb; // East North East
+        blur_ori += texture(tex, texcoord + vec2(0.5 * -pixel_size.x, pixel_size.y * offset_bias)).rgb; // North North West
 
         //blur_ori += (2 * ori); // Probably not needed. Only serves to lessen the effect.
 

@@ -45,23 +45,21 @@ var node5 = TexCoord()
 _editor.add_node(node5, -516.36716636333, 187.66166235911)
 
 var node6 = Border()
-node6.query_param("border_width").value.set(0.02, 0.02)
+node6.query_param("border_width").value.set(10, 10)
 node6.query_param("border_ratio").value = 2.35
 node6.query_param("border_color").value.set(0.5, 0, 0)
 
-_editor.add_node(node6, -212.96065221576, 150.48752569062)
+_editor.add_node(node6, -215.444337508, 151.72936833674)
 
 var node7 = SampleTexture()
 
 _editor.add_node(node7, -356.70451556645, 181.78035750518)
 
-var node8 = Number2()
+var node8 = Viewport()
 
-node8.value.set(1, 1)
+_editor.add_node(node8, -486.54952547528, 124.22554715171)
 
-_editor.add_node(node8, -354.12294145026, 58.765953050842)
-
-Blueprint.connect(node8, "v2", node6, "buffer_size")
+Blueprint.connect(node8, "size", node6, "screen_size")
 Blueprint.connect(node5, "uv", node7, "uv")
 Blueprint.connect(node5, "uv", node6, "texcoord")
 Blueprint.connect(node4, "next", node2, "prev")

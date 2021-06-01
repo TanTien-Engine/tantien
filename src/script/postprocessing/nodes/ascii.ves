@@ -45,6 +45,9 @@ var CODE = "
 
 uniform UBO
 {
+    vec2 screen_size;
+    vec2 pixel_size;
+
     int Ascii_spacing;
     bool Ascii_invert_brightness;
     int Ascii_font;
@@ -56,9 +59,6 @@ uniform UBO
     vec3 Ascii_font_color;
     vec3 Ascii_background_color;
 };
-
-#define BUFFER_SCREEN_SIZE 600
-#define BUFFER_PIXEL_SIZE vec2(1.0/BUFFER_SCREEN_SIZE)
 
 vec3 ascii_pass(sampler2D tex, vec2 texcoord)
 {
@@ -79,33 +79,33 @@ if (Ascii_font == 1)
 float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
 
 vec2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
-vec2 cursor_position = trunc((BUFFER_SCREEN_SIZE / Ascii_block) * texcoord) * (Ascii_block / BUFFER_SCREEN_SIZE);
+vec2 cursor_position = trunc((screen_size / Ascii_block) * texcoord) * (Ascii_block / screen_size);
 
 
 //TODO Cleanup - and maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
 //-- Pattern 2 - Sample ALL the pixels! --
-vec3 color = texture(tex, cursor_position + vec2( 1.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 1.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 1.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 0.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 2.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 4.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 0.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 2.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 4.5) * BUFFER_PIXEL_SIZE).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+vec3 color = texture(tex, cursor_position + vec2( 1.5, 1.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 1.5, 3.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 1.5, 5.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 0.5, 6.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 3.5, 1.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 3.5, 3.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 3.5, 5.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 2.5, 6.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 5.5, 1.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 5.5, 3.5) * pixel_size).rgb;
+color += texture(tex, cursor_position + vec2( 5.5, 5.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 4.5, 6.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 6.5, 0.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 6.5, 2.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 6.5, 4.5) * pixel_size).rgb;
+//color += texture(tex, cursor_position + vec2( 6.5, 6.5) * pixel_size).rgb;
 
 color /= 9.0;
 
 /*  
 //-- Pattern 3 - Just one -- 
-vec3 color = texture(tex, cursor_position + vec2(4.0,4.0) * BUFFER_PIXEL_SIZE)   .rgb; //this may be fast but it's not very temporally stable
+vec3 color = texture(tex, cursor_position + vec2(4.0,4.0) * pixel_size)   .rgb; //this may be fast but it's not very temporally stable
 */
 
 /*------------------------.
@@ -136,7 +136,7 @@ if (Ascii_dithering_debug_gradient)
 | :: Get position :: |
 '-------------------*/
 
-vec2 p = fract((BUFFER_SCREEN_SIZE / Ascii_block) * texcoord);  //p is the position of the current pixel inside the character
+vec2 p = fract((screen_size / Ascii_block) * texcoord);  //p is the position of the current pixel inside the character
 
 p = trunc(p * Ascii_block);
 //p = trunc(p * Ascii_block - vec2(1.5,1.5)) ;

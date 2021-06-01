@@ -42,7 +42,7 @@ _editor.add_node(node4, 19.702658176422, 356.6494140625)
 
 var node5 = TexCoord()
 
-_editor.add_node(node5, -409.63027777134, 192.79324354142)
+_editor.add_node(node5, -403.9855384708, 226.14852122642)
 
 var node6 = CRT()
 node6.query_param("Amount").value = 1
@@ -62,6 +62,11 @@ node6.query_param("Oversample").value = true
 
 _editor.add_node(node6, -246.11804335273, -31.112278098242)
 
+var node7 = Viewport()
+
+_editor.add_node(node7, -403.78230412305, 177.1818055107)
+
+Blueprint.connect(node7, "size", node6, "screen_size")
 Blueprint.connect(node5, "uv", node6, "texcoord")
 Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node3, "out", node2, "va")

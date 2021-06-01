@@ -55,6 +55,11 @@ node7.query_param("Nostalgia_palette").value = 11
 
 _editor.add_node(node7, -246.34061590985, 157.58471840604)
 
+var node8 = Viewport()
+
+_editor.add_node(node8, -421.31909975085, 93.508008598719)
+
+Blueprint.connect(node8, "size", node7, "screen_size")
 Blueprint.connect(node5, "uv", node6, "uv")
 Blueprint.connect(node5, "uv", node7, "texcoord")
 Blueprint.connect(node4, "next", node2, "prev")

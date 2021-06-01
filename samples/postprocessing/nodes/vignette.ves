@@ -58,6 +58,16 @@ node7.query_param("Center").value.set(0.5, 0.5)
 
 _editor.add_node(node7, -248.03759401494, 108.1684318802)
 
+var node8 = Reciprocal()
+
+_editor.add_node(node8, -712.10635558854, -96.83229293746)
+
+var node9 = Viewport()
+
+_editor.add_node(node9, -842.49986023434, -98.074139389631)
+
+Blueprint.connect(node9, "size", node8, "v")
+Blueprint.connect(node8, "v", node7, "screen_size")
 Blueprint.connect(node5, "uv", node6, "uv")
 Blueprint.connect(node5, "uv", node7, "texcoord")
 Blueprint.connect(node4, "next", node2, "prev")
