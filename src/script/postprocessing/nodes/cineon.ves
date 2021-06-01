@@ -10,12 +10,14 @@ var CODE = "
 
 uniform UBO
 {
-    vec3 RGB_Curve;
-    vec3 RGB_C;
-    float Contrast;
-    float Saturation;
-    float Colorfulness;
-    float Strength;
+    vec3 rgb_curve;
+    vec3 rgb_c;
+
+    float contrast;
+    float saturation;
+    float colorfulness;
+    
+    float strength;
 };
 
 const mat3 RGB = mat3(
@@ -32,21 +34,21 @@ const mat3 XYZ = mat3(
 vec3 cineon_pass(vec3 color)
 {
     vec3 B = color;
-    B = B * (1.0 - Contrast) + (0.5 * Contrast);
-    vec3 Btemp = (1.0 / (1.0 + exp(RGB_Curve / 2.0)));
-    B = ((1.0 / (1.0 + exp(-RGB_Curve * (B - RGB_C)))) / (-2.0 * Btemp + 1.0)) + (-Btemp / (-2.0 * Btemp + 1.0));
+    B = B * (1.0 - contrast) + (0.5 * contrast);
+    vec3 Btemp = (1.0 / (1.0 + exp(rgb_curve / 2.0)));
+    B = ((1.0 / (1.0 + exp(-rgb_curve * (B - rgb_c)))) / (-2.0 * Btemp + 1.0)) + (-Btemp / (-2.0 * Btemp + 1.0));
 
     float value = max(max(B.r, B.g), B.b);
     vec3 col = B / value;
-    col = vec3(pow(abs(col.x), 1.0 / Colorfulness), pow(abs(col.y), 1.0 / Colorfulness), pow(abs(col.z), 1.0 / Colorfulness));
+    col = vec3(pow(abs(col.x), 1.0 / colorfulness), pow(abs(col.y), 1.0 / colorfulness), pow(abs(col.z), 1.0 / colorfulness));
 
     vec3 c0 = col * value;
     c0 = XYZ * c0;
     float luma = dot(c0, vec3(0.30, 0.59, 0.11));
-    c0 = (1.0 - Saturation) * luma + Saturation * c0;
+    c0 = (1.0 - saturation) * luma + saturation * c0;
     c0 = RGB * c0;
 
-    return mix(color, c0, Strength);
+    return mix(color, c0, strength);
 }
 "
 
@@ -57,12 +59,12 @@ class Cineon is Node
 		super.init(Cineon.name)
 
 		this.node_func = NodeFunction(this, CODE, "cineon_pass", [
-            [ "RGB_Curve", Vector3(8.0, 8.0, 8.0), { "min" : 1.0, "max" : 15.0 } ],
-            [ "RGB_C", Vector3(0.36, 0.36, 0.34), { "min" : 0.2, "max" : 0.5 } ],
-            [ "Contrast", 0.1, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Saturation", 3.0, { "min" : 0.0, "max" : 8.0 } ],
-            [ "Colorfulness", 2.5, { "min" : 0.1, "max" : 2.5 } ],
-            [ "Strength", 0.2, { "min" : 0.0, "max" : 1.0 } ],
+            [ "rgb_curve", Vector3(8.0, 8.0, 8.0), { "min" : 1.0, "max" : 15.0 } ],
+            [ "rgb_c", Vector3(0.36, 0.36, 0.34), { "min" : 0.2, "max" : 0.5 } ],
+            [ "contrast", 0.1, { "min" : 0.0, "max" : 1.0 } ],
+            [ "saturation", 3.0, { "min" : 0.0, "max" : 8.0 } ],
+            [ "colorfulness", 2.5, { "min" : 0.1, "max" : 2.5 } ],
+            [ "strength", 0.2, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

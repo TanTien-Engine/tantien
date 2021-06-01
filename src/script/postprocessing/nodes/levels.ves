@@ -21,25 +21,25 @@ var CODE = "
  * -- Version 1.1 --
  * Optimized to only use 1 instruction (down from 2 - a 100\% performance increase :) )
  * -- Version 1.2 --
- * Added the ability to highlight clipping regions of the image with #define HighlightClipping 1
+ * Added the ability to highlight clipping regions of the image with #define highlight_clipping 1
  */
 
 uniform UBO
 {
-    int BlackPoint;
-    int WhitePoint;
-    bool HighlightClipping;
+    int black_point;
+    int white_point;
+    bool highlight_clipping;
 };
 
 vec3 levels_pass(vec3 color)
 {
-    float black_point_float = BlackPoint / 255.0;
-    float white_point_float = WhitePoint == BlackPoint ? (255.0 / 0.00025) : (255.0 / (WhitePoint - BlackPoint)); // Avoid division by zero if the white and black point are the same
+    float black_point_float = black_point / 255.0;
+    float white_point_float = white_point == black_point ? (255.0 / 0.00025) : (255.0 / (white_point - black_point)); // Avoid division by zero if the white and black point are the same
 
     vec3 ret = color;
     ret = ret * white_point_float - (black_point_float *  white_point_float);
 
-    if (HighlightClipping)
+    if (highlight_clipping)
     {
         vec3 clipped_colors;
 
@@ -70,9 +70,9 @@ class Levels is Node
 		super.init(Levels.name)
 
 		this.node_func = NodeFunction(this, CODE, "levels_pass", [
-            [ "BlackPoint", 16,  { "integer" : true, "min" : 0, "max" : 255 } ],
-            [ "WhitePoint", 235, { "integer" : true, "min" : 0, "max" : 255 } ],
-            [ "HighlightClipping", false ]
+            [ "black_point", 16,  { "integer" : true, "min" : 0, "max" : 255 } ],
+            [ "white_point", 235, { "integer" : true, "min" : 0, "max" : 255 } ],
+            [ "highlight_clipping", false ]
         ])
 	}
 }

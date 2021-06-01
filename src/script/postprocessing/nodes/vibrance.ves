@@ -23,8 +23,8 @@ var CODE = "
 
 uniform UBO
 {
-    float Vibrance;
-    vec3 VibranceRGBBalance;
+    float vibrance;
+    vec3 vibrance_rgb_balance;
 };
 
 vec3 vibrance_pass(vec3 color, vec2 texcoord)
@@ -45,7 +45,7 @@ vec3 vibrance_pass(vec3 color, vec2 texcoord)
     float color_saturation = max_color - min_color; // The difference between the two is the saturation
 
     // Extrapolate between luma and original by 1 + (1-saturation) - current
-    vec3 coeffVibrance = vec3(VibranceRGBBalance * Vibrance);
+    vec3 coeffVibrance = vec3(vibrance_rgb_balance * vibrance);
     return mix(vec3(luma), color, 1.0 + (coeffVibrance * (1.0 - (sign(coeffVibrance) * color_saturation))));
 }
 "
@@ -57,8 +57,8 @@ class Vibrance is Node
 		super.init(Vibrance.name)
 
 		this.node_func = NodeFunction(this, CODE, "vibrance_pass", [
-            [ "Vibrance", 0.15, { "min" : -1.0, "max" : 1.0 } ],
-            [ "VibranceRGBBalance", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 10.0 } ],
+            [ "vibrance", 0.15, { "min" : -1.0, "max" : 1.0 } ],
+            [ "vibrance_rgb_balance", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 10.0 } ],
         ])
 	}
 }

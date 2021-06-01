@@ -15,7 +15,7 @@ uniform UBO
 {
     vec2 pixel_size;
     
-    float HDRPower;
+    float hdr_power;
     float radius1;
     float radius2;
 };
@@ -49,7 +49,7 @@ vec3 hdr_pass(sampler2D tex, vec2 texcoord)
     float dist = radius2 - radius1;
     vec3 HDR = (color + (bloom_sum2 - bloom_sum1)) * dist;
     vec3 blend = HDR + color;
-    color = vec3(pow(abs(blend.x), abs(HDRPower)), pow(abs(blend.y), abs(HDRPower)), pow(abs(blend.z), abs(HDRPower))) + HDR; // pow - don't use fractions for HDRpower
+    color = vec3(pow(abs(blend.x), abs(hdr_power)), pow(abs(blend.y), abs(hdr_power)), pow(abs(blend.z), abs(hdr_power))) + HDR; // pow - don't use fractions for HDRpower
     
     return clamp(color, 0.0, 1.0);
 }
@@ -62,7 +62,7 @@ class FakeHDR is Node
 		super.init(FakeHDR.name)
 
 		this.node_func = NodeFunction(this, CODE, "hdr_pass", [
-            [ "HDRPower", 1.3, { "min" : 0.0, "max" : 8.0 } ],
+            [ "hdr_power", 1.3, { "min" : 0.0, "max" : 8.0 } ],
             [ "radius1", 0.793, { "min" : 0.0, "max" : 8.0 } ],
             [ "radius2", 0.87, { "min" : 0.0, "max" : 8.0 } ],
         ])

@@ -12,10 +12,12 @@ var CODE = "
 
 uniform UBO
 {
-    vec3 ColorStrength;
-    float Brightness;
-    float Saturation;
-    float Strength;
+    vec3 color_strength;
+
+    float brightness;
+    float saturation;
+    
+    float strength;
 };
 
 vec3 technicolor_pass(vec3 color)
@@ -28,8 +30,8 @@ vec3 technicolor_pass(vec3 color)
     vec3 temp2 = ret * target;
     temp2 *= target2;
 
-    temp = temp2 * ColorStrength;
-    temp2 *= Brightness;
+    temp = temp2 * color_strength;
+    temp2 *= brightness;
 
     target = temp.grg;
     target2 = temp.bbr;
@@ -38,8 +40,8 @@ vec3 technicolor_pass(vec3 color)
     temp += temp2;
     temp2 = temp - target2;
 
-    ret = mix(ret, temp2, Strength);
-    ret = mix(vec3(dot(ret, vec3(0.333))), ret, Saturation);
+    ret = mix(ret, temp2, strength);
+    ret = mix(vec3(dot(ret, vec3(0.333))), ret, saturation);
 
     return ret;
 }
@@ -52,10 +54,10 @@ class Technicolor2 is Node
 		super.init(Technicolor2.name)
 
 		this.node_func = NodeFunction(this, CODE, "technicolor_pass", [
-            [ "ColorStrength", Vector3(0.2, 0.2, 0.2) ],
-            [ "Brightness", 0.5, { "min" : 0.5, "max" : 1.5 } ],
-            [ "Saturation", 0.5, { "min" : 0.0, "max" : 1.5 } ],
-            [ "Strength", 1.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "color_strength", Vector3(0.2, 0.2, 0.2) ],
+            [ "brightness", 0.5, { "min" : 0.5, "max" : 1.5 } ],
+            [ "saturation", 0.5, { "min" : 0.0, "max" : 1.5 } ],
+            [ "strength", 1.0, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

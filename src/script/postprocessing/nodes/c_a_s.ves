@@ -57,8 +57,8 @@ uniform UBO
 {
     vec2 pixel_size;
 
-    float Contrast;
-    float Sharpening;
+    float contrast;
+    float sharpening;
 };
 
 vec4 tex2d_offset(sampler2D tex, vec2 texcoord, ivec2 offset)
@@ -119,7 +119,7 @@ vec3 cas_pass(sampler2D tex, vec2 texcoord)
     // Shaping amount of sharpening.
     ampRGB = inversesqrt(ampRGB);
     
-    float peak = -3.0 * Contrast + 8.0;
+    float peak = -3.0 * contrast + 8.0;
     vec3 wRGB = -1.0 / (ampRGB * peak);
 
     vec3 rcpWeightRGB = 1.0 / (4.0 * wRGB + 1.0);
@@ -130,7 +130,7 @@ vec3 cas_pass(sampler2D tex, vec2 texcoord)
     vec3 window = (b + d) + (f + h);
     vec3 outColor = clamp((window * wRGB + e) * rcpWeightRGB, 0.0, 1.0);
     
-    return mix(e, outColor, Sharpening);
+    return mix(e, outColor, sharpening);
 }
 "
 
@@ -141,8 +141,8 @@ class CAS is Node
 		super.init(CAS.name)
 
 		this.node_func = NodeFunction(this, CODE, "cas_pass", [
-            [ "Contrast",   0.0, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Sharpening", 1.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "contrast",   0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "sharpening", 1.0, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

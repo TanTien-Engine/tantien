@@ -11,26 +11,28 @@ var CODE = "
 
 uniform UBO
 {
-    float Gamma;
-    float Exposure;
-    float Saturation;
-    float Bleach;
-    float Defog;
-    vec3 FogColor;
+    float gamma;
+    float exposure;
+    float saturation;
+
+    float bleach;
+    
+    float defog;
+    vec3 fog_color;
 };
 
 vec3 tonemap_pass(vec3 color, vec2 texcoord)
 {
     vec3 ret = color;
-    ret = clamp(ret - Defog * FogColor * 2.55, 0.0, 1.0); // Defog
-    ret *= pow(2.0f, Exposure); // Exposure
-    ret = vec3(pow(ret.x, Gamma), pow(ret.y, Gamma), pow(ret.z, Gamma)); // Gamma
+    ret = clamp(ret - defog * fog_color * 2.55, 0.0, 1.0); // defog
+    ret *= pow(2.0f, exposure); // exposure
+    ret = vec3(pow(ret.x, gamma), pow(ret.y, gamma), pow(ret.z, gamma)); // gamma
 
     const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
     float lum = dot(coefLuma, ret);
     
     float L = clamp(10.0 * (lum - 0.45), 0.0, 1.0);
-    vec3 A2 = Bleach * ret;
+    vec3 A2 = bleach * ret;
 
     vec3 result1 = 2.0f * ret * lum;
     vec3 result2 = 1.0f - 2.0f * (1.0f - lum) * (1.0f - ret);
@@ -41,7 +43,7 @@ vec3 tonemap_pass(vec3 color, vec2 texcoord)
     
     vec3 middlegray = vec3(dot(ret, vec3(1.0 / 3.0)));
     vec3 diffcolor = ret - middlegray;
-    ret = (ret + diffcolor * Saturation) / (1 + (diffcolor * Saturation)); // Saturation
+    ret = (ret + diffcolor * saturation) / (1 + (diffcolor * saturation)); // saturation
     
     return ret;
 }
@@ -54,12 +56,12 @@ class Tonemap is Node
 		super.init(Tonemap.name)
 
 		this.node_func = NodeFunction(this, CODE, "tonemap_pass", [
-            [ "Gamma", 1.0, { "min" : 0.0, "max" : 2.0 } ],
-            [ "Exposure", 0.0, { "min" : -1.0, "max" : 1.0 } ],
-            [ "Saturation", 0.0, { "min" : -1.0, "max" : 1.0 } ],
-            [ "Bleach", 0.0, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Defog", 0.0, { "min" : 0.0, "max" : 1.0 } ],
-            [ "FogColor", Vector3(0.0, 0.0, 1.0) ],
+            [ "gamma", 1.0, { "min" : 0.0, "max" : 2.0 } ],
+            [ "exposure", 0.0, { "min" : -1.0, "max" : 1.0 } ],
+            [ "saturation", 0.0, { "min" : -1.0, "max" : 1.0 } ],
+            [ "bleach", 0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "defog", 0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "fog_color", Vector3(0.0, 0.0, 1.0) ],
         ])
 	}
 }

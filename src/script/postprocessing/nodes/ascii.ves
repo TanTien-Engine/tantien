@@ -48,16 +48,18 @@ uniform UBO
     vec2 screen_size;
     vec2 pixel_size;
 
-    int Ascii_spacing;
-    bool Ascii_invert_brightness;
-    int Ascii_font;
-    bool Ascii_dithering_debug_gradient;
-    bool Ascii_dithering;
-    float Ascii_dithering_intensity;
-    bool Ascii_swap_colors;
-    int Ascii_font_color_mode;
-    vec3 Ascii_font_color;
-    vec3 Ascii_background_color;
+    int spacing;
+    bool invert_brightness;
+    int font;
+    
+    bool dithering_debug_gradient;
+    bool dithering;
+    float dithering_intensity;
+
+    bool swap_colors;
+    int font_color_mode;
+    vec3 font_color;
+    vec3 background_color;
 };
 
 vec3 ascii_pass(sampler2D tex, vec2 texcoord)
@@ -66,11 +68,11 @@ vec3 ascii_pass(sampler2D tex, vec2 texcoord)
 | :: Sample and average :: |
 '-------------------------*/
 
-//if (Ascii_font != 1)
+//if (font != 1)
 vec2 Ascii_font_size = vec2(3.0,5.0); //3x5
 float num_of_chars = 14. ; 
 
-if (Ascii_font == 1)
+if (font == 1)
 {
     Ascii_font_size = vec2(5.0,5.0); //5x5
     num_of_chars = 17.; 
@@ -78,7 +80,7 @@ if (Ascii_font == 1)
 
 float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
 
-vec2 Ascii_block = Ascii_font_size + float(Ascii_spacing);
+vec2 Ascii_block = Ascii_font_size + float(spacing);
 vec2 cursor_position = trunc((screen_size / Ascii_block) * texcoord) * (Ascii_block / screen_size);
 
 
@@ -116,7 +118,7 @@ float luma = dot(color,vec3(0.2126, 0.7152, 0.0722));
 
 float gray = luma;
 
-if (Ascii_invert_brightness)
+if (invert_brightness)
     gray = 1.0 - gray;
 
 
@@ -124,7 +126,7 @@ if (Ascii_invert_brightness)
 | :: Debugging :: |
 '----------------*/
 
-if (Ascii_dithering_debug_gradient)
+if (dithering_debug_gradient)
 {
     //gray = sqrt(dot(vec2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5),vec2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5))) * 1.1;
     //gray = (cursor_position.x + cursor_position.y) * 0.5; //diagonal test gradient
@@ -149,7 +151,7 @@ float x = (Ascii_font_size.x * p.y + p.x); //x is the number of the position in 
 
 //TODO : Try make an ordered dither rather than the random dither. Random looks a bit too noisy for my taste.   
 
-if (!Ascii_dithering)
+if (!dithering)
 {
 //Pseudo Random Number Generator
 // -- PRNG 1 - Reference --
@@ -157,7 +159,7 @@ float seed = dot(cursor_position, vec2(12.9898,78.233)); //I could add more salt
 float sine = sin(seed); //cos also works well. Sincos too if you want 2D noise.
 float noise = fract(sine * 43758.5453 + cursor_position.y);
 
-float dither_shift = (quant * Ascii_dithering_intensity); // Using noise to determine shift.
+float dither_shift = (quant * dithering_intensity); // Using noise to determine shift.
 
 float dither_shift_half = (dither_shift * 0.5); // The noise should vary between +- 0.5
 dither_shift = dither_shift * noise - dither_shift_half; // MAD
@@ -172,7 +174,7 @@ gray += dither_shift; //apply dithering
 
 float n = 0;
 
-if (Ascii_font == 1)
+if (font == 1)
 {   
     // -- 5x5 bitmap font by CeeJay.dk --
     // .:^\"~cvo*wSO8Q0#
@@ -200,7 +202,7 @@ if (Ascii_font == 1)
 
     n = (gray < (9. * quant)) ? n12345678 : n910111213141516;
 }
-else // Ascii_font == 0 , the 3x5 font
+else // font == 0 , the 3x5 font
 {
     // -- 3x5 bitmap font by CeeJay.dk --
     // .:;s*oSOXH0
@@ -292,34 +294,34 @@ if (clamp(p.x, 0.0, Ascii_font_size.x - 1.0) != p.x || clamp(p.y, 0.0, Ascii_fon
 | :: Colorize :: |
 '---------------*/
 
-if (Ascii_swap_colors)
+if (swap_colors)
 {
-    if (Ascii_font_color_mode  == 2)
+    if (font_color_mode  == 2)
     {
-        color = (character > 0) ? character * color : Ascii_font_color;
+        color = (character > 0) ? character * color : font_color;
     }
-    else if (Ascii_font_color_mode  == 1)
+    else if (font_color_mode  == 1)
     {
-        color = (character > 0) ? Ascii_background_color * gray : Ascii_font_color; 
+        color = (character > 0) ? background_color * gray : font_color; 
     }
-    else // Ascii_font_color_mode == 0
+    else // font_color_mode == 0
     { 
-        color = (character > 0) ? Ascii_background_color : Ascii_font_color;
+        color = (character > 0) ? background_color : font_color;
     }
 }
 else
 {
-    if (Ascii_font_color_mode  == 2)
+    if (font_color_mode  == 2)
     {
-        color = (character > 0) ? character * color : Ascii_background_color;
+        color = (character > 0) ? character * color : background_color;
     }
-    else if (Ascii_font_color_mode  == 1)
+    else if (font_color_mode  == 1)
     {
-        color = (character > 0) ? Ascii_font_color * gray : Ascii_background_color;
+        color = (character > 0) ? font_color * gray : background_color;
     }
-    else // Ascii_font_color_mode == 0
+    else // font_color_mode == 0
     {
-        color = (character > 0) ? Ascii_font_color : Ascii_background_color;
+        color = (character > 0) ? font_color : background_color;
     }
 }
 
@@ -340,16 +342,16 @@ class Ascii is Node
 		super.init(Ascii.name)
 
 		this.node_func = NodeFunction(this, CODE, "ascii_pass", [
-            ["Ascii_spacing", 1, { "integer" : true, "min" : 0, "max" : 255 }],
-            ["Ascii_invert_brightness", false],
-            ["Ascii_font", 0],  // 0: Smaller 3x5 font, 1: Normal 5x5 font
-            ["Ascii_dithering_debug_gradient", false],
-            ["Ascii_dithering", true],
-            ["Ascii_dithering_intensity", 2.0, { "min" : 0.0, "max" : 4.0 }],
-            ["Ascii_swap_colors", false],
-            ["Ascii_font_color_mode", 1, { "integer" : true, "min" : 0, "max" : 2 }],   // 0: Foreground color on background color, 1: Colorized grayscale, 2: Full color
-            ["Ascii_font_color", Vector3(1.0, 1.0, 1.0)],
-            ["Ascii_background_color", Vector3(0, 0, 0)],            
+            ["spacing", 1, { "integer" : true, "min" : 0, "max" : 255 }],
+            ["invert_brightness", false],
+            ["font", 0],  // 0: Smaller 3x5 font, 1: Normal 5x5 font
+            ["dithering_debug_gradient", false],
+            ["dithering", true],
+            ["dithering_intensity", 2.0, { "min" : 0.0, "max" : 4.0 }],
+            ["swap_colors", false],
+            ["font_color_mode", 1, { "integer" : true, "min" : 0, "max" : 2 }],   // 0: Foreground color on background color, 1: Colorized grayscale, 2: Full color
+            ["font_color", Vector3(1.0, 1.0, 1.0)],
+            ["background_color", Vector3(0, 0, 0)],            
         ])
 	}
 }

@@ -12,16 +12,17 @@ var CODE = "
 
 uniform UBO
 {
-    int Mode;
-    int Formula;
-    float Contrast;
+    int mode;
+    int formula;
+    
+    float contrast;
 };
 
 vec3 curves_pass(vec3 color)
 {
     vec3 ret = color;
     vec3 lumCoeff = vec3(0.2126, 0.7152, 0.0722);  //Values to calculate luma with
-    float Contrast_blend = Contrast; 
+    float Contrast_blend = contrast; 
     const float PI = 3.1415927;
 
     /*-----------------------------------------------------------.
@@ -37,20 +38,20 @@ vec3 curves_pass(vec3 color)
     // -- Which value to put through the contrast formula? --
     // I name it x because makes it easier to copy-paste to Graphtoy or Wolfram Alpha or another graphing program
     vec3 x;
-    if (Mode == 0)
+    if (mode == 0)
         x = vec3(luma); //if the curve should be applied to Luma
-    else if (Mode == 1)
+    else if (mode == 1)
         x = vec3(chroma), //if the curve should be applied to Chroma
         x = x * 0.5 + 0.5; //adjust range of Chroma from -1 -> 1 to 0 -> 1
     else
         x = ret; //if the curve should be applied to both Luma and Chroma
 
     /*-----------------------------------------------------------.
-    /                     Contrast formulas                       /
+    /                     contrast formulas                       /
     '-----------------------------------------------------------*/
 
     // -- Curve 1 --
-    if (Formula == 0)
+    if (formula == 0)
     {
         x = sin(PI * 0.5 * x); // Sin - 721 amd fps, +vign 536 nv
         x *= x;
@@ -60,7 +61,7 @@ vec3 curves_pass(vec3 color)
     }
 
     // -- Curve 2 --
-    if (Formula == 1)
+    if (formula == 1)
     {
         x = x - 0.5;
         x = (x / (0.5 + abs(x))) + 0.5;
@@ -69,7 +70,7 @@ vec3 curves_pass(vec3 color)
     }
 
     // -- Curve 3 --
-    if (Formula == 2)
+    if (formula == 2)
     {
         //x = smoothstep(0.0,1.0,x); //smoothstep
         x = x*x*(3.0 - 2.0*x); //faster smoothstep alternative - 776 amd fps, +vign 536 nv
@@ -77,29 +78,29 @@ vec3 curves_pass(vec3 color)
     }
 
     // -- Curve 4 --
-    if (Formula == 3)
+    if (formula == 3)
     {
         x = (1.0524 * exp(6.0 * x) - 1.05248) / (exp(6.0 * x) + 20.0855); //exp formula
     }
 
     // -- Curve 5 --
-    if (Formula == 4)
+    if (formula == 4)
     {
         //x = 0.5 * (x + 3.0 * x * x - 2.0 * x * x * x); //a simplified catmull-rom (0,0,1,1) - btw smoothstep can also be expressed as a simplified catmull-rom using (1,0,1,0)
         //x = (0.5 * x) + (1.5 -x) * x*x; //estrin form - faster version
         x = x * (x * (1.5 - x) + 0.5); //horner form - fastest version
 
-        Contrast_blend = Contrast * 2.0; //I multiply by two to give it a strength closer to the other curves.
+        Contrast_blend = contrast * 2.0; //I multiply by two to give it a strength closer to the other curves.
     }
 
     // -- Curve 6 --
-    if (Formula == 5)
+    if (formula == 5)
     {
         x = x*x*x*(x*(x*6.0 - 15.0) + 10.0); //Perlins smootherstep
     }
 
     // -- Curve 7 --
-    if (Formula == 6)
+    if (formula == 6)
     {
         //x = ((x-0.5) / ((0.5/(4.0/3.0)) + abs((x-0.5)*1.25))) + 0.5;
         x = x - 0.5;
@@ -108,19 +109,19 @@ vec3 curves_pass(vec3 color)
     }
 
     // -- Curve 8 --
-    if (Formula == 7)
+    if (formula == 7)
     {
         x = (x * (x * (x * (x * (x * (x * (1.6 * x - 7.2) + 10.8) - 4.2) - 3.6) + 2.7) - 1.8) + 2.7) * x * x; //Techicolor Cinestyle - almost identical to curve 1
     }
 
     // -- Curve 9 --
-    if (Formula == 8)
+    if (formula == 8)
     {
         x = -0.5 * (x*2.0 - 1.0) * (abs(x*2.0 - 1.0) - 2.0) + 0.5; //parabola
     }
 
     // -- Curve 10 --
-    if (Formula == 9)
+    if (formula == 9)
     {
         vec3 xstep = step(x, vec3(0.5)); //tenary might be faster here
         vec3 xstep_shift = (xstep - 0.5);
@@ -143,11 +144,11 @@ vec3 curves_pass(vec3 color)
 
         //TODO: Check if I could use an abs split instead of step. It might be more efficient
 
-        Contrast_blend = Contrast * 0.5; //I divide by two to give it a strength closer to the other curves.
+        Contrast_blend = contrast * 0.5; //I divide by two to give it a strength closer to the other curves.
     }
   
     // -- Curve 11 --
-    if (Formula == 10)
+    if (formula == 10)
     {
         vec3 a = vec3(0.0, 0.0, 0.0);
         vec3 b = vec3(0.0, 0.0, 0.0);
@@ -161,21 +162,21 @@ vec3 curves_pass(vec3 color)
     /                 Joining of Luma and Chroma                  /
     '-----------------------------------------------------------*/
 
-    if (Mode == 0) // Only Luma
+    if (mode == 0) // Only Luma
     {
-        x = mix(vec3(luma), x, Contrast_blend); //Blend by Contrast
+        x = mix(vec3(luma), x, Contrast_blend); //Blend by contrast
         ret = x + chroma; //Luma + Chroma
     }
-    else if (Mode == 1) // Only Chroma
+    else if (mode == 1) // Only Chroma
     {
         x = x * 2.0 - 1.0; //adjust the Chroma range back to -1 -> 1
         vec3 color = vec3(luma) + x; //Luma + Chroma
-        ret = mix(ret, color, Contrast_blend); //Blend by Contrast
+        ret = mix(ret, color, Contrast_blend); //Blend by contrast
     }
     else // Both Luma and Chroma
     {
         vec3 color = x;  //if the curve should be applied to both Luma and Chroma
-        ret = mix(ret, color, Contrast_blend); //Blend by Contrast
+        ret = mix(ret, color, Contrast_blend); //Blend by contrast
     }
 
     return ret;
@@ -189,9 +190,9 @@ class Curves is Node
 		super.init(Curves.name)
 
 		this.node_func = NodeFunction(this, CODE, "curves_pass", [
-            [ "Mode", 0, { "integer" : true, "min" : 0, "max" : 2 } ],  // 0: Luma, 1: Chroma, 2: Both Luma and Chroma
-            [ "Formula", 4, { "integer" : true, "min" : 0, "max" : 10 } ],  // 0: Sine, 1: Abs split, 2: Smoothstep, 3: Exp formula, 4: Simplified Catmull-Rom (0,0,1,1), 5: Perlins Smootherstep, 6: Abs add, 7: Techicolor Cinestyle, 8: Parabola, 9: Half-circles, 10: Polynomial split
-            [ "Contrast", 0.65, { "min" : -1.0, "max" : 1.0 } ],
+            [ "mode", 0, { "integer" : true, "min" : 0, "max" : 2 } ],  // 0: Luma, 1: Chroma, 2: Both Luma and Chroma
+            [ "formula", 4, { "integer" : true, "min" : 0, "max" : 10 } ],  // 0: Sine, 1: Abs split, 2: Smoothstep, 3: Exp formula, 4: Simplified Catmull-Rom (0,0,1,1), 5: Perlins Smootherstep, 6: Abs add, 7: Techicolor Cinestyle, 8: Parabola, 9: Half-circles, 10: Polynomial split
+            [ "contrast", 0.65, { "min" : -1.0, "max" : 1.0 } ],
         ])
 	}
 }

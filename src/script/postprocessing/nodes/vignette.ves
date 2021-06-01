@@ -16,47 +16,47 @@ uniform UBO
 {
     vec2 screen_size;
 
-    int Type;
-    float Ratio;
-    float Radius;
-    float Amount;
-    int Slope;
-    vec2 Center;
+    int type;
+    float ratio;
+    float radius;
+    float amount;
+    int slope;
+    vec2 center;
 };
 
 vec3 vignette_pass(vec3 color, vec2 texcoord)
 {
   vec3 ret = color;
 
-  if (Type == 0)
+  if (type == 0)
   {
     // Set the center
-    vec2 distance_xy = texcoord - Center;
+    vec2 distance_xy = texcoord - center;
 
     // Adjust the ratio
-    distance_xy *= vec2((screen_size.x / screen_size.y), Ratio);
+    distance_xy *= vec2((screen_size.x / screen_size.y), ratio);
 
     // Calculate the distance
-    distance_xy /= Radius;
+    distance_xy /= radius;
     float distance = dot(distance_xy, distance_xy);
 
     // Apply the vignette
-    ret.rgb *= (1.0 + pow(distance, Slope * 0.5) * Amount); //pow - multiply
+    ret.rgb *= (1.0 + pow(distance, slope * 0.5) * amount); //pow - multiply
   }
 
-  if (Type == 1) // New round (-x*x+x) + (-y*y+y) method.
+  if (type == 1) // New round (-x*x+x) + (-y*y+y) method.
   {
     texcoord = -texcoord * texcoord + texcoord;
-    ret.rgb = clamp(((screen_size.x / screen_size.y)*(screen_size.x / screen_size.y) * Ratio * texcoord.x + texcoord.y) * 4.0, 0.0, 1.0) * ret.rgb;
+    ret.rgb = clamp(((screen_size.x / screen_size.y)*(screen_size.x / screen_size.y) * ratio * texcoord.x + texcoord.y) * 4.0, 0.0, 1.0) * ret.rgb;
   }
 
-  if (Type == 2) // New (-x*x+x) * (-y*y+y) TV style method.
+  if (type == 2) // New (-x*x+x) * (-y*y+y) TV style method.
   {
     texcoord = -texcoord * texcoord + texcoord;
     ret.rgb = clamp(texcoord.x * texcoord.y * 100.0, 0.0, 1.0) * ret.rgb;
   }
     
-  if (Type == 3)
+  if (type == 3)
   {
     texcoord = abs(texcoord - 0.5);
     float tc = dot(vec4(-texcoord.x, -texcoord.x, texcoord.x, texcoord.y), vec4(texcoord.y, texcoord.y, 1.0, 1.0)); //XOR
@@ -65,7 +65,7 @@ vec3 vignette_pass(vec3 color, vec2 texcoord)
     ret.rgb *= (pow((1.0 - tc * 200), 4) + 0.25); //or maybe abs(tc*100-1) (-(tc*100)-1)
   }
   
-  if (Type == 4)
+  if (type == 4)
   {
     texcoord = abs(texcoord - 0.5);
     float tc = dot(vec4(-texcoord.x, -texcoord.x, texcoord.x, texcoord.y), vec4(texcoord.y, texcoord.y, 1.0, 1.0)); //XOR
@@ -74,7 +74,7 @@ vec3 vignette_pass(vec3 color, vec2 texcoord)
     ret.rgb *= (pow((1.0 - tc * 200), 4) + 0.0); //or maybe abs(tc*100-1) (-(tc*100)-1)
   }
 
-  if (Type == 5) // MAD version of 2
+  if (type == 5) // MAD version of 2
   {
     texcoord = abs(texcoord - 0.5);
     float tc = texcoord.x * (-2.0 * texcoord.y + 1.0) + texcoord.y; //XOR
@@ -84,9 +84,9 @@ vec3 vignette_pass(vec3 color, vec2 texcoord)
     //ret.rgb *= (pow(((tc*200.0)-1.0),4)); //or maybe abs(tc*100-1) (-(tc*100)-1)
   }
 
-  if (Type == 6) // New round (-x*x+x) * (-y*y+y) method.
+  if (type == 6) // New round (-x*x+x) * (-y*y+y) method.
   {
-    //texcoord.y /= vec2((screen_size.x / screen_size.y), Ratio);
+    //texcoord.y /= vec2((screen_size.x / screen_size.y), ratio);
     float tex_xy = dot(vec4(texcoord, texcoord), vec4(-texcoord, 1.0, 1.0)); //dot is actually slower
     ret.rgb = clamp(tex_xy * 4.0, 0.0, 1.0) * ret.rgb;
   }
@@ -102,12 +102,12 @@ class Vignette is Node
 		super.init(Vignette.name)
 
 		this.node_func = NodeFunction(this, CODE, "vignette_pass", [
-            [ "Type", 0, { "integer" : true, "min" :0, "max" : 6 }  ],  // 0: Original, 1: New, 2: TV style, 3: Untitled 1, 4: Untitled 2, 5: Untitled 3, 6: Untitled 4
-            [ "Ratio", 1.0, { "min" : 0.15, "max" : 6.0 } ],
-            [ "Radius", 2.0, { "min" : -1.0, "max" : 3.0 } ],
-            [ "Amount", -1.0, { "min" : -2.0, "max" : 1.0 } ],
-            [ "Slope", 2, { "integer" : true, "min" : 2, "max" : 16 } ],
-            [ "Center", Vector2(0.5, 0.5) ],
+            [ "type", 0, { "integer" : true, "min" :0, "max" : 6 }  ],  // 0: Original, 1: New, 2: TV style, 3: Untitled 1, 4: Untitled 2, 5: Untitled 3, 6: Untitled 4
+            [ "ratio", 1.0, { "min" : 0.15, "max" : 6.0 } ],
+            [ "radius", 2.0, { "min" : -1.0, "max" : 3.0 } ],
+            [ "amount", -1.0, { "min" : -2.0, "max" : 1.0 } ],
+            [ "slope", 2, { "integer" : true, "min" : 2, "max" : 16 } ],
+            [ "center", Vector2(0.5, 0.5) ],
         ])
 	}
 }

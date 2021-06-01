@@ -17,20 +17,23 @@ uniform UBO
 {
     vec2 screen_size;
 
-    float Amount;
-    float Resolution;
-    float Gamma;
-    float MonitorGamma;
-    float Brightness;
-    int ScanlineIntensity;
-    bool ScanlineGaussian;
-    bool Curvature;
-    float CurvatureRadius;
-    float CornerSize;
-    float ViewerDistance;
-    vec2 Angle;
-    float Overscan;
-    bool Oversample;
+    float amount;
+    float resolution;
+    float gamma;
+    float monitor_gamma;
+    float brightness;
+
+    int scanline_intensity;
+    bool scanline_gaussian;
+
+    bool curvature;
+    float curvature_radius;
+    float corner_size;
+    float viewer_distance;
+    vec2 angle;
+    
+    float overscan;
+    bool oversample;
 };
 
 // Comment the next line to disable interpolation in linear gamma (and gain speed).
@@ -39,8 +42,8 @@ uniform UBO
 #define CeeJay_aspect vec2(1.0, 0.75)
 
 // A bunch of useful values we'll need in the fragment shader.
-#define sinangle sin(Angle)
-#define cosangle cos(Angle)
+#define sinangle sin(angle)
+#define cosangle cos(angle)
 #define stretch maxscale()
 
 // Macros.
@@ -56,16 +59,16 @@ uniform UBO
 #define mod_factor texcoord.x * rubyTextureSize.x * rubyOutputSize.x / rubyInputSize.x
 
 #ifdef LINEAR_PROCESSING
-    #define TEX2D(c) pow(texture(tex, (c)), Gamma)
+    #define TEX2D(c) pow(texture(tex, (c)), gamma)
 #else
     #define TEX2D(c) texture(tex, (c))
 #endif
 
 float intersect(vec2 xy)
 {
-    float A = dot(xy,xy) + (ViewerDistance * ViewerDistance);
-    float B = 2.0 * (CurvatureRadius * (dot(xy, sinangle) - ViewerDistance * cosangle.x * cosangle.y) - ViewerDistance * ViewerDistance);
-    float C = ViewerDistance * ViewerDistance + 2.0 * CurvatureRadius * ViewerDistance * cosangle.x * cosangle.y; //all constants
+    float A = dot(xy,xy) + (viewer_distance * viewer_distance);
+    float B = 2.0 * (curvature_radius * (dot(xy, sinangle) - viewer_distance * cosangle.x * cosangle.y) - viewer_distance * viewer_distance);
+    float C = viewer_distance * viewer_distance + 2.0 * curvature_radius * viewer_distance * cosangle.x * cosangle.y; //all constants
     return (-B - sqrt(B * B -4.0 * A * C)) / (2.0 * A);
 }
 
@@ -73,8 +76,8 @@ vec2 bkwtrans(vec2 xy)
 {
     float c = intersect(xy);
     vec2 _point = vec2(c, c) * xy;
-    _point -= vec2(-CurvatureRadius, -CurvatureRadius) * sinangle;
-    _point /= vec2(CurvatureRadius, CurvatureRadius);
+    _point -= vec2(-curvature_radius, -curvature_radius) * sinangle;
+    _point /= vec2(curvature_radius, curvature_radius);
     vec2 tang = sinangle / cosangle;
     vec2 poc = _point / cosangle;
     float A = dot(tang, tang) + 1.0;
@@ -82,21 +85,21 @@ vec2 bkwtrans(vec2 xy)
     float C = dot(poc, poc) - 1.0;
     float a = (-B + sqrt(B * B -4.0 * A * C)) / (2.0 * A);
     vec2 uv = (_point - a * sinangle) / cosangle;
-    float r = CurvatureRadius * acos(a);
-    return uv * r / sin(r / CurvatureRadius);
+    float r = curvature_radius * acos(a);
+    return uv * r / sin(r / curvature_radius);
 }
 vec2 fwtrans(vec2 uv)
 {
     float r = FIX(sqrt(dot(uv, uv)));
-    uv *= sin(r / CurvatureRadius) / r;
-    float x = 1.0 - cos(r / CurvatureRadius);
-    float D = ViewerDistance / CurvatureRadius + x * cosangle.x * cosangle.y + dot(uv, sinangle);
-    return ViewerDistance * (uv * cosangle - x * sinangle) / D;
+    uv *= sin(r / curvature_radius) / r;
+    float x = 1.0 - cos(r / curvature_radius);
+    float D = viewer_distance / curvature_radius + x * cosangle.x * cosangle.y + dot(uv, sinangle);
+    return viewer_distance * (uv * cosangle - x * sinangle) / D;
 }
 
 vec3 maxscale()
 {
-    vec2 c = bkwtrans(-CurvatureRadius * sinangle / (1.0 + CurvatureRadius / ViewerDistance * cosangle.x * cosangle.y));
+    vec2 c = bkwtrans(-curvature_radius * sinangle / (1.0 + curvature_radius / viewer_distance * cosangle.x * cosangle.y));
     vec2 a = vec2(0.5, 0.5) * CeeJay_aspect;
     vec2 lo = vec2(fwtrans(vec2(-a.x, c.y)).x, fwtrans(vec2(c.x,-a.y)).y) / CeeJay_aspect;
     vec2 hi = vec2(fwtrans(vec2(+a.x, c.y)).x, fwtrans(vec2(c.x, +a.y)).y) / CeeJay_aspect;
@@ -107,7 +110,7 @@ vec2 transform(vec2 coord, vec2 textureSize, vec2 inputSize)
 {
     coord *= textureSize / inputSize;
     coord = (coord - 0.5) * CeeJay_aspect * stretch.z + stretch.xy;
-    return (bkwtrans(coord) / vec2(Overscan, Overscan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
+    return (bkwtrans(coord) / vec2(overscan, overscan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
 }
 
 vec3 pow3(vec3 x, float y)
@@ -128,9 +131,9 @@ vec4 pow4(vec4 x, vec4 y)
 float corner(vec2 coord, vec2 textureSize, vec2 inputSize)
 {
     coord *= textureSize / inputSize;
-    coord = (coord - 0.5) * vec2(Overscan, Overscan) + 0.5;
+    coord = (coord - 0.5) * vec2(overscan, overscan) + 0.5;
     coord = min(coord, 1.0 - coord) * CeeJay_aspect;
-    vec2 cdist = vec2(CornerSize, CornerSize);
+    vec2 cdist = vec2(corner_size, corner_size);
     coord = (cdist - min(coord, cdist));
     float dist = sqrt(dot(coord, coord));
     return clamp((cdist.x-dist) * 1000.0, 0.0, 1.0);
@@ -154,7 +157,7 @@ vec4 scanlineWeights(float distance, vec4 color)
     // independent of its width. That is, for a narrower beam
     // \"weights\" should have a higher peak at the center of the
     // scanline than for a wider beam.
-    if (!ScanlineGaussian)
+    if (!scanline_gaussian)
     {
         vec4 wid = 0.3 + 0.1 * pow4(abs(color), 3.0);
         vec4 weights = vec4(distance / wid);
@@ -191,13 +194,13 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
     // of the next scanline). The grid of lines represents the
     // edges of the texels of the underlying texture.
 
-    float  Input_ratio = ceil(256 * Resolution);
+    float  Input_ratio = ceil(256 * resolution);
     vec2 _Resolution = vec2(Input_ratio, Input_ratio);
     vec2 rubyTextureSize = _Resolution;
     vec2 rubyInputSize = _Resolution;
     vec2 rubyOutputSize = screen_size;
 
-    vec2 orig_xy = Curvature ? transform(texcoord, rubyTextureSize, rubyInputSize) : texcoord;
+    vec2 orig_xy = curvature ? transform(texcoord, rubyTextureSize, rubyInputSize) : texcoord;
     float cval = corner(orig_xy, rubyTextureSize, rubyInputSize);
 
     // Of all the pixels that are mapped onto the texel we are
@@ -241,8 +244,8 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
         0.0, 1.0);
 
 #ifndef LINEAR_PROCESSING
-    col  = pow4(abs(col) , Gamma);
-    col2 = pow4(abs(col2), Gamma);
+    col  = pow4(abs(col) , gamma);
+    col2 = pow4(abs(col2), gamma);
 #endif
 
     // Calculate the influence of the current and next scanlines on
@@ -253,7 +256,7 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
 //#if __RENDERER__ < 0xa000 && !__RESHADE_PERFORMANCE_MODE__
 //    [flatten]
 //#endif
-    if (Oversample)
+    if (oversample)
     {
         uv_ratio.y = uv_ratio.y + 1.0 / 3.0 * _filter;
         weights = (weights + scanlineWeights(uv_ratio.y, col)) / 3.0;
@@ -267,14 +270,14 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
 
     // dot-mask emulation:
     // Output pixels are alternately tinted green and magenta.
-    vec3 dotMaskWeights = mix(vec3(1.0, 0.7, 1.0), vec3(0.7, 1.0, 0.7), floor(mod(mod_factor, ScanlineIntensity)));
-    mul_res *= dotMaskWeights * vec3(0.83, 0.83, 1.0) * Brightness;
+    vec3 dotMaskWeights = mix(vec3(1.0, 0.7, 1.0), vec3(0.7, 1.0, 0.7), floor(mod(mod_factor, scanline_intensity)));
+    mul_res *= dotMaskWeights * vec3(0.83, 0.83, 1.0) * brightness;
 
     // Convert the image gamma for display on our output device.
-    mul_res = pow3(abs(mul_res), 1.0 / MonitorGamma);
+    mul_res = pow3(abs(mul_res), 1.0 / monitor_gamma);
 
     vec3 color = TEX2D(orig_xy).rgb * cval;
-    color = mix(color, mul_res, Amount);
+    color = mix(color, mul_res, amount);
 
     return clamp(color, 0.0, 1.0);
 }
@@ -288,20 +291,20 @@ class CRT is Node
 		super.init(CRT.name)
 
 		this.node_func = NodeFunction(this, CODE, "crt_pass", [
-            [ "Amount", 1.0, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Resolution", 1.15, { "min" : 1.0, "max" : 8.0 } ],
-            [ "Gamma", 2.4, { "min" : 0.0, "max" : 4.0 } ],
-            [ "MonitorGamma", 2.2, { "min" : 0.0, "max" : 4.0 } ],
-            [ "Brightness", 0.9, { "min" : 0.0, "max" : 3.0 } ],
-            [ "ScanlineIntensity", 2, { "integer" : true, "min" : 2, "max" : 4 } ],
-            [ "ScanlineGaussian", true ],
-            [ "Curvature", false ],
-            [ "CurvatureRadius", 1.5, { "min" : 0.0, "max" : 2.0 } ],
-            [ "CornerSize", 0.01, { "min" : 0.0, "max" : 0.02 } ],
-            [ "ViewerDistance", 2.0, { "min" : 0.0, "max" : 4.0 } ],
-            [ "Angle", Vector2(0, 0), { "min" : -0.2, "max" : 0.2 } ],
-            [ "Overscan", 1.01, { "min" : 1.0, "max" : 1.1 } ],
-            [ "Oversample", true ],
+            [ "amount", 1.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "resolution", 1.15, { "min" : 1.0, "max" : 8.0 } ],
+            [ "gamma", 2.4, { "min" : 0.0, "max" : 4.0 } ],
+            [ "monitor_gamma", 2.2, { "min" : 0.0, "max" : 4.0 } ],
+            [ "brightness", 0.9, { "min" : 0.0, "max" : 3.0 } ],
+            [ "scanline_intensity", 2, { "integer" : true, "min" : 2, "max" : 4 } ],
+            [ "scanline_gaussian", true ],
+            [ "curvature", false ],
+            [ "curvature_radius", 1.5, { "min" : 0.0, "max" : 2.0 } ],
+            [ "corner_size", 0.01, { "min" : 0.0, "max" : 0.02 } ],
+            [ "viewer_distance", 2.0, { "min" : 0.0, "max" : 4.0 } ],
+            [ "angle", Vector2(0, 0), { "min" : -0.2, "max" : 0.2 } ],
+            [ "overscan", 1.01, { "min" : 1.0, "max" : 1.1 } ],
+            [ "oversample", true ],
         ])
 	}
 }

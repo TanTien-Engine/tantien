@@ -11,7 +11,8 @@ var CODE = "
 
 uniform UBO
 {
-    vec2 buf_pixel_sz;
+    vec2 pixel_size;
+    
     float power;
     float edge_slope;
 };
@@ -21,10 +22,10 @@ vec3 cartoon_pass(sampler2D tex, vec2 texcoord)
     vec3 color = texture(tex, texcoord).rgb;
     const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
 
-    float diff1 = dot(coefLuma, texture(tex, texcoord + buf_pixel_sz).rgb);
-    diff1 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord - buf_pixel_sz).rgb , diff1));
-    float diff2 = dot(coefLuma, texture(tex, texcoord + buf_pixel_sz * vec2(1, -1)).rgb);
-    diff2 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord + buf_pixel_sz * vec2(-1, 1)).rgb , diff2));
+    float diff1 = dot(coefLuma, texture(tex, texcoord + pixel_size).rgb);
+    diff1 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord - pixel_size).rgb , diff1));
+    float diff2 = dot(coefLuma, texture(tex, texcoord + pixel_size * vec2(1, -1)).rgb);
+    diff2 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord + pixel_size * vec2(-1, 1)).rgb , diff2));
 
     float edge = dot(vec2(diff1, diff2), vec2(diff1, diff2));
 

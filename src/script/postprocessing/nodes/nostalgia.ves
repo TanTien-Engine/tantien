@@ -53,9 +53,9 @@ uniform UBO
 {
 	vec2 screen_size;
 
-	int Nostalgia_scanlines;
-	bool Nostalgia_dither;
-	int Nostalgia_palette;
+	int scanlines;
+	bool dither;
+	int palette_type;
 };
 
 // todo
@@ -101,7 +101,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		Nostalgia_color_15
 	);
 
-	if (Nostalgia_palette == 1) //C64 palette from http://www.c64-wiki.com/index.php/Color
+	if (palette_type == 1) //C64 palette from http://www.c64-wiki.com/index.php/Color
 	{
 		palette[0]  = vec3(  0. ,   0. ,   0. ) / 255.; //Black
 		palette[1]  = vec3(255. , 255. , 255. ) / 255.; //White
@@ -121,7 +121,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(187. , 187. , 187. ) / 255.; //Grey 3
 	}
 
-	if (Nostalgia_palette == 2) //EGA palette
+	if (palette_type == 2) //EGA palette
 	{
 		palette[0] 	= vec3(0.0,		0.0,		0.0		); //Black
 		palette[1] 	= vec3(0.0,		0.0,		0.666667); //Blue
@@ -141,7 +141,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15]	= vec3(1.0,		1.0,		1.0		); //White
 	}
 	
-	if (Nostalgia_palette == 3) //IBMPC palette
+	if (palette_type == 3) //IBMPC palette
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(0,0,0.8);
@@ -161,7 +161,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,1);
 	}
 
-	if (Nostalgia_palette == 4) //ZX Spectrum palette
+	if (palette_type == 4) //ZX Spectrum palette
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(0,0,0.811764705882353);
@@ -181,7 +181,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,1);
 	}
 
-	if (Nostalgia_palette == 5) //AppleII palette
+	if (palette_type == 5) //AppleII palette
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(0.890196078431373,0.117647058823529,0.376470588235294);
@@ -201,7 +201,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,1);
 	}
 		
-	if (Nostalgia_palette == 6) //NTSC palette
+	if (palette_type == 6) //NTSC palette
 	{
 		palette[0] = vec3(0.831372549019608,0.831372549019608,0.831372549019608);
 		palette[1] = vec3(0.866666666666667,0.776470588235294,0.474509803921569);
@@ -221,7 +221,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(0.0392156862745098,0.96078431372549,0.776470588235294);
 	}
 		
-	if (Nostalgia_palette == 7) // Commodore VIC-20
+	if (palette_type == 7) // Commodore VIC-20
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,1,1);
@@ -241,7 +241,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,0.698039215686274);
 	}
 		
-	if (Nostalgia_palette == 8) // MSX Systems
+	if (palette_type == 8) // MSX Systems
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,1,1);
@@ -261,7 +261,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,0.698039215686274);
 	}
 		
-	if (Nostalgia_palette == 9) // Thomson MO5
+	if (palette_type == 9) // Thomson MO5
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,1,1);
@@ -281,7 +281,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(0.733333333333333,1,1);
 	}
 		
-	if (Nostalgia_palette == 10) // Amstrad CPC
+	if (palette_type == 10) // Amstrad CPC
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,1,1);
@@ -301,7 +301,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,1,0.498039215686275);
 	}
 		
-	if (Nostalgia_palette == 11) // Atari ST
+	if (palette_type == 11) // Atari ST
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,0.886274509803922,0.882352941176471);
@@ -321,7 +321,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		palette[15] = vec3(1,0.768627450980392,0.517647058823529);
 	}
 		
-	if (Nostalgia_palette == 12) // Mattel Aquarius
+	if (palette_type == 12) // Mattel Aquarius
 	{
 		palette[0] = vec3(0,0,0);
 		palette[1] = vec3(1,1,1);
@@ -340,7 +340,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		colorCount = 14;
 	}
 		
-	if (Nostalgia_palette == 13) // Gameboy
+	if (palette_type == 13) // Gameboy
 	{
 		palette[0] = vec3(0.0588235294117647,0.219607843137255,0.0588235294117647);
 		palette[1] = vec3(0.607843137254902,0.737254901960784,0.0588235294117647);
@@ -350,7 +350,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 	}
 
 
-	if (Nostalgia_palette == 14) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
+	if (palette_type == 14) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
 	{
 		palette[0] 	= vec3(0.247059,	0.196078,	0.682353); //
 		palette[1] 	= vec3(0.890196,	0.054902,	0.760784); //
@@ -372,7 +372,7 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 
 	// :: Dither :: //
 
-	if (Nostalgia_dither) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
+	if (dither) //aek16 ( http://eastfarthing.com/blog/2016-05-06-palette/ )
 	{
 		
 		//Calculate grid position
@@ -416,11 +416,11 @@ vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 		
 	ret = closest_color; //return the pixel
 
-	if (Nostalgia_scanlines == 1)
+	if (scanlines == 1)
 	{
 		ret *= fract(texcoord.y * (screen_size.y * 0.5)) + 0.5; //Scanlines
 	}
-	if (Nostalgia_scanlines == 2)
+	if (scanlines == 2)
 	{
 		float grey  = dot(ret,vec3(1.0/3.0));
 		ret = (fract(texcoord.y * (screen_size.y * 0.5)) < 0.25) ? ret : ret * ((-grey*grey+grey+grey) * 0.5 + 0.5);
@@ -437,9 +437,9 @@ class Nostalgia is Node
 		super.init(Nostalgia.name)
 
 		this.node_func = NodeFunction(this, CODE, "nostalgia_pass", [
-			[ "Nostalgia_scanlines", 0, { "integer" : true, "min" : 0, "max" : 2 } ],	// 0: None,	1: Type 1, 2: Type 2
-			[ "Nostalgia_dither", true ],
-			[ "Nostalgia_palette", 0, { "integer" : true, "min" : 0, "max" : 14 } ],	// 0: Custom, 1: C64 palette, 2: EGA palette, 3: IBMPC palette, 4: ZXSpectrum palette, 5: AppleII palette, 6: NTSC palette, 7: Commodore VIC-20, 8: MSX Systems, 9: Thomson MO5, 10: Amstrad CPC, 11: Atari ST, 12: Mattel Aquarius, 13: Gameboy, 14: Aek16 palette
+			[ "scanlines", 0, { "integer" : true, "min" : 0, "max" : 2 } ],	// 0: None,	1: type 1, 2: type 2
+			[ "dither", true ],
+			[ "palette_type", 0, { "integer" : true, "min" : 0, "max" : 14 } ],	// 0: Custom, 1: C64 palette, 2: EGA palette, 3: IBMPC palette, 4: ZXSpectrum palette, 5: AppleII palette, 6: NTSC palette, 7: Commodore VIC-20, 8: MSX Systems, 9: Thomson MO5, 10: Amstrad CPC, 11: Atari ST, 12: Mattel Aquarius, 13: Gameboy, 14: Aek16 palette
 		])
 	}
 }

@@ -13,18 +13,14 @@ var CODE = "
 
 uniform UBO
 {
-    float Intensity;
-    float Variance;
-    float Mean;
-    int SignalToNoiseRatio;
-};
+    float timer;
 
-// todo
-//uniform UBO
-//{
-//    float Timer;
-//};
-const float Timer = 0.0;
+    float intensity;
+    float variance;
+    float mean;
+    
+    int signal_to_noise_ratio;
+};
 
 vec3 film_grain_pass(vec3 color, vec2 texcoord)
 {
@@ -38,7 +34,7 @@ vec3 film_grain_pass(vec3 color, vec2 texcoord)
     const float PI = 3.1415927;
     
     //time counter using requested counter from ReShade
-    float t = Timer * 0.0022337;
+    float t = timer * 0.0022337;
     
     //PRNG 2D - create two uniform noise values and save one DP2ADD
     float seed = dot(texcoord, vec2(12.9898, 78.233));// + t;
@@ -48,9 +44,9 @@ vec3 film_grain_pass(vec3 color, vec2 texcoord)
     float uniform_noise2 = fract(cosine * 53758.5453 - t); // and it doesn't cost any extra ASM
 
     //Get settings
-    float stn = SignalToNoiseRatio != 0 ? pow(abs(inv_luma), float(SignalToNoiseRatio)) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
-    float _variance = (Variance*Variance) * stn;
-    float mean = Mean;
+    float stn = signal_to_noise_ratio != 0 ? pow(abs(inv_luma), float(signal_to_noise_ratio)) : 1.0; // Signal to noise feature - Brighter pixels get less noise.
+    float _variance = (variance*variance) * stn;
+    float mean = mean;
 
     //Box-Muller transform
     uniform_noise1 = (uniform_noise1 < 0.0001) ? 0.0001 : uniform_noise1; //fix log(0)
@@ -66,10 +62,10 @@ vec3 film_grain_pass(vec3 color, vec2 texcoord)
   
 
     //Calculate how big the shift should be
-    //float grain = mix(1.0 - Intensity,  1.0 + Intensity, gauss_noise1);
-    float grain = mix(1.0 + Intensity,  1.0 - Intensity, gauss_noise1);
+    //float grain = mix(1.0 - intensity,  1.0 + intensity, gauss_noise1);
+    float grain = mix(1.0 + intensity,  1.0 - intensity, gauss_noise1);
   
-    //float grain2 = (2.0 * Intensity) * gauss_noise1 + (1.0 - Intensity);
+    //float grain2 = (2.0 * intensity) * gauss_noise1 + (1.0 - intensity);
 
     vec3 out_color;
          
@@ -98,10 +94,10 @@ class FilmGrain is Node
 		super.init(FilmGrain.name)
 
 		this.node_func = NodeFunction(this, CODE, "film_grain_pass", [
-            [ "Intensity", 0.5, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Variance", 0.4, { "min" : 0.0, "max" : 1.0 } ],
-            [ "Mean", 0.5, { "min" : 0.0, "max" : 1.0 } ],
-            [ "SignalToNoiseRatio", 6, { "integer" : true, "min" : 0, "max" : 16 } ],
+            [ "intensity", 0.5, { "min" : 0.0, "max" : 1.0 } ],
+            [ "variance", 0.4, { "min" : 0.0, "max" : 1.0 } ],
+            [ "mean", 0.5, { "min" : 0.0, "max" : 1.0 } ],
+            [ "signal_to_noise_ratio", 6, { "integer" : true, "min" : 0, "max" : 16 } ],
         ])
 	}
 }

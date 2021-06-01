@@ -15,8 +15,8 @@ uniform UBO
 {
     vec2 pixel_size;
 
-    vec2 Shift;
-    float Strength;
+    vec2 shift;
+    float strength;
 };
 
 vec3 chromatic_aberration_pass(sampler2D tex, vec2 texcoord)
@@ -24,12 +24,12 @@ vec3 chromatic_aberration_pass(sampler2D tex, vec2 texcoord)
     vec3 color = texture(tex, texcoord).rgb;
     vec3 old_color = color;
     // Sample the color components
-    color.r = texture(tex, texcoord + (pixel_size * Shift)).r;
+    color.r = texture(tex, texcoord + (pixel_size * shift)).r;
     color.g = old_color.g;
-    color.b = texture(tex, texcoord - (pixel_size * Shift)).b;
+    color.b = texture(tex, texcoord - (pixel_size * shift)).b;
 
     // Adjust the strength of the effect
-    return mix(old_color, color, Strength);
+    return mix(old_color, color, strength);
 }
 "
 
@@ -40,8 +40,8 @@ class ChromaticAberration is Node
 		super.init(ChromaticAberration.name)
 
 		this.node_func = NodeFunction(this, CODE, "chromatic_aberration_pass", [
-            [ "Shift", Vector2(2.5, -0.5), { "min" : -10.0, "max" : 10.0 } ],
-            [ "Strength", 0.5, { "min" : 0.0, "max" : 1.0 } ],
+            [ "shift", Vector2(2.5, -0.5), { "min" : -10.0, "max" : 10.0 } ],
+            [ "strength", 0.5, { "min" : 0.0, "max" : 1.0 } ],
         ])
 	}
 }

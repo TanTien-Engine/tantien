@@ -11,9 +11,9 @@ var CODE = "
 
 uniform UBO
 {
-    vec3 RGB_Lift;
-    vec3 RGB_Gamma;
-    vec3 RGB_Gain;
+    vec3 rgb_lift;
+    vec3 rgb_gamma;
+    vec3 rgb_gain;
 };
 
 vec3 lift_gamma_gain_pass(vec3 color)
@@ -21,14 +21,14 @@ vec3 lift_gamma_gain_pass(vec3 color)
     vec3 ret = color;
     
     // -- Lift --
-    ret = ret * (1.5 - 0.5 * RGB_Lift) + 0.5 * RGB_Lift - 0.5;
+    ret = ret * (1.5 - 0.5 * rgb_lift) + 0.5 * rgb_lift - 0.5;
     ret = clamp(ret, 0.0, 1.0); // Is not strictly necessary, but does not cost performance
     
     // -- Gain --
-    ret *= RGB_Gain; 
+    ret *= rgb_gain; 
     
-    // -- Gamma --
-    ret = pow(abs(ret), 1.0 / RGB_Gamma);
+    // -- gamma --
+    ret = pow(abs(ret), 1.0 / rgb_gamma);
     
     return clamp(ret, 0.0, 1.0);
 }
@@ -41,9 +41,9 @@ class LiftGammaGain is Node
 		super.init(LiftGammaGain.name)
 
 		this.node_func = NodeFunction(this, CODE, "lift_gamma_gain_pass", [
-            [ "RGB_Lift",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
-            [ "RGB_Gamma", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
-            [ "RGB_Gain",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],        
+            [ "rgb_lift",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
+            [ "rgb_gamma", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
+            [ "rgb_gain",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],        
         ])
 	}
 }
