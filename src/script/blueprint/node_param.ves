@@ -86,5 +86,14 @@ class NodeParam
 		}
 
 		return dirty
-	}	
+	}
+
+	set_value(value)
+	{
+		if (this.value is Bool and value is Num) {
+			this.value = value != 0
+		} else {
+			this.value = value
+		}
+	}
 }

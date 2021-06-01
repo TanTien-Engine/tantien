@@ -1,6 +1,7 @@
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
 import "render" for Render
+import "rendergraph.components.shader_uniforms" for ShaderUniforms
 
 class NodeHelper
 {
@@ -32,6 +33,8 @@ class NodeHelper
 	static init_pins_from_code(node, code, name)
 	{
 		code = "#version 330 core\n" + code
+
+		// func params
 		var args = Render.get_shader_func_argus("pixel", code, "glsl", name)
 		for (var i in 0..args.count - 1) 
 		{
@@ -39,6 +42,15 @@ class NodeHelper
 			var pin_type = this.type_var_to_pin(v[1])
 			node.imports.add(Pin(node, v[0], pin_type))
 		}
+
+		// uniforms
+		var uniforms = []
+		ShaderUniforms.get_shader_uniforms("pixel", code, uniforms)
+		for (var unif in uniforms) {
+			ShaderUniforms.add_uniform_to_imports(node, unif)
+		}
+
+		// func return
 		var v = args[args.count - 1]
 		if (v[1] != "void")
 		{
@@ -47,6 +59,8 @@ class NodeHelper
 		}
 
 		node.layout()
+
+		return args.count - 1
 	}
 
 	static var_type_to_string(var_type)

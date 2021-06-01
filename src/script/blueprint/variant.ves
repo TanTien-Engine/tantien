@@ -38,6 +38,10 @@ fun get_value_type(value)
 		return VAR_TYPE_ARRAY
 	} else if (value is Map) {
 		return VAR_TYPE_TABLE
+	} else if (value is String) {
+		return VAR_TYPE_STRING
+	} else if (value is Bool) {
+		return VAR_TYPE_BOOLEAN
 	} else if (value is Num) {
 		return VAR_TYPE_NUMBER
 	} else if (value is Vector2) {

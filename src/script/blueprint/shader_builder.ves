@@ -7,11 +7,13 @@ class ShaderBuilder
 	init()
 	{
 		this.uniform_nodes = []
+		this.uniform_funcs = []
 	}
 
 	build(node)
 	{
 		this.uniform_nodes = []
+		this.uniform_funcs = []
 
 		var gen = ShaderGen.init()
 
@@ -32,6 +34,9 @@ class ShaderBuilder
 	{
 		if (node["node_func"]) {
 			node.node_func.gen_shader(gen)
+			if (node.node_func.has_uniforms()) {
+				this.uniform_funcs.add(node.node_func)
+			}
 		} 
 		if (node.has_method("gen_shader(_)")) {
 			node.gen_shader(gen)
@@ -45,6 +50,9 @@ class ShaderBuilder
 	{
 		for (var node in this.uniform_nodes) {
 			node.bind_uniforms(prog)
+		}
+		for (var func in this.uniform_funcs) {
+			func.bind_uniforms(prog)
 		}
 	}
 }

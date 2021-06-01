@@ -73,16 +73,32 @@ class Uniform is Node
 
 	bind_uniforms(prog)
 	{
+		if (!this.unif_name) {
+			return nil
+		}
+
 		var val = Blueprint.calc_input_value(this, 0)
 		if (!val) {
 			return nil
 		}
 
+		this.bind_unif_val(prog, val)
+
+		return val
+	}
+
+	bind_unif_val(prog, val)
+	{
 		var type = ""
 		var value = []
+
 		if (val.type == VAR_TYPE_BOOLEAN) {
-			type = "bool"
-			value.add(val.value)
+			type = "int"
+			if (val.value) {
+				value.add(1)
+			} else {
+				value.add(0)			
+			}
 		} else if (val.type == VAR_TYPE_INTEGER) {
 			type = "int"
 			value.add(val.value)		
