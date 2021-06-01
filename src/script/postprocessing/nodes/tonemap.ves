@@ -9,7 +9,17 @@ var CODE = "
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-vec3 tonemap_pass(vec3 color, vec2 texcoord, float Gamma, float Exposure, float Saturation, float Bleach, float Defog, vec3 FogColor)
+uniform UBO
+{
+    float Gamma;
+    float Exposure;
+    float Saturation;
+    float Bleach;
+    float Defog;
+    vec3 FogColor;
+};
+
+vec3 tonemap_pass(vec3 color, vec2 texcoord)
 {
     vec3 ret = color;
     ret = clamp(ret - Defog * FogColor * 2.55, 0.0, 1.0); // Defog

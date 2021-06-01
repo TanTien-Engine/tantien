@@ -11,7 +11,15 @@ var CODE = "
  * ColorMatrix allow the user to transform the colors using a color matrix
  */
 
-vec3 color_matrix_pass(vec3 color, vec3 Red, vec3 Green, vec3 Blue, float Strength)
+uniform UBO
+{
+    vec3 Red;
+    vec3 Green;
+    vec3 Blue;
+    float Strength;
+};
+
+vec3 color_matrix_pass(vec3 color)
 {
     mat3 ColorMatrix = mat3(Red, Green, Blue);
     vec3 ret = mix(color, ColorMatrix * color, Strength);

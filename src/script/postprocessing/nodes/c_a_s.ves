@@ -53,6 +53,12 @@ var CODE = "
 //  Used gather trick to reduce the number of texture operations by one (9 -> 8). It's now 42 -> 51 instructions but still faster
 //  because of the texture operation that was optimized away.
 
+uniform UBO
+{
+    float Contrast;
+    float Sharpening;
+};
+
 // todo
 const vec2 BUFFER_PIXEL_SIZE = 1.0 / vec2(2048.0);
 
@@ -61,7 +67,7 @@ vec4 tex2d_offset(sampler2D tex, vec2 texcoord, ivec2 offset)
     return texture(tex, texcoord + BUFFER_PIXEL_SIZE * offset);
 }
 
-vec3 cas_pass(sampler2D tex, vec2 texcoord, float Contrast, float Sharpening)
+vec3 cas_pass(sampler2D tex, vec2 texcoord)
 {
     // fetch a 3x3 neighborhood around the pixel 'e',
     //  a b c

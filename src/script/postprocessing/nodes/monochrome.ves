@@ -38,7 +38,14 @@ var CODE = "
 
 */
 
-vec3 monochrome_pass(vec3 color, vec3 custom_coefficients, int preset, float saturation)
+uniform UBO
+{
+	vec3 custom_coefficients;
+	int preset;
+	float saturation;
+};
+
+vec3 monochrome_pass(vec3 color)
 {
 	vec3 Coefficients = vec3(0.21, 0.72, 0.07);
 

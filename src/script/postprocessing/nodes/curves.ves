@@ -10,7 +10,14 @@ var CODE = "
  * Curves, uses S-curves to increase contrast, without clipping highlights and shadows.
  */
 
-vec3 curves_pass(vec3 color, int Mode, int Formula, float Contrast)
+uniform UBO
+{
+    int Mode;
+    int Formula;
+    float Contrast;
+};
+
+vec3 curves_pass(vec3 color)
 {
     vec3 ret = color;
     vec3 lumCoeff = vec3(0.2126, 0.7152, 0.0722);  //Values to calculate luma with

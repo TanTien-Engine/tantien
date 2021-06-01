@@ -11,10 +11,16 @@ var CODE = "
  * Distorts the image by shifting each color component, which creates color artifacts similar to those in a very cheap lens or a cheap sensor.
  */
 
+uniform UBO
+{
+    vec2 Shift;
+    float Strength;
+};
+
 // todo
 const vec2 BUFFER_PIXEL_SIZE = 1.0 / vec2(2048.0);
 
-vec3 chromatic_aberration_pass(sampler2D tex, vec2 texcoord, vec2 Shift, float Strength)
+vec3 chromatic_aberration_pass(sampler2D tex, vec2 texcoord)
 {
     vec3 color = texture(tex, texcoord).rgb;
     vec3 old_color = color;

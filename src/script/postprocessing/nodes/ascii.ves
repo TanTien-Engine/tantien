@@ -3,9 +3,64 @@ import "blueprint.node_function" for NodeFunction
 import "maths.vector" for Vector3
 
 var CODE = "
+// from https://github.com/CeeJayDK/SweetFX
+/*------------------.
+| :: Description :: |
+'-------------------/
+
+    Ascii (Version 0.9)
+
+    Author: CeeJay.dk
+    License: MIT
+
+    About:
+    Converts the image to ASCII characters using a greyscale algoritm,
+    cherrypicked characters and a custom bitmap font stored in a set of floats.
+    
+    It has 17 gray levels but uses dithering to greatly increase that number.
+
+    Ideas for future improvement:
+    * Cleanup code
+    * Maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
+    * Try using a font atlas for more fonts or perhaps more performance
+    * Try making an ordered dither rather than the random one. I think the random looks a bit too noisy.
+    * Calculate luma from linear colorspace
+
+    History:
+    (*) Feature (+) Improvement (x) Bugfix (-) Information (!) Compatibility
+
+    Version 0.7 by CeeJay.dk
+    * Added the 3x5 font
+
+    Version 0.8 by CeeJay.dk 
+    + Cleaned up settings UI for Reshade 3.x
+    
+    Version 0.9 by CeeJay.dk
+    x Fixed an issue with the settings where the 3x5 could not be selected.
+    - Cleaned up and commented the code. More cleanup is still needed.
+    * Added the ability to toggle dithering on/off
+    x Removed temporal dither code due to incompatibility with humans - it was giving me headaches and I didn't want to cause anyones seizure
+    x Fixed an uneven distribution of the greyscale shades
+*/
+
+uniform UBO
+{
+    int Ascii_spacing;
+    bool Ascii_invert_brightness;
+    int Ascii_font;
+    bool Ascii_dithering_debug_gradient;
+    bool Ascii_dithering;
+    float Ascii_dithering_intensity;
+    bool Ascii_swap_colors;
+    int Ascii_font_color_mode;
+    vec3 Ascii_font_color;
+    vec3 Ascii_background_color;
+};
+
 #define BUFFER_SCREEN_SIZE 600
 #define BUFFER_PIXEL_SIZE vec2(1.0/BUFFER_SCREEN_SIZE)
-vec3 ascii_pass(sampler2D tex, vec2 texcoord, int Ascii_spacing, bool Ascii_invert_brightness, int Ascii_font, bool Ascii_dithering_debug_gradient, bool Ascii_dithering, float Ascii_dithering_intensity, bool Ascii_swap_colors, int Ascii_font_color_mode, vec3 Ascii_font_color, vec3 Ascii_background_color)
+
+vec3 ascii_pass(sampler2D tex, vec2 texcoord)
 {
 /*-------------------------.
 | :: Sample and average :: |

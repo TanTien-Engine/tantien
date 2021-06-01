@@ -9,7 +9,14 @@ var CODE = "
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-vec3 cartoon_pass(sampler2D tex, vec2 texcoord, vec2 buf_pixel_sz, float power, float edge_slope)
+uniform UBO
+{
+    vec2 buf_pixel_sz;
+    float power;
+    float edge_slope;
+};
+
+vec3 cartoon_pass(sampler2D tex, vec2 texcoord)
 {
     vec3 color = texture(tex, texcoord).rgb;
     const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);

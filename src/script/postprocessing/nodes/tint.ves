@@ -5,7 +5,13 @@ import "maths.vector" for Vector3
 var CODE = "
 // from https://github.com/CeeJayDK/SweetFX
 
-vec3 tint_pass(vec3 color, vec3 Tint, float Strength)
+uniform UBO
+{
+	vec3 Tint;
+	float Strength;
+};
+
+vec3 tint_pass(vec3 color)
 {
 	return mix(color, color * Tint * 2.55, Strength);
 }

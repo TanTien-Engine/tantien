@@ -8,6 +8,16 @@ var CODE = "
  * DPX/Cineon shader by Loadus
  */
 
+uniform UBO
+{
+    vec3 RGB_Curve;
+    vec3 RGB_C;
+    float Contrast;
+    float Saturation;
+    float Colorfulness;
+    float Strength;
+};
+
 const mat3 RGB = mat3(
      2.6714711726599600, -1.2672360578624100, -0.4109956021722270,
     -1.0251070293466400,  1.9840911624108900,  0.0439502493584124,
@@ -19,7 +29,7 @@ const mat3 XYZ = mat3(
      0.0234517888692628,  0.1126992737203000,  0.8668396731242010
 );
 
-vec3 cineon_pass(vec3 color, vec3 RGB_Curve, vec3 RGB_C, float Contrast, float Saturation, float Colorfulness, float Strength)
+vec3 cineon_pass(vec3 color)
 {
     vec3 B = color;
     B = B * (1.0 - Contrast) + (0.5 * Contrast);

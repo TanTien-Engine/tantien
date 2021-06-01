@@ -21,7 +21,13 @@ var CODE = "
   - Minor UI improvements for Reshade 3.x
  */
 
-vec3 vibrance_pass(vec3 color, vec2 texcoord, float Vibrance, vec3 VibranceRGBBalance)
+uniform UBO
+{
+    float Vibrance;
+    vec3 VibranceRGBBalance;
+};
+
+vec3 vibrance_pass(vec3 color, vec2 texcoord)
 {
     vec3 coefLuma = vec3(0.212656, 0.715158, 0.072186);
     

@@ -10,7 +10,15 @@ var CODE = "
  * Optimized by CeeJay.dk
  */
 
-vec3 technicolor_pass(vec3 color, vec3 ColorStrength, float Brightness, float Saturation, float Strength)
+uniform UBO
+{
+    vec3 ColorStrength;
+    float Brightness;
+    float Saturation;
+    float Strength;
+};
+
+vec3 technicolor_pass(vec3 color)
 {    
     vec3 ret = color;
 

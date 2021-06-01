@@ -9,7 +9,14 @@ var CODE = "
  * by 3an and CeeJay.dk
  */
 
-vec3 lift_gamma_gain_pass(vec3 color, vec3 RGB_Lift, vec3 RGB_Gamma, vec3 RGB_Gain)
+uniform UBO
+{
+    vec3 RGB_Lift;
+    vec3 RGB_Gamma;
+    vec3 RGB_Gain;
+};
+
+vec3 lift_gamma_gain_pass(vec3 color)
 {    
     vec3 ret = color;
     

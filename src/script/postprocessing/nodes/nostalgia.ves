@@ -49,6 +49,13 @@ var CODE = "
 	* Added scanlines
 */
 
+uniform UBO
+{
+	int Nostalgia_scanlines;
+	bool Nostalgia_dither;
+	int Nostalgia_palette;
+};
+
 // todo
 const vec2 BUFFER_SCREEN_SIZE = vec2(2048, 2048);
 
@@ -70,7 +77,7 @@ const vec3 Nostalgia_color_13 = vec3(170, 255, 102) / 255.0;	//Lightgreen
 const vec3 Nostalgia_color_14 = vec3(  0, 136, 255) / 255.0;	//Lightblue
 const vec3 Nostalgia_color_15 = vec3(187, 187, 187) / 255.0;	//Grey 3
 
-vec3 nostalgia_pass(vec3 color, vec2 texcoord, int Nostalgia_scanlines, bool Nostalgia_dither, int Nostalgia_palette)
+vec3 nostalgia_pass(vec3 color, vec2 texcoord)
 {
 	vec3 ret = color;
 	int colorCount = 16;

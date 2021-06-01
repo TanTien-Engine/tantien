@@ -4,7 +4,6 @@ import "maths.vector" for Vector2, Vector3
 
 var CODE = "
 // from https://github.com/CeeJayDK/SweetFX
-
 /**
  * Border version 1.4.1
  *
@@ -22,7 +21,15 @@ var CODE = "
  * Cleaned up setting for Reshade 3.x
  */
 
-vec3 border_pass(vec3 color, vec2 texcoord, vec2 buffer_size, vec2 border_width, float border_ratio, vec3 border_color)
+uniform UBO
+{
+    vec2 buffer_size;
+    vec2 border_width;
+    float border_ratio;
+    vec3 border_color;
+};
+
+vec3 border_pass(vec3 color, vec2 texcoord)
 {
     // -- calculate the right border_width for a given border_ratio --
     vec2 border_width_variable = border_width;
