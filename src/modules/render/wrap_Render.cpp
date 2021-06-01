@@ -1448,7 +1448,7 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
 void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* lang_str,
                          std::vector<shadertrans::ShaderReflection::Variable>& uniforms)
 {
-    auto spirv = shader_string_to_spirv(stage_str, shader_str, lang_str, false);
+    auto spirv = shader_string_to_spirv(stage_str, shader_str, lang_str, true);
     if (!spirv.empty()) {
         shadertrans::ShaderReflection::GetUniforms(spirv, uniforms);
     }
