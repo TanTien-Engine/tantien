@@ -9,6 +9,11 @@ class NodeFunction
 {
 	init(node, code, func_name, params)
 	{
+		this.rename_ubo = code.contains("__UBO__")
+		if (this.rename_ubo) {
+			code = code.replace("__UBO__", "UBO_" + node.name)
+		}
+
 		this.num_params = NodeHelper.init_pins_from_code(node, code, func_name)
 		
 		for (var param in params)
@@ -131,7 +136,11 @@ class NodeFunction
 			if (prev_pin) {
 				Blueprint.connect(prev_pin, unif.imports[0])
 			}
-			unif.unif_name = this.node.imports[i].name
+			if (this.rename_ubo) {
+				unif.unif_name = "u_" + this.node.name + "." + this.node.imports[i].name
+			} else {
+				unif.unif_name = this.node.imports[i].name
+			}
 			this.uniforms.add(unif)
 		}
 
@@ -156,11 +165,15 @@ class NodeFunction
 
 	bind_uniforms(prog)
 	{
-		for (var unif in this.uniforms) 
-		{
-			var val = unif.bind_uniforms(prog)
+		if (this.uniforms.isEmpty) {
+			return
+		}
 
-			var param = this.node.query_param(unif.unif_name)
+		for (var i in this.num_params..this.node.imports.count)
+		{	
+			var unif = this.uniforms[i - this.num_params]			
+			var val = unif.bind_uniforms(prog)
+			var param = this.node.query_param(this.node.imports[i].name)
 			if (param)
 			{
 				if (val) {
