@@ -113,21 +113,6 @@ vec2 transform(vec2 coord, vec2 textureSize, vec2 inputSize)
     return (bkwtrans(coord) / vec2(overscan, overscan) / CeeJay_aspect + 0.5) * inputSize / textureSize;
 }
 
-vec3 pow3(vec3 x, float y)
-{
-    return vec3(pow(x.x, y), pow(x.y, y), pow(x.z, y));
-}
-
-vec4 pow4(vec4 x, float y)
-{
-    return vec4(pow(x.x, y), pow(x.y, y), pow(x.z, y), pow(x.w, y));
-}
-
-vec4 pow4(vec4 x, vec4 y)
-{
-    return vec4(pow(x.x, y.x), pow(x.y, y.y), pow(x.z, y.z), pow(x.w, y.w));
-}
-
 float corner(vec2 coord, vec2 textureSize, vec2 inputSize)
 {
     coord *= textureSize / inputSize;
@@ -159,15 +144,15 @@ vec4 scanlineWeights(float distance, vec4 color)
     // scanline than for a wider beam.
     if (!scanline_gaussian)
     {
-        vec4 wid = 0.3 + 0.1 * pow4(abs(color), 3.0);
+        vec4 wid = 0.3 + 0.1 * pow(abs(color), vec4(3.0));
         vec4 weights = vec4(distance / wid);
         return 0.4 * exp(-weights * weights) / wid;
     }
     else
     {
-        vec4 wid = 2.0 * pow4(abs(color), 4.0) + 2.0;
+        vec4 wid = 2.0 * pow(abs(color), vec4(4.0)) + 2.0;
         vec4 weights = vec4(distance / 0.3);
-        return 1.4 * exp(-pow4(abs(weights * inversesqrt(0.5 * wid)), abs(wid))) / (0.2 * wid + 0.6);
+        return 1.4 * exp(-pow(abs(weights * inversesqrt(0.5 * wid)), vec4(abs(wid)))) / (0.2 * wid + 0.6);
     }
 }
 
@@ -244,8 +229,8 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
         0.0, 1.0);
 
 #ifndef LINEAR_PROCESSING
-    col  = pow4(abs(col) , gamma);
-    col2 = pow4(abs(col2), gamma);
+    col  = pow(abs(col) , vec4(gamma));
+    col2 = pow(abs(col2), vec4(gamma));
 #endif
 
     // Calculate the influence of the current and next scanlines on
@@ -274,7 +259,7 @@ vec3 crt_pass(sampler2D tex, vec2 texcoord)
     mul_res *= dotMaskWeights * vec3(0.83, 0.83, 1.0) * brightness;
 
     // Convert the image gamma for display on our output device.
-    mul_res = pow3(abs(mul_res), 1.0 / monitor_gamma);
+    mul_res = pow(abs(mul_res), vec3(1.0 / monitor_gamma));
 
     vec3 color = TEX2D(orig_xy).rgb * cval;
     color = mix(color, mul_res, amount);

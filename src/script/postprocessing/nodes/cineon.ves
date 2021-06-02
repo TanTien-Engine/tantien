@@ -40,7 +40,7 @@ vec3 cineon_pass(vec3 color)
 
     float value = max(max(B.r, B.g), B.b);
     vec3 col = B / value;
-    col = vec3(pow(abs(col.x), 1.0 / colorfulness), pow(abs(col.y), 1.0 / colorfulness), pow(abs(col.z), 1.0 / colorfulness));
+    col = pow(abs(col), vec3(1.0 / colorfulness));
 
     vec3 c0 = col * value;
     c0 = XYZ * c0;

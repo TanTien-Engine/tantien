@@ -26,7 +26,7 @@ vec3 tonemap_pass(vec3 color, vec2 texcoord)
     vec3 ret = color;
     ret = clamp(ret - defog * fog_color * 2.55, 0.0, 1.0); // defog
     ret *= pow(2.0f, exposure); // exposure
-    ret = vec3(pow(ret.x, gamma), pow(ret.y, gamma), pow(ret.z, gamma)); // gamma
+    ret = pow(color, vec3(gamma)); // Gamma
 
     const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
     float lum = dot(coefLuma, ret);

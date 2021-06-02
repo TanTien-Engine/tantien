@@ -49,7 +49,7 @@ vec3 hdr_pass(sampler2D tex, vec2 texcoord)
     float dist = radius2 - radius1;
     vec3 HDR = (color + (bloom_sum2 - bloom_sum1)) * dist;
     vec3 blend = HDR + color;
-    color = vec3(pow(abs(blend.x), abs(hdr_power)), pow(abs(blend.y), abs(hdr_power)), pow(abs(blend.z), abs(hdr_power))) + HDR; // pow - don't use fractions for HDRpower
+    color = pow(abs(blend), vec3(abs(hdr_power))) + HDR; // pow - don't use fractions for HDRpower
     
     return clamp(color, 0.0, 1.0);
 }
