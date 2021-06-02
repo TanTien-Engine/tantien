@@ -1,0 +1,72 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node0, -675.38447070134, 293.86598179783)
+
+var node1 = Shadergraph()
+
+_editor.add_node(node1, -46.964083309732, 212.17306231951)
+
+var node2 = Draw()
+
+node2.set_prim_type("tri_strip")
+node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node2.skip = false
+
+_editor.add_node(node2, 205.74729179906, 100.48338535283)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
+
+_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+
+var node4 = Clear()
+
+node4.masks = [ "color" ]
+node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node4, 19.702658176422, 356.6494140625)
+
+var node5 = TexCoord()
+
+_editor.add_node(node5, -516.36716636333, 187.66166235911)
+
+var node6 = SampleTexture()
+
+_editor.add_node(node6, -356.70451556645, 181.78035750518)
+
+var node7 = ColorBalance()
+node7.query_param("preserve_luma").value = false
+node7.query_param("separation_mode").value = 0
+node7.query_param("s_RedShift").value = 0.85728520154953
+node7.query_param("s_GreenShift").value = 0.86839634180069
+node7.query_param("s_BlueShift").value = 1
+node7.query_param("m_RedShift").value = 0
+node7.query_param("m_GreenShift").value = 0.27950745820999
+node7.query_param("m_BlueShift").value = 0.57950747013092
+node7.query_param("h_RedShift").value = 0.16839633882046
+node7.query_param("h_GreenShift").value = 0.5128408074379
+node7.query_param("h_BlueShift").value = 0.46839633584023
+
+_editor.add_node(node7, -197.1556711849, -0.73441642709466)
+
+Blueprint.connect(node5, "uv", node6, "uv")
+Blueprint.connect(node4, "next", node2, "prev")
+Blueprint.connect(node3, "out", node2, "va")
+Blueprint.connect(node0, "tex", node6, "tex")
+Blueprint.connect(node6, "rgb", node7, "color")
+Blueprint.connect(node7, "ret", node1, "rgb")
+Blueprint.connect(node1, "shader", node2, "shader")
