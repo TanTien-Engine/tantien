@@ -442,7 +442,7 @@ void w_ShaderGen_add_module()
     auto stage = to_shader_stage(stage_str);
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    auto lib = builder->AddModule(stage, code_str, name);
+    auto lib = builder->AddModule(stage, code_str, name)->impl;
     ves_set_number(0, pointer2double(lib.get()));
 }
 
