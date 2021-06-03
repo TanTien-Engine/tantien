@@ -1,0 +1,32 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2
+
+var CODE = "
+// https://github.com/prod80/prod80-ReShade-Repository
+vec3 dither(sampler2D tex, vec2 coords, int var, float strength, bool motion, vec2 pp, float swing)
+{
+    //coords.xy    *= dither_uv.xy;
+    vec3 noise    = texture(tex, coords.xy).rgb;
+    float mot     = motion ? pp.x + var : 0.0f;
+    noise         = fract(noise + 0.61803398875f * mot);
+    noise         = ( noise * 2.0f - 1.0f ) * swing;
+    return noise * (strength / 255.0f);
+}
+"
+
+class Dither is Node
+{
+	init() 
+	{
+		super.init(Dither.name)
+
+		this.node_func = NodeFunction(this, CODE, "dither", [
+			[ "var", 2, { "integer" : true, "min" : 0, "max" : 10 } ],
+			[ "strength", 1.0, { "min" : 0.0, "max" : 255.0 } ],
+			[ "motion", true ],
+			[ "pp", Vector2(0.0, 0.0), { "min" : 0.0, "max" : 128.0 } ],
+			[ "swing", 0.5, { "min" : 0.0, "max" : 1.0 } ],
+		])
+	}
+}

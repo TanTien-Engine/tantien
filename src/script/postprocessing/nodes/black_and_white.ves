@@ -1,0 +1,263 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/color_space.glsl\"
+
+uniform __UBO__
+{
+    float curve_str;        // Contrast Smoothness
+    bool show_clip;         // Show Clipping Mask
+    int bw_mode;            // Black & White Conversion
+
+    float redchannel;       // Custom: Red Weight
+    float yellowchannel;    // Custom: Yellow Weight
+    float greenchannel;     // Custom: Green Weight
+    float cyanchannel;      // Custom: Cyan Weight
+    float bluechannel;      // Custom: Blue Weight
+    float magentachannel;   // Custom: Magenta Weight    
+
+    bool use_tint;          // Enable Tinting
+    float tinthue;          // Tint Hue
+    float tintsat;          // Tint Saturation
+};
+
+// Credit to user 'iq' from shadertoy
+// See https://www.shadertoy.com/view/MdBfR1
+float curve( float x, float k )
+{
+    float s = sign( x - 0.5f );
+    float o = ( 1.0f + s ) / 2.0f;
+    return o - 0.5f * s * pow( max( 2.0f * ( o - s * x ), 0.0f ), k );
+}
+
+vec3 ProcessBW( vec3 col, float r, float y, float g, float c, float b, float m )
+{
+    vec3 hsl         = RGBToHSL( col.xyz );
+    // Inverse of luma channel to no apply boosts to intensity on already intense brightness (and blow out easily)
+    float lum          = 1.0f - hsl.z;
+
+    // Calculate the individual weights per color component in RGB and CMY
+    // Sum of all the weights for a given hue is 1.0
+    float weight_r     = curve( max( 1.0f - abs(  hsl.x               * 6.0f ), 0.0f ), curve_str ) +
+                         curve( max( 1.0f - abs(( hsl.x - 1.0f      ) * 6.0f ), 0.0f ), curve_str );
+    float weight_y     = curve( max( 1.0f - abs(( hsl.x - 0.166667f ) * 6.0f ), 0.0f ), curve_str );
+    float weight_g     = curve( max( 1.0f - abs(( hsl.x - 0.333333f ) * 6.0f ), 0.0f ), curve_str );
+    float weight_c     = curve( max( 1.0f - abs(( hsl.x - 0.5f      ) * 6.0f ), 0.0f ), curve_str );
+    float weight_b     = curve( max( 1.0f - abs(( hsl.x - 0.666667f ) * 6.0f ), 0.0f ), curve_str );
+    float weight_m     = curve( max( 1.0f - abs(( hsl.x - 0.833333f ) * 6.0f ), 0.0f ), curve_str );
+
+    // No saturation (greyscale) should not influence B&W image
+    float sat          = hsl.y * ( 1.0f - hsl.y ) + hsl.y;
+    float ret          = hsl.z;
+    ret                += ( hsl.z * ( weight_r * r ) * sat * lum );
+    ret                += ( hsl.z * ( weight_y * y ) * sat * lum );
+    ret                += ( hsl.z * ( weight_g * g ) * sat * lum );
+    ret                += ( hsl.z * ( weight_c * c ) * sat * lum );
+    ret                += ( hsl.z * ( weight_b * b ) * sat * lum );
+    ret                += ( hsl.z * ( weight_m * m ) * sat * lum );
+
+    return vec3(clamp( ret, 0.0, 1.0 ));
+}
+
+vec3 black_and_white_pass(vec3 color, vec3 dnoise)
+{
+    vec3 ret = clamp( color + dnoise.zyx, 0.0, 1.0 );
+        
+    float red;  float yellow; float green;
+    float cyan; float blue;   float magenta;
+        
+    switch( bw_mode )
+    {
+        case 0: // Red Filter
+        {
+            red      = 0.2f;
+            yellow   = 0.5f;
+            green    = -0.2f;
+            cyan     = -0.6f;
+            blue     = -1.0f;
+            magenta  = -0.2f;
+        }
+        break;
+        case 1: // Green Filter
+        {
+            red      = -0.5f;
+            yellow   = 0.5f;
+            green    = 1.2f;
+            cyan     = -0.2f;
+            blue     = -1.0f;
+            magenta  = -0.5f;
+        }
+        break;
+        case 2: // Blue Filter
+        {
+            red      = -0.2f;
+            yellow   = 0.4f;
+            green    = -0.6f;
+            cyan     = 0.5f;
+            blue     = 1.0f;
+            magenta  = -0.2f;
+        }
+        break;
+        case 3: // High Contrast Red Filter
+        {
+            red      = 0.5f;
+            yellow   = 1.2f;
+            green    = -0.5f;
+            cyan     = -1.0f;
+            blue     = -1.5f;
+            magenta  = -1.0f;
+        }
+        break;
+        case 4: // High Contrast Green Filter
+        {
+            red      = -1.0f;
+            yellow   = 1.0f;
+            green    = 1.2f;
+            cyan     = -0.2f;
+            blue     = -1.5f;
+            magenta  = -1.0f;
+        }
+        break;
+        case 5: // High Contrast Blue Filter
+        {
+            red      = -0.7f;
+            yellow   = 0.4f;
+            green    = -1.2f;
+            cyan     = 0.7f;
+            blue     = 1.2f;
+            magenta  = -0.2f;
+        }
+        break;
+        case 6: // Infrared
+        {
+            red      = -1.35f;
+            yellow   = 2.35f;
+            green    = 1.35f;
+            cyan     = -1.35f;
+            blue     = -1.6f;
+            magenta  = -1.07f;
+        }
+        break;
+        case 7: // Maximum Black
+        {
+            red      = -1.0f;
+            yellow   = -1.0f;
+            green    = -1.0f;
+            cyan     = -1.0f;
+            blue     = -1.0f;
+            magenta  = -1.0f;
+        }
+        break;
+        case 8: // Maximum White
+        {
+            red      = 1.0f;
+            yellow   = 1.0f;
+            green    = 1.0f;
+            cyan     = 1.0f;
+            blue     = 1.0f;
+            magenta  = 1.0f;
+        }
+        break;
+        case 9: // Preserve Luminosity
+        {
+            red      = -0.7f;
+            yellow   = 0.9f;
+            green    = 0.6f;
+            cyan     = 0.1f;
+            blue     = -0.4f;
+            magenta  = -0.4f;
+        }
+        break;
+        case 10: // Neutral Green Filter
+        {
+            red      = 0.2f;
+            yellow   = 0.4f;
+            green    = 0.6f;
+            cyan     = 0.0f;
+            blue     = -0.6f;
+            magenta  = -0.2f;
+        }
+        break;
+        case 11: // Maintain Contrasts
+        {
+            red      = -0.3f;
+            yellow   = 1.0f;
+            green    = -0.3f;
+            cyan     = -0.6f;
+            blue     = -1.0f;
+            magenta  = -0.6f;
+        }
+        break;
+        case 12: // High Contrast
+        {
+            red      = -0.3f;
+            yellow   = 2.6f;
+            green    = -0.3f;
+            cyan     = -1.2f;
+            blue     = -0.6f;
+            magenta  = -0.4f;
+        }
+        break;
+        case 13: // Custom Filter
+        {
+            red      = redchannel;
+            yellow   = yellowchannel;
+            green    = greenchannel;
+            cyan     = cyanchannel;
+            blue     = bluechannel;
+            magenta  = magentachannel;
+        }
+        break;
+        default:
+        {
+            red      = redchannel;
+            yellow   = yellowchannel;
+            green    = greenchannel;
+            cyan     = cyanchannel;
+            blue     = bluechannel;
+            magenta  = magentachannel;
+        }
+        break;
+    }
+    // Do the Black & White
+    ret         = ProcessBW( ret, red, yellow, green, cyan, blue, magenta );
+    // Do the tinting
+    ret         = mix( ret, HSLToRGB( vec3( tinthue, tintsat, ret.x )), vec3(use_tint) );
+    if( show_clip )
+    {
+        float h       = 0.98f;
+        float l       = 0.01f;
+        ret           = min( min( ret.x, ret.y ), ret.z ) >= h ? mix( ret, vec3( 1.0f, 0.0f, 0.0f ), smoothstep( h, 1.0f, min( min( ret.x, ret.y ), ret.z ))) : ret;
+        ret           = max( max( ret.x, ret.y ), ret.z ) <= l ? mix( vec3( 0.0f, 0.0f, 1.0f ), ret, smoothstep( 0.0f, l, max( max( ret.x, ret.y ), ret.z ))) : ret;
+    }
+    ret         = clamp( ret + dnoise.xyz, 0.0, 1.0 );
+    return ret;
+}
+"
+
+class BlackAndWhite is Node
+{
+	init() 
+	{
+		super.init(BlackAndWhite.name)
+
+		this.node_func = NodeFunction(this, CODE, "black_and_white_pass", [
+            [ "curve_str", 1.5, { "min" : 1.0, "max" : 4.0 } ],
+            [ "show_clip", false ],
+            [ "bw_mode", 13 ],      // 0: Red Filter, 1: Green Filter, 2: Blue Filter, 3: High Contrast Red Filter, 4: High Contrast Green Filter, 5: High Contrast Blue Filter, 6: Infrared, 7: Maximum Black, 8: Maximum White, 9: Preserve Luminosity, 10: Neutral Green Filter, 11: Maintain Contrasts, 12: High Contrast, 13: Custom
+            [ "redchannel", 0.2, { "min" : -2.0, "max" : 3.0 } ],
+            [ "yellowchannel", 0.4, { "min" : -2.0, "max" : 3.0 } ],
+            [ "greenchannel", 0.6, { "min" : -2.0, "max" : 3.0 } ],
+            [ "cyanchannel", 0.0, { "min" : -2.0, "max" : 3.0 } ],
+            [ "bluechannel", -0.6, { "min" : -2.0, "max" : 3.0 } ],
+            [ "magentachannel", -0.2, { "min" : -2.0, "max" : 3.0 } ],
+            [ "use_tint", false ],
+            [ "tinthue", 0.083, { "min" : 0.0, "max" : 1.0 } ],
+            [ "tintsat", 0.12, { "min" : 0.0, "max" : 1.0 } ],            
+        ])
+	}
+}

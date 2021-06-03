@@ -26,6 +26,7 @@
 #include <unirender/WritePixelBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
+#include <shadertrans/ShaderPreprocess.h>
 #include <shadertrans/ShaderBuilder.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
@@ -1436,9 +1437,13 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
         return spirv;
     }
 
-    if (strcmp(lang_str, "glsl") == 0) {
-        shadertrans::ShaderTrans::GLSL2SpirV(stage, shader_str, spirv, no_link);
-    } else if (strcmp(lang_str, "hlsl") == 0) {
+    if (strcmp(lang_str, "glsl") == 0) 
+    {
+        auto _str = shadertrans::ShaderPreprocess::ReplaceIncludes(shader_str);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, _str, spirv, no_link);
+    } 
+    else if (strcmp(lang_str, "hlsl") == 0) 
+    {
         shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, spirv);
     }
 
