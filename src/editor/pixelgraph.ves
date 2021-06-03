@@ -3,7 +3,6 @@ import "rendergraph.rendergraph" for Rendergraph
 import "rendergraph.drawlist" for Drawlist
 import "pixelgraph.nodes.shadergraph" for Shadergraph
 import "blueprint.nodes.subgraph" for Subgraph
-import "rendergraph.nodes.texture" for Texture
 import "render" for Render
 import "filesystem" for Filesystem
 
@@ -101,18 +100,5 @@ import \"rendergraph.nodes.*\"
 import \"shadergraph.nodes.*\"
 import \"pixelgraph.nodes.*\"
 "
-	}
-
-	new_node_from_file(filepath) 
-	{ 
-		if (filepath.contains(".png") or filepath.contains(".jpg"))
-		{
-			var node = Texture()
-			var relative = Filesystem.get_relative_path(filepath)
-			node.init_texture(relative)
-			return node
-		}
-
-		return nil 
 	}
 }

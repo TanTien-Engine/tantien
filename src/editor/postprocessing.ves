@@ -108,17 +108,4 @@ import \"pixelgraph.nodes.*\"
 import \"postprocessing.nodes.*\"
 "
 	}
-
-	new_node_from_file(filepath) 
-	{ 
-		if (filepath.contains(".png") or filepath.contains(".jpg"))
-		{
-			var node = Texture()
-			var relative = Filesystem.get_relative_path(filepath)
-			node.init_texture(relative)
-			return node
-		}
-
-		return nil 
-	}
 }

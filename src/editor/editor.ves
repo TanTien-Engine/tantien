@@ -21,6 +21,7 @@ import "image" for ImageData
 import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.*"
 import "math" for Math
+import "rendergraph.nodes.texture" for Texture
 
 class Editor
 {
@@ -526,7 +527,7 @@ class Editor
 		return node
 	}
 
-	new_node_from_file(filepath) { return nil }
+	//new_node_from_file(filepath) { return nil }
 
 	add_node_from_file(filepath, x, y)
 	{
@@ -544,9 +545,15 @@ class Editor
 				Filesystem.set_asset_base_dir(old_dir)
 			}
 		}
+		else if (filepath.contains(".png") or filepath.contains(".jpg"))
+		{
+			node = Texture()
+			var relative = Filesystem.get_relative_path(filepath)
+			node.init_texture(relative)
+		}
 		else
 		{
-			node = this.new_node_from_file(filepath)
+			//node = this.new_node_from_file(filepath)
 		}
 
 		if (node) {
