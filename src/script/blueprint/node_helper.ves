@@ -36,6 +36,9 @@ class NodeHelper
 
 		// func params
 		var args = Render.get_shader_func_argus("pixel", code, "glsl", name)
+		if (!args) {
+			return
+		}
 		for (var i in 0..args.count - 1) 
 		{
 			var v = args[i]

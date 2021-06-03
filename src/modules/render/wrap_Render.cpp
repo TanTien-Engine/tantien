@@ -1567,10 +1567,18 @@ void w_Render_get_shader_func_argus()
     const char* name = ves_tostring(4);
 
     auto spirv = shader_string_to_spirv(stage, code, lang, true);
+    if (spirv.empty()) {
+        ves_set_nil(0);
+        return;
+    }
 
     shadertrans::ShaderReflection::Function func;
-    shadertrans::ShaderReflection::GetFunction(spirv, name, func);
-
+    bool success = shadertrans::ShaderReflection::GetFunction(spirv, name, func);
+    if (!success) {
+        ves_set_nil(0);
+        return;
+    }
+    
     ves_pop(5);
 
     auto vars = func.arguments;
