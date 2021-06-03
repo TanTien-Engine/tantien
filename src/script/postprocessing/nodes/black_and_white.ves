@@ -63,7 +63,7 @@ vec3 ProcessBW( vec3 col, float r, float y, float g, float c, float b, float m )
     return vec3(clamp( ret, 0.0, 1.0 ));
 }
 
-vec3 black_and_white_pass(vec3 color, vec3 dnoise)
+vec3 black_and_white_pass(vec3 color, vec4 dnoise)
 {
     vec3 ret = clamp( color + dnoise.zyx, 0.0, 1.0 );
         

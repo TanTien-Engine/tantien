@@ -1,0 +1,64 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/color_space.glsl\"
+
+uniform __UBO__
+{
+    float hueMid;       // 0 = Red, 0.167 = Yellow, 0.333 = Green, 0.5 = Cyan, 0.666 = Blue, 0.833 = Magenta
+    float hueRange;     // Hue Range Selection
+    float satLimit;     // Saturation Output
+    float fxcolorMix;   // Mix with Original
+};
+
+#define LumCoeff vec3(0.212656, 0.715158, 0.072186)
+
+float getLuminance( in vec3 x )
+{
+    return dot( x, LumCoeff );
+}
+
+float smootherstep( float x )
+{
+    return x * x * x * ( x * ( x * 6.0f - 15.0f ) + 10.0f );
+}
+
+vec3 color_isolation_pass(vec3 color)
+{
+    vec3 ret = clamp(color, 0.0, 1.0);  //Can't work with HDR
+        
+    float grey       = getLuminance( ret.xyz );
+    float hue        = RGBToHSV( ret.xyz ).x;
+        
+    float r          = 1.0 / hueRange;
+    vec3 w           = vec3(max( 1.0f - abs(( hue - hueMid        ) * r ), 0.0f ));
+    w.y              = max( 1.0f - abs(( hue + 1.0f - hueMid ) * r ), 0.0f );
+    w.z              = max( 1.0f - abs(( hue - 1.0f - hueMid ) * r ), 0.0f );
+    float weight     = dot( w.xyz, vec3(1.0f) );
+        
+    vec3 newc        = mix( vec3(grey), ret.xyz, vec3(smootherstep( weight ) * satLimit) );
+    ret.xyz          = mix( ret.xyz, newc.xyz, vec3(fxcolorMix) );
+
+    return ret;
+}
+
+"
+
+class ColorIsolation is Node
+{
+	init() 
+	{
+		super.init(ColorIsolation.name)
+
+		this.node_func = NodeFunction(this, CODE, "color_isolation_pass", [
+            [ "hueMid", 0.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "hueRange", 0.167, { "min" : 0.0, "max" : 1.0 } ],
+            [ "hueRange", 1.0, { "min" : 0.0, "max" : 1.0 } ],
+            [ "fxcolorMix", 1.0, { "min" : 0.0, "max" : 1.0 } ],
+        ])
+	}
+}

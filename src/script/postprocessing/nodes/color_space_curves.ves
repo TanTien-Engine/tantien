@@ -1,0 +1,135 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/color_space.glsl\"
+
+uniform __UBO__
+{
+    int color_space;
+
+    float pos0_shoulder_grey;       // Shoulder Position X
+    float pos1_shoulder_grey;       // Shoulder Position Y
+    float pos0_toe_grey;            // Toe Position X
+    float pos1_toe_grey;            // Toe Position Y
+
+    float colorsat;                 // Saturation
+};
+
+struct TonemapParams
+{
+    vec3 mToe;
+    vec2 mMid;
+    vec3 mShoulder;
+    vec2 mBx;
+};
+
+vec3 Tonemap(const TonemapParams tc, vec3 x)
+{
+    vec3 toe = - tc.mToe.x / (x + tc.mToe.y) + tc.mToe.z;
+    vec3 mid = tc.mMid.x * x + tc.mMid.y;
+    vec3 shoulder = - tc.mShoulder.x / (x + tc.mShoulder.y) + tc.mShoulder.z;
+    vec3 result = all(lessThan(vec3(tc.mBx.x), x)) ? mid : toe;
+    result = all(lessThan(vec3(tc.mBx.y), x)) ? shoulder : result;
+    return result;
+}
+
+
+vec4 setBoundaries( float tx, float ty, float sx, float sy )
+{
+    if( tx > sx )
+        tx = sx;
+    if( ty > sy )
+        ty = sy;
+    return vec4( tx, ty, sx, sy );
+}
+
+void PrepareTonemapParams(vec2 p1, vec2 p2, vec2 p3, out TonemapParams tc)
+{
+    float denom = p2.x - p1.x;
+    denom = abs(denom) > 1e-5 ? denom : 1e-5;
+    float slope = (p2.y - p1.y) / denom;
+    {
+        tc.mMid.x = slope;
+        tc.mMid.y = p1.y - slope * p1.x;
+    }
+    {
+        float denom = p1.y - slope * p1.x;
+        denom = abs(denom) > 1e-5 ? denom : 1e-5;
+        tc.mToe.x = slope * p1.x * p1.x * p1.y * p1.y / (denom * denom);
+        tc.mToe.y = slope * p1.x * p1.x / denom;
+        tc.mToe.z = p1.y * p1.y / denom;
+    }
+    {
+        float denom = slope * (p2.x - p3.x) - p2.y + p3.y;
+        denom = abs(denom) > 1e-5 ? denom : 1e-5;
+        tc.mShoulder.x = slope * pow(p2.x - p3.x, 2.0) * pow(p2.y - p3.y, 2.0) / (denom * denom);
+        tc.mShoulder.y = (slope * p2.x * (p3.x - p2.x) + p3.x * (p2.y - p3.y) ) / denom;
+        tc.mShoulder.z = (-p2.y * p2.y + p3.y * (slope * (p2.x - p3.x) + p2.y) ) / denom;
+    }
+    tc.mBx = vec2(p1.x, p2.x);
+}
+
+vec3 color_space_curves_pass(vec3 color, vec4 dnoise)
+{        
+    vec3 ret         = clamp( color + dnoise.xyz, 0.0, 1.0 );
+        
+    // Prepare curves
+    vec4 grey       = setBoundaries( pos0_toe_grey, pos1_toe_grey, pos0_shoulder_grey, pos1_shoulder_grey );
+    TonemapParams tc;
+    PrepareTonemapParams( grey.xy, grey.zw, vec2( 1.0f, 1.0f ), tc );
+
+    // RGBW
+    float rgb_luma    = min( min( ret.x, ret.y ), ret.z );
+    float temp_luma   = rgb_luma;
+    vec3 rgb_chroma = ret - rgb_luma;
+    rgb_luma          = Tonemap( tc, vec3(rgb_luma) ).x;
+    rgb_chroma       *= ( colorsat + 1.0f );
+
+    // LAB
+    vec3 lab_color  = pd80_srgb_to_lab( ret );
+    lab_color.x       = Tonemap( tc, vec3(lab_color.x) ).x;
+    lab_color.yz     *= ( colorsat + 1.0f );
+        
+    // HSL
+    vec3 hsl_color  = RGBToHSL( ret );
+    hsl_color.z       = Tonemap( tc, vec3(hsl_color.z) ).z;
+    hsl_color.y      *= ( colorsat + 1.0f );
+
+    // HSV
+    vec3 hsv_color  = RGBToHSV( ret );
+    hsv_color.z       = Tonemap( tc, vec3(hsv_color.z) ).z;
+    hsv_color.y      *= ( colorsat + 1.0f );
+
+    switch( color_space )
+    {
+        case 0: { ret = clamp( rgb_chroma.xyz + rgb_luma, 0.0, 1.0 ); } break;
+        case 1: { ret = pd80_lab_to_srgb( lab_color.xyz );     } break;
+        case 2: { ret = HSLToRGB( clamp( hsl_color.xyz, 0.0, 1.0 ));  } break;
+        case 3: { ret = HSVToRGB( clamp( hsv_color.xyz, 0.0, 1.0 ));  } break;
+    }
+
+    return clamp( ret + dnoise.wxy, 0.0, 1.0 );
+}
+
+"
+
+class ColorSpaceCurves is Node
+{
+	init() 
+	{
+		super.init(ColorSpaceCurves.name)
+
+		this.node_func = NodeFunction(this, CODE, "color_space_curves_pass", [
+            [ "color_space", 1, { "integer" : true, "min" : 0, "max" : 3 } ],   // 0: RGB-W, 1: L* a* b*, 2: HSL, 3: HSV
+            [ "pos0_shoulder_grey", 0.8, { "min" : 0.0, "max" : 1.0 } ],
+            [ "pos1_shoulder_grey", 0.8, { "min" : 0.0, "max" : 1.0 } ],
+            [ "pos0_toe_grey", 0.2, { "min" : 0.0, "max" : 1.0 } ],
+            [ "pos1_toe_grey", 0.2, { "min" : 0.0, "max" : 1.0 } ],
+            [ "colorsat", 0.0, { "min" : -1.0, "max" : 1.0 } ],
+        ])
+	}
+}

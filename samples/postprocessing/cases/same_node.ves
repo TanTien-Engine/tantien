@@ -1,0 +1,80 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node0, -1068.0475866559, 144.35763417775)
+
+var node1 = Shadergraph()
+
+_editor.add_node(node1, -81.85883534942, 228.08096398466)
+
+var node2 = Draw()
+
+node2.set_prim_type("tri_strip")
+node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node2.skip = false
+
+_editor.add_node(node2, 205.74729179906, 100.48338535283)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
+
+_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+
+var node4 = Clear()
+
+node4.masks = [ "color" ]
+node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node4, 19.702658176422, 356.6494140625)
+
+var node5 = TexCoord()
+
+_editor.add_node(node5, -889.01711570692, 106.40334446372)
+
+var node6 = SampleTexture()
+
+_editor.add_node(node6, -729.92678798004, 155.65703074361)
+
+var node7 = Technicolor2()
+node7.query_param("color_strength").value.set(0.2, 0.2, 0.2)
+node7.query_param("brightness").value = 0.41181030869484
+node7.query_param("saturation").value = 0.73626202344894
+node7.query_param("strength").value = 0.32417467236519
+
+_editor.add_node(node7, -495.17572694364, 8.8599672830907)
+
+var node8 = Add()
+
+_editor.add_node(node8, -253.07814271742, 214.93468738747)
+
+var node9 = Technicolor2()
+node9.query_param("color_strength").value.set(0.2, 0.2, 0.2)
+node9.query_param("brightness").value = 0.73626202344894
+node9.query_param("saturation").value = 0.76959532499313
+node9.query_param("strength").value = 0.51306354999542
+
+_editor.add_node(node9, -495.17572694364, 216.02189961283)
+
+Blueprint.connect(node5, "uv", node6, "uv")
+Blueprint.connect(node4, "next", node2, "prev")
+Blueprint.connect(node3, "out", node2, "va")
+Blueprint.connect(node0, "tex", node6, "tex")
+Blueprint.connect(node6, "rgb", node7, "color")
+Blueprint.connect(node6, "rgb", node9, "color")
+Blueprint.connect(node9, "ret", node8, "a")
+Blueprint.connect(node7, "ret", node8, "b")
+Blueprint.connect(node8, "v", node1, "rgb")
+Blueprint.connect(node1, "shader", node2, "shader")
