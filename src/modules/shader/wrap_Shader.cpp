@@ -8,6 +8,7 @@
 #include <shadertrans/spirv_Linker.h>
 #include <shadertrans/ShaderBuilder.h>
 #include <shadertrans/SpirvGenTwo.h>
+#include <shadertrans/ShaderPreprocess.h>
 #include <vessel/src/value.h>
 #include <guard/check.h>
 
@@ -60,7 +61,7 @@ void w_ShaderTools_code2spirv()
     if (strcmp(lang_str, "glsl") == 0) {
         shadertrans::ShaderTrans::GLSL2SpirV(stage, code_str, spirv, true);
     } else if (strcmp(lang_str, "hlsl") == 0) {
-        shadertrans::ShaderTrans::HLSL2SpirV(stage, code_str, spirv);
+        shadertrans::ShaderTrans::HLSL2SpirV(stage, code_str, "main", spirv);
     }
 
     ves_pop(4);
@@ -88,6 +89,22 @@ void w_ShaderTools_disassemble()
     std::string text;
     shadertrans::SpirvTools::Disassemble(spirv.data(), spirv.size(), &text);
     ves_set_lstring(0, text.c_str(), text.size());
+}
+
+void w_ShaderTools_hlsl2glsl()
+{
+    const char* stage_str = ves_tostring(1);
+    const char* hlsl = ves_tostring(2);
+    const char* entry_point = ves_tostring(3);
+
+    std::vector<unsigned int> spirv;
+    auto stage = to_shader_stage(stage_str);
+    shadertrans::ShaderTrans::HLSL2SpirV(stage, hlsl, entry_point, spirv);
+    std::string glsl;
+    shadertrans::ShaderTrans::SpirV2GLSL(stage, spirv, glsl);
+    glsl = shadertrans::ShaderPreprocess::PrepareHLSL(glsl, entry_point);
+
+    ves_set_lstring(0, glsl.c_str(), glsl.size());
 }
 
 // SpirvGenTwo
@@ -437,12 +454,14 @@ void w_ShaderGen_add_module()
 {
     const char* stage_str = ves_tostring(1);
     const char* code_str = ves_tostring(2);
-    const char* name = ves_tostring(3);
+    const char* lang_str = ves_tostring(3);
+    const char* name = ves_tostring(4);
+    const char* enter_point = ves_tostring(5);
 
     auto stage = to_shader_stage(stage_str);
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    auto lib = builder->AddModule(stage, code_str, name)->impl;
+    auto lib = builder->AddModule(stage, code_str, lang_str, name, enter_point)->impl;
     ves_set_number(0, pointer2double(lib.get()));
 }
 
@@ -746,6 +765,8 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "static ShaderTools.code2spirv(_,_,_)") == 0) return w_ShaderTools_code2spirv;
     if (strcmp(signature, "static ShaderTools.disassemble(_)") == 0) return w_ShaderTools_disassemble;
 
+    if (strcmp(signature, "static ShaderTools.hlsl2glsl(_,_,_)") == 0) return w_ShaderTools_hlsl2glsl;
+
     // SpirvGenTwo
 
     if (strcmp(signature, "static SpirvGenTwo.get_type(_)") == 0) return w_SpirvGenTwo_get_type;
@@ -786,7 +807,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.load(_,_)") == 0) return w_ShaderGen_load;
     if (strcmp(signature, "ShaderGen.image_sample(_,_,_,_)") == 0) return w_ShaderGen_image_sample;
 
-    if (strcmp(signature, "ShaderGen.add_module(_,_,_)") == 0) return w_ShaderGen_add_module;
+    if (strcmp(signature, "ShaderGen.add_module(_,_,_,_,_)") == 0) return w_ShaderGen_add_module;
     if (strcmp(signature, "ShaderGen.query_func(_,_)") == 0) return w_ShaderGen_query_func;
 
     if (strcmp(signature, "ShaderGen.func_replace(_,_)") == 0) return w_ShaderGen_func_replace;

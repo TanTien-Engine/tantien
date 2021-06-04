@@ -419,8 +419,8 @@ void SpriteRenderer::InitShader(const ur::Device& dev)
 
 	std::vector<unsigned int> _vs, _fs;
 	try {
-		shadertrans::ShaderTrans::HLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs, _vs);
-		shadertrans::ShaderTrans::HLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs, _fs);
+		shadertrans::ShaderTrans::HLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs, "main", _vs);
+		shadertrans::ShaderTrans::HLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs, "main", _fs);
 	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		return;

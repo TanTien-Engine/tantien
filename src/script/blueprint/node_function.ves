@@ -9,12 +9,17 @@ class NodeFunction
 {
 	init(node, code, func_name, params)
 	{
+		this.init(node, code, "glsl", func_name, params)
+	}
+
+	init(node, code, lang, func_name, params)
+	{
 		this.rename_ubo = code.contains("__UBO__")
 		if (this.rename_ubo) {
 			code = code.replace("__UBO__", "UBO_" + node.name)
 		}
 
-		this.num_params = NodeHelper.init_pins_from_code(node, code, func_name)
+		this.num_params = NodeHelper.init_pins_from_code(node, code, lang, func_name)
 		
 		for (var param in params)
 		{
@@ -29,6 +34,7 @@ class NodeFunction
 
 		this.node = node
 		this.code = code
+		this.lang = lang
 		this.func_name = func_name
 		this.decl_name = "bp_" + node.name
 
@@ -46,8 +52,7 @@ class NodeFunction
 
 	gen_shader(gen)
 	{
-		var code = "#version 330 core\n" + this.code
-		this.module = gen.add_module("pixel", code, this.decl_name)
+		this.module = gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
 
 		this.func = gen.query_func(this.module, this.func_name)
 

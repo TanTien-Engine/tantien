@@ -43,7 +43,7 @@ class Shadergraph is Node
 		this.dirty = true
 
 		this.uniforms = []
-		ShaderUniforms.get_shader_uniforms("vertex", this.vs, this.uniforms)
+		ShaderUniforms.get_shader_uniforms("vertex", this.vs, "glsl", this.uniforms, "main")
 		for (var unif in this.uniforms) {
 			ShaderUniforms.add_uniform_to_imports(this, unif)
 		}

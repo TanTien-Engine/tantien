@@ -5,6 +5,8 @@ foreign class ShaderTools
 {
 	foreign static code2spirv(stage, code, lang)
 	foreign static disassemble(spirv)
+
+	foreign static hlsl2glsl(stage, hlsl, entry_point)
 }
 
 foreign class SpirvGenTwo
@@ -225,7 +227,7 @@ foreign class ShaderGen
 	foreign load(func, val)
 	foreign image_sample(func, img, uv, lod)
 
-	foreign add_module(stage, glsl, name)
+	foreign add_module(stage, code, lang, name, entry_point)
 	foreign query_func(lib, name)
 
 	foreign func_replace(from, to)

@@ -30,12 +30,10 @@ class NodeHelper
 		return pin_type
 	}
 
-	static init_pins_from_code(node, code, name)
+	static init_pins_from_code(node, code, lang, name)
 	{
-		code = "#version 330 core\n" + code
-
 		// func params
-		var args = Render.get_shader_func_argus("pixel", code, "glsl", name)
+		var args = Render.get_shader_func_argus("pixel", code, lang, name)
 		if (!args) {
 			return
 		}
@@ -48,7 +46,7 @@ class NodeHelper
 
 		// uniforms
 		var uniforms = []
-		ShaderUniforms.get_shader_uniforms("pixel", code, uniforms)
+		ShaderUniforms.get_shader_uniforms("pixel", code, lang, uniforms, name)
 		for (var unif in uniforms) {
 			ShaderUniforms.add_uniform_to_imports(node, unif)
 		}

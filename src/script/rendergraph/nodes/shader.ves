@@ -42,12 +42,12 @@ class Shader is Node
 	get_shader_uniforms()
 	{
 		var uniforms = []
-		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  uniforms)
-		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, uniforms)
-		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, uniforms)
-		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  uniforms)
-		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  uniforms)
-		ShaderUniforms.get_shader_uniforms("compute",   this.cs,  uniforms)		
+		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("compute",   this.cs,  "glsl", uniforms, "main")		
 		return uniforms
 	}
 

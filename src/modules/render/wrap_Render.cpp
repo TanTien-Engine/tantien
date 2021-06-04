@@ -1416,7 +1416,7 @@ void w_Render_set_viewport()
     tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
-std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* lang_str, bool no_link)
+std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* entry_point, const char* lang_str, bool no_link)
 {
     std::vector<unsigned int> spirv;
 
@@ -1438,19 +1438,19 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
     }
 
     if (strcmp(lang_str, "glsl") == 0) {
-        auto code = shadertrans::ShaderPreprocess::AddIncludeMacro(shader_str);
+        auto code = shadertrans::ShaderPreprocess::PrepareGLSL(shader_str);
         shadertrans::ShaderTrans::GLSL2SpirV(stage, code, spirv, no_link);
     }  else if (strcmp(lang_str, "hlsl") == 0) {
-        shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, spirv);
+        shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, entry_point, spirv);
     }
 
     return spirv;
 }
 
-void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* lang_str,
+void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* entry_point, const char* lang_str,
                          std::vector<shadertrans::ShaderReflection::Variable>& uniforms)
 {
-    auto spirv = shader_string_to_spirv(stage_str, shader_str, lang_str, true);
+    auto spirv = shader_string_to_spirv(stage_str, shader_str, entry_point, lang_str, true);
     if (!spirv.empty()) {
         shadertrans::ShaderReflection::GetUniforms(spirv, uniforms);
     }
@@ -1550,13 +1550,14 @@ void w_Render_get_shader_uniforms()
     const char* stage = ves_tostring(1);
     const char* code  = ves_tostring(2);
     const char* lang  = ves_tostring(3);
+    const char* entry_point = ves_tostring(4);
 
     std::vector<shadertrans::ShaderReflection::Variable> uniforms;
     if (strlen(code) != 0) {
-        get_shader_uniforms(stage, code, lang, uniforms);
+        get_shader_uniforms(stage, code, entry_point, lang, uniforms);
     }
 
-    ves_pop(4);
+    ves_pop(5);
 
     push_variants(uniforms);
 } 
@@ -1568,7 +1569,7 @@ void w_Render_get_shader_func_argus()
     const char* lang = ves_tostring(3);
     const char* name = ves_tostring(4);
 
-    auto spirv = shader_string_to_spirv(stage, code, lang, true);
+    auto spirv = shader_string_to_spirv(stage, code, name, lang, true);
     if (spirv.empty()) {
         ves_set_nil(0);
         return;
@@ -1614,7 +1615,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
-    if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_)") == 0) return w_Render_get_shader_uniforms;
+    if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_,_)") == 0) return w_Render_get_shader_uniforms;
     if (strcmp(signature, "static Render.get_shader_func_argus(_,_,_,_)") == 0) return w_Render_get_shader_func_argus;
     if (strcmp(signature, "static Render.get_fbo()") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
