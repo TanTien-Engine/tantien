@@ -4,6 +4,7 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_helper" for NodeHelper
 import "render" for Render
 import "shadergraph.nodes.uniform" for Uniform
+import "shader" for SpirvGenTwo
 
 class NodeFunction
 {
@@ -157,12 +158,34 @@ class NodeFunction
 		for (var i in 0..this.num_params)
 		{
 			var pin = this.node.imports[i]
-			if (pin.type != VAR_TYPE_FUNCTION) {
+			if (pin.type != VAR_TYPE_FUNCTION) 
+			{
 				var inst = this.calc_inst_from_pin(gen, pin, module, func)
 				if (!inst) {
 					return nil
 				}
-				params.add(inst)
+
+				// todo: check if param need a var (in/out)
+				var type = SpirvGenTwo.get_type(inst)
+				var inst_var = nil
+				if (type == "float") {
+					inst_var = gen.variable_float(func)
+				} else if (type == "float_2") {
+					inst_var = gen.variable_float2(func)
+				} else if (type == "float_3") {
+					inst_var = gen.variable_float3(func)
+				} else if (type == "float_4") {
+					inst_var = gen.variable_float4(func)
+				}
+				if (inst_var) 
+				{
+					gen.store(func, inst_var, inst)
+					params.add(inst_var)
+				}
+				else
+				{
+					params.add(inst)
+				}
 			}
 		}
 		return gen.func_call(func, callee, params)

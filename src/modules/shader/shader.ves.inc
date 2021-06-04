@@ -245,6 +245,9 @@ foreign class ShaderGen
 	foreign func_return_value(func, inst)
 
 	foreign variable_float(func)
+	foreign variable_float2(func)
+	foreign variable_float3(func)
+	foreign variable_float4(func)
 
 	foreign const_bool(module, b)
 	foreign const_int(module, x)

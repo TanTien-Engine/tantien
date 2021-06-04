@@ -131,7 +131,7 @@ void PrepareTonemapParams(float2 p1, float2 p2, float2 p3, out TonemapParams tc)
 float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, float4 dnoise : COLOR1) : SV_Target
 {        
     float2 coords  = float2(( texcoord.x - 0.75f ) * 4.0f, ( 1.0f - texcoord.y ) * 4.0f ); // For vizualization
-    float3 _color          = saturate( color + dnoise.yzx );
+    color          = saturate( color + dnoise.yzx );
 
     #if( CURVEDCONTRASTS_VISUALIZE == 1 )
     int def_bi        = 0;
@@ -155,9 +155,9 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
 
     float4 grey       = setBoundaries( pos0_toe_grey, pos1_toe_grey, pos0_shoulder_grey, pos1_shoulder_grey );
     PrepareTonemapParams( grey.xy, grey.zw, float2( 1.0f, 1.0f ), tc );
-    _color         = blackwhiteIN( _color, bigr, wigr );
-    _color         = Tonemap( tc, _color );
-    _color         = blackwhiteOUT( _color, bogr, wogr );
+    color         = blackwhiteIN( color, bigr, wigr );
+    color         = Tonemap( tc, color );
+    color         = blackwhiteOUT( color, bogr, wogr );
     // Visual
 #if( CURVEDCONTRASTS_VISUALIZE )
         // Draw a bunch of lines
@@ -165,21 +165,21 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
         bandwidth.y           *= ( BUFFER_WIDTH * BUFFER_RCP_HEIGHT );
         bandwidth.w           *= ( BUFFER_WIDTH * BUFFER_RCP_HEIGHT );
         if( texcoord.x > 0.75 - bandwidth.x && texcoord.x < 0.75 && 1.0f - texcoord.y < 0.25 )
-            _color         = float3( 0.7f, 0.7f, 0.7f );
+            color         = float3( 0.7f, 0.7f, 0.7f );
         if( 1.0f - texcoord.y > 0.25 && 1.0f - texcoord.y < 0.25 + bandwidth.y && texcoord.x > 0.75 - bandwidth.x )
-            _color         = float3( 0.7f, 0.7f, 0.7f );
+            color         = float3( 0.7f, 0.7f, 0.7f );
         if( texcoord.x > 0.875 - bandwidth.z && texcoord.x < 0.875 + bandwidth.z && 1.0f - texcoord.y < 0.25 )
-            _color         = float3( 1.4f, 1.4f, 1.4f );
+            color         = float3( 1.4f, 1.4f, 1.4f );
         if( 1.0f - texcoord.y > 0.125f - bandwidth.w && 1.0f - texcoord.y < 0.125 + bandwidth.w && texcoord.x > 0.75 )
-            _color         = float3( 1.4f, 1.4f, 1.4f );
+            color         = float3( 1.4f, 1.4f, 1.4f );
         if( texcoord.x > 0.75 && texcoord.y > 0.75 )
         {
-            _color         *= 0.5f;
-            _color         = lerp( float3( 0.7f, 0.7f, 0.7f ), _color, smoothstep( 0.0f, 10.0f * BUFFER_RCP_HEIGHT, abs( coords.y - coords.x )));
+            color         *= 0.5f;
+            color         = lerp( float3( 0.7f, 0.7f, 0.7f ), color, smoothstep( 0.0f, 10.0f * BUFFER_RCP_HEIGHT, abs( coords.y - coords.x )));
             showcurve.xyz     = blackwhiteIN( coords.xxx, black_in_grey/255.0f, white_in_grey/255.0f );
             showcurve.xyz     = Tonemap( tc, showcurve.xyz );
             showcurve.xyz     = blackwhiteOUT( showcurve.xyz, black_out_grey/255.0f, white_out_grey/255.0f );
-            _color         = lerp( float3( 1.0f, 1.0f, 1.0f ), _color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
+            color         = lerp( float3( 1.0f, 1.0f, 1.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
         }     
 #endif
 #if( CURVEDCONTRASTS_ENABLE_RGB )
@@ -191,9 +191,9 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
 
     float4 red        = setBoundaries( pos0_toe_red, pos1_toe_red, pos0_shoulder_red, pos1_shoulder_red );
     PrepareTonemapParams( red.xy, red.zw, float2( 1.0f, 1.0f ), tc );
-    _color.x           = blackwhiteIN( _color.x, bir, wir );
-    _color.x           = Tonemap( tc, _color.xxx ).x;
-    _color.x           = blackwhiteOUT( _color.x, bor, wor );
+    color.x           = blackwhiteIN( color.x, bir, wir );
+    color.x           = Tonemap( tc, color.xxx ).x;
+    color.x           = blackwhiteOUT( color.x, bor, wor );
 #if( CURVEDCONTRASTS_VISUALIZE )
     if( any( float4( def_toe0 - pos0_toe_red, def_toe1 - pos1_toe_red, def_sho0 - pos0_shoulder_red, def_sho1 - pos1_shoulder_red )) ||
         any( int4(   def_bi - black_in_red, def_wi - white_in_red, def_bo - black_out_red, def_wo - white_out_red )))
@@ -203,7 +203,7 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.x       = blackwhiteIN( showcurve.xxx, black_in_red/255.0f, white_in_red/255.0f ).x;
             showcurve.x       = Tonemap( tc, showcurve.xxx ).x;
             showcurve.x       = blackwhiteOUT( showcurve.xxx, black_out_red/255.0f, white_out_red/255.0f ).x;
-            _color         = lerp( float3( 1.0f, 0.0f, 0.0f ), _color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
+            color         = lerp( float3( 1.0f, 0.0f, 0.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
         }
     }
 #endif
@@ -215,9 +215,9 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
 
     float4 green      = setBoundaries( pos0_toe_green, pos1_toe_green, pos0_shoulder_green, pos1_shoulder_green );
     PrepareTonemapParams( green.xy, green.zw, float2( 1.0f, 1.0f ), tc );
-    _color.y           = blackwhiteIN( _color.y, big, wig );
-    _color.y           = Tonemap( tc, _color.yyy ).y;
-    _color.y           = blackwhiteOUT( _color.y, bog, wog );
+    color.y           = blackwhiteIN( color.y, big, wig );
+    color.y           = Tonemap( tc, color.yyy ).y;
+    color.y           = blackwhiteOUT( color.y, bog, wog );
 #if( CURVEDCONTRASTS_VISUALIZE )
     if( any( float4( def_toe0 - pos0_toe_green, def_toe1 - pos1_toe_green, def_sho0 - pos0_shoulder_green, def_sho1 - pos1_shoulder_green )) ||
         any( int4(   def_bi - black_in_green, def_wi - white_in_green, def_bo - black_out_green, def_wo - white_out_green )))
@@ -227,7 +227,7 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.y       = blackwhiteIN( showcurve.yyy, black_in_green/255.0f, white_in_green/255.0f ).y;
             showcurve.y       = Tonemap( tc, showcurve.yyy ).y;
             showcurve.y       = blackwhiteOUT( showcurve.yyy, black_out_green/255.0f, white_out_green/255.0f ).y;
-            _color         = lerp( float3( 0.0f, 1.0f, 0.0f ), _color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.y )));
+            color         = lerp( float3( 0.0f, 1.0f, 0.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.y )));
         }
     }
 #endif
@@ -239,9 +239,9 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
 
     float4 blue       = setBoundaries( pos0_toe_blue, pos1_toe_blue, pos0_shoulder_blue, pos1_shoulder_blue );
     PrepareTonemapParams( blue.xy, blue.zw, float2( 1.0f, 1.0f ), tc );
-    _color.z           = blackwhiteIN( _color.z, bib, wib );
-    _color.z           = Tonemap( tc, _color.zzz ).z;
-    _color.z           = blackwhiteOUT( _color.z, bob, wob );
+    color.z           = blackwhiteIN( color.z, bib, wib );
+    color.z           = Tonemap( tc, color.zzz ).z;
+    color.z           = blackwhiteOUT( color.z, bob, wob );
 #if( CURVEDCONTRASTS_VISUALIZE )
     if( any( float4( def_toe0 - pos0_toe_blue, def_toe1 - pos1_toe_blue, def_sho0 - pos0_shoulder_blue, def_sho1 - pos1_shoulder_blue )) ||
         any( int4(   def_bi - black_in_blue, def_wi - white_in_blue, def_bo - black_out_blue, def_wo - white_out_blue )))
@@ -251,12 +251,12 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.z       = blackwhiteIN( showcurve.zzz, black_in_blue/255.0f, white_in_blue/255.0f ).z;
             showcurve.z       = Tonemap( tc, showcurve.zzz ).z;
             showcurve.z       = blackwhiteOUT( showcurve.zzz, black_out_blue/255.0f, white_out_blue/255.0f ).z;
-            _color         = lerp( float3( 0.0f, 0.0f, 1.0f ), _color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.z )));
+            color         = lerp( float3( 0.0f, 0.0f, 1.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.z )));
         }
     }
 #endif
 #endif
-    return _color;
+    return color;
 }
 
 "

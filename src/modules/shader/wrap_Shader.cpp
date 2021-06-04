@@ -610,6 +610,30 @@ void w_ShaderGen_variable_float()
     ves_set_number(0, pointer2double(ret));
 }
 
+void w_ShaderGen_variable_float2()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+
+    auto ret = shadertrans::SpirvGenTwo::VariableFloat2(func);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_ShaderGen_variable_float3()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+
+    auto ret = shadertrans::SpirvGenTwo::VariableFloat3(func);
+    ves_set_number(0, pointer2double(ret));
+}
+
+void w_ShaderGen_variable_float4()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+
+    auto ret = shadertrans::SpirvGenTwo::VariableFloat4(func);
+    ves_set_number(0, pointer2double(ret));
+}
+
 void w_ShaderGen_const_bool()
 {
     spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
@@ -825,6 +849,9 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.func_return_value(_,_)") == 0) return w_ShaderGen_func_return_value;
 
     if (strcmp(signature, "ShaderGen.variable_float(_)") == 0) return w_ShaderGen_variable_float;
+    if (strcmp(signature, "ShaderGen.variable_float2(_)") == 0) return w_ShaderGen_variable_float2;
+    if (strcmp(signature, "ShaderGen.variable_float3(_)") == 0) return w_ShaderGen_variable_float3;
+    if (strcmp(signature, "ShaderGen.variable_float4(_)") == 0) return w_ShaderGen_variable_float4;
 
     if (strcmp(signature, "ShaderGen.const_bool(_,_)") == 0) return w_ShaderGen_const_bool;
     if (strcmp(signature, "ShaderGen.const_int(_,_)") == 0) return w_ShaderGen_const_int;
