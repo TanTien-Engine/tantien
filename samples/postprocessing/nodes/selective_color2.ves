@@ -1,0 +1,167 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node0, -675.38447070134, 293.86598179783)
+
+var node1 = Shadergraph()
+
+_editor.add_node(node1, -40.918501590954, 214.93836693642)
+
+var node2 = Draw()
+
+node2.set_prim_type("tri_strip")
+node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node2.skip = false
+
+_editor.add_node(node2, 205.74729179906, 100.48338535283)
+
+var node3 = PrimitiveShape()
+
+node3.type = "quad"
+node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
+
+_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+
+var node4 = Clear()
+
+node4.masks = [ "color" ]
+node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node4, 19.702658176422, 356.6494140625)
+
+var node5 = TexCoord()
+
+_editor.add_node(node5, -516.36716636333, 187.66166235911)
+
+var node6 = SampleTexture()
+
+_editor.add_node(node6, -356.70451556645, 181.78035750518)
+
+var node7 = SelectiveColor2()
+node7.query_param("corr_method").value = 0
+node7.query_param("r_adj_cya").value = 0.49104884266853
+node7.query_param("r_adj_mag").value = 0.63549327850342
+node7.query_param("r_adj_yel").value = 0.63549327850342
+node7.query_param("r_adj_bla").value = 0.63549327850342
+node7.query_param("r_adj_sat").value = 0.67993772029877
+node7.query_param("r_adj_lig_curve").value = 0.50215995311737
+node7.query_param("r_adj_lig").value = 0.59104883670807
+node7.query_param("o_adj_cya").value = 0.6243821978569
+node7.query_param("o_adj_mag").value = 0.75771552324295
+node7.query_param("o_adj_yel").value = 0.74660438299179
+node7.query_param("o_adj_bla").value = 0.56882661581039
+node7.query_param("o_adj_sat").value = 0.5354933142662
+node7.query_param("o_adj_lig_curve").value = 0
+node7.query_param("o_adj_lig").value = 0.61327105760574
+node7.query_param("y_adj_cya").value = 0.61327105760574
+node7.query_param("y_adj_mag").value = 0
+node7.query_param("y_adj_yel").value = 0
+node7.query_param("y_adj_bla").value = 0
+node7.query_param("y_adj_sat").value = 0.0021599663887173
+node7.query_param("y_adj_lig_curve").value = 0.013271077536047
+node7.query_param("y_adj_lig").value = 0
+node7.query_param("yg_adj_cya").value = 0.0021599663887173
+node7.query_param("yg_adj_mag").value = 0
+node7.query_param("yg_adj_yel").value = 0
+node7.query_param("yg_adj_bla").value = 0
+node7.query_param("yg_adj_sat").value = 0
+node7.query_param("yg_adj_lig_curve").value = 0
+node7.query_param("yg_adj_lig").value = 0
+node7.query_param("g_adj_cya").value = 0
+node7.query_param("g_adj_mag").value = 0
+node7.query_param("g_adj_yel").value = 0
+node7.query_param("g_adj_bla").value = 0
+node7.query_param("g_adj_sat").value = 0
+node7.query_param("g_adj_lig_curve").value = 0
+node7.query_param("g_adj_lig").value = 0
+node7.query_param("gc_adj_cya").value = 0
+node7.query_param("gc_adj_mag").value = 0
+node7.query_param("gc_adj_yel").value = 0
+node7.query_param("gc_adj_bla").value = 0
+node7.query_param("gc_adj_sat").value = 0
+node7.query_param("gc_adj_lig_curve").value = 0
+node7.query_param("gc_adj_lig").value = 0
+node7.query_param("c_adj_cya").value = 0
+node7.query_param("c_adj_mag").value = 0
+node7.query_param("c_adj_yel").value = 0
+node7.query_param("c_adj_bla").value = 0
+node7.query_param("c_adj_sat").value = 0
+node7.query_param("c_adj_lig_curve").value = 0
+node7.query_param("c_adj_lig").value = 0
+node7.query_param("cb_adj_cya").value = 0
+node7.query_param("cb_adj_mag").value = 0
+node7.query_param("cb_adj_yel").value = 0
+node7.query_param("cb_adj_bla").value = 0
+node7.query_param("cb_adj_sat").value = 0
+node7.query_param("cb_adj_lig_curve").value = 0
+node7.query_param("cb_adj_lig").value = 0
+node7.query_param("b_adj_cya").value = 0
+node7.query_param("b_adj_mag").value = 0
+node7.query_param("b_adj_yel").value = 0
+node7.query_param("b_adj_bla").value = 0
+node7.query_param("b_adj_sat").value = 0
+node7.query_param("b_adj_lig_curve").value = 0
+node7.query_param("b_adj_lig").value = 0
+node7.query_param("bm_adj_cya").value = 0
+node7.query_param("bm_adj_mag").value = 0
+node7.query_param("bm_adj_yel").value = 0
+node7.query_param("bm_adj_bla").value = 0
+node7.query_param("bm_adj_sat").value = 0
+node7.query_param("bm_adj_lig_curve").value = 0
+node7.query_param("bm_adj_lig").value = 0
+node7.query_param("m_adj_cya").value = 0.85771554708481
+node7.query_param("m_adj_mag").value = 0
+node7.query_param("m_adj_yel").value = 0.66882663965225
+node7.query_param("m_adj_bla").value = 0
+node7.query_param("m_adj_sat").value = 0.64660441875458
+node7.query_param("m_adj_lig_curve").value = 0
+node7.query_param("m_adj_lig").value = 0.60215997695923
+node7.query_param("mr_adj_cya").value = 0.60215997695923
+node7.query_param("mr_adj_mag").value = 0.60215997695923
+node7.query_param("mr_adj_yel").value = 0.60215997695923
+node7.query_param("mr_adj_bla").value = 0
+node7.query_param("mr_adj_sat").value = 0.64660441875458
+node7.query_param("mr_adj_lig_curve").value = 0
+node7.query_param("mr_adj_lig").value = 0
+node7.query_param("w_adj_cya").value = 0
+node7.query_param("w_adj_mag").value = 0
+node7.query_param("w_adj_yel").value = 0
+node7.query_param("w_adj_bla").value = 0
+node7.query_param("w_adj_sat").value = 0
+node7.query_param("w_adj_lig_curve").value = 0
+node7.query_param("w_adj_lig").value = 0.63549327850342
+node7.query_param("n_adj_cya").value = 0
+node7.query_param("n_adj_mag").value = 0
+node7.query_param("n_adj_yel").value = 0
+node7.query_param("n_adj_bla").value = 0.23549330234528
+node7.query_param("n_adj_sat").value = 0.19104886054993
+node7.query_param("n_adj_lig_curve").value = 0.23549330234528
+node7.query_param("n_adj_lig").value = 0.69104886054993
+node7.query_param("bk_adj_cya").value = 0.24660441279411
+node7.query_param("bk_adj_mag").value = 0.67993772029877
+node7.query_param("bk_adj_yel").value = 0
+node7.query_param("bk_adj_bla").value = 0
+node7.query_param("bk_adj_sat").value = 0
+node7.query_param("bk_adj_lig_curve").value = 0
+node7.query_param("bk_adj_lig").value = 0
+
+_editor.add_node(node7, -186.19439016862, -1832.2433311172)
+
+Blueprint.connect(node5, "uv", node6, "uv")
+Blueprint.connect(node4, "next", node2, "prev")
+Blueprint.connect(node3, "out", node2, "va")
+Blueprint.connect(node0, "tex", node6, "tex")
+Blueprint.connect(node6, "rgba", node7, "color")
+Blueprint.connect(node7, "ret", node1, "rgba")
+Blueprint.connect(node1, "shader", node2, "shader")

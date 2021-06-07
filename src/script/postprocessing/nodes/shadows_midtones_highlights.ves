@@ -1,0 +1,204 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/base_effects.hlsl\"
+#include \"assets/shaders/blend_modes.hlsl\"
+
+uniform int luma_mode;
+uniform int separation_mode;
+
+uniform float exposure_s;
+uniform float contrast_s;
+uniform float brightness_s;
+uniform float3 blendcolor_s;
+uniform int blendmode_s;
+uniform float opacity_s;
+uniform float tint_s;
+uniform float saturation_s;
+uniform float vibrance_s;
+
+uniform float exposure_m;
+uniform float contrast_m;
+uniform float brightness_m;
+uniform float3 blendcolor_m;
+uniform int blendmode_m;
+uniform float opacity_m;
+uniform float tint_m;
+uniform float saturation_m;
+uniform float vibrance_m;
+
+uniform float exposure_h;
+uniform float contrast_h;
+uniform float brightness_h;
+uniform float3 blendcolor_h;
+uniform int blendmode_h;
+uniform float opacity_h;
+uniform float tint_h;
+uniform float saturation_h;
+uniform float vibrance_h;
+
+float getLuminance( in float3 x )
+{
+    return dot( x, float3( 0.212656, 0.715158, 0.072186 ));
+}
+    
+float curve( float x )
+{
+    return x * x * x * ( x * ( x * 6.0f - 15.0f ) + 10.0f );
+}
+
+float4 shadows_midtones_highlights_pass(float4 color : COLOR) : SV_Target
+{
+    color.xyz         = saturate( color.xyz );
+
+    float pLuma       = 0.0f;
+    switch( luma_mode )
+    {
+        case 0: // Use average
+        {
+            pLuma     = dot( color.xyz, float3( 0.333333f, 0.333334f, 0.333333f ));
+        }
+        break;
+        case 1: // Use perceived luma
+        {
+            pLuma     = getLuminance( color.xyz );
+        }
+        break;
+        case 2: // Use max
+        {
+            pLuma     = max( max( color.x, color.y ), color.z );
+        }
+        break;
+    }
+        
+    float weight_s; float weight_h; float weight_m;
+
+    switch( separation_mode )
+    {
+        /*
+        Clear cutoff between shadows and highlights
+        Maximizes precision at the loss of harsher transitions between contrasts
+        Curves look like:
+
+        Shadows                Highlights             Midtones
+        ‾‾‾—_                                _—‾‾‾         _——‾‾‾——_
+                ‾‾——__________    __________——‾‾         ___—‾         ‾—___
+        0.0.....0.5.....1.0    0.0.....0.5.....1.0    0.0.....0.5.....1.0
+            
+        */
+        case 0:
+        {
+            weight_s  = curve( max( 1.0f - pLuma * 2.0f, 0.0f ));
+            weight_h  = curve( max(( pLuma - 0.5f ) * 2.0f, 0.0f ));
+            weight_m  = saturate( 1.0f - weight_s - weight_h );
+        } break;
+
+        /*
+        Higher degree of blending between individual curves
+        F.e. shadows will still have a minimal weight all the way into highlight territory
+        Ensures smoother transition areas between contrasts
+        Curves look like:
+
+        Shadows                Highlights             Midtones
+        ‾‾‾—_                                _—‾‾‾          __---__
+                ‾‾———————_____    _____———————‾‾         ___-‾‾       ‾‾-___
+        0.0.....0.5.....1.0    0.0.....0.5.....1.0    0.0.....0.5.....1.0
+            
+        */
+        case 1:
+        {
+            weight_s  = pow( 1.0f - pLuma, 4.0f );
+            weight_h  = pow( pLuma, 4.0f );
+            weight_m  = saturate( 1.0f - weight_s - weight_h );
+        } break;
+    }
+
+    float3 cold       = float3( 0.0f,  0.365f, 1.0f ); //LBB
+    float3 warm       = float3( 0.98f, 0.588f, 0.0f ); //LBA
+        
+    // Shadows
+    color.xyz        = exposure( color.xyz, exposure_s * weight_s );
+    color.xyz        = con( color.xyz, contrast_s * weight_s );
+    color.xyz        = bri( color.xyz, brightness_s * weight_s );
+    color.xyz        = blendmode( color.xyz, blendcolor_s.xyz, blendmode_s, opacity_s * weight_s );
+    if( tint_s < 0.0f )
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, cold.xyz ), abs( tint_s * weight_s ));
+    else
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, warm.xyz ), tint_s * weight_s );
+    color.xyz        = sat( color.xyz, saturation_s * weight_s );
+    color.xyz        = vib( color.xyz, vibrance_s   * weight_s );
+
+    // Midtones
+    color.xyz        = exposure( color.xyz, exposure_m * weight_m );
+    color.xyz        = con( color.xyz, contrast_m   * weight_m );
+    color.xyz        = bri( color.xyz, brightness_m * weight_m );
+    color.xyz        = blendmode( color.xyz, blendcolor_m.xyz, blendmode_m, opacity_m * weight_m );
+    if( tint_m < 0.0f )
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, cold.xyz ), abs( tint_m * weight_m ));
+    else
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, warm.xyz ), tint_m * weight_m );
+    color.xyz        = sat( color.xyz, saturation_m * weight_m );
+    color.xyz        = vib( color.xyz, vibrance_m   * weight_m );
+
+    // Highlights
+    color.xyz        = exposure( color.xyz, exposure_h * weight_h );
+    color.xyz        = con( color.xyz, contrast_h   * weight_h );
+    color.xyz        = bri( color.xyz, brightness_h * weight_h );
+    color.xyz        = blendmode( color.xyz, blendcolor_h.xyz, blendmode_h, opacity_h * weight_h );
+    if( tint_h < 0.0f )
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, cold.xyz ), abs( tint_h * weight_h ));
+    else
+        color.xyz    = lerp( color.xyz, softlight( color.xyz, warm.xyz ), tint_h * weight_h );
+    color.xyz        = sat( color.xyz, saturation_h * weight_h );
+    color.xyz        = vib( color.xyz, vibrance_h   * weight_h );
+
+    return float4( color.xyz, 1.0f );
+}
+"
+
+class ShadowsMidtonesHighlights is Node
+{
+	init() 
+	{
+		super.init(ShadowsMidtonesHighlights.name)
+
+		this.node_func = NodeFunction(this, CODE, "hlsl", "shadows_midtones_highlights_pass", [
+            [ "luma_mode", 2, { "integer" : true, "min" : 0, "max" : 2 } ],         // 0: Use Average, 1: Use Perceived Luma, 2: Use Max Value
+            [ "separation_mode", 0, { "integer" : true, "min" : 0, "max" : 1 } ],   // 0: Harsh Separation, 1: Smooth Separation
+
+            [ "exposure_s", 0.0, { "min" : -4.0, "max" : 4.0 } ],                   // Shadow Exposure
+            [ "contrast_s", 0.0, { "min" : -1.0, "max" : 1.5 } ],                   // Shadow Contrast
+            [ "brightness_s", 0.0, { "min" : -1.0, "max" : 1.5 } ],                 // Shadow Brightness
+            [ "blendcolor_s", Vector3(0.0,  0.365, 1.0) ],                          // Shadow Color
+            [ "blendmode_s", 0, { "integer" : true, "min" : 0, "max" : 20 } ],      // 0: Default, 1: Darken, 2: Multiply, 3: Linearburn, 4: Colorburn, 5: Lighten, 6: Screen, 7: Colordodge, 8: Lineardodge, 9: Overlay, 10: Softlight, 11: Vividlight, 12: Linearlight, 13: Pinlight, 14: Hardmix, 15: Reflect, 16: Glow, 17: Hue, 18: Saturation, 19: Color, 20: Luminosity 
+            [ "opacity_s", 0.0, { "min" : 0.0, "max" : 1.0 } ],                     // Shadow Opacity
+            [ "tint_s", 0.0, { "min" : -1.0, "max" : 1.0 } ],                       // Shadow Tint
+            [ "saturation_s", 0.0, { "min" : -1.0, "max" : 1.0 } ],                 // Shadow Saturation
+            [ "vibrance_s", 0.0, { "min" : -1.0, "max" : 1.0 } ],                   // Shadow Vibrance
+
+            [ "exposure_m", 0.0, { "min" : -4.0, "max" : 4.0 } ],                   // Midtone Exposure
+            [ "contrast_m", 0.0, { "min" : -1.0, "max" : 1.5 } ],                   // Midtone Contrast
+            [ "brightness_m", 0.0, { "min" : -1.0, "max" : 1.5 } ],                 // Midtone Brightness
+            [ "blendcolor_m", Vector3(0.98, 0.588, 0.0) ],                          // Midtone Color
+            [ "blendmode_m", 0, { "integer" : true, "min" : 0, "max" : 20 } ],      // 0: Default, 1: Darken, 2: Multiply, 3: Linearburn, 4: Colorburn, 5: Lighten, 6: Screen, 7: Colordodge, 8: Lineardodge, 9: Overlay, 10: Softlight, 11: Vividlight, 12: Linearlight, 13: Pinlight, 14: Hardmix, 15: Reflect, 16: Glow, 17: Hue, 18: Saturation, 19: Color, 20: Luminosity 
+            [ "opacity_m", 0.0, { "min" : 0.0, "max" : 1.0 } ],                     // Midtone Opacity
+            [ "tint_m", 0.0, { "min" : -1.0, "max" : 1.0 } ],                       // Midtone Tint
+            [ "saturation_m", 0.0, { "min" : -1.0, "max" : 1.0 } ],                 // Midtone Saturation
+            [ "vibrance_m", 0.0, { "min" : -1.0, "max" : 1.0 } ],                   // Midtone Vibrance
+
+            [ "exposure_h", 0.0, { "min" : -4.0, "max" : 4.0 } ],                   // Highlight Exposure
+            [ "contrast_h", 0.0, { "min" : -1.0, "max" : 1.5 } ],                   // Highlight Contrast
+            [ "brightness_h", 0.0, { "min" : -1.0, "max" : 1.5 } ],                 // Highlight Brightness
+            [ "blendcolor_h", Vector3(1.0, 1.0, 1.0) ],                             // Highlight Color
+            [ "blendmode_h", 0, { "integer" : true, "min" : 0, "max" : 20 } ],      // 0: Default, 1: Darken, 2: Multiply, 3: Linearburn, 4: Colorburn, 5: Lighten, 6: Screen, 7: Colordodge, 8: Lineardodge, 9: Overlay, 10: Softlight, 11: Vividlight, 12: Linearlight, 13: Pinlight, 14: Hardmix, 15: Reflect, 16: Glow, 17: Hue, 18: Saturation, 19: Color, 20: Luminosity 
+            [ "opacity_h", 0.0, { "min" : 0.0, "max" : 1.0 } ],                     // Highlight Opacity
+            [ "tint_h", 0.0, { "min" : -1.0, "max" : 1.0 } ],                       // Highlight Tint
+            [ "saturation_h", 0.0, { "min" : -1.0, "max" : 1.0 } ],                 // Highlight Saturation
+            [ "vibrance_h", 0.0, { "min" : -1.0, "max" : 1.0 } ],                   // Highlight Vibrance            
+        ])
+	}
+}
