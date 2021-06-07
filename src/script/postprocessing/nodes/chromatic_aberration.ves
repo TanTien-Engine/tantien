@@ -11,25 +11,24 @@ var CODE = "
  * Distorts the image by shifting each color component, which creates color artifacts similar to those in a very cheap lens or a cheap sensor.
  */
 
-uniform __UBO__
-{
-    vec2 pixel_size;
+#include \"assets/shaders/reshade_adapter.hlsl\"
 
-    vec2 shift;
-    float strength;
-};
+SamplerState g_sampler;
+Texture2D g_texture;
 
-vec3 chromatic_aberration_pass(sampler2D tex, vec2 texcoord)
+uniform float2 shift;
+uniform float strength;
+
+float3 chromatic_aberration_pass(float2 texcoord : TexCoord) : SV_Target
 {
-    vec3 color = texture(tex, texcoord).rgb;
-    vec3 old_color = color;
+    float3 color, colorInput = g_texture.Sample(g_sampler, texcoord).rgb;
     // Sample the color components
-    color.r = texture(tex, texcoord + (pixel_size * shift)).r;
-    color.g = old_color.g;
-    color.b = texture(tex, texcoord - (pixel_size * shift)).b;
+    color.r = g_texture.Sample(g_sampler, texcoord + (BUFFER_PIXEL_SIZE * shift)).r;
+    color.g = colorInput.g;
+    color.b = g_texture.Sample(g_sampler, texcoord - (BUFFER_PIXEL_SIZE * shift)).b;
 
     // Adjust the strength of the effect
-    return mix(old_color, color, strength);
+    return lerp(colorInput, color, strength);
 }
 "
 
@@ -39,7 +38,7 @@ class ChromaticAberration is Node
 	{
 		super.init(ChromaticAberration.name)
 
-		this.node_func = NodeFunction(this, CODE, "chromatic_aberration_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "chromatic_aberration_pass", [
             [ "shift", Vector2(2.5, -0.5), { "min" : -10.0, "max" : 10.0 } ],
             [ "strength", 0.5, { "min" : 0.0, "max" : 1.0 } ],
         ])

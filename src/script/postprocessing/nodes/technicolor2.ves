@@ -10,24 +10,19 @@ var CODE = "
  * Optimized by CeeJay.dk
  */
 
-uniform __UBO__
-{
-    vec3 color_strength;
+uniform float3 color_strength;
 
-    float brightness;
-    float saturation;
-    
-    float strength;
-};
+uniform float brightness;
+uniform float saturation;
 
-vec3 technicolor_pass(vec3 color)
+uniform float strength;
+
+float3 technicolor_pass(float3 color : COLOR) : SV_Target
 {    
-    vec3 ret = color;
-
-    vec3 temp = 1.0 - ret;
-    vec3 target = temp.grg;
-    vec3 target2 = temp.bbr;
-    vec3 temp2 = ret * target;
+    float3 temp = 1.0 - color;
+    float3 target = temp.grg;
+    float3 target2 = temp.bbr;
+    float3 temp2 = color * target;
     temp2 *= target2;
 
     temp = temp2 * color_strength;
@@ -36,14 +31,14 @@ vec3 technicolor_pass(vec3 color)
     target = temp.grg;
     target2 = temp.bbr;
 
-    temp = ret - target;
+    temp = color - target;
     temp += temp2;
     temp2 = temp - target2;
 
-    ret = mix(ret, temp2, strength);
-    ret = mix(vec3(dot(ret, vec3(0.333))), ret, saturation);
+    color = lerp(color, temp2, strength);
+    color = lerp(dot(color, 0.333), color, saturation);
 
-    return ret;
+    return color;
 }
 "
 
@@ -53,7 +48,7 @@ class Technicolor2 is Node
 	{
 		super.init(Technicolor2.name)
 
-		this.node_func = NodeFunction(this, CODE, "technicolor_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "technicolor_pass", [
             [ "color_strength", Vector3(0.2, 0.2, 0.2) ],
             [ "brightness", 0.5, { "min" : 0.5, "max" : 1.5 } ],
             [ "saturation", 0.5, { "min" : 0.0, "max" : 1.5 } ],

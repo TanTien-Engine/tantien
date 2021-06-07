@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.blueprint" for Blueprint
 import "blueprint.shader_builder" for ShaderBuilder
 import "rendergraph.variant" for VAR_TYPE_SHADER
@@ -31,7 +31,8 @@ class Shadergraph is Node
 		super.init(Shadergraph.name)
 
 		this.imports = [
-			Pin(this, "rgb", VAR_TYPE_NUMBER3)
+			Pin(this, "rgba", VAR_TYPE_NUMBER4),
+			Pin(this, "rgb",  VAR_TYPE_NUMBER3)
 		]
 		this.exports = [
 			Pin(this, "shader", VAR_TYPE_SHADER)
@@ -69,25 +70,30 @@ class Shadergraph is Node
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func)
-		var r = nil
-		var g = nil
-		var b = nil
-		var a = gen.const_float(module, 1.0)
-		if (rgb)
+		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func)
+		if (!rgba) 
 		{
-			r = gen.compose_extract(func, rgb, 0)
-			g = gen.compose_extract(func, rgb, 1)
-			b = gen.compose_extract(func, rgb, 2)
+			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func)
+
+			var r = nil
+			var g = nil
+			var b = nil
+			var a = gen.const_float(module, 1.0)
+			if (rgb)
+			{
+				r = gen.compose_extract(func, rgb, 0)
+				g = gen.compose_extract(func, rgb, 1)
+				b = gen.compose_extract(func, rgb, 2)
+			}
+			else
+			{
+				r = gen.const_float(module, 0.0)
+				g = gen.const_float(module, 0.0)
+				b = gen.const_float(module, 0.0)
+			}
+			rgba = gen.compose_float4(func, r, g, b, a)
 		}
-		else
-		{
-			r = gen.const_float(module, 0.0)
-			g = gen.const_float(module, 0.0)
-			b = gen.const_float(module, 0.0)
-		}
-		var rgba = gen.compose_float4(func, r, g, b, a)
-		gen.store(func, frag_col, rgba)
+		gen.store(func, frag_col, rgba)		
 
 		gen.func_return(func)
 

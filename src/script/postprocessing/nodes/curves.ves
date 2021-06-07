@@ -10,18 +10,15 @@ var CODE = "
  * Curves, uses S-curves to increase contrast, without clipping highlights and shadows.
  */
 
-uniform __UBO__
-{
-    int mode;
-    int formula;
-    
-    float contrast;
-};
+uniform int mode;
+uniform int formula;
 
-vec3 curves_pass(vec3 color)
+uniform float contrast;
+
+float4 curves_pass(float4 color : COLOR) : SV_Target
 {
-    vec3 ret = color;
-    vec3 lumCoeff = vec3(0.2126, 0.7152, 0.0722);  //Values to calculate luma with
+    float4 colorInput = color;
+    float3 lumCoeff = float3(0.2126, 0.7152, 0.0722);  //Values to calculate luma with
     float Contrast_blend = contrast; 
     const float PI = 3.1415927;
 
@@ -31,20 +28,20 @@ vec3 curves_pass(vec3 color)
 
     // -- Calculate Luma and Chroma if needed --
     //calculate luma (grey)
-    float luma = dot(lumCoeff, ret);
+    float luma = dot(lumCoeff, colorInput.rgb);
     //calculate chroma
-    vec3 chroma = ret - luma;
+    float3 chroma = colorInput.rgb - luma;
 
     // -- Which value to put through the contrast formula? --
     // I name it x because makes it easier to copy-paste to Graphtoy or Wolfram Alpha or another graphing program
-    vec3 x;
+    float3 x;
     if (mode == 0)
-        x = vec3(luma); //if the curve should be applied to Luma
+        x = luma; //if the curve should be applied to Luma
     else if (mode == 1)
-        x = vec3(chroma), //if the curve should be applied to Chroma
+        x = chroma, //if the curve should be applied to Chroma
         x = x * 0.5 + 0.5; //adjust range of Chroma from -1 -> 1 to 0 -> 1
     else
-        x = ret; //if the curve should be applied to both Luma and Chroma
+        x = colorInput.rgb; //if the curve should be applied to both Luma and Chroma
 
     /*-----------------------------------------------------------.
     /                     contrast formulas                       /
@@ -123,9 +120,9 @@ vec3 curves_pass(vec3 color)
     // -- Curve 10 --
     if (formula == 9)
     {
-        vec3 xstep = step(x, vec3(0.5)); //tenary might be faster here
-        vec3 xstep_shift = (xstep - 0.5);
-        vec3 shifted_x = x + xstep_shift;
+        float3 xstep = step(x, 0.5); //tenary might be faster here
+        float3 xstep_shift = (xstep - 0.5);
+        float3 shifted_x = x + xstep_shift;
 
         x = abs(xstep - sqrt(-shifted_x * shifted_x + shifted_x)) - xstep_shift;
 
@@ -150,12 +147,12 @@ vec3 curves_pass(vec3 color)
     // -- Curve 11 --
     if (formula == 10)
     {
-        vec3 a = vec3(0.0, 0.0, 0.0);
-        vec3 b = vec3(0.0, 0.0, 0.0);
+        float3 a = float3(0.0, 0.0, 0.0);
+        float3 b = float3(0.0, 0.0, 0.0);
 
         a = x * x * 2.0;
         b = (2.0 * -x + 4.0) * x - 1.0;
-        x = (x.x < 0.5 && x.y < 0.5 && x.z < 0.5) ? a : b;
+        x = (x < 0.5) ? a : b;
     }
 
     /*-----------------------------------------------------------.
@@ -164,22 +161,22 @@ vec3 curves_pass(vec3 color)
 
     if (mode == 0) // Only Luma
     {
-        x = mix(vec3(luma), x, Contrast_blend); //Blend by contrast
-        ret = x + chroma; //Luma + Chroma
+        x = lerp(luma, x, Contrast_blend); //Blend by contrast
+        colorInput.rgb = x + chroma; //Luma + Chroma
     }
     else if (mode == 1) // Only Chroma
     {
         x = x * 2.0 - 1.0; //adjust the Chroma range back to -1 -> 1
-        vec3 color = vec3(luma) + x; //Luma + Chroma
-        ret = mix(ret, color, Contrast_blend); //Blend by contrast
+        float3 color = luma + x; //Luma + Chroma
+        colorInput.rgb = lerp(colorInput.rgb, color, Contrast_blend); //Blend by contrast
     }
     else // Both Luma and Chroma
     {
-        vec3 color = x;  //if the curve should be applied to both Luma and Chroma
-        ret = mix(ret, color, Contrast_blend); //Blend by contrast
+        float3 color = x;  //if the curve should be applied to both Luma and Chroma
+        colorInput.rgb = lerp(colorInput.rgb, color, Contrast_blend); //Blend by contrast
     }
 
-    return ret;
+    return colorInput;
 }
 "
 
@@ -189,7 +186,7 @@ class Curves is Node
 	{
 		super.init(Curves.name)
 
-		this.node_func = NodeFunction(this, CODE, "curves_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "curves_pass", [
             [ "mode", 0, { "integer" : true, "min" : 0, "max" : 2 } ],  // 0: Luma, 1: Chroma, 2: Both Luma and Chroma
             [ "formula", 4, { "integer" : true, "min" : 0, "max" : 10 } ],  // 0: Sine, 1: Abs split, 2: Smoothstep, 3: Exp formula, 4: Simplified Catmull-Rom (0,0,1,1), 5: Perlins Smootherstep, 6: Abs add, 7: Techicolor Cinestyle, 8: Parabola, 9: Half-circles, 10: Polynomial split
             [ "contrast", 0.65, { "min" : -1.0, "max" : 1.0 } ],

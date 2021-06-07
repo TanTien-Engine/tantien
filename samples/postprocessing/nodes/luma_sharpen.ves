@@ -7,11 +7,11 @@ import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
 import "postprocessing.nodes.*"
 var node0 = Texture()
-node0.query_param("unif_name").value = "u_tex"
+node0.query_param("unif_name").value = "texture0"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
-_editor.add_node(node0, -757.95947792019, 192.1685760533)
+_editor.add_node(node0, -549.32991337231, 97.788534948308)
 
 var node1 = Shadergraph()
 
@@ -42,7 +42,7 @@ _editor.add_node(node4, 19.702658176422, 356.6494140625)
 
 var node5 = TexCoord()
 
-_editor.add_node(node5, -578.92900697118, 154.21428633927)
+_editor.add_node(node5, -500.07199894267, 241.76419289061)
 
 var node6 = LumaSharpen()
 node6.query_param("sharp_strength").value = 0.85
@@ -53,19 +53,14 @@ node6.query_param("show_sharpen").value = false
 
 _editor.add_node(node6, -354.03934157503, 121.13793456731)
 
-var node7 = Reciprocal()
+var node7 = Viewport()
 
-_editor.add_node(node7, -715.21724249637, -101.91925719912)
+_editor.add_node(node7, -499.92690838878, 196.01007337621)
 
-var node8 = Viewport()
-
-_editor.add_node(node8, -843.91732136355, -100.79031904607)
-
-Blueprint.connect(node8, "size", node7, "v")
-Blueprint.connect(node7, "v", node6, "pixel_size")
-Blueprint.connect(node5, "uv", node6, "texcoord")
+Blueprint.connect(node7, "size", node6, "screen_size")
+Blueprint.connect(node5, "uv", node6, "tex")
 Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "tex")
+Blueprint.connect(node0, "tex", node6, "texture0")
 Blueprint.connect(node6, "ret", node1, "rgb")
 Blueprint.connect(node1, "shader", node2, "shader")

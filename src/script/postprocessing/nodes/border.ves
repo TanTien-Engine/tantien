@@ -21,29 +21,29 @@ var CODE = "
  * Cleaned up setting for Reshade 3.x
  */
 
-uniform __UBO__
-{
-    vec2 screen_size;
+#include \"assets/shaders/reshade_adapter.hlsl\"
 
-    vec2 border_width;
-    float border_ratio;
-    vec3 border_color;
-};
+uniform float2 border_width;
+uniform float  border_ratio;
+uniform float3 border_color;
 
-vec3 border_pass(vec3 color, vec2 texcoord)
+float3 border_pass(float3 color : COLOR, float2 texcoord : TexCoord) : SV_Target
 {
     // -- calculate the right border_width for a given border_ratio --
-    vec2 border_width_variable = border_width;
+    float2 border_width_variable = border_width;
     if (border_width.x == -border_width.y) // If width is not used
-        if (screen_size.x / screen_size.y < border_ratio)
-            border_width_variable = vec2(0.0, (screen_size.y - (screen_size.x / border_ratio)) * 0.5);
-        else
-            border_width_variable = vec2((screen_size.x - (screen_size.y * border_ratio)) * 0.5, 0.0);
+    {
+        if (BUFFER_ASPECT_RATIO < border_ratio) {
+            border_width_variable = float2(0.0, (BUFFER_HEIGHT - (BUFFER_WIDTH / border_ratio)) * 0.5);
+        } else {
+            border_width_variable = float2((BUFFER_WIDTH - (BUFFER_HEIGHT * border_ratio)) * 0.5, 0.0);
+        }    
+    }
 
-    vec2 border = (1.0 / screen_size * border_width_variable); // Translate integer pixel width to floating point
-    vec2 within_border = clamp((-texcoord * texcoord + texcoord) - (-border * border + border), 0.0, 1.0); // Becomes positive when inside the border and zero when outside
+    float2 border = (BUFFER_PIXEL_SIZE * border_width_variable); // Translate integer pixel width to floating point
+    float2 within_border = saturate((-texcoord * texcoord + texcoord) - (-border * border + border)); // Becomes positive when inside the border and zero when outside
 
-    return (within_border.x > 0 && within_border.y > 0) ? color : border_color;
+    return all(within_border) ? color : border_color;
 }
 "
 
@@ -53,7 +53,7 @@ class Border is Node
 	{
 		super.init(Border.name)
 
-		this.node_func = NodeFunction(this, CODE, "border_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "border_pass", [
             [ "border_width", Vector2(0.1, 0.1) ],
             [ "border_ratio", 1.35 ],
             [ "border_color", Vector3(0.0, 0.0, 0.0) ],

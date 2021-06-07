@@ -11,47 +11,47 @@ var CODE = "
  * Not actual HDR - It just tries to mimic an HDR look (relatively high performance cost)
  */
 
-uniform __UBO__
-{
-    vec2 pixel_size;
-    
-    float hdr_power;
-    float radius1;
-    float radius2;
-};
+#include \"assets/shaders/reshade_adapter.hlsl\"
 
-vec3 hdr_pass(sampler2D tex, vec2 texcoord)
-{
-    vec3 color = texture(tex, texcoord).rgb;
+SamplerState g_sampler;
+Texture2D g_texture;
 
-    vec3 bloom_sum1 = texture(tex, texcoord + vec2(1.5, -1.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2(-1.5, -1.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2( 1.5,  1.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2(-1.5,  1.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2( 0.0, -2.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2( 0.0,  2.5) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2(-2.5,  0.0) * radius1 * pixel_size).rgb;
-    bloom_sum1 += texture(tex, texcoord + vec2( 2.5,  0.0) * radius1 * pixel_size).rgb;
+uniform float hdr_power;
+uniform float radius1;
+uniform float radius2;
+
+float3 hdr_pass(float2 texcoord : TexCoord) : SV_Target
+{
+    float3 color = g_texture.Sample(g_sampler, texcoord).rgb;
+
+    float3 bloom_sum1 = g_texture.Sample(g_sampler, texcoord + float2(1.5, -1.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2(-1.5, -1.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2( 1.5,  1.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2(-1.5,  1.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2( 0.0, -2.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2( 0.0,  2.5) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2(-2.5,  0.0) * radius1 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum1 += g_texture.Sample(g_sampler, texcoord + float2( 2.5,  0.0) * radius1 * BUFFER_PIXEL_SIZE).rgb;
 
     bloom_sum1 *= 0.005;
 
-    vec3 bloom_sum2 = texture(tex, texcoord + vec2(1.5, -1.5) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2(-1.5, -1.5) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2( 1.5,  1.5) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2(-1.5,  1.5) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2( 0.0, -2.5) * radius2 * pixel_size).rgb;  
-    bloom_sum2 += texture(tex, texcoord + vec2( 0.0,  2.5) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2(-2.5,  0.0) * radius2 * pixel_size).rgb;
-    bloom_sum2 += texture(tex, texcoord + vec2( 2.5,  0.0) * radius2 * pixel_size).rgb;
+    float3 bloom_sum2 = g_texture.Sample(g_sampler, texcoord + float2(1.5, -1.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2(-1.5, -1.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2( 1.5,  1.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2(-1.5,  1.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2( 0.0, -2.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;  
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2( 0.0,  2.5) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2(-2.5,  0.0) * radius2 * BUFFER_PIXEL_SIZE).rgb;
+    bloom_sum2 += g_texture.Sample(g_sampler, texcoord + float2( 2.5,  0.0) * radius2 * BUFFER_PIXEL_SIZE).rgb;
 
     bloom_sum2 *= 0.010;
 
     float dist = radius2 - radius1;
-    vec3 HDR = (color + (bloom_sum2 - bloom_sum1)) * dist;
-    vec3 blend = HDR + color;
-    color = pow(abs(blend), vec3(abs(hdr_power))) + HDR; // pow - don't use fractions for HDRpower
+    float3 HDR = (color + (bloom_sum2 - bloom_sum1)) * dist;
+    float3 blend = HDR + color;
+    color = pow(abs(blend), abs(hdr_power)) + HDR; // pow - don't use fractions for HDRpower
     
-    return clamp(color, 0.0, 1.0);
+    return saturate(color);
 }
 "
 
@@ -61,7 +61,7 @@ class FakeHDR is Node
 	{
 		super.init(FakeHDR.name)
 
-		this.node_func = NodeFunction(this, CODE, "hdr_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "hdr_pass", [
             [ "hdr_power", 1.3, { "min" : 0.0, "max" : 8.0 } ],
             [ "radius1", 0.793, { "min" : 0.0, "max" : 8.0 } ],
             [ "radius2", 0.87, { "min" : 0.0, "max" : 8.0 } ],

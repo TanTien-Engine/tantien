@@ -10,34 +10,32 @@ var CODE = "
  * Optimized by CeeJay.dk
  */
 
-uniform __UBO__
+uniform float power;
+uniform float3 rgb_negative_amount;
+
+uniform float strength;
+
+float3 technicolor_pass(float3 color : COLOR) : SV_Target
 {
-    float power;
-    vec3 rgb_negative_amount;
+    const float3 cyanfilter = float3(0.0, 1.30, 1.0);
+    const float3 magentafilter = float3(1.0, 0.0, 1.05);
+    const float3 yellowfilter = float3(1.6, 1.6, 0.05);
+    const float2 redorangefilter = float2(1.05, 0.620); // RG_
+    const float2 greenfilter = float2(0.30, 1.0);       // RG_
+    const float2 magentafilter2 = magentafilter.rb;     // R_B
+
+    float3 tcol = color;
     
-    float strength;
-};
+    float2 negative_mul_r = tcol.rg * (1.0 / (rgb_negative_amount.r * power));
+    float2 negative_mul_g = tcol.rg * (1.0 / (rgb_negative_amount.g * power));
+    float2 negative_mul_b = tcol.rb * (1.0 / (rgb_negative_amount.b * power));
+    float3 output_r = dot(redorangefilter, negative_mul_r).xxx + cyanfilter;
+    float3 output_g = dot(greenfilter, negative_mul_g).xxx + magentafilter;
+    float3 output_b = dot(magentafilter2, negative_mul_b).xxx + yellowfilter;
 
-vec3 technicolor_pass(vec3 color)
-{
-    const vec3 cyanfilter = vec3(0.0, 1.30, 1.0);
-    const vec3 magentafilter = vec3(1.0, 0.0, 1.05);
-    const vec3 yellowfilter = vec3(1.6, 1.6, 0.05);
-    const vec2 redorangefilter = vec2(1.05, 0.620); // RG_
-    const vec2 greenfilter = vec2(0.30, 1.0);       // RG_
-    const vec2 magentafilter2 = magentafilter.rb;     // R_B
-
-    vec3 tcol = color;
-    
-    vec2 negative_mul_r = tcol.rg * (1.0 / (rgb_negative_amount.r * power));
-    vec2 negative_mul_g = tcol.rg * (1.0 / (rgb_negative_amount.g * power));
-    vec2 negative_mul_b = tcol.rb * (1.0 / (rgb_negative_amount.b * power));
-    vec3 output_r = vec3(dot(redorangefilter, negative_mul_r)) + cyanfilter;
-    vec3 output_g = vec3(dot(greenfilter, negative_mul_g)) + magentafilter;
-    vec3 output_b = vec3(dot(magentafilter2, negative_mul_b)) + yellowfilter;
-
-    return mix(tcol, output_r * output_g * output_b, strength);
+    return lerp(tcol, output_r * output_g * output_b, strength);
 }
+
 "
 
 class Technicolor is Node
@@ -46,7 +44,7 @@ class Technicolor is Node
 	{
 		super.init(Technicolor.name)
 
-		this.node_func = NodeFunction(this, CODE, "technicolor_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "technicolor_pass", [
             [ "power", 4.0, { "min" : 0.0, "max" : 8.0 } ],
             [ "rgb_negative_amount", Vector3(0.88, 0.88, 0.88) ],
             [ "strength", 0.4, { "min" : 0.0, "max" : 1.0 } ],

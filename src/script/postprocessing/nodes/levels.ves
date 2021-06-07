@@ -24,42 +24,38 @@ var CODE = "
  * Added the ability to highlight clipping regions of the image with #define highlight_clipping 1
  */
 
-uniform __UBO__
-{
-    int black_point;
-    int white_point;
-    bool highlight_clipping;
-};
+uniform int black_point;
+uniform int white_point;
+uniform bool highlight_clipping;
 
-vec3 levels_pass(vec3 color)
+float3 levels_pass(float3 color : COLOR) : SV_Target
 {
     float black_point_float = black_point / 255.0;
     float white_point_float = white_point == black_point ? (255.0 / 0.00025) : (255.0 / (white_point - black_point)); // Avoid division by zero if the white and black point are the same
 
-    vec3 ret = color;
-    ret = ret * white_point_float - (black_point_float *  white_point_float);
+    color = color * white_point_float - (black_point_float *  white_point_float);
 
     if (highlight_clipping)
     {
-        vec3 clipped_colors;
+        float3 clipped_colors;
 
-        clipped_colors = (ret.x > 1.0 || ret.y > 1.0 || ret.z > 1.0) // any colors whiter than white?
-            ? vec3(1.0, 0.0, 0.0)
-            : ret;
-        clipped_colors = (ret.x > 1.0 && ret.y > 1.0 && ret.z > 1.0) // all colors whiter than white?
-            ? vec3(1.0, 1.0, 0.0)
+        clipped_colors = any(color > saturate(color)) // any colors whiter than white?
+            ? float3(1.0, 0.0, 0.0)
+            : color;
+        clipped_colors = all(color > saturate(color)) // all colors whiter than white?
+            ? float3(1.0, 1.0, 0.0)
             : clipped_colors;
-        clipped_colors = (ret.x < 0.0 || ret.y < 0.0 || ret.z < 0.0) // any colors blacker than black?
-            ? vec3(0.0, 0.0, 1.0)
+        clipped_colors = any(color < saturate(color)) // any colors blacker than black?
+            ? float3(0.0, 0.0, 1.0)
             : clipped_colors;
-        clipped_colors = (ret.x < 0.0 && ret.y < 0.0 && ret.z < 0.0) // all colors blacker than black?
-            ? vec3(0.0, 1.0, 1.0)
+        clipped_colors = all(color < saturate(color)) // all colors blacker than black?
+            ? float3(0.0, 1.0, 1.0)
             : clipped_colors;
 
-        ret = clipped_colors;
+        color = clipped_colors;
     }
 
-    return ret;
+    return color;
 }
 "
 
@@ -69,7 +65,7 @@ class Levels is Node
 	{
 		super.init(Levels.name)
 
-		this.node_func = NodeFunction(this, CODE, "levels_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "levels_pass", [
             [ "black_point", 16,  { "integer" : true, "min" : 0, "max" : 255 } ],
             [ "white_point", 235, { "integer" : true, "min" : 0, "max" : 255 } ],
             [ "highlight_clipping", false ]

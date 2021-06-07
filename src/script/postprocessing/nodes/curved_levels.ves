@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.node_function" for NodeFunction
 import "maths.vector" for Vector2, Vector3
-import "shader" for ShaderTools
 
 var CODE = "
 // from https://github.com/prod80/prod80-ReShade-Repository
@@ -128,10 +127,10 @@ void PrepareTonemapParams(float2 p1, float2 p2, float2 p3, out TonemapParams tc)
     tc.mBx = float2(p1.x, p2.x);
 }
 
-float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, float4 dnoise : COLOR1) : SV_Target
+float4 curved_levels_pass(float4 color : COLOR0, float2 texcoord : TEXCOORD, float4 dnoise : COLOR1) : SV_Target
 {        
-    float2 coords  = float2(( texcoord.x - 0.75f ) * 4.0f, ( 1.0f - texcoord.y ) * 4.0f ); // For vizualization
-    color          = saturate( color + dnoise.yzx );
+    float2 coords     = float2(( texcoord.x - 0.75f ) * 4.0f, ( 1.0f - texcoord.y ) * 4.0f ); // For vizualization
+    color.xyz         = saturate( color.xyz + dnoise.yzx );
 
     #if( CURVEDCONTRASTS_VISUALIZE == 1 )
     int def_bi        = 0;
@@ -155,9 +154,9 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
 
     float4 grey       = setBoundaries( pos0_toe_grey, pos1_toe_grey, pos0_shoulder_grey, pos1_shoulder_grey );
     PrepareTonemapParams( grey.xy, grey.zw, float2( 1.0f, 1.0f ), tc );
-    color         = blackwhiteIN( color, bigr, wigr );
-    color         = Tonemap( tc, color );
-    color         = blackwhiteOUT( color, bogr, wogr );
+    color.xyz         = blackwhiteIN( color.xyz, bigr, wigr );
+    color.xyz         = Tonemap( tc, color.xyz );
+    color.xyz         = blackwhiteOUT( color.xyz, bogr, wogr );
     // Visual
 #if( CURVEDCONTRASTS_VISUALIZE )
         // Draw a bunch of lines
@@ -165,21 +164,21 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
         bandwidth.y           *= ( BUFFER_WIDTH * BUFFER_RCP_HEIGHT );
         bandwidth.w           *= ( BUFFER_WIDTH * BUFFER_RCP_HEIGHT );
         if( texcoord.x > 0.75 - bandwidth.x && texcoord.x < 0.75 && 1.0f - texcoord.y < 0.25 )
-            color         = float3( 0.7f, 0.7f, 0.7f );
+            color.xyz         = float3( 0.7f, 0.7f, 0.7f );
         if( 1.0f - texcoord.y > 0.25 && 1.0f - texcoord.y < 0.25 + bandwidth.y && texcoord.x > 0.75 - bandwidth.x )
-            color         = float3( 0.7f, 0.7f, 0.7f );
+            color.xyz         = float3( 0.7f, 0.7f, 0.7f );
         if( texcoord.x > 0.875 - bandwidth.z && texcoord.x < 0.875 + bandwidth.z && 1.0f - texcoord.y < 0.25 )
-            color         = float3( 1.4f, 1.4f, 1.4f );
+            color.xyz         = float3( 1.4f, 1.4f, 1.4f );
         if( 1.0f - texcoord.y > 0.125f - bandwidth.w && 1.0f - texcoord.y < 0.125 + bandwidth.w && texcoord.x > 0.75 )
-            color         = float3( 1.4f, 1.4f, 1.4f );
+            color.xyz         = float3( 1.4f, 1.4f, 1.4f );
         if( texcoord.x > 0.75 && texcoord.y > 0.75 )
         {
-            color         *= 0.5f;
-            color         = lerp( float3( 0.7f, 0.7f, 0.7f ), color, smoothstep( 0.0f, 10.0f * BUFFER_RCP_HEIGHT, abs( coords.y - coords.x )));
+            color.xyz         *= 0.5f;
+            color.xyz         = lerp( float3( 0.7f, 0.7f, 0.7f ), color.xyz, smoothstep( 0.0f, 10.0f * BUFFER_RCP_HEIGHT, abs( coords.y - coords.x )));
             showcurve.xyz     = blackwhiteIN( coords.xxx, black_in_grey/255.0f, white_in_grey/255.0f );
             showcurve.xyz     = Tonemap( tc, showcurve.xyz );
             showcurve.xyz     = blackwhiteOUT( showcurve.xyz, black_out_grey/255.0f, white_out_grey/255.0f );
-            color         = lerp( float3( 1.0f, 1.0f, 1.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
+            color.xyz         = lerp( float3( 1.0f, 1.0f, 1.0f ), color.xyz, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
         }     
 #endif
 #if( CURVEDCONTRASTS_ENABLE_RGB )
@@ -203,7 +202,7 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.x       = blackwhiteIN( showcurve.xxx, black_in_red/255.0f, white_in_red/255.0f ).x;
             showcurve.x       = Tonemap( tc, showcurve.xxx ).x;
             showcurve.x       = blackwhiteOUT( showcurve.xxx, black_out_red/255.0f, white_out_red/255.0f ).x;
-            color         = lerp( float3( 1.0f, 0.0f, 0.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
+            color.xyz         = lerp( float3( 1.0f, 0.0f, 0.0f ), color.xyz, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.x )));
         }
     }
 #endif
@@ -227,7 +226,7 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.y       = blackwhiteIN( showcurve.yyy, black_in_green/255.0f, white_in_green/255.0f ).y;
             showcurve.y       = Tonemap( tc, showcurve.yyy ).y;
             showcurve.y       = blackwhiteOUT( showcurve.yyy, black_out_green/255.0f, white_out_green/255.0f ).y;
-            color         = lerp( float3( 0.0f, 1.0f, 0.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.y )));
+            color.xyz         = lerp( float3( 0.0f, 1.0f, 0.0f ), color.xyz, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.y )));
         }
     }
 #endif
@@ -251,12 +250,12 @@ float3 curved_levels_pass(float3 color : COLOR0, float2 texcoord : TEXCOORD, flo
             showcurve.z       = blackwhiteIN( showcurve.zzz, black_in_blue/255.0f, white_in_blue/255.0f ).z;
             showcurve.z       = Tonemap( tc, showcurve.zzz ).z;
             showcurve.z       = blackwhiteOUT( showcurve.zzz, black_out_blue/255.0f, white_out_blue/255.0f ).z;
-            color         = lerp( float3( 0.0f, 0.0f, 1.0f ), color, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.z )));
+            color.xyz         = lerp( float3( 0.0f, 0.0f, 1.0f ), color.xyz, smoothstep( 0.0f, 20.0f * BUFFER_RCP_HEIGHT, abs( coords.y - showcurve.z )));
         }
     }
 #endif
 #endif
-    return color;
+    return float4( color.xyz, 1.0f );
 }
 
 "
@@ -267,8 +266,7 @@ class CurvedLevels is Node
 	{
 		super.init(CurvedLevels.name)
 
-        var glsl = ShaderTools.hlsl2glsl("pixel", CODE, "curved_levels_pass")
-		this.node_func = NodeFunction(this, glsl, "glsl", "curved_levels_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "curved_levels_pass", [
             [ "black_in_grey", 0.0, { "min" : 0.0, "max" : 255.0 } ],
             [ "white_in_grey", 255.0, { "min" : 0.0, "max" : 255.0 } ],
             [ "pos0_shoulder_grey", 0.75, { "min" : 0.0, "max" : 1.0 } ],

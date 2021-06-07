@@ -9,28 +9,23 @@ var CODE = "
  * by 3an and CeeJay.dk
  */
 
-uniform __UBO__
-{
-    vec3 rgb_lift;
-    vec3 rgb_gamma;
-    vec3 rgb_gain;
-};
+uniform float3 rgb_lift;
+uniform float3 rgb_gamma;
+uniform float3 rgb_gain;
 
-vec3 lift_gamma_gain_pass(vec3 color)
+float3 lift_gamma_gain_pass(float3 color : COLOR) : SV_Target
 {    
-    vec3 ret = color;
-    
     // -- Lift --
-    ret = ret * (1.5 - 0.5 * rgb_lift) + 0.5 * rgb_lift - 0.5;
-    ret = clamp(ret, 0.0, 1.0); // Is not strictly necessary, but does not cost performance
+    color = color * (1.5 - 0.5 * rgb_lift) + 0.5 * rgb_lift - 0.5;
+    color = saturate(color); // Is not strictly necessary, but does not cost performance
     
     // -- Gain --
-    ret *= rgb_gain; 
+    color *= rgb_gain; 
     
-    // -- gamma --
-    ret = pow(abs(ret), 1.0 / rgb_gamma);
+    // -- Gamma --
+    color = pow(abs(color), 1.0 / rgb_gamma);
     
-    return clamp(ret, 0.0, 1.0);
+    return saturate(color);
 }
 "
 
@@ -40,7 +35,7 @@ class LiftGammaGain is Node
 	{
 		super.init(LiftGammaGain.name)
 
-		this.node_func = NodeFunction(this, CODE, "lift_gamma_gain_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "lift_gamma_gain_pass", [
             [ "rgb_lift",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
             [ "rgb_gamma", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],
             [ "rgb_gain",  Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 2.0 } ],        

@@ -5,25 +5,20 @@ import "maths.vector" for Vector2, Vector3
 var CODE = "
 // from https://github.com/prod80/prod80-ReShade-Repository
 
-#include \"assets/shaders/color_space.glsl\"
+#include \"assets/shaders/color_spaces.hlsl\"
 
-uniform __UBO__
-{
-    float curve_str;        // Contrast Smoothness
-    bool show_clip;         // Show Clipping Mask
-    int bw_mode;            // Black & White Conversion
-
-    float redchannel;       // Custom: Red Weight
-    float yellowchannel;    // Custom: Yellow Weight
-    float greenchannel;     // Custom: Green Weight
-    float cyanchannel;      // Custom: Cyan Weight
-    float bluechannel;      // Custom: Blue Weight
-    float magentachannel;   // Custom: Magenta Weight    
-
-    bool use_tint;          // Enable Tinting
-    float tinthue;          // Tint Hue
-    float tintsat;          // Tint Saturation
-};
+uniform float curve_str;
+uniform bool show_clip;
+uniform int bw_mode;
+uniform float redchannel;
+uniform float yellowchannel;
+uniform float greenchannel;
+uniform float cyanchannel;
+uniform float bluechannel;
+uniform float magentachannel;
+uniform bool use_tint;
+uniform float tinthue;
+uniform float tintsat;
 
 // Credit to user 'iq' from shadertoy
 // See https://www.shadertoy.com/view/MdBfR1
@@ -34,16 +29,16 @@ float curve( float x, float k )
     return o - 0.5f * s * pow( max( 2.0f * ( o - s * x ), 0.0f ), k );
 }
 
-vec3 ProcessBW( vec3 col, float r, float y, float g, float c, float b, float m )
+float3 ProcessBW( float3 col, float r, float y, float g, float c, float b, float m )
 {
-    vec3 hsl         = RGBToHSL( col.xyz );
+    float3 hsl         = RGBToHSL( col.xyz );
     // Inverse of luma channel to no apply boosts to intensity on already intense brightness (and blow out easily)
     float lum          = 1.0f - hsl.z;
 
     // Calculate the individual weights per color component in RGB and CMY
     // Sum of all the weights for a given hue is 1.0
     float weight_r     = curve( max( 1.0f - abs(  hsl.x               * 6.0f ), 0.0f ), curve_str ) +
-                         curve( max( 1.0f - abs(( hsl.x - 1.0f      ) * 6.0f ), 0.0f ), curve_str );
+                            curve( max( 1.0f - abs(( hsl.x - 1.0f      ) * 6.0f ), 0.0f ), curve_str );
     float weight_y     = curve( max( 1.0f - abs(( hsl.x - 0.166667f ) * 6.0f ), 0.0f ), curve_str );
     float weight_g     = curve( max( 1.0f - abs(( hsl.x - 0.333333f ) * 6.0f ), 0.0f ), curve_str );
     float weight_c     = curve( max( 1.0f - abs(( hsl.x - 0.5f      ) * 6.0f ), 0.0f ), curve_str );
@@ -60,12 +55,12 @@ vec3 ProcessBW( vec3 col, float r, float y, float g, float c, float b, float m )
     ret                += ( hsl.z * ( weight_b * b ) * sat * lum );
     ret                += ( hsl.z * ( weight_m * m ) * sat * lum );
 
-    return vec3(clamp( ret, 0.0, 1.0 ));
+    return saturate( ret );
 }
 
-vec3 black_and_white_pass(vec3 color, vec4 dnoise)
+float4 black_and_white_pass(float4 color : COLOR0, float4 dnoise : COLOR1) : SV_Target
 {
-    vec3 ret = clamp( color + dnoise.zyx, 0.0, 1.0 );
+    color.xyz         = saturate( color.xyz );
         
     float red;  float yellow; float green;
     float cyan; float blue;   float magenta;
@@ -224,19 +219,20 @@ vec3 black_and_white_pass(vec3 color, vec4 dnoise)
         break;
     }
     // Do the Black & White
-    ret         = ProcessBW( ret, red, yellow, green, cyan, blue, magenta );
+    color.xyz         = ProcessBW( color.xyz, red, yellow, green, cyan, blue, magenta );
     // Do the tinting
-    ret         = mix( ret, HSLToRGB( vec3( tinthue, tintsat, ret.x )), vec3(use_tint) );
+    color.xyz         = lerp( color.xyz, HSLToRGB( float3( tinthue, tintsat, color.x )), use_tint );
     if( show_clip )
     {
         float h       = 0.98f;
         float l       = 0.01f;
-        ret           = min( min( ret.x, ret.y ), ret.z ) >= h ? mix( ret, vec3( 1.0f, 0.0f, 0.0f ), smoothstep( h, 1.0f, min( min( ret.x, ret.y ), ret.z ))) : ret;
-        ret           = max( max( ret.x, ret.y ), ret.z ) <= l ? mix( vec3( 0.0f, 0.0f, 1.0f ), ret, smoothstep( 0.0f, l, max( max( ret.x, ret.y ), ret.z ))) : ret;
+        color.xyz     = min( min( color.x, color.y ), color.z ) >= h ? lerp( color.xyz, float3( 1.0f, 0.0f, 0.0f ), smoothstep( h, 1.0f, min( min( color.x, color.y ), color.z ))) : color.xyz;
+        color.xyz     = max( max( color.x, color.y ), color.z ) <= l ? lerp( float3( 0.0f, 0.0f, 1.0f ), color.xyz, smoothstep( 0.0f, l, max( max( color.x, color.y ), color.z ))) : color.xyz;
     }
-    ret         = clamp( ret + dnoise.xyz, 0.0, 1.0 );
-    return ret;
+    color.xyz         = saturate( color.xyz + dnoise.xyz );
+    return float4( color.xyz, 1.0f );
 }
+
 "
 
 class BlackAndWhite is Node
@@ -245,7 +241,7 @@ class BlackAndWhite is Node
 	{
 		super.init(BlackAndWhite.name)
 
-		this.node_func = NodeFunction(this, CODE, "black_and_white_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "black_and_white_pass", [
             [ "curve_str", 1.5, { "min" : 1.0, "max" : 4.0 } ],
             [ "show_clip", false ],
             [ "bw_mode", 13 ],      // 0: Red Filter, 1: Green Filter, 2: Blue Filter, 3: High Contrast Red Filter, 4: High Contrast Green Filter, 5: High Contrast Blue Filter, 6: Infrared, 7: Maximum Black, 8: Maximum White, 9: Preserve Luminosity, 10: Neutral Green Filter, 11: Maintain Contrasts, 12: High Contrast, 13: Custom

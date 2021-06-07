@@ -11,21 +11,18 @@ var CODE = "
  * ColorMatrix allow the user to transform the colors using a color matrix
  */
 
-uniform __UBO__
-{
-    vec3 red;
-    vec3 green;
-    vec3 blue;
-    
-    float strength;
-};
+uniform float3 red;
+uniform float3 green;
+uniform float3 blue;
 
-vec3 color_matrix_pass(vec3 color)
-{
-    mat3 ColorMatrix = mat3(red, green, blue);
-    vec3 ret = mix(color, ColorMatrix * color, strength);
+uniform float strength;
 
-    return clamp(ret, 0.0, 1.0);
+float3 color_matrix_pass(float3 color : COLOR) : SV_Target
+{
+    const float3x3 ColorMatrix = float3x3(red, green, blue);
+    color = lerp(color, mul(ColorMatrix, color), strength);
+
+    return saturate(color);
 }
 "
 
@@ -35,7 +32,7 @@ class ColorMatrix is Node
 	{
 		super.init(ColorMatrix.name)
 
-		this.node_func = NodeFunction(this, CODE, "color_matrix_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "color_matrix_pass", [
             [ "red",      Vector3(0.817, 0.183, 0.000) ],
             [ "green",    Vector3(0.333, 0.667, 0.000) ],
             [ "blue",     Vector3(0.000, 0.125, 0.875) ],  

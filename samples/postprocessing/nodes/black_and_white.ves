@@ -15,7 +15,7 @@ _editor.add_node(node0, -675.38447070134, 293.86598179783)
 
 var node1 = Shadergraph()
 
-_editor.add_node(node1, -46.964083309732, 212.17306231951)
+_editor.add_node(node1, -40.918501590954, 214.93836693642)
 
 var node2 = Draw()
 
@@ -48,30 +48,26 @@ var node6 = SampleTexture()
 
 _editor.add_node(node6, -356.70451556645, 181.78035750518)
 
-var node7 = Viewport()
+var node7 = BlackAndWhite()
+node7.query_param("curve_str").value = 2.1693358421326
+node7.query_param("show_clip").value = false
+node7.query_param("bw_mode").value = 13
+node7.query_param("redchannel").value = 3
+node7.query_param("yellowchannel").value = 2.5865204334259
+node7.query_param("greenchannel").value = 1.5865204334259
+node7.query_param("cyanchannel").value = 0
+node7.query_param("bluechannel").value = -0.6
+node7.query_param("magentachannel").value = -0.2
+node7.query_param("use_tint").value = false
+node7.query_param("tinthue").value = 0.083
+node7.query_param("tintsat").value = 0.12
 
-_editor.add_node(node7, -486.54952547528, 124.22554715171)
-
-var node8 = BlackAndWhite()
-node8.query_param("curve_str").value = 1.5
-node8.query_param("show_clip").value = false
-node8.query_param("bw_mode").value = 13
-node8.query_param("redchannel").value = 0.2
-node8.query_param("yellowchannel").value = 0.4
-node8.query_param("greenchannel").value = 0.6
-node8.query_param("cyanchannel").value = 0
-node8.query_param("bluechannel").value = -0.6
-node8.query_param("magentachannel").value = -0.2
-node8.query_param("use_tint").value = false
-node8.query_param("tinthue").value = 0.083
-node8.query_param("tintsat").value = 0.12
-
-_editor.add_node(node8, -202.81004486346, -38.567294253786)
+_editor.add_node(node7, -209.59560675742, -36.446806161924)
 
 Blueprint.connect(node5, "uv", node6, "uv")
 Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node3, "out", node2, "va")
 Blueprint.connect(node0, "tex", node6, "tex")
-Blueprint.connect(node6, "rgb", node8, "color")
-Blueprint.connect(node8, "ret", node1, "rgb")
+Blueprint.connect(node6, "rgba", node7, "color")
+Blueprint.connect(node7, "ret", node1, "rgba")
 Blueprint.connect(node1, "shader", node2, "shader")

@@ -5,81 +5,78 @@ import "maths.vector" for Vector2, Vector3
 var CODE = "
 // from https://github.com/prod80/prod80-ReShade-Repository
 
-uniform __UBO__
+uniform float3 Red2strip;       // Red Color used to create Cyan (contemporary)
+uniform float3 Cyan2strip;      // Cyan Color used to create Red (contemporary)
+
+uniform float3 colorKey;        // 3rd Layer for Fun, lower values increase contrast
+
+uniform float Saturation2;      // Additional saturation control as 2 Strip Process is not very saturated by itself
+
+uniform bool enable3strip;      // Enable Technicolor 3 strip
+
+uniform float3 ColorStrength;   // Higher means darker and more intense colors.
+uniform float Brightness;       // Higher means brighter image.
+uniform float Saturation;       // Additional saturation control since this effect tends to oversaturate the image.
+uniform float Strength;         // Adjust the strength of the effect.
+
+float getLuminance( in float3 x )
 {
-    vec3 Red2strip;     // Red Color used to create Cyan (contemporary)
-    vec3 Cyan2strip;    // Cyan Color used to create Red (contemporary)
-
-    vec3 colorKey;      // 3rd Layer for Fun, lower values increase contrast
-
-    float Saturation2;  // Additional saturation control as 2 Strip Process is not very saturated by itself
-
-    bool enable3strip;  // Enable Technicolor 3 strip
-
-    vec3 ColorStrength; // Higher means darker and more intense colors.
-    float Brightness;   // Higher means brighter image.
-    float Saturation;   // Additional saturation control since this effect tends to oversaturate the image.
-    float Strength;     // Adjust the strength of the effect.
-};
-
-float getLuminance( in vec3 x )
-{
-    return dot( x, vec3( 0.212656f, 0.715158f, 0.072186f ));
+    return dot( x, float3( 0.212656f, 0.715158f, 0.072186f ));
 }
 
 // Code from Vibhore Tanwer
-mat3 QuaternionToMatrix( vec4 quat )
+float3x3 QuaternionToMatrix( float4 quat )
 {
-    vec3 cross = quat.yzx * quat.zxy;
-    vec3 square= quat.xyz * quat.xyz;
-    vec3 wimag = quat.w * quat.xyz;
+    float3 cross = quat.yzx * quat.zxy;
+    float3 square= quat.xyz * quat.xyz;
+    float3 wimag = quat.w * quat.xyz;
 
     square = square.xyz + square.yzx;
 
-    vec3 diag = 0.5f - square;
-    vec3 a = (cross + wimag);
-    vec3 b = (cross - wimag);
+    float3 diag = 0.5f - square;
+    float3 a = (cross + wimag);
+    float3 b = (cross - wimag);
 
-    return mat3(
-    2.0f * vec3(diag.x, b.z, a.y),
-    2.0f * vec3(a.z, diag.y, b.x),
-    2.0f * vec3(b.y, a.x, diag.z));
+    return float3x3(
+    2.0f * float3(diag.x, b.z, a.y),
+    2.0f * float3(a.z, diag.y, b.x),
+    2.0f * float3(b.y, a.x, diag.z));
 }
 
-vec3 technicolor3_pass(vec3 color)
+float4 technicolor3_pass(float4 color : COLOR) : SV_Target
 {
-    vec3 ret          = color;
-    vec3 root3        = vec3(0.57735f);
-    vec3 keyC         = vec3(0.0f);
+    color.xyz         = saturate( color.xyz );
+    float3 root3      = 0.57735f;
+    float3 keyC       = 0.0f;
     float half_angle  = 0.0f;
-    vec4 rot_quat     = vec4(0.0f);
-    mat3 rot_Mat;
+    float4 rot_quat   = 0.0f;
+    float3x3 rot_Mat;
     float HueAdj      = 0.52f; //0.5 is too strong in reds and doesn't work well with skin color
-    vec3 orig         = ret;
-    float negR        = 1.0f - ret.x;
-    float negG        = 1.0f - ret.y;
-    vec3 newR         = 1.0f - negR * Cyan2strip;
-    vec3 newC         = 1.0f - negG * Red2strip;
+    float3 orig       = color.xyz;
+    float negR        = 1.0f - color.x;
+    float negG        = 1.0f - color.y;
+    float3 newR       = 1.0f - negR * Cyan2strip;
+    float3 newC       = 1.0f - negG * Red2strip;
     half_angle        = 0.5f * radians( 180.0f ); // Hue is radians of 0 to 360 degrees
-    rot_quat          = vec4(( root3 * sin( half_angle )), cos( half_angle ));
+    rot_quat          = float4(( root3 * sin( half_angle )), cos( half_angle ));
     rot_Mat           = QuaternionToMatrix( rot_quat );     
-    vec3 key          = colorKey.xyz;  
-    key.xyz           = rot_Mat * key.xyz;
-    key.xyz           = max( ret.yyy, key.xyz );
-    ret               = newR.xyz * newC.xyz * key.xyz; // 2 strip image
+    float3 key        = colorKey.xyz;  
+    key.xyz           = mul( rot_Mat, key.xyz );   
+    key.xyz           = max( color.yyy, key.xyz );
+    color.xyz         = newR.xyz * newC.xyz * key.xyz; // 2 strip image
     // Fix hue
     half_angle        = 0.5f * radians( HueAdj * 360.0f ); // Hue is radians of 0 to 360 degrees
-    rot_quat          = vec4(( root3 * sin( half_angle )), cos( half_angle ));
+    rot_quat          = float4(( root3 * sin( half_angle )), cos( half_angle ));
     rot_Mat           = QuaternionToMatrix( rot_quat );     
-    ret               = rot_Mat * ret;  
+    color.xyz         = mul( rot_Mat, color.xyz );  
     // Add saturation to taste
-    ret               = mix( vec3(getLuminance( ret )), ret, vec3(Saturation2) );
+    color.xyz         = lerp( getLuminance( color.xyz ), color.xyz, Saturation2 );
 
     if( enable3strip ) {
-        vec3 temp      = 1.0 - orig.xyz;
-        vec3 target    = temp.grg;
-        vec3 target2   = temp.bbr;
-        vec3 temp2     = orig.xyz * target.xyz;
+        float3 temp    = 1.0 - orig.xyz;
+        float3 target  = temp.grg;
+        float3 target2 = temp.bbr;
+        float3 temp2   = orig.xyz * target.xyz;
         temp2.xyz      *= target2.xyz;
         temp.xyz       = temp2.xyz * ColorStrength;
         temp2.xyz      *= Brightness;
@@ -88,11 +85,11 @@ vec3 technicolor3_pass(vec3 color)
         temp.xyz       = orig.xyz - target.xyz;
         temp.xyz       += temp2.xyz;
         temp2.xyz      = temp.xyz - target2.xyz;
-        ret            = mix( orig.xyz, temp2.xyz, vec3(Strength) );
-        ret            = mix( vec3(getLuminance( ret )), ret, vec3(Saturation));
+        color.xyz      = lerp( orig.xyz, temp2.xyz, Strength );
+        color.xyz      = lerp( getLuminance( color.xyz ), color.xyz, Saturation);
     }
 
-    return ret;
+    return float4( color.xyz, 1.0f );
 }
 
 "
@@ -103,7 +100,7 @@ class Technicolor3 is Node
 	{
 		super.init(Technicolor3.name)
 
-		this.node_func = NodeFunction(this, CODE, "technicolor3_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "technicolor3_pass", [
             [ "Red2strip", Vector3(1.0, 0.098, 0.0) ],
             [ "Cyan2strip", Vector3(0.0, 0.988, 1.0) ],
             [ "colorKey", Vector3(1.0, 1.0, 1.0) ],

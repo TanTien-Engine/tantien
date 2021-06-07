@@ -9,43 +9,39 @@ var CODE = "
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-uniform __UBO__
+uniform float gamma;
+uniform float exposure;
+uniform float saturation;
+
+uniform float bleach;
+
+uniform float defog;
+uniform float3 fog_color;
+
+float3 tonemap_pass(float3 color : COLOR, float2 texcoord : TexCoord) : SV_Target
 {
-    float gamma;
-    float exposure;
-    float saturation;
+    color = clamp(color - defog * fog_color * 2.55, 0.0, 1.0); // defog
+    color *= pow(2.0f, exposure); // exposure
+    color = pow(color, gamma); // gamma
 
-    float bleach;
-    
-    float defog;
-    vec3 fog_color;
-};
-
-vec3 tonemap_pass(vec3 color, vec2 texcoord)
-{
-    vec3 ret = color;
-    ret = clamp(ret - defog * fog_color * 2.55, 0.0, 1.0); // defog
-    ret *= pow(2.0f, exposure); // exposure
-    ret = pow(color, vec3(gamma)); // Gamma
-
-    const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
-    float lum = dot(coefLuma, ret);
+    const float3 coefLuma = float3(0.2126, 0.7152, 0.0722);
+    float lum = dot(coefLuma, color);
     
     float L = clamp(10.0 * (lum - 0.45), 0.0, 1.0);
-    vec3 A2 = bleach * ret;
+    float3 A2 = bleach * color;
 
-    vec3 result1 = 2.0f * ret * lum;
-    vec3 result2 = 1.0f - 2.0f * (1.0f - lum) * (1.0f - ret);
+    float3 result1 = 2.0f * color * lum;
+    float3 result2 = 1.0f - 2.0f * (1.0f - lum) * (1.0f - color);
     
-    vec3 newColor = mix(result1, result2, L);
-    vec3 mixRGB = A2 * newColor;
-    ret += ((1.0f - A2) * mixRGB);
+    float3 newColor = lerp(result1, result2, L);
+    float3 mixRGB = A2 * newColor;
+    color += ((1.0f - A2) * mixRGB);
     
-    vec3 middlegray = vec3(dot(ret, vec3(1.0 / 3.0)));
-    vec3 diffcolor = ret - middlegray;
-    ret = (ret + diffcolor * saturation) / (1 + (diffcolor * saturation)); // saturation
+    float3 middlegray = dot(color, (1.0 / 3.0));
+    float3 diffcolor = color - middlegray;
+    color = (color + diffcolor * saturation) / (1 + (diffcolor * saturation)); // saturation
     
-    return ret;
+    return color;
 }
 "
 
@@ -55,7 +51,7 @@ class Tonemap is Node
 	{
 		super.init(Tonemap.name)
 
-		this.node_func = NodeFunction(this, CODE, "tonemap_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "tonemap_pass", [
             [ "gamma", 1.0, { "min" : 0.0, "max" : 2.0 } ],
             [ "exposure", 0.0, { "min" : -1.0, "max" : 1.0 } ],
             [ "saturation", 0.0, { "min" : -1.0, "max" : 1.0 } ],

@@ -4,7 +4,8 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_helper" for NodeHelper
 import "render" for Render
 import "shadergraph.nodes.uniform" for Uniform
-import "shader" for SpirvGenTwo
+import "shader" for SpirvGenTwo, ShaderTools
+import "rendergraph.nodes.texture" for Texture
 
 class NodeFunction
 {
@@ -15,6 +16,11 @@ class NodeFunction
 
 	init(node, code, lang, func_name, params)
 	{
+		if (lang == "hlsl") {
+			code = ShaderTools.hlsl2glsl("pixel", code, func_name)
+			lang = "glsl"
+		}
+
 		this.rename_ubo = code.contains("__UBO__")
 		if (this.rename_ubo) {
 			code = code.replace("__UBO__", "UBO_" + node.name)
@@ -136,9 +142,15 @@ class NodeFunction
 		// prepare uniforms
 		for (var i in this.num_params..this.node.imports.count)
 		{
+			var prev_pin = Blueprint.get_input_pin(this.node, i)
+			var pin = this.node.imports[i]
+			if (prev_pin and prev_pin.node is Texture) {			
+				prev_pin.node.init_unif_name(pin.name)
+				Blueprint.calc_input_inst(gen, this.node, i, module, func)
+			}
+
 			var unif = Uniform()
 			unif.dummy = true
-			var prev_pin = Blueprint.get_input_pin(this.node, i)
 			if (prev_pin) {
 				Blueprint.connect(prev_pin, unif.imports[0])
 			}

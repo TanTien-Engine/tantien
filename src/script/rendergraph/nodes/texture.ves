@@ -197,4 +197,11 @@ class Texture is Node
 			}
 		}
 	}
+
+	init_unif_name(name)
+	{
+		if (this.query_param("unif_name").value == "u_tex") {
+			this.query_param("unif_name").value = name
+		}
+	}
 }

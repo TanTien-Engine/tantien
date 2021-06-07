@@ -9,27 +9,27 @@ var CODE = "
  * by Christian Cann Schuldt Jensen ~ CeeJay.dk
  */
 
-uniform __UBO__
+#include \"assets/shaders/reshade_adapter.hlsl\"
+
+SamplerState g_sampler;
+Texture2D g_texture;
+
+uniform float power;
+uniform float edge_slope;
+
+float3 cartoon_pass(float2 texcoord : TEXCOORD) : SV_Target
 {
-    vec2 pixel_size;
-    
-    float power;
-    float edge_slope;
-};
+    float3 color = g_texture.Sample(g_sampler, texcoord).rgb;
+    const float3 coefLuma = float3(0.2126, 0.7152, 0.0722);
 
-vec3 cartoon_pass(sampler2D tex, vec2 texcoord)
-{
-    vec3 color = texture(tex, texcoord).rgb;
-    const vec3 coefLuma = vec3(0.2126, 0.7152, 0.0722);
+    float diff1 = dot(coefLuma, g_texture.Sample(g_sampler, texcoord + BUFFER_PIXEL_SIZE).rgb);
+    diff1 = dot(float4(coefLuma, -1.0), float4(g_texture.Sample(g_sampler, texcoord - BUFFER_PIXEL_SIZE).rgb , diff1));
+    float diff2 = dot(coefLuma, g_texture.Sample(g_sampler, texcoord + BUFFER_PIXEL_SIZE * float2(1, -1)).rgb);
+    diff2 = dot(float4(coefLuma, -1.0), float4(g_texture.Sample(g_sampler, texcoord + BUFFER_PIXEL_SIZE * float2(-1, 1)).rgb , diff2));
 
-    float diff1 = dot(coefLuma, texture(tex, texcoord + pixel_size).rgb);
-    diff1 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord - pixel_size).rgb , diff1));
-    float diff2 = dot(coefLuma, texture(tex, texcoord + pixel_size * vec2(1, -1)).rgb);
-    diff2 = dot(vec4(coefLuma, -1.0), vec4(texture(tex, texcoord + pixel_size * vec2(-1, 1)).rgb , diff2));
+    float edge = dot(float2(diff1, diff2), float2(diff1, diff2));
 
-    float edge = dot(vec2(diff1, diff2), vec2(diff1, diff2));
-
-    return clamp(pow(abs(edge), edge_slope) * -power + color, 0.0, 1.0);
+    return saturate(pow(abs(edge), edge_slope) * -power + color);
 }
 "
 
@@ -39,7 +39,7 @@ class Cartoon is Node
 	{
 		super.init(Cartoon.name)
 
-		this.node_func = NodeFunction(this, CODE, "cartoon_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "cartoon_pass", [
             [ "power",      1.5, { "min" : 0.1, "max" : 10.0 } ],
             [ "edge_slope", 1.5, { "min" : 0.1, "max" : 6.0 } ],
         ])

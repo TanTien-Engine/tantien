@@ -43,78 +43,87 @@ var CODE = "
     x Fixed an uneven distribution of the greyscale shades
 */
 
-uniform __UBO__
+#include \"assets/shaders/reshade_adapter.hlsl\"
+
+SamplerState g_sampler;
+Texture2D g_texture;
+
+/*------------------.
+| :: UI Settings :: |
+'------------------*/
+
+uniform int spacing;
+uniform int font;
+
+uniform int font_color_mode;
+uniform float3 font_color;
+uniform float3 background_color;
+uniform bool swap_colors;
+
+uniform bool invert_brightness;
+
+uniform bool dithering;
+uniform float dithering_intensity;
+uniform bool dithering_debug_gradient;
+
+/*-------------.
+| :: Effect :: |
+'-------------*/
+
+float3 AsciiPass( float2 tex )
 {
-    vec2 screen_size;
-    vec2 pixel_size;
 
-    int spacing;
-    bool invert_brightness;
-    int font;
-    
-    bool dithering_debug_gradient;
-    bool dithering;
-    float dithering_intensity;
-
-    bool swap_colors;
-    int font_color_mode;
-    vec3 font_color;
-    vec3 background_color;
-};
-
-vec3 ascii_pass(sampler2D tex, vec2 texcoord)
-{
 /*-------------------------.
 | :: Sample and average :: |
 '-------------------------*/
 
 //if (font != 1)
-vec2 Ascii_font_size = vec2(3.0,5.0); //3x5
+float2 font_size = float2(3.0,5.0); //3x5
 float num_of_chars = 14. ; 
 
 if (font == 1)
 {
-    Ascii_font_size = vec2(5.0,5.0); //5x5
+    font_size = float2(5.0,5.0); //5x5
     num_of_chars = 17.; 
 }
 
 float quant = 1.0/(num_of_chars-1.0); //value used for quantization 
 
-vec2 Ascii_block = Ascii_font_size + float(spacing);
-vec2 cursor_position = trunc((screen_size / Ascii_block) * texcoord) * (Ascii_block / screen_size);
+float2 block = font_size + float(spacing);
+float2 cursor_position = trunc((BUFFER_SCREEN_SIZE / block) * tex) * (block / BUFFER_SCREEN_SIZE);
 
 
 //TODO Cleanup - and maybe find a better/faster pattern - possibly blur the pixels first with a 2 pass aproach
 //-- Pattern 2 - Sample ALL the pixels! --
-vec3 color = texture(tex, cursor_position + vec2( 1.5, 1.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 1.5, 3.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 1.5, 5.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 0.5, 6.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 1.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 3.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 3.5, 5.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 2.5, 6.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 1.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 3.5) * pixel_size).rgb;
-color += texture(tex, cursor_position + vec2( 5.5, 5.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 4.5, 6.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 0.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 2.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 4.5) * pixel_size).rgb;
-//color += texture(tex, cursor_position + vec2( 6.5, 6.5) * pixel_size).rgb;
+float3 color = g_texture.Sample(g_sampler, cursor_position + float2( 1.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 1.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 1.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 0.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 3.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 3.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 3.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 2.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 5.5, 1.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 5.5, 3.5) * BUFFER_PIXEL_SIZE).rgb;
+color += g_texture.Sample(g_sampler, cursor_position + float2( 5.5, 5.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 4.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 6.5, 0.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 6.5, 2.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 6.5, 4.5) * BUFFER_PIXEL_SIZE).rgb;
+//color += g_texture.Sample(g_sampler, cursor_position + float2( 6.5, 6.5) * BUFFER_PIXEL_SIZE).rgb;
 
 color /= 9.0;
 
 /*  
 //-- Pattern 3 - Just one -- 
-vec3 color = texture(tex, cursor_position + vec2(4.0,4.0) * pixel_size)   .rgb; //this may be fast but it's not very temporally stable
+float3 color = g_texture.Sample(g_sampler, cursor_position + float2(4.0,4.0) * BUFFER_PIXEL_SIZE)   .rgb; //this may be fast but it's not very temporally stable
 */
 
 /*------------------------.
 | :: Make it grayscale :: |
 '------------------------*/
 
-float luma = dot(color,vec3(0.2126, 0.7152, 0.0722));
+float luma = dot(color,float3(0.2126, 0.7152, 0.0722));
 
 float gray = luma;
 
@@ -128,7 +137,7 @@ if (invert_brightness)
 
 if (dithering_debug_gradient)
 {
-    //gray = sqrt(dot(vec2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5),vec2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5))) * 1.1;
+    //gray = sqrt(dot(float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5),float2((cursor_position.x - 0.5)*1.778,cursor_position.y - 0.5))) * 1.1;
     //gray = (cursor_position.x + cursor_position.y) * 0.5; //diagonal test gradient
     //gray = smoothstep(0.0,1.0,gray); //increase contrast
     gray = cursor_position.x; //horizontal test gradient
@@ -138,12 +147,12 @@ if (dithering_debug_gradient)
 | :: Get position :: |
 '-------------------*/
 
-vec2 p = fract((screen_size / Ascii_block) * texcoord);  //p is the position of the current pixel inside the character
+float2 p = frac((BUFFER_SCREEN_SIZE / block) * tex);  //p is the position of the current pixel inside the character
 
-p = trunc(p * Ascii_block);
-//p = trunc(p * Ascii_block - vec2(1.5,1.5)) ;
+p = trunc(p * block);
+//p = trunc(p * block - float2(1.5,1.5)) ;
 
-float x = (Ascii_font_size.x * p.y + p.x); //x is the number of the position in the bitfield
+float x = (font_size.x * p.y + p.x); //x is the number of the position in the bitfield
   
 /*----------------.
 | :: Dithering :: |
@@ -151,13 +160,13 @@ float x = (Ascii_font_size.x * p.y + p.x); //x is the number of the position in 
 
 //TODO : Try make an ordered dither rather than the random dither. Random looks a bit too noisy for my taste.   
 
-if (!dithering)
+if (dithering != 0)
 {
 //Pseudo Random Number Generator
 // -- PRNG 1 - Reference --
-float seed = dot(cursor_position, vec2(12.9898,78.233)); //I could add more salt here if I wanted to
+float seed = dot(cursor_position, float2(12.9898,78.233)); //I could add more salt here if I wanted to
 float sine = sin(seed); //cos also works well. Sincos too if you want 2D noise.
-float noise = fract(sine * 43758.5453 + cursor_position.y);
+float noise = frac(sine * 43758.5453 + cursor_position.y);
 
 float dither_shift = (quant * dithering_intensity); // Using noise to determine shift.
 
@@ -280,13 +289,13 @@ signbit = (x > 23.5)    //is this the first pixel in the character?
     : 0.0 ;             //else make it black
 
 //Tenary Multiply exp2
-character = ( fract( abs( n*exp2(-x-1.0))) >= 0.5) ? lit : signbit;  //If the bit for the right position is set, then light up the pixel
+character = ( frac( abs( n*exp2(-x-1.0))) >= 0.5) ? lit : signbit;  //If the bit for the right position is set, then light up the pixel
                                                                     //UNLESS gray was dark enough, then keep the pixel dark to make a space
                                                                     //If the bit for the right position was not set, then turn off the pixel
                                                                     //UNLESS it's the first pixel in the character AND n is negative - if so light up the pixel.
                                                                     //This way I can use all 24 bits in the mantissa as well as the signbit for characters.
 
-if (clamp(p.x, 0.0, Ascii_font_size.x - 1.0) != p.x || clamp(p.y, 0.0, Ascii_font_size.y - 1.0) != p.y) //Is this the space around the character?
+if (clamp(p.x, 0.0, font_size.x - 1.0) != p.x || clamp(p.y, 0.0, font_size.y - 1.0) != p.y) //Is this the space around the character?
     character = 0.0;                                                                                    //If so make the pixel black.
 
 
@@ -298,30 +307,30 @@ if (swap_colors)
 {
     if (font_color_mode  == 2)
     {
-        color = (character > 0) ? character * color : font_color;
+        color = (character) ? character * color : font_color;
     }
     else if (font_color_mode  == 1)
     {
-        color = (character > 0) ? background_color * gray : font_color; 
+        color = (character) ? background_color * gray : font_color; 
     }
     else // font_color_mode == 0
     { 
-        color = (character > 0) ? background_color : font_color;
+        color = (character) ? background_color : font_color;
     }
 }
 else
 {
     if (font_color_mode  == 2)
     {
-        color = (character > 0) ? character * color : background_color;
+        color = (character) ? character * color : background_color;
     }
     else if (font_color_mode  == 1)
     {
-        color = (character > 0) ? font_color * gray : background_color;
+        color = (character) ? font_color * gray : background_color;
     }
     else // font_color_mode == 0
     {
-        color = (character > 0) ? font_color : background_color;
+        color = (character) ? font_color : background_color;
     }
 }
 
@@ -330,9 +339,16 @@ else
 '-------------*/
 
 //color = gray;
-return clamp(color, 0.0, 1.0);
-//return color;
+return saturate(color);
 }
+
+
+float3 ascii_pass(float2 texcoord : TEXCOORD) : SV_Target
+{  
+    float3 color = AsciiPass(texcoord);
+    return color.rgb;
+}
+
 "
 
 class Ascii is Node
@@ -341,7 +357,7 @@ class Ascii is Node
 	{
 		super.init(Ascii.name)
 
-		this.node_func = NodeFunction(this, CODE, "ascii_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "ascii_pass", [
             ["spacing", 1, { "integer" : true, "min" : 0, "max" : 255 }],
             ["invert_brightness", false],
             ["font", 0],  // 0: Smaller 3x5 font, 1: Normal 5x5 font

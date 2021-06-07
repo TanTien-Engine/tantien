@@ -5,39 +5,36 @@ import "maths.vector" for Vector2, Vector3
 var CODE = "
 // from https://github.com/prod80/prod80-ReShade-Repository
 
-uniform __UBO__
-{
-    bool  preserve_luma;        // Preserve Luminosity
-    int   separation_mode;      // Luma Separation Mode
+uniform bool preserve_luma;     // Preserve Luminosity
+uniform int separation_mode;    // Luma Separation Mode
 
-    float s_RedShift;           // Shadows: Cyan <--> Red
-    float s_GreenShift;         // Shadows: Magenta <--> Green
-    float s_BlueShift;          // Shadows: Yellow <--> Blue
+uniform float s_RedShift;       // Shadows: Cyan <--> Red
+uniform float s_GreenShift;     // Shadows: Magenta <--> Green
+uniform float s_BlueShift;      // Shadows: Yellow <--> Blue
 
-    float m_RedShift;           // Midtones: Cyan <--> Red
-    float m_GreenShift;         // Midtones: Magenta <--> Green
-    float m_BlueShift;          // Midtones: Yellow <--> Blue
+uniform float m_RedShift;       // Midtones: Cyan <--> Red
+uniform float m_GreenShift;     // Midtones: Magenta <--> Green
+uniform float m_BlueShift;      // Midtones: Yellow <--> Blue
 
-    float h_RedShift;           // Highlights: Cyan <--> Red
-    float h_GreenShift;         // Highlights: Magenta <--> Green
-    float h_BlueShift;          // Highlights: Yellow <--> Blue
-};
+uniform float h_RedShift;       // Highlights: Cyan <--> Red
+uniform float h_GreenShift;     // Highlights: Magenta <--> Green
+uniform float h_BlueShift;      // Highlights: Yellow <--> Blue
 
-#define ES_RGB   vec3( 1.0 - vec3( 0.299, 0.587, 0.114 ))
-#define ES_CMY   vec3( dot( ES_RGB.yz, vec2(0.5) ), dot( ES_RGB.xz, vec2(0.5) ), dot( ES_RGB.xy, vec2(0.5) ))
+#define ES_RGB   float3( 1.0 - float3( 0.299, 0.587, 0.114 ))
+#define ES_CMY   float3( dot( ES_RGB.yz, 0.5 ), dot( ES_RGB.xz, 0.5 ), dot( ES_RGB.xy, 0.5 ))
 
-vec3 curve( vec3 x )
+float3 curve( float3 x )
 {
     return x * x * ( 3.0f - 2.0f * x );
 }
 
-vec3 color_balance( vec3 c, vec3 shadows, vec3 midtones, vec3 highlights )
+float3 ColorBalance( float3 c, float3 shadows, float3 midtones, float3 highlights )
 {
     // For highlights
-    float luma = dot( c.xyz, vec3( 0.333333f, 0.333334f, 0.333333f ));
+    float luma = dot( c.xyz, float3( 0.333333f, 0.333334f, 0.333333f ));
         
     // Determine the distribution curves between shadows, midtones, and highlights
-    vec3 dist_s; vec3 dist_h;
+    float3 dist_s; float3 dist_h;
 
     switch( separation_mode )
     {
@@ -72,38 +69,37 @@ vec3 color_balance( vec3 c, vec3 shadows, vec3 midtones, vec3 highlights )
         */
         case 1:
         {
-            dist_s.xyz  = pow( 1.0f - c.xyz, vec3(4.0f) );
-            dist_h.xyz  = pow( c.xyz, vec3(4.0f) );
+            dist_s.xyz  = pow( 1.0f - c.xyz, 4.0f );
+            dist_h.xyz  = pow( c.xyz, 4.0f );
         } break;
     }
 
     // Get luminosity offsets
     // One could omit this whole code part in case no luma should be preserved
-    vec3 s_rgb = vec3(1.0f);
-    vec3 m_rgb = vec3(1.0f);
-    vec3 h_rgb = vec3(1.0f);
+    float3 s_rgb = 1.0f;
+    float3 m_rgb = 1.0f;
+    float3 h_rgb = 1.0f;
 
     if( preserve_luma )
     {
-        s_rgb    = all(lessThan(vec3(0.0f), shadows))    ? ES_RGB * shadows      : ES_CMY * abs( shadows );
-        m_rgb    = all(lessThan(vec3(0.0f), midtones))   ? ES_RGB * midtones     : ES_CMY * abs( midtones );
-        h_rgb    = all(lessThan(vec3(0.0f), highlights)) ? ES_RGB * highlights   : ES_CMY * abs( highlights );
+        s_rgb    = shadows > 0.0f     ? ES_RGB * shadows      : ES_CMY * abs( shadows );
+        m_rgb    = midtones > 0.0f    ? ES_RGB * midtones     : ES_CMY * abs( midtones );
+        h_rgb    = highlights > 0.0f  ? ES_RGB * highlights   : ES_CMY * abs( highlights );
     }
-    vec3 mids  = clamp( 1.0f - dist_s.xyz - dist_h.xyz, 0.0, 1.0 );
-    vec3 highs = dist_h.xyz * ( highlights.xyz * h_rgb.xyz * ( 1.0f - luma ));
-    vec3 newc  = c.xyz * ( dist_s.xyz * shadows.xyz * s_rgb.xyz + mids.xyz * midtones.xyz * m_rgb.xyz ) * ( 1.0f - c.xyz ) + highs.xyz;
-    return clamp( c.xyz + newc.xyz, 0.0, 1.0 );
+    float3 mids  = saturate( 1.0f - dist_s.xyz - dist_h.xyz );
+    float3 highs = dist_h.xyz * ( highlights.xyz * h_rgb.xyz * ( 1.0f - luma ));
+    float3 newc  = c.xyz * ( dist_s.xyz * shadows.xyz * s_rgb.xyz + mids.xyz * midtones.xyz * m_rgb.xyz ) * ( 1.0f - c.xyz ) + highs.xyz;
+    return saturate( c.xyz + newc.xyz );
 }
 
-vec3 color_balance_pass(vec3 color)
+float4 color_balance_pass(float4 color : COLOR) : SV_Target
 {
-    vec3 ret = clamp(color, 0.0, 1.0);
-    ret = color_balance(ret.xyz, vec3( s_RedShift, s_GreenShift, s_BlueShift ), 
-                                 vec3( m_RedShift, m_GreenShift, m_BlueShift ),
-                                 vec3( h_RedShift, h_GreenShift, h_BlueShift ));
-    return ret;
+    color.xyz         = saturate( color.xyz );
+    color.xyz         = ColorBalance( color.xyz, float3( s_RedShift, s_GreenShift, s_BlueShift ), 
+                                                 float3( m_RedShift, m_GreenShift, m_BlueShift ),
+                                                 float3( h_RedShift, h_GreenShift, h_BlueShift ));
+    return float4( color.xyz, 1.0f );
 }
-
 "
 
 class ColorBalance is Node
@@ -112,7 +108,7 @@ class ColorBalance is Node
 	{
 		super.init(ColorBalance.name)
 
-		this.node_func = NodeFunction(this, CODE, "color_balance_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "color_balance_pass", [
             [ "preserve_luma", true ],
             [ "separation_mode", 0, { "integer" : true, "min" : 0, "max" : 1 } ],       // 0: Harsh Separation, 1: Smooth Separation
             [ "s_RedShift", 0.0, { "min" : -1.0, "max" : 1.0 } ],

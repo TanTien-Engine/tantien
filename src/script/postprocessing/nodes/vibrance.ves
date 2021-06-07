@@ -5,10 +5,10 @@ import "maths.vector" for Vector3
 var CODE = "
 // from https://github.com/CeeJayDK/SweetFX
 /**
-  Vibrance
+  vibrance
   by Christian Cann Schuldt Jensen ~ CeeJay.dk
  
-  Vibrance intelligently boosts the saturation of pixels so pixels that had little color get a larger boost than pixels that had a lot.
+  vibrance intelligently boosts the saturation of pixels so pixels that had little color get a larger boost than pixels that had a lot.
   This avoids oversaturation of pixels that were already very saturated.
 
   History:
@@ -21,32 +21,31 @@ var CODE = "
   - Minor UI improvements for Reshade 3.x
  */
 
-uniform __UBO__
-{
-    float vibrance;
-    vec3 vibrance_rgb_balance;
-};
+uniform float vibrance;
+uniform float3 vibrance_rgb_balance;
 
-vec3 vibrance_pass(vec3 color, vec2 texcoord)
-{
-    vec3 coefLuma = vec3(0.212656, 0.715158, 0.072186);
-    
-    /*
-    if (Vibrance_Luma)
-        coefLuma = vec3(0.333333, 0.333334, 0.333333);
-    */
-    
-    float luma = dot(coefLuma, color);
+float3 vibrance_pass(float3 color : COLOR, float2 texcoord : TexCoord) : SV_Target
+{  
+  float3 coefLuma = float3(0.212656, 0.715158, 0.072186);
+  
+  /*
+  if (Vibrance_Luma)
+    coefLuma = float3(0.333333, 0.333334, 0.333333);
+  */
+  
+  float luma = dot(coefLuma, color);
 
 
-    float max_color = max(color.r, max(color.g, color.b)); // Find the strongest color
-    float min_color = min(color.r, min(color.g, color.b)); // Find the weakest color
+  float max_color = max(color.r, max(color.g, color.b)); // Find the strongest color
+  float min_color = min(color.r, min(color.g, color.b)); // Find the weakest color
 
-    float color_saturation = max_color - min_color; // The difference between the two is the saturation
+  float color_saturation = max_color - min_color; // The difference between the two is the saturation
 
-    // Extrapolate between luma and original by 1 + (1-saturation) - current
-    vec3 coeffVibrance = vec3(vibrance_rgb_balance * vibrance);
-    return mix(vec3(luma), color, 1.0 + (coeffVibrance * (1.0 - (sign(coeffVibrance) * color_saturation))));
+  // Extrapolate between luma and original by 1 + (1-saturation) - current
+  float3 coeffVibrance = float3(vibrance_rgb_balance * vibrance);
+  color = lerp(luma, color, 1.0 + (coeffVibrance * (1.0 - (sign(coeffVibrance) * color_saturation))));
+
+  return color;
 }
 "
 
@@ -56,7 +55,7 @@ class Vibrance is Node
 	{
 		super.init(Vibrance.name)
 
-		this.node_func = NodeFunction(this, CODE, "vibrance_pass", [
+		this.node_func = NodeFunction(this, CODE, "hlsl", "vibrance_pass", [
             [ "vibrance", 0.15, { "min" : -1.0, "max" : 1.0 } ],
             [ "vibrance_rgb_balance", Vector3(1.0, 1.0, 1.0), { "min" : 0.0, "max" : 10.0 } ],
         ])
