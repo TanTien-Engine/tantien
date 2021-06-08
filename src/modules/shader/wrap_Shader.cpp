@@ -751,18 +751,6 @@ void w_ShaderGen_const_mat4()
     ves_set_number(0, pointer2double(ret));
 }
 
-void w_ShaderGen_import_all()
-{
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    builder->ImportAll();
-}
-
-void w_ShaderGen_finish_main()
-{
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    builder->FinishMain();
-}
-
 void w_ShaderGen_connect_cs_main()
 {
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
@@ -865,12 +853,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.const_mat3(_,_)") == 0) return w_ShaderGen_const_mat3;
     if (strcmp(signature, "ShaderGen.const_mat4(_,_)") == 0) return w_ShaderGen_const_mat4;
 
-    if (strcmp(signature, "ShaderGen.import_all()") == 0) return w_ShaderGen_import_all;
-    if (strcmp(signature, "ShaderGen.finish_main()") == 0) return w_ShaderGen_finish_main;
-
     if (strcmp(signature, "ShaderGen.connect_cs_main(_)") == 0) return w_ShaderGen_connect_cs_main;
-
-    if (strcmp(signature, "ShaderGen.print(_)") == 0) return w_ShaderGen_print;
 
     return NULL;
 }

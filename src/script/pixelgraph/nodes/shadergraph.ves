@@ -64,8 +64,6 @@ class Shadergraph is Node
 
 	gen_shader(gen)
 	{
-		gen.import_all()
-
 		var frag_col = gen.add_output("FragColor", "vec4")
 
 		var module = gen.get_main_module()
@@ -96,8 +94,6 @@ class Shadergraph is Node
 		gen.store(func, frag_col, rgba)		
 
 		gen.func_return(func)
-
-		gen.finish_main()
 	}
 
 	rebuild_shader()

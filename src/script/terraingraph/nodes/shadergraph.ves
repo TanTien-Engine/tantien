@@ -116,8 +116,6 @@ class Shadergraph is Subgraph
 		this.builder = ShaderBuilder()
 		var gen = this.builder.build(node)
 
-		gen.import_all()
-
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
 
@@ -126,8 +124,6 @@ class Shadergraph is Subgraph
 		gen.store(func, dst, grey)
 
 		gen.func_return(func)
-
-		gen.finish_main()
 
 		CS = gen.connect_cs_main("
 #define LOCAL_SIZE 32

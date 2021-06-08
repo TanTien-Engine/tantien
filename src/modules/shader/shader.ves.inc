@@ -261,12 +261,7 @@ foreign class ShaderGen
 	foreign const_mat3(module, m)
 	foreign const_mat4(module, m)
 
-	foreign import_all()
-	foreign finish_main()
-
 	foreign connect_cs_main(glsl)
-
-	foreign print(lib)
 }
 
 );
