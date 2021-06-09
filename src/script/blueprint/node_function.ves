@@ -5,6 +5,7 @@ import "blueprint.node_helper" for NodeHelper
 import "render" for Render
 import "shadergraph.nodes.uniform" for Uniform
 import "shader" for SpirvGenTwo, ShaderTools
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
 import "rendergraph.nodes.texture" for Texture
 
 class NodeFunction
@@ -212,7 +213,20 @@ class NodeFunction
 		for (var i in this.num_params..this.node.imports.count)
 		{	
 			var unif = this.uniforms[i - this.num_params]			
+
 			var val = unif.bind_uniforms(prog)
+
+			var in_node = Blueprint.get_input_node(this.node, i)
+			if (this.node.imports[i].type == VAR_TYPE_TEXTURE) 
+			{
+				var v_tex = Blueprint.calc_input_value(this.node, i)
+				if (v_tex) {
+					var tex = v_tex.value.tex
+					var smp = v_tex.value.sampler
+					prog.set_uniform_value([this.node.imports[i].name, "sampler", [tex, smp]])
+				}
+			}
+
 			var param = this.node.query_param(this.node.imports[i].name)
 			if (param)
 			{
