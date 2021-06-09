@@ -29,6 +29,15 @@ void* double2pointer(double d)
     return (void*)(uintptr_t)(d);
 }
 
+void return_pointer(void* ptr)
+{
+    if (ptr) {
+        ves_set_number(0, pointer2double(ptr));
+    } else {
+        ves_set_nil(0);
+    }
+}
+
 shadertrans::ShaderStage to_shader_stage(const char* str)
 {
     shadertrans::ShaderStage stage;
@@ -147,7 +156,7 @@ void w_SpirvGenTwo_add()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Add(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_sub()
@@ -157,7 +166,7 @@ void w_SpirvGenTwo_sub()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Sub(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_mix()
@@ -168,7 +177,7 @@ void w_SpirvGenTwo_mix()
     spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
 
     auto ret = shadertrans::SpirvGenTwo::Mix(func, x, y, a);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_pow()
@@ -178,7 +187,7 @@ void w_SpirvGenTwo_pow()
     spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Pow(func, x, y);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_sqrt()
@@ -187,7 +196,7 @@ void w_SpirvGenTwo_sqrt()
     spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Sqrt(func, v);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_dot()
@@ -197,7 +206,7 @@ void w_SpirvGenTwo_dot()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Dot(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_cross()
@@ -207,7 +216,7 @@ void w_SpirvGenTwo_cross()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Cross(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_negate()
@@ -216,7 +225,7 @@ void w_SpirvGenTwo_negate()
     spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Negate(func, v);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_SpirvGenTwo_add_variable()
@@ -226,7 +235,7 @@ void w_SpirvGenTwo_add_variable()
     spvgentwo::Instruction* value = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::AddVariable(func, name, value);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 // ShaderGen
@@ -252,7 +261,7 @@ void w_ShaderGen_add_input()
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto input = builder->AddInput(name, type);
-    ves_set_number(0, pointer2double(input));
+    return_pointer(input);
 }
 
 void w_ShaderGen_add_output()
@@ -262,7 +271,7 @@ void w_ShaderGen_add_output()
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto output = builder->AddOutput(name, type);
-    ves_set_number(0, pointer2double(output));
+    return_pointer(output);
 }
 
 void w_ShaderGen_add_uniform()
@@ -273,7 +282,7 @@ void w_ShaderGen_add_uniform()
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto unif = builder->AddUniform(module, name, type);
-    ves_set_number(0, pointer2double(unif));
+    return_pointer(unif);
 }
 
 void w_ShaderGen_query_unif_name()
@@ -292,7 +301,7 @@ void w_ShaderGen_access_chain()
     int index = (int)ves_tonumber(3);
 
     auto ret = shadertrans::SpirvGenTwo::AccessChain(func, base, index);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_compose_float2()
@@ -302,7 +311,7 @@ void w_shadergen_compose_float2()
     spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::ComposeFloat2(func, x, y);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_compose_float3()
@@ -313,7 +322,7 @@ void w_shadergen_compose_float3()
     spvgentwo::Instruction* z = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
 
     auto ret = shadertrans::SpirvGenTwo::ComposeFloat3(func, x, y, z);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_compose_float4()
@@ -325,7 +334,7 @@ void w_shadergen_compose_float4()
     spvgentwo::Instruction* w = (spvgentwo::Instruction*)double2pointer(ves_tonumber(5));
 
     auto ret = shadertrans::SpirvGenTwo::ComposeFloat4(func, x, y, z, w);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_compose_extract()
@@ -335,7 +344,7 @@ void w_shadergen_compose_extract()
     int index = (int)ves_tonumber(3);
 
     auto ret = shadertrans::SpirvGenTwo::ComposeExtract(func, comp, index);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_mul()
@@ -345,7 +354,7 @@ void w_shadergen_mul()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Mul(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_div()
@@ -355,7 +364,7 @@ void w_shadergen_div()
     spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Div(func, a, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_reflect()
@@ -365,7 +374,7 @@ void w_shadergen_reflect()
     spvgentwo::Instruction* N = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Reflect(func, I, N);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_normalize()
@@ -374,7 +383,7 @@ void w_shadergen_normalize()
     spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Normalize(func, v);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_length()
@@ -383,7 +392,7 @@ void w_shadergen_length()
     spvgentwo::Instruction* v = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Length(func, v);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_max()
@@ -393,7 +402,7 @@ void w_shadergen_max()
     spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Max(func, x, y);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_min()
@@ -403,7 +412,7 @@ void w_shadergen_min()
     spvgentwo::Instruction* y = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
 
     auto ret = shadertrans::SpirvGenTwo::Min(func, x, y);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_shadergen_clamp()
@@ -417,7 +426,7 @@ void w_shadergen_clamp()
     if (!ret) {
         ves_set_nil(0);
     } else {
-        ves_set_number(0, pointer2double(ret));
+        return_pointer(ret);
     }
 }
 
@@ -436,7 +445,7 @@ void w_ShaderGen_load()
     spvgentwo::Instruction* val = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::Load(func, val);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_image_sample()
@@ -447,7 +456,7 @@ void w_ShaderGen_image_sample()
     spvgentwo::Instruction* lod = (spvgentwo::Instruction*)double2pointer(ves_tonumber(4));
 
     auto ret = shadertrans::SpirvGenTwo::ImageSample(func, img, uv, lod);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_add_module()
@@ -462,7 +471,7 @@ void w_ShaderGen_add_module()
 
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto lib = builder->AddModule(stage, code_str, lang_str, name, enter_point)->impl;
-    ves_set_number(0, pointer2double(lib.get()));
+    return_pointer(lib.get());
 }
 
 void w_ShaderGen_query_func()
@@ -471,7 +480,7 @@ void w_ShaderGen_query_func()
     const char* name = ves_tostring(2);
 
     auto func = shadertrans::SpirvGenTwo::QueryFunction(*module, name);
-    ves_set_number(0, pointer2double(func));
+    return_pointer(func);
 }
 
 void w_ShaderGen_func_replace()
@@ -487,14 +496,14 @@ void w_ShaderGen_get_main_module()
 {
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Module* main = builder->GetMainModule();
-    ves_set_number(0, pointer2double(main));
+    return_pointer(main);
 }
 
 void w_ShaderGen_get_main_func()
 {
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Function* main = builder->GetMainFunc();
-    ves_set_number(0, pointer2double(main));
+    return_pointer(main);
 }
 
 void w_ShaderGen_create_decl_func()
@@ -503,7 +512,7 @@ void w_ShaderGen_create_decl_func()
     spvgentwo::Function* func = (spvgentwo::Function*)double2pointer(ves_tonumber(2));
 
     auto ret = shadertrans::SpirvGenTwo::CreateDeclFunc(module, func);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_add_link_decl()
@@ -532,7 +541,7 @@ void w_ShaderGen_create_func()
     }
 
     auto func = shadertrans::SpirvGenTwo::CreateFunc(module, name, ret, args);
-    ves_set_number(0, pointer2double(func));
+    return_pointer(func);
 }
 
 void w_ShaderGen_get_func_param()
@@ -541,7 +550,7 @@ void w_ShaderGen_get_func_param()
     int index = (int)ves_tonumber(2);
 
     auto ret = shadertrans::SpirvGenTwo::GetFuncParam(func, index);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_get_func_args()
@@ -584,7 +593,7 @@ void w_ShaderGen_func_call()
     }
 
     auto ret = shadertrans::SpirvGenTwo::FuncCall(caller, callee, args);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_func_return()
@@ -607,7 +616,7 @@ void w_ShaderGen_variable_float()
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
 
     auto ret = shadertrans::SpirvGenTwo::VariableFloat(func);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_variable_float2()
@@ -615,7 +624,7 @@ void w_ShaderGen_variable_float2()
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
 
     auto ret = shadertrans::SpirvGenTwo::VariableFloat2(func);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_variable_float3()
@@ -623,7 +632,7 @@ void w_ShaderGen_variable_float3()
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
 
     auto ret = shadertrans::SpirvGenTwo::VariableFloat3(func);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_variable_float4()
@@ -631,7 +640,7 @@ void w_ShaderGen_variable_float4()
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
 
     auto ret = shadertrans::SpirvGenTwo::VariableFloat4(func);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_bool()
@@ -640,7 +649,7 @@ void w_ShaderGen_const_bool()
     bool b = ves_toboolean(2);
 
     auto ret = shadertrans::SpirvGenTwo::ConstBool(module, b);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_int()
@@ -649,7 +658,7 @@ void w_ShaderGen_const_int()
     int x = (int)ves_tonumber(2);
 
     auto ret = shadertrans::SpirvGenTwo::ConstInt(module, x);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_float()
@@ -658,7 +667,7 @@ void w_ShaderGen_const_float()
     float x = (float)ves_tonumber(2);
     
     auto ret = shadertrans::SpirvGenTwo::ConstFloat(module, x);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_float2()
@@ -668,7 +677,7 @@ void w_ShaderGen_const_float2()
     float y = (float)ves_tonumber(3);
 
     auto ret = shadertrans::SpirvGenTwo::ConstFloat2(module, x, y);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_float3()
@@ -679,7 +688,7 @@ void w_ShaderGen_const_float3()
     float z = (float)ves_tonumber(4);
 
     auto ret = shadertrans::SpirvGenTwo::ConstFloat3(module, x, y, z);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_float4()
@@ -691,7 +700,7 @@ void w_ShaderGen_const_float4()
     float w = (float)ves_tonumber(5);
 
     auto ret = shadertrans::SpirvGenTwo::ConstFloat4(module, x, y, z, w);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_mat2()
@@ -710,7 +719,7 @@ void w_ShaderGen_const_mat2()
     }
 
     auto ret = shadertrans::SpirvGenTwo::ConstMatrix2(module, m);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_mat3()
@@ -729,7 +738,7 @@ void w_ShaderGen_const_mat3()
     }
 
     auto ret = shadertrans::SpirvGenTwo::ConstMatrix3(module, m);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_const_mat4()
@@ -748,7 +757,7 @@ void w_ShaderGen_const_mat4()
     }
 
     auto ret = shadertrans::SpirvGenTwo::ConstMatrix4(module, m);
-    ves_set_number(0, pointer2double(ret));
+    return_pointer(ret);
 }
 
 void w_ShaderGen_connect_cs_main()
