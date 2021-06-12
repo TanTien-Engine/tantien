@@ -1,0 +1,62 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_STRING
+import "filesystem" for Filesystem
+import "io" for IO
+
+class ShaderCode is Node
+{
+	init() 
+	{
+		super.init(ShaderCode.name)
+
+		this.exports = [
+			Pin(this, "code", VAR_TYPE_STRING),
+		]
+
+		this.layout()
+
+		this.filepath = ""
+		this.code = nil
+	}
+
+	to_string(name) 
+	{
+		var ret = ""
+
+		if (this.filepath != "") 
+		{
+			var absolute = Filesystem.get_absolute_path(this.filepath)
+			var relative = Filesystem.get_relative_path(absolute)
+			ret = ret + "%(name).init_filepath(\"%(relative)\")\n"
+		}
+
+		return ret
+	}
+
+	calc_value(idx)
+	{
+		if (this.code) {
+			return Variant(this.code)
+		}
+
+		var absolute = Filesystem.get_absolute_path(this.filepath)	
+		var file = IO.open(absolute, "r")
+		this.code = file.read()
+		IO.close(file)
+
+		if (this.code) {
+			return Variant(this.code)
+		} else {
+			return nil
+		}
+	}
+
+	init_filepath(filepath)
+	{
+		var absolute = Filesystem.get_absolute_path(filepath)
+		this.filepath = absolute
+
+		this.code = nil
+	}
+}

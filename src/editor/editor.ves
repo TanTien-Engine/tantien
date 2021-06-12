@@ -22,6 +22,7 @@ import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.*"
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
+import "shadergraph.nodes.shader_code" for ShaderCode
 
 class Editor
 {
@@ -550,6 +551,12 @@ class Editor
 			node = Texture()
 			var relative = Filesystem.get_relative_path(filepath)
 			node.init_texture(relative)
+		}
+		else if (filepath.contains(".glsl") or filepath.contains(".hlsl"))
+		{
+			node = ShaderCode()
+			var relative = Filesystem.get_relative_path(filepath)
+			node.filepath = relative
 		}
 		else
 		{
