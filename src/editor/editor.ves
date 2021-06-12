@@ -687,32 +687,32 @@ import \"editor\" for _editor
 			bp_nodes.add(f_node.components["bp"])		
 		}
 		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
-		for (var f_node in sorted_nodes) 
+		for (var t_node in sorted_nodes)
 		{
-			var f_name = nil
-			var f_idx = this.query_node_idx(scene.nodes, f_node)
-			if (f_idx >= 0) {
-				f_name = "node%(f_idx)"
+			var t_name = nil
+			var t_idx = this.query_node_idx(scene.nodes, t_node)
+			if (t_idx >= 0) {
+				t_name = "node%(t_idx)"
 			}
-			for (var f_pin in f_node.exports)
+			for (var t_pin in t_node.imports)
 			{
-				for (var f_conn in f_pin.conns)
+				for (var t_conn in t_pin.conns)
 				{
-					if (!f_conn.to.node.dummy)
+					if (!t_conn.from.node.dummy)
 					{
-						var t_pin
-						var t_name
-						for (var t_idx = 0; t_idx < scene.nodes.count; t_idx = t_idx + 1) {
-							var t_bp = scene.nodes[t_idx].components["bp"]
-							if (t_bp == f_conn.to.node) {
-								t_name = "node%(t_idx)"
+						var f_pin
+						var f_name
+						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
+							var f_bp = scene.nodes[f_idx].components["bp"]
+							if (f_bp == t_conn.from.node) {
+								f_name = "node%(f_idx)"
 							}
 						}
-						//file.write("Blueprint.connect(%(f_name).exports[%(f_conn.from.slot_idx)], %(t_name).imports[%(f_conn.to.slot_idx)])\n")
-						file.write("Blueprint.connect(%(f_name), \"%(f_conn.from.name)\", %(t_name), \"%(f_conn.to.name)\")\n")
+						//file.write("Blueprint.connect(%(f_name).imports[%(t_conn.from.slof_idx)], %(t_name).exports[%(t_conn.to.slof_idx)])\n")
+						file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")
 					}
 				}
-			}
+			}			
 		}
 
 		if (file is MemFile) 
