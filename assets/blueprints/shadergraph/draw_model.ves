@@ -4,6 +4,7 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
 import "pixelgraph.nodes.*"
 
 import "pbrgraph.nodes.*"
@@ -63,19 +64,11 @@ node8.var_type = "va"
 
 _editor.add_node(node8, 213.26631297163, -25.83801704046)
 
-var node9 = Clear()
-
-node9.masks = [ "color", "depth" ]
-node9.values = { "color" : [ 128, 128, 128, 255 ] }
-
-_editor.add_node(node9, 211.83203125, 226.94027709961)
-
 Blueprint.connect(node4, "var", node3, "rgb")
 Blueprint.connect(node2, "code", node1, "vs")
 Blueprint.connect(node3, "next", node1, "fs")
 Blueprint.connect(node5, "var", node1, "model")
 Blueprint.connect(node6, "var", node1, "view")
 Blueprint.connect(node7, "var", node1, "projection")
-Blueprint.connect(node9, "next", node0, "prev")
 Blueprint.connect(node1, "shader", node0, "shader")
 Blueprint.connect(node8, "var", node0, "va")

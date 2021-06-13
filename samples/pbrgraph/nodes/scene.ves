@@ -4,6 +4,9 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
 var node0 = Gltf()
 node0.init_model("assets/models/Sponza/Sponza.gltf")
@@ -113,26 +116,33 @@ node18.value = 0.50410294532776
 
 _editor.add_node(node18, 469.44654430043, -361.04176771936)
 
-Blueprint.connect(node18, "v", node16, "b")
-Blueprint.connect(node14, "code", node13, "vs")
-Blueprint.connect(node10, "v3", node9, "b")
+var node19 = Pass()
+
+node19.once = false
+
+_editor.add_node(node19, 1169.6402587891, 294.82147216797)
+
 Blueprint.connect(node8, "v3", node9, "a")
-Blueprint.connect(node9, "v", node2, "light_pos")
-Blueprint.connect(node7, "mat", node12, "local_mat")
-Blueprint.connect(node4, "mat", node13, "view")
+Blueprint.connect(node10, "v3", node9, "b")
 Blueprint.connect(node4, "zoom", node6, "fovy")
-Blueprint.connect(node4, "pos", node2, "cam_pos")
-Blueprint.connect(node6, "mat", node13, "projection")
-Blueprint.connect(node3, "next", node5, "prev")
 Blueprint.connect(node0, "desc", node1, "data")
-Blueprint.connect(node1, "node81", node2, "model")
 Blueprint.connect(node1, "node81", node12, "model")
-Blueprint.connect(node12, "model_mat", node13, "model")
-Blueprint.connect(node12, "va", node5, "va")
-Blueprint.connect(node2, "frag_out", node11, "rgba")
+Blueprint.connect(node7, "mat", node12, "local_mat")
+Blueprint.connect(node1, "node81", node2, "model")
+Blueprint.connect(node4, "pos", node2, "cam_pos")
+Blueprint.connect(node9, "v", node2, "light_pos")
 Blueprint.connect(node2, "frag_out", node17, "xyzw")
 Blueprint.connect(node17, "w", node16, "a")
+Blueprint.connect(node18, "v", node16, "b")
+Blueprint.connect(node2, "frag_out", node11, "rgba")
 Blueprint.connect(node16, "out", node15, "cond")
-Blueprint.connect(node11, "next", node13, "fs")
 Blueprint.connect(node11, "next", node15, "false")
+Blueprint.connect(node14, "code", node13, "vs")
+Blueprint.connect(node11, "next", node13, "fs")
+Blueprint.connect(node12, "model_mat", node13, "model")
+Blueprint.connect(node4, "mat", node13, "view")
+Blueprint.connect(node6, "mat", node13, "projection")
+Blueprint.connect(node3, "next", node5, "prev")
 Blueprint.connect(node13, "shader", node5, "shader")
+Blueprint.connect(node12, "va", node5, "va")
+Blueprint.connect(node5, "next", node19, "prev")

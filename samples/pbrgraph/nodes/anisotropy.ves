@@ -95,6 +95,19 @@ node14.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output
 
 _editor.add_node(node14, 62.358639170429, -214.51199452042)
 
+var node15 = Clear()
+
+node15.masks = [ "color", "depth" ]
+node15.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node15, 325.20123878397, 109.80625751434)
+
+var node16 = Pass()
+
+node16.once = false
+
+_editor.add_node(node16, 729.65596779838, -56.501055751144)
+
 Blueprint.connect(node8, "v3", node9, "a")
 Blueprint.connect(node10, "v3", node9, "b")
 Blueprint.connect(node5, "v3", node6, "a")
@@ -108,8 +121,10 @@ Blueprint.connect(node6, "v", node12, "light_pos")
 Blueprint.connect(node11, "v", node12, "anisotropic")
 Blueprint.connect(node9, "v", node12, "anisotropic_dir")
 Blueprint.connect(node0, "zoom", node1, "fovy")
+Blueprint.connect(node15, "next", node13, "prev")
 Blueprint.connect(node12, "frag_out", node13, "rgb")
 Blueprint.connect(node14, "model_mat", node13, "model")
 Blueprint.connect(node0, "mat", node13, "view")
 Blueprint.connect(node1, "mat", node13, "projection")
 Blueprint.connect(node14, "va", node13, "va")
+Blueprint.connect(node13, "next", node16, "prev")

@@ -36,7 +36,7 @@ _editor.add_node(node4, 186, 75.292094937741)
 var node5 = Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node5, 539.36531002715, 273.38564615596)
+_editor.add_node(node5, 525.72894639079, 233.38564615596)
 
 var node6 = Texture()
 node6.query_param("unif_name").value = "perlin_perm2d_tex"
@@ -56,7 +56,7 @@ _editor.add_node(node7, -53.757520526122, 13.158219490965)
 
 var node8 = Combine()
 
-_editor.add_node(node8, 349.84133327638, 234.99647193483)
+_editor.add_node(node8, 336.20496964002, 194.99647193483)
 
 Blueprint.connect(node2, "v", node3, "v")
 Blueprint.connect(node0, "uv", node1, "a")
@@ -64,5 +64,5 @@ Blueprint.connect(node3, "v", node1, "b")
 Blueprint.connect(node1, "v", node4, "p")
 Blueprint.connect(node6, "tex", node4, "perlin_perm2d_tex")
 Blueprint.connect(node7, "tex", node4, "perlin_grad2d_tex")
-Blueprint.connect(node4, "ret", node8, "grey")
+Blueprint.connect(node4, "ret", node8, "xy")
 Blueprint.connect(node8, "xyz", node5, "rgb")

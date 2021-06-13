@@ -4,6 +4,9 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
 var node0 = Normal()
 
@@ -46,7 +49,7 @@ var node7 = Input()
 node7.var_name = "model"
 node7.var_type = [ "table", "array" ]
 
-_editor.add_node(node7, -634.6512178839, -101.03482229651)
+_editor.add_node(node7, -633.52227002379, -74.504547583982)
 
 var node8 = Output()
 
@@ -55,461 +58,437 @@ node8.var_type = "num4"
 
 _editor.add_node(node8, 1417.4476326806, -345.21347854416)
 
-var node9 = Output()
+var node9 = Input()
 
-node9.var_name = "model_mat"
-node9.var_type = "mat4"
+node9.var_name = "cam_pos"
+node9.var_type = "num3"
 
-_editor.add_node(node9, -245.25281552523, -29.589563437491)
+_editor.add_node(node9, -829.66771893993, 164.37491987428)
 
 var node10 = Input()
 
-node10.var_name = "cam_pos"
-node10.var_type = "num3"
+node10.var_name = "light_pos"
+node10.var_type = "vec3"
 
-_editor.add_node(node10, -829.66771893993, 164.37491987428)
+_editor.add_node(node10, -827.50546940854, 116.34927425016)
 
-var node11 = Output()
+var node11 = Subgraph()
+node11.load_from_file(_editor, "lighting_dirs.ves")
 
-node11.var_name = "va"
-node11.var_type = "va"
+_editor.add_node(node11, -418.80456583384, 258.31681043291)
 
-_editor.add_node(node11, -245.66855683395, -70.64292585872)
+var node12 = Subgraph()
+node12.load_from_file(_editor, "../shadergraph/calc_normal.ves")
 
-var node12 = Input()
+_editor.add_node(node12, -652.2500385659, 277.01316501149)
 
-node12.var_name = "local_mat"
-node12.var_type = "mat4"
+var node13 = Subgraph()
+node13.load_from_file(_editor, "surface_output.ves")
 
-_editor.add_node(node12, -636.7230334282, -169.54431338916)
+_editor.add_node(node13, -440.36337185859, -174.77489436424)
 
-var node13 = Input()
+var node14 = Store()
 
-node13.var_name = "light_pos"
-node13.var_type = "vec3"
+node14.var_name = "NoV"
 
-_editor.add_node(node13, -827.50546940854, 116.34927425016)
+_editor.add_node(node14, -224.61428069973, 360.0555495095)
 
-var node14 = Subgraph()
-node14.load_from_file(_editor, "lighting_dirs.ves")
+var node15 = Store()
 
-_editor.add_node(node14, -418.80456583384, 258.31681043291)
+node15.var_name = "NoH"
 
-var node15 = Subgraph()
-node15.load_from_file(_editor, "../shadergraph/calc_normal.ves")
+_editor.add_node(node15, -222.37718035193, 273.55720784956)
 
-_editor.add_node(node15, -652.2500385659, 277.01316501149)
+var node16 = Store()
 
-var node16 = Subgraph()
-node16.load_from_file(_editor, "surface_output.ves")
+node16.var_name = "NoL"
 
-_editor.add_node(node16, -441.4923197187, -201.30516907677)
+_editor.add_node(node16, -223.40191462921, 315.91844742837)
 
 var node17 = Store()
 
-node17.var_name = "NoV"
+node17.var_name = "VoH"
 
-_editor.add_node(node17, -224.61428069973, 360.0555495095)
+_editor.add_node(node17, -221.06643685362, 230.45816589943)
 
 var node18 = Store()
 
-node18.var_name = "NoH"
+node18.var_name = "metallic"
 
-_editor.add_node(node18, -222.37718035193, 273.55720784956)
+_editor.add_node(node18, -242.82973633973, -116.92972320041)
 
 var node19 = Store()
 
-node19.var_name = "NoL"
+node19.var_name = "occlusion"
 
-_editor.add_node(node19, -223.40191462921, 315.91844742837)
+_editor.add_node(node19, -242.25749275534, -159.73992063255)
 
 var node20 = Store()
 
-node20.var_name = "VoH"
+node20.var_name = "emission"
 
-_editor.add_node(node20, -221.06643685362, 230.45816589943)
+_editor.add_node(node20, -242.12371682613, -245.47746595944)
 
 var node21 = Store()
 
-node21.var_name = "metallic"
+node21.var_name = "albedo"
 
-_editor.add_node(node21, -245.65210599, -233.21135279149)
+_editor.add_node(node21, -244.42351219653, -203.66775679786)
 
 var node22 = Store()
 
-node22.var_name = "occlusion"
+node22.var_name = "normal"
 
-_editor.add_node(node22, -245.07986240561, -276.02155022363)
+_editor.add_node(node22, -248.33925214179, -33.540558536356)
 
-var node23 = Store()
+var node23 = Load()
 
-node23.var_name = "emission"
+node23.var_name = "normal"
 
-_editor.add_node(node23, -244.9460864764, -361.75909555052)
+_editor.add_node(node23, -836.11719288417, 213.42521744156)
 
 var node24 = Store()
 
-node24.var_name = "albedo"
+node24.var_name = "normal_uv"
 
-_editor.add_node(node24, -247.2458818468, -319.94938638894)
+_editor.add_node(node24, -246.14364077476, -74.818558367526)
 
-var node25 = Store()
+var node25 = Load()
 
-node25.var_name = "normal"
+node25.var_name = "normal_uv"
 
-_editor.add_node(node25, -244.95240856147, -114.8248044641)
+_editor.add_node(node25, -841.07272924886, 257.38643239852)
 
-var node26 = Load()
+var node26 = Commentary()
 
-node26.var_name = "normal"
+node26.set_size(573.14581298828, 352.61459350586)
+node26.title = "Surface"
 
-_editor.add_node(node26, -836.11719288417, 213.42521744156)
+_editor.add_node(node26, -430.3304963677, 24.25319757193)
 
 var node27 = Store()
 
-node27.var_name = "normal_uv"
+node27.var_name = "N"
 
-_editor.add_node(node27, -245.57916684471, -156.10280429527)
+_editor.add_node(node27, -221.65201057875, 187.07301948484)
 
-var node28 = Load()
+var node28 = Store()
 
-node28.var_name = "normal_uv"
+node28.var_name = "V"
 
-_editor.add_node(node28, -841.07272924886, 257.38643239852)
+_editor.add_node(node28, -222.03509798917, 141.17749162154)
 
-var node29 = Commentary()
+var node29 = Number()
 
-node29.set_size(573.14581298828, 416.7854309082)
-node29.title = "Surface"
+node29.value = 1.5
 
-_editor.add_node(node29, -430.3304963677, 24.25319757193)
+_editor.add_node(node29, 135.78323342937, 252.1490382572)
 
-var node30 = Store()
+var node30 = Uniform()
+node30.query_param("unif_name").value = "ior"
 
-node30.var_name = "N"
+_editor.add_node(node30, 281.78100526266, 263.97032172273)
 
-_editor.add_node(node30, -221.65201057875, 187.07301948484)
+var node31 = Number()
 
-var node31 = Store()
+node31.value = 0.4450615644455
 
-node31.var_name = "V"
+_editor.add_node(node31, 129.03883487994, 164.51064637945)
 
-_editor.add_node(node31, -222.03509798917, 141.17749162154)
+var node32 = Store()
 
-var node32 = Number()
+node32.var_name = "ior"
 
-node32.value = 1.5
+_editor.add_node(node32, 436.77348744573, 266.15487491552)
 
-_editor.add_node(node32, 135.78323342937, 252.1490382572)
+var node33 = Load()
 
-var node33 = Uniform()
-node33.query_param("unif_name").value = "ior"
+node33.var_name = "ior"
 
-_editor.add_node(node33, 281.78100526266, 263.97032172273)
+_editor.add_node(node33, 134.21839762386, 103.71546230888)
 
-var node34 = Number()
+var node34 = Load()
 
-node34.value = 0.4450615644455
+node34.var_name = "ior"
 
-_editor.add_node(node34, 129.03883487994, 164.51064637945)
+_editor.add_node(node34, 881.65313394915, 73.130011781628)
 
-var node35 = Store()
+var node35 = V_SmithGGXCorrelated()
+node35.query_param("roughness").value = 0
 
-node35.var_name = "ior"
+_editor.add_node(node35, 1299.3478574083, -198.26888989306)
 
-_editor.add_node(node35, 436.77348744573, 266.15487491552)
+var node36 = Store()
 
-var node36 = Load()
+node36.var_name = "L"
 
-node36.var_name = "ior"
+_editor.add_node(node36, -221.9833865559, 92.483242866087)
 
-_editor.add_node(node36, 134.21839762386, 103.71546230888)
+var node37 = Add()
 
-var node37 = Load()
+_editor.add_node(node37, 189.96989382879, -158.26795990808)
 
-node37.var_name = "ior"
+var node38 = Load()
 
-_editor.add_node(node37, 881.65313394915, 73.130011781628)
+node38.var_name = "V"
 
-var node38 = V_SmithGGXCorrelated()
-node38.query_param("roughness").value = 0
+_editor.add_node(node38, 57.691503050258, -170.46364961008)
 
-_editor.add_node(node38, 1299.3478574083, -198.26888989306)
+var node39 = Normalize()
 
-var node39 = Store()
+_editor.add_node(node39, 323.59024387618, -147.21736272648)
 
-node39.var_name = "L"
+var node40 = Subgraph()
+node40.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-_editor.add_node(node39, -221.9833865559, 92.483242866087)
-
-var node40 = Add()
-
-_editor.add_node(node40, 189.96989382879, -158.26795990808)
+_editor.add_node(node40, 1064.9353214988, -225.04846023813)
 
 var node41 = Load()
 
-node41.var_name = "V"
+node41.var_name = "NoV"
 
-_editor.add_node(node41, 57.691503050258, -170.46364961008)
+_editor.add_node(node41, 1112.8938990196, -149.96525857098)
 
-var node42 = Normalize()
+var node42 = Number()
 
-_editor.add_node(node42, 323.59024387618, -147.21736272648)
+node42.value = 1
 
-var node43 = Subgraph()
-node43.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+_editor.add_node(node42, 1183.7014806942, 132.25532142048)
 
-_editor.add_node(node43, 1064.9353214988, -225.04846023813)
+var node43 = Subtract()
 
-var node44 = Load()
+_editor.add_node(node43, 1325.0853636127, 98.78766878598)
 
-node44.var_name = "NoV"
+var node44 = Multiply()
 
-_editor.add_node(node44, 1112.8938990196, -149.96525857098)
+_editor.add_node(node44, 1474.2234352834, 146.12623413104)
 
-var node45 = Number()
+var node45 = Multiply()
 
-node45.value = 1
+_editor.add_node(node45, 1626.2760677563, 80.863071766426)
 
-_editor.add_node(node45, 1183.7014806942, 132.25532142048)
+var node46 = Subgraph()
+node46.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-var node46 = Subtract()
+_editor.add_node(node46, 1108.1389278099, 306.99511602034)
 
-_editor.add_node(node46, 1325.0853636127, 98.78766878598)
+var node47 = Subgraph()
+node47.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
-var node47 = Multiply()
+_editor.add_node(node47, 974.1723266562, -5.6316912283754)
 
-_editor.add_node(node47, 1474.2234352834, 146.12623413104)
+var node48 = Load()
 
-var node48 = Multiply()
+node48.var_name = "V"
 
-_editor.add_node(node48, 1626.2760677563, 80.863071766426)
+_editor.add_node(node48, 782.31647636526, 23.032326708324)
 
-var node49 = Subgraph()
-node49.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+var node49 = Multiply()
 
-_editor.add_node(node49, 1108.1389278099, 306.99511602034)
+_editor.add_node(node49, 1772.3828681859, 30.773384266416)
 
-var node50 = Subgraph()
-node50.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
+var node50 = Load()
 
-_editor.add_node(node50, 974.1723266562, -5.6316912283754)
+node50.var_name = "albedo"
 
-var node51 = Load()
+_editor.add_node(node50, 1632.5937954289, -7.8294916181875)
 
-node51.var_name = "V"
+var node51 = Combine()
 
-_editor.add_node(node51, 782.31647636526, 23.032326708324)
+_editor.add_node(node51, 1263.6246289886, -422.85614476655)
 
-var node52 = Multiply()
+var node52 = Number()
 
-_editor.add_node(node52, 1772.3828681859, 30.773384266416)
+node52.value = 0.30622017383575
 
-var node53 = Load()
+_editor.add_node(node52, 968.09608476189, -387.910140126)
 
-node53.var_name = "albedo"
+var node53 = Store()
 
-_editor.add_node(node53, 1632.5937954289, -7.8294916181875)
+node53.var_name = "normal"
 
-var node54 = Combine()
+_editor.add_node(node53, -497.40679931641, 110.19734191895)
 
-_editor.add_node(node54, 1263.6246289886, -422.85614476655)
+var node54 = Load()
 
-var node55 = Number()
+node54.var_name = "normal"
 
-node55.value = 0.30622017383575
+_editor.add_node(node54, 907.68961009532, 332.36995862454)
 
-_editor.add_node(node55, 968.09608476189, -387.910140126)
+var node55 = Uniform()
+node55.query_param("unif_name").value = "alpha"
 
-var node56 = Store()
+_editor.add_node(node55, 1098.5677050537, -378.97993842042)
 
-node56.var_name = "normal"
+var node56 = IorToRoughness()
 
-_editor.add_node(node56, -497.40679931641, 110.19734191895)
+_editor.add_node(node56, 290.84952883644, 157.04694683783)
 
-var node57 = Load()
+var node57 = MirrorLight()
 
-node57.var_name = "normal"
+_editor.add_node(node57, 294.22765082347, 13.370710148678)
 
-_editor.add_node(node57, 907.68961009532, 332.36995862454)
+var node58 = Load()
 
-var node58 = Uniform()
-node58.query_param("unif_name").value = "alpha"
+node58.var_name = "L"
 
-_editor.add_node(node58, 1098.5677050537, -378.97993842042)
+_editor.add_node(node58, 142.87266486658, -12.497218427952)
 
-var node59 = IorToRoughness()
+var node59 = IorToF0()
 
-_editor.add_node(node59, 290.84952883644, 157.04694683783)
+_editor.add_node(node59, 1022.4411475332, 73.802694962458)
 
-var node60 = MirrorLight()
+var node60 = Load()
 
-_editor.add_node(node60, 294.22765082347, 13.370710148678)
+node60.var_name = "normal"
+
+_editor.add_node(node60, 141.7955363449, 35.382642521198)
 
 var node61 = Load()
 
-node61.var_name = "L"
+node61.var_name = "normal"
 
-_editor.add_node(node61, 142.87266486658, -12.497218427952)
+_editor.add_node(node61, 879.89270771272, -212.25669857475)
 
-var node62 = IorToF0()
+var node62 = Store()
 
-_editor.add_node(node62, 1022.4411475332, 73.802694962458)
+node62.var_name = "mirror_l"
+
+_editor.add_node(node62, 445.0976332586, 24.621803171428)
 
 var node63 = Load()
 
-node63.var_name = "normal"
+node63.var_name = "mirror_l"
 
-_editor.add_node(node63, 141.7955363449, 35.382642521198)
+_editor.add_node(node63, 891.94454131199, -255.69622785726)
 
 var node64 = Load()
 
-node64.var_name = "normal"
+node64.var_name = "mirror_l"
 
-_editor.add_node(node64, 879.89270771272, -212.25669857475)
+_editor.add_node(node64, 54.633533118068, -119.39112128698)
 
 var node65 = Store()
 
-node65.var_name = "mirror_l"
+node65.var_name = "H"
 
-_editor.add_node(node65, 445.0976332586, 24.621803171428)
+_editor.add_node(node65, 468.76881988544, -145.49831355368)
 
 var node66 = Load()
 
-node66.var_name = "mirror_l"
+node66.var_name = "H"
 
-_editor.add_node(node66, 891.94454131199, -255.69622785726)
+_editor.add_node(node66, 908.10455795835, 284.43636104868)
 
 var node67 = Load()
 
-node67.var_name = "mirror_l"
+node67.var_name = "H"
 
-_editor.add_node(node67, 54.633533118068, -119.39112128698)
+_editor.add_node(node67, 786.88657333957, -24.698673662955)
 
 var node68 = Store()
 
-node68.var_name = "H"
+node68.var_name = "roughness"
 
-_editor.add_node(node68, 468.76881988544, -145.49831355368)
+_editor.add_node(node68, 446.165668046, 165.8092334322)
 
 var node69 = Load()
 
-node69.var_name = "H"
+node69.var_name = "roughness"
 
-_editor.add_node(node69, 908.10455795835, 284.43636104868)
+_editor.add_node(node69, 1179.0150562884, 205.50853190861)
 
 var node70 = Load()
 
-node70.var_name = "H"
+node70.var_name = "roughness"
 
-_editor.add_node(node70, 786.88657333957, -24.698673662955)
+_editor.add_node(node70, 1110.5113778644, -105.46955346433)
 
-var node71 = Store()
+var node71 = Commentary()
 
-node71.var_name = "roughness"
+node71.set_size(1987.8333740234, 663.79998779297)
+node71.title = "BTDF"
 
-_editor.add_node(node71, 446.165668046, 165.8092334322)
+_editor.add_node(node71, 905.86031609751, 402.23305663016)
 
-var node72 = Load()
-
-node72.var_name = "roughness"
-
-_editor.add_node(node72, 1179.0150562884, 205.50853190861)
-
-var node73 = Load()
-
-node73.var_name = "roughness"
-
-_editor.add_node(node73, 1110.5113778644, -105.46955346433)
-
-var node74 = Commentary()
-
-node74.set_size(1987.8333740234, 663.79998779297)
-node74.title = "BTDF"
-
-_editor.add_node(node74, 905.86031609751, 402.23305663016)
-
-Blueprint.connect(node55, "v", node58, "v")
-Blueprint.connect(node58, "v", node54, "w")
-Blueprint.connect(node45, "v", node46, "a")
-Blueprint.connect(node34, "v", node59, "roughness")
-Blueprint.connect(node32, "v", node33, "v")
-Blueprint.connect(node33, "v", node35, "var")
-Blueprint.connect(node35, "var", node36, "var")
-Blueprint.connect(node35, "var", node37, "var")
-Blueprint.connect(node37, "var", node62, "ior")
-Blueprint.connect(node62, "ret", node3, "f0")
-Blueprint.connect(node36, "var", node59, "ior")
-Blueprint.connect(node59, "ret", node71, "var")
-Blueprint.connect(node71, "var", node72, "var")
-Blueprint.connect(node71, "var", node73, "var")
-Blueprint.connect(node73, "var", node38, "roughness")
-Blueprint.connect(node72, "var", node2, "roughness")
-Blueprint.connect(node13, "var", node5, "v")
-Blueprint.connect(node5, "v", node14, "light_pos")
-Blueprint.connect(node12, "var", node16, "local_mat")
-Blueprint.connect(node10, "var", node6, "v")
-Blueprint.connect(node6, "v", node14, "cam_pos")
-Blueprint.connect(node7, "var", node16, "model")
-Blueprint.connect(node16, "model_mat", node9, "var")
-Blueprint.connect(node16, "va", node11, "var")
-Blueprint.connect(node16, "normal", node25, "var")
-Blueprint.connect(node16, "normal_uv", node27, "var")
-Blueprint.connect(node16, "metallic", node21, "var")
-Blueprint.connect(node16, "occlusion", node22, "var")
-Blueprint.connect(node16, "albedo", node24, "var")
-Blueprint.connect(node16, "emission", node23, "var")
-Blueprint.connect(node27, "var", node28, "var")
-Blueprint.connect(node28, "var", node15, "tex_coords")
-Blueprint.connect(node25, "var", node26, "var")
-Blueprint.connect(node26, "var", node15, "normal_map")
-Blueprint.connect(node24, "var", node53, "var")
-Blueprint.connect(node53, "var", node52, "b")
-Blueprint.connect(node1, "pos", node14, "world_pos")
-Blueprint.connect(node1, "pos", node15, "world_pos")
-Blueprint.connect(node0, "normal", node15, "normal")
-Blueprint.connect(node0, "normal", node56, "var")
-Blueprint.connect(node56, "var", node57, "var")
-Blueprint.connect(node56, "var", node63, "var")
-Blueprint.connect(node56, "var", node64, "var")
-Blueprint.connect(node64, "var", node43, "a")
-Blueprint.connect(node63, "var", node60, "n")
-Blueprint.connect(node57, "var", node49, "a")
-Blueprint.connect(node15, "normal", node14, "normal")
-Blueprint.connect(node14, "NoV", node17, "var")
-Blueprint.connect(node14, "NoL", node19, "var")
-Blueprint.connect(node14, "NoH", node18, "var")
-Blueprint.connect(node14, "VoH", node20, "var")
-Blueprint.connect(node14, "N", node30, "var")
-Blueprint.connect(node14, "V", node31, "var")
-Blueprint.connect(node14, "L", node39, "var")
-Blueprint.connect(node39, "var", node61, "var")
-Blueprint.connect(node61, "var", node60, "l")
-Blueprint.connect(node60, "ret", node65, "var")
-Blueprint.connect(node65, "var", node66, "var")
-Blueprint.connect(node65, "var", node67, "var")
-Blueprint.connect(node67, "var", node40, "a")
-Blueprint.connect(node66, "var", node43, "b")
-Blueprint.connect(node43, "dot", node38, "NoL")
-Blueprint.connect(node31, "var", node41, "var")
-Blueprint.connect(node31, "var", node51, "var")
-Blueprint.connect(node51, "var", node50, "a")
-Blueprint.connect(node41, "var", node40, "b")
-Blueprint.connect(node40, "v", node42, "v")
-Blueprint.connect(node42, "v", node68, "var")
-Blueprint.connect(node68, "var", node69, "var")
+Blueprint.connect(node52, "v", node55, "v")
+Blueprint.connect(node29, "v", node30, "v")
+Blueprint.connect(node30, "v", node32, "var")
+Blueprint.connect(node32, "var", node34, "var")
+Blueprint.connect(node34, "var", node59, "ior")
+Blueprint.connect(node32, "var", node33, "var")
+Blueprint.connect(node31, "v", node56, "roughness")
+Blueprint.connect(node33, "var", node56, "ior")
+Blueprint.connect(node56, "ret", node68, "var")
 Blueprint.connect(node68, "var", node70, "var")
-Blueprint.connect(node70, "var", node50, "b")
-Blueprint.connect(node50, "dot", node3, "VoH")
-Blueprint.connect(node3, "ret", node46, "b")
-Blueprint.connect(node46, "v", node47, "b")
-Blueprint.connect(node69, "var", node49, "b")
-Blueprint.connect(node49, "dot", node2, "NoH")
-Blueprint.connect(node2, "ret", node47, "a")
-Blueprint.connect(node47, "v", node48, "a")
-Blueprint.connect(node17, "var", node44, "var")
-Blueprint.connect(node44, "var", node38, "NoV")
-Blueprint.connect(node38, "ret", node48, "b")
-Blueprint.connect(node48, "v", node52, "a")
-Blueprint.connect(node52, "v", node54, "xyz")
-Blueprint.connect(node54, "xyzw", node8, "var")
+Blueprint.connect(node68, "var", node69, "var")
+Blueprint.connect(node10, "var", node5, "v")
+Blueprint.connect(node9, "var", node6, "v")
+Blueprint.connect(node7, "var", node13, "model")
+Blueprint.connect(node13, "normal_uv", node24, "var")
+Blueprint.connect(node24, "var", node25, "var")
+Blueprint.connect(node13, "normal", node22, "var")
+Blueprint.connect(node22, "var", node23, "var")
+Blueprint.connect(node13, "albedo", node21, "var")
+Blueprint.connect(node21, "var", node50, "var")
+Blueprint.connect(node13, "emission", node20, "var")
+Blueprint.connect(node13, "occlusion", node19, "var")
+Blueprint.connect(node13, "metallic", node18, "var")
+Blueprint.connect(node0, "normal", node53, "var")
+Blueprint.connect(node53, "var", node61, "var")
+Blueprint.connect(node53, "var", node60, "var")
+Blueprint.connect(node53, "var", node54, "var")
+Blueprint.connect(node1, "pos", node12, "world_pos")
+Blueprint.connect(node0, "normal", node12, "normal")
+Blueprint.connect(node25, "var", node12, "tex_coords")
+Blueprint.connect(node23, "var", node12, "normal_map")
+Blueprint.connect(node12, "normal", node11, "normal")
+Blueprint.connect(node1, "pos", node11, "world_pos")
+Blueprint.connect(node6, "v", node11, "cam_pos")
+Blueprint.connect(node5, "v", node11, "light_pos")
+Blueprint.connect(node11, "L", node36, "var")
+Blueprint.connect(node36, "var", node58, "var")
+Blueprint.connect(node60, "var", node57, "n")
+Blueprint.connect(node58, "var", node57, "l")
+Blueprint.connect(node57, "ret", node62, "var")
+Blueprint.connect(node62, "var", node64, "var")
+Blueprint.connect(node62, "var", node63, "var")
+Blueprint.connect(node61, "var", node40, "a")
+Blueprint.connect(node63, "var", node40, "b")
+Blueprint.connect(node11, "V", node28, "var")
+Blueprint.connect(node28, "var", node48, "var")
+Blueprint.connect(node28, "var", node38, "var")
+Blueprint.connect(node64, "var", node37, "a")
+Blueprint.connect(node38, "var", node37, "b")
+Blueprint.connect(node37, "v", node39, "v")
+Blueprint.connect(node39, "v", node65, "var")
+Blueprint.connect(node65, "var", node67, "var")
+Blueprint.connect(node48, "var", node47, "a")
+Blueprint.connect(node67, "var", node47, "b")
+Blueprint.connect(node59, "ret", node3, "f0")
+Blueprint.connect(node47, "dot", node3, "VoH")
+Blueprint.connect(node42, "v", node43, "a")
+Blueprint.connect(node3, "ret", node43, "b")
+Blueprint.connect(node65, "var", node66, "var")
+Blueprint.connect(node54, "var", node46, "a")
+Blueprint.connect(node66, "var", node46, "b")
+Blueprint.connect(node46, "dot", node2, "NoH")
+Blueprint.connect(node69, "var", node2, "roughness")
+Blueprint.connect(node2, "ret", node44, "a")
+Blueprint.connect(node43, "v", node44, "b")
+Blueprint.connect(node11, "N", node27, "var")
+Blueprint.connect(node11, "VoH", node17, "var")
+Blueprint.connect(node11, "NoL", node16, "var")
+Blueprint.connect(node11, "NoH", node15, "var")
+Blueprint.connect(node11, "NoV", node14, "var")
+Blueprint.connect(node14, "var", node41, "var")
+Blueprint.connect(node70, "var", node35, "roughness")
+Blueprint.connect(node41, "var", node35, "NoV")
+Blueprint.connect(node40, "dot", node35, "NoL")
+Blueprint.connect(node44, "v", node45, "a")
+Blueprint.connect(node35, "ret", node45, "b")
+Blueprint.connect(node45, "v", node49, "a")
+Blueprint.connect(node50, "var", node49, "b")
+Blueprint.connect(node55, "v", node51, "w")
+Blueprint.connect(node49, "v", node51, "xyz")
+Blueprint.connect(node51, "xyzw", node8, "var")

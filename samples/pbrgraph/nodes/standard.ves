@@ -4,6 +4,7 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
 import "pixelgraph.nodes.*"
 
 import "pbrgraph.nodes.*"
@@ -72,17 +73,32 @@ node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output
 
 _editor.add_node(node10, 204.28200506074, -119.54580368646)
 
-Blueprint.connect(node8, "v3", node7, "b")
+var node11 = Clear()
+
+node11.masks = [ "color", "depth" ]
+node11.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node11, 395.87215645207, 160.59570681229)
+
+var node12 = Pass()
+
+node12.once = false
+
+_editor.add_node(node12, 811.35502848896, 51.061016042379)
+
 Blueprint.connect(node6, "v3", node7, "a")
-Blueprint.connect(node7, "v", node2, "light_pos")
-Blueprint.connect(node5, "mat", node10, "local_mat")
-Blueprint.connect(node3, "mat", node9, "view")
+Blueprint.connect(node8, "v3", node7, "b")
 Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node3, "pos", node2, "cam_pos")
-Blueprint.connect(node4, "mat", node9, "projection")
 Blueprint.connect(node0, "desc", node1, "data")
-Blueprint.connect(node1, "node_damagedHelmet_-6514", node2, "model")
 Blueprint.connect(node1, "node_damagedHelmet_-6514", node10, "model")
-Blueprint.connect(node10, "model_mat", node9, "model")
-Blueprint.connect(node10, "va", node9, "va")
+Blueprint.connect(node5, "mat", node10, "local_mat")
+Blueprint.connect(node1, "node_damagedHelmet_-6514", node2, "model")
+Blueprint.connect(node3, "pos", node2, "cam_pos")
+Blueprint.connect(node7, "v", node2, "light_pos")
+Blueprint.connect(node11, "next", node9, "prev")
 Blueprint.connect(node2, "frag_out", node9, "rgb")
+Blueprint.connect(node10, "model_mat", node9, "model")
+Blueprint.connect(node3, "mat", node9, "view")
+Blueprint.connect(node4, "mat", node9, "projection")
+Blueprint.connect(node10, "va", node9, "va")
+Blueprint.connect(node9, "next", node12, "prev")

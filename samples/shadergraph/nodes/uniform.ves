@@ -4,11 +4,10 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
 var node0 = Uniform()
 node0.query_param("unif_name").value = "test"
 
-_editor.add_node(node0, 38.114654545455, -183.56694545455)
+_editor.add_node(node0, 25.518955279792, -178.43536427224)
 
 var node1 = Number()
 
@@ -27,8 +26,13 @@ _editor.add_node(node3, -275.65594759854, -151.54129721902)
 var node4 = Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node4, 244.13000183105, -181.98459472656)
+_editor.add_node(node4, 410.67313656592, -151.66161501293)
+
+var node5 = Combine()
+
+_editor.add_node(node5, 193.82342463269, -192.72132702791)
 
 Blueprint.connect(node1, "v", node2, "v")
 Blueprint.connect(node2, "v", node0, "v")
-Blueprint.connect(node0, "v", node4, "rgb")
+Blueprint.connect(node0, "v", node5, "grey")
+Blueprint.connect(node5, "xyz", node4, "rgb")

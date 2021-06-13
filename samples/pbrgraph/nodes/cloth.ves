@@ -73,6 +73,19 @@ node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output
 
 _editor.add_node(node10, 424.28200506074, -385.9094400501)
 
+var node11 = Clear()
+
+node11.masks = [ "color", "depth" ]
+node11.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node11, 566.62060546875, 14.873847007751)
+
+var node12 = Pass()
+
+node12.once = false
+
+_editor.add_node(node12, 1027.6402587891, -211.17852020264)
+
 Blueprint.connect(node6, "desc", node5, "data")
 Blueprint.connect(node5, "SheenCloth_mesh", node10, "model")
 Blueprint.connect(node7, "mat", node10, "local_mat")
@@ -82,8 +95,10 @@ Blueprint.connect(node5, "SheenCloth_mesh", node8, "model")
 Blueprint.connect(node0, "pos", node8, "cam_pos")
 Blueprint.connect(node3, "v", node8, "light_pos")
 Blueprint.connect(node0, "zoom", node1, "fovy")
+Blueprint.connect(node11, "next", node9, "prev")
 Blueprint.connect(node8, "frag_out", node9, "rgb")
 Blueprint.connect(node10, "model_mat", node9, "model")
 Blueprint.connect(node0, "mat", node9, "view")
 Blueprint.connect(node1, "mat", node9, "projection")
 Blueprint.connect(node10, "va", node9, "va")
+Blueprint.connect(node9, "next", node12, "prev")
