@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,58 +14,33 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -675.38447070134, 293.86598179783)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -46.964083309732, 212.17306231951)
+_editor.add_node(node1, -516.36716636333, 187.66166235911)
 
-var node2 = Draw()
+var node2 = Border()
+node2.query_param("border_width").value.set(10, 10)
+node2.query_param("border_ratio").value = 2.35
+node2.query_param("border_color").value.set(0.5, 0, 0)
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -215.444337508, 151.72936833674)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = SampleTexture()
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -356.70451556645, 181.78035750518)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Viewport()
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -486.54952547528, 124.22554715171)
 
-var node4 = Clear()
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+_editor.add_node(node5, -19.507078250374, 211.81170884622)
 
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -516.36716636333, 187.66166235911)
-
-var node6 = Border()
-node6.query_param("border_width").value.set(10, 10)
-node6.query_param("border_ratio").value = 2.35
-node6.query_param("border_color").value.set(0.5, 0, 0)
-
-_editor.add_node(node6, -215.444337508, 151.72936833674)
-
-var node7 = SampleTexture()
-
-_editor.add_node(node7, -356.70451556645, 181.78035750518)
-
-var node8 = Viewport()
-
-_editor.add_node(node8, -486.54952547528, 124.22554715171)
-
-Blueprint.connect(node8, "size", node6, "screen_size")
-Blueprint.connect(node5, "uv", node7, "uv")
-Blueprint.connect(node5, "uv", node6, "texcoord")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node7, "tex")
-Blueprint.connect(node7, "rgb", node6, "color")
-Blueprint.connect(node6, "ret", node1, "rgb")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node4, "size", node2, "screen_size")
+Blueprint.connect(node1, "uv", node3, "uv")
+Blueprint.connect(node1, "uv", node2, "texcoord")
+Blueprint.connect(node0, "tex", node3, "tex")
+Blueprint.connect(node3, "rgb", node2, "color")
+Blueprint.connect(node2, "ret", node5, "rgb")

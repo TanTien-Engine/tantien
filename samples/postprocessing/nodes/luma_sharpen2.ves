@@ -1,0 +1,255 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+import "postprocessing.nodes.*"
+
+var node1 = Draw()
+
+node1.set_prim_type("tri_strip")
+node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node1.skip = false
+
+_editor.add_node(node1, 1844.6538645618, -64.223105984438)
+
+var node2 = PrimitiveShape()
+
+node2.type = "quad"
+node2.layout = [ "position", "texture" ]
+node2.shape_params = {  }
+
+_editor.add_node(node2, 1647.5113459429, -75.399696370168)
+
+var node3 = Clear()
+
+node3.masks = [ "color" ]
+node3.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node3, 1658.6092309392, 191.94292272523)
+
+var node4 = TexCoord()
+
+_editor.add_node(node4, 1276.6407893041, 90.127568698242)
+
+var node5 = LumaSharpen2()
+
+_editor.add_node(node5, 1440.500099037, 37.140218711102)
+
+var node6 = Viewport()
+
+_editor.add_node(node6, 1278.485976741, 42.318363876352)
+
+var node7 = Texture()
+node7.query_param("unif_name").value = "u_tex_origin"
+node7.gamma_correction = false
+node7.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+
+_editor.add_node(node7, -1654.3635047403, 15.62640472597)
+
+var node9 = Draw()
+
+node9.set_prim_type("tri_strip")
+node9.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node9.skip = false
+
+_editor.add_node(node9, -1027.3637082009, 14.93638535283)
+
+var node10 = PrimitiveShape()
+
+node10.type = "quad"
+node10.layout = [ "position", "texture" ]
+node10.shape_params = {  }
+
+_editor.add_node(node10, -1254.7562268198, -11.970205032904)
+
+var node11 = Clear()
+
+node11.masks = [ "color" ]
+node11.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node11, -1243.6583418236, 255.3724140625)
+
+var node12 = TexCoord()
+
+_editor.add_node(node12, -1614.0140152431, 148.76416321124)
+
+var node13 = GaussianHori()
+node13.query_param("BlurSigma").value = 0.02007975243032
+
+_editor.add_node(node13, -1448.5059848724, 87.64118707292)
+
+var node14 = Viewport()
+
+_editor.add_node(node14, -1613.4856065074, 104.05537093912)
+
+var node15 = RenderTarget()
+
+node15.width = 1024
+node15.height = 1024
+
+_editor.add_node(node15, -1240.0215409704, -178.26568475191)
+
+var node16 = Texture()
+node16.query_param("unif_name").value = "u_tex_hori"
+node16.gamma_correction = false
+node16.init_texture(1024, 1024, "rgb")
+
+_editor.add_node(node16, -1427.02484126, -169.94417393098)
+
+var node18 = Draw()
+
+node18.set_prim_type("tri_strip")
+node18.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node18.skip = false
+
+_editor.add_node(node18, 623.02789179907, -101.94961464717)
+
+var node19 = PrimitiveShape()
+
+node19.type = "quad"
+node19.layout = [ "position", "texture" ]
+node19.shape_params = {  }
+
+_editor.add_node(node19, 371.43537318017, -34.476205032904)
+
+var node20 = Clear()
+
+node20.masks = [ "color" ]
+node20.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+
+_editor.add_node(node20, 382.53325817643, 232.8664140625)
+
+var node21 = RenderTarget()
+
+node21.width = 1024
+node21.height = 1024
+
+_editor.add_node(node21, 386.17005902958, -200.77168475191)
+
+var node22 = Texture()
+node22.query_param("unif_name").value = "u_tex_vert"
+node22.gamma_correction = false
+node22.init_texture(1024, 1024, "rgb")
+
+_editor.add_node(node22, 180.42729676275, -196.1316164554)
+
+var node23 = GaussianVert()
+node23.query_param("BlurSigma").value = 1.2000000476837
+
+_editor.add_node(node23, 149.00656679768, 61.252709960935)
+
+var node24 = TexCoord()
+
+_editor.add_node(node24, 13.445984756921, 102.69416321124)
+
+var node25 = Viewport()
+
+_editor.add_node(node25, 13.974393492641, 57.985370939119)
+
+var node26 = Pass()
+
+node26.once = false
+
+_editor.add_node(node26, -853.7649395752, 106.24360351562)
+
+var node27 = Pass()
+
+node27.once = false
+
+_editor.add_node(node27, 775.69752685547, -14.19105224609)
+
+var node28 = Pass()
+
+node28.once = false
+
+_editor.add_node(node28, 2023.2645814808, 22.885440222302)
+
+var node29 = Store()
+
+node29.var_name = "tex_base"
+
+_editor.add_node(node29, -1449.0525396605, -4.7352036850004)
+
+var node30 = Load()
+
+node30.var_name = "tex_base"
+
+_editor.add_node(node30, 1280.0359415661, -10.591097863638)
+
+var node31 = Store()
+
+node31.var_name = "tex_hori"
+
+_editor.add_node(node31, -1241.9568108557, -290.10259268106)
+
+var node32 = Load()
+
+node32.var_name = "tex_hori"
+
+_editor.add_node(node32, 15.384722525786, 12.895298823267)
+
+var node33 = Store()
+
+node33.var_name = "tex_vert"
+
+_editor.add_node(node33, 387.55957298109, -304.89201624464)
+
+var node34 = Load()
+
+node34.var_name = "tex_vert"
+
+_editor.add_node(node34, 1279.479239053, -53.910025237028)
+
+var node35 = Commentary()
+
+node35.set_size(1041.9916992188, 857.78332519531)
+node35.title = "blur hori"
+
+_editor.add_node(node35, -1297.1303604726, 380.93488618729)
+
+var node36 = Commentary()
+
+node36.set_size(948.76770019531, 809.16247558594)
+node36.title = "blur vert"
+
+_editor.add_node(node36, 384.29407653809, 344.75924560546)
+
+var node37 = Commentary()
+
+node37.set_size(933.47918701172, 525.92498779297)
+node37.title = "final"
+
+_editor.add_node(node37, 1623.9041979141, 321.66452396561)
+
+Blueprint.connect(node25, "size", node23, "screen_size")
+Blueprint.connect(node24, "uv", node23, "texcoord")
+Blueprint.connect(node22, "tex", node21, "col0")
+Blueprint.connect(node22, "tex", node33, "var")
+Blueprint.connect(node33, "var", node34, "var")
+Blueprint.connect(node34, "var", node5, "texture1")
+Blueprint.connect(node21, "fbo", node18, "fbo")
+Blueprint.connect(node20, "next", node18, "prev")
+Blueprint.connect(node19, "out", node18, "va")
+Blueprint.connect(node16, "tex", node15, "col0")
+Blueprint.connect(node16, "tex", node31, "var")
+Blueprint.connect(node31, "var", node32, "var")
+Blueprint.connect(node32, "var", node23, "texture0")
+Blueprint.connect(node18, "next", node27, "prev")
+Blueprint.connect(node15, "fbo", node9, "fbo")
+Blueprint.connect(node14, "size", node13, "screen_size")
+Blueprint.connect(node12, "uv", node13, "texcoord")
+Blueprint.connect(node11, "next", node9, "prev")
+Blueprint.connect(node10, "out", node9, "va")
+Blueprint.connect(node7, "tex", node13, "texture0")
+Blueprint.connect(node7, "tex", node29, "var")
+Blueprint.connect(node29, "var", node30, "var")
+Blueprint.connect(node30, "var", node5, "texture0")
+Blueprint.connect(node9, "next", node26, "prev")
+Blueprint.connect(node6, "size", node5, "screen_size")
+Blueprint.connect(node4, "uv", node5, "texcoord")
+Blueprint.connect(node3, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "va")
+Blueprint.connect(node1, "next", node28, "prev")

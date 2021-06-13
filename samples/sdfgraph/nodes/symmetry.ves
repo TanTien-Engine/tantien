@@ -1,39 +1,48 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "sdfgraph.nodes.*"
 var node0 = Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = FragColor()
+var node1 = TexCoord()
 
-_editor.add_node(node1, 180, -1)
+_editor.add_node(node1, -128, 59)
 
-var node2 = TexCoord()
+var node2 = Parameter()
 
-_editor.add_node(node2, -128, 59)
+node2.var_name = "p"
 
-var node3 = Parameter()
+_editor.add_node(node2, -445.02938946229, -59.936458922865)
 
-node3.var_name = "p"
+var node3 = Viewport()
 
-_editor.add_node(node3, -445.02938946229, -59.936458922865)
+_editor.add_node(node3, -127, 6)
 
-var node4 = Viewport()
+var node4 = Symmetry()
 
-_editor.add_node(node4, -127, 6)
+_editor.add_node(node4, -122, -67.5)
 
-var node5 = Symmetry()
+var node5 = Torus()
+node5.query_param("t").value.set(0.8, 0.25)
 
-_editor.add_node(node5, -122, -67.5)
+_editor.add_node(node5, -278.64674605578, -117.03836896454)
 
-var node6 = Torus()
-node6.query_param("t").value.set(0.8, 0.25)
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node6, -278.64674605578, -117.03836896454)
+_editor.add_node(node6, 213.76813437722, 30.14608001709)
 
-Blueprint.connect(node0, "ret", node1, "rgb")
-Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "var", node5, "p")
-Blueprint.connect(node3, "var", node6, "p")
-Blueprint.connect(node4, "size", node0, "screen_size")
-Blueprint.connect(node5, "ret", node0, "f_scene(p)")
-Blueprint.connect(node6, "ret", node5, "primitive(p)")
+Blueprint.connect(node2, "var", node5, "p")
+Blueprint.connect(node2, "var", node4, "p")
+Blueprint.connect(node5, "ret", node4, "primitive(p)")
+Blueprint.connect(node1, "uv", node0, "st")
+Blueprint.connect(node3, "size", node0, "screen_size")
+Blueprint.connect(node4, "ret", node0, "f_scene(p)")
+Blueprint.connect(node0, "ret", node6, "rgb")

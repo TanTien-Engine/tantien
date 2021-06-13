@@ -1,36 +1,45 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "sdfgraph.nodes.*"
 var node0 = Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = FragColor()
+var node1 = TexCoord()
 
-_editor.add_node(node1, 180, -1)
+_editor.add_node(node1, -128, 59)
 
-var node2 = TexCoord()
+var node2 = Parameter()
 
-_editor.add_node(node2, -128, 59)
+node2.var_name = "p"
 
-var node3 = Parameter()
+_editor.add_node(node2, -289.8614452428, -48.690209108922)
 
-node3.var_name = "p"
+var node3 = Viewport()
 
-_editor.add_node(node3, -289.8614452428, -48.690209108922)
+_editor.add_node(node3, -127, 6)
 
-var node4 = Viewport()
+var node4 = Rhombus()
+node4.query_param("la").value = 0.4
+node4.query_param("lb").value = 0.8
+node4.query_param("h").value = 0.1
+node4.query_param("ra").value = 0.2
 
-_editor.add_node(node4, -127, 6)
+_editor.add_node(node4, -131.75, -131.08)
 
-var node5 = Rhombus()
-node5.query_param("la").value = 0.4
-node5.query_param("lb").value = 0.8
-node5.query_param("h").value = 0.1
-node5.query_param("ra").value = 0.2
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node5, -131.75, -131.08)
+_editor.add_node(node5, 217.40448969061, 32.873346502131)
 
-Blueprint.connect(node0, "ret", node1, "rgb")
-Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "var", node5, "p")
-Blueprint.connect(node4, "size", node0, "screen_size")
-Blueprint.connect(node5, "ret", node0, "f_scene(p)")
+Blueprint.connect(node2, "var", node4, "p")
+Blueprint.connect(node1, "uv", node0, "st")
+Blueprint.connect(node3, "size", node0, "screen_size")
+Blueprint.connect(node4, "ret", node0, "f_scene(p)")
+Blueprint.connect(node0, "ret", node5, "rgb")

@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,78 +14,53 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -675.38447070134, 293.86598179783)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -40.918501590954, 214.93836693642)
+_editor.add_node(node1, -516.36716636333, 187.66166235911)
 
-var node2 = Draw()
+var node2 = SampleTexture()
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -356.70451556645, 181.78035750518)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = ShadowsMidtonesHighlights()
+node3.query_param("luma_mode").value = 2
+node3.query_param("separation_mode").value = 0
+node3.query_param("exposure_s").value = 0
+node3.query_param("contrast_s").value = 0
+node3.query_param("brightness_s").value = 0
+node3.query_param("blendcolor_s").value.set(0, 0.365, 1)
+node3.query_param("blendmode_s").value = 0
+node3.query_param("opacity_s").value = 0
+node3.query_param("tint_s").value = 0
+node3.query_param("saturation_s").value = 0
+node3.query_param("vibrance_s").value = 0
+node3.query_param("exposure_m").value = 0
+node3.query_param("contrast_m").value = 0
+node3.query_param("brightness_m").value = 0
+node3.query_param("blendcolor_m").value.set(0.98, 0.588, 0)
+node3.query_param("blendmode_m").value = 0
+node3.query_param("opacity_m").value = 0.23601311445236
+node3.query_param("tint_m").value = 0.069346450269222
+node3.query_param("saturation_m").value = 0.13601312041283
+node3.query_param("vibrance_m").value = 0.1582353413105
+node3.query_param("exposure_h").value = 0
+node3.query_param("contrast_h").value = 0
+node3.query_param("brightness_h").value = 0
+node3.query_param("blendcolor_h").value.set(1, 1, 1)
+node3.query_param("blendmode_h").value = 0
+node3.query_param("opacity_h").value = 0
+node3.query_param("tint_h").value = 0
+node3.query_param("saturation_h").value = 0
+node3.query_param("vibrance_h").value = 0
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -180.24117744917, -186.10572215949)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, 48.518440246582, 369.41906738281)
 
-var node4 = Clear()
-
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
-
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -516.36716636333, 187.66166235911)
-
-var node6 = SampleTexture()
-
-_editor.add_node(node6, -356.70451556645, 181.78035750518)
-
-var node7 = ShadowsMidtonesHighlights()
-node7.query_param("luma_mode").value = 2
-node7.query_param("separation_mode").value = 0
-node7.query_param("exposure_s").value = 0
-node7.query_param("contrast_s").value = 0
-node7.query_param("brightness_s").value = 0
-node7.query_param("blendcolor_s").value.set(0, 0.365, 1)
-node7.query_param("blendmode_s").value = 0
-node7.query_param("opacity_s").value = 0
-node7.query_param("tint_s").value = 0
-node7.query_param("saturation_s").value = 0
-node7.query_param("vibrance_s").value = 0
-node7.query_param("exposure_m").value = 0
-node7.query_param("contrast_m").value = 0
-node7.query_param("brightness_m").value = 0
-node7.query_param("blendcolor_m").value.set(0.98, 0.588, 0)
-node7.query_param("blendmode_m").value = 0
-node7.query_param("opacity_m").value = 0.23601311445236
-node7.query_param("tint_m").value = 0.069346450269222
-node7.query_param("saturation_m").value = 0.13601312041283
-node7.query_param("vibrance_m").value = 0.1582353413105
-node7.query_param("exposure_h").value = 0
-node7.query_param("contrast_h").value = 0
-node7.query_param("brightness_h").value = 0
-node7.query_param("blendcolor_h").value.set(1, 1, 1)
-node7.query_param("blendmode_h").value = 0
-node7.query_param("opacity_h").value = 0
-node7.query_param("tint_h").value = 0
-node7.query_param("saturation_h").value = 0
-node7.query_param("vibrance_h").value = 0
-
-_editor.add_node(node7, -180.24117744917, -186.10572215949)
-
-Blueprint.connect(node5, "uv", node6, "uv")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "tex")
-Blueprint.connect(node6, "rgba", node7, "color")
-Blueprint.connect(node7, "ret", node1, "rgba")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node1, "uv", node2, "uv")
+Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node2, "rgba", node3, "color")
+Blueprint.connect(node3, "ret", node4, "rgb")

@@ -1,35 +1,44 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "sdfgraph.nodes.*"
 var node0 = Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = FragColor()
+var node1 = TexCoord()
 
-_editor.add_node(node1, 180, -1)
+_editor.add_node(node1, -128, 59)
 
-var node2 = TexCoord()
+var node2 = Parameter()
 
-_editor.add_node(node2, -128, 59)
+node2.var_name = "p"
 
-var node3 = Parameter()
+_editor.add_node(node2, -284.4527452428, -55.502509108922)
 
-node3.var_name = "p"
+var node3 = Viewport()
 
-_editor.add_node(node3, -284.4527452428, -55.502509108922)
+_editor.add_node(node3, -127, 6)
 
-var node4 = Viewport()
+var node4 = CappedCylinder()
+node4.query_param("a").value.set(0, 0, 0)
+node4.query_param("b").value.set(1.5, 0, 0)
+node4.query_param("r").value = 0.2
 
-_editor.add_node(node4, -127, 6)
+_editor.add_node(node4, -123.3813, -95.3123)
 
-var node5 = CappedCylinder()
-node5.query_param("a").value.set(0, 0, 0)
-node5.query_param("b").value.set(1.5, 0, 0)
-node5.query_param("r").value = 0.2
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node5, -123.3813, -95.3123)
+_editor.add_node(node5, 229.07879638672, 32.056735992432)
 
-Blueprint.connect(node0, "ret", node1, "rgb")
-Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "var", node5, "p")
-Blueprint.connect(node4, "size", node0, "screen_size")
-Blueprint.connect(node5, "ret", node0, "f_scene(p)")
+Blueprint.connect(node2, "var", node4, "p")
+Blueprint.connect(node1, "uv", node0, "st")
+Blueprint.connect(node3, "size", node0, "screen_size")
+Blueprint.connect(node4, "ret", node0, "f_scene(p)")
+Blueprint.connect(node0, "ret", node5, "rgb")

@@ -5,42 +5,25 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
-var node0 = Shadergraph()
+var node0 = TexCoord()
 
-_editor.add_node(node0, 90.434213028653, -39.366586214838)
+_editor.add_node(node0, -386.38417015534, -36.41680990225)
 
-var node1 = Draw()
+var node1 = Combine()
 
-node1.set_prim_type("tri_strip")
-node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : true }
-node1.skip = false
+_editor.add_node(node1, -79.832611081203, -78.164864884266)
 
-_editor.add_node(node1, 253.19987589051, -151.12763916689)
+var node2 = Rectangle()
+node2.query_param("width").value = 0.5
+node2.query_param("height").value = 0.5
 
-var node2 = PrimitiveShape()
+_editor.add_node(node2, -241.59504132231, -78.698347107438)
 
-node2.type = "quad"
-node2.layout = [ "position", "texture" ]
-node2.shape_params = {  }
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node2, 94.53926939514, -169.71186859865)
+_editor.add_node(node3, 141.45965270996, -39.947650146484)
 
-var node3 = TexCoord()
-
-_editor.add_node(node3, -386.38417015534, -36.41680990225)
-
-var node4 = Combine()
-
-_editor.add_node(node4, -79.832611081203, -78.164864884266)
-
-var node5 = Rectangle()
-node5.query_param("width").value = 0.5
-node5.query_param("height").value = 0.5
-
-_editor.add_node(node5, -241.59504132231, -78.698347107438)
-
-Blueprint.connect(node3, "uv", node5, "st")
-Blueprint.connect(node5, "ret", node4, "grey")
-Blueprint.connect(node4, "xyz", node0, "rgb")
-Blueprint.connect(node0, "shader", node1, "shader")
-Blueprint.connect(node2, "out", node1, "va")
+Blueprint.connect(node0, "uv", node2, "st")
+Blueprint.connect(node2, "ret", node1, "grey")
+Blueprint.connect(node1, "xyz", node3, "rgb")

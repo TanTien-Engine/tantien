@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,52 +14,27 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -757.95947792019, 192.1685760533)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -81.85883534942, 228.08096398466)
+_editor.add_node(node1, -578.92900697118, 154.21428633927)
 
-var node2 = Draw()
+var node2 = SampleTexture()
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -428.85445685512, 201.21402821646)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = Curves()
+node3.query_param("mode").value = 0
+node3.query_param("formula").value = 4
+node3.query_param("contrast").value = 0.65
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -255.1374714405, 199.7137523396)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -61.189861297607, 251.87631225586)
 
-var node4 = Clear()
-
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
-
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -578.92900697118, 154.21428633927)
-
-var node6 = SampleTexture()
-
-_editor.add_node(node6, -428.85445685512, 201.21402821646)
-
-var node7 = Curves()
-node7.query_param("mode").value = 0
-node7.query_param("formula").value = 4
-node7.query_param("contrast").value = 0.65
-
-_editor.add_node(node7, -255.1374714405, 199.7137523396)
-
-Blueprint.connect(node5, "uv", node6, "uv")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "tex")
-Blueprint.connect(node6, "rgba", node7, "color")
-Blueprint.connect(node7, "ret", node1, "rgba")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node1, "uv", node2, "uv")
+Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node2, "rgba", node3, "color")
+Blueprint.connect(node3, "ret", node4, "rgb")

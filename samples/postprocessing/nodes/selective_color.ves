@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,105 +14,80 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -675.38447070134, 293.86598179783)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -40.918501590954, 214.93836693642)
+_editor.add_node(node1, -516.36716636333, 187.66166235911)
 
-var node2 = Draw()
+var node2 = SampleTexture()
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -356.70451556645, 181.78035750518)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = SelectiveColor()
+node3.query_param("corr_method").value = 0
+node3.query_param("corr_method2").value = 0
+node3.query_param("r_adj_cya").value = 0
+node3.query_param("r_adj_mag").value = 0
+node3.query_param("r_adj_yel").value = 0
+node3.query_param("r_adj_bla").value = 0
+node3.query_param("r_adj_sat").value = 0
+node3.query_param("r_adj_vib").value = 0
+node3.query_param("y_adj_cya").value = 0
+node3.query_param("y_adj_mag").value = 0
+node3.query_param("y_adj_yel").value = 0
+node3.query_param("y_adj_bla").value = 0.39724969863892
+node3.query_param("y_adj_sat").value = 0.56391632556915
+node3.query_param("y_adj_vib").value = 0.83058303594589
+node3.query_param("g_adj_cya").value = 0
+node3.query_param("g_adj_mag").value = 0
+node3.query_param("g_adj_yel").value = 0
+node3.query_param("g_adj_bla").value = 0
+node3.query_param("g_adj_sat").value = 0
+node3.query_param("g_adj_vib").value = 0
+node3.query_param("c_adj_cya").value = 0
+node3.query_param("c_adj_mag").value = 0
+node3.query_param("c_adj_yel").value = 0
+node3.query_param("c_adj_bla").value = 0
+node3.query_param("c_adj_sat").value = 0
+node3.query_param("c_adj_vib").value = 0
+node3.query_param("b_adj_cya").value = 0.31947189569473
+node3.query_param("b_adj_mag").value = 0.49724969267845
+node3.query_param("b_adj_yel").value = 0
+node3.query_param("b_adj_bla").value = 0
+node3.query_param("b_adj_sat").value = 0.08613857626915
+node3.query_param("b_adj_vib").value = 0
+node3.query_param("m_adj_cya").value = 0
+node3.query_param("m_adj_mag").value = 0
+node3.query_param("m_adj_yel").value = 0
+node3.query_param("m_adj_bla").value = 0
+node3.query_param("m_adj_sat").value = 0
+node3.query_param("m_adj_vib").value = 0
+node3.query_param("w_adj_cya").value = 0
+node3.query_param("w_adj_mag").value = 0
+node3.query_param("w_adj_yel").value = 0
+node3.query_param("w_adj_bla").value = 0
+node3.query_param("w_adj_sat").value = 0
+node3.query_param("w_adj_vib").value = 0
+node3.query_param("n_adj_cya").value = 0
+node3.query_param("n_adj_mag").value = 0
+node3.query_param("n_adj_yel").value = 0
+node3.query_param("n_adj_bla").value = 0
+node3.query_param("n_adj_sat").value = 0
+node3.query_param("n_adj_vib").value = 0
+node3.query_param("bk_adj_cya").value = 0
+node3.query_param("bk_adj_mag").value = 0
+node3.query_param("bk_adj_yel").value = 0
+node3.query_param("bk_adj_bla").value = 0
+node3.query_param("bk_adj_sat").value = 0
+node3.query_param("bk_adj_vib").value = 0
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -203.75246949741, -762.5)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, 6.8601303100586, 332.73751831055)
 
-var node4 = Clear()
-
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
-
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -516.36716636333, 187.66166235911)
-
-var node6 = SampleTexture()
-
-_editor.add_node(node6, -356.70451556645, 181.78035750518)
-
-var node7 = SelectiveColor()
-node7.query_param("corr_method").value = 0
-node7.query_param("corr_method2").value = 0
-node7.query_param("r_adj_cya").value = 0
-node7.query_param("r_adj_mag").value = 0
-node7.query_param("r_adj_yel").value = 0
-node7.query_param("r_adj_bla").value = 0
-node7.query_param("r_adj_sat").value = 0
-node7.query_param("r_adj_vib").value = 0
-node7.query_param("y_adj_cya").value = 0
-node7.query_param("y_adj_mag").value = 0
-node7.query_param("y_adj_yel").value = 0
-node7.query_param("y_adj_bla").value = 0.39724969863892
-node7.query_param("y_adj_sat").value = 0.56391632556915
-node7.query_param("y_adj_vib").value = 0.83058303594589
-node7.query_param("g_adj_cya").value = 0
-node7.query_param("g_adj_mag").value = 0
-node7.query_param("g_adj_yel").value = 0
-node7.query_param("g_adj_bla").value = 0
-node7.query_param("g_adj_sat").value = 0
-node7.query_param("g_adj_vib").value = 0
-node7.query_param("c_adj_cya").value = 0
-node7.query_param("c_adj_mag").value = 0
-node7.query_param("c_adj_yel").value = 0
-node7.query_param("c_adj_bla").value = 0
-node7.query_param("c_adj_sat").value = 0
-node7.query_param("c_adj_vib").value = 0
-node7.query_param("b_adj_cya").value = 0.31947189569473
-node7.query_param("b_adj_mag").value = 0.49724969267845
-node7.query_param("b_adj_yel").value = 0
-node7.query_param("b_adj_bla").value = 0
-node7.query_param("b_adj_sat").value = 0.08613857626915
-node7.query_param("b_adj_vib").value = 0
-node7.query_param("m_adj_cya").value = 0
-node7.query_param("m_adj_mag").value = 0
-node7.query_param("m_adj_yel").value = 0
-node7.query_param("m_adj_bla").value = 0
-node7.query_param("m_adj_sat").value = 0
-node7.query_param("m_adj_vib").value = 0
-node7.query_param("w_adj_cya").value = 0
-node7.query_param("w_adj_mag").value = 0
-node7.query_param("w_adj_yel").value = 0
-node7.query_param("w_adj_bla").value = 0
-node7.query_param("w_adj_sat").value = 0
-node7.query_param("w_adj_vib").value = 0
-node7.query_param("n_adj_cya").value = 0
-node7.query_param("n_adj_mag").value = 0
-node7.query_param("n_adj_yel").value = 0
-node7.query_param("n_adj_bla").value = 0
-node7.query_param("n_adj_sat").value = 0
-node7.query_param("n_adj_vib").value = 0
-node7.query_param("bk_adj_cya").value = 0
-node7.query_param("bk_adj_mag").value = 0
-node7.query_param("bk_adj_yel").value = 0
-node7.query_param("bk_adj_bla").value = 0
-node7.query_param("bk_adj_sat").value = 0
-node7.query_param("bk_adj_vib").value = 0
-
-_editor.add_node(node7, -203.75246949741, -762.5)
-
-Blueprint.connect(node5, "uv", node6, "uv")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "tex")
-Blueprint.connect(node6, "rgba", node7, "color")
-Blueprint.connect(node7, "ret", node1, "rgba")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node1, "uv", node2, "uv")
+Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node2, "rgba", node3, "color")
+Blueprint.connect(node3, "ret", node4, "rgb")

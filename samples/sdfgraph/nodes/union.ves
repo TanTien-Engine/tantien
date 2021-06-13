@@ -1,45 +1,54 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "sdfgraph.nodes.*"
 var node0 = Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = FragColor()
+var node1 = TexCoord()
 
-_editor.add_node(node1, 180, -1)
+_editor.add_node(node1, -133, 53)
 
-var node2 = TexCoord()
+var node2 = Sphere()
+node2.query_param("s").value = 0.5
 
-_editor.add_node(node2, -133, 53)
+_editor.add_node(node2, -287.17962605013, -142.50530161874)
 
-var node3 = Sphere()
-node3.query_param("s").value = 0.5
+var node3 = Union()
 
-_editor.add_node(node3, -287.17962605013, -142.50530161874)
+_editor.add_node(node3, -132.64577045902, -73.029719336185)
 
-var node4 = Union()
+var node4 = Box()
+node4.query_param("b").value.set(0.8, 0.1, 0.8)
 
-_editor.add_node(node4, -132.64577045902, -73.029719336185)
+_editor.add_node(node4, -288.11496574969, -26.069973076434)
 
-var node5 = Box()
-node5.query_param("b").value.set(0.8, 0.1, 0.8)
+var node5 = Parameter()
 
-_editor.add_node(node5, -288.11496574969, -26.069973076434)
+node5.var_name = "p"
 
-var node6 = Parameter()
+_editor.add_node(node5, -452.61960562009, -78.006337754942)
 
-node6.var_name = "p"
+var node6 = Viewport()
 
-_editor.add_node(node6, -452.61960562009, -78.006337754942)
+_editor.add_node(node6, -132, -4)
 
-var node7 = Viewport()
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node7, -132, -4)
+_editor.add_node(node7, 203.05565134875, 33.638750679595)
 
-Blueprint.connect(node0, "ret", node1, "rgb")
-Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "ret", node4, "d2")
-Blueprint.connect(node4, "ret", node0, "f_scene(p)")
-Blueprint.connect(node5, "ret", node4, "d1")
-Blueprint.connect(node6, "var", node5, "p")
-Blueprint.connect(node6, "var", node3, "p")
-Blueprint.connect(node7, "size", node0, "screen_size")
+Blueprint.connect(node5, "var", node4, "p")
+Blueprint.connect(node5, "var", node2, "p")
+Blueprint.connect(node4, "ret", node3, "d1")
+Blueprint.connect(node2, "ret", node3, "d2")
+Blueprint.connect(node1, "uv", node0, "st")
+Blueprint.connect(node6, "size", node0, "screen_size")
+Blueprint.connect(node3, "ret", node0, "f_scene(p)")
+Blueprint.connect(node0, "ret", node7, "rgb")

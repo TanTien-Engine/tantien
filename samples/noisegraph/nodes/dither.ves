@@ -10,49 +10,50 @@ var node0 = TexCoord()
 
 _editor.add_node(node0, -226.12908502727, 31.163197059234)
 
-var node1 = FragColor()
+var node1 = Dither()
+node1.query_param("var").value = 2
+node1.query_param("strength").value = 153.58758544922
+node1.query_param("motion").value = true
+node1.query_param("pp").value.set(0, 0)
+node1.query_param("swing").value = 0.5
 
-_editor.add_node(node1, 298.16242059968, 78.00635202513)
+_editor.add_node(node1, 121.79261905178, -13.277440065569)
 
-var node2 = Dither()
-node2.query_param("var").value = 2
-node2.query_param("strength").value = 153.58758544922
-node2.query_param("motion").value = true
-node2.query_param("pp").value.set(0, 0)
-node2.query_param("swing").value = 0.5
+var node2 = Texture()
+node2.query_param("unif_name").value = "u_tex"
+node2.gamma_correction = false
+node2.init_texture("../../../assets/textures/noise/pd80_bluenoise_rgba.png")
+node2.set_sampler("linear_repeat")
 
-_editor.add_node(node2, 121.79261905178, -13.277440065569)
+_editor.add_node(node2, -105.18059361267, 352.71484069532)
 
-var node3 = Texture()
-node3.query_param("unif_name").value = "u_tex"
-node3.gamma_correction = false
-node3.init_texture("../../../assets/textures/noise/pd80_bluenoise_rgba.png")
-node3.set_sampler("linear_repeat")
+var node3 = Viewport()
 
-_editor.add_node(node3, -105.18059361267, 352.71484069532)
+_editor.add_node(node3, -380.2919726677, -56.555908699263)
 
-var node4 = Viewport()
+var node4 = Divide()
 
-_editor.add_node(node4, -380.2919726677, -56.555908699263)
+_editor.add_node(node4, -223.98778293032, -83.268734807078)
 
-var node5 = Divide()
+var node5 = Number()
 
-_editor.add_node(node5, -223.98778293032, -83.268734807078)
+node5.value = 512
 
-var node6 = Number()
+_editor.add_node(node5, -376.29977645233, -120.15145926759)
 
-node6.value = 512
+var node6 = Multiply()
 
-_editor.add_node(node6, -376.29977645233, -120.15145926759)
+_editor.add_node(node6, -70.992759539405, -43.653953145529)
 
-var node7 = Multiply()
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node7, -70.992759539405, -43.653953145529)
+_editor.add_node(node7, 322.97637384588, 87.401518388228)
 
-Blueprint.connect(node6, "v", node5, "b")
-Blueprint.connect(node4, "size", node5, "a")
-Blueprint.connect(node5, "v", node7, "b")
-Blueprint.connect(node3, "tex", node2, "tex")
-Blueprint.connect(node0, "uv", node7, "a")
-Blueprint.connect(node7, "v", node2, "coords")
-Blueprint.connect(node2, "ret", node1, "rgb")
+Blueprint.connect(node3, "size", node4, "a")
+Blueprint.connect(node5, "v", node4, "b")
+Blueprint.connect(node0, "uv", node6, "a")
+Blueprint.connect(node4, "v", node6, "b")
+Blueprint.connect(node2, "tex", node1, "tex")
+Blueprint.connect(node6, "v", node1, "coords")
+Blueprint.connect(node1, "ret", node7, "rgb")

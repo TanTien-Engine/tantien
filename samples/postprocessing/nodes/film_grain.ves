@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,59 +14,34 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -691.95947792019, 208.1685760533)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -81.85883534942, 228.08096398466)
+_editor.add_node(node1, -512.92900697118, 170.21428633927)
 
-var node2 = Draw()
+var node2 = FilmGrain()
+node2.query_param("intensity").value = 0.35801187157631
+node2.query_param("variance").value = 1
+node2.query_param("mean").value = 1
+node2.query_param("signal_to_noise_ratio").value = 6
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -197.22108016602, 52.747430373552)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = SampleTexture()
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -353.8386792443, 219.46797261916)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Time()
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -415.71872027532, 107.79296768076)
 
-var node4 = Clear()
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+_editor.add_node(node5, 4.7620544433594, 150.38967895508)
 
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -512.92900697118, 170.21428633927)
-
-var node6 = FilmGrain()
-node6.query_param("intensity").value = 0.35801187157631
-node6.query_param("variance").value = 1
-node6.query_param("mean").value = 1
-node6.query_param("signal_to_noise_ratio").value = 6
-
-_editor.add_node(node6, -197.22108016602, 52.747430373552)
-
-var node7 = SampleTexture()
-
-_editor.add_node(node7, -353.8386792443, 219.46797261916)
-
-var node8 = Time()
-
-_editor.add_node(node8, -415.71872027532, 107.79296768076)
-
-Blueprint.connect(node8, "time", node6, "timer")
-Blueprint.connect(node5, "uv", node7, "uv")
-Blueprint.connect(node5, "uv", node6, "texcoord")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node7, "tex")
-Blueprint.connect(node7, "rgb", node6, "color")
-Blueprint.connect(node6, "ret", node1, "rgb")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node4, "time", node2, "timer")
+Blueprint.connect(node1, "uv", node3, "uv")
+Blueprint.connect(node1, "uv", node2, "texcoord")
+Blueprint.connect(node0, "tex", node3, "tex")
+Blueprint.connect(node3, "rgb", node2, "color")
+Blueprint.connect(node2, "ret", node5, "rgb")

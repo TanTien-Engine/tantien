@@ -1,40 +1,72 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "noisegraph.nodes.*"
 var node0 = TexCoord()
 
 _editor.add_node(node0, -128.1657634143, 195.63427395387)
 
-var node1 = FragColor()
+var node1 = Multiply()
 
-_editor.add_node(node1, 350.86580561437, 201.97460077863)
+_editor.add_node(node1, 27.221080166023, 163.488226485)
 
-var node2 = Multiply()
+var node2 = Number()
 
-_editor.add_node(node2, 27.221080166023, 163.488226485)
+node2.value = 10
 
-var node3 = Number()
+_editor.add_node(node2, -252.65258831054, 131.38824516909)
 
-node3.value = 10
+var node3 = Uniform()
+node3.query_param("unif_name").value = "unif_0"
 
-_editor.add_node(node3, -252.65258831054, 131.38824516909)
+_editor.add_node(node3, -127.44075874328, 142.50140158877)
 
-var node4 = Uniform()
-node4.query_param("unif_name").value = "unif_0"
+var node4 = JordanTurbulence()
+node4.query_param("seed").value = 0
+node4.query_param("octaves").value = 5
+node4.query_param("lacunarity").value = 3
+node4.query_param("gain1").value = 0.8
+node4.query_param("gain").value = 0.6
+node4.query_param("warp0").value = 1
+node4.query_param("warp").value = 1
+node4.query_param("damp_scale").value = 0.2
 
-_editor.add_node(node4, -127.44075874328, 142.50140158877)
+_editor.add_node(node4, 195.45105587671, -26.127639691775)
 
-var node5 = JordanTurbulence()
-node5.query_param("seed").value = 0
-node5.query_param("octaves").value = 5
-node5.query_param("lacunarity").value = 3
-node5.query_param("gain1").value = 0.8
-node5.query_param("gain").value = 0.6
-node5.query_param("warp0").value = 1
-node5.query_param("warp").value = 1
-node5.query_param("damp_scale").value = 0.2
+var node5 = Combine()
 
-_editor.add_node(node5, 188, -7.5)
+_editor.add_node(node5, 388.77470667433, 156.03831845897)
 
-Blueprint.connect(node0, "uv", node2, "a")
-Blueprint.connect(node2, "v", node5, "p")
-Blueprint.connect(node3, "v", node4, "v")
-Blueprint.connect(node4, "v", node2, "b")
-Blueprint.connect(node5, "ret", node1, "grey")
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
+
+_editor.add_node(node6, 577.53478846857, 177.77054898236)
+
+var node7 = Texture()
+node7.query_param("unif_name").value = "perlin_perm2d_tex"
+node7.gamma_correction = false
+node7.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
+node7.set_sampler("nearest_repeat")
+
+_editor.add_node(node7, -265.67636412, 26.886662465693)
+
+var node8 = Texture()
+node8.query_param("unif_name").value = "perlin_grad2d_tex"
+node8.gamma_correction = false
+node8.init_texture("../../../assets/textures/noise/perlin_grad2d.png")
+node8.set_sampler("nearest_repeat")
+
+_editor.add_node(node8, -36.556401051514, 29.370343190791)
+
+Blueprint.connect(node2, "v", node3, "v")
+Blueprint.connect(node0, "uv", node1, "a")
+Blueprint.connect(node3, "v", node1, "b")
+Blueprint.connect(node1, "v", node4, "p")
+Blueprint.connect(node7, "tex", node4, "perlin_perm2d_tex")
+Blueprint.connect(node8, "tex", node4, "perlin_grad2d_tex")
+Blueprint.connect(node4, "ret", node5, "grey")
+Blueprint.connect(node5, "xyz", node6, "rgb")

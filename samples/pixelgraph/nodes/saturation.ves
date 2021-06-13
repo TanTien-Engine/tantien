@@ -5,50 +5,33 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
-var node0 = Shadergraph()
+var node0 = SampleTexture()
 
-_editor.add_node(node0, 90.434213028653, -39.366586214838)
+_editor.add_node(node0, -267.36967287565, -16.58981516111)
 
-var node1 = Draw()
+var node1 = TexCoord()
 
-node1.set_prim_type("tri_strip")
-node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : true }
-node1.skip = false
+_editor.add_node(node1, -428.27973490016, -52.82862588846)
 
-_editor.add_node(node1, 253.19987589051, -151.12763916689)
+var node2 = Texture()
+node2.query_param("unif_name").value = "u_tex"
+node2.gamma_correction = false
+node2.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
+node2.set_sampler("linear_repeat")
 
-var node2 = PrimitiveShape()
+_editor.add_node(node2, -527.19409405629, 247.94467909168)
 
-node2.type = "quad"
-node2.layout = [ "position", "texture" ]
-node2.shape_params = {  }
+var node3 = Saturation()
+node3.query_param("saturation").value = 2.0248548984528
 
-_editor.add_node(node2, 94.53926939514, -169.71186859865)
+_editor.add_node(node3, -91.545193005379, -59.078237320533)
 
-var node3 = SampleTexture()
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, -267.36967287565, -16.58981516111)
+_editor.add_node(node4, 126.3594317925, -44.909781123618)
 
-var node4 = TexCoord()
-
-_editor.add_node(node4, -428.27973490016, -52.82862588846)
-
-var node5 = Texture()
-node5.query_param("unif_name").value = "u_tex"
-node5.gamma_correction = false
-node5.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
-node5.set_sampler("linear_repeat")
-
-_editor.add_node(node5, -527.19409405629, 247.94467909168)
-
-var node6 = Saturation()
-node6.query_param("saturation").value = 2.0248548984528
-
-_editor.add_node(node6, -91.545193005379, -59.078237320533)
-
-Blueprint.connect(node5, "tex", node3, "tex")
-Blueprint.connect(node4, "uv", node3, "uv")
-Blueprint.connect(node3, "rgb", node6, "rgb")
-Blueprint.connect(node6, "ret", node0, "rgb")
-Blueprint.connect(node0, "shader", node1, "shader")
-Blueprint.connect(node2, "out", node1, "va")
+Blueprint.connect(node2, "tex", node0, "tex")
+Blueprint.connect(node1, "uv", node0, "uv")
+Blueprint.connect(node0, "rgb", node3, "rgb")
+Blueprint.connect(node3, "ret", node4, "rgb")

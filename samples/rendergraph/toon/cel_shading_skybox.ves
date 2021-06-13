@@ -1,7 +1,12 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = true
 
 _editor.add_node(node0, 502.8121562967, 784.63764981691)
@@ -34,6 +39,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -47,7 +55,7 @@ void main()
     FragColor = texture(texture_diffuse1, TexCoords);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, 248.25214705539, 720.7351516582)
@@ -82,7 +90,7 @@ _editor.add_node(node5, -320.22283332775, 58.35527158874)
 var node6 = Draw()
 
 node6.set_prim_type("triangles")
-node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node6.skip = false
 
 _editor.add_node(node6, 926.4973793462, 298.69981632394)
@@ -126,6 +134,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node8.tcs = ""
+node8.tes = ""
+node8.gs = ""
 node8.fs = "
 #version 330 core
 layout (location = 0) out vec3 gMain;
@@ -237,7 +248,7 @@ void main()
     gNormal = normal;
 }
 "
-node8.gs = ""
+node8.cs = ""
 node8.execute()
 node8.set_uniform("rimThreshold", [ 0.05 ])
 node8.set_uniform("rimAmount", [ 0.68 ])
@@ -252,9 +263,9 @@ node9.title = "Lighting"
 _editor.add_node(node9, 637.70490851017, 574.06501773893)
 
 var node10 = Texture()
+node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture("samples/rendergraph/learnopengl/resources/objects/backpack/normal.png")
-
 
 _editor.add_node(node10, 471.62710801958, 137.77728837576)
 
@@ -266,9 +277,9 @@ node11.height = 1024
 _editor.add_node(node11, 851.83282927081, -1082.6961075916)
 
 var node12 = Texture()
+node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgb")
-
 
 _editor.add_node(node12, 298.00692703281, -1254.8526902626)
 
@@ -279,16 +290,16 @@ node13.once = false
 _editor.add_node(node13, 1095.9019272506, 354.0140338414)
 
 var node14 = Texture()
+node14.query_param("unif_name").value = "u_tex"
 node14.gamma_correction = false
 node14.init_texture(1024, 1024, "r16")
-
 
 _editor.add_node(node14, 543.65645922946, -1249.9414222285)
 
 var node15 = Draw()
 
 node15.set_prim_type("tri_strip")
-node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
 node15.skip = false
 
 _editor.add_node(node15, 1712.5216625687, -1240.6358080604)
@@ -309,6 +320,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node16.tcs = ""
+node16.tes = ""
+node16.gs = ""
 node16.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -376,7 +390,7 @@ void main()
 	FragColor = alphaBlend(edgeColor, color);
 }
 "
-node16.gs = ""
+node16.cs = ""
 node16.execute()
 node16.set_uniform("scale", [ 1.630126953125 ])
 node16.set_uniform("depthThreshold", [ 0.090087890625 ])
@@ -388,6 +402,7 @@ var node17 = PrimitiveShape()
 
 node17.type = "quad"
 node17.layout = [ "position", "texture" ]
+node17.shape_params = {  }
 
 _editor.add_node(node17, 1501.2259853343, -1308.6573017239)
 
@@ -399,9 +414,9 @@ node18.values = { "color" : [ 128, 128, 128, 255 ] }
 _editor.add_node(node18, 1493.4921337828, -1082.302303188)
 
 var node19 = Texture()
+node19.query_param("unif_name").value = "u_tex"
 node19.gamma_correction = false
 node19.init_texture(1024, 1024, "rgb")
-
 
 _editor.add_node(node19, 788.56149524911, -1262.6304206247)
 
@@ -423,16 +438,16 @@ node21.speed = 0.19831281900406
 _editor.add_node(node21, -333.68403873828, 423.42719476456)
 
 var node22 = Texture()
+node22.query_param("unif_name").value = "u_tex"
 node22.gamma_correction = false
 node22.init_texture("diffuse_ramp_4.jpg")
-
 
 _editor.add_node(node22, 227.47450297497, 69.821222563127)
 
 var node23 = Texture()
+node23.query_param("unif_name").value = "u_tex"
 node23.gamma_correction = false
 node23.init_texture("107017.png")
-
 
 _editor.add_node(node23, 232, 442.5)
 
@@ -465,74 +480,75 @@ node27.title = "Input"
 _editor.add_node(node27, -218.56462711719, 554.67486801563)
 
 var node28 = Subgraph()
-node28.load_from_file(_editor, "assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
+node28.load_from_file(_editor, "../../../assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node28, -555.78948568975, -1255.3757692954)
 
 var node29 = Texture()
+node29.query_param("unif_name").value = "u_tex"
 node29.gamma_correction = false
 node29.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
-
 
 _editor.add_node(node29, -801.19636369733, -1287.4261468564)
 
 var node30 = Subgraph()
-node30.load_from_file(_editor, "assets/blueprints/rendergraph/draw_skybox.ves")
+node30.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
 node30.set_prop_value("tonemap", 1.8140017986298)
 node30.set_prop_value("gamma_correct", 1.906494140625)
 
 _editor.add_node(node30, -222.46603728392, -696.3746906264)
 
 var node31 = Cubemap()
+node31.query_param("unif_name").value = "u_cube_tex"
 
 node31.init_texture(0, 0, "rgba8")
 
 _editor.add_node(node31, -517.59293349052, -727.2731022604)
 
 var node32 = Texture()
+node32.query_param("unif_name").value = "u_tex"
 node32.gamma_correction = false
 node32.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/right.jpg")
-
 
 _editor.add_node(node32, -1251.5219361475, -597.5005606062)
 
 var node33 = Texture()
+node33.query_param("unif_name").value = "u_tex"
 node33.gamma_correction = false
 node33.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/left.jpg")
-
 
 _editor.add_node(node33, -1002.5324851284, -596.25868759998)
 
 var node34 = Texture()
+node34.query_param("unif_name").value = "u_tex"
 node34.gamma_correction = false
 node34.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/top.jpg")
-
 
 _editor.add_node(node34, -759.13131497089, -598.12147617218)
 
 var node35 = Texture()
+node35.query_param("unif_name").value = "u_tex"
 node35.gamma_correction = false
 node35.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/bottom.jpg")
-
 
 _editor.add_node(node35, -1248.7707694232, -931.3459747547)
 
 var node36 = Texture()
+node36.query_param("unif_name").value = "u_tex"
 node36.gamma_correction = false
 node36.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/front.jpg")
-
 
 _editor.add_node(node36, -995.43486176258, -926.3786727429)
 
 var node37 = Texture()
+node37.query_param("unif_name").value = "u_tex"
 node37.gamma_correction = false
 node37.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/back.jpg")
-
 
 _editor.add_node(node37, -762.27880696735, -926.0823915986)
 
 var node38 = Subgraph()
-node38.load_from_file(_editor, "assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
+node38.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
 
 _editor.add_node(node38, -932.63319506458, -278.95834538578)
 
@@ -546,46 +562,53 @@ var node40 = Print()
 
 _editor.add_node(node40, -744.45428416355, -377.18701193061)
 
-Blueprint.connect(node1, "model", node0, "model")
-Blueprint.connect(node1, "model", node6, "model")
-Blueprint.connect(node2, "out", node0, "shader")
-Blueprint.connect(node3, "next", node0, "prev")
-Blueprint.connect(node4, "mat", node2, "view")
-Blueprint.connect(node4, "mat", node8, "view")
-Blueprint.connect(node4, "zoom", node5, "fovy")
-Blueprint.connect(node4, "rot", node30, "view")
-Blueprint.connect(node4, "pos", node8, "viewPos")
-Blueprint.connect(node5, "mat", node2, "projection")
-Blueprint.connect(node5, "mat", node8, "projection")
-Blueprint.connect(node5, "mat", node30, "projection")
-Blueprint.connect(node6, "next", node30, "prev")
-Blueprint.connect(node7, "next", node6, "prev")
-Blueprint.connect(node8, "out", node6, "shader")
-Blueprint.connect(node10, "tex", node8, "texture_normal1")
-Blueprint.connect(node11, "fbo", node13, "fbo")
-Blueprint.connect(node12, "tex", node11, "col0")
-Blueprint.connect(node12, "tex", node16, "main_tex")
-Blueprint.connect(node14, "tex", node11, "col1")
-Blueprint.connect(node14, "tex", node16, "cam_depth_tex")
-Blueprint.connect(node16, "out", node15, "shader")
-Blueprint.connect(node17, "out", node15, "va")
-Blueprint.connect(node18, "next", node15, "prev")
-Blueprint.connect(node19, "tex", node11, "col2")
-Blueprint.connect(node19, "tex", node16, "cam_normal_tex")
-Blueprint.connect(node20, "rbo", node11, "depth")
-Blueprint.connect(node21, "pos", node8, "lightPos")
-Blueprint.connect(node22, "tex", node8, "diffuse_ramp")
-Blueprint.connect(node23, "tex", node8, "palette_tex")
-Blueprint.connect(node28, "tex", node38, "environmentMap")
-Blueprint.connect(node29, "tex", node28, "equirectangularMap")
-Blueprint.connect(node30, "next", node13, "prev")
-Blueprint.connect(node31, "tex", node30, "skybox")
+var node41 = Pass()
+
+node41.once = false
+
+_editor.add_node(node41, 1866.0393868171, -1141.3559029114)
+
 Blueprint.connect(node32, "tex", node31, "right")
 Blueprint.connect(node33, "tex", node31, "left")
 Blueprint.connect(node34, "tex", node31, "top")
 Blueprint.connect(node35, "tex", node31, "bottom")
 Blueprint.connect(node36, "tex", node31, "front")
 Blueprint.connect(node37, "tex", node31, "back")
-Blueprint.connect(node38, "next", node39, "prev")
+Blueprint.connect(node29, "tex", node28, "equirectangularMap")
+Blueprint.connect(node28, "tex", node38, "environmentMap")
 Blueprint.connect(node38, "tex", node40, "value")
+Blueprint.connect(node38, "next", node39, "prev")
+Blueprint.connect(node19, "tex", node16, "cam_normal_tex")
+Blueprint.connect(node14, "tex", node16, "cam_depth_tex")
+Blueprint.connect(node12, "tex", node16, "main_tex")
+Blueprint.connect(node18, "next", node15, "prev")
+Blueprint.connect(node16, "out", node15, "shader")
+Blueprint.connect(node17, "out", node15, "va")
+Blueprint.connect(node15, "next", node41, "prev")
+Blueprint.connect(node12, "tex", node11, "col0")
+Blueprint.connect(node14, "tex", node11, "col1")
+Blueprint.connect(node19, "tex", node11, "col2")
+Blueprint.connect(node20, "rbo", node11, "depth")
+Blueprint.connect(node4, "zoom", node5, "fovy")
+Blueprint.connect(node4, "mat", node8, "view")
+Blueprint.connect(node5, "mat", node8, "projection")
+Blueprint.connect(node21, "pos", node8, "lightPos")
+Blueprint.connect(node4, "pos", node8, "viewPos")
+Blueprint.connect(node23, "tex", node8, "palette_tex")
 Blueprint.connect(node38, "tex", node8, "irradianceMap")
+Blueprint.connect(node22, "tex", node8, "diffuse_ramp")
+Blueprint.connect(node10, "tex", node8, "texture_normal1")
+Blueprint.connect(node4, "mat", node2, "view")
+Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node7, "next", node6, "prev")
+Blueprint.connect(node8, "out", node6, "shader")
+Blueprint.connect(node1, "model", node6, "model")
+Blueprint.connect(node6, "next", node30, "prev")
+Blueprint.connect(node5, "mat", node30, "projection")
+Blueprint.connect(node4, "rot", node30, "view")
+Blueprint.connect(node31, "tex", node30, "skybox")
+Blueprint.connect(node30, "next", node13, "prev")
+Blueprint.connect(node11, "fbo", node13, "fbo")
+Blueprint.connect(node3, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node1, "model", node0, "model")

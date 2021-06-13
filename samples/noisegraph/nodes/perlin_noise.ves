@@ -1,3 +1,11 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "noisegraph.nodes.*"
 var node0 = PerlinNoise()
 node0.query_param("seed").value = 0.58301198482513
 
@@ -7,27 +15,51 @@ var node1 = TexCoord()
 
 _editor.add_node(node1, -188, 50)
 
-var node2 = FragColor()
+var node2 = Multiply()
 
-_editor.add_node(node2, 266.74380165289, 29.51239669421)
+_editor.add_node(node2, -28, -6)
 
-var node3 = Multiply()
+var node3 = Number()
 
-_editor.add_node(node3, -28, -6)
+node3.value = 10
 
-var node4 = Number()
+_editor.add_node(node3, -352, -69)
 
-node4.value = 10
+var node4 = Uniform()
+node4.query_param("unif_name").value = "unif_0"
 
-_editor.add_node(node4, -352, -69)
+_editor.add_node(node4, -198, -54.5)
 
-var node5 = Uniform()
-node5.query_param("unif_name").value = "unif_0"
+var node5 = Combine()
 
-_editor.add_node(node5, -198, -54.5)
+_editor.add_node(node5, 267.87456967896, 13.018633846433)
 
-Blueprint.connect(node0, "ret", node2, "grey")
-Blueprint.connect(node1, "uv", node3, "a")
-Blueprint.connect(node3, "v", node0, "p")
-Blueprint.connect(node4, "v", node5, "v")
-Blueprint.connect(node5, "v", node3, "b")
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
+
+_editor.add_node(node6, 464.87596796754, 54.789705523074)
+
+var node7 = Texture()
+node7.query_param("unif_name").value = "perlin_perm2d_tex"
+node7.gamma_correction = false
+node7.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
+node7.set_sampler("nearest_repeat")
+
+_editor.add_node(node7, -342.19058227539, -200.65524291992)
+
+var node8 = Texture()
+node8.query_param("unif_name").value = "perlin_grad2d_tex"
+node8.gamma_correction = false
+node8.init_texture("../../../assets/textures/noise/perlin_grad2d.png")
+node8.set_sampler("nearest_repeat")
+
+_editor.add_node(node8, -101.27309721326, -203.13892808094)
+
+Blueprint.connect(node3, "v", node4, "v")
+Blueprint.connect(node1, "uv", node2, "a")
+Blueprint.connect(node4, "v", node2, "b")
+Blueprint.connect(node2, "v", node0, "p")
+Blueprint.connect(node7, "tex", node0, "perlin_perm2d_tex")
+Blueprint.connect(node8, "tex", node0, "perlin_grad2d_tex")
+Blueprint.connect(node0, "ret", node5, "grey")
+Blueprint.connect(node5, "xyz", node6, "rgb")

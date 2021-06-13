@@ -4,6 +4,8 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
 var node0 = Gltf()
 node0.init_model("assets/models/DamagedHelmet/DamagedHelmet.gltf")
@@ -17,80 +19,70 @@ _editor.add_node(node1, -149.86453383767, 107.65464115436)
 var node2 = Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/standard_model.ves")
 
-_editor.add_node(node2, 208.90666940454, 93.188335167885)
+_editor.add_node(node2, 201.39352139552, 46.060406747695)
 
-var node3 = Clear()
+var node3 = Camera3d()
 
-node3.masks = [ "color", "depth" ]
-node3.values = { "color" : [ 128, 128, 128, 255 ] }
+node3.cam.position.set(0, 0, 3)
+node3.cam.yaw = -90
+node3.cam.pitch = 0
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.038704462349415
 
-_editor.add_node(node3, 416.33221579578, 272.57063583501)
+_editor.add_node(node3, -54.735606501695, 366.1529835832)
 
-var node4 = Camera3d()
+var node4 = Perspective()
 
-node4.cam.position.set(0, 0, 3)
-node4.cam.yaw = -90
-node4.cam.pitch = 0
-node4.cam.zoom = 45
-node4.cam.update_vectors()
-node4.speed = 0.038704462349415
+node4.fovy = 45
+node4.aspect = 0
+node4.znear = 0.1
+node4.zfar = 100
 
-_editor.add_node(node4, -54.735606501695, 366.1529835832)
+_editor.add_node(node4, -55.81618439048, 209.68358753226)
 
-var node5 = Draw()
+var node5 = OrbitCamera()
+node5.query_param("speed").value = 0.5761501789093
 
-node5.set_prim_type("triangles")
-node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
-node5.skip = false
+_editor.add_node(node5, -32.150727665732, -173.96845375089)
 
-_editor.add_node(node5, 591.55883007207, 220.989817974)
+var node6 = Number3()
 
-var node6 = Shadergraph()
+node6.value.set(5.1760201454163, 7.2871313095093, 5.3982424736023)
 
-_editor.add_node(node6, 416.76610699781, 94.70625602916)
+_editor.add_node(node6, -269.54934665285, -0.15240353726748)
 
-var node7 = Perspective()
+var node7 = Subtract()
 
-node7.fovy = 45
-node7.aspect = 0
-node7.znear = 0.1
-node7.zfar = 100
+_editor.add_node(node7, -119.56690517205, -37.922979545987)
 
-_editor.add_node(node7, -55.81618439048, 209.68358753226)
+var node8 = Number3()
 
-var node8 = OrbitCamera()
-node8.query_param("speed").value = 0.5761501789093
+node8.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
-_editor.add_node(node8, -6.5066770233875, 36.151321972326)
+_editor.add_node(node8, -270.87533955295, -110.70872306995)
 
-var node9 = Number3()
+var node9 = Subgraph()
+node9.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
-node9.value.set(5.1760201454163, 7.2871313095093, 5.3982424736023)
+_editor.add_node(node9, 613.38781673338, 10.936242105123)
 
-_editor.add_node(node9, -159.58418033907, -14.495686099934)
+var node10 = Subgraph()
+node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
-var node10 = Subtract()
+_editor.add_node(node10, 204.28200506074, -119.54580368646)
 
-_editor.add_node(node10, -9.6017388582693, -52.266262108654)
-
-var node11 = Number3()
-
-node11.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
-
-_editor.add_node(node11, -160.91017323917, -125.05200563262)
-
-Blueprint.connect(node11, "v3", node10, "b")
-Blueprint.connect(node9, "v3", node10, "a")
-Blueprint.connect(node10, "v", node2, "light_pos")
-Blueprint.connect(node8, "mat", node2, "local_mat")
-Blueprint.connect(node4, "mat", node6, "view")
-Blueprint.connect(node4, "zoom", node7, "fovy")
-Blueprint.connect(node4, "pos", node2, "cam_pos")
-Blueprint.connect(node7, "mat", node6, "projection")
-Blueprint.connect(node3, "next", node5, "prev")
+Blueprint.connect(node8, "v3", node7, "b")
+Blueprint.connect(node6, "v3", node7, "a")
+Blueprint.connect(node7, "v", node2, "light_pos")
+Blueprint.connect(node5, "mat", node10, "local_mat")
+Blueprint.connect(node3, "mat", node9, "view")
+Blueprint.connect(node3, "zoom", node4, "fovy")
+Blueprint.connect(node3, "pos", node2, "cam_pos")
+Blueprint.connect(node4, "mat", node9, "projection")
 Blueprint.connect(node0, "desc", node1, "data")
 Blueprint.connect(node1, "node_damagedHelmet_-6514", node2, "model")
-Blueprint.connect(node2, "frag_out", node6, "rgba")
-Blueprint.connect(node2, "model_mat", node6, "model")
-Blueprint.connect(node2, "va", node5, "va")
-Blueprint.connect(node6, "shader", node5, "shader")
+Blueprint.connect(node1, "node_damagedHelmet_-6514", node10, "model")
+Blueprint.connect(node10, "model_mat", node9, "model")
+Blueprint.connect(node10, "va", node9, "va")
+Blueprint.connect(node2, "frag_out", node9, "rgb")

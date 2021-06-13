@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "texture0"
@@ -13,54 +14,29 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -549.32991337231, 97.788534948308)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -81.85883534942, 228.08096398466)
+_editor.add_node(node1, -500.07199894267, 241.76419289061)
 
-var node2 = Draw()
+var node2 = LumaSharpen()
+node2.query_param("sharp_strength").value = 0.85
+node2.query_param("sharp_clamp").value = 0.035
+node2.query_param("pattern").value = 2
+node2.query_param("offset_bias").value = 1
+node2.query_param("show_sharpen").value = false
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -354.03934157503, 121.13793456731)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = Viewport()
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -499.92690838878, 196.01007337621)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -123.58518981934, 243.89309692383)
 
-var node4 = Clear()
-
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
-
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -500.07199894267, 241.76419289061)
-
-var node6 = LumaSharpen()
-node6.query_param("sharp_strength").value = 0.85
-node6.query_param("sharp_clamp").value = 0.035
-node6.query_param("pattern").value = 2
-node6.query_param("offset_bias").value = 1
-node6.query_param("show_sharpen").value = false
-
-_editor.add_node(node6, -354.03934157503, 121.13793456731)
-
-var node7 = Viewport()
-
-_editor.add_node(node7, -499.92690838878, 196.01007337621)
-
-Blueprint.connect(node7, "size", node6, "screen_size")
-Blueprint.connect(node5, "uv", node6, "tex")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "texture0")
-Blueprint.connect(node6, "ret", node1, "rgb")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node3, "size", node2, "screen_size")
+Blueprint.connect(node1, "uv", node2, "tex")
+Blueprint.connect(node0, "tex", node2, "texture0")
+Blueprint.connect(node2, "ret", node4, "rgb")

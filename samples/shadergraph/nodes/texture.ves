@@ -1,22 +1,30 @@
-var node0 = FragColor()
 
-_editor.add_node(node0, 231.35554545455, 63.29327272727)
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
 
-var node1 = Texture()
-node1.gamma_correction = false
-node1.init_texture("samples/rendergraph/learnopengl/resources/textures/awesomeface.png")
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("samples/rendergraph/learnopengl/resources/textures/awesomeface.png")
 
+_editor.add_node(node0, -286.48064896926, 91.64866785236)
 
-_editor.add_node(node1, -286.48064896926, 91.64866785236)
+var node1 = SampleTexture()
 
-var node2 = SampleTexture()
+_editor.add_node(node1, 48.869792289872, 83.48096207781)
 
-_editor.add_node(node2, 48.869792289872, 83.48096207781)
+var node2 = TexCoord()
 
-var node3 = TexCoord()
+_editor.add_node(node2, -102.97935449914, 36.130040919276)
 
-_editor.add_node(node3, -102.97935449914, 36.130040919276)
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-Blueprint.connect(node1, "tex", node2, "tex")
-Blueprint.connect(node2, "rgba", node0, "rgba")
-Blueprint.connect(node3, "uv", node2, "uv")
+_editor.add_node(node3, 263.52954353774, 115.09724350606)
+
+Blueprint.connect(node0, "tex", node1, "tex")
+Blueprint.connect(node2, "uv", node1, "uv")
+Blueprint.connect(node1, "rgb", node3, "rgb")

@@ -4,93 +4,86 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
-var node0 = Draw()
+var node0 = Camera3d()
 
-node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
-node0.skip = false
+node0.cam.position.set(0.31251028579762, 0.8504978580486, 0.75376969050028)
+node0.cam.yaw = -112.3
+node0.cam.pitch = -46.2
+node0.cam.zoom = 6
+node0.cam.update_vectors()
+node0.speed = 0.091084942221642
 
-_editor.add_node(node0, 855.1904626148, -278.38317655151)
+_editor.add_node(node0, 151.46541873395, -36.818171458258)
 
-var node1 = Shadergraph()
+var node1 = Perspective()
 
-_editor.add_node(node1, 661.15771454078, -217.04112950376)
+node1.fovy = 6
+node1.aspect = 0
+node1.znear = 0.1
+node1.zfar = 100
 
-var node2 = Clear()
+_editor.add_node(node1, 315.67126390038, -15.698874681421)
 
-node2.masks = [ "depth", "color" ]
-node2.values = { "color" : [ 128, 128, 128, 255 ] }
+var node2 = Number3()
 
-_editor.add_node(node2, 652.47917049778, -48.071602697125)
+node2.value.set(6.4398865699768, 6.8843307495117, 4.6900091171265)
 
-var node3 = Camera3d()
+_editor.add_node(node2, -16.070494031783, -270.59063212947)
 
-node3.cam.position.set(0.31251028579762, 0.8504978580486, 0.75376969050028)
-node3.cam.yaw = -112.3
-node3.cam.pitch = -46.2
-node3.cam.zoom = 6
-node3.cam.update_vectors()
-node3.speed = 0.091084942221642
+var node3 = Subtract()
 
-_editor.add_node(node3, 151.46541873395, -36.818171458258)
+_editor.add_node(node3, 121.75292076781, -300.19812972342)
 
-var node4 = Perspective()
+var node4 = Number3()
 
-node4.fovy = 6
-node4.aspect = 0
-node4.znear = 0.1
-node4.zfar = 100
+node4.value.set(5, 5, 5)
 
-_editor.add_node(node4, 299.52730950084, -22.529009235072)
+_editor.add_node(node4, -12.606897757083, -375.56282796823)
 
-var node5 = Number3()
+var node5 = Expand()
 
-node5.value.set(6.4398865699768, 6.8843307495117, 4.6900091171265)
+_editor.add_node(node5, 154.11281642753, -189.61267187172)
 
-_editor.add_node(node5, 42.668663129613, -332.06184311233)
+var node6 = Gltf()
+node6.init_model("assets/models/SheenCloth/SheenCloth.gltf")
 
-var node6 = Subtract()
+_editor.add_node(node6, -19.951514177491, -158.82074943143)
 
-_editor.add_node(node6, 180.49207792921, -361.66934070628)
+var node7 = OrbitCamera()
+node7.query_param("speed").value = 0.43336790800095
 
-var node7 = Number3()
+_editor.add_node(node7, 182.99688741977, -403.64770796108)
 
-node7.value.set(5, 5, 5)
+var node8 = Subgraph()
+node8.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/cloth_model.ves")
 
-_editor.add_node(node7, 46.132259404313, -437.03403895109)
+_editor.add_node(node8, 419.03234611911, -216.55413457442)
 
-var node8 = Expand()
+var node9 = Subgraph()
+node9.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
-_editor.add_node(node8, 154.11281642753, -189.61267187172)
+_editor.add_node(node9, 833.38781673338, -255.42739425851)
 
-var node9 = Gltf()
-node9.init_model("assets/models/SheenCloth/SheenCloth.gltf")
+var node10 = Subgraph()
+node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
-_editor.add_node(node9, -19.951514177491, -158.82074943143)
+_editor.add_node(node10, 424.28200506074, -385.9094400501)
 
-var node10 = OrbitCamera()
-node10.query_param("speed").value = 0.20602621138096
-
-_editor.add_node(node10, 179.45763587833, -288.28052613669)
-
-var node11 = Subgraph()
-node11.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/cloth_model.ves")
-
-_editor.add_node(node11, 419.03234611911, -216.55413457442)
-
-Blueprint.connect(node10, "mat", node11, "local_mat")
-Blueprint.connect(node9, "desc", node8, "data")
-Blueprint.connect(node8, "SheenCloth_mesh", node11, "model")
-Blueprint.connect(node7, "v3", node6, "b")
-Blueprint.connect(node5, "v3", node6, "a")
-Blueprint.connect(node6, "v", node11, "light_pos")
-Blueprint.connect(node3, "mat", node1, "view")
-Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node3, "pos", node11, "cam_pos")
-Blueprint.connect(node11, "frag_out", node1, "rgba")
-Blueprint.connect(node11, "model_mat", node1, "model")
-Blueprint.connect(node11, "va", node0, "va")
-Blueprint.connect(node4, "mat", node1, "projection")
-Blueprint.connect(node1, "shader", node0, "shader")
-Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node6, "desc", node5, "data")
+Blueprint.connect(node5, "SheenCloth_mesh", node10, "model")
+Blueprint.connect(node7, "mat", node10, "local_mat")
+Blueprint.connect(node2, "v3", node3, "a")
+Blueprint.connect(node4, "v3", node3, "b")
+Blueprint.connect(node5, "SheenCloth_mesh", node8, "model")
+Blueprint.connect(node0, "pos", node8, "cam_pos")
+Blueprint.connect(node3, "v", node8, "light_pos")
+Blueprint.connect(node0, "zoom", node1, "fovy")
+Blueprint.connect(node8, "frag_out", node9, "rgb")
+Blueprint.connect(node10, "model_mat", node9, "model")
+Blueprint.connect(node0, "mat", node9, "view")
+Blueprint.connect(node1, "mat", node9, "projection")
+Blueprint.connect(node10, "va", node9, "va")

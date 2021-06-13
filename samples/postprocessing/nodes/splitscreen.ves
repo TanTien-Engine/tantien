@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "u_tex"
@@ -13,61 +14,36 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -917.95947792019, 205.1685760533)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -81.85883534942, 228.08096398466)
+_editor.add_node(node1, -746.75242315612, 275.82848929361)
 
-var node2 = Draw()
+var node2 = SampleTexture()
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -604.33260135168, 188.76916959315)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = Technicolor2()
+node3.query_param("color_strength").value.set(1, 0.2, 0.2)
+node3.query_param("brightness").value = 0.6
+node3.query_param("saturation").value = 0.4
+node3.query_param("strength").value = 1
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -433.09640907802, 95.331307369128)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Splitscreen()
+node4.query_param("mode").value = 3
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -243.11708092468, 180.95105587671)
 
-var node4 = Clear()
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+_editor.add_node(node5, -56.902137756348, 223.21759033203)
 
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -746.75242315612, 275.82848929361)
-
-var node6 = SampleTexture()
-
-_editor.add_node(node6, -604.33260135168, 188.76916959315)
-
-var node7 = Technicolor2()
-node7.query_param("color_strength").value.set(1, 0.2, 0.2)
-node7.query_param("brightness").value = 0.6
-node7.query_param("saturation").value = 0.4
-node7.query_param("strength").value = 1
-
-_editor.add_node(node7, -433.09640907802, 95.331307369128)
-
-var node8 = Splitscreen()
-node8.query_param("mode").value = 3
-
-_editor.add_node(node8, -243.11708092468, 180.95105587671)
-
-Blueprint.connect(node5, "uv", node6, "uv")
-Blueprint.connect(node5, "uv", node8, "texcoord")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "tex")
-Blueprint.connect(node6, "rgb", node8, "color0")
-Blueprint.connect(node6, "rgb", node7, "color")
-Blueprint.connect(node7, "ret", node8, "color1")
-Blueprint.connect(node8, "ret", node1, "rgb")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node1, "uv", node2, "uv")
+Blueprint.connect(node1, "uv", node4, "texcoord")
+Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node2, "rgb", node4, "color0")
+Blueprint.connect(node2, "rgb", node3, "color")
+Blueprint.connect(node3, "ret", node4, "color1")
+Blueprint.connect(node4, "ret", node5, "rgb")

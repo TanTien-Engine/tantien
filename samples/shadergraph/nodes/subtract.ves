@@ -1,23 +1,31 @@
-var node0 = FragColor()
 
-_editor.add_node(node0, 211.911, -166.114)
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+var node0 = Number3()
+
+node0.value.set(0.5, 0.5, 0)
+
+_editor.add_node(node0, -110.94352306019, -112.13893821023)
 
 var node1 = Number3()
 
-node1.value.set(0.5, 0.5, 0)
+node1.value.set(0.4, 0, 0)
 
-_editor.add_node(node1, -110.94352306019, -112.13893821023)
+_editor.add_node(node1, -110.03442382812, -226.22985562411)
 
-var node2 = Number3()
+var node2 = Subtract()
 
-node2.value.set(0.4, 0, 0)
+_editor.add_node(node2, 51.109281130073, -163.03168733455)
 
-_editor.add_node(node2, -110.03442382812, -226.22985562411)
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-var node3 = Subtract()
+_editor.add_node(node3, 250.73000488281, -152.28460083008)
 
-_editor.add_node(node3, 51.109281130073, -163.03168733455)
-
-Blueprint.connect(node1, "v3", node3, "a")
-Blueprint.connect(node2, "v3", node3, "b")
-Blueprint.connect(node3, "v", node0, "rgb")
+Blueprint.connect(node0, "v3", node2, "a")
+Blueprint.connect(node1, "v3", node2, "b")
+Blueprint.connect(node2, "v", node3, "rgb")

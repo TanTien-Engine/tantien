@@ -1,0 +1,138 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+import "pbrgraph.nodes.*"
+var node0 = Gltf()
+node0.init_model("assets/models/Sponza/Sponza.gltf")
+
+_editor.add_node(node0, -525.38792516174, 272.70479125178)
+
+var node1 = Expand()
+
+_editor.add_node(node1, -338.21476763611, 391.00422902465)
+
+var node2 = Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/standard_model.ves")
+
+_editor.add_node(node2, 208.90666940454, 93.188335167885)
+
+var node3 = Clear()
+
+node3.masks = [ "color" ]
+node3.values = { "color" : [ 128, 126.81216430664, 128, 255 ] }
+
+_editor.add_node(node3, 827.32827858873, 419.09082002684)
+
+var node4 = Camera3d()
+
+node4.cam.position.set(-4.2669770217117, 0.075028923834395, 0.34943893102957)
+node4.cam.yaw = -148.2
+node4.cam.pitch = 5.4
+node4.cam.zoom = 6
+node4.cam.update_vectors()
+node4.speed = 0.038704462349415
+
+_editor.add_node(node4, -54.735606501695, 366.1529835832)
+
+var node5 = Draw()
+
+node5.set_prim_type("triangles")
+node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node5.skip = false
+
+_editor.add_node(node5, 1000.9030083522, 191.03164703169)
+
+var node6 = Perspective()
+
+node6.fovy = 6
+node6.aspect = 0
+node6.znear = 0.1
+node6.zfar = 100
+
+_editor.add_node(node6, -55.81618439048, 209.68358753226)
+
+var node7 = OrbitCamera()
+node7.query_param("speed").value = 0.5761501789093
+
+_editor.add_node(node7, -6.5066770233875, 36.151321972326)
+
+var node8 = Number3()
+
+node8.value.set(5.1760201454163, 7.2871313095093, 5.3982424736023)
+
+_editor.add_node(node8, -159.58418033907, -14.495686099934)
+
+var node9 = Subtract()
+
+_editor.add_node(node9, -9.6017388582693, -52.266262108654)
+
+var node10 = Number3()
+
+node10.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
+
+_editor.add_node(node10, -160.91017323917, -125.05200563262)
+
+var node11 = FragColor()
+
+_editor.add_node(node11, 432.07464185441, 83.398675867336)
+
+var node12 = Subgraph()
+node12.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
+
+_editor.add_node(node12, 297.23062133789, -103.89822387695)
+
+var node13 = ShaderGen()
+
+_editor.add_node(node13, 846.86826124698, 249.86259057391)
+
+var node14 = ShaderCode()
+node14.init_filepath("../../../assets/shaders/model_vert.glsl")
+
+_editor.add_node(node14, 700.91093154895, 289.44677467516)
+
+var node15 = If()
+
+_editor.add_node(node15, 820.82592995861, -310.36666072155)
+
+var node16 = Compare()
+
+node16.cmp = "less"
+
+_editor.add_node(node16, 630.34502936928, -312.21411524982)
+
+var node17 = Split()
+
+_editor.add_node(node17, 462.83500028248, -259.38886746493)
+
+var node18 = Number()
+
+node18.value = 0.50410294532776
+
+_editor.add_node(node18, 469.44654430043, -361.04176771936)
+
+Blueprint.connect(node18, "v", node16, "b")
+Blueprint.connect(node14, "code", node13, "vs")
+Blueprint.connect(node10, "v3", node9, "b")
+Blueprint.connect(node8, "v3", node9, "a")
+Blueprint.connect(node9, "v", node2, "light_pos")
+Blueprint.connect(node7, "mat", node12, "local_mat")
+Blueprint.connect(node4, "mat", node13, "view")
+Blueprint.connect(node4, "zoom", node6, "fovy")
+Blueprint.connect(node4, "pos", node2, "cam_pos")
+Blueprint.connect(node6, "mat", node13, "projection")
+Blueprint.connect(node3, "next", node5, "prev")
+Blueprint.connect(node0, "desc", node1, "data")
+Blueprint.connect(node1, "node81", node2, "model")
+Blueprint.connect(node1, "node81", node12, "model")
+Blueprint.connect(node12, "model_mat", node13, "model")
+Blueprint.connect(node12, "va", node5, "va")
+Blueprint.connect(node2, "frag_out", node11, "rgba")
+Blueprint.connect(node2, "frag_out", node17, "xyzw")
+Blueprint.connect(node17, "w", node16, "a")
+Blueprint.connect(node16, "out", node15, "cond")
+Blueprint.connect(node11, "next", node13, "fs")
+Blueprint.connect(node11, "next", node15, "false")
+Blueprint.connect(node13, "shader", node5, "shader")

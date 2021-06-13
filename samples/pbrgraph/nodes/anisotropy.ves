@@ -4,119 +4,112 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
-var node0 = Draw()
+var node0 = Camera3d()
 
-node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
-node0.skip = false
+node0.cam.position.set(0, 0, 3)
+node0.cam.yaw = -90
+node0.cam.pitch = 0
+node0.cam.zoom = 8
+node0.cam.update_vectors()
+node0.speed = 0.01
 
-_editor.add_node(node0, 577.9081115024, -145.65588478212)
+_editor.add_node(node0, -62.33101768433, 188.53950639348)
 
-var node1 = Shadergraph()
+var node1 = Perspective()
 
-_editor.add_node(node1, 424.49717791884, -9.1124304335698)
+node1.fovy = 8
+node1.aspect = 0
+node1.znear = 0.1
+node1.zfar = 100
 
-var node2 = Clear()
+_editor.add_node(node1, 106.86026008525, 177.98239618581)
 
-node2.masks = [ "depth", "color" ]
-node2.values = { "color" : [ 126.3501739502, 128, 127.39208984375, 255 ] }
+var node2 = Gltf()
+node2.init_model("assets/models/WaterBottle/WaterBottle.gltf")
 
-_editor.add_node(node2, 421.47410660314, 147.1298236458)
+_editor.add_node(node2, -536.60572038772, 119.41187074415)
 
-var node3 = Camera3d()
+var node3 = Expand()
 
-node3.cam.position.set(0, 0, 3)
-node3.cam.yaw = -90
-node3.cam.pitch = 0
-node3.cam.zoom = 8
-node3.cam.update_vectors()
-node3.speed = 0.01
+_editor.add_node(node3, -335.55608926213, 119.59863471702)
 
-_editor.add_node(node3, -62.33101768433, 188.53950639348)
+var node4 = OrbitCamera()
+node4.query_param("speed").value = 0.049697365611792
 
-var node4 = Perspective()
+_editor.add_node(node4, -208.05637111763, -395.32790839013)
 
-node4.fovy = 8
-node4.aspect = 0
-node4.znear = 0.1
-node4.zfar = 100
+var node5 = Number3()
 
-_editor.add_node(node4, 106.86026008525, 177.98239618581)
+node5.value.set(4.9503307342529, 9.0614423751831, 2.7281086444855)
 
-var node5 = Gltf()
-node5.init_model("assets/models/WaterBottle/WaterBottle.gltf")
+_editor.add_node(node5, -465.93313721441, 25.1196581953)
 
-_editor.add_node(node5, -272.14291047037, 50.81682942184)
+var node6 = Subtract()
 
-var node6 = Expand()
+_editor.add_node(node6, -313.59151052911, -23.129856331482)
 
-_editor.add_node(node6, -71.09327934477, 51.00359339471)
+var node7 = Number3()
 
-var node7 = OrbitCamera()
-node7.query_param("speed").value = 0.049697365611792
+node7.value.set(5.4388632774353, 5.1295571327209, 5.5166964530945)
 
-_editor.add_node(node7, -38.47276660161, -5.9049079966933)
+_editor.add_node(node7, -465.49334801611, -84.930083127552)
 
 var node8 = Number3()
 
-node8.value.set(4.9503307342529, 9.0614423751831, 2.7281086444855)
+node8.value.set(0.3131103515625, 0, 0)
 
-_editor.add_node(node8, -191.55297192515, -93.062159986518)
+_editor.add_node(node8, -480.86846836791, -200.45081971291)
 
 var node9 = Subtract()
 
-_editor.add_node(node9, -39.21134523985, -141.3116745133)
+_editor.add_node(node9, -283.97961753981, -219.21233234171)
 
 var node10 = Number3()
 
-node10.value.set(5.4388632774353, 5.1295571327209, 5.5166964530945)
+node10.value.set(0, 0, 0)
 
-_editor.add_node(node10, -191.11318272685, -203.11190130937)
+_editor.add_node(node10, -480.71847488991, -304.59817046861)
 
-var node11 = Number3()
+var node11 = Number()
 
-node11.value.set(0.3131103515625, 0, 0)
+node11.value = 0
 
-_editor.add_node(node11, -256.90152621915, -336.81445607655)
+_editor.add_node(node11, -315.08220919338, -95.68008349787)
 
-var node12 = Subtract()
+var node12 = Subgraph()
+node12.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/anisotropy.ves")
 
-_editor.add_node(node12, -60.01267539105, -355.57596870535)
+_editor.add_node(node12, 61.717284144516, -31.085551973466)
 
-var node13 = Number3()
+var node13 = Subgraph()
+node13.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
-node13.value.set(0, 0, 0)
+_editor.add_node(node13, 539.00765144412, -98.755718826508)
 
-_editor.add_node(node13, -256.75153274115, -440.96180683225)
+var node14 = Subgraph()
+node14.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
-var node14 = Number()
+_editor.add_node(node14, 62.358639170429, -214.51199452042)
 
-node14.value = 0
-
-_editor.add_node(node14, -54.75163068098, -281.63049672101)
-
-var node15 = Subgraph()
-node15.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/anisotropy.ves")
-
-_editor.add_node(node15, 192.29579654121, -75.71365114702)
-
-Blueprint.connect(node14, "v", node15, "anisotropic")
-Blueprint.connect(node13, "v3", node12, "b")
-Blueprint.connect(node11, "v3", node12, "a")
-Blueprint.connect(node12, "v", node15, "anisotropic_dir")
-Blueprint.connect(node10, "v3", node9, "b")
 Blueprint.connect(node8, "v3", node9, "a")
-Blueprint.connect(node9, "v", node15, "light_pos")
-Blueprint.connect(node7, "mat", node15, "local_mat")
-Blueprint.connect(node5, "desc", node6, "data")
-Blueprint.connect(node6, "WaterBottle", node15, "model")
-Blueprint.connect(node3, "mat", node1, "view")
-Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node3, "pos", node15, "cam_pos")
-Blueprint.connect(node15, "frag_out", node1, "rgba")
-Blueprint.connect(node15, "model_mat", node1, "model")
-Blueprint.connect(node15, "va", node0, "va")
-Blueprint.connect(node4, "mat", node1, "projection")
-Blueprint.connect(node1, "shader", node0, "shader")
-Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node10, "v3", node9, "b")
+Blueprint.connect(node5, "v3", node6, "a")
+Blueprint.connect(node7, "v3", node6, "b")
+Blueprint.connect(node2, "desc", node3, "data")
+Blueprint.connect(node3, "WaterBottle", node14, "model")
+Blueprint.connect(node4, "mat", node14, "local_mat")
+Blueprint.connect(node3, "WaterBottle", node12, "model")
+Blueprint.connect(node0, "pos", node12, "cam_pos")
+Blueprint.connect(node6, "v", node12, "light_pos")
+Blueprint.connect(node11, "v", node12, "anisotropic")
+Blueprint.connect(node9, "v", node12, "anisotropic_dir")
+Blueprint.connect(node0, "zoom", node1, "fovy")
+Blueprint.connect(node12, "frag_out", node13, "rgb")
+Blueprint.connect(node14, "model_mat", node13, "model")
+Blueprint.connect(node0, "mat", node13, "view")
+Blueprint.connect(node1, "mat", node13, "projection")
+Blueprint.connect(node14, "va", node13, "va")

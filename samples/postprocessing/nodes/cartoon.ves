@@ -5,6 +5,7 @@ import "blueprint.nodes.*"
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
 import "pixelgraph.nodes.*"
+
 import "postprocessing.nodes.*"
 var node0 = Texture()
 node0.query_param("unif_name").value = "texture0"
@@ -13,51 +14,26 @@ node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back
 
 _editor.add_node(node0, -588.66074872035, 230.74753325545)
 
-var node1 = Shadergraph()
+var node1 = TexCoord()
 
-_editor.add_node(node1, -81.85883534942, 228.08096398466)
+_editor.add_node(node1, -401.55830057157, 237.49957880168)
 
-var node2 = Draw()
+var node2 = Cartoon()
+node2.query_param("power").value = 0.5
+node2.query_param("edge_slope").value = 1.5
 
-node2.set_prim_type("tri_strip")
-node2.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node2.skip = false
+_editor.add_node(node2, -244.8552522067, 178.65782947663)
 
-_editor.add_node(node2, 205.74729179906, 100.48338535283)
+var node3 = Viewport()
 
-var node3 = PrimitiveShape()
+_editor.add_node(node3, -401.16410893039, 187.64480449726)
 
-node3.type = "quad"
-node3.layout = [ "position", "texture" ]
-node3.shape_params = {  }
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-_editor.add_node(node3, 8.6047731801693, 89.306794967096)
+_editor.add_node(node4, -32.445084611368, 237.43572029419)
 
-var node4 = Clear()
-
-node4.masks = [ "color" ]
-node4.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
-
-_editor.add_node(node4, 19.702658176422, 356.6494140625)
-
-var node5 = TexCoord()
-
-_editor.add_node(node5, -401.55830057157, 237.49957880168)
-
-var node6 = Cartoon()
-node6.query_param("power").value = 0.5
-node6.query_param("edge_slope").value = 1.5
-
-_editor.add_node(node6, -244.8552522067, 178.65782947663)
-
-var node7 = Viewport()
-
-_editor.add_node(node7, -401.16410893039, 187.64480449726)
-
-Blueprint.connect(node7, "size", node6, "screen_size")
-Blueprint.connect(node5, "uv", node6, "texcoord")
-Blueprint.connect(node4, "next", node2, "prev")
-Blueprint.connect(node3, "out", node2, "va")
-Blueprint.connect(node0, "tex", node6, "texture0")
-Blueprint.connect(node6, "ret", node1, "rgb")
-Blueprint.connect(node1, "shader", node2, "shader")
+Blueprint.connect(node3, "size", node2, "screen_size")
+Blueprint.connect(node1, "uv", node2, "texcoord")
+Blueprint.connect(node0, "tex", node2, "texture0")
+Blueprint.connect(node2, "ret", node4, "rgb")

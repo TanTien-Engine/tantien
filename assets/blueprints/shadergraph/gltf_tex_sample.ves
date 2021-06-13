@@ -37,7 +37,7 @@ var node6 = Output()
 node6.var_name = "rgb"
 node6.var_type = "num3"
 
-_editor.add_node(node6, 604.328944463, 87.13157268954)
+_editor.add_node(node6, 603.55785788414, 96.384611635849)
 
 var node7 = Input()
 
@@ -58,6 +58,13 @@ node9.var_type = "string"
 
 _editor.add_node(node9, -376.48216548535, -57.992547691404)
 
+var node10 = Output()
+
+node10.var_name = "alpha"
+node10.var_type = "num"
+
+_editor.add_node(node10, 599.98165226675, 3.6917188869103)
+
 Blueprint.connect(node9, "var", node3, "prefix")
 Blueprint.connect(node7, "var", node3, "items")
 Blueprint.connect(node7, "var", node2, "items")
@@ -69,3 +76,4 @@ Blueprint.connect(node2, "item", node1, "set_id")
 Blueprint.connect(node1, "uv", node5, "a")
 Blueprint.connect(node5, "v", node0, "uv")
 Blueprint.connect(node0, "rgb", node6, "var")
+Blueprint.connect(node0, "a", node10, "var")

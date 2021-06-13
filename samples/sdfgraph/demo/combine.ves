@@ -1,406 +1,415 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+
+import "sdfgraph.nodes.*"
 var node0 = Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 547.44309090909, -894.60609090909)
 
-var node1 = FragColor()
+var node1 = TexCoord()
 
-_editor.add_node(node1, 709.44309090909, -874.60609090909)
+_editor.add_node(node1, 399.44309090909, -836.60609090909)
 
-var node2 = TexCoord()
+var node2 = Parameter()
 
-_editor.add_node(node2, 399.44309090909, -836.60609090909)
+node2.var_name = "p"
 
-var node3 = Parameter()
+_editor.add_node(node2, -1680.7055992034, -845.43071096513)
 
-node3.var_name = "p"
+var node3 = Viewport()
 
-_editor.add_node(node3, -1680.7055992034, -845.43071096513)
+_editor.add_node(node3, 400.44309090909, -889.60609090909)
 
-var node4 = Viewport()
+var node4 = Union()
 
-_editor.add_node(node4, 400.44309090909, -889.60609090909)
+_editor.add_node(node4, -368.80856563132, -180.96644044992)
 
-var node5 = Union()
+var node5 = Sphere()
+node5.query_param("s").value = 0.5
 
-_editor.add_node(node5, -368.80856563132, -180.96644044992)
+_editor.add_node(node5, -549.11665009477, -142.83683561295)
 
-var node6 = Sphere()
-node6.query_param("s").value = 0.5
+var node6 = Number()
 
-_editor.add_node(node6, -549.11665009477, -142.83683561295)
+node6.value = 0.3
 
-var node7 = Number()
+_editor.add_node(node6, -1327.0342245585, -506.39357255156)
 
-node7.value = 0.3
+var node7 = Translate()
+node7.query_param("offset").value.set(0, 0, 0)
 
-_editor.add_node(node7, -1327.0342245585, -506.39357255156)
+_editor.add_node(node7, -689.29717710889, -133.22698574098)
 
-var node8 = Translate()
-node8.query_param("offset").value.set(0, 0, 0)
+var node8 = Combine()
 
-_editor.add_node(node8, -689.29717710889, -133.22698574098)
+_editor.add_node(node8, -848.59958354807, -150.70215577674)
 
-var node9 = Combine()
+var node9 = Sphere()
+node9.query_param("s").value = 0.69386053085327
 
-_editor.add_node(node9, -848.59958354807, -150.70215577674)
+_editor.add_node(node9, -546.94956519619, -257.91980330642)
 
-var node10 = Sphere()
-node10.query_param("s").value = 0.69386053085327
+var node10 = Translate()
+node10.query_param("offset").value.set(2.5, 0, 0)
 
-_editor.add_node(node10, -546.94956519619, -257.91980330642)
+_editor.add_node(node10, -685.81378867914, -250.66983322408)
 
-var node11 = Translate()
-node11.query_param("offset").value.set(2.5, 0, 0)
+var node11 = Combine()
 
-_editor.add_node(node11, -685.81378867914, -250.66983322408)
+_editor.add_node(node11, -845.21499301463, -270.48564939057)
 
-var node12 = Combine()
+var node12 = Negate()
 
-_editor.add_node(node12, -845.21499301463, -270.48564939057)
+_editor.add_node(node12, -992.6574732724, -127.84917973398)
 
-var node13 = Negate()
+var node13 = Union()
 
-_editor.add_node(node13, -992.6574732724, -127.84917973398)
+_editor.add_node(node13, -366.55462122862, -417.63060273392)
 
-var node14 = Union()
+var node14 = Sphere()
+node14.query_param("s").value = 0.5
 
-_editor.add_node(node14, -366.55462122862, -417.63060273392)
+_editor.add_node(node14, -547.61402049297, -395.27860871588)
 
-var node15 = Sphere()
-node15.query_param("s").value = 0.5
+var node15 = Translate()
+node15.query_param("offset").value.set(0, 0, 0)
 
-_editor.add_node(node15, -547.61402049297, -395.27860871588)
+_editor.add_node(node15, -687.79454750709, -385.66875884391)
 
-var node16 = Translate()
-node16.query_param("offset").value.set(0, 0, 0)
+var node16 = Combine()
 
-_editor.add_node(node16, -687.79454750709, -385.66875884391)
+_editor.add_node(node16, -847.60747235348, -405.28998447697)
 
-var node17 = Combine()
+var node17 = Sphere()
+node17.query_param("s").value = 1
 
-_editor.add_node(node17, -847.60747235348, -405.28998447697)
+_editor.add_node(node17, -540.93904678898, -502.09711359943)
 
-var node18 = Sphere()
-node18.query_param("s").value = 1
+var node18 = Translate()
+node18.query_param("offset").value.set(2.5, 0, 0)
 
-_editor.add_node(node18, -540.93904678898, -502.09711359943)
+_editor.add_node(node18, -685.81378867914, -491.91701579357)
 
-var node19 = Translate()
-node19.query_param("offset").value.set(2.5, 0, 0)
+var node19 = Combine()
 
-_editor.add_node(node19, -685.81378867914, -491.91701579357)
+_editor.add_node(node19, -836.95053020472, -507.14981167457)
 
-var node20 = Combine()
+var node20 = Negate()
 
-_editor.add_node(node20, -836.95053020472, -507.14981167457)
+_editor.add_node(node20, -1001.6732508832, -376.5343788324)
 
-var node21 = Negate()
+var node21 = Union()
 
-_editor.add_node(node21, -1001.6732508832, -376.5343788324)
+_editor.add_node(node21, -238.01821906476, -287.86924490937)
 
 var node22 = Union()
 
-_editor.add_node(node22, -238.01821906476, -287.86924490937)
+_editor.add_node(node22, -372.7875288169, -630.81692880454)
 
-var node23 = Union()
+var node23 = Sphere()
+node23.query_param("s").value = 0.5
 
-_editor.add_node(node23, -372.7875288169, -630.81692880454)
+_editor.add_node(node23, -548.84692808125, -615.4649347865)
 
-var node24 = Sphere()
-node24.query_param("s").value = 0.5
+var node24 = Translate()
+node24.query_param("offset").value.set(0, 0, 0)
 
-_editor.add_node(node24, -548.84692808125, -615.4649347865)
+_editor.add_node(node24, -689.02745509537, -605.85508491453)
 
-var node25 = Translate()
-node25.query_param("offset").value.set(0, 0, 0)
+var node25 = Combine()
 
-_editor.add_node(node25, -689.02745509537, -605.85508491453)
+_editor.add_node(node25, -844.00037994176, -614.58631054759)
 
-var node26 = Combine()
+var node26 = Sphere()
+node26.query_param("s").value = 1
 
-_editor.add_node(node26, -844.00037994176, -614.58631054759)
+_editor.add_node(node26, -542.17195437726, -722.28343967005)
 
-var node27 = Sphere()
-node27.query_param("s").value = 1
+var node27 = Translate()
+node27.query_param("offset").value.set(2.5, 0, 0)
 
-_editor.add_node(node27, -542.17195437726, -722.28343967005)
+_editor.add_node(node27, -687.04669626742, -711.2768955832)
 
-var node28 = Translate()
-node28.query_param("offset").value.set(2.5, 0, 0)
+var node28 = Combine()
 
-_editor.add_node(node28, -687.04669626742, -711.2768955832)
+_editor.add_node(node28, -844.233437793, -717.65613774519)
 
-var node29 = Combine()
+var node29 = Negate()
 
-_editor.add_node(node29, -844.233437793, -717.65613774519)
+_editor.add_node(node29, -1002.9061584715, -596.72070490302)
 
-var node30 = Negate()
+var node30 = Union()
 
-_editor.add_node(node30, -1002.9061584715, -596.72070490302)
+_editor.add_node(node30, -72.730712338011, -362.79130539312)
 
-var node31 = Union()
+var node31 = Sphere()
+node31.query_param("s").value = 1.2
 
-_editor.add_node(node31, -72.730712338011, -362.79130539312)
+_editor.add_node(node31, -761.98906966684, -898.17624380569)
 
-var node32 = Sphere()
-node32.query_param("s").value = 1.2
+var node32 = Box()
+node32.query_param("b").value.set(0.9, 0.9, 0.9)
 
-_editor.add_node(node32, -761.98906966684, -898.17624380569)
+_editor.add_node(node32, -762.81547458516, -988.72643503465)
 
-var node33 = Box()
-node33.query_param("b").value.set(0.9, 0.9, 0.9)
+var node33 = Intersection()
 
-_editor.add_node(node33, -762.81547458516, -988.72643503465)
+_editor.add_node(node33, -573.67673941703, -928.18058202685)
 
-var node34 = Intersection()
+var node34 = VertCappedCylinder()
+node34.query_param("h").value = 1
+node34.query_param("r").value = 0.5
 
-_editor.add_node(node34, -573.67673941703, -928.18058202685)
+_editor.add_node(node34, -853.7864626162, -1183.1080290447)
 
-var node35 = VertCappedCylinder()
-node35.query_param("h").value = 1
-node35.query_param("r").value = 0.5
+var node35 = Union()
 
-_editor.add_node(node35, -853.7864626162, -1183.1080290447)
+_editor.add_node(node35, -681.38682002519, -1261.9040828423)
 
-var node36 = Union()
+var node36 = VertCappedCylinder()
+node36.query_param("h").value = 0.8
+node36.query_param("r").value = 0.5
 
-_editor.add_node(node36, -681.38682002519, -1261.9040828423)
+_editor.add_node(node36, -852.9600163352, -1324.4303430942)
 
-var node37 = VertCappedCylinder()
-node37.query_param("h").value = 0.8
-node37.query_param("r").value = 0.5
+var node37 = Number()
 
-_editor.add_node(node37, -852.9600163352, -1324.4303430942)
+node37.value = 2
 
-var node38 = Number()
+_editor.add_node(node37, -1255.4970362018, -1245.3061080483)
 
-node38.value = 2
+var node38 = VertCappedCylinder()
+node38.query_param("h").value = 0.8
+node38.query_param("r").value = 0.5
 
-_editor.add_node(node38, -1255.4970362018, -1245.3061080483)
+_editor.add_node(node38, -844.37103358253, -1476.7955468105)
 
-var node39 = VertCappedCylinder()
-node39.query_param("h").value = 0.8
-node39.query_param("r").value = 0.5
+var node39 = Union()
 
-_editor.add_node(node39, -844.37103358253, -1476.7955468105)
+_editor.add_node(node39, -534.99058599813, -1323.1611722627)
 
-var node40 = Union()
+var node40 = Subtraction()
 
-_editor.add_node(node40, -534.99058599813, -1323.1611722627)
+_editor.add_node(node40, -367.87045363749, -1078.8741127203)
 
-var node41 = Subtraction()
+var node41 = Union()
 
-_editor.add_node(node41, -367.87045363749, -1078.8741127203)
+_editor.add_node(node41, 257.42109774503, -990.28968417081)
 
-var node42 = Union()
+var node42 = Add()
 
-_editor.add_node(node42, 257.42109774503, -990.28968417081)
+_editor.add_node(node42, -1512.3246734275, -333.2300150561)
 
-var node43 = Add()
+var node43 = Number()
 
-_editor.add_node(node43, -1512.3246734275, -333.2300150561)
+node43.value = 1.4
 
-var node44 = Number()
+_editor.add_node(node43, -1661.0849394399, -292.73416393346)
 
-node44.value = 1.4
+var node44 = Time()
 
-_editor.add_node(node44, -1661.0849394399, -292.73416393346)
+_editor.add_node(node44, -2068.7250375095, -345.94551958368)
 
-var node45 = Time()
+var node45 = Sin()
 
-_editor.add_node(node45, -2068.7250375095, -345.94551958368)
+_editor.add_node(node45, -1666.4808012238, -361.52601978649)
 
-var node46 = Sin()
+var node46 = Uniform()
+node46.query_param("unif_name").value = "unif_2"
 
-_editor.add_node(node46, -1666.4808012238, -361.52601978649)
+_editor.add_node(node46, -1255.1475852915, -1354.6578513505)
 
-var node47 = Uniform()
-node47.query_param("unif_name").value = "unif_2"
+var node47 = Add()
 
-_editor.add_node(node47, -1255.1475852915, -1354.6578513505)
+_editor.add_node(node47, -1484.445774966, -1372.5467823247)
 
-var node48 = Add()
+var node48 = Number()
 
-_editor.add_node(node48, -1484.445774966, -1372.5467823247)
+node48.value = 0.4
 
-var node49 = Number()
+_editor.add_node(node48, -1624.3828018197, -1409.8952695292)
 
-node49.value = 0.4
+var node49 = Multiply()
 
-_editor.add_node(node49, -1624.3828018197, -1409.8952695292)
+_editor.add_node(node49, -1790.1381225594, -372.36887690777)
 
-var node50 = Multiply()
+var node50 = Number()
 
-_editor.add_node(node50, -1790.1381225594, -372.36887690777)
+node50.value = 1.7
 
-var node51 = Number()
+_editor.add_node(node50, -1950.241118107, -410.54826889523)
 
-node51.value = 1.7
+var node51 = Add()
 
-_editor.add_node(node51, -1950.241118107, -410.54826889523)
+_editor.add_node(node51, -1777.0659051457, -1315.663873901)
 
-var node52 = Add()
+var node52 = Number()
 
-_editor.add_node(node52, -1777.0659051457, -1315.663873901)
+node52.value = 1
 
-var node53 = Number()
+_editor.add_node(node52, -1912.3026554517, -1339.5693640694)
 
-node53.value = 1
+var node53 = Multiply()
 
-_editor.add_node(node53, -1912.3026554517, -1339.5693640694)
+_editor.add_node(node53, -1622.7048869197, -1336.1542970218)
 
-var node54 = Multiply()
+var node54 = Number()
 
-_editor.add_node(node54, -1622.7048869197, -1336.1542970218)
+node54.value = 0.3
+
+_editor.add_node(node54, -1770.9115998151, -1388.3921107291)
 
 var node55 = Number()
 
-node55.value = 0.3
+node55.value = 0.5
 
-_editor.add_node(node55, -1770.9115998151, -1388.3921107291)
+_editor.add_node(node55, -1825.4540750042, -954.53321937367)
 
-var node56 = Number()
+var node56 = RotateY()
+node56.query_param("theta").value = 0
 
-node56.value = 0.5
+_editor.add_node(node56, -1527.2690932564, -886.47930176492)
 
-_editor.add_node(node56, -1825.4540750042, -954.53321937367)
+var node57 = Uniform()
+node57.query_param("unif_name").value = "unif_0"
 
-var node57 = RotateY()
-node57.query_param("theta").value = 0
+_editor.add_node(node57, -1828.5547984539, -890.1470731928)
 
-_editor.add_node(node57, -1527.2690932564, -886.47930176492)
+var node58 = Multiply()
 
-var node58 = Uniform()
-node58.query_param("unif_name").value = "unif_0"
+_editor.add_node(node58, -1690.373013564, -921.96526333395)
 
-_editor.add_node(node58, -1828.5547984539, -890.1470731928)
+var node59 = Uniform()
+node59.query_param("unif_name").value = "unif_1"
 
-var node59 = Multiply()
+_editor.add_node(node59, -1358.8369503369, -318.61477202062)
 
-_editor.add_node(node59, -1690.373013564, -921.96526333395)
+var node60 = RotateX()
+node60.query_param("theta").value = 1.57
 
-var node60 = Uniform()
-node60.query_param("unif_name").value = "unif_1"
+_editor.add_node(node60, -1000.6463178268, -1301.772868608)
 
-_editor.add_node(node60, -1358.8369503369, -318.61477202062)
-
-var node61 = RotateX()
+var node61 = RotateZ()
 node61.query_param("theta").value = 1.57
 
-_editor.add_node(node61, -1000.6463178268, -1301.772868608)
+_editor.add_node(node61, -996.1008632813, -1457.2273807706)
 
-var node62 = RotateZ()
-node62.query_param("theta").value = 1.57
+var node62 = Commentary()
 
-_editor.add_node(node62, -996.1008632813, -1457.2273807706)
+node62.set_size(1656.1854248047, 751.13958740234)
+node62.title = "balls"
+
+_editor.add_node(node62, -619.70607080078, -15.214014404301)
 
 var node63 = Commentary()
 
-node63.set_size(1656.1854248047, 751.13958740234)
-node63.title = "balls"
+node63.set_size(400, 229.08125305176)
+node63.title = "center"
 
-_editor.add_node(node63, -619.70607080078, -15.214014404301)
+_editor.add_node(node63, -666.62734716797, -824.33898828125)
 
 var node64 = Commentary()
 
-node64.set_size(400, 229.08125305176)
-node64.title = "center"
+node64.set_size(906.46667480469, 493.11248779297)
+node64.title = "cylinders"
 
-_editor.add_node(node64, -666.62734716797, -824.33898828125)
+_editor.add_node(node64, -912.14265416, -1092.8928314413)
 
-var node65 = Commentary()
+var node65 = Subgraph()
+node65.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
-node65.set_size(906.46667480469, 493.11248779297)
-node65.title = "cylinders"
+_editor.add_node(node65, 740.17239253777, -864.93459805575)
 
-_editor.add_node(node65, -912.14265416, -1092.8928314413)
-
-Blueprint.connect(node0, "ret", node1, "rgb")
-Blueprint.connect(node2, "uv", node0, "st")
-Blueprint.connect(node3, "var", node57, "pos")
-Blueprint.connect(node4, "size", node0, "screen_size")
-Blueprint.connect(node5, "ret", node22, "d1")
-Blueprint.connect(node6, "ret", node5, "d1")
-Blueprint.connect(node7, "v", node6, "s")
-Blueprint.connect(node7, "v", node10, "s")
-Blueprint.connect(node7, "v", node15, "s")
-Blueprint.connect(node7, "v", node18, "s")
-Blueprint.connect(node7, "v", node24, "s")
-Blueprint.connect(node7, "v", node27, "s")
-Blueprint.connect(node8, "out", node6, "p")
-Blueprint.connect(node9, "xyz", node8, "offset")
-Blueprint.connect(node10, "ret", node5, "d2")
-Blueprint.connect(node11, "out", node10, "p")
-Blueprint.connect(node12, "xyz", node11, "offset")
-Blueprint.connect(node13, "v", node9, "x")
-Blueprint.connect(node14, "ret", node22, "d2")
-Blueprint.connect(node15, "ret", node14, "d1")
-Blueprint.connect(node16, "out", node15, "p")
-Blueprint.connect(node17, "xyz", node16, "offset")
-Blueprint.connect(node18, "ret", node14, "d2")
-Blueprint.connect(node19, "out", node18, "p")
-Blueprint.connect(node20, "xyz", node19, "offset")
-Blueprint.connect(node21, "v", node17, "y")
-Blueprint.connect(node22, "ret", node31, "d1")
-Blueprint.connect(node23, "ret", node31, "d2")
-Blueprint.connect(node24, "ret", node23, "d1")
-Blueprint.connect(node25, "out", node24, "p")
-Blueprint.connect(node26, "xyz", node25, "offset")
-Blueprint.connect(node27, "ret", node23, "d2")
-Blueprint.connect(node28, "out", node27, "p")
-Blueprint.connect(node29, "xyz", node28, "offset")
-Blueprint.connect(node30, "v", node26, "z")
-Blueprint.connect(node31, "ret", node42, "d1")
-Blueprint.connect(node32, "ret", node34, "d1")
-Blueprint.connect(node33, "ret", node34, "d2")
-Blueprint.connect(node34, "ret", node41, "d1")
-Blueprint.connect(node35, "ret", node36, "d1")
-Blueprint.connect(node36, "ret", node40, "d1")
-Blueprint.connect(node37, "ret", node36, "d2")
-Blueprint.connect(node38, "v", node35, "h")
-Blueprint.connect(node38, "v", node37, "h")
-Blueprint.connect(node38, "v", node39, "h")
+Blueprint.connect(node44, "time", node57, "v")
+Blueprint.connect(node57, "v", node58, "a")
+Blueprint.connect(node55, "v", node58, "b")
+Blueprint.connect(node44, "time", node49, "a")
+Blueprint.connect(node50, "v", node49, "b")
+Blueprint.connect(node49, "v", node45, "v")
+Blueprint.connect(node45, "v", node51, "a")
+Blueprint.connect(node52, "v", node51, "b")
+Blueprint.connect(node51, "v", node53, "a")
+Blueprint.connect(node54, "v", node53, "b")
+Blueprint.connect(node53, "v", node47, "a")
+Blueprint.connect(node48, "v", node47, "b")
+Blueprint.connect(node47, "v", node46, "v")
+Blueprint.connect(node43, "v", node42, "a")
+Blueprint.connect(node45, "v", node42, "b")
+Blueprint.connect(node42, "v", node59, "v")
+Blueprint.connect(node59, "v", node29, "v")
+Blueprint.connect(node29, "v", node25, "z")
+Blueprint.connect(node59, "v", node28, "z")
+Blueprint.connect(node59, "v", node20, "v")
+Blueprint.connect(node20, "v", node16, "y")
+Blueprint.connect(node59, "v", node19, "y")
+Blueprint.connect(node59, "v", node12, "v")
+Blueprint.connect(node12, "v", node8, "x")
+Blueprint.connect(node59, "v", node11, "x")
+Blueprint.connect(node2, "var", node56, "pos")
+Blueprint.connect(node58, "v", node56, "theta")
+Blueprint.connect(node56, "ret", node61, "pos")
+Blueprint.connect(node61, "ret", node38, "p")
+Blueprint.connect(node37, "v", node38, "h")
+Blueprint.connect(node46, "v", node38, "r")
+Blueprint.connect(node56, "ret", node60, "pos")
+Blueprint.connect(node60, "ret", node36, "p")
+Blueprint.connect(node37, "v", node36, "h")
+Blueprint.connect(node46, "v", node36, "r")
+Blueprint.connect(node56, "ret", node34, "p")
+Blueprint.connect(node37, "v", node34, "h")
+Blueprint.connect(node46, "v", node34, "r")
+Blueprint.connect(node34, "ret", node35, "d1")
+Blueprint.connect(node36, "ret", node35, "d2")
+Blueprint.connect(node35, "ret", node39, "d1")
+Blueprint.connect(node38, "ret", node39, "d2")
+Blueprint.connect(node56, "ret", node32, "p")
+Blueprint.connect(node56, "ret", node31, "p")
+Blueprint.connect(node31, "ret", node33, "d1")
+Blueprint.connect(node32, "ret", node33, "d2")
+Blueprint.connect(node33, "ret", node40, "d1")
 Blueprint.connect(node39, "ret", node40, "d2")
+Blueprint.connect(node56, "ret", node27, "in")
+Blueprint.connect(node28, "xyz", node27, "offset")
+Blueprint.connect(node27, "out", node26, "p")
+Blueprint.connect(node6, "v", node26, "s")
+Blueprint.connect(node56, "ret", node24, "in")
+Blueprint.connect(node25, "xyz", node24, "offset")
+Blueprint.connect(node24, "out", node23, "p")
+Blueprint.connect(node6, "v", node23, "s")
+Blueprint.connect(node23, "ret", node22, "d1")
+Blueprint.connect(node26, "ret", node22, "d2")
+Blueprint.connect(node56, "ret", node18, "in")
+Blueprint.connect(node19, "xyz", node18, "offset")
+Blueprint.connect(node18, "out", node17, "p")
+Blueprint.connect(node6, "v", node17, "s")
+Blueprint.connect(node56, "ret", node15, "in")
+Blueprint.connect(node16, "xyz", node15, "offset")
+Blueprint.connect(node15, "out", node14, "p")
+Blueprint.connect(node6, "v", node14, "s")
+Blueprint.connect(node14, "ret", node13, "d1")
+Blueprint.connect(node17, "ret", node13, "d2")
+Blueprint.connect(node56, "ret", node10, "in")
+Blueprint.connect(node11, "xyz", node10, "offset")
+Blueprint.connect(node10, "out", node9, "p")
+Blueprint.connect(node6, "v", node9, "s")
+Blueprint.connect(node56, "ret", node7, "in")
+Blueprint.connect(node8, "xyz", node7, "offset")
+Blueprint.connect(node7, "out", node5, "p")
+Blueprint.connect(node6, "v", node5, "s")
+Blueprint.connect(node5, "ret", node4, "d1")
+Blueprint.connect(node9, "ret", node4, "d2")
+Blueprint.connect(node4, "ret", node21, "d1")
+Blueprint.connect(node13, "ret", node21, "d2")
+Blueprint.connect(node21, "ret", node30, "d1")
+Blueprint.connect(node22, "ret", node30, "d2")
+Blueprint.connect(node30, "ret", node41, "d1")
 Blueprint.connect(node40, "ret", node41, "d2")
-Blueprint.connect(node41, "ret", node42, "d2")
-Blueprint.connect(node42, "ret", node0, "f_scene(p)")
-Blueprint.connect(node43, "v", node60, "v")
-Blueprint.connect(node44, "v", node43, "a")
-Blueprint.connect(node45, "time", node50, "a")
-Blueprint.connect(node45, "time", node58, "v")
-Blueprint.connect(node46, "v", node43, "b")
-Blueprint.connect(node46, "v", node52, "a")
-Blueprint.connect(node47, "v", node37, "r")
-Blueprint.connect(node47, "v", node39, "r")
-Blueprint.connect(node47, "v", node35, "r")
-Blueprint.connect(node48, "v", node47, "v")
-Blueprint.connect(node49, "v", node48, "b")
-Blueprint.connect(node50, "v", node46, "v")
-Blueprint.connect(node51, "v", node50, "b")
-Blueprint.connect(node52, "v", node54, "a")
-Blueprint.connect(node53, "v", node52, "b")
-Blueprint.connect(node54, "v", node48, "a")
-Blueprint.connect(node55, "v", node54, "b")
-Blueprint.connect(node56, "v", node59, "b")
-Blueprint.connect(node57, "ret", node33, "p")
-Blueprint.connect(node57, "ret", node8, "in")
-Blueprint.connect(node57, "ret", node11, "in")
-Blueprint.connect(node57, "ret", node16, "in")
-Blueprint.connect(node57, "ret", node19, "in")
-Blueprint.connect(node57, "ret", node25, "in")
-Blueprint.connect(node57, "ret", node28, "in")
-Blueprint.connect(node57, "ret", node32, "p")
-Blueprint.connect(node57, "ret", node35, "p")
-Blueprint.connect(node57, "ret", node61, "pos")
-Blueprint.connect(node57, "ret", node62, "pos")
-Blueprint.connect(node58, "v", node59, "a")
-Blueprint.connect(node59, "v", node57, "theta")
-Blueprint.connect(node60, "v", node13, "v")
-Blueprint.connect(node60, "v", node12, "x")
-Blueprint.connect(node60, "v", node21, "v")
-Blueprint.connect(node60, "v", node20, "y")
-Blueprint.connect(node60, "v", node30, "v")
-Blueprint.connect(node60, "v", node29, "z")
-Blueprint.connect(node61, "ret", node37, "p")
-Blueprint.connect(node62, "ret", node39, "p")
+Blueprint.connect(node1, "uv", node0, "st")
+Blueprint.connect(node3, "size", node0, "screen_size")
+Blueprint.connect(node41, "ret", node0, "f_scene(p)")
+Blueprint.connect(node0, "ret", node65, "rgb")

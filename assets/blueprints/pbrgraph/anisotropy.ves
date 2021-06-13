@@ -4,6 +4,8 @@ import "blueprint.nodes.*"
 
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
+import "pixelgraph.nodes.*"
+
 import "pbrgraph.nodes.*"
 var node0 = Combine()
 
@@ -88,7 +90,7 @@ _editor.add_node(node16, -1026.1727957996, 576.60961764659)
 var node17 = Subgraph()
 node17.load_from_file(_editor, "surface_output.ves")
 
-_editor.add_node(node17, -802.87626899675, -374.13603090182)
+_editor.add_node(node17, -807.8349466827, -332.81371685223)
 
 var node18 = Store()
 
@@ -118,37 +120,37 @@ var node22 = Store()
 
 node22.var_name = "roughness"
 
-_editor.add_node(node22, -608.39311715185, -363.59282205498)
+_editor.add_node(node22, -616.65757996177, -285.08042536076)
 
 var node23 = Store()
 
 node23.var_name = "metallic"
 
-_editor.add_node(node23, -607.03605526805, -406.04221461654)
+_editor.add_node(node23, -615.30051807797, -327.52981792232)
 
 var node24 = Store()
 
 node24.var_name = "occlusion"
 
-_editor.add_node(node24, -606.46381168366, -448.85241204868)
+_editor.add_node(node24, -614.72827449358, -370.34001535446)
 
 var node25 = Store()
 
 node25.var_name = "emission"
 
-_editor.add_node(node25, -606.33003575445, -534.58995737557)
+_editor.add_node(node25, -614.59449856437, -456.07756068135)
 
 var node26 = Store()
 
 node26.var_name = "albedo"
 
-_editor.add_node(node26, -608.62983112485, -492.78024821399)
+_editor.add_node(node26, -616.89429393477, -414.26785151977)
 
 var node27 = Store()
 
 node27.var_name = "normal"
 
-_editor.add_node(node27, -607.52062245135, -281.5583013099)
+_editor.add_node(node27, -615.78508526127, -203.04590461568)
 
 var node28 = Load()
 
@@ -160,7 +162,7 @@ var node29 = Store()
 
 node29.var_name = "normal_uv"
 
-_editor.add_node(node29, -605.62495369785, -323.08761489)
+_editor.add_node(node29, -613.88941650777, -244.57521819578)
 
 var node30 = Load()
 
@@ -170,7 +172,7 @@ _editor.add_node(node30, -1214.9954864826, 556.98288503362)
 
 var node31 = Commentary()
 
-node31.set_size(590.51251220703, 400)
+node31.set_size(590.51251220703, 330.57708740234)
 node31.title = "Surface"
 
 _editor.add_node(node31, -802.6848848234, -147.32670461922)
@@ -383,254 +385,230 @@ var node67 = Input()
 node67.var_name = "model"
 node67.var_type = [ "table", "array" ]
 
-_editor.add_node(node67, -1009.8864832062, -278.98074253041)
+_editor.add_node(node67, -1014.8451608922, -221.12950286099)
 
-var node68 = Input()
+var node68 = Output()
 
-node68.var_name = "local_mat"
-node68.var_type = "mat4"
+node68.var_name = "frag_out"
+node68.var_type = "num4"
 
-_editor.add_node(node68, -1011.9582987505, -347.49023362306)
+_editor.add_node(node68, 1697.7141249213, 21.730092187171)
 
-var node69 = Output()
+var node69 = Input()
 
-node69.var_name = "frag_out"
-node69.var_type = "num4"
+node69.var_name = "cam_pos"
+node69.var_type = "num3"
 
-_editor.add_node(node69, 1697.7141249213, 21.730092187171)
+_editor.add_node(node69, -1212.9001149232, 453.84423985076)
 
 var node70 = Input()
 
-node70.var_name = "cam_pos"
-node70.var_type = "num3"
+node70.var_name = "light_pos"
+node70.var_type = "vec3"
 
-_editor.add_node(node70, -1212.9001149232, 453.84423985076)
+_editor.add_node(node70, -1210.7378653918, 405.81859422664)
 
 var node71 = Input()
 
-node71.var_name = "light_pos"
-node71.var_type = "vec3"
+node71.var_name = "anisotropic"
+node71.var_type = "num"
 
-_editor.add_node(node71, -1210.7378653918, 405.81859422664)
+_editor.add_node(node71, -1138.8422948572, 267.4972525146)
 
 var node72 = Input()
 
-node72.var_name = "anisotropic"
-node72.var_type = "num"
+node72.var_name = "anisotropic_dir"
+node72.var_type = "num3"
 
-_editor.add_node(node72, -1138.8422948572, 267.4972525146)
+_editor.add_node(node72, -1137.1489174372, 221.21038298274)
 
-var node73 = Input()
+var node73 = Commentary()
 
-node73.var_name = "anisotropic_dir"
-node73.var_type = "num3"
+node73.set_size(977.91925048828, 670.71929931641)
+node73.title = "BRDF"
 
-_editor.add_node(node73, -1137.1489174372, 221.21038298274)
+_editor.add_node(node73, 36.950022558589, 608.6844046094)
 
-var node74 = Commentary()
+var node74 = Subgraph()
+node74.load_from_file(_editor, "ibl_brdf.ves")
 
-node74.set_size(977.91925048828, 670.71929931641)
-node74.title = "BRDF"
+_editor.add_node(node74, -46.288723067621, -331.01755904266)
 
-_editor.add_node(node74, 36.950022558589, 608.6844046094)
+var node75 = Load()
 
-var node75 = Output()
+node75.var_name = "albedo"
 
-node75.var_name = "model_mat"
-node75.var_type = "mat4"
+_editor.add_node(node75, -264.90205539145, -204.17074926847)
 
-_editor.add_node(node75, -607.27381552523, -196.06656343749)
+var node76 = Load()
 
-var node76 = Output()
+node76.var_name = "metallic"
 
-node76.var_name = "va"
-node76.var_type = "va"
+_editor.add_node(node76, -265.90930848184, -245.10890722859)
 
-_editor.add_node(node76, -607.68955683395, -237.11992585872)
+var node77 = Load()
 
-var node77 = Subgraph()
-node77.load_from_file(_editor, "ibl_brdf.ves")
+node77.var_name = "roughness"
 
-_editor.add_node(node77, -46.288723067621, -331.01755904266)
+_editor.add_node(node77, -263.84969378961, -288.69197916948)
 
 var node78 = Load()
 
-node78.var_name = "albedo"
+node78.var_name = "occlusion"
 
-_editor.add_node(node78, -264.90205539145, -204.17074926847)
+_editor.add_node(node78, -263.86362702459, -329.33721161281)
 
 var node79 = Load()
 
-node79.var_name = "metallic"
+node79.var_name = "N"
 
-_editor.add_node(node79, -265.90930848184, -245.10890722859)
+_editor.add_node(node79, -263.38401871999, -369.97715806635)
 
 var node80 = Load()
 
-node80.var_name = "roughness"
+node80.var_name = "V"
 
-_editor.add_node(node80, -263.84969378961, -288.69197916948)
+_editor.add_node(node80, -262.79492933828, -412.19981262775)
 
 var node81 = Load()
 
-node81.var_name = "occlusion"
+node81.var_name = "F"
 
-_editor.add_node(node81, -263.86362702459, -329.33721161281)
+_editor.add_node(node81, -262.48767095875, -456.55318784491)
 
-var node82 = Load()
+var node82 = Pass()
 
-node82.var_name = "N"
+node82.once = true
 
-_editor.add_node(node82, -263.38401871999, -369.97715806635)
+_editor.add_node(node82, 168.87509049951, -233.51735528245)
 
-var node83 = Load()
+var node83 = Commentary()
 
-node83.var_name = "V"
+node83.set_size(624.99163818359, 357.49688720703)
+node83.title = "IBL"
 
-_editor.add_node(node83, -262.79492933828, -412.19981262775)
+_editor.add_node(node83, -52.663529157231, -145.46956124609)
 
-var node84 = Load()
+var node84 = Store()
 
 node84.var_name = "F"
 
-_editor.add_node(node84, -262.48767095875, -456.55318784491)
+_editor.add_node(node84, 142.75682330973, 80.287353469768)
 
-var node85 = Pass()
+var node85 = Add()
 
-node85.once = true
+_editor.add_node(node85, 1147.8088742091, -50.592745126772)
 
-_editor.add_node(node85, 168.87509049951, -233.51735528245)
-
-var node86 = Commentary()
-
-node86.set_size(624.99163818359, 357.49688720703)
-node86.title = "IBL"
-
-_editor.add_node(node86, -52.663529157231, -145.46956124609)
-
-var node87 = Store()
-
-node87.var_name = "F"
-
-_editor.add_node(node87, 142.75682330973, 80.287353469768)
-
-var node88 = Add()
-
-_editor.add_node(node88, 1147.8088742091, -50.592745126772)
-
-Blueprint.connect(node73, "var", node52, "v")
-Blueprint.connect(node52, "v", node51, "anisotropy_dir")
-Blueprint.connect(node72, "var", node53, "v")
-Blueprint.connect(node53, "v", node51, "anisotropy")
-Blueprint.connect(node71, "var", node13, "v")
-Blueprint.connect(node13, "v", node15, "light_pos")
-Blueprint.connect(node70, "var", node14, "v")
-Blueprint.connect(node14, "v", node15, "cam_pos")
-Blueprint.connect(node68, "var", node17, "local_mat")
+Blueprint.connect(node72, "var", node52, "v")
+Blueprint.connect(node71, "var", node53, "v")
+Blueprint.connect(node70, "var", node13, "v")
+Blueprint.connect(node69, "var", node14, "v")
 Blueprint.connect(node67, "var", node17, "model")
-Blueprint.connect(node17, "model_mat", node75, "var")
-Blueprint.connect(node17, "va", node76, "var")
-Blueprint.connect(node17, "normal", node27, "var")
 Blueprint.connect(node17, "normal_uv", node29, "var")
-Blueprint.connect(node17, "roughness", node22, "var")
-Blueprint.connect(node17, "metallic", node23, "var")
-Blueprint.connect(node17, "occlusion", node24, "var")
-Blueprint.connect(node17, "albedo", node26, "var")
-Blueprint.connect(node17, "emission", node25, "var")
 Blueprint.connect(node29, "var", node30, "var")
-Blueprint.connect(node30, "var", node16, "tex_coords")
-Blueprint.connect(node30, "var", node51, "tex_coords")
+Blueprint.connect(node17, "normal", node27, "var")
 Blueprint.connect(node27, "var", node28, "var")
-Blueprint.connect(node28, "var", node16, "normal_map")
+Blueprint.connect(node17, "albedo", node26, "var")
+Blueprint.connect(node26, "var", node75, "var")
 Blueprint.connect(node26, "var", node46, "var")
-Blueprint.connect(node26, "var", node78, "var")
-Blueprint.connect(node78, "var", node77, "albedo")
-Blueprint.connect(node46, "var", node44, "y")
+Blueprint.connect(node17, "emission", node25, "var")
 Blueprint.connect(node25, "var", node33, "var")
-Blueprint.connect(node33, "var", node2, "b")
+Blueprint.connect(node17, "occlusion", node24, "var")
+Blueprint.connect(node24, "var", node78, "var")
 Blueprint.connect(node24, "var", node32, "var")
-Blueprint.connect(node24, "var", node81, "var")
-Blueprint.connect(node81, "var", node77, "ao")
-Blueprint.connect(node32, "var", node3, "b")
+Blueprint.connect(node17, "metallic", node23, "var")
+Blueprint.connect(node23, "var", node76, "var")
 Blueprint.connect(node23, "var", node47, "var")
-Blueprint.connect(node23, "var", node79, "var")
-Blueprint.connect(node79, "var", node77, "metallic")
-Blueprint.connect(node47, "var", node44, "a")
+Blueprint.connect(node17, "roughness", node22, "var")
+Blueprint.connect(node22, "var", node77, "var")
 Blueprint.connect(node22, "var", node60, "var")
-Blueprint.connect(node22, "var", node80, "var")
-Blueprint.connect(node80, "var", node77, "roughness")
-Blueprint.connect(node60, "var", node51, "roughness")
 Blueprint.connect(node45, "v3", node44, "x")
-Blueprint.connect(node44, "mix", node7, "f0")
-Blueprint.connect(node34, "v", node0, "w")
+Blueprint.connect(node46, "var", node44, "y")
+Blueprint.connect(node47, "var", node44, "a")
 Blueprint.connect(node11, "pos", node16, "world_pos")
-Blueprint.connect(node11, "pos", node15, "world_pos")
-Blueprint.connect(node11, "pos", node51, "world_pos")
 Blueprint.connect(node10, "normal", node16, "normal")
-Blueprint.connect(node10, "normal", node51, "normal")
+Blueprint.connect(node30, "var", node16, "tex_coords")
+Blueprint.connect(node28, "var", node16, "normal_map")
 Blueprint.connect(node16, "normal", node15, "normal")
-Blueprint.connect(node15, "NoV", node18, "var")
-Blueprint.connect(node15, "NoL", node20, "var")
-Blueprint.connect(node15, "NoH", node19, "var")
-Blueprint.connect(node15, "VoH", node21, "var")
+Blueprint.connect(node11, "pos", node15, "world_pos")
+Blueprint.connect(node14, "v", node15, "cam_pos")
+Blueprint.connect(node13, "v", node15, "light_pos")
 Blueprint.connect(node15, "N", node50, "var")
-Blueprint.connect(node15, "V", node35, "var")
-Blueprint.connect(node15, "L", node37, "var")
-Blueprint.connect(node15, "H", node41, "var")
+Blueprint.connect(node50, "var", node79, "var")
 Blueprint.connect(node50, "var", node66, "var")
-Blueprint.connect(node50, "var", node82, "var")
-Blueprint.connect(node82, "var", node77, "N")
-Blueprint.connect(node66, "var", node51, "N")
+Blueprint.connect(node15, "H", node41, "var")
 Blueprint.connect(node41, "var", node65, "var")
-Blueprint.connect(node65, "var", node51, "H")
+Blueprint.connect(node15, "L", node37, "var")
 Blueprint.connect(node37, "var", node38, "var")
-Blueprint.connect(node38, "var", node51, "L")
+Blueprint.connect(node15, "V", node35, "var")
+Blueprint.connect(node35, "var", node80, "var")
 Blueprint.connect(node35, "var", node36, "var")
-Blueprint.connect(node35, "var", node83, "var")
-Blueprint.connect(node83, "var", node77, "V")
+Blueprint.connect(node53, "v", node51, "anisotropy")
+Blueprint.connect(node52, "v", node51, "anisotropy_dir")
+Blueprint.connect(node11, "pos", node51, "world_pos")
+Blueprint.connect(node10, "normal", node51, "normal")
+Blueprint.connect(node30, "var", node51, "tex_coords")
+Blueprint.connect(node66, "var", node51, "N")
 Blueprint.connect(node36, "var", node51, "V")
-Blueprint.connect(node51, "at", node54, "var")
+Blueprint.connect(node38, "var", node51, "L")
+Blueprint.connect(node60, "var", node51, "roughness")
+Blueprint.connect(node65, "var", node51, "H")
+Blueprint.connect(node51, "BoH", node62, "var")
+Blueprint.connect(node62, "var", node64, "var")
+Blueprint.connect(node51, "ToH", node61, "var")
+Blueprint.connect(node61, "var", node63, "var")
 Blueprint.connect(node51, "ab", node55, "var")
+Blueprint.connect(node55, "var", node59, "var")
+Blueprint.connect(node55, "var", node57, "var")
+Blueprint.connect(node51, "at", node54, "var")
+Blueprint.connect(node54, "var", node58, "var")
+Blueprint.connect(node54, "var", node56, "var")
+Blueprint.connect(node15, "VoH", node21, "var")
+Blueprint.connect(node21, "var", node43, "var")
+Blueprint.connect(node44, "mix", node7, "f0")
+Blueprint.connect(node43, "var", node7, "VoH")
+Blueprint.connect(node7, "ret", node84, "var")
+Blueprint.connect(node84, "var", node81, "var")
+Blueprint.connect(node75, "var", node74, "albedo")
+Blueprint.connect(node76, "var", node74, "metallic")
+Blueprint.connect(node77, "var", node74, "roughness")
+Blueprint.connect(node78, "var", node74, "ao")
+Blueprint.connect(node79, "var", node74, "N")
+Blueprint.connect(node80, "var", node74, "V")
+Blueprint.connect(node81, "var", node74, "F")
+Blueprint.connect(node74, "next", node82, "prev")
+Blueprint.connect(node15, "NoL", node20, "var")
+Blueprint.connect(node20, "var", node49, "var")
+Blueprint.connect(node20, "var", node40, "var")
+Blueprint.connect(node15, "NoH", node19, "var")
+Blueprint.connect(node19, "var", node42, "var")
+Blueprint.connect(node56, "var", node5, "at")
+Blueprint.connect(node57, "var", node5, "ab")
+Blueprint.connect(node63, "var", node5, "ToH")
+Blueprint.connect(node64, "var", node5, "BoH")
+Blueprint.connect(node42, "var", node5, "NoH")
+Blueprint.connect(node15, "NoV", node18, "var")
+Blueprint.connect(node18, "var", node39, "var")
+Blueprint.connect(node58, "var", node6, "at")
+Blueprint.connect(node59, "var", node6, "ab")
 Blueprint.connect(node51, "ToV", node6, "ToV")
 Blueprint.connect(node51, "BoV", node6, "BoV")
 Blueprint.connect(node51, "ToL", node6, "ToL")
 Blueprint.connect(node51, "BoL", node6, "BoL")
-Blueprint.connect(node51, "ToH", node61, "var")
-Blueprint.connect(node51, "BoH", node62, "var")
-Blueprint.connect(node62, "var", node64, "var")
-Blueprint.connect(node64, "var", node5, "BoH")
-Blueprint.connect(node61, "var", node63, "var")
-Blueprint.connect(node63, "var", node5, "ToH")
-Blueprint.connect(node55, "var", node57, "var")
-Blueprint.connect(node55, "var", node59, "var")
-Blueprint.connect(node59, "var", node6, "ab")
-Blueprint.connect(node57, "var", node5, "ab")
-Blueprint.connect(node54, "var", node56, "var")
-Blueprint.connect(node54, "var", node58, "var")
-Blueprint.connect(node58, "var", node6, "at")
-Blueprint.connect(node56, "var", node5, "at")
-Blueprint.connect(node21, "var", node43, "var")
-Blueprint.connect(node43, "var", node7, "VoH")
-Blueprint.connect(node7, "ret", node9, "b")
-Blueprint.connect(node7, "ret", node87, "var")
-Blueprint.connect(node87, "var", node84, "var")
-Blueprint.connect(node84, "var", node77, "F")
-Blueprint.connect(node77, "next", node85, "prev")
-Blueprint.connect(node77, "col", node88, "b")
-Blueprint.connect(node20, "var", node40, "var")
-Blueprint.connect(node20, "var", node49, "var")
-Blueprint.connect(node40, "var", node6, "NoL")
-Blueprint.connect(node19, "var", node42, "var")
-Blueprint.connect(node42, "var", node5, "NoH")
-Blueprint.connect(node5, "ret", node8, "a")
-Blueprint.connect(node18, "var", node39, "var")
 Blueprint.connect(node39, "var", node6, "NoV")
+Blueprint.connect(node40, "var", node6, "NoL")
+Blueprint.connect(node5, "ret", node8, "a")
 Blueprint.connect(node6, "ret", node8, "b")
 Blueprint.connect(node8, "v", node9, "a")
+Blueprint.connect(node7, "ret", node9, "b")
 Blueprint.connect(node9, "v", node48, "a")
 Blueprint.connect(node48, "v", node3, "a")
+Blueprint.connect(node32, "var", node3, "b")
 Blueprint.connect(node3, "v", node2, "a")
-Blueprint.connect(node2, "v", node88, "a")
-Blueprint.connect(node88, "v", node1, "linear")
+Blueprint.connect(node33, "var", node2, "b")
+Blueprint.connect(node2, "v", node85, "a")
+Blueprint.connect(node74, "col", node85, "b")
+Blueprint.connect(node85, "v", node1, "linear")
+Blueprint.connect(node34, "v", node0, "w")
 Blueprint.connect(node1, "non-linear", node0, "xyz")
-Blueprint.connect(node0, "xyzw", node69, "var")
+Blueprint.connect(node0, "xyzw", node68, "var")
