@@ -1,0 +1,96 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "gui" for GUI
+
+class Compare is Node
+{
+	init() 
+	{
+		super.init(Compare.name)
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_ANY),
+			Pin(this, "b", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		// "equal", "not_equal", "greater", "greater_equal", "less", "less_equal"
+		this.cmp = "equal"
+
+		// for gui
+		this.cmp_items = ["equal", "not_equal", "greater", "greater_equal", "less", "less_equal"]
+		this.cmp_selected = -1
+	}
+
+	calc_inst(gen, idx, module, func, bb) 
+	{
+		var a = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var b = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
+		if (!a or !b) {
+			return nil
+		}
+
+		if (this.cmp == "equal") {
+			return gen.is_equal(bb, a, b)
+		} else if (this.cmp == "not_equal") {
+			return gen.is_not_equal(bb, a, b)
+		} else if (this.cmp == "greater") {
+			return gen.is_greater(bb, a, b)
+		} else if (this.cmp == "greater_equal") {
+			return gen.is_greater_equal(bb, a, b)
+		} else if (this.cmp == "less") {
+			return gen.is_less(bb, a, b)
+		} else if (this.cmp == "less_equal") {
+			return gen.is_less_equal(bb, a, b)
+		} else {
+			return nil
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		return "
+%(name).cmp = \"%(this.cmp)\"
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		if (this.cmp_selected < 0) {
+			this.cmp_selected = this.cmp_items.query_index(this.cmp)
+		}
+
+		var item = GUI.combo(ctx, "cmp", this.cmp_selected, this.cmp_items, x, y, 80)
+		if (item != this.cmp_selected) 
+		{
+			this.cmp_selected = item
+			this.cmp = this.cmp_items[item]
+			dirty = true
+		}
+
+		if (dirty) {
+			this.dirty = true
+		}
+
+		return dirty
+	}	
+}

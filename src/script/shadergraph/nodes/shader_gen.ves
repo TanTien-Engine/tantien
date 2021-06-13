@@ -1,0 +1,113 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_STRING
+import "blueprint.nodes.input" for Input
+import "rendergraph.variant" for VAR_TYPE_SHADER
+import "rendergraph.variates.shader" for Shader as var_Shader
+import "rendergraph.components.shader_uniforms" for ShaderUniforms
+import "render" for Shader
+
+class ShaderGen is Node
+{
+	init() 
+	{
+		super.init(ShaderGen.name)
+
+		this.imports = [
+			Pin(this, "vs", [ VAR_TYPE_PORT, VAR_TYPE_STRING ]),
+			Pin(this, "fs", [ VAR_TYPE_PORT, VAR_TYPE_STRING ]),
+		]
+		this.exports = [
+			Pin(this, "shader", VAR_TYPE_SHADER)
+		]
+
+		this.layout()
+
+		this.shader = var_Shader(this)
+		this.dirty = true
+
+		this.uniforms = []
+	}
+
+	calc_value(idx)
+	{
+		return Variant(VAR_TYPE_SHADER, this.shader)
+	}
+
+	execute() 
+	{
+		this.bind_uniforms()
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input and pin.slot_idx == 0) {
+			this.setup_uniforms()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input and pin.slot_idx == 0) {
+			this.setup_uniforms()
+		}
+	}
+
+	setup_uniforms()
+	{
+		this.uniforms.clear()
+
+		var p_vs = this.imports[0]
+		var p_fs = this.imports[1]
+		this.imports.clear()
+
+		this.imports.add(p_vs)
+		this.imports.add(p_fs)
+
+		var v_vs = Blueprint.calc_input_value(this, 0)
+		if (!v_vs or v_vs.type != VAR_TYPE_STRING) {
+			return
+		}
+
+		ShaderUniforms.get_shader_uniforms("vertex", v_vs.value, "glsl", this.uniforms, "main")
+		for (var unif in this.uniforms) {
+			ShaderUniforms.add_uniform_to_imports(this, unif)
+		}
+
+		this.layout()
+	}
+
+	shader_gen(gen, module, func, bb)
+	{
+		super.shader_gen(gen, module, func, bb)
+
+		gen.bb_return(bb)
+
+		var v_vs = Blueprint.calc_input_value(this, 0)
+		if (v_vs and v_vs.type == VAR_TYPE_STRING) {
+			this.shader.prog = Shader.init(v_vs.value, "", "", "", gen)
+		}
+	}
+
+	bind_uniforms()
+	{
+		if (this.shader.prog) {
+			var prev_nodes = Blueprint.get_precursor_nodes(this)
+			this.bind_uniforms_impl(prev_nodes)
+		}
+	}
+
+	bind_uniforms_impl(nodes)
+	{
+		for (var node in nodes) 
+		{
+			if (node is Input) {
+				var prev_nodes = Blueprint.get_precursor_nodes(node.parent_node)
+				this.bind_uniforms_impl(prev_nodes)
+			} else {
+				node.bind_uniforms(this.shader.prog)
+			}
+		}
+	}
+}

@@ -32,9 +32,9 @@ class ChannelMixer is Node
 	}
 
     // vec3(dot(in, this.r), dot(in, this.g), dot(in, this.b))
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var val = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (!val) {
 			return nil
 		}

@@ -1,7 +1,7 @@
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class FragColor is Node
 {
@@ -10,22 +10,26 @@ class FragColor is Node
 		super.init(FragColor.name)	
 
 		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
 			Pin(this, "rgba", VAR_TYPE_NUMBER4),
 			Pin(this, "rgb",  VAR_TYPE_NUMBER3),
-			Pin(this, "rg",   VAR_TYPE_NUMBER2),			
-			Pin(this, "grey", VAR_TYPE_NUMBER),			
+			Pin(this, "rg",   VAR_TYPE_NUMBER2),
+			Pin(this, "grey", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.layout()
 	}
 
-	gen_shader(gen)
+	shader_gen(gen, module, func, bb)
 	{
+		super.shader_gen(gen, module, func, bb)
+
 		var frag_col = gen.add_output("FragColor", "vec4")
 
-		var module = gen.get_main_module()
-		var func = gen.get_main_func()
-		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func)
+		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func, bb)
 		if (!rgba) 
 		{
 			var r = nil
@@ -33,7 +37,7 @@ class FragColor is Node
 			var b = nil
 			var a = gen.const_float(module, 1.0)
 
-			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func)
+			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func, bb)
 			if (rgb) 
 			{
 				r = gen.compose_extract(func, rgb, 0)
@@ -42,7 +46,7 @@ class FragColor is Node
 			} 
 			else 
 			{
-				var rg = Blueprint.calc_input_inst(gen, this, "rg", module, func)
+				var rg = Blueprint.calc_input_inst(gen, this, "rg", module, func, bb)
 				if (rg) 
 				{
 					r = gen.compose_extract(func, rg, 0)
@@ -51,7 +55,7 @@ class FragColor is Node
 				} 
 				else 
 				{
-					var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func)
+					var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func, bb)
 					if (grey) 
 					{
 						r = grey
@@ -69,8 +73,6 @@ class FragColor is Node
 
 			rgba = gen.compose_float4(func, r, g, b, a)			
 		}
-		gen.store(func, frag_col, rgba)
-
-		gen.func_return(func)
+		gen.bb_store(bb, frag_col, rgba)
 	}
 }

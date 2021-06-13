@@ -234,6 +234,7 @@ foreign class ShaderGen
 
 	foreign get_main_module()
 	foreign get_main_func()
+	foreign get_func_block(_)
 	foreign create_decl_func(module, func)
 	foreign add_link_decl(func, name, is_export)
 
@@ -241,13 +242,15 @@ foreign class ShaderGen
 	foreign get_func_param(func, index)
 	foreign get_func_args(func)
 	foreign func_call(caller, callee, args)
-	foreign func_return(func)
-	foreign func_return_value(func, inst)
+
+	foreign if_block(func, cond, t, f)
 
 	foreign variable_float(func)
 	foreign variable_float2(func)
 	foreign variable_float3(func)
 	foreign variable_float4(func)
+
+	foreign add_block(func, name)
 
 	foreign const_bool(module, b)
 	foreign const_int(module, x)
@@ -262,6 +265,22 @@ foreign class ShaderGen
 	foreign const_mat4(module, m)
 
 	foreign connect_cs_main(glsl)
+
+	// block
+
+	foreign is_equal(bb, a, b)
+	foreign is_not_equal(bb, a, b)
+	foreign is_greater(bb, a, b)
+	foreign is_greater_equal(bb, a, b)
+	foreign is_less(bb, a, b)
+	foreign is_less_equal(bb, a, b)	
+
+	foreign kill(bb)
+
+	foreign bb_return(bb)
+	foreign bb_return_value(bb, inst)
+
+	foreign bb_store(bb, dst, src)
 }
 
 );

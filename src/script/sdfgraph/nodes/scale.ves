@@ -23,9 +23,9 @@ class Scale is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var pos = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var pos = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (!pos) {
 			return nil
 		}

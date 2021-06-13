@@ -32,12 +32,14 @@ class Expand is Node
 		return this.export_values[idx]
 	}
 
-    gen_shader(gen)
+    shader_gen(gen, module, func, bb)
     {
+		super.shader_gen(gen, module, func, bb)
+
     	this.uniforms = List.filled(this.exports.count, nil)
     }
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
 		var value = this.export_values[idx]
 		if (value.type == VAR_TYPE_TEXTURE)

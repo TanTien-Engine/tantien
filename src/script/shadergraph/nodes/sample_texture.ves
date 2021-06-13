@@ -29,19 +29,20 @@ class SampleTexture is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var img = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var img = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+
 		if (!img) {
 			return nil
 		}
 
-		var uv = Blueprint.calc_input_inst(gen, this, 1, module, func)
+		var uv = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)		
 		if (!uv) {
 			return nil
 		}		
 
-		var lod = Blueprint.calc_input_inst(gen, this, 2, module, func)
+		var lod = Blueprint.calc_input_inst(gen, this, 2, module, func, bb)
 		if (!lod)
 		{
 			var v_tex = Blueprint.calc_input_value(this, 0)

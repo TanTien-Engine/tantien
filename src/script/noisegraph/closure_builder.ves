@@ -56,7 +56,7 @@ class ClosureBuilder
         var args = this.get_func_args(node, gen, callee_src, f_node, caller)
 
         var ret = gen.func_call(caller, callee, args)
-        gen.func_return_value(caller, ret)
+        gen.bb_return_value(gen.get_func_block(caller), ret)
 
         return caller
     }
@@ -68,7 +68,8 @@ class ClosureBuilder
         for (var name in names)
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
-            args.add(f_node.node_func.calc_inst_from_pin(gen, pin, node.node_func.module, caller))
+            var bb = gen.get_func_block(caller)
+            args.add(f_node.node_func.calc_inst_from_pin(gen, pin, node.node_func.module, caller, bb))
         }
         return args
     }	

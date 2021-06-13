@@ -2,7 +2,6 @@ import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_builder" for ShaderBuilder
 import "terraingraph.style" for HEIGHTFIELD_SIZE
 import "terraingraph.heightfield_proxy" for HeightfieldProxy
 import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
@@ -18,6 +17,65 @@ var SHADER   = nil
 var COMPUTE  = nil
 
 var CS = ""
+
+class ShaderBuilder
+{
+	init()
+	{
+		this.uniform_nodes = []
+		this.uniform_funcs = []
+	}
+
+	build(node)
+	{
+		this.uniform_nodes = []
+		this.uniform_funcs = []
+
+		var gen = ShaderGen.init()
+
+		var prev_nodes = Blueprint.get_precursor_nodes(node)
+		var list = Blueprint.topo_sort(prev_nodes)
+		for (var node in list) {
+			if (node is Subgraph) {
+				node.shader_build(this, gen)
+			} else {
+				this.build(node, gen)
+			}
+		}
+
+		return gen
+	}
+
+	build(node, gen)
+	{
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+		var bb = gen.get_func_block(func)
+
+		if (node["node_func"]) {
+			node.node_func.shader_gen(gen, module, func, bb)
+			if (node.node_func.has_uniforms()) {
+				this.uniform_funcs.add(node.node_func)
+			}
+		} 
+		if (node.has_method("shader_gen(_,_,_,_)")) {
+			node.shader_gen(gen, module, func, bb)
+		}
+		if (node.has_method("bind_uniforms(_)")) {
+			this.uniform_nodes.add(node)
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		for (var node in this.uniform_nodes) {
+			node.bind_uniforms(prog)
+		}
+		for (var func in this.uniform_funcs) {
+			func.bind_uniforms(prog)
+		}
+	}
+}
 
 class Shadergraph is Subgraph
 {
@@ -118,12 +176,13 @@ class Shadergraph is Subgraph
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
+		var bb = gen.get_func_block(func)
 
 		var dst = gen.variable_float(func)
-		var grey = Blueprint.calc_input_inst(gen, node, 0, module, func)
+		var grey = Blueprint.calc_input_inst(gen, node, 0, module, func, bb)
 		gen.store(func, dst, grey)
 
-		gen.func_return(func)
+		gen.bb_return(bb)
 
 		CS = gen.connect_cs_main("
 #define LOCAL_SIZE 32

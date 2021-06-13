@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_BOOLEAN
+import "blueprint.blueprint" for Blueprint
+
+class If is Node
+{
+	init() 
+	{
+		super.init(If.name)
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),		
+			Pin(this, "cond",  VAR_TYPE_BOOLEAN),
+			Pin(this, "true",  VAR_TYPE_PORT),
+			Pin(this, "false", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	shader_gen(gen, module, func, bb) 
+	{
+		var n_prev = Blueprint.get_input_node(this, 0)
+		if (n_prev) {
+			n_prev.shader_gen(gen, module, func, bb)
+		}
+
+		var n_cond = Blueprint.get_input_node(this, 1)
+		if (n_cond) {
+			n_cond.shader_gen(gen, module, func, bb)
+		}
+
+		var bb_true = nil
+		var bb_false = nil		
+
+		var n_true = Blueprint.get_input_node(this, 2)
+		if (n_true) {
+			bb_true = gen.add_block(func, "bb_true")
+			n_true.shader_gen(gen, module, func, bb_true)
+		}
+
+		var n_false = Blueprint.get_input_node(this, 3)
+		if (n_false) {
+			bb_false = gen.add_block(func, "bb_false")
+			n_false.shader_gen(gen, module, func, bb_false)
+		}
+
+		var cond = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
+		if (!cond) {
+			cond = gen.const_bool(module, false)
+		}
+		gen.if_block(func, cond, bb_true, bb_false)
+	}
+}

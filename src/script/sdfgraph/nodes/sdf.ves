@@ -163,8 +163,10 @@ class Sdf is Node
         this.layout()
 	}
 
-    gen_shader(gen)
+    shader_gen(gen, module, func, bb)
     {
+        super.shader_gen(gen, module, func, bb)
+
         ClosureBuilder.gen_primitive3d(gen, this, "f_scene")
     }
 }

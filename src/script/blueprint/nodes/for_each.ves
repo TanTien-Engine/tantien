@@ -1,0 +1,52 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class ForEach is Node
+{
+	init() 
+	{
+		super.init(ForEach.name)
+
+		this.imports = [
+			Pin(this, "in", [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "out",  VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.all_values = []
+		this.curr_index = 0
+	}
+
+	calc_value(idx) 
+	{
+		if (this.curr_index < this.all_values.count) {
+			return this.all_values[this.curr_index]
+		} else {
+			return nil
+		}
+	}
+
+	advance()
+	{
+		this.curr_index = this.curr_index + 1
+		return this.curr_index < this.all_values.count		
+	}
+
+	reset_ptr()
+	{
+		this.all_values = []
+		this.curr_index = 0
+
+		var v_all = Blueprint.calc_input_value(this, 0)
+		if (v_all and v_all.value) {
+			for (var entry in v_all.value) {
+				this.all_values.add(Variant(entry.value))
+			}
+		}
+	}
+}

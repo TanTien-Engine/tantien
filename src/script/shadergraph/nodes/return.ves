@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+
+class Return is Node
+{
+	init()
+	{
+		super.init(Return.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	shader_gen(gen, module, func, bb) 
+	{
+		super.shader_gen(gen, module, func, bb)
+			
+		gen.bb_return(bb)
+	}
+}

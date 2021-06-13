@@ -19,9 +19,9 @@ class GammaCorrection is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var x = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var x = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		var y = gen.const_float3(module, 1.0/2.2, 1.0/2.2, 1.0/2.2)
 		return gen.pow(func, x, y)
 	}

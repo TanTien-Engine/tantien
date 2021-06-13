@@ -25,9 +25,9 @@ class InvertColors is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, _bb) 
 	{
-		var val = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, _bb)
 		if (!val) {
 			return nil
 		}

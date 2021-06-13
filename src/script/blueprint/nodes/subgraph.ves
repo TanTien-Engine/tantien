@@ -12,6 +12,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
+import "shader" for ShaderGen
 
 class Subgraph is Node
 {
@@ -67,14 +68,36 @@ class Subgraph is Node
 		return nil
 	}
 
-	calc_inst(gen, idx, module, func) 
+	shader_gen(gen, module, func, bb) 
+	{
+		super.shader_gen(gen, module, func, bb)
+		
+		var node = this.find_terminate_node()
+		if (node) {
+			node.shader_gen(gen, module, func, bb)
+		}
+
+		for (var node in this.out_nodes) {
+			node.shader_gen(gen, module, func, bb)
+		}
+	}
+
+	bind_uniforms(prog)
+	{
+		for (var item in this.all_items) {
+			item[0].bind_uniforms(prog)
+		}
+	}
+
+	calc_inst(gen, idx, module, func, bb) 
 	{
 		var name = this.exports[idx].name
 		for (var node in this.out_nodes) {
 			if (node.var_name == name) {
-				return Blueprint.calc_input_inst(gen, node, 0, module, func)
+				return Blueprint.calc_input_inst(gen, node, 0, module, func, bb)
 			}
 		}		
+		return nil
 	}
 
 	execute()
@@ -528,5 +551,30 @@ class Subgraph is Node
 			dst[1] = trans.position.x
 			dst[2] = trans.position.y
 		}
+	}
+
+	is_terminate_node(node)
+	{
+		return !node.imports.isEmpty and node.imports[0].type == VAR_TYPE_PORT and
+		       !node.exports.isEmpty and node.exports[0].type == VAR_TYPE_PORT and
+		       node.exports[0].conns.isEmpty
+	}
+
+	find_terminate_node()
+	{
+		var term_node = nil
+		for (var item in this.all_items) 
+		{
+			var node = item[0]
+			if (this.is_terminate_node(node)) {
+				if (term_node) {
+					return nil
+				} else {
+					term_node = node
+				}
+			}
+		}
+
+		return term_node
 	}
 }

@@ -58,7 +58,7 @@ class NodeFunction
 		return this.num_params < this.node.imports.count
 	}
 
-	gen_shader(gen)
+	shader_gen(gen, module, func, bb)
 	{
 		this.module = gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
 
@@ -112,9 +112,9 @@ class NodeFunction
 		return nil
 	}	
 
-	calc_inst_from_pin(gen, pin, module, func)
+	calc_inst_from_pin(gen, pin, module, func, bb)
 	{
-		var inst = Blueprint.calc_input_inst(gen, this.node, pin.name, module, func)
+		var inst = Blueprint.calc_input_inst(gen, this.node, pin.name, module, func, bb)
 		if (inst) {
 			return inst
 		}
@@ -134,7 +134,7 @@ class NodeFunction
 		return inst
 	}
 
-	calc_inst(gen, idx, module, func)
+	calc_inst(gen, idx, module, func, bb)
 	{
 		if (!this["func"]) {
 			return nil
@@ -147,7 +147,7 @@ class NodeFunction
 			var pin = this.node.imports[i]
 			if (prev_pin and prev_pin.node is Texture) {			
 				prev_pin.node.init_unif_name(pin.name)
-				Blueprint.calc_input_inst(gen, this.node, i, module, func)
+				Blueprint.calc_input_inst(gen, this.node, i, module, func, bb)
 			}
 
 			var unif = Uniform()
@@ -173,7 +173,7 @@ class NodeFunction
 			var pin = this.node.imports[i]
 			if (pin.type != VAR_TYPE_FUNCTION) 
 			{
-				var inst = this.calc_inst_from_pin(gen, pin, module, func)
+				var inst = this.calc_inst_from_pin(gen, pin, module, func, bb)
 				if (!inst) {
 					return nil
 				}

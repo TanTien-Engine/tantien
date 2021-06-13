@@ -21,8 +21,10 @@ class TexCoord is Node
 		this.inst = nil
 	}
 
-	gen_shader(gen)
+	shader_gen(gen, module, func, bb)
 	{
+		super.shader_gen(gen, module, func, bb)
+
 		var v_set_id = Blueprint.calc_input_value(this, 0)
 		if (v_set_id and v_set_id.value != 0) {
 			this.inst = gen.add_input("TexCoord2", "vec2")
@@ -31,7 +33,7 @@ class TexCoord is Node
 		}
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
 		return gen.load(func, this.inst)
 	}

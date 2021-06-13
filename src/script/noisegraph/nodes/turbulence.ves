@@ -42,8 +42,10 @@ class Turbulence is Node
         this.layout()
 	}
 
-    gen_shader(gen)
+    shader_gen(gen, module, func, bb)
     {
+		super.shader_gen(gen, module, func, bb)
+
         ClosureBuilder.gen_noise(gen, this, "noise")
     }
 }

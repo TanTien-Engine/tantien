@@ -35,9 +35,9 @@ class Clamp is Node
 		return Variant(VAR_TYPE_NUMBER, Math.clamp(num, this.min, this.max))
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var v = Blueprint.calc_input_inst(gen, this, 0, module, func)
+		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (!v) {
 			return nil
 		}

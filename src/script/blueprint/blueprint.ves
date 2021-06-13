@@ -1,5 +1,5 @@
 import "blueprint.connecting" for Connecting
-import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class Blueprint
 {
@@ -191,7 +191,7 @@ class Blueprint
 		}	
 	}
 
-	static calc_input_inst(gen, node, slot, module, func)
+	static calc_input_inst(gen, node, slot, module, func, bb)
 	{
 		var pin = this.query_pin(node.imports, slot)
 		if (!pin or pin.conns.isEmpty) {
@@ -203,9 +203,9 @@ class Blueprint
 		var f_pin = pin.conns.front().from
 		var f_node = f_pin.node
 		if (f_node["node_func"] != nil) {
-			inst = f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func)
-		} else if (f_node.has_method("calc_inst(_,_,_,_)")) {
-			inst = f_node.calc_inst(gen, f_pin.slot_idx, module, func)
+			inst = f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func, bb)
+		} else if (f_node.has_method("calc_inst(_,_,_,_,_)")) {
+			inst = f_node.calc_inst(gen, f_pin.slot_idx, module, func, bb)
 		}
 
 		if (inst) {

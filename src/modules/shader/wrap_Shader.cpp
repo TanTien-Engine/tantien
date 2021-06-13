@@ -506,6 +506,13 @@ void w_ShaderGen_get_main_func()
     return_pointer(main);
 }
 
+void w_ShaderGen_get_func_block()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)double2pointer(ves_tonumber(1));
+    spvgentwo::BasicBlock* bb = shadertrans::SpirvGenTwo::GetFuncBlock(func);
+    return_pointer(bb);
+}
+
 void w_ShaderGen_create_decl_func()
 {
     spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
@@ -603,12 +610,15 @@ void w_ShaderGen_func_return()
     shadertrans::SpirvGenTwo::Return(func);
 }
 
-void w_ShaderGen_func_return_value()
+void w_shadergen_if_block()
 {
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
-    spvgentwo::Instruction* inst = (spvgentwo::Instruction*)(double2pointer(ves_tonumber(2)));
+    spvgentwo::Instruction* cond = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::BasicBlock* t = (spvgentwo::BasicBlock*)double2pointer(ves_tonumber(3));
+    spvgentwo::BasicBlock* f = (spvgentwo::BasicBlock*)double2pointer(ves_tonumber(4));
 
-    shadertrans::SpirvGenTwo::ReturnValue(func, inst);
+    auto ret = shadertrans::SpirvGenTwo::If(func, cond, t, f);
+    return_pointer(ret);
 }
 
 void w_ShaderGen_variable_float()
@@ -640,6 +650,15 @@ void w_ShaderGen_variable_float4()
     spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
 
     auto ret = shadertrans::SpirvGenTwo::VariableFloat4(func);
+    return_pointer(ret);
+}
+
+void w_ShaderGen_add_block()
+{
+    spvgentwo::Function* func = (spvgentwo::Function*)(double2pointer(ves_tonumber(1)));
+    const char* name = ves_tostring(2);
+
+    auto ret = shadertrans::SpirvGenTwo::AddBlock(func, name);
     return_pointer(ret);
 }
 
@@ -768,10 +787,97 @@ void w_ShaderGen_connect_cs_main()
     ves_set_lstring(0, glsl.c_str(), glsl.size());
 }
 
-void w_ShaderGen_print()
+// block
+
+void w_shadergen_is_equal()
 {
-    spvgentwo::Module* module = (spvgentwo::Module*)double2pointer(ves_tonumber(1));
-    shadertrans::SpirvGenTwo::Print(*module);
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsEqual(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_shadergen_is_not_equal()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsNotEqual(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_shadergen_is_greater()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsGreater(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_shadergen_is_greater_equal()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsGreaterEqual(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_shadergen_is_less()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsLess(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_shadergen_is_less_equal()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* a = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* b = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    auto ret = shadertrans::SpirvGenTwo::IsLessEqual(bb, a, b);
+    return_pointer(ret);
+}
+
+void w_ShaderGen_kill()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+
+    shadertrans::SpirvGenTwo::Kill(bb);
+}
+
+void w_ShaderGen_bb_return()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+
+    shadertrans::SpirvGenTwo::Return(bb);
+}
+
+void w_ShaderGen_bb_return_value()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* inst = (spvgentwo::Instruction*)(double2pointer(ves_tonumber(2)));
+
+    shadertrans::SpirvGenTwo::ReturnValue(bb, inst);
+}
+
+void w_ShaderGen_bb_store()
+{
+    spvgentwo::BasicBlock* bb = (spvgentwo::BasicBlock*)(double2pointer(ves_tonumber(1)));
+    spvgentwo::Instruction* dst = (spvgentwo::Instruction*)double2pointer(ves_tonumber(2));
+    spvgentwo::Instruction* src = (spvgentwo::Instruction*)double2pointer(ves_tonumber(3));
+
+    shadertrans::SpirvGenTwo::Store(bb, dst, src);
 }
 
 }
@@ -835,6 +941,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "ShaderGen.get_main_module()") == 0) return w_ShaderGen_get_main_module;
     if (strcmp(signature, "ShaderGen.get_main_func()") == 0) return w_ShaderGen_get_main_func;
+    if (strcmp(signature, "ShaderGen.get_func_block(_)") == 0) return w_ShaderGen_get_func_block;
     if (strcmp(signature, "ShaderGen.create_decl_func(_,_)") == 0) return w_ShaderGen_create_decl_func;
     if (strcmp(signature, "ShaderGen.add_link_decl(_,_,_)") == 0) return w_ShaderGen_add_link_decl;
     
@@ -842,13 +949,15 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.get_func_param(_,_)") == 0) return w_ShaderGen_get_func_param;
     if (strcmp(signature, "ShaderGen.get_func_args(_)") == 0) return w_ShaderGen_get_func_args;
     if (strcmp(signature, "ShaderGen.func_call(_,_,_)") == 0) return w_ShaderGen_func_call;
-    if (strcmp(signature, "ShaderGen.func_return(_)") == 0) return w_ShaderGen_func_return;
-    if (strcmp(signature, "ShaderGen.func_return_value(_,_)") == 0) return w_ShaderGen_func_return_value;
+
+    if (strcmp(signature, "ShaderGen.if_block(_,_,_,_)") == 0) return w_shadergen_if_block;
 
     if (strcmp(signature, "ShaderGen.variable_float(_)") == 0) return w_ShaderGen_variable_float;
     if (strcmp(signature, "ShaderGen.variable_float2(_)") == 0) return w_ShaderGen_variable_float2;
     if (strcmp(signature, "ShaderGen.variable_float3(_)") == 0) return w_ShaderGen_variable_float3;
     if (strcmp(signature, "ShaderGen.variable_float4(_)") == 0) return w_ShaderGen_variable_float4;
+
+    if (strcmp(signature, "ShaderGen.add_block(_,_)") == 0) return w_ShaderGen_add_block;
 
     if (strcmp(signature, "ShaderGen.const_bool(_,_)") == 0) return w_ShaderGen_const_bool;
     if (strcmp(signature, "ShaderGen.const_int(_,_)") == 0) return w_ShaderGen_const_int;
@@ -863,6 +972,22 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
     if (strcmp(signature, "ShaderGen.const_mat4(_,_)") == 0) return w_ShaderGen_const_mat4;
 
     if (strcmp(signature, "ShaderGen.connect_cs_main(_)") == 0) return w_ShaderGen_connect_cs_main;
+
+    // block
+
+    if (strcmp(signature, "ShaderGen.is_equal(_,_,_)") == 0) return w_shadergen_is_equal;
+    if (strcmp(signature, "ShaderGen.is_not_equal(_,_,_)") == 0) return w_shadergen_is_not_equal;
+    if (strcmp(signature, "ShaderGen.is_greater(_,_,_)") == 0) return w_shadergen_is_greater;
+    if (strcmp(signature, "ShaderGen.is_greater_equal(_,_,_)") == 0) return w_shadergen_is_greater_equal;
+    if (strcmp(signature, "ShaderGen.is_less(_,_,_)") == 0) return w_shadergen_is_less;
+    if (strcmp(signature, "ShaderGen.is_less_equal(_,_,_)") == 0) return w_shadergen_is_less_equal;
+
+    if (strcmp(signature, "ShaderGen.kill(_)") == 0) return w_ShaderGen_kill;
+
+    if (strcmp(signature, "ShaderGen.bb_return(_)") == 0) return w_ShaderGen_bb_return;
+    if (strcmp(signature, "ShaderGen.bb_return_value(_,_)") == 0) return w_ShaderGen_bb_return_value;
+
+    if (strcmp(signature, "ShaderGen.bb_store(_,_,_)") == 0) return w_ShaderGen_bb_store;
 
     return NULL;
 }

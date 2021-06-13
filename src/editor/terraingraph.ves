@@ -32,6 +32,16 @@ class Terraingraph is Editor
 		for (var node in TERRAIN_NODES) {
 			super.add_popup_node(node)
 		}
+
+		import "editor.shadernodes" for SHADER_NODES
+		for (var node in SHADER_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.noisenodes" for NOISE_NODES
+		for (var node in NOISE_NODES) {
+			super.add_popup_node(node)
+		}		
 	}
 
 	rebuild()
@@ -74,6 +84,8 @@ class Terraingraph is Editor
 	{
 		return super.load_file_imports() + "
 import \"terraingraph.nodes.*\"
+import \"shadergraph.nodes.*\"
+import \"noisegraph.nodes.*\"
 "
 	}
 }

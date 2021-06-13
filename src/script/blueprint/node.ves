@@ -41,6 +41,29 @@ class Node
 
 	calc_value(idx) { return nil }
 
+	shader_gen(gen, module, func, bb) 
+	{
+		for (var pin in this.imports) {
+			if (!pin.conns.isEmpty and !pin.stop_port_pass) {
+				var prev = pin.conns.front().from
+				if (prev) {
+					prev.node.shader_gen(gen, module, func, bb)
+				}
+			}
+		}
+
+		if (this["node_func"]) {
+			this.node_func.shader_gen(gen, module, func, bb)
+		}		
+	}
+
+	bind_uniforms(prog)
+	{
+		if (this["node_func"]) {
+			this.node_func.bind_uniforms(prog)
+		}
+	}
+
 	get_size() {
 		return Vector2(this.style.width, this.style.height)
 	}

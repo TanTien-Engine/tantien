@@ -49,10 +49,10 @@ class Add is Node
 		return nil
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var a = Blueprint.calc_input_inst(gen, this, 0, module, func)
-		var b = Blueprint.calc_input_inst(gen, this, 1, module, func)
+		var a = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var b = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
 		return gen.add(func, a, b)
 	}
 	

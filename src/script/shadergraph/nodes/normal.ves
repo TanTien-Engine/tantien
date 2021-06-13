@@ -15,12 +15,14 @@ class Normal is Node
 		this.layout()
 	}
 
-	gen_shader(gen)
+	shader_gen(gen, module, func, bb)
 	{
+		super.shader_gen(gen, module, func, bb)
+
 		this.inst = gen.add_input("Normal", "vec3")
 	}
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
 		return gen.load(func, this.inst)
 	}

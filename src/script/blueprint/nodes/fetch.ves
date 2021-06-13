@@ -62,13 +62,15 @@ class Fetch is Node
 		}
 	}
 
-    gen_shader(gen)
+    shader_gen(gen, module, func, bb)
     {
+		super.shader_gen(gen, module, func, bb)
+
     	this.uniform = nil
     	this.unif_name = nil
     }
 
-	calc_inst(gen, idx, module, func) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
 		if (!this.uniform)
 		{

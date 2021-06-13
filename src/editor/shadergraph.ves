@@ -1,56 +1,22 @@
 import "editor.editor" for Editor
-import "render" for Render, Shader, VertexArray
-import "shader" for ShaderGen
+import "rendergraph.rendergraph" for Rendergraph
+import "rendergraph.drawlist" for Drawlist
+import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_builder" for ShaderBuilder
-
-var DEFAULT_VS = "
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-out vec3 ourColor;
-out vec2 TexCoord;
-
-void main() 
-{
-   ourColor = aColor;
-   TexCoord = vec2(aTexCoord.x, aTexCoord.y);
-   gl_Position = vec4(aPos, 1.0);
-}
-"
-
-var DEFAULT_FS = "
-#version 330
-in vec3 ourColor;
-
-layout (location = 0) out vec4 FragColor;
-
-void main() 
-{
-   FragColor = vec4(ourColor, 1.0);
-}
-"
+import "render" for Render
+import "shader" for ShaderGen
 
 class Shadergraph is Editor
 {
-	init()
-	{
-		this.builder = nil
-	}
-
 	load()
 	{
 		super.load()
 
-		this.code = ""
-
 		this.prepare_nodes()
 
-		this.prog = Shader.init(DEFAULT_VS, "", "", "", DEFAULT_FS)
+		Rendergraph.regist()
 
-		this.va = VertexArray.init([1, 1, 0, 1, 0, 0, 1, 1, 1, -1, 0, 0, 1, 0, 1, 0, -1, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 1, 1, 0, 0, 1 ], [3, 3, 2], [ 0, 1, 3, 1, 2, 3 ])
+		this.drawlist = nil
 	}
 
 	prepare_nodes()
@@ -61,7 +27,7 @@ class Shadergraph is Editor
 		for (var node in BP_NODES) {
 			super.add_popup_node(node)
 		}
-			
+
 		import "editor.rendernodes" for RENDER_NODES
 		for (var node in RENDER_NODES) {
 			super.add_popup_node(node)
@@ -73,46 +39,85 @@ class Shadergraph is Editor
 		}
 	}
 
-	find_frag_out_node()
+	build_exec_list(nodes)
 	{
-		import "shadergraph.nodes.frag_color" for FragColor
+		var drawlist = Drawlist(nodes)
+		return drawlist.lists
+	}
+
+	find_terminate_node()
+	{
+		var term_node = nil
 
 		var scene = this.scene_stack.root()
 		for (var node in scene.nodes) 
 		{
 			var bp_node = node.components["bp"]
-			if (bp_node is FragColor) {
-				return bp_node
+			if (Blueprint.is_out_conns_empty(bp_node)) {
+				if (term_node) {
+					return nil
+				} else {
+					term_node = bp_node
+				}
 			}
 		}
 
-		return nil
+		return term_node
 	}	
 
 	rebuild_shader()
 	{
-		var node = this.find_frag_out_node()
-		if (node) {
-			this.builder = ShaderBuilder()
-			var gen = this.builder.build(node)
-			this.prog = Shader.init(DEFAULT_VS, "", "", "", gen)
+		var node = this.find_terminate_node()
+		if (!node) {
+			return
 		}
+
+		var gen = ShaderGen.init()
+
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+		var bb = gen.get_func_block(func)
+		node.shader_gen(gen, module, func, bb)
+	}
+
+	rebuild_drawlist(node)
+	{
+		if (node is Subgraph) 
+		{
+			// init subgraph
+			node.execute()
+			for (var sub_node in node.all_items) {
+				this.rebuild_drawlist(sub_node)
+			}
+		}
+	}
+
+	rebuild_drawlist()
+	{
+		var scene = this.scene_stack.root()
+
+		var nodes = []
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			nodes.add(bp_node)
+
+			this.rebuild_drawlist(bp_node)
+		}
+		this.drawlist = Drawlist(nodes)
 	}
 
 	draw_preview()
 	{
-		if (this.scene_stack.bp_dirty) {
+		if (!this.drawlist or this.scene_stack.bp_dirty) {
 			this.rebuild_shader()
+			this.rebuild_drawlist()
 			this.scene_stack.bp_dirty = false
 		}
 
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
-		if (this.builder) {
-			this.builder.bind_uniforms(this.prog)		
-		}
-
-		Render.draw("triangles", this.prog, this.va, { "depth_test" : false, "cull" : "disable" })
+		this.drawlist.draw()
 	}
 
 	load_file_imports()

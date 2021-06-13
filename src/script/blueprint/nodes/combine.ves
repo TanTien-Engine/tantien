@@ -73,36 +73,36 @@ class Combine is Node
 		return nil		
 	}
 
-	calc_inst(gen, idx, module, func)
+	calc_inst(gen, idx, module, func, bb)
 	{
-		var x = Blueprint.calc_input_inst(gen, this, "x", module, func)
+		var x = Blueprint.calc_input_inst(gen, this, "x", module, func, bb)
 		if (!x) {
 			x = gen.const_float(module, 0.0)
 		}
-		var y = Blueprint.calc_input_inst(gen, this, "y", module, func)
+		var y = Blueprint.calc_input_inst(gen, this, "y", module, func, bb)
 		if (!y) {
 			y = gen.const_float(module, 0.0)
 		}
-		var z = Blueprint.calc_input_inst(gen, this, "z", module, func)
+		var z = Blueprint.calc_input_inst(gen, this, "z", module, func, bb)
 		if (!z) {
 			z = gen.const_float(module, 0.0)
 		}
-		var w = Blueprint.calc_input_inst(gen, this, "w", module, func)
+		var w = Blueprint.calc_input_inst(gen, this, "w", module, func, bb)
 		if (!w) {
 			w = gen.const_float(module, 0.0)
 		}
-		var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func)
+		var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func, bb)
 		if (xy) {
 			x = gen.compose_extract(func, xy, 0)
 			y = gen.compose_extract(func, xy, 1)
 		}		
-		var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func)
+		var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func, bb)
 		if (xyz) {
 			x = gen.compose_extract(func, xyz, 0)
 			y = gen.compose_extract(func, xyz, 1)
 			z = gen.compose_extract(func, xyz, 2)
 		}
-		var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func)
+		var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func, bb)
 		if (grey) {
 			x = grey
 			y = grey
