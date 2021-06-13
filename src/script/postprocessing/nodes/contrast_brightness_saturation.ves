@@ -1,0 +1,147 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+uniform float tint;
+uniform float exposureN;
+uniform float contrast;
+uniform float brightness;
+uniform float saturation;
+uniform float vibrance;
+uniform float huemid;
+uniform float huerange;
+uniform float sat_custom;
+uniform float sat_r;
+uniform float sat_y;
+uniform float sat_g;
+uniform float sat_a;
+uniform float sat_b;
+uniform float sat_p;
+uniform float sat_m;
+uniform bool enable_depth;
+uniform bool display_depth;
+uniform float depthStart;
+uniform float depthEnd;
+uniform float depthCurve;
+uniform float exposureD;
+uniform float contrastD;
+uniform float brightnessD;
+uniform float saturationD;
+uniform float vibranceD;
+
+float getLuminance( in float3 x )
+{
+    return dot( x, float3( 0.212656, 0.715158, 0.072186 ));
+}
+
+float curve( float x )
+{
+    return x * x * ( 3.0 - 2.0 * x );
+}
+
+float3 channelsat( float3 col, float r, float y, float g, float a, float b, float p, float m, float hue )
+{
+    float desat        = getLuminance( col.xyz );
+
+    // Red          : 0.0
+    // Orange       : 0.083
+    // Yellow       : 0.167
+    // Green        : 0.333
+    // Cyan/Aqua    : 0.5
+    // Blue         : 0.667
+    // Purple       : 0.75
+    // Magenta      : 0.833
+
+    float weight_r     = curve( max( 1.0f - abs(  hue               * 6.0f ), 0.0f )) +
+                            curve( max( 1.0f - abs(( hue - 1.0f      ) * 6.0f ), 0.0f ));
+    float weight_y     = curve( max( 1.0f - abs(( hue - 0.166667f ) * 6.0f ), 0.0f ));
+    float weight_g     = curve( max( 1.0f - abs(( hue - 0.333333f ) * 6.0f ), 0.0f ));
+    float weight_a     = curve( max( 1.0f - abs(( hue - 0.5f      ) * 6.0f ), 0.0f ));
+    float weight_b     = curve( max( 1.0f - abs(( hue - 0.666667f ) * 6.0f ), 0.0f ));
+    float weight_p     = curve( max( 1.0f - abs(( hue - 0.75f     ) * 6.0f ), 0.0f ));
+    float weight_m     = curve( max( 1.0f - abs(( hue - 0.833333f ) * 6.0f ), 0.0f ));
+
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + r * weight_r, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + y * weight_y, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + g * weight_g, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + a * weight_a, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + b * weight_b, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + p * weight_p, 0.0f, 2.0f ));
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + m * weight_m, 0.0f, 2.0f ));
+
+    return saturate( col.xyz );
+}
+
+float3 customsat( float3 col, float h, float range, float sat, float hue )
+{
+    float desat        = getLuminance( col.xyz );
+    float r            = rcp( range );
+    float3 w           = max( 1.0f - abs(( hue - h        ) * r ), 0.0f );
+    w.y                = max( 1.0f - abs(( hue + 1.0f - h ) * r ), 0.0f );
+    w.z                = max( 1.0f - abs(( hue - 1.0f - h ) * r ), 0.0f );
+    float weight       = curve( dot( w.xyz, 1.0f )) * sat;
+    col.xyz            = lerp( desat, col.xyz, clamp( 1.0f + weight, 0.0f, 2.0f ));
+    return saturate( col.xyz );
+}
+
+float4 contrast_brightness_saturation_pass(float4 pos : SV_Position, float2 texcoord : TEXCOORD) : SV_Target
+{
+    float4 color     = tex2D( ReShade::BackBuffer, texcoord );
+    // Dither
+    // Input: sampler, texcoord, variance(int), enable_dither(bool), dither_strength(float), motion(bool), swing(float)
+    float4 dnoise    = dither( samplerRGBNoise, texcoord.xy, 6, enable_dither, dither_strength, 1, 0.5f );
+    color.xyz        = saturate( color.xyz + dnoise.xyz );
+
+    float depth      = ReShade::GetLinearizedDepth( texcoord ).x;
+    depth            = smoothstep( depthStart, depthEnd, depth );
+    depth            = pow( depth, depthCurve );
+    float4 dnoise2   = dither( samplerGaussNoise, texcoord.xy, 0, 1, 1.0f, 0, 1.0f );
+    depth            = saturate( depth + dnoise2.x );
+
+    float3 cold      = float3( 0.0f,  0.365f, 1.0f ); //LBB
+    float3 warm      = float3( 0.98f, 0.588f, 0.0f ); //LBA
+
+    color.xyz        = ( tint < 0.0f ) ? lerp( color.xyz, blendLuma( cold.xyz, color.xyz ), abs( tint )) :
+                                            lerp( color.xyz, blendLuma( warm.xyz, color.xyz ), tint );
+
+    float3 dcolor    = color.xyz;
+    color.xyz        = exposure( color.xyz, exposureN );
+    color.xyz        = con( color.xyz, contrast   );
+    color.xyz        = bri( color.xyz, brightness );
+    color.xyz        = sat( color.xyz, saturation );
+    color.xyz        = vib( color.xyz, vibrance   );
+
+    dcolor.xyz       = exposure( dcolor.xyz, exposureD );
+    dcolor.xyz       = con( dcolor.xyz, contrastD   );
+    dcolor.xyz       = bri( dcolor.xyz, brightnessD );
+    dcolor.xyz       = sat( dcolor.xyz, saturationD );
+    dcolor.xyz       = vib( dcolor.xyz, vibranceD   );
+        
+    color.xyz        = lerp( color.xyz, dcolor.xyz, enable_depth * depth ); // apply based on depth
+
+    float chue       = RGBToHSL( color.xyz ).x;
+    color.xyz        = channelsat( color.xyz, sat_r, sat_y, sat_g, sat_a, sat_b, sat_p, sat_m, chue );
+    color.xyz        = customsat( color.xyz, huemid, huerange, sat_custom, chue );
+
+    color.xyz        = display_depth ? depth.xxx : color.xyz; // show depth
+
+    return float4( color.xyz, 1.0f );
+}
+
+"
+
+class ContrastBrightnessSaturation is Node
+{
+	init() 
+	{
+		super.init(ContrastBrightnessSaturation.name)
+
+		this.node_func = NodeFunction(this, CODE, "hlsl", "contrast_brightness_saturation_pass", [
+            [ "Kelvin", 6500, { "integer" : true, "min" : 1000, "max" : 40000 } ],      // Color Temp (K)
+            [ "LumPreservation", 1.0, { "min" : 0.0, "max" : 1.0 } ],                   // Luminance Preservation
+            [ "kMix", 1.0, { "min" : 0.0, "max" : 1.0 } ],                              // Mix with Original
+        ])
+	}
+}

@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/reshade_adapter.hlsl\"
+
+SamplerState g_sampler;
+Texture2D g_base_texture;
+Texture2D g_blur_texture;
+
+float4 luma_sharpen_pass(float2 texcoord : TEXCOORD) : SV_Target
+{
+    float4 orig      = g_base_texture.Sample(g_sampler, texcoord );
+    float4 gaussian  = g_blur_texture.Sample(g_sampler, texcoord );
+        
+    return float4( gaussian.xyz - orig.xyz, 1.0f );
+}
+
+"
+
+class LumaSharpen2 is Node
+{
+	init() 
+	{
+		super.init(LumaSharpen2.name)
+
+		this.node_func = NodeFunction(this, CODE, "hlsl", "luma_sharpen_pass", [
+        ])
+	}
+}

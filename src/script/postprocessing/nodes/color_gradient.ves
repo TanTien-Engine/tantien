@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+uniform __UBO__
+{
+    bool  preserve_luma;        // Preserve Luminosity
+    int   separation_mode;      // Luma Separation Mode
+
+    float s_RedShift;           // Shadows: Cyan <--> Red
+    float s_GreenShift;         // Shadows: Magenta <--> Green
+    float s_BlueShift;          // Shadows: Yellow <--> Blue
+
+    float m_RedShift;           // Midtones: Cyan <--> Red
+    float m_GreenShift;         // Midtones: Magenta <--> Green
+    float m_BlueShift;          // Midtones: Yellow <--> Blue
+
+    float h_RedShift;           // Highlights: Cyan <--> Red
+    float h_GreenShift;         // Highlights: Magenta <--> Green
+    float h_BlueShift;          // Highlights: Yellow <--> Blue
+};
+
+vec3 color_gradient_pass(vec3 color)
+{
+    return vec3(0.0);
+}
+
+"
+
+class ColorGradient is Node
+{
+	init() 
+	{
+		super.init(ColorGradient.name)
+
+		this.node_func = NodeFunction(this, CODE, "color_gradient_pass", [
+        ])
+	}
+}

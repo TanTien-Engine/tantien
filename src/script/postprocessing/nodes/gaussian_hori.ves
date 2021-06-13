@@ -1,0 +1,65 @@
+import "blueprint.node" for Node
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2, Vector3
+
+var CODE = "
+// from https://github.com/prod80/prod80-ReShade-Repository
+
+#include \"assets/shaders/reshade_adapter.hlsl\"
+
+SamplerState g_sampler;
+Texture2D g_texture;
+
+uniform float BlurSigma;    // Sharpening Width
+
+#define PI 3.141592f
+
+float4 gaussian_hori_pass(float2 texcoord : TEXCOORD) : SV_Target
+{
+    float4 color     = g_texture.Sample(g_sampler, texcoord);
+    float px         = BUFFER_RCP_WIDTH;
+    float SigmaSum   = 0.0f;
+    float pxlOffset  = 1.0f;
+    float loops      = max( BUFFER_WIDTH, BUFFER_HEIGHT ) / 1920.0f * 4.0f;
+
+    //Gaussian Math
+    float3 Sigma;
+    float bSigma     = BlurSigma * ( max( BUFFER_WIDTH, BUFFER_HEIGHT ) / 1920.0f ); // Scalar
+    Sigma.x          = 1.0f / ( sqrt( 2.0f * PI ) * bSigma );
+    Sigma.y          = exp( -0.5f / ( bSigma * bSigma ));
+    Sigma.z          = Sigma.y * Sigma.y;
+
+    //Center Weight
+    color.xyz        *= Sigma.x;
+    //Adding to total sum of distributed weights
+    SigmaSum         += Sigma.x;
+    //Setup next weight
+    Sigma.xy         *= Sigma.yz;
+
+    [loop]
+    for( int i = 0; i < loops; ++i )
+    {
+        color        += g_texture.Sample(g_sampler, texcoord.xy + float2( pxlOffset*px, 0.0f )) * Sigma.x;
+        color        += g_texture.Sample(g_sampler, texcoord.xy - float2( pxlOffset*px, 0.0f )) * Sigma.x;
+        SigmaSum     += ( 2.0f * Sigma.x );
+        pxlOffset    += 1.0f;
+        Sigma.xy     *= Sigma.yz;
+    }
+
+    color.xyz        /= SigmaSum;
+    return float4( color.xyz, 1.0f );
+}
+
+"
+
+class GaussianHori is Node
+{
+	init() 
+	{
+		super.init(GaussianHori.name)
+
+		this.node_func = NodeFunction(this, CODE, "hlsl", "gaussian_hori_pass", [
+            [ "BlurSigma", 0.45, { "min" : 0.3, "max" : 1.2 } ],
+        ])
+	}
+}
