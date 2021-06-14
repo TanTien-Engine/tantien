@@ -144,194 +144,225 @@ void w_glTF_get_desc()
 
     ves_pop(1);
     ves_newmap();
+    int idx = 0;
     for (auto& node : model->scene->nodes)
     {
         if (!node->mesh) {
             continue;
         }
 
-        ves_newmap();
-
-        assert(node->mesh->primitives.size() == 1);
-        auto& prim = node->mesh->primitives.front();
-
-        auto material = prim->material;
-
-        // va
-        {
-            ves_pushnil();
-            ves_import_class("render", "VertexArray");
-            std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(2, 3, sizeof(std::shared_ptr<ur::VertexArray>));
-            ves_pop(1);
-            *va = prim->va;
-            ves_setfield(-2, "va");
-            ves_pop(1);
-        }
-        // emissive
-        auto& emissive = material->emissive;
-        ves_newmap();
-        // factor
-        {
-            ves_pushnil();
-            ves_import_class("maths", "Float3");
-            sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
-            memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
-            ves_pop(1);
-            ves_setfield(-2, "factor");
-            ves_pop(1);
-        }
-        if (emissive->texture) {
-            load_texture(*emissive->texture, 3, emissive->tex_coord);
-        }
-        ves_setfield(-2, "emissive");
-        ves_pop(1);
-        // normal
-        auto& normal = material->normal;
-        ves_newmap();
-        if (normal->texture) {
-            load_texture(*normal->texture, 3, normal->tex_coord);
-        }
-        ves_setfield(-2, "normal");
-        ves_pop(1);
-        // occlusion
-        auto& occlusion = material->occlusion;
-        ves_newmap();
-        if (occlusion->texture) {
-            load_texture(*occlusion->texture, 3, occlusion->tex_coord);
-        }
-        ves_setfield(-2, "occlusion");
-        ves_pop(1);
-        // metallic_roughness
-        auto& metallic_roughness = material->metallic_roughness;
-        ves_newmap();
-        // metallic_factor
-        {
-            ves_pushnumber(metallic_roughness->metallic_factor);
-            ves_setfield(-2, "metallic_factor");
-            ves_pop(1);
-        }
-        // roughness_factor
-        {
-            ves_pushnumber(metallic_roughness->roughness_factor);
-            ves_setfield(-2, "roughness_factor");
-            ves_pop(1);
-        }
-        if (metallic_roughness->texture) {
-            load_texture(*metallic_roughness->texture, 3, metallic_roughness->tex_coord);
-        }
-        ves_setfield(-2, "metallic_roughness");
-        ves_pop(1);
-        // base_color
-        auto& base_color = material->base_color;
-        ves_newmap();
-        // factor
-        {
-            ves_pushnil();
-            ves_import_class("maths", "Float4");
-            sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
-            memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
-            ves_pop(1);
-            ves_setfield(-2, "factor");
-            ves_pop(1);
-        }
-        if (base_color->texture) {
-            load_texture(*base_color->texture, 3, base_color->tex_coord);
-        }
-        ves_setfield(-2, "base_color");
-        ves_pop(1);
-        // sheen
-        if (material->sheen)
+        for (auto& prim : node->mesh->primitives)
         {
             ves_newmap();
-            // color_factor
+
+            auto material = prim->material;
+
+            // va
+            {
+                ves_pushnil();
+                ves_import_class("render", "VertexArray");
+                std::shared_ptr<ur::VertexArray>* va = (std::shared_ptr<ur::VertexArray>*)ves_set_newforeign(2, 3, sizeof(std::shared_ptr<ur::VertexArray>));
+                ves_pop(1);
+                *va = prim->va;
+                ves_setfield(-2, "va");
+                ves_pop(1);
+            }
+            // double sided
+            ves_pushboolean(material->double_sided);
+            ves_setfield(-2, "double_sided");
+            ves_pop(1);
+            // alpha mode
+            switch (material->alpha_mode)
+            {
+            case model::gltf::Material::AlphaMode::Opaque:
+                ves_pushstring("opaque");
+                break;
+            case model::gltf::Material::AlphaMode::Mask:
+                ves_pushstring("mask");
+                break;
+            case model::gltf::Material::AlphaMode::Blend:
+                ves_pushstring("blend");
+                break;
+            default:
+                assert(0);
+            }
+            ves_setfield(-2, "alpha_mode");
+            ves_pop(1);
+            // alpha cutoff
+            ves_pushnumber(material->alpha_cutoff);
+            ves_setfield(-2, "alpha_cutoff");
+            ves_pop(1);
+            // emissive
+            auto& emissive = material->emissive;
+            ves_newmap();
+            // factor
             {
                 ves_pushnil();
                 ves_import_class("maths", "Float3");
                 sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
-                memcpy(factor->xyz, material->sheen->color_factor.xyz, sizeof(float) * 3);
+                memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
                 ves_pop(1);
-                ves_setfield(-2, "color_factor");
+                ves_setfield(-2, "factor");
                 ves_pop(1);
             }
-            // color_texture
-            if (material->sheen->color_texture)
+            if (emissive->texture) {
+                load_texture(*emissive->texture, 3, emissive->tex_coord);
+            }
+            ves_setfield(-2, "emissive");
+            ves_pop(1);
+            // normal
+            auto& normal = material->normal;
+            ves_newmap();
+            if (normal->texture) {
+                load_texture(*normal->texture, 3, normal->tex_coord);
+            }
+            ves_setfield(-2, "normal");
+            ves_pop(1);
+            // occlusion
+            auto& occlusion = material->occlusion;
+            ves_newmap();
+            if (occlusion->texture) {
+                load_texture(*occlusion->texture, 3, occlusion->tex_coord);
+            }
+            ves_setfield(-2, "occlusion");
+            ves_pop(1);
+            // metallic_roughness
+            auto& metallic_roughness = material->metallic_roughness;
+            ves_newmap();
+            // metallic_factor
             {
-                ves_newmap();
-                load_texture(*material->sheen->color_texture, 4);
-                ves_setfield(-2, "color_texture");
+                ves_pushnumber(metallic_roughness->metallic_factor);
+                ves_setfield(-2, "metallic_factor");
                 ves_pop(1);
             }
             // roughness_factor
             {
-                ves_pushnumber(material->sheen->roughness_factor);
+                ves_pushnumber(metallic_roughness->roughness_factor);
                 ves_setfield(-2, "roughness_factor");
                 ves_pop(1);
             }
-            // roughness_texture
-            if (material->sheen->roughness_texture)
-            {
-                ves_newmap();
-                load_texture(*material->sheen->roughness_texture, 4);
-                ves_setfield(-2, "roughness_texture");
-                ves_pop(1);
+            if (metallic_roughness->texture) {
+                load_texture(*metallic_roughness->texture, 3, metallic_roughness->tex_coord);
             }
-            ves_setfield(-2, "sheen");
+            ves_setfield(-2, "metallic_roughness");
             ves_pop(1);
-        }
-        // clearcoat
-        if (material->clearcoat)
-        {
+            // base_color
+            auto& base_color = material->base_color;
             ves_newmap();
             // factor
             {
-                ves_pushnumber(material->clearcoat->factor);
+                ves_pushnil();
+                ves_import_class("maths", "Float4");
+                sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
+                memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
+                ves_pop(1);
                 ves_setfield(-2, "factor");
                 ves_pop(1);
             }
-            // texture
-            if (material->clearcoat->texture)
+            if (base_color->texture) {
+                load_texture(*base_color->texture, 3, base_color->tex_coord);
+            }
+            ves_setfield(-2, "base_color");
+            ves_pop(1);
+            // sheen
+            if (material->sheen)
             {
                 ves_newmap();
-                load_texture(*material->clearcoat->texture, 4);
-                ves_setfield(-2, "texture");
+                // color_factor
+                {
+                    ves_pushnil();
+                    ves_import_class("maths", "Float3");
+                    sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
+                    memcpy(factor->xyz, material->sheen->color_factor.xyz, sizeof(float) * 3);
+                    ves_pop(1);
+                    ves_setfield(-2, "color_factor");
+                    ves_pop(1);
+                }
+                // color_texture
+                if (material->sheen->color_texture)
+                {
+                    ves_newmap();
+                    load_texture(*material->sheen->color_texture, 4);
+                    ves_setfield(-2, "color_texture");
+                    ves_pop(1);
+                }
+                // roughness_factor
+                {
+                    ves_pushnumber(material->sheen->roughness_factor);
+                    ves_setfield(-2, "roughness_factor");
+                    ves_pop(1);
+                }
+                // roughness_texture
+                if (material->sheen->roughness_texture)
+                {
+                    ves_newmap();
+                    load_texture(*material->sheen->roughness_texture, 4);
+                    ves_setfield(-2, "roughness_texture");
+                    ves_pop(1);
+                }
+                ves_setfield(-2, "sheen");
                 ves_pop(1);
             }
-            ves_setfield(-2, "clearcoat");
-            ves_pop(1);
-        }
-        // translation
-        {
-            ves_pushnil();
-            ves_import_class("maths", "Float3");
-            sm::vec3* translation = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
-            memcpy(translation->xyz, node->translation.xyz, sizeof(float) * 3);
-            ves_pop(1);
-            ves_setfield(-2, "translation");
-            ves_pop(1);
-        }
-        // rotation
-        {
-            ves_pushnil();
-            ves_import_class("maths", "Float4");
-            sm::vec4* rotation = (sm::vec4*)ves_set_newforeign(2, 3, sizeof(sm::vec4));
-            memcpy(rotation->xyzw, node->rotation.xyzw, sizeof(float) * 4);
-            ves_pop(1);
-            ves_setfield(-2, "rotation");
-            ves_pop(1);
-        }
-        // scale
-        {
-            ves_pushnil();
-            ves_import_class("maths", "Float3");
-            sm::vec3* scale = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
-            memcpy(scale->xyz, node->scale.xyz, sizeof(float) * 3);
-            ves_pop(1);
-            ves_setfield(-2, "scale");
-            ves_pop(1);
-        }
+            // clearcoat
+            if (material->clearcoat)
+            {
+                ves_newmap();
+                // factor
+                {
+                    ves_pushnumber(material->clearcoat->factor);
+                    ves_setfield(-2, "factor");
+                    ves_pop(1);
+                }
+                // texture
+                if (material->clearcoat->texture)
+                {
+                    ves_newmap();
+                    load_texture(*material->clearcoat->texture, 4);
+                    ves_setfield(-2, "texture");
+                    ves_pop(1);
+                }
+                ves_setfield(-2, "clearcoat");
+                ves_pop(1);
+            }
+            // translation
+            {
+                ves_pushnil();
+                ves_import_class("maths", "Float3");
+                sm::vec3* translation = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
+                memcpy(translation->xyz, node->translation.xyz, sizeof(float) * 3);
+                ves_pop(1);
+                ves_setfield(-2, "translation");
+                ves_pop(1);
+            }
+            // rotation
+            {
+                ves_pushnil();
+                ves_import_class("maths", "Float4");
+                sm::vec4* rotation = (sm::vec4*)ves_set_newforeign(2, 3, sizeof(sm::vec4));
+                memcpy(rotation->xyzw, node->rotation.xyzw, sizeof(float) * 4);
+                ves_pop(1);
+                ves_setfield(-2, "rotation");
+                ves_pop(1);
+            }
+            // scale
+            {
+                ves_pushnil();
+                ves_import_class("maths", "Float3");
+                sm::vec3* scale = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
+                memcpy(scale->xyz, node->scale.xyz, sizeof(float) * 3);
+                ves_pop(1);
+                ves_setfield(-2, "scale");
+                ves_pop(1);
+            }
 
-        ves_setfield(-2, node->name.c_str());
-        ves_pop(1);
+            if (node->name.empty()) {
+                std::string name = "node" + std::to_string(idx++);
+                ves_setfield(-2, name.c_str());
+            } else {
+                ves_setfield(-2, node->name.c_str());
+            }
+            ves_pop(1);
+        }
     }
 }
 
