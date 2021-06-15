@@ -40,9 +40,9 @@ class Shader
 				{
 					if (pin["unif"] and pin.unif[1] == "array")
 					{
-						var n = Math.min(val.value.count, unif[2].count)
+						var n = Math.min(val.value.count, pin.unif[2].count)
 						for (var i in 0..n) {
-							this.set_uniform_value(pin.unif[2][i], val.value[i].value)
+							this.set_uniform_value(pin.unif[2][i], val.value[i])
 						}
 					}
 					else
