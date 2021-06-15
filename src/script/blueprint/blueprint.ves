@@ -191,7 +191,7 @@ class Blueprint
 		}	
 	}
 
-	static calc_input_inst(gen, node, slot, module, func, bb)
+	static calc_input_inst(node, slot, ctx)
 	{
 		var pin = this.query_pin(node.imports, slot)
 		if (!pin or pin.conns.isEmpty) {
@@ -203,9 +203,9 @@ class Blueprint
 		var f_pin = pin.conns.front().from
 		var f_node = f_pin.node
 		if (f_node["node_func"] != nil) {
-			inst = f_node.node_func.calc_inst(gen, f_pin.slot_idx, module, func, bb)
-		} else if (f_node.has_method("calc_inst(_,_,_,_,_)")) {
-			inst = f_node.calc_inst(gen, f_pin.slot_idx, module, func, bb)
+			inst = f_node.node_func.calc_inst(f_pin.slot_idx, ctx)
+		} else if (f_node.has_method("calc_inst(_,_)")) {
+			inst = f_node.calc_inst(f_pin.slot_idx, ctx)
 		}
 
 		if (inst) {
@@ -218,13 +218,13 @@ class Blueprint
 		}
 
 		if (value.type == VAR_TYPE_NUMBER) {
-			return module.const_float(value.value)
+			return ctx.module.const_float(value.value)
 		} else if (value.type == VAR_TYPE_NUMBER2) {
-			return module.const_float2(value.value.x, value.value.y)	
+			return ctx.module.const_float2(value.value.x, value.value.y)	
 		} else if (value.type == VAR_TYPE_NUMBER3) {
-			return module.const_float3(value.value.x, value.value.y, value.value.z)	
+			return ctx.module.const_float3(value.value.x, value.value.y, value.value.z)	
 		} else if (value.type == VAR_TYPE_NUMBER4) {
-			return module.const_float4(value.value.x, value.value.y, value.value.z, value.value.w)	
+			return ctx.module.const_float4(value.value.x, value.value.y, value.value.z, value.value.w)	
 		}
 
 		return nil

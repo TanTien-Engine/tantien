@@ -19,11 +19,11 @@ class Length is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var v = Blueprint.calc_input_inst(this, 0, ctx)
 		if (v) {
-			return bb.length(v)		
+			return ctx.bb.length(v)		
 		} else {
 			return nil
 		}

@@ -58,18 +58,18 @@ class NodeFunction
 		return this.num_params < this.node.imports.count
 	}
 
-	shader_gen(gen, module, func, bb)
+	shader_gen(ctx)
 	{
-		this.module = gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
+		this.module = ctx.gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
 
 		this.func = this.module.query_func(this.func_name)
 
-		gen.add_link_decl(this.func, this.decl_name, true)
+		ctx.gen.add_link_decl(this.func, this.decl_name, true)
 
 		this.uniforms.clear()
 	}
 
-	calc_value_inst(gen, module, type, value)
+	calc_value_inst(type, value, module)
 	{
 		if (value)
 		{
@@ -112,29 +112,29 @@ class NodeFunction
 		return nil
 	}	
 
-	calc_inst_from_pin(gen, pin, module, func, bb)
+	calc_inst_from_pin(pin, ctx)
 	{
-		var inst = Blueprint.calc_input_inst(gen, this.node, pin.name, module, func, bb)
+		var inst = Blueprint.calc_input_inst(this.node, pin.name, ctx)
 		if (inst) {
 			return inst
 		}
 
 		var val = Blueprint.calc_input_value(this.node, pin.slot_idx)
 		if (val) {
-			inst = this.calc_value_inst(gen, module, pin.type, val.value)
+			inst = this.calc_value_inst(pin.type, val.value, ctx.module)
 		} else {			
 			var param = this.node.query_param(pin.name)
 			if (param) {
-				inst = this.calc_value_inst(gen, module, pin.type, param.value)
+				inst = this.calc_value_inst(pin.type, param.value, ctx.module)
 			} else {
-				inst = this.calc_value_inst(gen, module, pin.type, nil)
+				inst = this.calc_value_inst(pin.type, nil, ctx.module)
 			}
 		}
 
 		return inst
 	}
 
-	calc_inst(gen, idx, module, func, bb)
+	calc_inst(idx, ctx)
 	{
 		if (!this["func"]) {
 			return nil
@@ -147,7 +147,7 @@ class NodeFunction
 			var pin = this.node.imports[i]
 			if (prev_pin and prev_pin.node is Texture) {			
 				prev_pin.node.init_unif_name(pin.name)
-				Blueprint.calc_input_inst(gen, this.node, i, module, func, bb)
+				Blueprint.calc_input_inst(this.node, i, ctx)
 			}
 
 			var unif = Uniform()
@@ -164,8 +164,8 @@ class NodeFunction
 		}
 
 		// func call
-		var callee = module.create_decl_func(this.func)
-		gen.add_link_decl(callee, this.decl_name, false)
+		var callee = ctx.module.create_decl_func(this.func)
+		ctx.gen.add_link_decl(callee, this.decl_name, false)
 
 		var params = []
 		for (var i in 0..this.num_params)
@@ -173,7 +173,7 @@ class NodeFunction
 			var pin = this.node.imports[i]
 			if (pin.type != VAR_TYPE_FUNCTION) 
 			{
-				var inst = this.calc_inst_from_pin(gen, pin, module, func, bb)
+				var inst = this.calc_inst_from_pin(pin, ctx)
 				if (!inst) {
 					return nil
 				}
@@ -182,17 +182,17 @@ class NodeFunction
 				var type = inst.get_type()
 				var inst_var = nil
 				if (type == "float") {
-					inst_var = func.variable_float()
+					inst_var = ctx.func.variable_float()
 				} else if (type == "float_2") {
-					inst_var = func.variable_float2()
+					inst_var = ctx.func.variable_float2()
 				} else if (type == "float_3") {
-					inst_var = func.variable_float3()
+					inst_var = ctx.func.variable_float3()
 				} else if (type == "float_4") {
-					inst_var = func.variable_float4()
+					inst_var = ctx.func.variable_float4()
 				}
 				if (inst_var) 
 				{
-					bb.store(inst_var, inst)
+					ctx.bb.store(inst_var, inst)
 					params.add(inst_var)
 				}
 				else
@@ -201,7 +201,7 @@ class NodeFunction
 				}
 			}
 		}
-		return func.call(callee, params)
+		return ctx.func.call(callee, params)
 	}
 
 	bind_uniforms(prog)

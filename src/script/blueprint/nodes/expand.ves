@@ -32,14 +32,14 @@ class Expand is Node
 		return this.export_values[idx]
 	}
 
-    shader_gen(gen, module, func, bb)
+    shader_gen(ctx)
     {
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
     	this.uniforms = List.filled(this.exports.count, nil)
     }
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
 		var value = this.export_values[idx]
 		if (value.type == VAR_TYPE_TEXTURE)
@@ -47,14 +47,14 @@ class Expand is Node
 			if (!this.uniforms[idx]) 
 			{
 				var name = this.get_unif_name(idx)
-				var unif = gen.add_uniform(module, name, "texture")
-				var unif_name = gen.query_unif_name(unif)
+				var unif = ctx.gen.add_uniform(ctx.module, name, "texture")
+				var unif_name = ctx.gen.query_unif_name(unif)
 
 				this.uniforms[idx] = [unif, unif_name]
 			}
 
 			if (this.uniforms[idx]) {
-				return bb.load(this.uniforms[idx][0])
+				return ctx.bb.load(this.uniforms[idx][0])
 			} else {
 				return nil
 			}

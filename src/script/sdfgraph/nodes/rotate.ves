@@ -30,9 +30,9 @@ class Rotate is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var val = Blueprint.calc_input_inst(this, 0, ctx)
 		if (!val) {
 			return nil
 		}
@@ -50,25 +50,25 @@ class Rotate is Node
 		var mat = nil
 		var axis = this.query_param("axis").value
 		if (axis == 0) {
-			mat = module.const_mat3([
+			mat = ctx.module.const_mat3([
 				1, 0, 0,
 				0, c, -s,
 				0, s, c,
 			])
 		} else if (axis == 1) {
-			mat = module.const_mat3([
+			mat = ctx.module.const_mat3([
 				c, 0, s,
 				0, 1, 0,
 				-s, 0, c,
 			])
 		} else {
-			mat = module.const_mat3([
+			mat = ctx.module.const_mat3([
 				c, -s, 0,
 				s, c, 0,
 				0, 0, 1,
 			])
 		}
 
-		return bb.mul(mat, val)
+		return ctx.bb.mul(mat, val)
 	}
 }

@@ -2,6 +2,7 @@ import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
+import "blueprint.shader_gen" for ShaderContext
 import "terraingraph.style" for HEIGHTFIELD_SIZE
 import "terraingraph.heightfield_proxy" for HeightfieldProxy
 import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
@@ -32,6 +33,10 @@ class ShaderBuilder
 		this.uniform_funcs = []
 
 		var gen = ShaderGen.init()
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+		var bb = func.get_block()
+		var ctx = ShaderContext(gen, module, func, bb)
 
 		var prev_nodes = Blueprint.get_precursor_nodes(node)
 		var list = Blueprint.topo_sort(prev_nodes)
@@ -39,27 +44,23 @@ class ShaderBuilder
 			if (node is Subgraph) {
 				node.shader_build(this, gen)
 			} else {
-				this.build(node, gen)
+				this.build(node, ctx)
 			}
 		}
 
 		return gen
 	}
 
-	build(node, gen)
+	build(node, ctx)
 	{
-		var module = gen.get_main_module()
-		var func = gen.get_main_func()
-		var bb = func.get_block()
-
 		if (node["node_func"]) {
-			node.node_func.shader_gen(gen, module, func, bb)
+			node.node_func.shader_gen(ctx)
 			if (node.node_func.has_uniforms()) {
 				this.uniform_funcs.add(node.node_func)
 			}
 		} 
-		if (node.has_method("shader_gen(_,_,_,_)")) {
-			node.shader_gen(gen, module, func, bb)
+		if (node.has_method("shader_gen(_)")) {
+			node.shader_gen(ctx)
 		}
 		if (node.has_method("bind_uniforms(_)")) {
 			this.uniform_nodes.add(node)
@@ -179,7 +180,8 @@ class Shadergraph is Subgraph
 		var bb = func.get_block()
 
 		var dst = func.variable_float()
-		var grey = Blueprint.calc_input_inst(gen, node, 0, module, func, bb)
+		var ctx = ShaderContext(gen, module, func, bb)
+		var grey = Blueprint.calc_input_inst(node, 0, ctx)
 		bb.store(dst, grey)
 
 		bb.return_null()

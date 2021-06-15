@@ -3,6 +3,7 @@ import "rendergraph.rendergraph" for Rendergraph
 import "rendergraph.drawlist" for Drawlist
 import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.blueprint" for Blueprint
+import "blueprint.shader_gen" for ShaderContext
 import "render" for Render
 import "shader" for ShaderGen
 
@@ -77,7 +78,8 @@ class Shadergraph is Editor
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
 		var bb = func.get_block()
-		node.shader_gen(gen, module, func, bb)
+		var ctx = ShaderContext(gen, module, func, bb)
+		node.shader_gen(ctx)
 	}
 
 	rebuild_drawlist(node)

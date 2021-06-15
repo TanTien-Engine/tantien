@@ -35,16 +35,16 @@ class Clamp is Node
 		return Variant(VAR_TYPE_NUMBER, Math.clamp(num, this.min, this.max))
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var v = Blueprint.calc_input_inst(this, 0, ctx)
 		if (!v) {
 			return nil
 		}
 
-		var min = module.const_float(this.min)
-		var max = module.const_float(this.max)
-		return bb.clamp(v, min, max)
+		var min = ctx.module.const_float(this.min)
+		var max = ctx.module.const_float(this.max)
+		return ctx.bb.clamp(v, min, max)
 	}
 
 	layout()

@@ -24,17 +24,17 @@ class Translate is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var pos = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var pos = Blueprint.calc_input_inst(this, 0, ctx)
 		if (!pos) {
 			return nil
 		}
 
-		var offset = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
+		var offset = Blueprint.calc_input_inst(this, 1, ctx)
 		if (offset)
 		{
-			return bb.sub(pos, offset)
+			return ctx.bb.sub(pos, offset)
 		}
 		else
 		{
@@ -47,12 +47,12 @@ class Translate is Node
 				offset.z = v_off.value.z
 			}
 
-			var x = module.const_float(offset.x)
-			var y = module.const_float(offset.y)
-			var z = module.const_float(offset.z)
-			var off_inst = bb.compose_float3(x, y, z)
+			var x = ctx.module.const_float(offset.x)
+			var y = ctx.module.const_float(offset.y)
+			var z = ctx.module.const_float(offset.z)
+			var off_inst = ctx.bb.compose_float3(x, y, z)
 
-			return bb.sub(pos, off_inst)
+			return ctx.bb.sub(pos, off_inst)
 		}
 	}
 }

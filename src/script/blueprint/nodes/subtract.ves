@@ -48,11 +48,11 @@ class Subtract is Node
 		}
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var a = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
-		var b = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
-		return bb.sub(a, b)
+		var a = Blueprint.calc_input_inst(this, 0, ctx)
+		var b = Blueprint.calc_input_inst(this, 1, ctx)
+		return ctx.bb.sub(a, b)
 	}
 	
 	static sub_from(v, ret)

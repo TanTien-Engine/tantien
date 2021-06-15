@@ -99,25 +99,25 @@ class Split is Node
 		return nil
 	}
 
-	calc_inst(gen, idx, module, func, bb)
+	calc_inst(idx, ctx)
 	{
 		if (idx == 0)
 		{
-			var xyzw = Blueprint.calc_input_inst(gen, this, "xyzw", module, func, bb)
+			var xyzw = Blueprint.calc_input_inst(this, "xyzw", ctx)
 			if (xyzw) {
-				return bb.compose_extract(xyzw, 0)
+				return ctx.bb.compose_extract(xyzw, 0)
 			} else {
-				var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func, bb)
+				var xyz = Blueprint.calc_input_inst(this, "xyz", ctx)
 				if (xyz) {
-					return bb.compose_extract(xyz, 0)
+					return ctx.bb.compose_extract(xyz, 0)
 				} else {
-					var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func, bb)
+					var xy = Blueprint.calc_input_inst(this, "xy", ctx)
 					if (xy) {
-						return bb.compose_extract(xy, 0)
+						return ctx.bb.compose_extract(xy, 0)
 					} else {
-						var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func, bb)
+						var mat3 = Blueprint.calc_input_inst(this, "mat3", ctx)
 						if (mat3) {
-							return bb.compose_extract(mat3, 0)
+							return ctx.bb.compose_extract(mat3, 0)
 						}
 					}
 				}
@@ -125,21 +125,21 @@ class Split is Node
 		}
 		else if (idx == 1)
 		{
-			var xyzw = Blueprint.calc_input_inst(gen, this, "xyzw", module, func, bb)
+			var xyzw = Blueprint.calc_input_inst(this, "xyzw", ctx)
 			if (xyzw) {
-				return bb.compose_extract(xyzw, 1)
+				return ctx.bb.compose_extract(xyzw, 1)
 			} else {
-				var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func, bb)
+				var xyz = Blueprint.calc_input_inst(this, "xyz", ctx)
 				if (xyz) {
-					return bb.compose_extract(xyz, 1)
+					return ctx.bb.compose_extract(xyz, 1)
 				} else {
-					var xy = Blueprint.calc_input_inst(gen, this, "xy", module, func, bb)
+					var xy = Blueprint.calc_input_inst(this, "xy", ctx)
 					if (xy) {
-						return bb.compose_extract(xy, 1)
+						return ctx.bb.compose_extract(xy, 1)
 					} else {
-						var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func, bb)
+						var mat3 = Blueprint.calc_input_inst(this, "mat3", ctx)
 						if (mat3) {
-							return bb.compose_extract(mat3, 1)
+							return ctx.bb.compose_extract(mat3, 1)
 						}
 					}
 				}
@@ -147,38 +147,38 @@ class Split is Node
 		}
 		else if (idx == 2)
 		{
-			var xyzw = Blueprint.calc_input_inst(gen, this, "xyzw", module, func, bb)
+			var xyzw = Blueprint.calc_input_inst(this, "xyzw", ctx)
 			if (xyzw) {
-				return bb.compose_extract(xyzw, 2)
+				return ctx.bb.compose_extract(xyzw, 2)
 			} else {
-				var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func, bb)
+				var xyz = Blueprint.calc_input_inst(this, "xyz", ctx)
 				if (xyz) {
-					return bb.compose_extract(xyz, 2)
+					return ctx.bb.compose_extract(xyz, 2)
 				} else {
-					var mat3 = Blueprint.calc_input_inst(gen, this, "mat3", module, func, bb)
+					var mat3 = Blueprint.calc_input_inst(this, "mat3", ctx)
 					if (mat3) {
-						return bb.compose_extract(mat3, 2)
+						return ctx.bb.compose_extract(mat3, 2)
 					}
 				}
 			}
 		}
 		else if (idx == 3)
 		{
-			var xyzw = Blueprint.calc_input_inst(gen, this, "xyzw", module, func, bb)
+			var xyzw = Blueprint.calc_input_inst(this, "xyzw", ctx)
 			if (xyzw) {
-				return bb.compose_extract(xyzw, 3)
+				return ctx.bb.compose_extract(xyzw, 3)
 			}
 		}
 		else if (idx == 4)
 		{
-			var xyzw = Blueprint.calc_input_inst(gen, this, "xyzw", module, func, bb)
+			var xyzw = Blueprint.calc_input_inst(this, "xyzw", ctx)
 			if (xyzw) {
-				var x = bb.compose_extract(xyzw, 0)
-				var y = bb.compose_extract(xyzw, 1)
-				var z = bb.compose_extract(xyzw, 2)
-				return bb.compose_float3(x, y, z)
+				var x = ctx.bb.compose_extract(xyzw, 0)
+				var y = ctx.bb.compose_extract(xyzw, 1)
+				var z = ctx.bb.compose_extract(xyzw, 2)
+				return ctx.bb.compose_float3(x, y, z)
 			} else {
-				var xyz = Blueprint.calc_input_inst(gen, this, "xyz", module, func, bb)
+				var xyz = Blueprint.calc_input_inst(this, "xyz", ctx)
 				if (xyz) {
 					return xyz
 				}

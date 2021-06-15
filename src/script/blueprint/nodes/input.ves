@@ -30,9 +30,9 @@ class Input is Node
 		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		return Blueprint.calc_input_inst(gen, this.parent_node, this.parent_pin_idx, module, func, bb)
+		return Blueprint.calc_input_inst(this.parent_node, this.parent_pin_idx, ctx)
 	}
 
 	to_string(name) 

@@ -87,25 +87,25 @@ class Cubemap is Node
 		return nil
 	}
 
-    shader_gen(gen, module, func, bb)
+    shader_gen(ctx)
     {
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
     	this.unif = nil
     	this.unif_name = nil
     }
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
 		if (!this.unif) 
 		{
 			var name = this.query_param("unif_name").value
-			this.unif = gen.add_uniform(module, name, "cubemap")
-			this.unif_name = gen.query_unif_name(this.unif)
+			this.unif = ctx.gen.add_uniform(ctx.module, name, "cubemap")
+			this.unif_name = ctx.gen.query_unif_name(this.unif)
 		}
 
 		if (this.unif) {
-			return bb.load(this.unif)
+			return ctx.bb.load(this.unif)
 		} else {
 			return nil
 		}

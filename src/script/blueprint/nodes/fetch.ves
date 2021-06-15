@@ -62,15 +62,15 @@ class Fetch is Node
 		}
 	}
 
-    shader_gen(gen, module, func, bb)
+    shader_gen(ctx)
     {
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
     	this.uniform = nil
     	this.unif_name = nil
     }
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
 		if (!this.uniform)
 		{
@@ -82,13 +82,13 @@ class Fetch is Node
 			if (val.type == VAR_TYPE_TEXTURE) 
 			{
 				var name = this.get_unif_name2()
-				this.uniform = gen.add_uniform(module, name, "texture")
-				this.unif_name = gen.query_unif_name(this.uniform)
+				this.uniform = ctx.gen.add_uniform(ctx.module, name, "texture")
+				this.unif_name = ctx.gen.query_unif_name(this.uniform)
 			}
 		}
 
 		if (this.uniform) {
-			return bb.load(this.uniform)
+			return ctx.bb.load(this.uniform)
 		} else {
 			return nil
 		}

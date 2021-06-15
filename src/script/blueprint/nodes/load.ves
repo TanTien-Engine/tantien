@@ -31,11 +31,11 @@ class Load is Node
 		return Blueprint.calc_input_value(this, 0)
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var v = Blueprint.calc_input_inst(this, 0, ctx)
 		if (v) {
-			return bb.load(v)
+			return ctx.bb.load(v)
 		} else {
 			return nil
 		}

@@ -25,29 +25,29 @@ class InvertColors is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
+		var val = Blueprint.calc_input_inst(this, 0, ctx)
 		if (!val) {
 			return nil
 		}
 
-		var r = bb.compose_extract(val, 0)
-		var g = bb.compose_extract(val, 1)
-		var b = bb.compose_extract(val, 2)
-		var a = bb.compose_extract(val, 3)
+		var r = ctx.bb.compose_extract(val, 0)
+		var g = ctx.bb.compose_extract(val, 1)
+		var b = ctx.bb.compose_extract(val, 2)
+		var a = ctx.bb.compose_extract(val, 3)
 
 		var vr = this.query_param("r").value
 		var vg = this.query_param("g").value
 		var vb = this.query_param("b").value
 		var va = this.query_param("a").value
 
-		var one = module.const_float(1.0)
-		if (vr) { r = bb.sub(one, r) }
-		if (vg) { g = bb.sub(one, g) }
-		if (vb) { b = bb.sub(one, b) }
-		if (va) { a = bb.sub(one, a) }
+		var one = ctx.module.const_float(1.0)
+		if (vr) { r = ctx.bb.sub(one, r) }
+		if (vg) { g = ctx.bb.sub(one, g) }
+		if (vb) { b = ctx.bb.sub(one, b) }
+		if (va) { a = ctx.bb.sub(one, a) }
 
-		return bb.compose_float4(r, g, b, a)
+		return ctx.bb.compose_float4(r, g, b, a)
 	}
 }

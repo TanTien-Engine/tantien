@@ -68,17 +68,17 @@ class Subgraph is Node
 		return nil
 	}
 
-	shader_gen(gen, module, func, bb) 
+	shader_gen(ctx) 
 	{
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 		
 		var node = this.find_terminate_node()
 		if (node) {
-			node.shader_gen(gen, module, func, bb)
+			node.shader_gen(ctx)
 		}
 
 		for (var node in this.out_nodes) {
-			node.shader_gen(gen, module, func, bb)
+			node.shader_gen(ctx)
 		}
 	}
 
@@ -89,12 +89,12 @@ class Subgraph is Node
 		}
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
 		var name = this.exports[idx].name
 		for (var node in this.out_nodes) {
 			if (node.var_name == name) {
-				return Blueprint.calc_input_inst(gen, node, 0, module, func, bb)
+				return Blueprint.calc_input_inst(node, 0, ctx)
 			}
 		}		
 		return nil

@@ -23,39 +23,39 @@ class FragColor is Node
 		this.layout()
 	}
 
-	shader_gen(gen, module, func, bb)
+	shader_gen(ctx)
 	{
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
-		var frag_col = gen.add_output("FragColor", "vec4")
+		var frag_col = ctx.gen.add_output("FragColor", "vec4")
 
-		var rgba = Blueprint.calc_input_inst(gen, this, "rgba", module, func, bb)
+		var rgba = Blueprint.calc_input_inst(this, "rgba", ctx)
 		if (!rgba) 
 		{
 			var r = nil
 			var g = nil
 			var b = nil
-			var a = module.const_float(1.0)
+			var a = ctx.module.const_float(1.0)
 
-			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func, bb)
+			var rgb = Blueprint.calc_input_inst(this, "rgb", ctx)
 			if (rgb) 
 			{
-				r = bb.compose_extract(rgb, 0)
-				g = bb.compose_extract(rgb, 1)
-				b = bb.compose_extract(rgb, 2)
+				r = ctx.bb.compose_extract(rgb, 0)
+				g = ctx.bb.compose_extract(rgb, 1)
+				b = ctx.bb.compose_extract(rgb, 2)
 			} 
 			else 
 			{
-				var rg = Blueprint.calc_input_inst(gen, this, "rg", module, func, bb)
+				var rg = Blueprint.calc_input_inst(this, "rg", ctx)
 				if (rg) 
 				{
-					r = bb.compose_extract(rg, 0)
-					g = bb.compose_extract(rg, 1)
-					b = module.const_float(0.0)
+					r = ctx.bb.compose_extract(rg, 0)
+					g = ctx.bb.compose_extract(rg, 1)
+					b = ctx.module.const_float(0.0)
 				} 
 				else 
 				{
-					var grey = Blueprint.calc_input_inst(gen, this, "grey", module, func, bb)
+					var grey = Blueprint.calc_input_inst(this, "grey", ctx)
 					if (grey) 
 					{
 						r = grey
@@ -64,15 +64,15 @@ class FragColor is Node
 					}
 					else
 					{
-						r = module.const_float(0.0)
+						r = ctx.module.const_float(0.0)
 						g = r
 						b = r
 					}
 				}
 			}
 
-			rgba = bb.compose_float4(r, g, b, a)			
+			rgba = ctx.bb.compose_float4(r, g, b, a)			
 		}
-		bb.store(frag_col, rgba)
+		ctx.bb.store(frag_col, rgba)
 	}
 }

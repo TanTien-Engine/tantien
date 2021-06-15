@@ -28,9 +28,9 @@ class Store is Node
 		this.inst = nil
 	}
 
-	shader_gen(gen, module, func, bb)
+	shader_gen(ctx)
 	{
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
 		this.inst = nil
 	}
@@ -40,11 +40,11 @@ class Store is Node
 		return Blueprint.calc_input_value(this, 0)
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
 		if (!this.inst) {
-			var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
-			this.inst = func.add_variable(this.var_name, v)
+			var v = Blueprint.calc_input_inst(this, 0, ctx)
+			this.inst = ctx.func.add_variable(this.var_name, v)
 		}
 
 		return this.inst

@@ -1,4 +1,5 @@
 import "blueprint.blueprint" for Blueprint
+import "blueprint.shader_gen" for ShaderContext
 import "shadergraph.nodes.parameter" for Parameter
 
 class ClosureBuilder
@@ -70,7 +71,8 @@ class ClosureBuilder
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
             var bb = caller.get_block()
-            args.add(f_node.node_func.calc_inst_from_pin(gen, pin, node.node_func.module, caller, bb))
+            var ctx = ShaderContext(gen, node.node_func.module, caller, bb)
+            args.add(f_node.node_func.calc_inst_from_pin(pin, ctx))
         }
         return args
     }	

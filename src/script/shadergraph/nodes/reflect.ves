@@ -20,12 +20,12 @@ class Reflect is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var I = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
-		var N = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
+		var I = Blueprint.calc_input_inst(this, 0, ctx)
+		var N = Blueprint.calc_input_inst(this, 1, ctx)
 		if (I and N) {
-			return bb.reflect(I, N)		
+			return ctx.bb.reflect(I, N)		
 		} else {
 			return nil
 		}

@@ -67,10 +67,10 @@ class Divide is Node
 		}
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		var a = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
-		var b = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
+		var a = Blueprint.calc_input_inst(this, 0, ctx)
+		var b = Blueprint.calc_input_inst(this, 1, ctx)
 		
 		if (!a and !b) {
 			return nil
@@ -79,7 +79,7 @@ class Divide is Node
 		} else if (!b) {
 			return a
 		} else {
-			return bb.div(a, b)
+			return ctx.bb.div(a, b)
 		}
 	}
 }

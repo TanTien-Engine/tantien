@@ -15,15 +15,15 @@ class WorldPos is Node
 		this.layout()
 	}
 
-	shader_gen(gen, module, func, bb)
+	shader_gen(ctx)
 	{
-		super.shader_gen(gen, module, func, bb)
+		super.shader_gen(ctx)
 
-		this.inst = gen.add_input("WorldPos", "vec3")
+		this.inst = ctx.gen.add_input("WorldPos", "vec3")
 	}
 
-	calc_inst(gen, idx, module, func, bb) 
+	calc_inst(idx, ctx) 
 	{
-		return bb.load(this.inst)
+		return ctx.bb.load(this.inst)
 	}
 }
