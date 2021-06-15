@@ -54,7 +54,7 @@ class Expand is Node
 			}
 
 			if (this.uniforms[idx]) {
-				return gen.load(func, this.uniforms[idx][0])
+				return bb.load(this.uniforms[idx][0])
 			} else {
 				return nil
 			}

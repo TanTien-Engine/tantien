@@ -31,11 +31,11 @@ class Scale is Node
 		}
 
 		var val = this.query_param("val").value
-		var x = gen.const_float(module, val.x)
-		var y = gen.const_float(module, val.y)
-		var z = gen.const_float(module, val.z)
-		var val_inst = gen.compose_float3(func, x, y, z)
+		var x = module.const_float(val.x)
+		var y = module.const_float(val.y)
+		var z = module.const_float(val.z)
+		var val_inst = bb.compose_float3(x, y, z)
 
-		return gen.div(func, pos, val_inst)
+		return bb.div(pos, val_inst)
 	}
 }

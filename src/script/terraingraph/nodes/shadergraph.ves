@@ -50,7 +50,7 @@ class ShaderBuilder
 	{
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var bb = gen.get_func_block(func)
+		var bb = func.get_block()
 
 		if (node["node_func"]) {
 			node.node_func.shader_gen(gen, module, func, bb)
@@ -176,13 +176,13 @@ class Shadergraph is Subgraph
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var bb = gen.get_func_block(func)
+		var bb = func.get_block()
 
-		var dst = gen.variable_float(func)
+		var dst = func.variable_float()
 		var grey = Blueprint.calc_input_inst(gen, node, 0, module, func, bb)
-		gen.store(func, dst, grey)
+		bb.store(dst, grey)
 
-		gen.bb_return(bb)
+		bb.return_null()
 
 		CS = gen.connect_cs_main("
 #define LOCAL_SIZE 32

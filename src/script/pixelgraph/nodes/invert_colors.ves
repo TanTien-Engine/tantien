@@ -25,29 +25,29 @@ class InvertColors is Node
 		this.layout()
 	}
 
-	calc_inst(gen, idx, module, func, _bb) 
+	calc_inst(gen, idx, module, func, bb) 
 	{
-		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, _bb)
+		var val = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (!val) {
 			return nil
 		}
 
-		var r = gen.compose_extract(func, val, 0)
-		var g = gen.compose_extract(func, val, 1)
-		var b = gen.compose_extract(func, val, 2)
-		var a = gen.compose_extract(func, val, 3)
+		var r = bb.compose_extract(val, 0)
+		var g = bb.compose_extract(val, 1)
+		var b = bb.compose_extract(val, 2)
+		var a = bb.compose_extract(val, 3)
 
-		var br = this.query_param("r").value
-		var bg = this.query_param("g").value
-		var bb = this.query_param("b").value
-		var ba = this.query_param("a").value
+		var vr = this.query_param("r").value
+		var vg = this.query_param("g").value
+		var vb = this.query_param("b").value
+		var va = this.query_param("a").value
 
-		var one = gen.const_float(module, 1.0)
-		if (br) { r = gen.sub(func, one, r) }
-		if (bg) { g = gen.sub(func, one, g) }
-		if (bb) { b = gen.sub(func, one, b) }
-		if (ba) { a = gen.sub(func, one, a) }
+		var one = module.const_float(1.0)
+		if (vr) { r = bb.sub(one, r) }
+		if (vg) { g = bb.sub(one, g) }
+		if (vb) { b = bb.sub(one, b) }
+		if (va) { a = bb.sub(one, a) }
 
-		return gen.compose_float4(func, r, g, b, a)
+		return bb.compose_float4(r, g, b, a)
 	}
 }

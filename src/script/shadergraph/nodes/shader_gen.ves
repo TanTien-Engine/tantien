@@ -82,7 +82,7 @@ class ShaderGen is Node
 	{
 		super.shader_gen(gen, module, func, bb)
 
-		gen.bb_return(bb)
+		bb.return_null()
 
 		var v_vs = Blueprint.calc_input_value(this, 0)
 		if (v_vs and v_vs.type == VAR_TYPE_STRING) {

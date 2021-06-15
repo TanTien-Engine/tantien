@@ -17,7 +17,7 @@ class ClosureBuilder
 
         var new_func = this.build_real_func(node, gen, f_node, proxy_name)
         if (new_func) {
-            var old_func = gen.query_func(node.node_func.module, proxy_name)
+            var old_func = node.node_func.module.query_func(proxy_name)
             gen.func_replace(old_func, new_func)
         }		
 	}
@@ -35,11 +35,11 @@ class ClosureBuilder
 
         var callee_src = node_func.func
 
-        var callee = gen.create_decl_func(node.node_func.module, callee_src)
+        var callee = node.node_func.module.create_decl_func(callee_src)
         gen.add_link_decl(callee, node_func.decl_name, false)
 
-        var caller = gen.create_func(node.node_func.module, proxy_name, "float", [ "vec3" ])
-        var pos = gen.get_func_param(caller, 0)
+        var caller = node.node_func.module.create_func(proxy_name, "float", [ "vec3" ])
+        var pos = caller.get_param(0)
 
         var prev_nodes = Blueprint.get_precursor_nodes(f_node)
         for (var pn in prev_nodes) {
@@ -51,8 +51,9 @@ class ClosureBuilder
         }        
         var args = this.get_func_args(node, gen, callee_src, f_node, caller)
 
-        var ret = gen.func_call(caller, callee, args)
-        gen.bb_return_value(gen.get_func_block(caller), ret)
+        var bb = caller.get_block()
+        var ret = caller.call(callee, args)
+        bb.return_value(ret)
 
         return caller
     }
@@ -60,11 +61,11 @@ class ClosureBuilder
     static get_func_args(node, gen, callee_src, f_node, caller)
     {
         var args = []
-        var names = gen.get_func_args(callee_src)
+        var names = callee_src.get_args()
         for (var name in names)
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
-            var bb = gen.get_func_block(caller)
+            var bb = caller.get_block()
             args.add(f_node.node_func.calc_inst_from_pin(gen, pin, node.node_func.module, caller, bb))
         }
         return args

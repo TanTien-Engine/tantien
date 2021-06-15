@@ -42,9 +42,9 @@ class Clamp is Node
 			return nil
 		}
 
-		var min = gen.const_float(module, this.min)
-		var max = gen.const_float(module, this.max)
-		return gen.clamp(func, v, min, max)
+		var min = module.const_float(this.min)
+		var max = module.const_float(this.max)
+		return bb.clamp(v, min, max)
 	}
 
 	layout()

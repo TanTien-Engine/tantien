@@ -34,7 +34,7 @@ class Translate is Node
 		var offset = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
 		if (offset)
 		{
-			return gen.sub(func, pos, offset)
+			return bb.sub(pos, offset)
 		}
 		else
 		{
@@ -47,12 +47,12 @@ class Translate is Node
 				offset.z = v_off.value.z
 			}
 
-			var x = gen.const_float(module, offset.x)
-			var y = gen.const_float(module, offset.y)
-			var z = gen.const_float(module, offset.z)
-			var off_inst = gen.compose_float3(func, x, y, z)
+			var x = module.const_float(offset.x)
+			var y = module.const_float(offset.y)
+			var z = module.const_float(offset.z)
+			var off_inst = bb.compose_float3(x, y, z)
 
-			return gen.sub(func, pos, off_inst)
+			return bb.sub(pos, off_inst)
 		}
 	}
 }

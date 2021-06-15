@@ -26,6 +26,6 @@ class Mix is Node
 		var x = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		var y = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
 		var a = Blueprint.calc_input_inst(gen, this, 2, module, func, bb)
-		return gen.mix(func, x, y, a)
+		return bb.mix(x, y, a)
 	}
 }

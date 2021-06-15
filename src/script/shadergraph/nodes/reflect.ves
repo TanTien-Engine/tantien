@@ -25,7 +25,7 @@ class Reflect is Node
 		var I = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		var N = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
 		if (I and N) {
-			return gen.reflect(func, I, N)		
+			return bb.reflect(I, N)		
 		} else {
 			return nil
 		}

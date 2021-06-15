@@ -35,23 +35,23 @@ class FragColor is Node
 			var r = nil
 			var g = nil
 			var b = nil
-			var a = gen.const_float(module, 1.0)
+			var a = module.const_float(1.0)
 
 			var rgb = Blueprint.calc_input_inst(gen, this, "rgb", module, func, bb)
 			if (rgb) 
 			{
-				r = gen.compose_extract(func, rgb, 0)
-				g = gen.compose_extract(func, rgb, 1)
-				b = gen.compose_extract(func, rgb, 2)
+				r = bb.compose_extract(rgb, 0)
+				g = bb.compose_extract(rgb, 1)
+				b = bb.compose_extract(rgb, 2)
 			} 
 			else 
 			{
 				var rg = Blueprint.calc_input_inst(gen, this, "rg", module, func, bb)
 				if (rg) 
 				{
-					r = gen.compose_extract(func, rg, 0)
-					g = gen.compose_extract(func, rg, 1)
-					b = gen.const_float(module, 0.0)
+					r = bb.compose_extract(rg, 0)
+					g = bb.compose_extract(rg, 1)
+					b = module.const_float(0.0)
 				} 
 				else 
 				{
@@ -64,15 +64,15 @@ class FragColor is Node
 					}
 					else
 					{
-						r = gen.const_float(module, 0.0)
+						r = module.const_float(0.0)
 						g = r
 						b = r
 					}
 				}
 			}
 
-			rgba = gen.compose_float4(func, r, g, b, a)			
+			rgba = bb.compose_float4(r, g, b, a)			
 		}
-		gen.bb_store(bb, frag_col, rgba)
+		bb.store(frag_col, rgba)
 	}
 }

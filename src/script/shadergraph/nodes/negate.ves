@@ -23,7 +23,7 @@ class Negate is Node
 	{
 		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (v) {
-			return gen.negate(func, v)		
+			return bb.negate(v)		
 		} else {
 			return nil
 		}

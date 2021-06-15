@@ -9,48 +9,70 @@ foreign class ShaderTools
 	foreign static hlsl2glsl(stage, hlsl, entry_point)
 }
 
-foreign class SpirvGenTwo
-{
-	foreign static get_type(inst)
-	foreign static is_vector(inst)
-	foreign static get_vector_num(inst)
-
-	foreign static add(func, a, b)
-	foreign static sub(func, a, b)
-	foreign static mix(func, x, y, a)
-	foreign static pow(func, x, y)
-	foreign static sqrt(func, v)
-	foreign static dot(func, a, b)
-	foreign static cross(func, a, b)
-	foreign static negate(func, v)
-
-	foreign static add_variable(func, name, value)
-}
-
-foreign class ShaderGen
+foreign class ShaderModule
 {
 	init() {}
 
-	type_cast(func, from, to)
+	foreign const_bool(b)
+	foreign const_int(x)
+
+	foreign const_float(x)
+	foreign const_float2(x, y)
+	foreign const_float3(x, y, z)
+	foreign const_float4(x, y, z, w)
+
+	foreign const_mat2(m)
+	foreign const_mat3(m)
+	foreign const_mat4(m)
+
+	foreign query_func(name)
+
+	foreign create_decl_func(func)
+	foreign create_func(name, ret, args)
+}
+
+foreign class ShaderFunc
+{
+	init() {}
+
+	foreign add_variable(name, value)
+
+	foreign variable_float()
+	foreign variable_float2()
+	foreign variable_float3()
+	foreign variable_float4()
+
+	foreign get_block()
+	foreign add_block(name)
+
+	foreign get_param(index)
+	foreign get_args()
+	foreign call(callee, args)
+}
+
+foreign class ShaderBlock
+{
+	init() {}
+
+	type_cast(from, to)
 	{
-		if (SpirvGenTwo.is_vector(from) or 
-		    !SpirvGenTwo.is_vector(to)) {
+		if (from.is_vector() or !to.is_vector()) {
 		    return from
 		}
 
-		var num = SpirvGenTwo.get_vector_num(to)
+		var num = to.get_vector_num()
 		if (num == 2) {
-			return this.compose_float2(func, from, from)
+			return this.compose_float2(from, from)
 		} else if (num == 3) {
-			return this.compose_float3(func, from, from, from)
+			return this.compose_float3(from, from, from)
 		} else if (num == 4) {
-			return this.compose_float4(func, from, from, from, from)
+			return this.compose_float4(from, from, from, from)
 		}
 
 		return from
 	}
 
-	add(func, a, b)
+	add(a, b)
 	{
 		if (!a and !b) {
 			return nil
@@ -60,18 +82,16 @@ foreign class ShaderGen
 			return a
 		}
 
-		if (SpirvGenTwo.is_vector(a) and
-		    !SpirvGenTwo.is_vector(b)) {
-		    b = this.type_cast(func, b, a)
-		} else if (!SpirvGenTwo.is_vector(a) and
-		    SpirvGenTwo.is_vector(b)) {
-		    a = this.type_cast(func, a, b)
+		if (a.is_vector() and !b.is_vector()) {
+		    b = this.type_cast(b, a)
+		} else if (!a.is_vector() and b.is_vector()) {
+		    a = this.type_cast(a, b)
 		}
 
-		return SpirvGenTwo.add(func, a, b)
+		return this.add_(a, b)
 	}
 
-	sub(func, a, b)
+	sub(a, b)
 	{
 		if (!a and !b) {
 			return nil
@@ -81,18 +101,16 @@ foreign class ShaderGen
 			return a
 		}
 
-		if (SpirvGenTwo.is_vector(a) and
-		    !SpirvGenTwo.is_vector(b)) {
-		    b = this.type_cast(func, b, a)
-		} else if (!SpirvGenTwo.is_vector(a) and
-		    SpirvGenTwo.is_vector(b)) {
-		    a = this.type_cast(func, a, b)
+		if (a.is_vector() and !b.is_vector()) {
+		    b = this.type_cast(b, a)
+		} else if (!a.is_vector() and b.is_vector()) {
+		    a = this.type_cast(a, b)
 		}
 
-		return SpirvGenTwo.sub(func, a, b)
+		return this.sub_(a, b)
 	}
 
-	mix(func, x, y, a)
+	mix(x, y, a)
 	{
 		if (!x and !y) {
 			return nil
@@ -104,183 +122,175 @@ foreign class ShaderGen
 			return x
 		}
 
-		if (!SpirvGenTwo.is_vector(x) and 
-		    !SpirvGenTwo.is_vector(y)) {
-		    return SpirvGenTwo.mix(func, x, y, a)
+		if (!x.is_vector() and !y.is_vector()) {
+		    return this.mix_(x, y, a)
 		}
 
-		if (!SpirvGenTwo.is_vector(x) or 
-		    !SpirvGenTwo.is_vector(y) or 
-		    SpirvGenTwo.get_vector_num(x) != SpirvGenTwo.get_vector_num(y)) {
+		if (!x.is_vector() or !y.is_vector() or 
+		    x.get_vector_num() != y.get_vector_num()) {
 		    return nil
 		}
 
-		var num = SpirvGenTwo.get_vector_num(x)
+		var num = x.get_vector_num()
 		var comp = []
 		for (var i in 0..num) {
-			var mix = SpirvGenTwo.mix(func, this.compose_extract(func, x, i), this.compose_extract(func, y, i), a)
+			var mix = this.mix_(this.compose_extract(x, i), this.compose_extract(y, i), a)
 			comp.add(mix)
 		}
 		if (num == 2) {
-			return this.compose_float2(func, comp[0], comp[1])
+			return this.compose_float2(comp[0], comp[1])
 		} else if (num == 3) {
-			return this.compose_float3(func, comp[0], comp[1], comp[2])
+			return this.compose_float3(comp[0], comp[1], comp[2])
 		} else if (num == 4) {
-			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+			return this.compose_float4(comp[0], comp[1], comp[2], comp[3])
 		}
 
 		return nil
 	}
 
-	pow(func, x, y)
+	pow(x, y)
 	{
 		if (!x or !y) {
 			return nil
 		}
 
-		return SpirvGenTwo.pow(func, x, y)
+		return this.pow_(x, y)
 	}
 
-	sqrt(func, v)
+	sqrt(v)
 	{
-		if (!SpirvGenTwo.is_vector(v)) {
-			return SpirvGenTwo.sqrt(func, v)
+		if (!v.is_vector()) {
+			return this.sqrt_(v)
 		}
 
-		var num = SpirvGenTwo.get_vector_num(v)
+		var num = v.get_vector_num()
 		var comp = []
 		for (var i in 0..num) {
-			var sqrt = SpirvGenTwo.sqrt(func, this.compose_extract(func, v, i))
+			var sqrt = this.sqrt_(this.compose_extract(v, i))
 			comp.add(sqrt)
 		}
 		if (num == 2) {
-			return this.compose_float2(func,  comp[0], comp[1])
+			return this.compose_float2(comp[0], comp[1])
 		} else if (num == 3) {
-			return this.compose_float3(func, comp[0], comp[1], comp[2])
+			return this.compose_float3(comp[0], comp[1], comp[2])
 		} else if (num == 4) {
-			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+			return this.compose_float4(comp[0], comp[1], comp[2], comp[3])
 		}
 
 		return from		
 	}
 
-	dot(func, a, b)
+	dot(a, b)
 	{
 		if (!a or !b) {
 			return nil
 		}
 
-		return SpirvGenTwo.dot(func, a, b)
+		return this.dot_(a, b)
 	}
 
-	cross(func, a, b)
+	cross(a, b)
 	{
 		if (!a or !b) {
 			return nil
 		}
 
-		return SpirvGenTwo.cross(func, a, b)
+		return this.cross_(a, b)
 	}
 
-	negate(func, v)
+	negate(v)
 	{
-		if (!SpirvGenTwo.is_vector(v)) {
-			return SpirvGenTwo.negate(func, v)
+		if (!v.is_vector()) {
+			return this.negate_(v)
 		}
 
-		var num = SpirvGenTwo.get_vector_num(v)
+		var num = v.get_vector_num()
 		var comp = []
 		for (var i in 0..num) {
-			var neg = SpirvGenTwo.negate(func, this.compose_extract(func, v, i))
+			var neg = this.negate_(this.compose_extract(v, i))
 			comp.add(neg)
 		}
 		if (num == 2) {
-			return this.compose_float2(func,  comp[0], comp[1])
+			return this.compose_float2(comp[0], comp[1])
 		} else if (num == 3) {
-			return this.compose_float3(func, comp[0], comp[1], comp[2])
+			return this.compose_float3(comp[0], comp[1], comp[2])
 		} else if (num == 4) {
-			return this.compose_float4(func, comp[0], comp[1], comp[2], comp[3])
+			return this.compose_float4(comp[0], comp[1], comp[2], comp[3])
 		}
 
 		return from		
 	}
+
+	foreign access_chain(base, index)
+	foreign compose_float2(x, y)
+	foreign compose_float3(x, y, z)
+	foreign compose_float4(x, y, z, w)
+	foreign compose_extract(comp, idx)
+	foreign dot_(a, b)
+	foreign cross_(a, b)
+	foreign add_(a, b)
+	foreign sub_(a, b)
+	foreign mul(a, b)
+	foreign div(a, b)
+	foreign negate_(v)
+	foreign reflect(I, N)
+	foreign sqrt_(v)
+	foreign pow_(x, y)
+	foreign normalize(v)
+	foreign length(v)
+	foreign max(a, b)
+	foreign min(a, b)
+	foreign clamp(x, min, max)
+	foreign mix_(x, y, a) 
+
+	foreign is_equal(a, b)
+	foreign is_not_equal(a, b)
+	foreign is_greater(a, b)
+	foreign is_greater_equal(a, b)
+	foreign is_less(a, b)
+	foreign is_less_equal(a, b)	
+
+	foreign kill()
+
+	foreign return_null()
+	foreign return_value(inst)
+
+	foreign load(val)
+	foreign store(dst, src)
+
+	foreign image_sample(img, uv, lod)
+
+	foreign branch_if(cond, t, f)
+}
+
+foreign class ShaderInst
+{
+	init() {}
+
+	foreign get_type()
+
+	foreign is_vector()
+	foreign get_vector_num()	
+}
+
+foreign class ShaderGen
+{
+	init() {}
 	
 	foreign add_input(name, type)
 	foreign add_output(name, type)
 	foreign add_uniform(module, name, type)
 	foreign query_unif_name(unif)
 
-	foreign access_chain(func, base, index)
-	foreign compose_float2(func, x, y)
-	foreign compose_float3(func, x, y, z)
-	foreign compose_float4(func, x, y, z, w)
-	foreign compose_extract(func, comp, idx)
-	foreign mul(func, a, b)
-	foreign div(func, a, b)
-	foreign reflect(func, I, N)
-	foreign normalize(func, v)
-	foreign length(func, v)
-	foreign max(func, a, b)
-	foreign min(func, a, b)
-	foreign clamp(func, x, min, max)
-	foreign store(func, dst, src)
-	foreign load(func, val)
-	foreign image_sample(func, img, uv, lod)
-
 	foreign add_module(stage, code, lang, name, entry_point)
-	foreign query_func(lib, name)
 
 	foreign func_replace(from, to)
 
 	foreign get_main_module()
 	foreign get_main_func()
-	foreign get_func_block(_)
-	foreign create_decl_func(module, func)
 	foreign add_link_decl(func, name, is_export)
 
-	foreign create_func(module, name, ret, args)
-	foreign get_func_param(func, index)
-	foreign get_func_args(func)
-	foreign func_call(caller, callee, args)
-
-	foreign if_block(func, cond, t, f)
-
-	foreign variable_float(func)
-	foreign variable_float2(func)
-	foreign variable_float3(func)
-	foreign variable_float4(func)
-
-	foreign add_block(func, name)
-
-	foreign const_bool(module, b)
-	foreign const_int(module, x)
-
-	foreign const_float(module, x)
-	foreign const_float2(module, x, y)
-	foreign const_float3(module, x, y, z)
-	foreign const_float4(module, x, y, z, w)
-
-	foreign const_mat2(module, m)
-	foreign const_mat3(module, m)
-	foreign const_mat4(module, m)
-
 	foreign connect_cs_main(glsl)
-
-	// block
-
-	foreign is_equal(bb, a, b)
-	foreign is_not_equal(bb, a, b)
-	foreign is_greater(bb, a, b)
-	foreign is_greater_equal(bb, a, b)
-	foreign is_less(bb, a, b)
-	foreign is_less_equal(bb, a, b)	
-
-	foreign kill(bb)
-
-	foreign bb_return(bb)
-	foreign bb_return_value(bb, inst)
-
-	foreign bb_store(bb, dst, src)
 }
 
 );

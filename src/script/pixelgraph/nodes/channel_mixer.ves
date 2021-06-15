@@ -43,14 +43,14 @@ class ChannelMixer is Node
 		var g = this.query_param("g").value
 		var b = this.query_param("b").value
 
-		var r_inst = gen.const_float3(module, r.x, r.y, r.z)
-		var g_inst = gen.const_float3(module, g.x, g.y, g.z)
-		var b_inst = gen.const_float3(module, b.x, b.y, b.z)
+		var r_inst = module.const_float3(r.x, r.y, r.z)
+		var g_inst = module.const_float3(g.x, g.y, g.z)
+		var b_inst = module.const_float3(b.x, b.y, b.z)
 
-		var x = gen.dot(func, val, r_inst)
-		var y = gen.dot(func, val, g_inst)
-		var z = gen.dot(func, val, b_inst)
+		var x = bb.dot(val, r_inst)
+		var y = bb.dot(val, g_inst)
+		var z = bb.dot(val, b_inst)
 
-		return gen.compose_float3(func, x, y, z)
+		return bb.compose_float3(x, y, z)
 	}
 }

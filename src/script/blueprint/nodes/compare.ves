@@ -38,17 +38,17 @@ class Compare is Node
 		}
 
 		if (this.cmp == "equal") {
-			return gen.is_equal(bb, a, b)
+			return bb.is_equal(a, b)
 		} else if (this.cmp == "not_equal") {
-			return gen.is_not_equal(bb, a, b)
+			return bb.is_not_equal(a, b)
 		} else if (this.cmp == "greater") {
-			return gen.is_greater(bb, a, b)
+			return bb.is_greater(a, b)
 		} else if (this.cmp == "greater_equal") {
-			return gen.is_greater_equal(bb, a, b)
+			return bb.is_greater_equal(a, b)
 		} else if (this.cmp == "less") {
-			return gen.is_less(bb, a, b)
+			return bb.is_less(a, b)
 		} else if (this.cmp == "less_equal") {
-			return gen.is_less_equal(bb, a, b)
+			return bb.is_less_equal(a, b)
 		} else {
 			return nil
 		}

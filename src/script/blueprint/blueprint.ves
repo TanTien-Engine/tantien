@@ -218,13 +218,13 @@ class Blueprint
 		}
 
 		if (value.type == VAR_TYPE_NUMBER) {
-			return gen.const_float(module, value.value)
+			return module.const_float(value.value)
 		} else if (value.type == VAR_TYPE_NUMBER2) {
-			return gen.const_float2(module, value.value.x, value.value.y)	
+			return module.const_float2(value.value.x, value.value.y)	
 		} else if (value.type == VAR_TYPE_NUMBER3) {
-			return gen.const_float3(module, value.value.x, value.value.y, value.value.z)	
+			return module.const_float3(value.value.x, value.value.y, value.value.z)	
 		} else if (value.type == VAR_TYPE_NUMBER4) {
-			return gen.const_float4(module, value.value.x, value.value.y, value.value.z, value.value.w)	
+			return module.const_float4(value.value.x, value.value.y, value.value.z, value.value.w)	
 		}
 
 		return nil

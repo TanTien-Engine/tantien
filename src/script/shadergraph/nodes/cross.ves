@@ -24,6 +24,6 @@ class Cross is Node
 	{
 		var a = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		var b = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
-		return gen.cross(func, a, b)
+		return bb.cross(a, b)
 	}
 }

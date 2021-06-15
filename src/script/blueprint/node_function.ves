@@ -62,7 +62,7 @@ class NodeFunction
 	{
 		this.module = gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
 
-		this.func = gen.query_func(this.module, this.func_name)
+		this.func = this.module.query_func(this.func_name)
 
 		gen.add_link_decl(this.func, this.decl_name, true)
 
@@ -74,39 +74,39 @@ class NodeFunction
 		if (value)
 		{
 			if (type == VAR_TYPE_BOOLEAN) {
-				return gen.const_bool(module, value)
+				return module.const_bool(value)
 			} else if (type == VAR_TYPE_INTEGER) {
-				return gen.const_int(module, value)
+				return module.const_int(value)
 			} else if (type == VAR_TYPE_NUMBER) {
-				return gen.const_float(module, value)
+				return module.const_float(value)
 			} else if (type == VAR_TYPE_NUMBER2) {
-				return gen.const_float2(module, value.x, value.y)
+				return module.const_float2(value.x, value.y)
 			} else if (type == VAR_TYPE_NUMBER3) {
-				return gen.const_float3(module, value.x, value.y, value.z)
+				return module.const_float3(value.x, value.y, value.z)
 			} else if (type == VAR_TYPE_NUMBER4) {
-				return gen.const_float4(module, value.x, value.y, value.z, value.w)
+				return module.const_float4(value.x, value.y, value.z, value.w)
 			}
 		}
 		else
 		{
 			if (type == VAR_TYPE_BOOLEAN) {
-				return gen.const_bool(module, false)
+				return module.const_bool(false)
 			} else if (type == VAR_TYPE_INTEGER) {
-				return gen.const_int(module, 0)
+				return module.const_int(0)
 			} else if (type == VAR_TYPE_NUMBER) {
-				return gen.const_float(module, 0.0)
+				return module.const_float(0.0)
 			} else if (type == VAR_TYPE_NUMBER2) {
-				return gen.const_float2(module, 0.0, 0.0)
+				return module.const_float2(0.0, 0.0)
 			} else if (type == VAR_TYPE_NUMBER3) {
-				return gen.const_float3(module, 0.0, 0.0, 0.0)
+				return module.const_float3(0.0, 0.0, 0.0)
 			} else if (type == VAR_TYPE_NUMBER4) {
-				return gen.const_float4(module, 0.0, 0.0, 0.0, 0.0)
+				return module.const_float4(0.0, 0.0, 0.0, 0.0)
 			} else if (type == VAR_TYPE_MATRIX2) {
-				return gen.const_mat2(module, [1.0, 0.0, 1.0, 0.0])
+				return module.const_mat2([1.0, 0.0, 1.0, 0.0])
 			} else if (type == VAR_TYPE_MATRIX3) {
-				return gen.const_mat3(module, [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0])
+				return module.const_mat3([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0])
 			} else if (type == VAR_TYPE_MATRIX4) {
-				return gen.const_mat4(module, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
+				return module.const_mat4([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 			}
 		}
 		return nil
@@ -164,7 +164,7 @@ class NodeFunction
 		}
 
 		// func call
-		var callee = gen.create_decl_func(module, this.func)
+		var callee = module.create_decl_func(this.func)
 		gen.add_link_decl(callee, this.decl_name, false)
 
 		var params = []
@@ -179,20 +179,20 @@ class NodeFunction
 				}
 
 				// todo: check if param need a var (in/out)
-				var type = SpirvGenTwo.get_type(inst)
+				var type = inst.get_type()
 				var inst_var = nil
 				if (type == "float") {
-					inst_var = gen.variable_float(func)
+					inst_var = func.variable_float()
 				} else if (type == "float_2") {
-					inst_var = gen.variable_float2(func)
+					inst_var = func.variable_float2()
 				} else if (type == "float_3") {
-					inst_var = gen.variable_float3(func)
+					inst_var = func.variable_float3()
 				} else if (type == "float_4") {
-					inst_var = gen.variable_float4(func)
+					inst_var = func.variable_float4()
 				}
 				if (inst_var) 
 				{
-					gen.store(func, inst_var, inst)
+					bb.store(inst_var, inst)
 					params.add(inst_var)
 				}
 				else
@@ -201,7 +201,7 @@ class NodeFunction
 				}
 			}
 		}
-		return gen.func_call(func, callee, params)
+		return func.call(callee, params)
 	}
 
 	bind_uniforms(prog)

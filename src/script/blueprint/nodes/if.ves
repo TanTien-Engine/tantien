@@ -39,20 +39,20 @@ class If is Node
 
 		var n_true = Blueprint.get_input_node(this, 2)
 		if (n_true) {
-			bb_true = gen.add_block(func, "bb_true")
+			bb_true = func.add_block("bb_true")
 			n_true.shader_gen(gen, module, func, bb_true)
 		}
 
 		var n_false = Blueprint.get_input_node(this, 3)
 		if (n_false) {
-			bb_false = gen.add_block(func, "bb_false")
+			bb_false = func.add_block("bb_false")
 			n_false.shader_gen(gen, module, func, bb_false)
 		}
 
 		var cond = Blueprint.calc_input_inst(gen, this, 1, module, func, bb)
 		if (!cond) {
-			cond = gen.const_bool(module, false)
+			cond = module.const_bool(false)
 		}
-		gen.if_block(func, cond, bb_true, bb_false)
+		bb.branch_if(cond, bb_true, bb_false)
 	}
 }

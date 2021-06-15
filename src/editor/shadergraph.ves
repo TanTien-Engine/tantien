@@ -76,7 +76,7 @@ class Shadergraph is Editor
 
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
-		var bb = gen.get_func_block(func)
+		var bb = func.get_block()
 		node.shader_gen(gen, module, func, bb)
 	}
 

@@ -44,7 +44,7 @@ class Store is Node
 	{
 		if (!this.inst) {
 			var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
-			this.inst = SpirvGenTwo.add_variable(func, this.var_name, v)
+			this.inst = func.add_variable(this.var_name, v)
 		}
 
 		return this.inst

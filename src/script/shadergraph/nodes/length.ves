@@ -23,7 +23,7 @@ class Length is Node
 	{
 		var v = Blueprint.calc_input_inst(gen, this, 0, module, func, bb)
 		if (v) {
-			return gen.length(func, v)		
+			return bb.length(v)		
 		} else {
 			return nil
 		}
