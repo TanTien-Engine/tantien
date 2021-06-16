@@ -6,6 +6,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.shader_gen" for ShaderContext
 import "render" for Render
 import "shader" for ShaderGen
+import "rendergraph.nodes.pass" for Pass
 
 class Shadergraph is Editor
 {
@@ -46,42 +47,6 @@ class Shadergraph is Editor
 		return drawlist.lists
 	}
 
-	find_terminate_node()
-	{
-		var term_node = nil
-
-		var scene = this.scene_stack.root()
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (Blueprint.is_out_conns_empty(bp_node)) {
-				if (term_node) {
-					return nil
-				} else {
-					term_node = bp_node
-				}
-			}
-		}
-
-		return term_node
-	}	
-
-	rebuild_shader()
-	{
-		var node = this.find_terminate_node()
-		if (!node) {
-			return
-		}
-
-		var gen = ShaderGen.init()
-
-		var module = gen.get_main_module()
-		var func = gen.get_main_func()
-		var bb = func.get_block()
-		var ctx = ShaderContext(gen, module, func, bb)
-		node.shader_gen(ctx)
-	}
-
 	rebuild_drawlist(node)
 	{
 		if (node is Subgraph) 
@@ -102,17 +67,19 @@ class Shadergraph is Editor
 		for (var node in scene.nodes) 
 		{
 			var bp_node = node.components["bp"]
+			if (bp_node.has_method("setup()")) {
+				bp_node.setup()
+			}
 			nodes.add(bp_node)
-
 			this.rebuild_drawlist(bp_node)
 		}
+
 		this.drawlist = Drawlist(nodes)
 	}
 
 	draw_preview()
 	{
 		if (!this.drawlist or this.scene_stack.bp_dirty) {
-			this.rebuild_shader()
 			this.rebuild_drawlist()
 			this.scene_stack.bp_dirty = false
 		}

@@ -3,10 +3,12 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_STRING
 import "blueprint.nodes.input" for Input
+import "blueprint.shader_gen" for ShaderContext
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
 import "render" for Shader
+import "shader" for ShaderGen as tt_ShaderGen
 
 class ShaderGen is Node
 {
@@ -33,6 +35,11 @@ class ShaderGen is Node
 	calc_value(idx)
 	{
 		return Variant(VAR_TYPE_SHADER, this.shader)
+	}
+
+	setup()
+	{
+		this.build_shader()
 	}
 
 	execute() 
@@ -78,18 +85,6 @@ class ShaderGen is Node
 		this.layout()
 	}
 
-	shader_gen(ctx)
-	{
-		super.shader_gen(ctx)
-
-		ctx.bb.return_null()
-
-		var v_vs = Blueprint.calc_input_value(this, 0)
-		if (v_vs and v_vs.type == VAR_TYPE_STRING) {
-			this.shader.prog = Shader.init(v_vs.value, "", "", "", ctx.gen)
-		}
-	}
-
 	bind_uniforms()
 	{
 		if (this.shader.prog) {
@@ -109,5 +104,30 @@ class ShaderGen is Node
 				node.bind_uniforms(this.shader.prog)
 			}
 		}
+	}
+
+	build_shader()
+	{
+		var v_vs = Blueprint.calc_input_value(this, 0)
+		if (!v_vs or v_vs.type != VAR_TYPE_STRING) {
+			return
+		}
+
+		var n_fs = Blueprint.get_input_node(this, 1)
+		if (!n_fs) {
+			return
+		}
+
+		var gen = tt_ShaderGen.init()
+		var module = gen.get_main_module()
+		var func = gen.get_main_func()
+		var bb = func.get_block()
+
+		var ctx = ShaderContext(gen, module, func, bb, {})
+		n_fs.shader_gen(ctx)
+
+		bb.return_null()
+
+		this.shader.prog = Shader.init(v_vs.value, "", "", "", gen)		
 	}
 }

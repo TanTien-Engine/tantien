@@ -25,6 +25,17 @@ class Input is Node
 		this.parent_pin_idx = -1
 	}
 
+	shader_gen(ctx)
+	{
+		if (this.parent_node) 
+		{
+			var prev = Blueprint.get_input_node(this.parent_node, this.parent_pin_idx)
+			if (prev) {
+				prev.shader_gen(ctx)			
+			}
+		}
+	}	
+
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)

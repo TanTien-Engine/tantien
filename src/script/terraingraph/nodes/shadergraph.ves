@@ -36,7 +36,7 @@ class ShaderBuilder
 		var module = gen.get_main_module()
 		var func = gen.get_main_func()
 		var bb = func.get_block()
-		var ctx = ShaderContext(gen, module, func, bb)
+		var ctx = ShaderContext(gen, module, func, bb, {})
 
 		var prev_nodes = Blueprint.get_precursor_nodes(node)
 		var list = Blueprint.topo_sort(prev_nodes)
@@ -180,7 +180,7 @@ class Shadergraph is Subgraph
 		var bb = func.get_block()
 
 		var dst = func.variable_float()
-		var ctx = ShaderContext(gen, module, func, bb)
+		var ctx = ShaderContext(gen, module, func, bb, {})
 		var grey = Blueprint.calc_input_inst(node, 0, ctx)
 		bb.store(dst, grey)
 

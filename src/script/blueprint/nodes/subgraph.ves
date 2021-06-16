@@ -68,14 +68,18 @@ class Subgraph is Node
 		return nil
 	}
 
+	setup()
+	{
+		for (var item in this.all_items) {
+			if (item[0].has_method("setup()")) {
+				item[0].setup()
+			}
+		}
+	}
+
 	shader_gen(ctx) 
 	{
 		super.shader_gen(ctx)
-		
-		var node = this.find_terminate_node()
-		if (node) {
-			node.shader_gen(ctx)
-		}
 
 		for (var node in this.out_nodes) {
 			node.shader_gen(ctx)
@@ -551,30 +555,5 @@ class Subgraph is Node
 			dst[1] = trans.position.x
 			dst[2] = trans.position.y
 		}
-	}
-
-	is_terminate_node(node)
-	{
-		return !node.imports.isEmpty and node.imports[0].type == VAR_TYPE_PORT and
-		       !node.exports.isEmpty and node.exports[0].type == VAR_TYPE_PORT and
-		       node.exports[0].conns.isEmpty
-	}
-
-	find_terminate_node()
-	{
-		var term_node = nil
-		for (var item in this.all_items) 
-		{
-			var node = item[0]
-			if (this.is_terminate_node(node)) {
-				if (term_node) {
-					return nil
-				} else {
-					term_node = node
-				}
-			}
-		}
-
-		return term_node
 	}
 }

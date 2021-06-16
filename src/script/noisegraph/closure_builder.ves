@@ -71,7 +71,7 @@ class ClosureBuilder
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
             var bb = caller.get_block()
-            var ctx = ShaderContext(gen, node.node_func.module, caller, bb)
+            var ctx = ShaderContext(gen, node.node_func.module, caller, bb, {})
             args.add(f_node.node_func.calc_inst_from_pin(pin, ctx))
         }
         return args
