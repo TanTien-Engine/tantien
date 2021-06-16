@@ -33,6 +33,10 @@ class Output is Node
 				this.var_name = f_pin.name
 				this.var_type = f_pin.type
 			}
+			var v_var = Blueprint.calc_input_value(this, 0)
+			if (v_var) {
+				this.var_type = v_var.type
+			}
 		}
 
 		var type_str = NodeHelper.var_type_to_string(this.var_type)
