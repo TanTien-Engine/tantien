@@ -1,8 +1,6 @@
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
 import "render" for Render
-import "rendergraph.components.shader_uniforms" for ShaderUniforms
-import "rendergraph.variant" for VAR_TYPE_TEXTURE
 
 class NodeHelper
 {
@@ -28,6 +26,7 @@ class NodeHelper
 		} else if (type == "mat4") {
 			pin_type = VAR_TYPE_MATRIX4
 		} else if (type == "sampler") {
+			import "rendergraph.variant" for VAR_TYPE_TEXTURE		
 			pin_type = VAR_TYPE_TEXTURE
 		}
 		return pin_type
@@ -49,6 +48,7 @@ class NodeHelper
 
 		// uniforms
 		var uniforms = []
+		import "rendergraph.components.shader_uniforms" for ShaderUniforms		
 		ShaderUniforms.get_shader_uniforms("pixel", code, lang, uniforms, name)
 		for (var unif in uniforms) {
 			ShaderUniforms.add_uniform_to_imports(node, unif)
