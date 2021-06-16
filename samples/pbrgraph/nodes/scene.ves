@@ -43,7 +43,7 @@ _editor.add_node(node4, -54.735606501695, 366.1529835832)
 var node5 = Draw()
 
 node5.set_prim_type("triangles")
-node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node5.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
 node5.skip = false
 
 _editor.add_node(node5, 1000.9030083522, 191.03164703169)
@@ -122,6 +122,10 @@ node19.once = false
 
 _editor.add_node(node19, 1169.6402587891, 294.82147216797)
 
+var node20 = Kill()
+
+_editor.add_node(node20, 645.349192974, -116.67310226062)
+
 Blueprint.connect(node8, "v3", node9, "a")
 Blueprint.connect(node10, "v3", node9, "b")
 Blueprint.connect(node4, "zoom", node6, "fovy")
@@ -136,9 +140,10 @@ Blueprint.connect(node17, "w", node16, "a")
 Blueprint.connect(node18, "v", node16, "b")
 Blueprint.connect(node2, "frag_out", node11, "rgba")
 Blueprint.connect(node16, "out", node15, "cond")
+Blueprint.connect(node20, "next", node15, "true")
 Blueprint.connect(node11, "next", node15, "false")
 Blueprint.connect(node14, "code", node13, "vs")
-Blueprint.connect(node11, "next", node13, "fs")
+Blueprint.connect(node15, "next", node13, "fs")
 Blueprint.connect(node12, "model_mat", node13, "model")
 Blueprint.connect(node4, "mat", node13, "view")
 Blueprint.connect(node6, "mat", node13, "projection")

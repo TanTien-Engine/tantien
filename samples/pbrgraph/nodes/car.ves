@@ -241,6 +241,13 @@ node39.once = false
 
 _editor.add_node(node39, 1456.9371091589, -387.65944191471)
 
+var node40 = Clear()
+
+node40.masks = [ "color", "depth" ]
+node40.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node40, 381, 463.5)
+
 Blueprint.connect(node6, "v3", node7, "a")
 Blueprint.connect(node8, "v3", node7, "b")
 Blueprint.connect(node7, "v", node11, "var")
@@ -292,6 +299,7 @@ Blueprint.connect(node35, "next", node38, "prev")
 Blueprint.connect(node1, "ToyCar", node2, "model")
 Blueprint.connect(node23, "var", node2, "cam_pos")
 Blueprint.connect(node10, "var", node2, "light_pos")
+Blueprint.connect(node40, "next", node32, "prev")
 Blueprint.connect(node2, "frag_out", node32, "rgb")
 Blueprint.connect(node33, "model_mat", node32, "model")
 Blueprint.connect(node17, "var", node32, "view")
