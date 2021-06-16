@@ -23,6 +23,8 @@ import "blueprint.nodes.*"
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
 import "shadergraph.nodes.shader_code" for ShaderCode
+import "rendergraph.drawlist" for Drawlist
+import "rendergraph.rendergraph" for Rendergraph
 
 class Editor
 {
@@ -69,6 +71,10 @@ class Editor
 		tb.align_hori = 2
 		tb.align_vert = 1
 		this.TB_TITLE = tb
+
+		this.drawlist = nil
+
+		Rendergraph.regist()
 	}
 
 	clear_popup_nodes()
@@ -927,5 +933,40 @@ import \"editor\" for _editor
 		}
 
 		return true
+	}
+
+	build_exec_list(nodes)
+	{
+		var drawlist = Drawlist(nodes)
+		return drawlist.lists
+	}
+
+	rebuild_drawlist()
+	{
+		var scene = this.scene_stack.root()
+
+		var nodes = []
+		for (var node in scene.nodes) 
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node.has_method("setup()")) {
+				bp_node.setup()
+			}
+			nodes.add(bp_node)
+		}
+
+		this.drawlist = Drawlist(nodes)
+	}
+
+	draw_preview()
+	{
+		if (!this.drawlist or this.scene_stack.bp_dirty) {
+			this.rebuild_drawlist()
+			this.scene_stack.bp_dirty = false
+		}
+
+		Render.clear(["color"], { "color" : [128,128,128,128] })
+
+		this.drawlist.draw()
 	}
 }

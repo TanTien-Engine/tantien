@@ -1,10 +1,4 @@
 import "editor.editor" for Editor
-import "gui" for GUI
-import "render" for Render
-import "blueprint.nodes.for" for For
-import "rendergraph.rendergraph" for Rendergraph as rg_Rendergraph
-import "rendergraph.drawlist" for Drawlist
-import "rendergraph.nodes.*"
 
 class Rendergraph is Editor
 {
@@ -13,10 +7,6 @@ class Rendergraph is Editor
 		super.load()
 
 		this.prepare_nodes()
-
-		rg_Rendergraph.regist()
-
-		this.drawlist = nil
 	}
 
 	prepare_nodes()
@@ -34,38 +24,11 @@ class Rendergraph is Editor
 		}
 	}
 
-	build_exec_list(nodes)
-	{
-		var drawlist = Drawlist(nodes)
-		return drawlist.lists
-	}
-
-	rebuild_drawlist()
-	{
-		var scene = this.scene_stack.root()
-
-		var nodes = []
-		for (var node in scene.nodes) {
-			nodes.add(node.components["bp"])
-		}
-		this.drawlist = Drawlist(nodes)
-	}
-
-	draw_preview()
-	{
-		if (!this.drawlist or this.scene_stack.bp_dirty) {
-			this.rebuild_drawlist()
-			this.scene_stack.bp_dirty = false
-		}
-
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		this.drawlist.draw()
-	}
-
 	load_file_imports()
 	{
-		return super.load_file_imports() + "
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
 import \"rendergraph.nodes.*\"
 "
 	}

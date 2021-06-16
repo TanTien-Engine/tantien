@@ -196,6 +196,11 @@ class Erosion is Node
 		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
 	}
 
+	setup()
+	{
+		this.need_rebuild = true
+	}
+	
 	execute()
 	{
 		if (!this.hf.tex) {
@@ -216,7 +221,7 @@ class Erosion is Node
 			COMPUTE = compute
 		}
 
-		if (this.dirty) 
+		if (this.need_rebuild) 
 		{
 			COMPUTE.num_groups = [ this.iter / 1024, 1, 1 ]
 
@@ -227,7 +232,7 @@ class Erosion is Node
 			DARWLIST.draw()
 			this.get_result()
 
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 

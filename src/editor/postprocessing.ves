@@ -1,16 +1,38 @@
-import "editor.pixelgraph" for Pixelgraph
+import "editor.editor" for Editor
 
-class Postprocessing is Pixelgraph
+class Postprocessing is Editor
 {
 	load()
 	{
 		super.load()
+
+		this.prepare_nodes()
 	}
 
 	prepare_nodes()
 	{
-		super.prepare_nodes()
+		this.clear_popup_nodes()
 
+		import "editor.bpnodes" for BP_NODES
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.rendernodes" for RENDER_NODES
+		for (var node in RENDER_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.shadernodes" for SHADER_NODES
+		for (var node in SHADER_NODES) {
+			super.add_popup_node(node)
+		}
+				
+		import "editor.sdfnodes" for SDF_NODES
+		for (var node in SDF_NODES) {
+			super.add_popup_node(node)
+		}
+		
 		import "editor.ppnodes" for POSTPROCESSING_NODES
 		for (var node in POSTPROCESSING_NODES) {
 			super.add_popup_node(node)
@@ -19,7 +41,11 @@ class Postprocessing is Pixelgraph
 
 	load_file_imports()
 	{
-		return super.load_file_imports() + "
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
+import \"rendergraph.nodes.*\"
+import \"shadergraph.nodes.*\"
 import \"postprocessing.nodes.*\"
 "
 	}

@@ -1,12 +1,4 @@
 import "editor.editor" for Editor
-import "rendergraph.rendergraph" for Rendergraph
-import "rendergraph.drawlist" for Drawlist
-import "blueprint.nodes.subgraph" for Subgraph
-import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_gen" for ShaderContext
-import "render" for Render
-import "shader" for ShaderGen
-import "rendergraph.nodes.pass" for Pass
 
 class Shadergraph is Editor
 {
@@ -15,10 +7,6 @@ class Shadergraph is Editor
 		super.load()
 
 		this.prepare_nodes()
-
-		Rendergraph.regist()
-
-		this.drawlist = nil
 	}
 
 	prepare_nodes()
@@ -41,57 +29,11 @@ class Shadergraph is Editor
 		}
 	}
 
-	build_exec_list(nodes)
-	{
-		var drawlist = Drawlist(nodes)
-		return drawlist.lists
-	}
-
-	rebuild_drawlist(node)
-	{
-		if (node is Subgraph) 
-		{
-			// init subgraph
-			node.execute()
-			for (var sub_node in node.all_items) {
-				this.rebuild_drawlist(sub_node)
-			}
-		}
-	}
-
-	rebuild_drawlist()
-	{
-		var scene = this.scene_stack.root()
-
-		var nodes = []
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node.has_method("setup()")) {
-				bp_node.setup()
-			}
-			nodes.add(bp_node)
-			this.rebuild_drawlist(bp_node)
-		}
-
-		this.drawlist = Drawlist(nodes)
-	}
-
-	draw_preview()
-	{
-		if (!this.drawlist or this.scene_stack.bp_dirty) {
-			this.rebuild_drawlist()
-			this.scene_stack.bp_dirty = false
-		}
-
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		this.drawlist.draw()
-	}
-
 	load_file_imports()
 	{
-		return super.load_file_imports() + "
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
 import \"rendergraph.nodes.*\"
 import \"shadergraph.nodes.*\"
 "

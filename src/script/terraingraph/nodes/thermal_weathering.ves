@@ -116,6 +116,11 @@ class ThermalWeathering is Node
 		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
 	}
 
+	setup()
+	{
+		this.need_rebuild = true
+	}
+	
 	execute()
 	{
 		if (!this.hf.tex) {
@@ -136,7 +141,7 @@ class ThermalWeathering is Node
 			COMPUTE = compute
 		}
 
-		if (this.dirty) 
+		if (this.need_rebuild) 
 		{
 			var thread_group_count = Math.ceil(HEIGHTFIELD_SIZE * HEIGHTFIELD_SIZE / 1024)
 			COMPUTE.num_groups = [ thread_group_count, 1, 1 ]
@@ -150,7 +155,7 @@ class ThermalWeathering is Node
 			}
 			this.get_result()
 
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 

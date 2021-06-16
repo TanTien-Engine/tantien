@@ -101,12 +101,17 @@ class Shadergraph is Subgraph
 		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
 	}
 
+	setup()
+	{
+		this.need_rebuild = true
+	}
+	
 	execute()
 	{
 		if (!this.hf.tex) {
 			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
 		}
-		if (this.dirty) {
+		if (this.need_rebuild) {
 			this.rebuild_shader()
 		}
 		if (!DARWLIST) 
@@ -136,7 +141,7 @@ class Shadergraph is Subgraph
 			COMPUTE = compute
 		}
 
-		if (this.dirty) 
+		if (this.need_rebuild) 
 		{
 			COMPUTE.dirty = true
 			this.bind(SHADER)
@@ -147,7 +152,7 @@ class Shadergraph is Subgraph
 
 			DARWLIST.draw()
 
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 

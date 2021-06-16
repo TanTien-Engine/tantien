@@ -39,6 +39,12 @@ class Drawlist
 				this.build_lists(sub_nodes, lists)
 			}
 		}
+
+		// fixme: for terraingraph
+		if (this.lists.isEmpty) {
+			var list = Blueprint.topo_sort(nodes)
+			lists.add(list)
+		}
 	}
 
 	draw_impl()

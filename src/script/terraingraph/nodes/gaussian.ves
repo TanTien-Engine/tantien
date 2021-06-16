@@ -82,6 +82,11 @@ class Gaussian is Node
 		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
 	}
 
+	setup()
+	{
+		this.need_rebuild = true
+	}
+	
 	execute()
 	{
 		if (!this.hf.tex) {
@@ -104,13 +109,13 @@ class Gaussian is Node
 			COMPUTE = compute
 		}
 
-		if (this.dirty) 
+		if (this.need_rebuild) 
 		{
 			COMPUTE.dirty = true
 			this.bind(SHADER)
 			DARWLIST.draw()
 
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 

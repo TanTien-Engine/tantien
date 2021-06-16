@@ -1,9 +1,5 @@
 import "editor.editor" for Editor
-import "render" for Render
-import "blueprint.blueprint" for Blueprint
-import "rendergraph.rendergraph" for Rendergraph
 import "terraingraph.terraingraph" for Terraingraph as tg_Terraingraph
-import "terraingraph.nodes.viewer" for Viewer
 
 class Terraingraph is Editor
 {
@@ -11,10 +7,7 @@ class Terraingraph is Editor
 	{
 		super.load()
 
-		Rendergraph.regist()
 		tg_Terraingraph.regist()
-
-		this.drawlist = []
 
 		this.prepare_nodes()
 	}
@@ -25,6 +18,11 @@ class Terraingraph is Editor
 
 		import "editor.bpnodes" for BP_NODES		
 		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.rendernodes" for RENDER_NODES
+		for (var node in RENDER_NODES) {
 			super.add_popup_node(node)
 		}
 
@@ -44,45 +42,12 @@ class Terraingraph is Editor
 		}		
 	}
 
-	rebuild()
-	{
-		var scene = this.scene_stack.root()
-
-		for (var node in scene.nodes) {
-			node.components["bp"].dirty = true
-		}
-
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node is Viewer) 
-			{
-				var prev_nodes = Blueprint.get_precursor_nodes(bp_node)
-				this.drawlist = Blueprint.topo_sort(prev_nodes)
-				return
-			}
-		}
-	}
-
-	draw_preview()
-	{
-		Render.clear(["color"], { "color" : [128,128,128,128] })
-
-		if (this.scene_stack.bp_dirty) {
-			this.rebuild()
-			this.scene_stack.bp_dirty = false
-		}
-
-		for (var node in this.drawlist) {
-			if (node.has_method("execute()")) {
-				node.execute()
-			}
-		}
-	}
-
 	load_file_imports()
 	{
-		return super.load_file_imports() + "
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"blueprint.nodes.*\"
+import \"rendergraph.nodes.*\"
 import \"terraingraph.nodes.*\"
 import \"shadergraph.nodes.*\"
 import \"noisegraph.nodes.*\"
