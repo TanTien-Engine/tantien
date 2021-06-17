@@ -186,7 +186,7 @@ class Curves is Node
 	{
 		super.init(Curves.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "curves_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "curves_pass", [
             [ "mode", 0, { "integer" : true, "min" : 0, "max" : 2 } ],  // 0: Luma, 1: Chroma, 2: Both Luma and Chroma
             [ "formula", 4, { "integer" : true, "min" : 0, "max" : 10 } ],  // 0: Sine, 1: Abs split, 2: Smoothstep, 3: Exp formula, 4: Simplified Catmull-Rom (0,0,1,1), 5: Perlins Smootherstep, 6: Abs add, 7: Techicolor Cinestyle, 8: Parabola, 9: Half-circles, 10: Polynomial split
             [ "contrast", 0.65, { "min" : -1.0, "max" : 1.0 } ],

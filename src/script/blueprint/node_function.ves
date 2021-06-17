@@ -10,15 +10,10 @@ import "rendergraph.nodes.texture" for Texture
 
 class NodeFunction
 {
-	init(node, code, func_name, params)
-	{
-		this.init(node, code, "glsl", func_name, params)
-	}
-
-	init(node, code, lang, func_name, params)
+	init(node, stage, code, lang, func_name, params)
 	{
 		if (lang == "hlsl") {
-			code = ShaderTools.hlsl2glsl("pixel", code, func_name)
+			code = ShaderTools.hlsl2glsl(stage, code, func_name)
 			lang = "glsl"
 		}
 
@@ -27,7 +22,7 @@ class NodeFunction
 			code = code.replace("__UBO__", "UBO_" + node.name)
 		}
 
-		this.num_params = NodeHelper.init_pins_from_code(node, code, lang, func_name)
+		this.num_params = NodeHelper.init_pins_from_code(node, stage, code, lang, func_name)
 		
 		for (var param in params)
 		{
@@ -40,9 +35,10 @@ class NodeFunction
 			}
 		}
 
-		this.node = node
-		this.code = code
-		this.lang = lang
+		this.node  = node
+		this.stage = stage
+		this.code  = code
+		this.lang  = lang
 		this.func_name = func_name
 		this.decl_name = "bp_" + node.name
 
@@ -60,7 +56,7 @@ class NodeFunction
 
 	shader_gen(ctx)
 	{
-		this.module = ctx.gen.add_module("pixel", this.code, this.lang, this.decl_name, this.func_name)
+		this.module = ctx.gen.add_module(this.stage, this.code, this.lang, this.decl_name, this.func_name)
 
 		this.func = this.module.query_func(this.func_name)
 

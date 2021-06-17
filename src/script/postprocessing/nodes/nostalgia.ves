@@ -451,7 +451,7 @@ class Nostalgia is Node
 	{
 		super.init(Nostalgia.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "nostalgia_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "nostalgia_pass", [
 			[ "scanlines", 0, { "integer" : true, "min" : 0, "max" : 2 } ],	// 0: None,	1: type 1, 2: type 2
 			[ "dither", true ],
 			[ "palette_type", 0, { "integer" : true, "min" : 0, "max" : 14 } ],	// 0: Custom, 1: C64 palette, 2: EGA palette, 3: IBMPC palette, 4: ZXSpectrum palette, 5: AppleII palette, 6: NTSC palette, 7: Commodore VIC-20, 8: MSX Systems, 9: Thomson MO5, 10: Amstrad CPC, 11: Atari ST, 12: Mattel Aquarius, 13: Gameboy, 14: Aek16 palette

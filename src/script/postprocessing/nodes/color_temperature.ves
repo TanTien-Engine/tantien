@@ -29,7 +29,7 @@ class ColorTemperature is Node
 	{
 		super.init(ColorTemperature.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "color_temperature_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "color_temperature_pass", [
             [ "Kelvin", 6500, { "integer" : true, "min" : 1000, "max" : 40000 } ],      // Color Temp (K)
             [ "LumPreservation", 1.0, { "min" : 0.0, "max" : 1.0 } ],                   // Luminance Preservation
             [ "kMix", 1.0, { "min" : 0.0, "max" : 1.0 } ],                              // Mix with Original

@@ -53,7 +53,7 @@ class WhiteBalance is Node
 	{
 		super.init(WhiteBalance.name)
 
-		this.node_func = NodeFunction(this, CODE, "white_balance", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "white_balance", [
 			["temperature", 1.0],
 			["tint", 1.0],
 		])

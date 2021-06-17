@@ -357,7 +357,7 @@ class Ascii is Node
 	{
 		super.init(Ascii.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "ascii_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "ascii_pass", [
             ["spacing", 1, { "integer" : true, "min" : 0, "max" : 255 }],
             ["invert_brightness", false],
             ["font", 0],  // 0: Smaller 3x5 font, 1: Normal 5x5 font

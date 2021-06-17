@@ -34,7 +34,7 @@ class Erosion1Turbulence is Node
 	{
 		super.init(Erosion1Turbulence.name)
 
-		this.node_func = NodeFunction(this, CODE, "erosion1_turbulence", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "erosion1_turbulence", [
 			["pdistort", Vector2(0.5, 0.5)],
             ["seed", 0],
 			["octaves", 5],

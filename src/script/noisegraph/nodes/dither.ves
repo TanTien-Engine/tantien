@@ -21,7 +21,7 @@ class Dither is Node
 	{
 		super.init(Dither.name)
 
-		this.node_func = NodeFunction(this, CODE, "dither", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "dither", [
 			[ "var", 2, { "integer" : true, "min" : 0, "max" : 10 } ],
 			[ "strength", 1.0, { "min" : 0.0, "max" : 255.0 } ],
 			[ "motion", true ],

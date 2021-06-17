@@ -30,7 +30,7 @@ class Displace is Node
 	{
 		super.init(Displace.name)
 
-		this.node_func = NodeFunction(this, CODE, "displace", [])
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "displace", [])
 
         this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))
         this.layout()

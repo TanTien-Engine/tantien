@@ -53,7 +53,7 @@ class Border is Node
 	{
 		super.init(Border.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "border_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "border_pass", [
             [ "border_width", Vector2(0.1, 0.1) ],
             [ "border_ratio", 1.35 ],
             [ "border_color", Vector3(0.0, 0.0, 0.0) ],

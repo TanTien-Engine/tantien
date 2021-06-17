@@ -32,7 +32,7 @@ class ColorMatrix is Node
 	{
 		super.init(ColorMatrix.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "color_matrix_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "color_matrix_pass", [
             [ "red",      Vector3(0.817, 0.183, 0.000) ],
             [ "green",    Vector3(0.333, 0.667, 0.000) ],
             [ "blue",     Vector3(0.000, 0.125, 0.875) ],  

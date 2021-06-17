@@ -18,7 +18,7 @@ class RadialShear is Node
 	{
 		super.init(RadialShear.name)
 
-		this.node_func = NodeFunction(this, CODE, "radial_shear", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "radial_shear", [
 			["center",   Vector2(0.5, 0.5)],
 			["strength", Vector2(1.0, 1.0)],
 			["offset",   Vector2(0.0, 0.0)],			

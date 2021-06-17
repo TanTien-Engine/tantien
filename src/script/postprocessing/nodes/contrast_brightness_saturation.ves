@@ -138,7 +138,7 @@ class ContrastBrightnessSaturation is Node
 	{
 		super.init(ContrastBrightnessSaturation.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "contrast_brightness_saturation_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "contrast_brightness_saturation_pass", [
             [ "Kelvin", 6500, { "integer" : true, "min" : 1000, "max" : 40000 } ],      // Color Temp (K)
             [ "LumPreservation", 1.0, { "min" : 0.0, "max" : 1.0 } ],                   // Luminance Preservation
             [ "kMix", 1.0, { "min" : 0.0, "max" : 1.0 } ],                              // Mix with Original

@@ -1438,7 +1438,7 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
     }
 
     if (strcmp(lang_str, "glsl") == 0) {
-        auto code = shadertrans::ShaderPreprocess::PrepareGLSL(shader_str);
+        auto code = shadertrans::ShaderPreprocess::PrepareGLSL(stage, shader_str);
         shadertrans::ShaderTrans::GLSL2SpirV(stage, code, spirv, no_link);
     }  else if (strcmp(lang_str, "hlsl") == 0) {
         shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, entry_point, spirv);

@@ -120,7 +120,7 @@ class ChromaticAberration2 is Node
 	{
 		super.init(ChromaticAberration2.name)
 
-		this.node_func = NodeFunction(this, CODE, "chromatic_aberration_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "chromatic_aberration_pass", [
             [ "Red2strip", Vector3(1.0, 0.098, 0.0) ],
             [ "Cyan2strip", Vector3(0.0, 0.988, 1.0) ],
             [ "colorKey", Vector3(1.0, 1.0, 1.0) ],

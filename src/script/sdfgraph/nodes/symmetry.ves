@@ -23,7 +23,7 @@ class Symmetry is Node
 	{
 		super.init(Symmetry.name)
 
-		this.node_func = NodeFunction(this, CODE, "symmetry", [])
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "symmetry", [])
 
         this.imports.add(Pin(this, "primitive(p)", VAR_TYPE_FUNCTION))
         this.layout()

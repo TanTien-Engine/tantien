@@ -122,7 +122,7 @@ class ColorSpaceCurves is Node
 	{
 		super.init(ColorSpaceCurves.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "color_space_curves_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "color_space_curves_pass", [
             [ "color_space", 1, { "integer" : true, "min" : 0, "max" : 3 } ],   // 0: RGB-W, 1: L* a* b*, 2: HSL, 3: HSV
             [ "pos0_shoulder_grey", 0.8, { "min" : 0.0, "max" : 1.0 } ],
             [ "pos1_shoulder_grey", 0.8, { "min" : 0.0, "max" : 1.0 } ],

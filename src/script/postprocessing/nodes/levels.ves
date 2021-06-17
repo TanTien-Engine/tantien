@@ -65,7 +65,7 @@ class Levels is Node
 	{
 		super.init(Levels.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "levels_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "levels_pass", [
             [ "black_point", 16,  { "integer" : true, "min" : 0, "max" : 255 } ],
             [ "white_point", 235, { "integer" : true, "min" : 0, "max" : 255 } ],
             [ "highlight_clipping", false ]

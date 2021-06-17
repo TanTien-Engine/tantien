@@ -51,7 +51,7 @@ class ColorIsolation is Node
 	{
 		super.init(ColorIsolation.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "color_isolation_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "color_isolation_pass", [
             [ "hueMid", 0.0, { "min" : 0.0, "max" : 1.0 } ],
             [ "hueRange", 0.167, { "min" : 0.0, "max" : 1.0 } ],
             [ "hueRange", 1.0, { "min" : 0.0, "max" : 1.0 } ],

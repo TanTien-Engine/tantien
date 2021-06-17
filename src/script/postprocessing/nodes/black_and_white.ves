@@ -241,7 +241,7 @@ class BlackAndWhite is Node
 	{
 		super.init(BlackAndWhite.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "black_and_white_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "black_and_white_pass", [
             [ "curve_str", 1.5, { "min" : 1.0, "max" : 4.0 } ],
             [ "show_clip", false ],
             [ "bw_mode", 13 ],      // 0: Red Filter, 1: Green Filter, 2: Blue Filter, 3: High Contrast Red Filter, 4: High Contrast Green Filter, 5: High Contrast Blue Filter, 6: Infrared, 7: Maximum Black, 8: Maximum White, 9: Preserve Luminosity, 10: Neutral Green Filter, 11: Maintain Contrasts, 12: High Contrast, 13: Custom

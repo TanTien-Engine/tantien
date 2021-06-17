@@ -58,7 +58,7 @@ class GaussianHori is Node
 	{
 		super.init(GaussianHori.name)
 
-		this.node_func = NodeFunction(this, CODE, "hlsl", "gaussian_hori_pass", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "gaussian_hori_pass", [
             [ "BlurSigma", 0.45, { "min" : 0.3, "max" : 1.2 } ],
         ])
 	}

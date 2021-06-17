@@ -34,7 +34,7 @@ class DistortTurbulence is Node
 	{
 		super.init(DistortTurbulence.name)
 
-		this.node_func = NodeFunction(this, CODE, "distort_turbulence", [
+		this.node_func = NodeFunction(this, "pixel", CODE, "glsl", "distort_turbulence", [
 			["seed", 0],
 			["noiseTransform", Vector4(0, 0, 0, 0)],
 			["octaves", 5],
