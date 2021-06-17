@@ -904,7 +904,11 @@ void w_ShaderGen_connect_cs_main()
     auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     const char* main_glsl = ves_tostring(1);
     auto glsl = builder->ConnectCSMain(main_glsl);
-    ves_set_lstring(0, glsl.c_str(), glsl.size());
+    if (glsl.empty()) {
+        ves_set_nil(0);
+    } else {
+        ves_set_lstring(0, glsl.c_str(), glsl.size());
+    }
 }
 
 }

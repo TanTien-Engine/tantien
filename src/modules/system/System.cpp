@@ -29,7 +29,7 @@ void System::SetClipboardText(const char* text) const
 
 const char* System::GetClipboardText() const
 {
-	return m_window ? glfwGetClipboardString(m_window) : "";
+	return m_window ? glfwGetClipboardString(m_window) : nullptr;
 }
 
 }

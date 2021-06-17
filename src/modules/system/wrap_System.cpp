@@ -17,7 +17,11 @@ void w_System_set_clipboard_text()
 void w_System_get_clipboard_text()
 {
     const char* text = tt::System::Instance()->GetClipboardText();
-    ves_set_lstring(0, text, strlen(text));
+    if (text) {
+        ves_set_lstring(0, text, strlen(text));
+    } else {
+        ves_set_nil(0);
+    }
 }
 
 }
