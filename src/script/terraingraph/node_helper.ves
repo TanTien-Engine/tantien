@@ -12,11 +12,11 @@ class NodeHelper
 
 	static make_node_dirty(node)
 	{
-		node.dirty = true
+		node.need_rebuild = true
 
 		var nodes = Blueprint.get_successor_nodes(node)
 		for (var node in nodes) {
-			node.dirty = true
+//			node.need_rebuild = true
 		}
 	}
 }

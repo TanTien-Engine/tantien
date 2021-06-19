@@ -78,17 +78,22 @@ void w_Shader_allocate()
     }
     else if (num == 2)
     {
-        std::vector<unsigned int> cs;
-        read_shader(cs, 1, shadertrans::ShaderStage::ComputeShader);
+        //std::vector<unsigned int> cs;
+        //read_shader(cs, 1, shadertrans::ShaderStage::ComputeShader);
 
-        if (!cs.empty())
-        {
-#ifdef SHADER_DEBUG_PRINT
-            std::string cs_glsl;
-            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
-            printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
-#endif // SHADER_DEBUG_PRINT
+//        if (!cs.empty())
+//        {
+//#ifdef SHADER_DEBUG_PRINT
+//            std::string cs_glsl;
+//            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
+//            printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
+//#endif // SHADER_DEBUG_PRINT
+//
+//            prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+//        }
 
+        const char* cs = ves_tostring(1);
+        if (cs) {
             prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
         }
     }

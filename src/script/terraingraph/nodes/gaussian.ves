@@ -1,36 +1,10 @@
 import "blueprint.node" for Node
-import "terraingraph.node_helper" for NodeHelper
-import "terraingraph.style" for HEIGHTFIELD_SIZE
-import "terraingraph.heightfield_proxy" for HeightfieldProxy
-import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
-import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
-import "blueprint.field_proxy" for FieldProxy
-import "image" for ImageData
-import "render" for Texture2D, Render
-import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
-import "blueprint.blueprint" for Blueprint
-import "rendergraph.nodes.shader" for Shader
-import "rendergraph.nodes.compute" for Compute
-import "rendergraph.drawlist" for Drawlist
+import "blueprint.node_function" for NodeFunction
 
-var DARWLIST = nil
-var SHADER   = nil
-var COMPUTE  = nil
+var CODE = "
+uniform sampler2D in_tex2;
 
-var CS = "
-#version 430
-
-#define LOCAL_SIZE 32
-
-layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
-
-layout(binding = 0, r16f) writeonly uniform image2D out_tex;
-
-uniform sampler2D in_tex;
-
-uniform UBO
+uniform __UBO__
 {
 	float dx;
 	float dy;
@@ -41,20 +15,18 @@ const float b = 4.0/36.0;
 const float c = 16.0/36.0;
 
 float get(float s, float t){
-    return texture(in_tex, vec2(s, t)).r;
+    return texture(in_tex2, vec2(s, t)).r;
 }
 
-void main()
+float gaussian(vec2 uv)
 {
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    vec2 uv = pos / float(imageSize(out_tex));
     float h =
         a * get(uv.x - dx, uv.y - dy) + b * get(uv.x, uv.y - dy) + a * get(uv.x + dx, uv.y - dy) +
         b * get(uv.x - dx, uv.y  )    + c * get(uv.x, uv.y)      + b * get(uv.x + dx, uv.y  ) +
         a * get(uv.x - dx, uv.y + dy) + b * get(uv.x, uv.y + dy) + a * get(uv.x + dx, uv.y + dy);
-    imageStore(out_tex, pos, vec4(h));
+    return h;
 }
-"	
+"
 
 class Gaussian is Node
 {
@@ -62,119 +34,11 @@ class Gaussian is Node
 	{
 		super.init(Gaussian.name)
 
-		this.imports = [
-			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
-		]	
-		this.exports = [
-			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
-		]
-
 		this.layout()
 
-		this.dx = 0
-		this.dy = 1
-
-		this.hf = VarHeightfield()
-	}
-
-	calc_value(idx)
-	{
-		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
-	}
-
-	setup()
-	{
-		this.need_rebuild = true
-	}
-	
-	execute()
-	{
-		if (!this.hf.tex) {
-			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
-		}
-		if (!DARWLIST) 
-		{
-			var shader = Shader()
-			shader.cs = CS
-			shader.execute()
-
-			var compute = Compute()
-			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
-
-			Blueprint.connect(shader, "out", compute, "shader")
-
-			DARWLIST = Drawlist([compute])
-
-			SHADER = shader
-			COMPUTE = compute
-		}
-
-		if (this.need_rebuild) 
-		{
-			COMPUTE.dirty = true
-			this.bind(SHADER)
-			DARWLIST.draw()
-
-			this.need_rebuild = false
-		}
-	}
-
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
-	to_string(name) {
-		return "
-%(name).dx = %(this.dx)
-%(name).dy = %(this.dy)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var REGION = 1
-
-		var dx = GUI.slider(ctx, "dx", this.dx, x, y, this.style.width - 20, REGION, false)
-		if (dx != this.dx) {
-			this.dx = dx
-			dirty = true
-		}
-
-		y = y - DEFAULT_HEIGHT
-
-		var dy = GUI.slider(ctx, "dy", this.dy, x, y, this.style.width - 20, REGION, false)
-		if (dy != this.dy) {
-			this.dy = dy
-			dirty = true
-		}
-
-		if (dirty) {
-			NodeHelper.make_node_dirty(this)
-		}
-
-		return dirty
-	}
-
-	bind(shader)
-	{
-		var out_tex = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(out_tex, "tex", shader, "out_tex")
-
-		var in_tex = HeightfieldProxy(this.imports[0])
-		Blueprint.connect(in_tex, "tex", shader, "in_tex")
-
-		var dx = FieldProxy(this, "dx")
-		Blueprint.connect(dx, "out", shader, "dx")
-
-		var dy = FieldProxy(this, "dy")
-		Blueprint.connect(dy, "out", shader, "dy")
+		this.node_func = NodeFunction(this, "compute", CODE, "glsl", "gaussian", [
+			[ "dx", 0.0 ],
+			[ "dy", 0.0 ],
+		])
 	}
 }

@@ -1,48 +1,16 @@
 import "blueprint.node" for Node
-import "terraingraph.node_helper" for NodeHelper
-import "terraingraph.style" for HEIGHTFIELD_SIZE
-import "terraingraph.heightfield_proxy" for HeightfieldProxy
-import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
-import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
-import "blueprint.field_proxy" for FieldProxy
-import "image" for ImageData
-import "render" for Texture2D, Render
-import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
-import "blueprint.blueprint" for Blueprint
-import "rendergraph.nodes.shader" for Shader
-import "rendergraph.nodes.compute" for Compute
-import "rendergraph.drawlist" for Drawlist
+import "blueprint.node_function" for NodeFunction
 
-var DARWLIST = nil
-var SHADER   = nil
-var COMPUTE  = nil
-
-var CS = "
-#version 430
-
-#define LOCAL_SIZE 32
-
-layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
-
-layout(binding = 0, r16f) writeonly uniform image2D out_tex;
-
-uniform sampler2D in_tex;
-
-uniform UBO
+var CODE = "
+uniform __UBO__
 {
 	float scale;
 	float bias;
 };
 
-void main()
+float scale_bias(float h)
 {
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    vec2 tex_coords = pos / float(imageSize(out_tex));
-    float h = texture(in_tex, tex_coords).r;
-    h = h * scale + bias;
-    imageStore(out_tex, pos, vec4(h));
+    return h * scale + bias;
 }
 "
 
@@ -52,119 +20,11 @@ class ScaleBias is Node
 	{
 		super.init(ScaleBias.name)
 
-		this.imports = [
-			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
-		]	
-		this.exports = [
-			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
-		]
-
 		this.layout()
 
-		this.scale = 1
-		this.bias = 0
-
-		this.hf = VarHeightfield()
-	}
-
-	calc_value(idx)
-	{
-		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
-	}
-
-	setup()
-	{
-		this.need_rebuild = true
-	}
-	
-	execute()
-	{
-		if (!this.hf.tex) {
-			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
-		}
-		if (!DARWLIST) 
-		{
-			var shader = Shader()
-			shader.cs = CS
-			shader.execute()
-
-			var compute = Compute()
-			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
-
-			Blueprint.connect(shader, "out", compute, "shader")
-
-			DARWLIST = Drawlist([compute])
-
-			SHADER = shader
-			COMPUTE = compute
-		}
-
-		if (this.need_rebuild) 
-		{
-			COMPUTE.dirty = true
-			this.bind(SHADER)
-			DARWLIST.draw()
-
-			this.need_rebuild = false
-		}
-	}
-
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
-	to_string(name) {
-		return "
-%(name).scale = %(this.scale)
-%(name).bias = %(this.bias)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var REGION = 10
-
-		var scale = GUI.slider(ctx, "scale", this.scale, x, y, this.style.width - 20, REGION, false)
-		if (scale != this.scale) {
-			this.scale = scale
-			dirty = true
-		}
-
-		y = y - DEFAULT_HEIGHT
-
-		var bias = GUI.slider(ctx, "bias", this.bias, x, y, this.style.width - 20, REGION, false)
-		if (bias != this.bias) {
-			this.bias = bias
-			dirty = true
-		}
-
-		if (dirty) {
-			NodeHelper.make_node_dirty(this)
-		}
-
-		return dirty
-	}
-
-	bind(shader)
-	{
-		var out_tex = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(out_tex, "tex", shader, "out_tex")
-
-		var in_tex = HeightfieldProxy(this.imports[0])
-		Blueprint.connect(in_tex, "tex", shader, "in_tex")
-
-		var scale = FieldProxy(this, "scale")
-		Blueprint.connect(scale, "out", shader, "scale")
-
-		var bias = FieldProxy(this, "bias")
-		Blueprint.connect(bias, "out", shader, "bias")
+		this.node_func = NodeFunction(this, "compute", CODE, "glsl", "scale_bias", [
+			[ "scale", 1.0 ],
+			[ "bias", 0.0 ],
+		])
 	}
 }

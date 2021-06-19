@@ -104,6 +104,16 @@ class Brush is Node
 		return nil
 	}
 
+	setup()
+	{
+		if (SHADER) {
+			SHADER.setup()
+		}
+		if (COMPUTE) {
+			COMPUTE.setup()
+		}
+	}
+
 	execute()
 	{
 		if (!this.hf.tex) {
@@ -254,7 +264,7 @@ class Brush is Node
 	{
 		this.added_pos.add(Vector2(this.curr_pos.x, this.curr_pos.y))
 
-		COMPUTE.dirty = true
+		COMPUTE.need_rebuild = true
 		this.bind(SHADER)
 		DARWLIST.draw()
 

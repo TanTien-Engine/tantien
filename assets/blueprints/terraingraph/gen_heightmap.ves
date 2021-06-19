@@ -1,0 +1,90 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture(1024, 1024, "r16f")
+
+_editor.add_node(node0, -340.69297739744, 380.75057753971)
+
+var node1 = ShaderGen()
+
+_editor.add_node(node1, 21.529625937665, 667.75082665504)
+
+var node2 = Store()
+
+node2.var_name = "cs_out"
+
+_editor.add_node(node2, -471.9139226149, 718.02389421976)
+
+var node3 = Compute()
+
+node3.num_groups = [ 1, 1, 1 ]
+
+_editor.add_node(node3, 175.52688990427, 708.54963794014)
+
+var node4 = Number3()
+
+node4.value.set(32, 32, 1)
+
+_editor.add_node(node4, 18.953474966549, 538.42712049187)
+
+var node5 = ShaderCode()
+node5.init_filepath("../../shaders/heightmap_comp.glsl")
+
+_editor.add_node(node5, -141.69493726552, 648.85674449562)
+
+var node6 = Load()
+
+node6.var_name = "cs_out"
+
+_editor.add_node(node6, -291.24740070942, 716.47711826551)
+
+var node7 = Input()
+
+node7.var_name = "height"
+node7.var_type = "num"
+
+_editor.add_node(node7, -645.62730528714, 715.93985814731)
+
+var node8 = Output()
+
+node8.var_name = "heightmap"
+node8.var_type = "texture"
+
+_editor.add_node(node8, -109.3528260316, 437.6747874934)
+
+var node9 = Pass()
+
+node9.once = false
+
+_editor.add_node(node9, 316.55308027146, 712.0877329241)
+
+var node10 = Combine()
+
+_editor.add_node(node10, -117.85264918934, 320.21377271173)
+
+var node11 = Output()
+
+node11.var_name = "hm_size"
+node11.var_type = "num2"
+
+_editor.add_node(node11, 18.134249280895, 340.22692419377)
+
+Blueprint.connect(node7, "var", node2, "var")
+Blueprint.connect(node2, "var", node6, "var")
+Blueprint.connect(node0, "width", node10, "x")
+Blueprint.connect(node0, "height", node10, "y")
+Blueprint.connect(node10, "xy", node11, "var")
+Blueprint.connect(node0, "tex", node8, "var")
+Blueprint.connect(node6, "var", node1, "cs")
+Blueprint.connect(node5, "code", node1, "cs_main")
+Blueprint.connect(node0, "tex", node1, "out_tex")
+Blueprint.connect(node1, "shader", node3, "shader")
+Blueprint.connect(node4, "v3", node3, "num_groups")
+Blueprint.connect(node3, "next", node9, "prev")

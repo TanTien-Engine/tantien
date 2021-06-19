@@ -1,52 +1,14 @@
 import "blueprint.node" for Node
-import "terraingraph.node_helper" for NodeHelper
-import "terraingraph.style" for HEIGHTFIELD_SIZE
-import "terraingraph.heightfield_proxy" for HeightfieldProxy
-import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
-import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
-import "blueprint.field_proxy" for FieldProxy
-import "image" for ImageData
-import "render" for Texture2D, Render
-import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
-import "blueprint.blueprint" for Blueprint
-import "rendergraph.nodes.shader" for Shader
-import "rendergraph.nodes.compute" for Compute
-import "rendergraph.drawlist" for Drawlist
+import "blueprint.node_function" for NodeFunction
 
-var DARWLIST = nil
-var SHADER   = nil
-var COMPUTE  = nil
-
-var CS = "
-#version 430
-
-#define LOCAL_SIZE 32
-
-layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
-
-layout(binding = 0, r16f) writeonly uniform image2D out_tex;
-
-uniform sampler2D in_tex;
-
-uniform UBO
+var CODE = "
+float select_height(float h, float lower, float upper)
 {
-	float lower;
-	float upper;
-};
-
-void main()
-{
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    vec2 tex_coords = pos / float(imageSize(out_tex));
-    float h = texture(in_tex, tex_coords).r;
     if (h >= lower && h <= upper) {
-    	h = 1.0;
+    	return 1.0;
     } else {
-    	h = 0.0;
+    	return 0.0;
     }
-    imageStore(out_tex, pos, vec4(h));
 }
 "	
 
@@ -56,119 +18,11 @@ class SelectHeight is Node
 	{
 		super.init(SelectHeight.name)
 
-		this.imports = [
-			Pin(this, "in", VAR_TYPE_HEIGHTFIELD)
-		]	
-		this.exports = [
-			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
-		]
-
 		this.layout()
 
-		this.lower = 0
-		this.upper = 1
-
-		this.hf = VarHeightfield()
-	}
-
-	calc_value(idx)
-	{
-		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
-	}
-
-	setup()
-	{
-		this.need_rebuild = true
-	}
-	
-	execute()
-	{
-		if (!this.hf.tex) {
-			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
-		}
-		if (!DARWLIST) 
-		{
-			var shader = Shader()
-			shader.cs = CS
-			shader.execute()
-
-			var compute = Compute()
-			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
-
-			Blueprint.connect(shader, "out", compute, "shader")
-
-			DARWLIST = Drawlist([compute])
-
-			SHADER = shader
-			COMPUTE = compute
-		}
-
-		if (this.need_rebuild) 
-		{
-			COMPUTE.dirty = true
-			this.bind(SHADER)
-			DARWLIST.draw()
-
-			this.need_rebuild = false
-		}
-	}
-
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
-	to_string(name) {
-		return "
-%(name).lower = %(this.lower)
-%(name).upper = %(this.upper)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var REGION = 1
-
-		var lower = GUI.slider(ctx, "lower", this.lower, x, y, this.style.width - 20, REGION, false)
-		if (lower != this.lower) {
-			this.lower = lower
-			dirty = true
-		}
-
-		y = y - DEFAULT_HEIGHT
-
-		var upper = GUI.slider(ctx, "upper", this.upper, x, y, this.style.width - 20, REGION, false)
-		if (upper != this.upper) {
-			this.upper = upper
-			dirty = true
-		}
-
-		if (dirty) {
-			NodeHelper.make_node_dirty(this)
-		}
-
-		return dirty
-	}
-
-	bind(shader)
-	{
-		var out_tex = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(out_tex, "tex", shader, "out_tex")
-
-		var in_tex = HeightfieldProxy(this.imports[0])
-		Blueprint.connect(in_tex, "tex", shader, "in_tex")
-
-		var lower = FieldProxy(this, "lower")
-		Blueprint.connect(lower, "out", shader, "lower")
-
-		var upper = FieldProxy(this, "upper")
-		Blueprint.connect(upper, "out", shader, "upper")
+		this.node_func = NodeFunction(this, "compute", CODE, "glsl", "select_height", [
+			[ "lower", 0.0 ],
+			[ "upper", 1.0 ],
+		])
 	}
 }

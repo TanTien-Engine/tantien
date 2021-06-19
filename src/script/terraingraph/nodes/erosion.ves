@@ -189,6 +189,8 @@ class Erosion is Node
 		this.random = Random.init(12345)
 
 		this.iter_dirty = true
+
+		this.heights_buf = nil
 	}
 
 	calc_value(idx)
@@ -199,6 +201,13 @@ class Erosion is Node
 	setup()
 	{
 		this.need_rebuild = true
+
+		if (SHADER) {
+			SHADER.setup()
+		}
+		if (COMPUTE) {
+			COMPUTE.setup()
+		}
 	}
 	
 	execute()
@@ -225,7 +234,7 @@ class Erosion is Node
 		{
 			COMPUTE.num_groups = [ this.iter / 1024, 1, 1 ]
 
-			COMPUTE.dirty = true
+			COMPUTE.need_rebuild = true
 
 			this.setup_buffers()
 			this.bind(SHADER)

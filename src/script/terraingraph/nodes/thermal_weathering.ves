@@ -119,6 +119,13 @@ class ThermalWeathering is Node
 	setup()
 	{
 		this.need_rebuild = true
+
+		if (SHADER) {
+			SHADER.setup()
+		}
+		if (COMPUTE) {
+			COMPUTE.setup()
+		}
 	}
 	
 	execute()
@@ -146,7 +153,7 @@ class ThermalWeathering is Node
 			var thread_group_count = Math.ceil(HEIGHTFIELD_SIZE * HEIGHTFIELD_SIZE / 1024)
 			COMPUTE.num_groups = [ thread_group_count, 1, 1 ]
 
-			COMPUTE.dirty = true
+			COMPUTE.need_rebuild = true
 
 			this.setup_buffers()
 			this.bind(SHADER)

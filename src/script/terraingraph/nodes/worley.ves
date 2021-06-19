@@ -1,34 +1,9 @@
 import "blueprint.node" for Node
-import "terraingraph.node_helper" for NodeHelper
-import "terraingraph.style" for HEIGHTFIELD_SIZE
-import "terraingraph.heightfield_proxy" for HeightfieldProxy
-import "terraingraph.variant" for VAR_TYPE_HEIGHTFIELD, VarHeightfield
-import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
-import "blueprint.field_proxy" for FieldProxy
-import "render" for Texture2D, Render
-import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
-import "blueprint.blueprint" for Blueprint
-import "rendergraph.nodes.shader" for Shader
-import "rendergraph.nodes.compute" for Compute
-import "rendergraph.nodes.texture" for Texture
-import "rendergraph.drawlist" for Drawlist
+import "blueprint.node_function" for NodeFunction
+import "maths.vector" for Vector2
 
-var DARWLIST = nil
-var SHADER   = nil
-var COMPUTE  = nil
-
-var CS = "
-#version 430
-
-#define LOCAL_SIZE 32
-
-layout(local_size_x = LOCAL_SIZE, local_size_y = LOCAL_SIZE, local_size_z = 1) in;
-
-layout(binding = 0, r16f) writeonly uniform image2D out_tex;
-
-uniform UBO
+var CODE = "
+uniform __UBO__
 {
 	vec2 offset;
 	float seed;
@@ -122,18 +97,11 @@ float calc_grid(vec2 st)
     //return color;
 }
 
-void main()
+float worley(vec2 tex_coords)
 {
-	ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    const vec2 tex_coord = pos / float(imageSize(out_tex));
-
-    vec2 st = (tex_coord + offset) * frequency;
-
+    vec2 st = (tex_coords + offset) * frequency;
     float v = calc_grid(st);
-
-    v = clamp(v, 0.0, 1.0);
-
-    imageStore(out_tex, pos, vec4(v));
+    return clamp(v, 0.0, 1.0);
 }
 "
 
@@ -143,136 +111,15 @@ class Worley is Node
 	{
 		super.init(Worley.name)
 	
-		this.exports = [
-			Pin(this, "out", VAR_TYPE_HEIGHTFIELD)
-		]
-
 		this.layout()
 
-		this.offset = [0, 0]
-		this.seed = 0
-		this.frequency = 4
-
-		this.manhattan_scale = 0.1
-		this.dist_op = 0
-		this.features_mode = 0
-
-		this.hf = VarHeightfield()
-
-		// for gui
-		this.method_items = [ "average", "add", "subtract", "multiply", "divide", "max", "min" ]
-		this.method_selected = 1
-	}
-
-	calc_value(idx)
-	{
-		return Variant(VAR_TYPE_HEIGHTFIELD, this.hf)
-	}
-
-	setup()
-	{
-		this.need_rebuild = true
-	}
-	
-	execute()
-	{
-		if (!this.hf.tex) {
-			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
-		}
-		if (!DARWLIST) 
-		{
-			var shader = Shader()
-			shader.cs = CS
-			shader.execute()
-
-			var compute = Compute()
-			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
-
-			Blueprint.connect(shader, "out", compute, "shader")
-
-			DARWLIST = Drawlist([compute])
-
-			SHADER = shader
-			COMPUTE = compute
-		}
-
-		if (this.need_rebuild) 
-		{
-			COMPUTE.dirty = true
-			this.bind(SHADER)
-			DARWLIST.draw()
-
-			this.need_rebuild = false
-		}
-	}
-
-	layout() 
-	{
-		super.layout()
-
-		this.style.height = this.style.height + DEFAULT_HEIGHT * 2
-	}
-
-	to_string(name) {
-		return "
-%(name).seed = %(this.seed)
-%(name).frequency = %(this.frequency)
-%(name).manhattan_scale = %(this.manhattan_scale)
-%(name).dist_op = %(this.dist_op)
-%(name).features_mode = %(this.features_mode)
-"
-	}
-
-	draw_gui(ctx) 
-	{
-		var dirty = false
-
-		var x = this.pos.x - this.style.width * 0.5
-		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
-
-		var seed = GUI.slider(ctx, "seed", this.seed, x, y, this.style.width - 20, 1.0, false)
-		if (seed != this.seed) {
-			this.seed = seed
-			dirty = true
-		}
-		y = y - DEFAULT_HEIGHT
-
-		var REGION = 10
-		var freq = GUI.slider(ctx, "freq", this.frequency, x, y, this.style.width - 20, REGION, false)
-		if (freq != this.frequency) {
-			this.frequency = freq
-			dirty = true
-		}
-		y = y - DEFAULT_HEIGHT
-
-		if (dirty) {
-			NodeHelper.make_node_dirty(this)
-		}
-
-		return dirty
-	}
-
-	bind(shader)
-	{
-		var out = HeightfieldProxy(this.exports[0])
-		Blueprint.connect(out, "tex", shader, "out_tex")
-
-		var offset = FieldProxy(this, "offset")
-		Blueprint.connect(offset, "out", shader, "offset")
-
-		var seed = FieldProxy(this, "seed")
-		Blueprint.connect(seed, "out", shader, "seed")
-
-		var freq = FieldProxy(this, "frequency")
-		Blueprint.connect(freq, "out", shader, "frequency")
-
-		var manhattan_scale = FieldProxy(this, "manhattan_scale")
-		Blueprint.connect(manhattan_scale, "out", shader, "manhattan_scale")
-
-		var dist_op = FieldProxy(this, "dist_op")
-		Blueprint.connect(dist_op, "out", shader, "dist_op")
-
-		var features_mode = FieldProxy(this, "features_mode")
-		Blueprint.connect(features_mode, "out", shader, "features_mode")
+		this.node_func = NodeFunction(this, "compute", CODE, "glsl", "worley", [
+			[ "offset", Vector2(0, 0) ],
+			[ "seed", 0.0 ],
+			[ "frequency", 4.0 ],
+			[ "manhattan_scale", 0.1 ],
+			[ "dist_op", 0, { "integer" : true, "min" : 0, "max" : 2 } ],
+			[ "features_mode", 0, { "integer" : true, "min" : 0, "max" : 5 } ],
+		])
 	}
 }
