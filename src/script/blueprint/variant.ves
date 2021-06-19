@@ -61,6 +61,13 @@ class Variant
 {
 	init(value)
 	{
+		if (value is Variant)
+		{
+			this.type = value.type
+			this.value = value.value
+			return
+		}
+
 		for (var func in VAR_BUILDER_FUNCS) {
 			if (func(this, value)) {
 				return
