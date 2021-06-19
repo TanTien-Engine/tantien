@@ -1,14 +1,11 @@
 
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
-
 import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 201.5802241559, 331.0448724385)
@@ -180,18 +177,25 @@ node13.var_type = "texture"
 
 _editor.add_node(node13, -189.10556446422, 82.644868393575)
 
-Blueprint.connect(node0, "next", node7, "do")
+var node14 = Pass()
+
+node14.once = false
+
+_editor.add_node(node14, 369.28287515848, 418.27006772655)
+
+Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node14, "next", node7, "do")
+Blueprint.connect(node9, "out0", node10, "items")
+Blueprint.connect(node7, "index", node10, "index")
+Blueprint.connect(node11, "sides", node8, "items")
+Blueprint.connect(node7, "index", node8, "index")
+Blueprint.connect(node8, "item", node6, "col0")
+Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node10, "item", node2, "view")
+Blueprint.connect(node12, "var", node2, "environmentMap")
+Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "next", node0, "prev")
-Blueprint.connect(node6, "fbo", node0, "fbo")
-Blueprint.connect(node7, "next", node1, "prev")
-Blueprint.connect(node7, "index", node8, "index")
-Blueprint.connect(node7, "index", node10, "index")
-Blueprint.connect(node8, "item", node6, "col0")
-Blueprint.connect(node9, "out0", node10, "items")
-Blueprint.connect(node10, "item", node2, "view")
-Blueprint.connect(node11, "tex", node13, "var")
-Blueprint.connect(node11, "sides", node8, "items")
-Blueprint.connect(node12, "var", node2, "environmentMap")
+Blueprint.connect(node0, "next", node14, "prev")
+Blueprint.connect(node6, "fbo", node14, "fbo")

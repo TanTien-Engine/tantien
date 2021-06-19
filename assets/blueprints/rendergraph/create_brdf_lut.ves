@@ -1,14 +1,11 @@
 
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
-
 import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("tri_strip")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 261.90909090909, 136.5)
@@ -178,7 +175,6 @@ node5.query_param("unif_name").value = "u_brdf_lut"
 node5.gamma_correction = false
 node5.init_texture(512, 512, "rg16f")
 
-
 _editor.add_node(node5, -292.27272311124, -68.04548228871)
 
 var node6 = Pass()
@@ -194,10 +190,10 @@ node7.var_type = "texture"
 
 _editor.add_node(node7, -103.6142689098, -86.34794477983)
 
-Blueprint.connect(node0, "next", node6, "prev")
+Blueprint.connect(node5, "tex", node7, "var")
+Blueprint.connect(node5, "tex", node4, "col0")
 Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "fbo", node0, "fbo")
-Blueprint.connect(node5, "tex", node4, "col0")
-Blueprint.connect(node5, "tex", node7, "var")
+Blueprint.connect(node0, "next", node6, "prev")
+Blueprint.connect(node4, "fbo", node6, "fbo")

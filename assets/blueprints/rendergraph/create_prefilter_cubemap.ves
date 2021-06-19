@@ -1,14 +1,11 @@
 
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
-
 import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 201.5802241559, 331.0448724385)
@@ -272,26 +269,33 @@ node18.value = 1
 
 _editor.add_node(node18, 296.6653137207, -263.70376586914)
 
-Blueprint.connect(node0, "next", node15, "do")
+var node19 = Pass()
+
+node19.once = false
+
+_editor.add_node(node19, 354.2306526121, 422.45099179607)
+
+Blueprint.connect(node19, "next", node15, "do")
+Blueprint.connect(node15, "num", node17, "a")
+Blueprint.connect(node18, "v", node17, "b")
+Blueprint.connect(node15, "index", node16, "a")
+Blueprint.connect(node17, "v", node16, "b")
+Blueprint.connect(node11, "tex", node14, "value")
+Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node15, "next", node7, "do")
+Blueprint.connect(node9, "out0", node10, "items")
+Blueprint.connect(node7, "index", node10, "index")
+Blueprint.connect(node11, "sides", node8, "items")
+Blueprint.connect(node7, "index", node8, "index")
+Blueprint.connect(node8, "item", node6, "col0")
+Blueprint.connect(node15, "index", node6, "mipmap")
+Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node10, "item", node2, "view")
+Blueprint.connect(node16, "v", node2, "roughness")
+Blueprint.connect(node12, "var", node2, "environmentMap")
+Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "next", node0, "prev")
-Blueprint.connect(node6, "fbo", node0, "fbo")
-Blueprint.connect(node7, "next", node1, "prev")
-Blueprint.connect(node7, "index", node8, "index")
-Blueprint.connect(node7, "index", node10, "index")
-Blueprint.connect(node8, "item", node6, "col0")
-Blueprint.connect(node9, "out0", node10, "items")
-Blueprint.connect(node10, "item", node2, "view")
-Blueprint.connect(node11, "tex", node13, "var")
-Blueprint.connect(node11, "tex", node14, "value")
-Blueprint.connect(node11, "sides", node8, "items")
-Blueprint.connect(node12, "var", node2, "environmentMap")
-Blueprint.connect(node15, "next", node7, "do")
-Blueprint.connect(node15, "index", node16, "a")
-Blueprint.connect(node15, "index", node6, "mipmap")
-Blueprint.connect(node15, "num", node17, "a")
-Blueprint.connect(node16, "v", node2, "roughness")
-Blueprint.connect(node17, "v", node16, "b")
-Blueprint.connect(node18, "v", node17, "b")
+Blueprint.connect(node0, "next", node19, "prev")
+Blueprint.connect(node6, "fbo", node19, "fbo")

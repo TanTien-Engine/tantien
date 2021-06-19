@@ -1,7 +1,12 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node0.skip = false
 
 _editor.add_node(node0, 201.5802241559, 331.0448724385)
 
@@ -31,6 +36,9 @@ void main()
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -55,7 +63,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.execute()
 
 _editor.add_node(node2, 10.613133775691, 362.0657401001)
@@ -64,6 +72,7 @@ var node3 = PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, 17.574015125081, 228.0304245447)
 
@@ -118,6 +127,7 @@ _editor.script_stack.clear()
 _editor.script_stack.add(capture_views)
 "
 node9.init_ports(0, 1)
+node9.use_cache = false
 
 _editor.add_node(node9, -319.78707918211, 332.2285525693)
 
@@ -126,6 +136,7 @@ var node10 = Fetch()
 _editor.add_node(node10, -165.82361764384, 350.7266535079)
 
 var node11 = Cubemap()
+node11.query_param("unif_name").value = "u_cube_tex"
 
 node11.init_texture(512, 512, "rgb16f")
 
@@ -145,18 +156,25 @@ node13.var_type = "texture"
 
 _editor.add_node(node13, -189.10556446422, 82.644868393575)
 
-Blueprint.connect(node0, "next", node7, "do")
+var node14 = Pass()
+
+node14.once = false
+
+_editor.add_node(node14, 364.02366398583, 420.5240020408)
+
+Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node14, "next", node7, "do")
+Blueprint.connect(node9, "out0", node10, "items")
+Blueprint.connect(node7, "index", node10, "index")
+Blueprint.connect(node11, "sides", node8, "items")
+Blueprint.connect(node7, "index", node8, "index")
+Blueprint.connect(node8, "item", node6, "col0")
+Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node10, "item", node2, "view")
+Blueprint.connect(node12, "var", node2, "equirectangularMap")
+Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "next", node0, "prev")
-Blueprint.connect(node6, "fbo", node0, "fbo")
-Blueprint.connect(node7, "next", node1, "prev")
-Blueprint.connect(node7, "index", node8, "index")
-Blueprint.connect(node7, "index", node10, "index")
-Blueprint.connect(node8, "item", node6, "col0")
-Blueprint.connect(node9, "out0", node10, "items")
-Blueprint.connect(node10, "item", node2, "view")
-Blueprint.connect(node11, "tex", node13, "var")
-Blueprint.connect(node11, "sides", node8, "items")
-Blueprint.connect(node12, "var", node2, "equirectangularMap")
+Blueprint.connect(node0, "next", node14, "prev")
+Blueprint.connect(node6, "fbo", node14, "fbo")

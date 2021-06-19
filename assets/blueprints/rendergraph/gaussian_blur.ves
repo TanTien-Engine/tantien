@@ -1,3 +1,7 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
 var node0 = RenderTarget()
 
 node0.width = 1024
@@ -13,23 +17,24 @@ node1.height = 1024
 _editor.add_node(node1, -519.08635916386, 85.050550073612)
 
 var node2 = Texture()
+node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture(1024, 1024, "rgba16f")
-
 
 _editor.add_node(node2, -741.08635916386, 183.05055007361)
 
 var node3 = Texture()
+node3.query_param("unif_name").value = "u_tex"
 node3.gamma_correction = false
 node3.init_texture(1024, 1024, "rgba16f")
-
 
 _editor.add_node(node3, -737.08635916386, -155.94944992639)
 
 var node4 = Draw()
 
 node4.set_prim_type("tri_strip")
-node4.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node4.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
+node4.skip = false
 
 _editor.add_node(node4, 354.00457548614, 88.464645445912)
 
@@ -48,6 +53,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node5.tcs = ""
+node5.tes = ""
+node5.gs = ""
 node5.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -85,7 +93,7 @@ void main()
      FragColor = vec4(result, 1.0);
 }
 "
-node5.gs = ""
+node5.cs = ""
 node5.execute()
 
 _editor.add_node(node5, 121.82353928574, 153.19417395174)
@@ -94,6 +102,7 @@ var node6 = PrimitiveShape()
 
 node6.type = "quad"
 node6.layout = [ "position", "texture" ]
+node6.shape_params = {  }
 
 _editor.add_node(node6, 163.76576242049, 22.62740349013)
 
@@ -101,7 +110,7 @@ var node7 = Array()
 
 node7.list = [ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 ]
 
-_editor.add_node(node7, -68.266271384389, 192.62537163552)
+_editor.add_node(node7, -273.44351337606, 167.49047647809)
 
 var node8 = Input()
 
@@ -125,31 +134,64 @@ node11.var_type = "texture"
 
 _editor.add_node(node11, -566.0532968064, 329.16260623144)
 
-Blueprint.connect(node0, "fbo", node10, "in0")
-Blueprint.connect(node0, "fbo", node10, "in2")
-Blueprint.connect(node0, "fbo", node10, "in4")
-Blueprint.connect(node0, "fbo", node10, "in6")
-Blueprint.connect(node0, "fbo", node10, "in8")
-Blueprint.connect(node1, "fbo", node10, "in1")
-Blueprint.connect(node1, "fbo", node10, "in3")
-Blueprint.connect(node1, "fbo", node10, "in5")
-Blueprint.connect(node1, "fbo", node10, "in7")
-Blueprint.connect(node1, "fbo", node10, "in9")
-Blueprint.connect(node2, "tex", node1, "col0")
-Blueprint.connect(node2, "tex", node9, "in2")
-Blueprint.connect(node2, "tex", node9, "in4")
-Blueprint.connect(node2, "tex", node9, "in6")
-Blueprint.connect(node2, "tex", node9, "in8")
-Blueprint.connect(node2, "tex", node11, "var")
+var node12 = Pass()
+
+node12.once = false
+
+_editor.add_node(node12, 521.00667770717, 167.55377219985)
+
+var node13 = For()
+
+node13.start = 0
+node13.end = 10
+
+_editor.add_node(node13, 693.09641900993, 148.51526800776)
+
+var node14 = Fetch()
+
+_editor.add_node(node14, -90.410966673975, 45.665278158901)
+
+var node15 = Fetch()
+
+_editor.add_node(node15, -58.548378514426, -124.27532337836)
+
+var node16 = Fetch()
+
+_editor.add_node(node16, -80.801389413993, 156.56147875648)
+
+Blueprint.connect(node12, "next", node13, "do")
+Blueprint.connect(node4, "next", node12, "prev")
+Blueprint.connect(node15, "item", node12, "fbo")
+Blueprint.connect(node7, "all", node16, "items")
+Blueprint.connect(node13, "index", node16, "index")
 Blueprint.connect(node3, "tex", node0, "col0")
+Blueprint.connect(node2, "tex", node11, "var")
+Blueprint.connect(node8, "var", node9, "in0")
 Blueprint.connect(node3, "tex", node9, "in1")
+Blueprint.connect(node2, "tex", node9, "in2")
 Blueprint.connect(node3, "tex", node9, "in3")
+Blueprint.connect(node2, "tex", node9, "in4")
 Blueprint.connect(node3, "tex", node9, "in5")
+Blueprint.connect(node2, "tex", node9, "in6")
 Blueprint.connect(node3, "tex", node9, "in7")
+Blueprint.connect(node2, "tex", node9, "in8")
 Blueprint.connect(node3, "tex", node9, "in9")
+Blueprint.connect(node9, "list", node14, "items")
+Blueprint.connect(node13, "index", node14, "index")
+Blueprint.connect(node16, "item", node5, "horizontal")
+Blueprint.connect(node14, "item", node5, "image")
 Blueprint.connect(node5, "out", node4, "shader")
 Blueprint.connect(node6, "out", node4, "va")
-Blueprint.connect(node7, "all", node5, "horizontal")
-Blueprint.connect(node8, "var", node9, "in0")
-Blueprint.connect(node9, "list", node5, "image")
-Blueprint.connect(node10, "list", node4, "fbo")
+Blueprint.connect(node2, "tex", node1, "col0")
+Blueprint.connect(node0, "fbo", node10, "in0")
+Blueprint.connect(node1, "fbo", node10, "in1")
+Blueprint.connect(node0, "fbo", node10, "in2")
+Blueprint.connect(node1, "fbo", node10, "in3")
+Blueprint.connect(node0, "fbo", node10, "in4")
+Blueprint.connect(node1, "fbo", node10, "in5")
+Blueprint.connect(node0, "fbo", node10, "in6")
+Blueprint.connect(node1, "fbo", node10, "in7")
+Blueprint.connect(node0, "fbo", node10, "in8")
+Blueprint.connect(node1, "fbo", node10, "in9")
+Blueprint.connect(node10, "list", node15, "items")
+Blueprint.connect(node13, "index", node15, "index")
