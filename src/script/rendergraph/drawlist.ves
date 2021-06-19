@@ -1,5 +1,4 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.for" for For
 import "blueprint.nodes.for_each" for ForEach
 import "blueprint.nodes.subgraph" for Subgraph
 import "rendergraph.nodes.draw" for Draw
@@ -21,22 +20,13 @@ class Drawlist
 		for (var node in nodes) 
 		{
 			if (node is Pass and node.exports[0].conns.isEmpty) {
-				node.rebuild_drawlist()
 				lists.add([ node ])
 			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
 				var prev_nodes = Blueprint.get_precursor_nodes(node)
 				var list = Blueprint.topo_sort(prev_nodes)
 				lists.add(list)
-			} else if (node is For) {
-				node.rebuild_exec_list()
 			} else if (node is ForEach) {
 				this.for_each = node
-			} else if (node is Subgraph) {
-				var sub_nodes = []
-				for (var item in node.all_items) {
-					sub_nodes.add(item[0])
-				}
-				this.build_lists(sub_nodes, lists)
 			}
 		}
 
@@ -62,6 +52,15 @@ class Drawlist
 						node.execute()
 					}
 				}
+			}
+		}
+	}
+
+	traverse(func)
+	{
+		for (var list in this.lists) {
+			for (var node in list) {
+				func(node)
 			}
 		}
 	}

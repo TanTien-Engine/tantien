@@ -18,7 +18,6 @@ class Draw is Node
 			Pin(this, "prev",   VAR_TYPE_PORT),
 			Pin(this, "shader", VAR_TYPE_SHADER),
 			Pin(this, "va",     VAR_TYPE_VERTEX_ARRAY),
-			Pin(this, "fbo",    VAR_TYPE_FRAME_BUFFER),
 			Pin(this, "model",  VAR_TYPE_MODEL)
 		]
 		this.exports = [
@@ -65,12 +64,10 @@ class Draw is Node
 			return
 		}
 
-		var v_fbo = Blueprint.calc_input_value(this, 3).value
-
-		var model = Blueprint.calc_input_value(this, 4).value
+		var model = Blueprint.calc_input_value(this, 3).value
 		if (model and model.model)
 		{
-			this.draw_model(v_shader, model.model, v_fbo)
+			this.draw_model(v_shader, model.model)
 			return
 		}
 
@@ -91,10 +88,6 @@ class Draw is Node
 			}	
 		}
 
-		if (v_fbo is List) {
-			count = Math.max(count, v_fbo.count)	
-		}
-
 		for (var i in 0..count) 
 		{
 			v_shader.update_uniforms(i)
@@ -109,41 +102,17 @@ class Draw is Node
 				}
 			}
 
-			var _fbo = v_fbo
-			if (v_fbo and v_fbo is List)
-			{
-				if (i < v_fbo.count) {
-					_fbo = v_fbo[i].value
-				} else {
-					_fbo = v_fbo[v_fbo.count - 1].value
-				}
-			}
-
-			if (_fbo) {
-				_fbo.bind()
-			}
 			Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state)
-			if (_fbo) {
-				_fbo.unbind()
-			}
 		}
 	}
 
-	draw_model(shader, model, fbo)
+	draw_model(shader, model)
 	{
-		if (fbo and !(fbo is List)) {
-			fbo.bind()
-		}
-
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
 		{
 			shader.update_uniforms(i)
 			Render.draw_model(shader.prog, model, this.render_state)
-		}
-
-		if (fbo and !(fbo is List)) {
-			fbo.unbind()
 		}
 	}
 

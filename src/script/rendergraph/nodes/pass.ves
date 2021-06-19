@@ -37,19 +37,37 @@ class Pass is Node
 
 		var prev_fbo = nil
 		var prev_vp = nil
-		var v_fbo = Blueprint.calc_input_value(this, 1)
-		if (v_fbo) {
-			v_fbo.value.bind()
+		var v_fbo = Blueprint.calc_input_value(this, 1).value
+		var count = 1
+		if (v_fbo and v_fbo is List) {
+			count = v_fbo.count
 		}
 
-		for (var node in this.drawlist) {
-			if (node.has_method("execute()")) {
-				node.execute()
+		for (var i in 0..count) 
+		{
+			var _fbo = v_fbo
+			if (v_fbo and v_fbo is List)
+			{
+				if (i < v_fbo.count) {
+					_fbo = v_fbo[i].value
+				} else {
+					_fbo = v_fbo[v_fbo.count - 1].value
+				}
 			}
-		}
 
-		if (v_fbo) {
-			v_fbo.value.unbind()
+			if (_fbo) {
+				_fbo.bind()
+			}
+
+			for (var node in this.drawlist) {
+				if (node.has_method("execute()")) {
+					node.execute()
+				}
+			}
+
+			if (_fbo) {
+				_fbo.unbind()
+			}
 		}
 
 		this.executed = true
