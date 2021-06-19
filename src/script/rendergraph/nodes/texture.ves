@@ -75,27 +75,49 @@ class Texture is Node
 		return nil
 	}
 
+	setup()
+	{
+    	this.unif = nil
+    	this.unif_name = nil
+	}
+
     shader_gen(ctx)
     {
 		super.shader_gen(ctx)
 
-    	this.unif = nil
-    	this.unif_name = nil
-    }
-
-	calc_inst(idx, ctx) 
-	{
 		if (!this.unif) 
 		{
 			var name = this.query_param("unif_name").value
 			this.unif = ctx.gen.add_uniform(ctx.module, name, "texture")
 			this.unif_name = ctx.gen.query_unif_name(this.unif)
 		}
+    }
 
-		if (this.unif) {
-			return ctx.bb.load(this.unif)
-		} else {
-			return nil
+	calc_inst(idx, ctx) 
+	{
+		if (idx == 0)
+		{
+			if (this.unif) {
+				return ctx.bb.load(this.unif)
+			} else {
+				return nil
+			}
+		}
+		else if (idx == 1)
+		{
+			var width = 0
+			if (this.tex) {
+				width = this.tex.get_width()
+			}		
+			return ctx.module.const_float(width)
+		}
+		else if (idx == 2)
+		{
+			var height = 0
+			if (this.tex) {
+				height = this.tex.get_height()
+			}		
+			return ctx.module.const_float(height)
 		}
 	}
 

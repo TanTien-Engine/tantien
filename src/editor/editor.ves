@@ -6,6 +6,7 @@ import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "blueprint.node_op" for NodeOP
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.node_helper" for node_setup
 import "maths.vector" for Vector2
 import "graphics" for Graphics, Textbox
 import "scene.node" for Node as SceneNode
@@ -935,27 +936,17 @@ import \"editor\" for _editor
 		return true
 	}
 
-	build_exec_list(nodes)
-	{
-		var drawlist = Drawlist(nodes)
-		return drawlist.lists
-	}
-
 	rebuild_drawlist()
 	{
 		var scene = this.scene_stack.root()
 
 		var nodes = []
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node.has_method("setup()")) {
-				bp_node.setup()
-			}
-			nodes.add(bp_node)
+		for (var node in scene.nodes) {
+			nodes.add(node.components["bp"])
 		}
-
 		this.drawlist = Drawlist(nodes)
+
+		this.drawlist.traverse(node_setup)
 	}
 
 	draw_preview()

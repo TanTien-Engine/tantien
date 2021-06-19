@@ -10,9 +10,11 @@ import "blueprint.nodes.proxy" for Proxy
 import "blueprint.nodes.camera3d" for Camera3d
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_helper" for node_setup
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
+import "rendergraph.drawlist" for Drawlist
 
 class Subgraph is Node
 {
@@ -43,7 +45,8 @@ class Subgraph is Node
 		this.out_nodes   = []
 		this.prop_nodes  = []
 		this.proxy_nodes = []
-		this.exec_list   = []
+
+		this.drawlist = nil
 
 		this.op_node = nil
 	}
@@ -66,15 +69,6 @@ class Subgraph is Node
 			}
 		}
 		return nil
-	}
-
-	setup()
-	{
-		for (var item in this.all_items) {
-			if (item[0].has_method("setup()")) {
-				item[0].setup()
-			}
-		}
 	}
 
 	shader_gen(ctx) 
@@ -104,8 +98,19 @@ class Subgraph is Node
 		return nil
 	}
 
-	execute()
+	setup()
 	{
+		if (!this.drawlist) 
+		{
+			var nodes = []
+			for (var item in this.all_items) {
+				nodes.add(item[0])
+			}		
+			this.drawlist = Drawlist(nodes)
+		}
+
+		this.drawlist.traverse(node_setup)
+
 		// setup input vars
 		for (var i in 1..this.imports.count) 
 		{
@@ -117,13 +122,12 @@ class Subgraph is Node
 				// todo break
 			}
 		}
+	}
 
-		for (var pass in this.exec_list) {
-			for (var node in pass) {
-				if (node.has_method("execute()")) {
-					node.execute()
-				}
-			}
+	execute()
+	{
+		if (this.drawlist) {
+			this.drawlist.draw()
 		}
 	}
 
@@ -304,15 +308,7 @@ class Subgraph is Node
 
 		editor.add_node = old_func
 
-		if (sub_editor.has_method("build_exec_list(_)")) 
-		{
-			var all_nodes = []
-			for (var item in this.all_items) {
-				all_nodes.add(item[0])
-			}
-
-			this.exec_list = sub_editor.build_exec_list(all_nodes)		
-		}
+		//this.setup()
 
 		for (var item in this.all_items) {
 			var node = item[0]

@@ -26,12 +26,18 @@ class Uniform is Node
 		this.unif_name = nil
 	}
 
+	setup()
+	{
+    	this.unif = nil
+    	this.unif_name = nil	
+	}
+
     shader_gen(ctx)
     {
 		super.shader_gen(ctx)
 
-    	this.unif = nil
-    	this.unif_name = nil
+//    	this.unif = nil
+//    	this.unif_name = nil
     }
 
 	calc_inst(idx, ctx) 
@@ -44,7 +50,6 @@ class Uniform is Node
 			}
 
 			var name = this.query_param("unif_name").value
-
 			var type = ""
 			if (val.type == VAR_TYPE_BOOLEAN) {
 				type = "bool"

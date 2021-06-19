@@ -24,12 +24,17 @@ class Compute is Node
 
 		this.layout()
 
-		this.dirty = true
+		this.need_rebuild = true
+	}
+
+	setup()
+	{
+		this.need_rebuild = true
 	}
 
 	execute() 
 	{
-		if (!this.dirty) {
+		if (!this.need_rebuild) {
 			return
 		}
 
@@ -57,7 +62,7 @@ class Compute is Node
 			Render.compute(v_shader.prog, num_groups[0], num_groups[1], num_groups[2])
 		}
 
-		this.dirty = false
+//		this.need_rebuild = false
 	}
 
 	to_string(name) 

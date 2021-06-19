@@ -24,7 +24,7 @@ class PrimitiveShape is Node
 		this.layout = [ "position", "normal" ]
 
 		this.va = nil
-		this.dirty = true
+		this.need_rebuild = true
 
 		this.shape_params = {}
 
@@ -43,9 +43,9 @@ class PrimitiveShape is Node
 
 	execute() 
 	{
-		if (this.dirty) {
+		if (this.need_rebuild) {
 			this.va = VertexArray.init(this.type, this.layout, this.shape_params)
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 
@@ -149,7 +149,7 @@ class PrimitiveShape is Node
 		}
 
 		if (dirty) {
-			this.dirty = true
+			this.need_rebuild = true
 		}
 
 		return dirty

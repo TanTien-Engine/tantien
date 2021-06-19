@@ -20,7 +20,6 @@ class VertexArray is Node
 		this.ibuf = nil
 
 		this.va = nil
-		this.dirty = true
 
 		this.layout()
 	}
@@ -30,10 +29,16 @@ class VertexArray is Node
 		return Variant(VAR_TYPE_VERTEX_ARRAY, this.va)
 	}
 
-	execute() {
-		if (this.data and this.attrs and this.dirty) {
+	setup()
+	{
+		this.need_rebuild = true
+	}
+
+	execute() 
+	{
+		if (this.data and this.attrs and this.need_rebuild) {
 			this.va = tt_VertexArray.init(this.data, this.attrs, this.ibuf)
-			this.dirty = false
+			this.need_rebuild = false
 		}
 	}
 

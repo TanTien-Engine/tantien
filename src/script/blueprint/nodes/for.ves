@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_PORT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_helper" for node_setup
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "math" for Math
@@ -46,6 +47,20 @@ class For is Node
 		}
 
 		return nil
+	}
+
+	setup()
+	{
+		var prev = Blueprint.get_input_node(this, 1)
+		if (prev)
+		{
+			var nodes = Blueprint.get_precursor_nodes(prev)
+			this.exec_list = Blueprint.topo_sort(nodes)	
+
+			for (var node in this.exec_list) {
+				node_setup(node)
+			}			
+		}
 	}
 
 	execute() 
@@ -97,17 +112,5 @@ class For is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
-	}
-
-	rebuild_exec_list()
-	{
-		if (this.imports[1].conns.isEmpty) {
-			return
-		}
-
-		var root = this.imports[1].conns.front().from.node
-
-		var nodes = Blueprint.get_precursor_nodes(root)
-		this.exec_list = Blueprint.topo_sort(nodes)
 	}
 }

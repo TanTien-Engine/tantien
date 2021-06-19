@@ -27,7 +27,7 @@ class Shader is Node
 		this.cs  = ""
 
 		this.shader = var_Shader(this)
-		this.dirty = true
+		this.need_rebuild = true
 
 		this.uniforms = []
 
@@ -51,9 +51,14 @@ class Shader is Node
 		return uniforms
 	}
 
+	setup()
+	{
+		//this.need_rebuild = true
+	}
+
 	execute() 
 	{
-		if (!this.dirty) {
+		if (!this.need_rebuild) {
 			return
 		}
 
@@ -74,7 +79,7 @@ class Shader is Node
 			this.layout()
 		}
 
-		this.dirty = false
+		this.need_rebuild = false
 	}
 
 	layout() 

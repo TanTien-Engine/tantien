@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT
 import "rendergraph.variant" for VAR_TYPE_FRAME_BUFFER
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_helper" for node_setup
 import "render" for Render
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
@@ -20,6 +21,9 @@ class Pass is Node
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
 		]
+
+		this.imports[0].stop_port_pass = true
+		this.imports[1].stop_port_pass = true
 		
 		this.layout()
 
@@ -27,6 +31,29 @@ class Pass is Node
 
 		this.once = false
 		this.executed = false
+	}
+
+	setup()
+	{
+		var prev = Blueprint.get_input_node(this, 0)
+		if (prev)
+		{
+			var nodes = Blueprint.get_precursor_nodes(prev)
+			this.drawlist = Blueprint.topo_sort(nodes)
+
+			for (var node in this.drawlist) {
+				node_setup(node)
+			}
+		}
+
+		var fbo = Blueprint.get_input_node(this, 1)
+		if (fbo) {
+			var prev_nodes = Blueprint.get_precursor_nodes(fbo)
+			var sorted = Blueprint.topo_sort(prev_nodes)
+			for (var node in sorted) {
+				node_setup(node)
+			}
+		}
 	}
 
 	execute() 
@@ -101,18 +128,4 @@ class Pass is Node
 
 		return dirty
 	}
-
-	rebuild_drawlist()
-	{
-		this.drawlist = []
-
-		var prev = Blueprint.get_input_node(this, 0)
-		if (prev)
-		{
-			var nodes = Blueprint.get_precursor_nodes(prev)
-			this.drawlist = Blueprint.topo_sort(nodes)
-		}
-	}
-
-
 }
