@@ -3,7 +3,7 @@ import "rendergraph.variant" for VAR_TYPE_SHADER
 import "render" for Render
 import "blueprint.blueprint" for Blueprint
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER3
 
 class Compute is Node
 {
@@ -12,8 +12,9 @@ class Compute is Node
 		super.init(Compute.name)
 
 		this.imports = [
-			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "shader", VAR_TYPE_SHADER),
+			Pin(this, "prev",       VAR_TYPE_PORT),
+			Pin(this, "shader",     VAR_TYPE_SHADER),
+			Pin(this, "num_groups", VAR_TYPE_NUMBER3),			
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -37,11 +38,23 @@ class Compute is Node
 			return
 		}
 
+		var num_groups = []
+		var v_num_groups = Blueprint.calc_input_value(this, 2)
+		if (v_num_groups) {
+			num_groups.add(v_num_groups.value.x)
+			num_groups.add(v_num_groups.value.y)
+			num_groups.add(v_num_groups.value.z)			
+		} else {
+			num_groups.add(this.num_groups[0])
+			num_groups.add(this.num_groups[1])
+			num_groups.add(this.num_groups[2])			
+		}
+
 		var count = v_shader.get_frame_count()
 		for (var i in 0..count) 
 		{
 			v_shader.update_uniforms(i)
-			Render.compute(v_shader.prog, this.num_groups[0], this.num_groups[1], this.num_groups[2])
+			Render.compute(v_shader.prog, num_groups[0], num_groups[1], num_groups[2])
 		}
 
 		this.dirty = false
