@@ -1,41 +1,37 @@
-var node0 = Viewer()
 
-node0.gray = false
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Worley()
+node0.query_param("offset").value.set(0, 0)
+node0.query_param("seed").value = 0
+node0.query_param("frequency").value = 4
+node0.query_param("manhattan_scale").value = 0.1
+node0.query_param("dist_op").value = 0
+node0.query_param("features_mode").value = 0
 
-_editor.add_node(node0, -43.93853996, -92.099599490001)
+_editor.add_node(node0, -640.16267036862, -32.622767439702)
 
-var node1 = Worley()
+var node1 = Camera3d()
 
-node1.seed = 0
-node1.frequency = 10
-node1.manhattan_scale = 0.1
-node1.dist_op = 0
-node1.features_mode = 0
+node1.cam.position.set(0.76394928042784, 1.0565358171229, 1.191560011401)
+node1.cam.yaw = -119
+node1.cam.pitch = -37.6
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.20347552001476
 
-_editor.add_node(node1, -640.16267036862, -32.622767439702)
+_editor.add_node(node1, -695.02419763022, -243.00089987489)
 
-var node2 = Camera3d()
+var node2 = Brush()
 
-node2.cam.position.set(0.76394928042784, 1.0565358171229, 1.191560011401)
-node2.cam.yaw = -119
-node2.cam.pitch = -37.6
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.20347552001476
+node2.radius = 0.20000000298023
+node2.force = 0.48541668057442
+node2.history = [ instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2 ]
 
-_editor.add_node(node2, -695.02419763022, -243.00089987489)
+_editor.add_node(node2, -461.68754480505, -56.315766408163)
 
-var node3 = Brush()
-
-node3.radius = 0.20000000298023
-node3.force = 0.48541668057442
-node3.history = [ [ -0.24037247289661, -0.12861627045473 ], [ -0.16683547153606, -0.067226880502343 ], [ -0.065164956481599, -0.0043941917119743 ], [ 0.10448900686283, 0.090552249767018 ], [ 0.2538941246339, 0.1664964219336 ], [ 0.35895577283608, 0.23136941847653 ], [ 0.41102070200316, 0.27233504637424 ], [ 0.43788940561806, 0.29065346865499 ], [ 0.45975764273948, 0.31068208704922 ], [ 0.48501458697963, 0.32782111661726 ], [ 0.49663736350572, 0.33154165852761 ] ]
-
-_editor.add_node(node3, -461.68754480505, -56.315766408163)
-
-Blueprint.connect(node1, "out", node3, "in")
-Blueprint.connect(node2, "this", node0, "cam")
-Blueprint.connect(node2, "this", node3, "cam")
-Blueprint.connect(node3, "out", node0, "hf")
-Blueprint.connect(node3, "pos", node0, "brush_pos")
-Blueprint.connect(node3, "raduis", node0, "brush_radius")
+Blueprint.connect(node1, "this", node2, "cam")

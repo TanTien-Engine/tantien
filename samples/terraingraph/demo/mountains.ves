@@ -1,64 +1,52 @@
 
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
-
+import "rendergraph.nodes.*"
 import "terraingraph.nodes.*"
-var node0 = Viewer()
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Camera3d()
 
-node0.gray = false
+node0.cam.position.set(0.38667230481442, 0.24482685805611, 0.091996373815822)
+node0.cam.yaw = 228.2
+node0.cam.pitch = -23.7
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.10714285820723
 
-_editor.add_node(node0, 450.66738486567, 63.82849532136)
+_editor.add_node(node0, 240.43332056659, -179.74502399822)
 
-var node1 = Camera3d()
+var node1 = Worley()
+node1.query_param("offset").value.set(0, 0)
+node1.query_param("seed").value = 0
+node1.query_param("frequency").value = 4
+node1.query_param("manhattan_scale").value = 0.1
+node1.query_param("dist_op").value = 0
+node1.query_param("features_mode").value = 0
 
-node1.cam.position.set(0.38667230481442, 0.24482685805611, 0.091996373815822)
-node1.cam.yaw = 228.2
-node1.cam.pitch = -23.7
-node1.cam.zoom = 45
-node1.cam.update_vectors()
-node1.speed = 0.10714285820723
+_editor.add_node(node1, -188.9355667442, 239.79474007007)
 
-_editor.add_node(node1, 240.43332056659, -179.74502399822)
+var node2 = Combiner()
+node2.query_param("method").value = 1
 
-var node2 = Perlin()
+_editor.add_node(node2, 41.833755013629, 182.28949536769)
 
-node2.frequency = 6.8036918640137
-node2.seed = 0.30259144306183
+var node3 = Erosion()
 
-_editor.add_node(node2, -196.38744954267, 142.24385923923)
+node3.iter = 755555
+node3.radius = 1.6942986249924
+node3.kq = 10
+node3.min_slope = 0.012055262923241
+node3.kw = 0.090276323258877
+node3.kr = 0.012721930630505
+node3.kd = 0.18054097890854
+node3.ki = 0.60276317596436
+node3.g = 4.3609652519226
 
-var node3 = Worley()
+_editor.add_node(node3, 231.7513148009, 144.5)
 
-node3.seed = 0.61979269981384
-node3.frequency = 10
-node3.manhattan_scale = 0.1
-node3.dist_op = 0
-node3.features_mode = 0
+var node4 = PerlinNoise()
+node4.query_param("seed").value = 0
 
-_editor.add_node(node3, -188.9355667442, 239.79474007007)
+_editor.add_node(node4, -196.86602403427, 15.424979505428)
 
-var node4 = Combiner()
-
-node4.method = "add"
-
-_editor.add_node(node4, 41.833755013629, 182.28949536769)
-
-var node5 = Erosion()
-
-node5.iter = 755555
-node5.radius = 1.6942986249924
-node5.kq = 10
-node5.min_slope = 0.012055262923241
-node5.kw = 0.090276323258877
-node5.kr = 0.012721930630505
-node5.kd = 0.18054097890854
-node5.ki = 0.60276317596436
-node5.g = 4.3609652519226
-
-_editor.add_node(node5, 231.7513148009, 144.5)
-
-Blueprint.connect(node1, "this", node0, "cam")
-Blueprint.connect(node2, "out", node4, "b")
-Blueprint.connect(node3, "out", node4, "a")
-Blueprint.connect(node4, "out", node5, "in")
-Blueprint.connect(node5, "out", node0, "hf")

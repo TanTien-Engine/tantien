@@ -1,25 +1,44 @@
-var node0 = Viewer()
 
-node0.gray = true
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Camera3d()
 
-_editor.add_node(node0, 127, 978.5)
+node0.cam.position.set(0.028954609443303, 0.79717790614566, 1.6227468507254)
+node0.cam.yaw = -86.9
+node0.cam.pitch = -32.3
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.20714285969734
 
-var node1 = Constant()
+_editor.add_node(node0, -75.422283006321, -186.34266982883)
 
-node1.value = 0.77777779102325
+var node1 = Subgraph()
+node1.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
-_editor.add_node(node1, -89, 1012.5)
+_editor.add_node(node1, -124, -34.5)
 
-var node2 = Camera3d()
+var node2 = Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
-node2.cam.position.set(0.028954609443303, 0.79717790614566, 1.6227468507254)
-node2.cam.yaw = -86.9
-node2.cam.pitch = -32.3
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.20714285969734
+_editor.add_node(node2, 144.49361382419, -99.651014274981)
 
-_editor.add_node(node2, -75, 846.5)
+var node3 = Pass()
 
-Blueprint.connect(node1, "out", node0, "hf")
-Blueprint.connect(node2, "this", node0, "cam")
+node3.once = false
+
+_editor.add_node(node3, 359, -66.5)
+
+var node4 = Number()
+
+node4.value = 0.87060546875
+
+_editor.add_node(node4, -317.83545694559, -46.510505727858)
+
+Blueprint.connect(node4, "v", node1, "height")
+Blueprint.connect(node1, "heightmap", node2, "tes_heightmap")
+Blueprint.connect(node0, "this", node2, "view_cam")
+Blueprint.connect(node2, "next", node3, "prev")

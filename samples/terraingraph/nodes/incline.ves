@@ -1,37 +1,86 @@
-var node0 = Viewer()
 
-node0.gray = true
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Worley()
+node0.query_param("offset").value.set(0, 0)
+node0.query_param("seed").value = 0
+node0.query_param("frequency").value = 4
+node0.query_param("manhattan_scale").value = 0.1
+node0.query_param("dist_op").value = 0
+node0.query_param("features_mode").value = 0
 
-_editor.add_node(node0, 91.705611730187, 224.53444269908)
+_editor.add_node(node0, -280.85697825541, 292.53058020146)
 
-var node1 = Worley()
+var node1 = Camera3d()
 
-node1.seed = 0
-node1.frequency = 7.8729958534241
-node1.manhattan_scale = 0.1
-node1.dist_op = 0
-node1.features_mode = 0
+node1.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
+node1.cam.yaw = -56.7
+node1.cam.pitch = -52.5
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.17548675835133
 
-_editor.add_node(node1, -280.85697825541, 292.53058020146)
+_editor.add_node(node1, -40.768745526297, -230.4071219535)
 
-var node2 = Camera3d()
+var node2 = Incline()
+node2.query_param("dx").value = 0.14489983022213
+node2.query_param("dy").value = 0.14489983022213
 
-node2.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
-node2.cam.yaw = -56.7
-node2.cam.pitch = -52.5
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.17548675835133
+_editor.add_node(node2, -274.04098800151, 8.7007409649272)
 
-_editor.add_node(node2, -97.568144474456, 134.43885851232)
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
-var node3 = Incline()
+_editor.add_node(node3, -21.944038391113, 386.47155761719)
 
-node3.dx = 0.52875775098801
-node3.dy = 0.51764661073685
+var node4 = Pass()
 
-_editor.add_node(node3, -101.31371527424, 291.4280136922)
+node4.once = false
 
-Blueprint.connect(node1, "out", node3, "in")
-Blueprint.connect(node2, "this", node0, "cam")
-Blueprint.connect(node3, "out", node0, "hf")
+_editor.add_node(node4, 217.14687000621, 375.56246948242)
+
+var node5 = Print()
+
+_editor.add_node(node5, 348.05595814098, 257.38066517223)
+
+var node6 = TexCoord()
+
+_editor.add_node(node6, -451.03494540128, 173.74427934126)
+
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
+
+_editor.add_node(node7, -49.216773293235, 56.471574263139)
+
+var node8 = Pass()
+
+node8.once = false
+
+_editor.add_node(node8, 199.87414134632, 62.835200916637)
+
+var node9 = Subgraph()
+node9.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
+
+_editor.add_node(node9, 250.28736205929, -157.16477411444)
+
+var node10 = Pass()
+
+node10.once = false
+
+_editor.add_node(node10, 488.46919237878, -127.16481711648)
+
+Blueprint.connect(node6, "uv", node0, "tex_coords")
+Blueprint.connect(node0, "ret", node3, "height")
+Blueprint.connect(node3, "next", node4, "prev")
+Blueprint.connect(node6, "uv", node2, "uv")
+Blueprint.connect(node3, "heightmap", node2, "in_tex2")
+Blueprint.connect(node2, "ret", node7, "height")
+Blueprint.connect(node7, "next", node8, "prev")
+Blueprint.connect(node7, "heightmap", node5, "value")
+Blueprint.connect(node7, "heightmap", node9, "tes_heightmap")
+Blueprint.connect(node1, "this", node9, "view_cam")
+Blueprint.connect(node9, "next", node10, "prev")

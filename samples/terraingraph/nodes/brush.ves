@@ -1,30 +1,27 @@
-var node0 = Viewer()
 
-node0.gray = true
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Camera3d()
 
-_editor.add_node(node0, 99.7179606, 183.4234232)
+node0.cam.position.set(0.046387820661966, 2.3649505501389, 2.5752223585314)
+node0.cam.yaw = -86.5
+node0.cam.pitch = -45
+node0.cam.zoom = 21
+node0.cam.update_vectors()
+node0.speed = 0.20714285969734
 
-var node1 = Camera3d()
+_editor.add_node(node0, -454.2530796295, 51.377114887726)
 
-node1.cam.position.set(0.046387820661966, 2.3649505501389, 2.5752223585314)
-node1.cam.yaw = -86.5
-node1.cam.pitch = -45
-node1.cam.zoom = 21
-node1.cam.update_vectors()
-node1.speed = 0.20714285969734
+var node1 = Brush()
 
-_editor.add_node(node1, -454.2530796295, 51.377114887726)
+node1.radius = 0.15597103536129
+node1.force = 0.15763296186924
+node1.history = [ instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2, instance of Vector2 ]
 
-var node2 = Brush()
+_editor.add_node(node1, -240.15106784869, 242.33372666048)
 
-node2.radius = 0.15597103536129
-node2.force = 0.15763296186924
-node2.history = [ [ -0.34853620671242, -0.42083686490689 ], [ -0.34853620671242, -0.42083686490689 ], [ -0.4922982723442, 0.48208216471389 ], [ -0.49116092229645, 0.4821516709919 ], [ 0.51114780037734, 0.13464088284239 ], [ 0.51114780037734, 0.13464088284239 ] ]
-
-_editor.add_node(node2, -240.15106784869, 242.33372666048)
-
-Blueprint.connect(node1, "this", node0, "cam")
-Blueprint.connect(node1, "this", node2, "cam")
-Blueprint.connect(node2, "out", node0, "hf")
-Blueprint.connect(node2, "pos", node0, "brush_pos")
-Blueprint.connect(node2, "raduis", node0, "brush_radius")
+Blueprint.connect(node0, "this", node1, "cam")

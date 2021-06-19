@@ -1,7 +1,12 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
 
 _editor.add_node(node0, 459.36940964728, -315.54832714451)
 
@@ -48,6 +53,9 @@ void main()
     gl_Position =  projection * view * vec4(vs_out.WorldPos, 1.0);
 }
 "
+node3.tcs = ""
+node3.tes = ""
+node3.gs = ""
 node3.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -173,7 +181,7 @@ void main()
 }
 
 "
-node3.gs = ""
+node3.cs = ""
 node3.execute()
 node3.set_uniform("lights[0].position", [ -0.425, 0.515, 0.48 ])
 node3.set_uniform("lights[0].direction", [ 0.6, -0.378, -0.7 ])
@@ -205,30 +213,30 @@ node3.set_uniform("ambient", [ 0.19279581308365 ])
 _editor.add_node(node3, -79.891942478386, -476.55710396823)
 
 var node4 = Texture()
+node4.query_param("unif_name").value = "u_tex"
 node4.gamma_correction = false
 node4.init_texture("beckmannTex.jpg")
-
 
 _editor.add_node(node4, -334.5423275953, -457.9743061648)
 
 var node5 = Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("Head_02_Albedo.png")
-
 
 _editor.add_node(node5, -570.69423347298, -458.9236641209)
 
 var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("Head_02_AO.png")
-
 
 _editor.add_node(node6, -562.75076568459, -788.86698759433)
 
 var node7 = Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("Head_02_Normal.png")
-
 
 _editor.add_node(node7, -333.63391641779, -791.13459099884)
 
@@ -257,21 +265,21 @@ var node10 = RenderTarget()
 node10.width = 2048
 node10.height = 2048
 
-_editor.add_node(node10, -240.2319044918, -1505.2498841702)
+_editor.add_node(node10, -343.3045444918, -1519.7444741702)
 
 var node11 = Texture()
+node11.query_param("unif_name").value = "u_tex"
 node11.gamma_correction = false
 node11.init_texture(2048, 2048, "rgba8")
 
-
-_editor.add_node(node11, -465.62440443845, -1368.7714169007)
+_editor.add_node(node11, -568.69704443845, -1383.2660069007)
 
 var node12 = Texture()
+node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture(2048, 2048, "depth")
 
-
-_editor.add_node(node12, -465.17868555518, -1702.8043428238)
+_editor.add_node(node12, -568.25132555518, -1717.2989328238)
 
 var node13 = Pass()
 
@@ -289,16 +297,17 @@ _editor.add_node(node14, 72.197703593751, -22.198881699219)
 var node15 = Draw()
 
 node15.set_prim_type("tri_strip")
-node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node15.skip = false
 
-_editor.add_node(node15, 978.62082932266, -1424.7424714975)
+_editor.add_node(node15, 493.53521932266, -1525.3660414975)
 
 var node16 = Clear()
 
 node16.masks = [ "color" ]
 node16.values = { "color" : [ 128, 128, 128, 255 ] }
 
-_editor.add_node(node16, 697.95637717654, -1228.0089559291)
+_editor.add_node(node16, 212.87076717654, -1328.6325259291)
 
 var node17 = Shader()
 
@@ -313,6 +322,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node17.tcs = ""
+node17.tes = ""
+node17.gs = ""
 node17.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -385,39 +397,41 @@ void main()
     FragColor = vec4(BlurColor, SceneColor.a);
 }
 "
-node17.gs = ""
+node17.cs = ""
 node17.execute()
 node17.set_uniform("SSSIntencity", [ 0.1 ])
 
-_editor.add_node(node17, 525.63024652302, -1375.6271985859)
+_editor.add_node(node17, 40.54463652302, -1476.2507685859)
 
 var node18 = PrimitiveShape()
 
 node18.type = "quad"
 node18.layout = [ "position", "texture" ]
+node18.shape_params = {  }
 
-_editor.add_node(node18, 710.38648949626, -1483.9295878489)
+_editor.add_node(node18, 225.30087949626, -1584.5531578489)
 
 var node19 = RenderTarget()
 
 node19.width = 2048
 node19.height = 2048
 
-_editor.add_node(node19, 768.10671412109, -1675.0811340625)
+_editor.add_node(node19, 283.02110412109, -1775.7047040625)
 
 var node20 = Texture()
+node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture(2048, 2048, "rgba8")
 
-
-_editor.add_node(node20, 556.90676294922, -1666.2811340625)
+_editor.add_node(node20, 71.82115294922, -1766.9047040625)
 
 var node21 = Draw()
 
 node21.set_prim_type("tri_strip")
-node21.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node21.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node21.skip = false
 
-_editor.add_node(node21, 1640.1823166477, -1805.5601226795)
+_editor.add_node(node21, 1540.0823166477, -1793.4601226795)
 
 var node22 = Shader()
 
@@ -432,6 +446,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node22.tcs = ""
+node22.tes = ""
+node22.gs = ""
 node22.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -504,36 +521,36 @@ void main()
     FragColor = vec4(BlurColor, SceneColor.a);
 }
 "
-node22.gs = ""
+node22.cs = ""
 node22.execute()
 node22.set_uniform("SSSIntencity", [ 0.1 ])
 
-_editor.add_node(node22, 1430.2649612758, -1728.0395281063)
+_editor.add_node(node22, 1330.1649612758, -1715.9395281063)
 
 var node23 = RenderTarget()
 
 node23.width = 2048
 node23.height = 2048
 
-_editor.add_node(node23, 1465.8170752108, -1878.0869246794)
+_editor.add_node(node23, 1365.7170752108, -1865.9869246794)
 
 var node24 = Texture()
+node24.query_param("unif_name").value = "u_tex"
 node24.gamma_correction = false
 node24.init_texture(2048, 2048, "rgba8")
 
-
-_editor.add_node(node24, 1282.3460068837, -1869.8224094096)
+_editor.add_node(node24, 1182.2460068837, -1857.7224094096)
 
 var node25 = Commentary()
 
-node25.set_size(810.61663818359, 830.73748779297)
+node25.set_size(1000.7395629883, 830.73748779297)
 node25.title = "SSSS BlurX"
 
-_editor.add_node(node25, 711.05144974375, -1117.8201199969)
+_editor.add_node(node25, 333.96583974375, -1171.4436899969)
 
 var node26 = Commentary()
 
-node26.set_size(553.50415039063, 340.52084350586)
+node26.set_size(863.86663818359, 340.52084350586)
 node26.title = "SSSS BlurY"
 
 _editor.add_node(node26, 1434.6913663052, -1603.1961572919)
@@ -543,33 +560,61 @@ var node27 = Commentary()
 node27.set_size(486.10208129883, 672.83123779297)
 node27.title = "Lighting result"
 
-_editor.add_node(node27, -364.14337667002, -1277.0318127864)
+_editor.add_node(node27, -467.21601667002, -1291.5264027864)
 
+var node28 = Pass()
+
+node28.once = false
+
+_editor.add_node(node28, 708.84081391345, -1444.1129464059)
+
+var node29 = Pass()
+
+node29.once = false
+
+_editor.add_node(node29, 1737.3464497107, -1710.0358044858)
+
+var node30 = Subgraph()
+node30.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
+
+_editor.add_node(node30, 1795.0965687145, -2106.7946000533)
+
+var node31 = Pass()
+
+node31.once = false
+
+_editor.add_node(node31, 2019.6420454545, -2107.7036243786)
+
+Blueprint.connect(node30, "next", node31, "prev")
+Blueprint.connect(node21, "next", node29, "prev")
+Blueprint.connect(node23, "fbo", node29, "fbo")
+Blueprint.connect(node15, "next", node28, "prev")
+Blueprint.connect(node19, "fbo", node28, "fbo")
+Blueprint.connect(node24, "tex", node30, "texture1")
+Blueprint.connect(node24, "tex", node23, "col0")
+Blueprint.connect(node20, "tex", node19, "col0")
 Blueprint.connect(node0, "next", node13, "prev")
-Blueprint.connect(node1, "next", node0, "prev")
-Blueprint.connect(node2, "model", node0, "model")
-Blueprint.connect(node3, "out", node0, "shader")
+Blueprint.connect(node10, "fbo", node13, "fbo")
+Blueprint.connect(node12, "tex", node22, "depth_tex")
+Blueprint.connect(node20, "tex", node22, "color_tex")
+Blueprint.connect(node28, "next", node21, "prev")
+Blueprint.connect(node22, "out", node21, "shader")
+Blueprint.connect(node18, "out", node21, "va")
+Blueprint.connect(node12, "tex", node17, "depth_tex")
+Blueprint.connect(node11, "tex", node17, "color_tex")
+Blueprint.connect(node16, "next", node15, "prev")
+Blueprint.connect(node17, "out", node15, "shader")
+Blueprint.connect(node18, "out", node15, "va")
+Blueprint.connect(node11, "tex", node10, "col0")
+Blueprint.connect(node12, "tex", node10, "depth")
+Blueprint.connect(node9, "zoom", node8, "fovy")
+Blueprint.connect(node8, "mat", node3, "projection")
+Blueprint.connect(node9, "mat", node3, "view")
+Blueprint.connect(node9, "pos", node3, "viewPos")
 Blueprint.connect(node4, "tex", node3, "beckmannTex")
 Blueprint.connect(node5, "tex", node3, "diffuseTex")
 Blueprint.connect(node6, "tex", node3, "aoTex")
 Blueprint.connect(node7, "tex", node3, "normalTex")
-Blueprint.connect(node8, "mat", node3, "projection")
-Blueprint.connect(node9, "mat", node3, "view")
-Blueprint.connect(node9, "zoom", node8, "fovy")
-Blueprint.connect(node9, "pos", node3, "viewPos")
-Blueprint.connect(node10, "fbo", node13, "fbo")
-Blueprint.connect(node11, "tex", node10, "col0")
-Blueprint.connect(node11, "tex", node17, "color_tex")
-Blueprint.connect(node12, "tex", node10, "depth")
-Blueprint.connect(node12, "tex", node17, "depth_tex")
-Blueprint.connect(node12, "tex", node22, "depth_tex")
-Blueprint.connect(node15, "next", node21, "prev")
-Blueprint.connect(node16, "next", node15, "prev")
-Blueprint.connect(node17, "out", node15, "shader")
-Blueprint.connect(node18, "out", node15, "va")
-Blueprint.connect(node18, "out", node21, "va")
-Blueprint.connect(node19, "fbo", node15, "fbo")
-Blueprint.connect(node20, "tex", node19, "col0")
-Blueprint.connect(node20, "tex", node22, "color_tex")
-Blueprint.connect(node22, "out", node21, "shader")
-Blueprint.connect(node24, "tex", node23, "col0")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node3, "out", node0, "shader")
+Blueprint.connect(node2, "model", node0, "model")

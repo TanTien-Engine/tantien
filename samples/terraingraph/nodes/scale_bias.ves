@@ -1,37 +1,60 @@
-var node0 = Viewer()
 
-node0.gray = true
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "terraingraph.nodes.*"
+import "shadergraph.nodes.*"
+import "noisegraph.nodes.*"
+var node0 = Worley()
+node0.query_param("offset").value.set(0, 0)
+node0.query_param("seed").value = 0
+node0.query_param("frequency").value = 4
+node0.query_param("manhattan_scale").value = 0.1
+node0.query_param("dist_op").value = 0
+node0.query_param("features_mode").value = 0
 
-_editor.add_node(node0, 91.705611730187, 224.53444269908)
+_editor.add_node(node0, -280.85697825541, 292.53058020146)
 
-var node1 = Worley()
+var node1 = Camera3d()
 
-node1.seed = 0.70952183008194
-node1.frequency = 10
-node1.manhattan_scale = 0.1
-node1.dist_op = 0
-node1.features_mode = 0
+node1.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
+node1.cam.yaw = -56.7
+node1.cam.pitch = -52.5
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.17548675835133
 
-_editor.add_node(node1, -280.85697825541, 292.53058020146)
+_editor.add_node(node1, 66.355084813161, 216.40047315613)
 
-var node2 = Camera3d()
+var node2 = ScaleBias()
+node2.query_param("scale").value = 0.67473095655441
+node2.query_param("bias").value = 0.15250872075558
 
-node2.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
-node2.cam.yaw = -56.7
-node2.cam.pitch = -52.5
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.17548675835133
+_editor.add_node(node2, -132.72577872288, 412.50264466779)
 
-_editor.add_node(node2, -97.568144474456, 134.43885851232)
+var node3 = Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
-var node3 = Step()
+_editor.add_node(node3, 77.489692946974, 466.80439349447)
 
-node3.low = 0.39751181006432
-node3.high = 2.6197340488434
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
-_editor.add_node(node3, -91.577608273057, 290.59147557645)
+_editor.add_node(node4, 366.40438226315, 270.77954228293)
 
-Blueprint.connect(node1, "out", node3, "in")
-Blueprint.connect(node2, "this", node0, "cam")
-Blueprint.connect(node3, "out", node0, "hf")
+var node5 = TexCoord()
+
+_editor.add_node(node5, -454.91010534916, 404.85815372158)
+
+var node6 = Pass()
+
+node6.once = false
+
+_editor.add_node(node6, 567.56106026066, 302.40610293992)
+
+Blueprint.connect(node5, "uv", node0, "tex_coords")
+Blueprint.connect(node0, "ret", node2, "h")
+Blueprint.connect(node2, "ret", node3, "height")
+Blueprint.connect(node3, "heightmap", node4, "tes_heightmap")
+Blueprint.connect(node1, "this", node4, "view_cam")
+Blueprint.connect(node4, "next", node6, "prev")

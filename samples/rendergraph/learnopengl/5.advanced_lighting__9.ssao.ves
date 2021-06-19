@@ -1,7 +1,12 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
 
 _editor.add_node(node0, -1401.9242056538, 580.37564076121)
 
@@ -38,6 +43,9 @@ void main()
     gl_Position = projection * viewPos;
 }
 "
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
 node1.fs = "
 #version 330 core
 layout (location = 0) out vec3 gPosition;
@@ -58,7 +66,7 @@ void main()
     gAlbedo.rgb = vec3(0.95);
 }
 "
-node1.gs = ""
+node1.cs = ""
 node1.execute()
 node1.set_uniform("invertedNormals", [ 1 ])
 
@@ -68,6 +76,7 @@ var node2 = PrimitiveShape()
 
 node2.type = "cube"
 node2.layout = [ "position", "normal", "texture" ]
+node2.shape_params = {  }
 
 _editor.add_node(node2, -1700.4045861133, 390.53323629282)
 
@@ -128,23 +137,23 @@ node9.height = 1024
 _editor.add_node(node9, -495.43559567255, -173.61018606145)
 
 var node10 = Texture()
+node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture(1024, 1024, "rgba16f")
-
 
 _editor.add_node(node10, -756.0955389071, -307.09577086047)
 
 var node11 = Texture()
+node11.query_param("unif_name").value = "u_tex"
 node11.gamma_correction = false
 node11.init_texture(1024, 1024, "rgba16f")
-
 
 _editor.add_node(node11, -757.5002255625, -444.19675170244)
 
 var node12 = Texture()
+node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgba8")
-
 
 _editor.add_node(node12, -756.6108268313, -585.6557205403)
 
@@ -157,7 +166,8 @@ _editor.add_node(node13, -749.281123549, -184.30598672111)
 var node14 = Draw()
 
 node14.set_prim_type("tri_strip")
-node14.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node14.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node14.skip = false
 
 _editor.add_node(node14, 1195.5640153454, -260.58781624477)
 
@@ -176,6 +186,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node15.tcs = ""
+node15.tes = ""
+node15.gs = ""
 node15.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -229,7 +242,7 @@ void main()
     FragColor = vec4(lighting, 1.0);
 }
 "
-node15.gs = ""
+node15.cs = ""
 node15.execute()
 node15.set_uniform("light.Color", [ 0.2, 0.2, 0.7 ])
 node15.set_uniform("light.Linear", [ 0.09 ])
@@ -247,9 +260,10 @@ _editor.add_node(node16, 1008.3737674938, -223.36193249654)
 var node17 = Draw()
 
 node17.set_prim_type("tri_strip")
-node17.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node17.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node17.skip = false
 
-_editor.add_node(node17, 754.88604811453, 560.44706117266)
+_editor.add_node(node17, 653.24604811453, 560.44706117266)
 
 var node18 = Shader()
 
@@ -266,6 +280,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node18.tcs = ""
+node18.tes = ""
+node18.gs = ""
 node18.fs = "
 #version 330 core
 out float FragColor;
@@ -327,45 +344,47 @@ void main()
     FragColor = occlusion;
 }
 "
-node18.gs = ""
+node18.cs = ""
 node18.execute()
 
-_editor.add_node(node18, 313.82550976106, 603.01357233403)
+_editor.add_node(node18, 212.18550976106, 603.01357233403)
 
 var node19 = RenderTarget()
 
 node19.width = 1024
 node19.height = 1024
 
-_editor.add_node(node19, 591.33534394771, 385.62396173278)
+_editor.add_node(node19, 489.69534394771, 385.62396173278)
 
 var node20 = Texture()
+node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture(1024, 1024, "r16")
 
-
-_editor.add_node(node20, 351.1247583198, 319.78766737989)
+_editor.add_node(node20, 249.4847583198, 319.78766737989)
 
 var node21 = PrimitiveShape()
 
 node21.type = "quad"
 node21.layout = [ "position", "texture" ]
+node21.shape_params = {  }
 
-_editor.add_node(node21, 535.37202187157, 546.22969402714)
+_editor.add_node(node21, 433.73202187157, 546.22969402714)
 
 var node22 = Clear()
 
 node22.masks = [ "depth", "color" ]
 node22.values = { "color" : [ 255, 255, 255, 255 ] }
 
-_editor.add_node(node22, 530.65189483127, 718.43997052458)
+_editor.add_node(node22, 429.01189483127, 718.43997052458)
 
 var node23 = Draw()
 
 node23.set_prim_type("tri_strip")
-node23.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node23.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node23.skip = false
 
-_editor.add_node(node23, 1461.3212492244, 715.06364870217)
+_editor.add_node(node23, 1598.8157492244, 711.39954870217)
 
 var node24 = Shader()
 
@@ -382,6 +401,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node24.tcs = ""
+node24.tes = ""
+node24.gs = ""
 node24.fs = "
 #version 330 core
 out float FragColor;
@@ -405,43 +427,46 @@ void main()
     FragColor = result / (4.0 * 4.0);
 }  
 "
-node24.gs = ""
+node24.cs = ""
 node24.execute()
 
-_editor.add_node(node24, 1070.8838403342, 763.89862313223)
+_editor.add_node(node24, 1208.3783403342, 760.23452313223)
 
 var node25 = RenderTarget()
 
 node25.width = 1024
 node25.height = 1024
 
-_editor.add_node(node25, 1318.6766836847, 536.16970578493)
+_editor.add_node(node25, 1456.1711836847, 532.50560578493)
 
 var node26 = Texture()
+node26.query_param("unif_name").value = "u_tex"
 node26.gamma_correction = false
 node26.init_texture(1024, 1024, "r16")
 
-
-_editor.add_node(node26, 1083.8403444624, 548.79699071923)
+_editor.add_node(node26, 1221.3348444624, 545.13289071923)
 
 var node27 = PrimitiveShape()
 
 node27.type = "quad"
 node27.layout = [ "position", "texture" ]
+node27.shape_params = {  }
 
-_editor.add_node(node27, 1240.7612455079, 703.68391493623)
+_editor.add_node(node27, 1378.2557455079, 700.01981493623)
 
 var node28 = PrimitiveShape()
 
 node28.type = "quad"
 node28.layout = [ "position", "texture" ]
+node28.shape_params = {  }
 
 _editor.add_node(node28, 1022.5039024133, -393.16771106847)
 
 var node29 = Draw()
 
 node29.set_prim_type("triangles")
-node29.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node29.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node29.skip = false
 
 _editor.add_node(node29, -469.21905463955, 597.36254008502)
 
@@ -478,6 +503,9 @@ void main()
     gl_Position = projection * viewPos;
 }
 "
+node30.tcs = ""
+node30.tes = ""
+node30.gs = ""
 node30.fs = "
 #version 330 core
 layout (location = 0) out vec3 gPosition;
@@ -498,7 +526,7 @@ void main()
     gAlbedo.rgb = vec3(0.95);
 }
 "
-node30.gs = ""
+node30.cs = ""
 node30.execute()
 node30.set_uniform("invertedNormals", [ 0 ])
 
@@ -557,7 +585,7 @@ _editor.script_stack.add(ssao_kernel)
 node34.init_ports(0, 1)
 node34.use_cache = true
 
-_editor.add_node(node34, 81.925382829207, 688.55836911426)
+_editor.add_node(node34, 44.415382829207, 676.45836911426)
 
 var node35 = Custom()
 
@@ -587,7 +615,7 @@ _editor.script_stack.add(v_tex)
 node35.init_ports(0, 1)
 node35.use_cache = true
 
-_editor.add_node(node35, 99.26949109499, 499.04106272031)
+_editor.add_node(node35, 31.50949109499, 513.56106272031)
 
 var node36 = Number3()
 
@@ -601,14 +629,14 @@ _editor.add_node(node37, 543.65096300015, -396.41106689117)
 
 var node38 = Commentary()
 
-node38.set_size(696.55834960938, 583.91668701172)
+node38.set_size(712.78747558594, 583.91668701172)
 node38.title = "blur SSAO texture to remove noise"
 
-_editor.add_node(node38, 1250.8230191699, 859.06053894532)
+_editor.add_node(node38, 1463.1175191699, 857.59643894532)
 
 var node39 = Commentary()
 
-node39.set_size(890.70935058594, 811.62811279297)
+node39.set_size(931.70104980469, 811.62811279297)
 node39.title = "generate SSAO texture"
 
 _editor.add_node(node39, 410.70405916992, 859.21690894531)
@@ -634,51 +662,65 @@ node42.title = "gbuffer"
 
 _editor.add_node(node42, -561.985925149, -58.6956857059)
 
-Blueprint.connect(node0, "next", node29, "prev")
+var node43 = Pass()
+
+node43.once = false
+
+_editor.add_node(node43, 803.35983133937, 645.39640999557)
+
+var node44 = Pass()
+
+node44.once = false
+
+_editor.add_node(node44, 1747.5629443359, 789.05961914062)
+
+Blueprint.connect(node23, "next", node44, "prev")
+Blueprint.connect(node25, "fbo", node44, "fbo")
+Blueprint.connect(node44, "next", node16, "prev")
+Blueprint.connect(node17, "next", node43, "prev")
+Blueprint.connect(node19, "fbo", node43, "fbo")
+Blueprint.connect(node33, "mat", node32, "mat")
+Blueprint.connect(node26, "tex", node25, "col0")
+Blueprint.connect(node20, "tex", node24, "ssaoInput")
+Blueprint.connect(node43, "next", node23, "prev")
+Blueprint.connect(node24, "out", node23, "shader")
+Blueprint.connect(node27, "out", node23, "va")
+Blueprint.connect(node20, "tex", node19, "col0")
+Blueprint.connect(node10, "tex", node9, "col0")
+Blueprint.connect(node11, "tex", node9, "col1")
+Blueprint.connect(node12, "tex", node9, "col2")
+Blueprint.connect(node13, "rbo", node9, "depth")
+Blueprint.connect(node29, "next", node8, "prev")
+Blueprint.connect(node9, "fbo", node8, "fbo")
+Blueprint.connect(node7, "mat", node6, "mat")
+Blueprint.connect(node36, "v3", node37, "a")
+Blueprint.connect(node4, "mat", node37, "b")
+Blueprint.connect(node37, "v", node15, "light.Position")
+Blueprint.connect(node10, "tex", node15, "gPosition")
+Blueprint.connect(node11, "tex", node15, "gNormal")
+Blueprint.connect(node12, "tex", node15, "gAlbedo")
+Blueprint.connect(node26, "tex", node15, "ssao")
+Blueprint.connect(node16, "next", node14, "prev")
+Blueprint.connect(node15, "out", node14, "shader")
+Blueprint.connect(node28, "out", node14, "va")
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node32, "mat", node30, "model")
+Blueprint.connect(node4, "mat", node30, "view")
+Blueprint.connect(node3, "mat", node30, "projection")
+Blueprint.connect(node34, "out0", node18, "samples")
+Blueprint.connect(node3, "mat", node18, "projection")
+Blueprint.connect(node10, "tex", node18, "gPosition")
+Blueprint.connect(node11, "tex", node18, "gNormal")
+Blueprint.connect(node35, "out0", node18, "texNoise")
+Blueprint.connect(node22, "next", node17, "prev")
+Blueprint.connect(node18, "out", node17, "shader")
+Blueprint.connect(node21, "out", node17, "va")
+Blueprint.connect(node6, "mat", node1, "model")
+Blueprint.connect(node4, "mat", node1, "view")
+Blueprint.connect(node3, "mat", node1, "projection")
+Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "out", node0, "va")
-Blueprint.connect(node3, "mat", node1, "projection")
-Blueprint.connect(node3, "mat", node30, "projection")
-Blueprint.connect(node3, "mat", node18, "projection")
-Blueprint.connect(node4, "mat", node1, "view")
-Blueprint.connect(node4, "mat", node30, "view")
-Blueprint.connect(node4, "mat", node37, "b")
-Blueprint.connect(node4, "zoom", node3, "fovy")
-Blueprint.connect(node5, "next", node0, "prev")
-Blueprint.connect(node6, "mat", node1, "model")
-Blueprint.connect(node7, "mat", node6, "mat")
-Blueprint.connect(node9, "fbo", node8, "fbo")
-Blueprint.connect(node10, "tex", node9, "col0")
-Blueprint.connect(node10, "tex", node15, "gPosition")
-Blueprint.connect(node10, "tex", node18, "gPosition")
-Blueprint.connect(node11, "tex", node9, "col1")
-Blueprint.connect(node11, "tex", node15, "gNormal")
-Blueprint.connect(node11, "tex", node18, "gNormal")
-Blueprint.connect(node12, "tex", node9, "col2")
-Blueprint.connect(node12, "tex", node15, "gAlbedo")
-Blueprint.connect(node13, "rbo", node9, "depth")
-Blueprint.connect(node15, "out", node14, "shader")
-Blueprint.connect(node16, "next", node14, "prev")
-Blueprint.connect(node17, "next", node23, "prev")
-Blueprint.connect(node18, "out", node17, "shader")
-Blueprint.connect(node19, "fbo", node17, "fbo")
-Blueprint.connect(node20, "tex", node19, "col0")
-Blueprint.connect(node20, "tex", node24, "ssaoInput")
-Blueprint.connect(node21, "out", node17, "va")
-Blueprint.connect(node22, "next", node17, "prev")
-Blueprint.connect(node23, "next", node16, "prev")
-Blueprint.connect(node24, "out", node23, "shader")
-Blueprint.connect(node25, "fbo", node23, "fbo")
-Blueprint.connect(node26, "tex", node25, "col0")
-Blueprint.connect(node26, "tex", node15, "ssao")
-Blueprint.connect(node27, "out", node23, "va")
-Blueprint.connect(node28, "out", node14, "va")
-Blueprint.connect(node29, "next", node8, "prev")
+Blueprint.connect(node0, "next", node29, "prev")
 Blueprint.connect(node30, "out", node29, "shader")
 Blueprint.connect(node31, "model", node29, "model")
-Blueprint.connect(node32, "mat", node30, "model")
-Blueprint.connect(node33, "mat", node32, "mat")
-Blueprint.connect(node34, "out0", node18, "samples")
-Blueprint.connect(node35, "out0", node18, "texNoise")
-Blueprint.connect(node36, "v3", node37, "a")
-Blueprint.connect(node37, "v", node15, "light.Position")

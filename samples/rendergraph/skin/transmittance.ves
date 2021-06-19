@@ -1,7 +1,11 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
 var node0 = Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 116.282, -83.119200000001)
@@ -60,6 +64,7 @@ node4.height = 2048
 _editor.add_node(node4, -327.64895174481, -355.31899244416)
 
 var node5 = Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture(2048, 2048, "depth")
 
@@ -72,7 +77,7 @@ _editor.add_node(node6, -335.48382568359, -40.799798066951)
 var node7 = Draw()
 
 node7.set_prim_type("triangles")
-node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node7.skip = false
 
 _editor.add_node(node7, 583.70380722722, -545.39065203247)
@@ -247,23 +252,30 @@ node16.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node16, 357.43530273438, -351.70159912109)
 
+var node17 = Pass()
+
+node17.once = false
+
+_editor.add_node(node17, 753.70754394531, -465.39468994141)
+
+Blueprint.connect(node7, "next", node17, "prev")
+Blueprint.connect(node15, "zoom", node14, "fovy")
+Blueprint.connect(node13, "v3", node10, "eye")
 Blueprint.connect(node0, "next", node11, "prev")
+Blueprint.connect(node4, "fbo", node11, "fbo")
+Blueprint.connect(node9, "mat", node6, "a")
+Blueprint.connect(node10, "mat", node6, "b")
+Blueprint.connect(node6, "v", node2, "lightSpaceMatrix")
+Blueprint.connect(node14, "mat", node8, "projection")
+Blueprint.connect(node15, "mat", node8, "view")
+Blueprint.connect(node13, "v3", node8, "lightPos")
+Blueprint.connect(node15, "pos", node8, "viewPos")
+Blueprint.connect(node6, "v", node8, "lightSpaceMatrix")
+Blueprint.connect(node5, "tex", node8, "shadowMap")
+Blueprint.connect(node5, "tex", node4, "depth")
+Blueprint.connect(node16, "next", node7, "prev")
+Blueprint.connect(node8, "out", node7, "shader")
+Blueprint.connect(node3, "model", node7, "model")
 Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "model", node0, "model")
-Blueprint.connect(node3, "model", node7, "model")
-Blueprint.connect(node4, "fbo", node11, "fbo")
-Blueprint.connect(node5, "tex", node4, "depth")
-Blueprint.connect(node5, "tex", node8, "shadowMap")
-Blueprint.connect(node6, "v", node2, "lightSpaceMatrix")
-Blueprint.connect(node6, "v", node8, "lightSpaceMatrix")
-Blueprint.connect(node8, "out", node7, "shader")
-Blueprint.connect(node9, "mat", node6, "a")
-Blueprint.connect(node10, "mat", node6, "b")
-Blueprint.connect(node13, "v3", node10, "eye")
-Blueprint.connect(node13, "v3", node8, "lightPos")
-Blueprint.connect(node14, "mat", node8, "projection")
-Blueprint.connect(node15, "mat", node8, "view")
-Blueprint.connect(node15, "zoom", node14, "fovy")
-Blueprint.connect(node15, "pos", node8, "viewPos")
-Blueprint.connect(node16, "next", node7, "prev")
