@@ -12,6 +12,9 @@ class Finish is Node
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT),
 		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
 
 		this.layout()
 	}
@@ -20,6 +23,6 @@ class Finish is Node
 	{
 		super.shader_gen(ctx)
 
-		bb.return_null()
+		ctx.bb.return_null()
 	}
 }
