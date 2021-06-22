@@ -705,7 +705,9 @@ void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
     for (int i = 0; i < num; ++i) 
     {
         ves_geti(1, i);
-        if (std::is_same<T, double>::value) {
+        if (std::is_same<T, unsigned int>::value) {
+            data.push_back((unsigned int)ves_tonumber(-1));
+        } else if (std::is_same<T, double>::value) {
             data.push_back(ves_tonumber(-1));
         } else if (std::is_same<T, float>::value) {
             data.push_back((float)ves_tonumber(-1));
@@ -739,6 +741,9 @@ void w_Texture2D_upload()
 
     switch (fmt)
     {
+    case ur::TextureFormat::RGBA8:
+        texture2d_upload<unsigned int>(*tex, num, x, y, w, h);
+        break;
     case ur::TextureFormat::RGBA16F:
     case ur::TextureFormat::RGB16F:
     case ur::TextureFormat::RG16F:

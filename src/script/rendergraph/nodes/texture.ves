@@ -1,13 +1,15 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "image" for ImageData
 import "graphics" for Graphics
 import "render" for Texture2D, TextureSampler
 import "gui" for GUI
+import "math" for Math
 
 class Texture is Node
 {
@@ -15,6 +17,10 @@ class Texture is Node
 	{
 		super.init(Texture.name)
 
+		this.imports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE),
+			Pin(this, "col", VAR_TYPE_NUMBER3),			
+		]
 		this.exports = [
 			Pin(this, "tex", VAR_TYPE_TEXTURE),
 			Pin(this, "width", VAR_TYPE_NUMBER),
@@ -51,23 +57,25 @@ class Texture is Node
 		if (idx == 0)
 		{
 			var ret = VarTexture()
-			ret.tex = this.tex
-			ret.sampler = this.sampler
+			ret.tex = this.get_texture()
+			ret.sampler = this.get_sampler()
 			return Variant(VAR_TYPE_TEXTURE, ret)
 		}
 		else if (idx == 1)
 		{
 			var width = 0
-			if (this.tex) {
-				width = this.tex.get_width()		
+			var tex = this.get_texture()
+			if (tex) {
+				width = tex.get_width()		
 			}
 			return Variant(VAR_TYPE_NUMBER, width)
 		}
 		else if (idx == 2)
 		{
 			var height = 0
-			if (this.tex) {
-				height = this.tex.get_height()
+			var tex = this.get_texture()
+			if (tex) {
+				height = tex.get_height()
 			}
 			return Variant(VAR_TYPE_NUMBER, height)
 		}
@@ -79,6 +87,22 @@ class Texture is Node
 	{
     	this.unif = nil
     	this.unif_name = nil
+
+		var v_col = Blueprint.calc_input_value(this, 1)
+		if (v_col) 
+		{
+			this.width  = 1
+			this.height = 1
+			this.format = "rgba8"
+			this.tex = Texture2D.init(this.width, this.height, this.format)
+
+			var rgb = v_col.value
+			var r = Math.min(Math.max(rgb.x, 0.0), 1.0) * 255.0
+			var g = Math.min(Math.max(rgb.y, 0.0), 1.0) * 255.0
+			var b = Math.min(Math.max(rgb.z, 0.0), 1.0) * 255.0
+			var col = r + g * 256 + b * 256 * 256 + 255 * 256 * 256 * 256
+			this.tex.upload([col], 0, 0, 1, 1)
+		}
 	}
 
     shader_gen(ctx)
@@ -97,7 +121,8 @@ class Texture is Node
 	{
 		if (idx == 0)
 		{
-			if (this.unif) {
+			var tex = this.get_texture()
+			if (tex and this.unif) {
 				return ctx.bb.load(this.unif)
 			} else {
 				return nil
@@ -106,16 +131,18 @@ class Texture is Node
 		else if (idx == 1)
 		{
 			var width = 0
-			if (this.tex) {
-				width = this.tex.get_width()
+			var tex = this.get_texture()
+			if (tex) {
+				width = tex.get_width()
 			}		
 			return ctx.module.const_float(width)
 		}
 		else if (idx == 2)
 		{
 			var height = 0
-			if (this.tex) {
-				height = this.tex.get_height()
+			var tex = this.get_texture()
+			if (tex) {
+				height = tex.get_height()
 			}		
 			return ctx.module.const_float(height)
 		}
@@ -123,8 +150,11 @@ class Texture is Node
 
 	bind_uniforms(prog)
 	{
-		if (this.unif) {
-			prog.set_uniform_value([this.unif_name, "sampler", [this.tex, this.sampler]])
+		if (this.unif) 
+		{
+			var tex     = this.get_texture()
+			var sampler = this.get_sampler()
+			prog.set_uniform_value([this.unif_name, "sampler", [tex, sampler]])
 		}
 	}
 
@@ -132,12 +162,13 @@ class Texture is Node
 	{
 		super.draw(mt, cam_mt)
 
-		if (this.tex)
+		var tex = this.get_texture()
+		if (tex)
 		{
-			var scale = this.style.width / this.tex.get_width()
+			var scale = this.style.width / tex.get_width()
 			var x = this.pos.x
-			var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT - this.tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
-			Graphics.draw_texture(this.tex, x, y, scale)
+			var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT - tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
+			Graphics.draw_texture(tex, x, y, scale)
 		}
 	}
 
@@ -196,6 +227,10 @@ class Texture is Node
 
 	init_texture(filepath)
 	{
+		if (filepath == "") {
+			return
+		}
+
 		this.tex_filepath = filepath
 
 		var img = ImageData.init(filepath)
@@ -228,4 +263,28 @@ class Texture is Node
 			this.query_param("unif_name").value = name
 		}
 	}
+
+	get_texture()
+	{
+		var v_tex = Blueprint.calc_input_value(this, 0)
+		if (v_tex and v_tex.value.tex) {
+			return v_tex.value.tex
+		} else {
+			return this.tex
+		}
+	}
+
+	get_sampler()
+	{
+		if (this.sampler) {
+			return this.sampler
+		}
+
+		var v_tex = Blueprint.calc_input_value(this, 0)
+		if (v_tex) {
+			return v_tex.value.sampler
+		}
+
+		return nil
+	}	
 }
