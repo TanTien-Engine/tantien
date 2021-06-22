@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
-import "rendergraph.variant" for VAR_TYPE_TEXTURE
 
 class Expand is Node
 {
@@ -38,45 +37,6 @@ class Expand is Node
 
     	this.uniforms = List.filled(this.exports.count, nil)
     }
-
-	calc_inst(idx, ctx) 
-	{
-		var value = this.export_values[idx]
-		if (value.type == VAR_TYPE_TEXTURE)
-		{
-			if (!this.uniforms[idx]) 
-			{
-				var name = this.get_unif_name(idx)
-				var unif = ctx.gen.add_uniform(ctx.module, name, "texture")
-				var unif_name = ctx.gen.query_unif_name(unif)
-
-				this.uniforms[idx] = [unif, unif_name]
-			}
-
-			if (this.uniforms[idx]) {
-				return ctx.bb.load(this.uniforms[idx][0])
-			} else {
-				return nil
-			}
-		}
-		else
-		{
-			return nil
-		}
-	}
-
-	bind_uniforms(prog)
-	{
-		for (var i in 0..this.exports.count)
-		{
-			var value = this.export_values[i]
-			var unif = this.uniforms[i]
-			if (value.type == VAR_TYPE_TEXTURE and value.value and unif)
-			{
-				prog.set_uniform_value([unif[1], "sampler", [value.value.tex, value.value.sampler]])
-			}
-		}	
-	}
 
 	get_unif_name(index)
 	{
