@@ -26,6 +26,7 @@ class NodeCache
 		} else {
 			node.load_from_file(this.editor, filepath)
 		}
+		node.setup()
 		this.path2node[filepath] = node
 
 		return node
