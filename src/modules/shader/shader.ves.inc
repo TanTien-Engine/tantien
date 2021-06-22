@@ -37,10 +37,10 @@ foreign class ShaderFunc
 
 	foreign add_variable(name, value)
 
-	foreign variable_float()
-	foreign variable_float2()
-	foreign variable_float3()
-	foreign variable_float4()
+	foreign variable_float(name)
+	foreign variable_float2(name)
+	foreign variable_float3(name)
+	foreign variable_float4(name)
 
 	foreign get_block()
 	foreign add_block(name)

@@ -168,7 +168,7 @@ uniform sampler2D in_tex;
 			var ctx = ShaderContext(gen, module, func, bb, {})
 			n_cs.shader_gen(ctx)
 
-			var dst = func.variable_float()
+			var dst = func.variable_float(nil)
 			var grey = Blueprint.calc_input_inst(n_cs, 0, ctx)
 			bb.store(dst, grey)
 

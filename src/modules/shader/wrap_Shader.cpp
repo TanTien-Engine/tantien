@@ -327,32 +327,36 @@ void w_ShaderFunc_add_variable()
 void w_ShaderFunc_variable_float()
 {
     spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(0);
+    const char* name = ves_tostring(1);
 
-    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat(func);
+    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat(func, name);
     return_inst(inst);
 }
 
 void w_ShaderFunc_variable_float2()
 {
     spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(0);
+    const char* name = ves_tostring(1);
 
-    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat2(func);
+    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat2(func, name);
     return_inst(inst);
 }
 
 void w_ShaderFunc_variable_float3()
 {
     spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(0);
+    const char* name = ves_tostring(1);
 
-    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat3(func);
+    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat3(func, name);
     return_inst(inst);
 }
 
 void w_ShaderFunc_variable_float4()
 {
     spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(0);
+    const char* name = ves_tostring(1);
 
-    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat4(func);
+    spvgentwo::Instruction* inst = shadertrans::SpirvGenTwo::VariableFloat4(func, name);
     return_inst(inst);
 }
 
@@ -948,10 +952,10 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "ShaderFunc.add_variable(_,_)") == 0) return w_ShaderFunc_add_variable;
 
-    if (strcmp(signature, "ShaderFunc.variable_float()") == 0) return w_ShaderFunc_variable_float;
-    if (strcmp(signature, "ShaderFunc.variable_float2()") == 0) return w_ShaderFunc_variable_float2;
-    if (strcmp(signature, "ShaderFunc.variable_float3()") == 0) return w_ShaderFunc_variable_float3;
-    if (strcmp(signature, "ShaderFunc.variable_float4()") == 0) return w_ShaderFunc_variable_float4;
+    if (strcmp(signature, "ShaderFunc.variable_float(_)") == 0) return w_ShaderFunc_variable_float;
+    if (strcmp(signature, "ShaderFunc.variable_float2(_)") == 0) return w_ShaderFunc_variable_float2;
+    if (strcmp(signature, "ShaderFunc.variable_float3(_)") == 0) return w_ShaderFunc_variable_float3;
+    if (strcmp(signature, "ShaderFunc.variable_float4(_)") == 0) return w_ShaderFunc_variable_float4;
 
     if (strcmp(signature, "ShaderFunc.get_block()") == 0) return w_ShaderFunc_get_block;
     if (strcmp(signature, "ShaderFunc.add_block(_)") == 0) return w_ShaderFunc_add_block;

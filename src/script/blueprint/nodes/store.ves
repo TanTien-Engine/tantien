@@ -13,6 +13,7 @@ class Store is Node
 
 		this.imports = [
 			Pin(this, "var", VAR_TYPE_ANY),
+			Pin(this, "dst", VAR_TYPE_ANY),
 		]
 		this.exports = [
 			Pin(this, "var", VAR_TYPE_ANY),
@@ -31,7 +32,14 @@ class Store is Node
 	{
 		super.shader_gen(ctx)
 
-		this.inst = nil
+		var v = Blueprint.calc_input_inst(this, 0, ctx)
+		var dst = Blueprint.calc_input_inst(this, 1, ctx)
+		if (dst) {
+			this.inst = dst
+			ctx.bb.store(dst, v)
+		} else {
+			this.inst = ctx.func.add_variable(this.var_name, v)
+		}
 	}
 
 	calc_value(idx)
@@ -41,11 +49,6 @@ class Store is Node
 
 	calc_inst(idx, ctx) 
 	{
-		if (!this.inst) {
-			var v = Blueprint.calc_input_inst(this, 0, ctx)
-			this.inst = ctx.func.add_variable(this.var_name, v)
-		}
-
 		return this.inst
 	}
 

@@ -1,0 +1,96 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+var node0 = FragColor()
+
+_editor.add_node(node0, -194.97058650764, 37.167474369)
+
+var node1 = If()
+
+_editor.add_node(node1, -364.47642177727, 46.73482807445)
+
+var node2 = ShaderGen()
+
+_editor.add_node(node2, 84.76707411552, 107.63017615845)
+
+var node3 = ShaderCode()
+node3.init_filepath("../../../assets/shaders/screen_vert.glsl")
+
+_editor.add_node(node3, -61.53443186286, 142.66876181217)
+
+var node4 = Draw()
+
+node4.set_prim_type("tri_strip")
+node4.render_state = { "stencil_test" : false, "rasterization" : "fill", "cull" : "disable", "depth_func" : "less", "clip_plane" : false, "stencil_func" : "always", "stencil_mask" : 255, "blend" : false, "stencil_ref" : 0, "alpha_cutoff" : 0.5, "depth_test" : false, "double_sided" : false, "alpha_mode" : "opaque" }
+node4.skip = false
+
+_editor.add_node(node4, 248.04421939809, -1.4514438285802)
+
+var node5 = PrimitiveShape()
+
+node5.type = "quad"
+node5.layout = [ "position", "texture" ]
+node5.shape_params = {  }
+
+_editor.add_node(node5, 91.218103086521, -46.480642585581)
+
+var node6 = Clear()
+
+node6.masks = [ "color" ]
+node6.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node6, 80.04570955469, 271.45090799219)
+
+var node7 = Number3()
+
+node7.value.set(1, 0, 0)
+
+_editor.add_node(node7, -742.09836670597, 76.517502896311)
+
+var node8 = Number3()
+
+node8.value.set(0, 1, 0)
+
+_editor.add_node(node8, -742.09834703348, -39.184980730129)
+
+var node9 = Variable()
+
+node9.var_name = "variable"
+node9.var_type = "num3"
+
+_editor.add_node(node9, -747.45118735003, -124.80525875432)
+
+var node10 = Store()
+
+node10.var_name = "v3"
+
+_editor.add_node(node10, -561.58875366886, 67.724961392402)
+
+var node11 = Store()
+
+node11.var_name = "v3"
+
+_editor.add_node(node11, -558.856692823, -24.481859459108)
+
+var node12 = Load()
+
+node12.var_name = "rgb"
+
+_editor.add_node(node12, -361.18235662962, -41.97450704687)
+
+Blueprint.connect(node9, "var", node12, "var")
+Blueprint.connect(node8, "v3", node11, "var")
+Blueprint.connect(node9, "var", node11, "dst")
+Blueprint.connect(node7, "v3", node10, "var")
+Blueprint.connect(node9, "var", node10, "dst")
+Blueprint.connect(node10, "var", node1, "true")
+Blueprint.connect(node11, "var", node1, "false")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node12, "var", node0, "rgb")
+Blueprint.connect(node3, "code", node2, "vs")
+Blueprint.connect(node0, "next", node2, "fs")
+Blueprint.connect(node6, "next", node4, "prev")
+Blueprint.connect(node2, "shader", node4, "shader")
+Blueprint.connect(node5, "out", node4, "va")
