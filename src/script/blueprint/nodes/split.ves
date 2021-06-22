@@ -86,8 +86,8 @@ class Split is Node
 		{
 			var v_xyzw = Blueprint.calc_input_value(this, 0)
 			if (v_xyzw) {
-				var xyzw = v_xyzw.value
-				return Variant(VAR_TYPE_NUMBER3, Vector3(xyzw[0], xyzw[1], xyzw[2]))
+				var rgba = v_xyzw.value
+				return Variant(VAR_TYPE_NUMBER3, Vector3(rgba.x, rgba.y, rgba.z))
 			} else {
 				var v_xyz = Blueprint.calc_input_value(this, 1)
 				if (v_xyz) {
