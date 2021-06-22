@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "rendergraph.drawlist" for Drawlist
 
 class ForEach is Node
 {
@@ -10,16 +11,67 @@ class ForEach is Node
 		super.init(ForEach.name)
 
 		this.imports = [
-			Pin(this, "in", [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "in",   [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
+			Pin(this, "do",   VAR_TYPE_PORT)
 		]
 		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
 			Pin(this, "out",  VAR_TYPE_ANY),
 		]
 
 		this.layout()
 
+		this.imports[1].stop_port_pass = true
+		this.imports[2].stop_port_pass = true
+		this.exports[1].stop_port_pass = true
+
 		this.all_values = []
 		this.curr_index = 0
+
+		this.drawlist = nil
+	}
+
+	setup()
+	{
+		this.all_values = []
+		
+		var v_all = Blueprint.calc_input_value(this, 1)
+		if (v_all and v_all.value) {
+			for (var entry in v_all.value) {
+				this.all_values.add(Variant(entry.value))
+			}
+		}
+
+		this.build_drawlist()
+
+		if (this.drawlist) {
+			this.curr_index = 0
+			this.drawlist.setup()
+		}
+	}
+
+	execute() 
+	{
+		this.all_values = []
+		this.curr_index = 0
+
+		if (!this.drawlist) {
+			return
+		}
+
+		var v_all = Blueprint.calc_input_value(this, 1)
+		if (!v_all or !v_all.value) {
+			return
+		}
+
+		for (var entry in v_all.value) {
+			this.all_values.add(Variant(entry.value))
+		}
+
+		for (this.curr_index = 0; this.curr_index < this.all_values.count; this.curr_index = this.curr_index + 1) {
+			this.drawlist.draw()	
+		}
 	}
 
 	calc_value(idx) 
@@ -31,22 +83,14 @@ class ForEach is Node
 		}
 	}
 
-	advance()
+	build_drawlist()
 	{
-		this.curr_index = this.curr_index + 1
-		return this.curr_index < this.all_values.count		
-	}
-
-	reset_ptr()
-	{
-		this.all_values = []
-		this.curr_index = 0
-
-		var v_all = Blueprint.calc_input_value(this, 0)
-		if (v_all and v_all.value) {
-			for (var entry in v_all.value) {
-				this.all_values.add(Variant(entry.value))
-			}
+		var node = Blueprint.get_input_node(this, 2)
+		if (node) {
+			var prev_nodes = Blueprint.get_precursor_nodes(node)
+			this.drawlist = Drawlist(prev_nodes)
+		} else {
+			this.drawlist = nil
 		}
 	}
 }
