@@ -260,7 +260,7 @@ foreign class ShaderBlock
 
 	foreign image_sample(img, uv, lod)
 
-	foreign branch_if(cond, t, f)
+	foreign branch_if(cond, true_bb, false_bb, merge_bb)
 }
 
 foreign class ShaderInst

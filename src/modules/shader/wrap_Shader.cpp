@@ -760,10 +760,12 @@ void w_ShaderBlock_branch_if()
 {
     spvgentwo::BasicBlock* bb = *(spvgentwo::BasicBlock**)ves_toforeign(0);
     spvgentwo::Instruction* cond = to_inst(1);
-    spvgentwo::BasicBlock* t = *(spvgentwo::BasicBlock**)ves_toforeign(2);
-    spvgentwo::BasicBlock* f = *(spvgentwo::BasicBlock**)ves_toforeign(3);
+    spvgentwo::BasicBlock* true_bb  = *(spvgentwo::BasicBlock**)ves_toforeign(2);
+    spvgentwo::BasicBlock* false_bb = *(spvgentwo::BasicBlock**)ves_toforeign(3);
+    spvgentwo::BasicBlock* merge_bb = *(spvgentwo::BasicBlock**)ves_toforeign(4);
 
-    shadertrans::SpirvGenTwo::If(bb, cond, t, f);
+    merge_bb = shadertrans::SpirvGenTwo::If(bb, cond, true_bb, false_bb, merge_bb);
+    return_block(merge_bb);
 }
 
 // ShaderInst
@@ -1005,7 +1007,7 @@ VesselForeignMethodFn ShaderBindMethod(const char* signature)
 
     if (strcmp(signature, "ShaderBlock.image_sample(_,_,_)") == 0) return w_ShaderBlock_image_sample;
 
-    if (strcmp(signature, "ShaderBlock.branch_if(_,_,_)") == 0) return w_ShaderBlock_branch_if;
+    if (strcmp(signature, "ShaderBlock.branch_if(_,_,_,_)") == 0) return w_ShaderBlock_branch_if;
 
     // ShaderInst
 

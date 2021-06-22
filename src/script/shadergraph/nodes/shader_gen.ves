@@ -172,7 +172,7 @@ uniform sampler2D in_tex;
 			var grey = Blueprint.calc_input_inst(n_cs, 0, ctx)
 			bb.store(dst, grey)
 
-			bb.return_null()
+			ctx.bb.return_null()
 
 			var code = gen.connect_cs_main(v_cs_main.value)
 			if (code) {
@@ -200,7 +200,7 @@ uniform sampler2D in_tex;
 			var ctx = ShaderContext(gen, module, func, bb, {})
 			n_fs.shader_gen(ctx)
 
-			bb.return_null()
+			ctx.bb.return_null()
 
 			this.shader.prog = Shader.init(v_vs.value, "", "", "", gen)
 		}
