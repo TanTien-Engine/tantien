@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
-import "blueprint.blueprint" for Blueprint
 import "maths.vector" for Vector3
 
 class ChannelMixer is Node
@@ -31,31 +30,8 @@ class ChannelMixer is Node
 		this.params.add(b)
 	}
 
-    // vec3(dot(in, this.r), dot(in, this.g), dot(in, this.b))
-	calc_inst(idx, ctx) 
-	{
-		var val = Blueprint.calc_input_inst(this, 0, ctx)
-		if (!val) {
-			return nil
-		}
-
-		var r = this.query_param("r").value
-		var g = this.query_param("g").value
-		var b = this.query_param("b").value
-
-		var r_inst = ctx.module.const_float3(r.x, r.y, r.z)
-		var g_inst = ctx.module.const_float3(g.x, g.y, g.z)
-		var b_inst = ctx.module.const_float3(b.x, b.y, b.z)
-
-		var x = ctx.bb.dot(val, r_inst)
-		var y = ctx.bb.dot(val, g_inst)
-		var z = ctx.bb.dot(val, b_inst)
-
-		return ctx.bb.compose_float3(x, y, z)
-	}
-
 	// vec3(dot(in, this.r), dot(in, this.g), dot(in, this.b))
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

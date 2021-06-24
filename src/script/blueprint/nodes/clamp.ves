@@ -35,19 +35,7 @@ class Clamp is Node
 		return Variant(VAR_TYPE_NUMBER, Math.clamp(num, this.min, this.max))
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var v = Blueprint.calc_input_inst(this, 0, ctx)
-		if (!v) {
-			return nil
-		}
-
-		var min = ctx.module.const_float(this.min)
-		var max = ctx.module.const_float(this.max)
-		return ctx.bb.clamp(v, min, max)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

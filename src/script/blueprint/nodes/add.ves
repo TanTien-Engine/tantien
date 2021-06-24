@@ -49,14 +49,7 @@ class Add is Node
 		return nil
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var a = Blueprint.calc_input_inst(this, 0, ctx)
-		var b = Blueprint.calc_input_inst(this, 1, ctx)
-		return ctx.bb.add(a, b)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

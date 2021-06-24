@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
-import "blueprint.blueprint" for Blueprint
 import "maths.vector" for Vector3
 
 class Scale is Node
@@ -23,19 +22,24 @@ class Scale is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
+	shader_gen(node, idx)
 	{
-		var pos = Blueprint.calc_input_inst(this, 0, ctx)
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var pos = ShaderBuilder.gen_child(node, "in")
 		if (!pos) {
 			return nil
 		}
 
-		var val = this.query_param("val").value
-		var x = ctx.module.const_float(val.x)
-		var y = ctx.module.const_float(val.y)
-		var z = ctx.module.const_float(val.z)
-		var val_inst = ctx.bb.compose_float3(x, y, z)
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
 
-		return ctx.bb.div(pos, val_inst)
+		var val = this.query_param("val").value
+		var x = module.const_float(val.x)
+		var y = module.const_float(val.y)
+		var z = module.const_float(val.z)
+		var val_inst = bb.compose_float3(x, y, z)
+
+		return bb.div(pos, val_inst)
 	}
 }

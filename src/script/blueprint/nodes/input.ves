@@ -23,20 +23,9 @@ class Input is Node
 
 		this.parent_node = nil
 		this.parent_pin_idx = -1
-	}
-
-	shader_gen(ctx)
-	{
-		if (this.parent_node) 
-		{
-			var prev = Blueprint.get_input_node(this.parent_node, this.parent_pin_idx)
-			if (prev) {
-				prev.shader_gen(ctx)			
-			}
-		}
 	}	
 
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 		return ShaderBuilder.gen_child(node, this.parent_node.imports[this.parent_pin_idx].name)
@@ -45,11 +34,6 @@ class Input is Node
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)
-	}
-
-	calc_inst(idx, ctx) 
-	{
-		return Blueprint.calc_input_inst(this.parent_node, this.parent_pin_idx, ctx)
 	}
 
 	to_string(name) 

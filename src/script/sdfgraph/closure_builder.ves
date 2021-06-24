@@ -1,10 +1,9 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_gen" for ShaderContext
 import "shadergraph.nodes.parameter" for Parameter
 
 class ClosureBuilder
 {
-	static gen_primitive3d(gen, node, proxy_name)
+	static gen_primitive3d(gen, node, node_tree, proxy_name)
 	{
         var f_idx = node.imports.count - 1
         if (node.imports[f_idx].conns.isEmpty) {
@@ -17,36 +16,14 @@ class ClosureBuilder
             return
         }
 
-        var new_func = this.build_real_func(node, gen, f_node, proxy_name)
+        var new_func = this.build_real_func(node, node_tree, gen, f_node, proxy_name)
         if (new_func) {
             var old_func = node.node_func.module.query_func(proxy_name)
             gen.func_replace(old_func, new_func)
         }		
 	}
     
-    static gen_primitive3d_2(node, tree_node, proxy_name)
-    {
-        var f_idx = node.imports.count - 1
-        if (node.imports[f_idx].conns.isEmpty) {
-            return nil
-        }
-
-        var f_pin = node.imports[f_idx].conns.front().from
-        var f_node = f_pin.node
-        if (!f_node) {
-            return
-        }
-
-        var new_func = this.build_real_func2(node, tree_node, f_node, proxy_name)
-        if (new_func) {
-            var old_func = node.node_func.module.query_func(proxy_name)
-
-            var global = tree_node.find_value("global")
-            global.gen.func_replace(old_func, new_func)
-        }       
-    }
-
-    static build_real_func(node, gen, f_node, proxy_name)
+    static build_real_func(node, node_tree, gen, f_node, proxy_name)
     {
         if (f_node["node_func"] == nil) {
             return nil
@@ -72,7 +49,7 @@ class ClosureBuilder
                 }
             }
         }        
-        var args = this.get_func_args(node, gen, callee_src, f_node, caller)
+        var args = this.get_func_args(node, node_tree, callee_src, f_node, caller)
 
         var bb = caller.get_block()
         var ret = caller.call(callee, args)
@@ -81,73 +58,24 @@ class ClosureBuilder
         return caller
     }
 
-    static build_real_func2(node, tree_node, f_node, proxy_name)
-    {
-        if (f_node["node_func"] == nil) {
-            return nil
-        }
-
-        var node_func = f_node.node_func
-        if (node_func["func"] == nil) {
-            return nil
-        }
-
-         var global = tree_node.find_value("global")
-
-        var callee_src = node_func.func
-        var callee = node.node_func.module.create_decl_func(callee_src)
-        global.gen.add_link_decl(callee, node_func.decl_name, false)
-
-        var caller = node.node_func.module.create_func(proxy_name, "float", [ "vec3" ])
-        var pos = caller.get_param(0)
-
-        var prev_nodes = Blueprint.get_precursor_nodes(f_node)
-        for (var pn in prev_nodes) {
-            if (pn is Parameter) {
-                if (pn.var_name == "p") {
-                    pn.var_inst = pos
-                }
-            }
-        }        
-        var args = this.get_func_args2(node, tree_node, callee_src, f_node, caller)
-
-        var bb = caller.get_block()
-        var ret = caller.call(callee, args)
-        bb.return_value(ret)
-
-        return caller
-    }
-
-    static get_func_args(node, gen, callee_src, f_node, caller)
+    static get_func_args(node, node_tree, callee_src, f_node, caller)
     {
         var args = []
         var names = callee_src.get_args()
-        for (var name in names)
-        {
-            var pin = Blueprint.query_pin(f_node.imports, name)
-            var bb = caller.get_block()
-            var ctx = ShaderContext(gen, node.node_func.module, caller, bb, {})
-            args.add(f_node.node_func.calc_inst_from_pin(pin, ctx))
-        }
-        return args
-    }	
 
-    static get_func_args2(node, tree_node, callee_src, f_node, caller)
-    {
         import "shadergraph.shader_builder" for ShaderFunc
         var w_func = ShaderFunc()
         w_func.impl = caller
-        
-        tree_node.ud["module"] = node.node_func.module            
-        tree_node.ud["func"] = w_func
-        tree_node.ud["bb"] = caller.get_block()
 
-        var args = []
-        var names = callee_src.get_args()
-        for (var name in names) {
+        node_tree.ud["module"] = node.node_func.module            
+        node_tree.ud["func"] = w_func
+        node_tree.ud["bb"] = caller.get_block()
+
+        for (var name in names)
+        {
             var pin = Blueprint.query_pin(f_node.imports, name)
-            args.add(f_node.node_func.shader_gen2(tree_node, pin.slot_idx))
+            args.add(f_node.node_func.calc_pin_inst(pin, node_tree, node.node_func.module))
         }
         return args
-    }       
+    }      
 }

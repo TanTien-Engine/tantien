@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER4
 import "blueprint.node_param" for NodeParam
-import "blueprint.blueprint" for Blueprint
 
 class InvertColors is Node
 {
@@ -25,33 +24,7 @@ class InvertColors is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var val = Blueprint.calc_input_inst(this, 0, ctx)
-		if (!val) {
-			return nil
-		}
-
-		var r = ctx.bb.compose_extract(val, 0)
-		var g = ctx.bb.compose_extract(val, 1)
-		var b = ctx.bb.compose_extract(val, 2)
-		var a = ctx.bb.compose_extract(val, 3)
-
-		var vr = this.query_param("r").value
-		var vg = this.query_param("g").value
-		var vb = this.query_param("b").value
-		var va = this.query_param("a").value
-
-		var one = ctx.module.const_float(1.0)
-		if (vr) { r = ctx.bb.sub(one, r) }
-		if (vg) { g = ctx.bb.sub(one, g) }
-		if (vb) { b = ctx.bb.sub(one, b) }
-		if (va) { a = ctx.bb.sub(one, a) }
-
-		return ctx.bb.compose_float4(r, g, b, a)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

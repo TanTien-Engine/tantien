@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT
-import "blueprint.blueprint" for Blueprint
 
 class Finish is Node
 {
@@ -19,14 +18,7 @@ class Finish is Node
 		this.layout()
 	}
 
-	shader_gen(ctx) 
-	{
-		super.shader_gen(ctx)
-
-		ctx.bb.return_null()
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var bb = node.find_value("bb")
 		bb.return_null()

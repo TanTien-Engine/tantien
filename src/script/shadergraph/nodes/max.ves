@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
-import "blueprint.blueprint" for Blueprint
 
 class Max is Node
 {
@@ -20,23 +19,7 @@ class Max is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var a = Blueprint.calc_input_inst(this, 0, ctx)
-		var b = Blueprint.calc_input_inst(this, 1, ctx)
-
-		if (!a and !b) {
-			return nil
-		} else if (!a) {
-			return b
-		} else if (!b) {
-			return a
-		} else {
-			return ctx.bb.max(a, b)
-		}
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

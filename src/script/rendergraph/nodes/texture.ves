@@ -105,50 +105,7 @@ class Texture is Node
 		}
 	}
 
-    shader_gen(ctx)
-    {
-		super.shader_gen(ctx)
-
-		if (!this.unif) 
-		{
-			var name = this.query_param("unif_name").value
-			this.unif = ctx.gen.add_uniform(ctx.module, name, "texture")
-			this.unif_name = ctx.gen.query_unif_name(this.unif)
-		}
-    }
-
-	calc_inst(idx, ctx) 
-	{
-		if (idx == 0)
-		{
-			var tex = this.get_texture()
-			if (tex and this.unif) {
-				return ctx.bb.load(this.unif)
-			} else {
-				return nil
-			}
-		}
-		else if (idx == 1)
-		{
-			var width = 0
-			var tex = this.get_texture()
-			if (tex) {
-				width = tex.get_width()
-			}		
-			return ctx.module.const_float(width)
-		}
-		else if (idx == 2)
-		{
-			var height = 0
-			var tex = this.get_texture()
-			if (tex) {
-				height = tex.get_height()
-			}		
-			return ctx.module.const_float(height)
-		}
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var module = node.find_value("module")
 

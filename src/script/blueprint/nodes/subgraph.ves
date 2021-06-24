@@ -71,31 +71,11 @@ class Subgraph is Node
 		return nil
 	}
 
-	shader_gen(ctx) 
-	{
-		super.shader_gen(ctx)
-
-		for (var node in this.out_nodes) {
-			node.shader_gen(ctx)
-		}
-	}
-
 	bind_uniforms(prog)
 	{
 		for (var item in this.all_items) {
 			item[0].bind_uniforms(prog)
 		}
-	}
-
-	calc_inst(idx, ctx) 
-	{
-		var name = this.exports[idx].name
-		for (var node in this.out_nodes) {
-			if (node.var_name == name) {
-				return Blueprint.calc_input_inst(node, 0, ctx)
-			}
-		}		
-		return nil
 	}
 
 	setup()

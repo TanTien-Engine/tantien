@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_NUMBER
-import "blueprint.blueprint" for Blueprint
 
 class Mix is Node
 {
@@ -21,15 +20,7 @@ class Mix is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var x = Blueprint.calc_input_inst(this, 0, ctx)
-		var y = Blueprint.calc_input_inst(this, 1, ctx)
-		var a = Blueprint.calc_input_inst(this, 2, ctx)
-		return ctx.bb.mix(x, y, a)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

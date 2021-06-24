@@ -163,24 +163,15 @@ class Sdf is Node
         this.layout()
 	}
 
-    shader_gen(ctx)
-    {
-        super.shader_gen(ctx)
-
-        ClosureBuilder.gen_primitive3d(ctx.gen, this, "f_scene")
-    }
-
-    shader_gen2(node, idx)
+    shader_gen(node, idx)
     {
         import "shadergraph.shader_builder" for ShaderBuilder
         ShaderBuilder.gen_child(node, 3)
 
-        var ret = this.node_func.shader_gen2(node, idx)
-
-        //ClosureBuilder.gen_primitive3d_2(this, node.children[3], "f_scene")
-
+        var ret = this.node_func.shader_gen(node, idx)
+        
         var global = node.find_value("global")
-        ClosureBuilder.gen_primitive3d(global.gen, this, "f_scene")
+        ClosureBuilder.gen_primitive3d(global.gen, this, node.children[3], "f_scene")
 
         return ret
     }    

@@ -92,16 +92,8 @@ class Cubemap is Node
     	this.unif = nil
     	this.unif_name = nil
 	}
-	
-    shader_gen(ctx)
-    {
-		super.shader_gen(ctx)
 
-    	this.unif = nil
-    	this.unif_name = nil
-    }
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var module = node.find_value("module")
 
@@ -121,22 +113,6 @@ class Cubemap is Node
 		}
 		else
 		{
-			return nil
-		}
-	}
-
-	calc_inst(idx, ctx) 
-	{
-		if (!this.unif) 
-		{
-			var name = this.query_param("unif_name").value
-			this.unif = ctx.gen.add_uniform(ctx.module, name, "cubemap")
-			this.unif_name = ctx.gen.query_unif_name(this.unif)
-		}
-
-		if (this.unif) {
-			return ctx.bb.load(this.unif)
-		} else {
 			return nil
 		}
 	}

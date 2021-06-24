@@ -191,45 +191,6 @@ class Blueprint
 		}	
 	}
 
-	static calc_input_inst(node, slot, ctx)
-	{
-		var pin = this.query_pin(node.imports, slot)
-		if (!pin or pin.conns.isEmpty) {
-			return nil
-		}
-
-		var inst = nil
-
-		var f_pin = pin.conns.front().from
-		var f_node = f_pin.node
-		if (f_node["node_func"] != nil) {
-			inst = f_node.node_func.calc_inst(f_pin.slot_idx, ctx)
-		} else if (f_node.has_method("calc_inst(_,_)")) {
-			inst = f_node.calc_inst(f_pin.slot_idx, ctx)
-		}
-
-		if (inst) {
-			return inst
-		}
-
-		var value = this.calc_input_value(node, slot)
-		if (!value) {
-			return nil
-		}
-
-		if (value.type == VAR_TYPE_NUMBER) {
-			return ctx.module.const_float(value.value)
-		} else if (value.type == VAR_TYPE_NUMBER2) {
-			return ctx.module.const_float2(value.value.x, value.value.y)	
-		} else if (value.type == VAR_TYPE_NUMBER3) {
-			return ctx.module.const_float3(value.value.x, value.value.y, value.value.z)	
-		} else if (value.type == VAR_TYPE_NUMBER4) {
-			return ctx.module.const_float4(value.value.x, value.value.y, value.value.z, value.value.w)	
-		}
-
-		return nil
-	}
-
 	static get_first_connect_pin(pin)
 	{
 		if (pin.conns.isEmpty) {

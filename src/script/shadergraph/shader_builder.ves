@@ -50,7 +50,7 @@ class ShaderBuilder
 		root.ud["func"]   = w_func
 		root.ud["bb"]     = bb
 
-		node.shader_gen2(tree.root, 0)
+		node.shader_gen(tree.root, 0)
 		root.ud["bb"].return_null()
 
 		return gen
@@ -71,11 +71,11 @@ class ShaderBuilder
 
 		var child = tree_node.children[child_idx]
 		var g_child = child.graph_node
-		if (g_child.has_method("shader_gen2(_,_)"))	{
-			return g_child.shader_gen2(child, child.graph_port)
+		if (g_child.has_method("shader_gen(_,_)"))	{
+			return g_child.shader_gen(child, child.graph_port)
 		}
 		if (g_child["node_func"]) {
-			return g_child.node_func.shader_gen2(child, child.graph_port)
+			return g_child.node_func.shader_gen(child, child.graph_port)
 		}	
 
 		var value = Blueprint.calc_input_value(tree_node.graph_node, child_idx)

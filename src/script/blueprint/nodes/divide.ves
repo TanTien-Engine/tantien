@@ -66,24 +66,8 @@ class Divide is Node
 			return nil
 		}
 	}
-
-	calc_inst(idx, ctx) 
-	{
-		var a = Blueprint.calc_input_inst(this, 0, ctx)
-		var b = Blueprint.calc_input_inst(this, 1, ctx)
-		
-		if (!a and !b) {
-			return nil
-		} else if (!a) {
-			return b
-		} else if (!b) {
-			return a
-		} else {
-			return ctx.bb.div(a, b)
-		}
-	}
-
-	shader_gen2(node, idx)
+	
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

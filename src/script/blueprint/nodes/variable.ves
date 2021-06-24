@@ -26,25 +26,7 @@ class Variable is Node
 		this.inst = nil	
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		if (!this.inst) 
-		{
-			if (this.var_type == VAR_TYPE_NUMBER) {
-				this.inst = ctx.func.variable_float(this.var_name)
-			} else if (this.var_type == VAR_TYPE_NUMBER2) {
-				this.inst = ctx.func.variable_float2(this.var_name)
-			} else if (this.var_type == VAR_TYPE_NUMBER3) {
-				this.inst = ctx.func.variable_float3(this.var_name)
-			} else if (this.var_type == VAR_TYPE_NUMBER4) {
-				this.inst = ctx.func.variable_float4(this.var_name)
-			}
-		}
-
-		return this.inst
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var w_func = node.find_value("func")
 

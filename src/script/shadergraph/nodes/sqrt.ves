@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
-import "blueprint.blueprint" for Blueprint
 
 class Sqrt is Node
 {
@@ -19,17 +18,7 @@ class Sqrt is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var v = Blueprint.calc_input_inst(this, 0, ctx)
-		if (v) {
-			return ctx.bb.sqrt(v)		
-		} else {
-			return nil
-		}
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

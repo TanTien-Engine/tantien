@@ -3,7 +3,6 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_STRING
 import "blueprint.nodes.input" for Input
-import "blueprint.shader_gen" for ShaderContext
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
@@ -162,24 +161,23 @@ uniform sampler2D in_tex;
 				return
 			}
 
-			var gen = tt_ShaderGen.init()
-			var module = gen.get_main_module()
-			var func = gen.get_main_func()
-			var bb = func.get_block()
+			var n_cs = Blueprint.get_input_node(this, 2)
+			if (n_cs) 
+			{
+				var prev_nodes = Blueprint.get_precursor_nodes(n_cs)
+				for (var node in prev_nodes) {
+					if (!node is ShaderGen) {
+						node.setup()					
+					}
+				}
 
-			var ctx = ShaderContext(gen, module, func, bb, {})
-			n_cs.shader_gen(ctx)
-
-			var dst = func.variable_float(nil)
-			var grey = Blueprint.calc_input_inst(n_cs, 0, ctx)
-			bb.store(dst, grey)
-
-			ctx.bb.return_null()
-
-			var code = gen.connect_cs_main(v_cs_main.value)
-			if (code) {
-				code = code.replace("in vec2 TexCoord;", "")
-				this.shader.prog = Shader.init(code)
+				var builder = ShaderBuilder()
+				var gen = builder.build(n_cs)
+				var code = gen.connect_cs_main(v_cs_main.value)
+				if (code) {
+					code = code.replace("in vec2 TexCoord;", "")
+					this.shader.prog = Shader.init(code)
+				}				
 			}
 		}
 		else

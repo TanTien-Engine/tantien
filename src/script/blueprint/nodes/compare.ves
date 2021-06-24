@@ -28,33 +28,8 @@ class Compare is Node
 		this.cmp_items = ["equal", "not_equal", "greater", "greater_equal", "less", "less_equal"]
 		this.cmp_selected = -1
 	}
-
-	calc_inst(idx, ctx) 
-	{
-		var a = Blueprint.calc_input_inst(this, 0, ctx)
-		var b = Blueprint.calc_input_inst(this, 1, ctx)
-		if (!a or !b) {
-			return nil
-		}
-
-		if (this.cmp == "equal") {
-			return ctx.bb.is_equal(a, b)
-		} else if (this.cmp == "not_equal") {
-			return ctx.bb.is_not_equal(a, b)
-		} else if (this.cmp == "greater") {
-			return ctx.bb.is_greater(a, b)
-		} else if (this.cmp == "greater_equal") {
-			return ctx.bb.is_greater_equal(a, b)
-		} else if (this.cmp == "less") {
-			return ctx.bb.is_less(a, b)
-		} else if (this.cmp == "less_equal") {
-			return ctx.bb.is_less_equal(a, b)
-		} else {
-			return nil
-		}
-	}
-
-	shader_gen2(node, idx)
+	
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

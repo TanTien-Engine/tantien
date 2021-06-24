@@ -1,10 +1,10 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_gen" for ShaderContext
+import "blueprint.tree" for TreeNode
 import "shadergraph.nodes.parameter" for Parameter
 
 class ClosureBuilder
 {
-	static gen_noise(gen, node, proxy_name)
+	static gen_noise(gen, node, node_tree, proxy_name)
 	{
         var f_idx = node.imports.count - 1
         if (node.imports[f_idx].conns.isEmpty) {
@@ -16,14 +16,14 @@ class ClosureBuilder
             return
         }
 
-        var new_func = this.build_real_func(node, gen, f_node, proxy_name)
+        var new_func = this.build_real_func(node, node_tree, gen, f_node, proxy_name)
         if (new_func) {
             var old_func = node.node_func.module.query_func(proxy_name)
             gen.func_replace(old_func, new_func)
         }		
 	}
     
-    static build_real_func(node, gen, f_node, proxy_name)
+    static build_real_func(node, node_tree, gen, f_node, proxy_name)
     {
         if (f_node["node_func"] == nil) {
             return nil
@@ -54,7 +54,7 @@ class ClosureBuilder
                 }                
             }
         }        
-        var args = this.get_func_args(node, gen, callee_src, f_node, caller)
+        var args = this.get_func_args(node, node_tree, callee_src, f_node)
 
         var bb = caller.get_block()
         var ret = caller.call(callee, args)
@@ -63,16 +63,14 @@ class ClosureBuilder
         return caller
     }
 
-    static get_func_args(node, gen, callee_src, f_node, caller)
+    static get_func_args(node, node_tree, callee_src, f_node)
     {
         var args = []
         var names = callee_src.get_args()
         for (var name in names)
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
-            var bb = caller.get_block()
-            var ctx = ShaderContext(gen, node.node_func.module, caller, bb, {})
-            args.add(f_node.node_func.calc_inst_from_pin(pin, ctx))
+            args.add(f_node.node_func.calc_pin_inst(pin, node_tree, node.node_func.module))
         }
         return args
     }	

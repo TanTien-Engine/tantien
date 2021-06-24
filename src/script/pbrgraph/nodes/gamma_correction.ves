@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
-import "blueprint.blueprint" for Blueprint
 
 class GammaCorrection is Node
 {
@@ -19,14 +18,7 @@ class GammaCorrection is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var x = Blueprint.calc_input_inst(this, 0, ctx)
-		var y = ctx.module.const_float3(1.0/2.2, 1.0/2.2, 1.0/2.2)
-		return ctx.bb.pow(x, y)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

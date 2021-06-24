@@ -30,9 +30,11 @@ class Rotate is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
+	shader_gen(node, idx)
 	{
-		var val = Blueprint.calc_input_inst(this, 0, ctx)
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var val = ShaderBuilder.gen_child(node, "in")
 		if (!val) {
 			return nil
 		}
@@ -47,28 +49,31 @@ class Rotate is Node
 		var c = Math.cos(theta)
 		var s = Math.sin(theta)
 
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
 		var mat = nil
 		var axis = this.query_param("axis").value
 		if (axis == 0) {
-			mat = ctx.module.const_mat3([
+			mat = module.const_mat3([
 				1, 0, 0,
 				0, c, -s,
 				0, s, c,
 			])
 		} else if (axis == 1) {
-			mat = ctx.module.const_mat3([
+			mat = module.const_mat3([
 				c, 0, s,
 				0, 1, 0,
 				-s, 0, c,
 			])
 		} else {
-			mat = ctx.module.const_mat3([
+			mat = module.const_mat3([
 				c, -s, 0,
 				s, c, 0,
 				0, 0, 1,
 			])
 		}
 
-		return ctx.bb.mul(mat, val)
+		return bb.mul(mat, val)
 	}
 }

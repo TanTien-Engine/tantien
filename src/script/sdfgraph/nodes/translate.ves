@@ -24,17 +24,22 @@ class Translate is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
+	shader_gen(node, idx)
 	{
-		var pos = Blueprint.calc_input_inst(this, 0, ctx)
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var pos = ShaderBuilder.gen_child(node, "in")
 		if (!pos) {
 			return nil
 		}
 
-		var offset = Blueprint.calc_input_inst(this, 1, ctx)
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
+		var offset = ShaderBuilder.gen_child(node, "offset")
 		if (offset)
 		{
-			return ctx.bb.sub(pos, offset)
+			return bb.sub(pos, offset)
 		}
 		else
 		{
@@ -47,12 +52,12 @@ class Translate is Node
 				offset.z = v_off.value.z
 			}
 
-			var x = ctx.module.const_float(offset.x)
-			var y = ctx.module.const_float(offset.y)
-			var z = ctx.module.const_float(offset.z)
-			var off_inst = ctx.bb.compose_float3(x, y, z)
+			var x = module.const_float(offset.x)
+			var y = module.const_float(offset.y)
+			var z = module.const_float(offset.z)
+			var off_inst = bb.compose_float3(x, y, z)
 
-			return ctx.bb.sub(pos, off_inst)
+			return bb.sub(pos, off_inst)
 		}
 	}
 }

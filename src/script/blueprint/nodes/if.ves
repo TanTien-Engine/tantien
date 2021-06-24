@@ -1,8 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_BOOLEAN
-import "blueprint.blueprint" for Blueprint
-import "blueprint.shader_gen" for ShaderContext
 
 class If is Node
 {
@@ -23,42 +21,7 @@ class If is Node
 		this.layout()
 	}
 
-	shader_gen(ctx) 
-	{
-		var n_prev = Blueprint.get_input_node(this, 0)
-		if (n_prev) {
-			n_prev.shader_gen(ctx)
-		}
-
-		var n_cond = Blueprint.get_input_node(this, 1)
-		if (n_cond) {
-			n_cond.shader_gen(ctx)
-		}
-
-		var bb_true = ctx.func.add_block("bb_true")
-		var bb_false = ctx.func.add_block("bb_false")
-
-		var n_true = Blueprint.get_input_node(this, 2)
-		if (n_true) {
-			n_true.shader_gen(ShaderContext(ctx.gen, ctx.module, ctx.func, bb_true, ctx.blackboard))
-		}
-
-		var n_false = Blueprint.get_input_node(this, 3)
-		if (n_false) {
-			n_false.shader_gen(ShaderContext(ctx.gen, ctx.module, ctx.func, bb_false, ctx.blackboard))
-		}
-
-		var cond = Blueprint.calc_input_inst(this, 1, ctx)
-		if (!cond) {
-			cond = ctx.module.const_bool(false)
-		}
-		var merge_bb = ctx.func.add_block("bb_merge")
-		ctx.bb.branch_if(cond, bb_true, bb_false, merge_bb)
-
-		ctx.bb = merge_bb
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

@@ -73,54 +73,7 @@ class Combine is Node
 		return nil		
 	}
 
-	calc_inst(idx, ctx)
-	{
-		var x = Blueprint.calc_input_inst(this, "x", ctx)
-		if (!x) {
-			x = ctx.module.const_float(0.0)
-		}
-		var y = Blueprint.calc_input_inst(this, "y", ctx)
-		if (!y) {
-			y = ctx.module.const_float(0.0)
-		}
-		var z = Blueprint.calc_input_inst(this, "z", ctx)
-		if (!z) {
-			z = ctx.module.const_float(0.0)
-		}
-		var w = Blueprint.calc_input_inst(this, "w", ctx)
-		if (!w) {
-			w = ctx.module.const_float(0.0)
-		}
-		var xy = Blueprint.calc_input_inst(this, "xy", ctx)
-		if (xy) {
-			x = ctx.bb.compose_extract(xy, 0)
-			y = ctx.bb.compose_extract(xy, 1)
-		}		
-		var xyz = Blueprint.calc_input_inst(this, "xyz", ctx)
-		if (xyz) {
-			x = ctx.bb.compose_extract(xyz, 0)
-			y = ctx.bb.compose_extract(xyz, 1)
-			z = ctx.bb.compose_extract(xyz, 2)
-		}
-		var grey = Blueprint.calc_input_inst(this, "grey", ctx)
-		if (grey) {
-			x = grey
-			y = grey
-			z = grey
-		}
-
-		if (idx == 0) {
-			return ctx.bb.compose_float4(x, y, z, w)
-		} else if (idx == 1) {
-			return ctx.bb.compose_float3(x, y, z)
-		} else if (idx == 2) {
-			return ctx.bb.compose_float2(x, y)
-		}
-
-		return nil
-	}	
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

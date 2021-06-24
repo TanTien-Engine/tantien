@@ -1,4 +1,3 @@
-import "blueprint.blueprint" for Blueprint
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
@@ -23,60 +22,7 @@ class FragColor is Node
 		this.layout()
 	}
 
-	shader_gen(ctx)
-	{
-		super.shader_gen(ctx)
-
-		var frag_col = ctx.gen.add_output("FragColor", "vec4")
-
-		var rgba = Blueprint.calc_input_inst(this, "rgba", ctx)
-		if (!rgba) 
-		{
-			var r = nil
-			var g = nil
-			var b = nil
-			var a = ctx.module.const_float(1.0)
-
-			var rgb = Blueprint.calc_input_inst(this, "rgb", ctx)
-			if (rgb) 
-			{
-				r = ctx.bb.compose_extract(rgb, 0)
-				g = ctx.bb.compose_extract(rgb, 1)
-				b = ctx.bb.compose_extract(rgb, 2)
-			} 
-			else 
-			{
-				var rg = Blueprint.calc_input_inst(this, "rg", ctx)
-				if (rg) 
-				{
-					r = ctx.bb.compose_extract(rg, 0)
-					g = ctx.bb.compose_extract(rg, 1)
-					b = ctx.module.const_float(0.0)
-				} 
-				else 
-				{
-					var grey = Blueprint.calc_input_inst(this, "grey", ctx)
-					if (grey) 
-					{
-						r = grey
-						g = grey
-						b = grey
-					}
-					else
-					{
-						r = ctx.module.const_float(0.0)
-						g = r
-						b = r
-					}
-				}
-			}
-
-			rgba = ctx.bb.compose_float4(r, g, b, a)			
-		}
-		ctx.bb.store(frag_col, rgba)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

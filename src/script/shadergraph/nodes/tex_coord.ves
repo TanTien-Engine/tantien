@@ -21,24 +21,7 @@ class TexCoord is Node
 		this.inst = nil
 	}
 
-	shader_gen(ctx)
-	{
-		super.shader_gen(ctx)
-
-		var v_set_id = Blueprint.calc_input_value(this, 0)
-		if (v_set_id and v_set_id.value != 0) {
-			this.inst = ctx.gen.add_input("TexCoord2", "vec2")
-		} else {
-			this.inst = ctx.gen.add_input("TexCoord", "vec2")
-		}
-	}
-
-	calc_inst(idx, ctx) 
-	{
-		return ctx.bb.load(this.inst)
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var inst = nil
 

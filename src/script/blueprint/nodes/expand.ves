@@ -31,13 +31,6 @@ class Expand is Node
 		return this.export_values[idx]
 	}
 
-    shader_gen(ctx)
-    {
-		super.shader_gen(ctx)
-
-    	this.uniforms = List.filled(this.exports.count, nil)
-    }
-
 	get_unif_name(index)
 	{
 		var name = ""

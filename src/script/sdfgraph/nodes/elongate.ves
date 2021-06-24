@@ -39,22 +39,15 @@ class Elongate is Node
         this.layout()
 	}
 
-    shader_gen(ctx)
-    {
-        super.shader_gen(ctx)
-
-        ClosureBuilder.gen_primitive3d(ctx.gen, this, "primitive")
-    }	
-
-    shader_gen2(node, idx)
+    shader_gen(node, idx)
     {
         import "shadergraph.shader_builder" for ShaderBuilder
         ShaderBuilder.gen_child(node, 2)
 
-        var ret = this.node_func.shader_gen2(node, idx)
+        var ret = this.node_func.shader_gen(node, idx)
 
         var global = node.find_value("global")
-        ClosureBuilder.gen_primitive3d(global.gen, this, "primitive")
+        ClosureBuilder.gen_primitive3d(global.gen, this, node.children[2], "primitive")
 
         return ret
     }

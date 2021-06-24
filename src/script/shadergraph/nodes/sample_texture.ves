@@ -29,50 +29,7 @@ class SampleTexture is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var img = Blueprint.calc_input_inst(this, 0, ctx)
-
-		if (!img) {
-			return nil
-		}
-
-		var uv = Blueprint.calc_input_inst(this, 1, ctx)		
-		if (!uv) {
-			return nil
-		}		
-
-		var lod = Blueprint.calc_input_inst(this, 2, ctx)
-		if (!lod)
-		{
-			var v_tex = Blueprint.calc_input_value(this, 0)
-			if (v_tex and v_tex.value.tex is Cubemap) {
-				lod = ctx.module.const_float(0.0)
-			}
-		}
-
-		var rgba = ctx.bb.image_sample(img, uv, lod)
-		if (idx == 0) {
-			return rgba
-		} else if (idx == 1) {
-			var r = ctx.bb.compose_extract(rgba, 0)
-			var g = ctx.bb.compose_extract(rgba, 1)
-			var b = ctx.bb.compose_extract(rgba, 2)
-			return ctx.bb.compose_float3(r, g, b)
-		} else if (idx == 2) {
-			return ctx.bb.compose_extract(rgba, 0)
-		} else if (idx == 3) {
-			return ctx.bb.compose_extract(rgba, 1)
-		} else if (idx == 4) {
-			return ctx.bb.compose_extract(rgba, 2)
-		} else if (idx == 5) {
-			return ctx.bb.compose_extract(rgba, 3)
-		} 
-
-		return nil
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

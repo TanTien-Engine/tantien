@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_NUMBER3
-import "blueprint.blueprint" for Blueprint
 
 class Reflect is Node
 {
@@ -20,18 +19,7 @@ class Reflect is Node
 		this.layout()
 	}
 
-	calc_inst(idx, ctx) 
-	{
-		var I = Blueprint.calc_input_inst(this, 0, ctx)
-		var N = Blueprint.calc_input_inst(this, 1, ctx)
-		if (I and N) {
-			return ctx.bb.reflect(I, N)		
-		} else {
-			return nil
-		}
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
 

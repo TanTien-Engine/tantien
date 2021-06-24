@@ -15,14 +15,7 @@ class Kill is Node
 		this.layout()
 	}
 
-	shader_gen(ctx) 
-	{
-		super.shader_gen(ctx)
-
-		ctx.bb.kill()
-	}
-
-	shader_gen2(node, idx)
+	shader_gen(node, idx)
 	{
 		var bb = node.find_value("bb")
 		bb.kill()

@@ -42,22 +42,15 @@ class Turbulence is Node
         this.layout()
 	}
 
-    shader_gen(ctx)
-    {
-		super.shader_gen(ctx)
-
-        ClosureBuilder.gen_noise(ctx.gen, this, "noise")
-    }
-
-    shader_gen2(node, idx)
+    shader_gen(node, idx)
     {
         import "shadergraph.shader_builder" for ShaderBuilder
         ShaderBuilder.gen_child(node, 5)
 
-        var ret = this.node_func.shader_gen2(node, idx)
+        var ret = this.node_func.shader_gen(node, idx)
 
         var global = node.find_value("global")
-        ClosureBuilder.gen_noise(global.gen, this, "noise")
+        ClosureBuilder.gen_noise(global.gen, this, node.children[5], "noise")
 
         return ret
     }
