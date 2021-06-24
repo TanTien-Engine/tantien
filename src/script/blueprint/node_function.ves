@@ -98,6 +98,92 @@ class NodeFunction
 		}
 	}
 
+	shader_gen2(node, idx)
+	{
+		var global = node.find_value("global")
+
+//		if (!this.module) 
+		{
+			this.module = global.gen.add_module(this.stage, this.code, this.lang, this.decl_name, this.func_name)
+
+			this.func = this.module.query_func(this.func_name)
+
+			global.gen.add_link_decl(this.func, this.decl_name, true)
+		}
+
+		// prepare uniforms
+//		if (this.uniforms.isEmpty)
+		this.uniforms.clear()
+		{
+			for (var i in this.num_params..this.node.imports.count)
+			{
+				var prev_pin = Blueprint.get_input_pin(this.node, i)
+				var pin = this.node.imports[i]
+				if (prev_pin and prev_pin.node is Texture) {			
+					prev_pin.node.init_unif_name(pin.name)
+					//Blueprint.calc_input_inst(this.node, i, ctx)
+				}
+
+				var unif = Uniform()
+				unif.dummy = true
+				if (prev_pin) {
+					Blueprint.connect(prev_pin, unif.imports[0])
+				}
+				if (this.rename_ubo) {
+					unif.unif_name = "u_" + this.node.name + "." + this.node.imports[i].name
+				} else {
+					unif.unif_name = this.node.imports[i].name
+				}
+				this.uniforms.add(unif)
+			}
+		}
+
+		// func call
+		var module = node.find_value("module")
+		var w_func = node.find_value("func")
+		var func = w_func.impl		
+		var bb = node.find_value("bb")
+
+		var callee = module.create_decl_func(this.func)
+		global.gen.add_link_decl(callee, this.decl_name, false)
+
+		var params = []
+		for (var i in 0..this.num_params)
+		{
+			var pin = this.node.imports[i]
+			if (pin.type != VAR_TYPE_FUNCTION) 
+			{
+				var inst = this.calc_inst_from_pin2(pin, node, module)
+				if (!inst) {
+					return nil
+				}
+
+				// todo: check if param need a var (in/out)
+				var type = inst.get_type()
+				var inst_var = nil
+				if (type == "float") {
+					inst_var = func.variable_float(nil)
+				} else if (type == "float_2") {
+					inst_var = func.variable_float2(nil)
+				} else if (type == "float_3") {
+					inst_var = func.variable_float3(nil)
+				} else if (type == "float_4") {
+					inst_var = func.variable_float4(nil)
+				}
+				if (inst_var) 
+				{
+					bb.store(inst_var, inst)
+					params.add(inst_var)
+				}
+				else
+				{
+					params.add(inst)
+				}
+			}
+		}
+		return func.call(callee, params)
+	}	
+
 	calc_value_inst(type, value, module)
 	{
 		if (value)
@@ -157,6 +243,29 @@ class NodeFunction
 				inst = this.calc_value_inst(pin.type, param.value, ctx.module)
 			} else {
 				inst = this.calc_value_inst(pin.type, nil, ctx.module)
+			}
+		}
+
+		return inst
+	}
+
+	calc_inst_from_pin2(pin, node, module)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+		var inst = ShaderBuilder.gen_child(node, pin.name)
+		if (inst) {
+			return inst
+		}
+
+		var val = Blueprint.calc_input_value(this.node, pin.slot_idx)
+		if (val) {
+			inst = this.calc_value_inst(pin.type, val.value, module)
+		} else {			
+			var param = this.node.query_param(pin.name)
+			if (param) {
+				inst = this.calc_value_inst(pin.type, param.value, module)
+			} else {
+				inst = this.calc_value_inst(pin.type, nil, module)
 			}
 		}
 

@@ -119,4 +119,56 @@ class Combine is Node
 
 		return nil
 	}	
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
+		var x = ShaderBuilder.gen_child(node, "x")
+		if (!x) {
+			x = module.const_float(0.0)
+		}
+		var y = ShaderBuilder.gen_child(node, "y")
+		if (!y) {
+			y = module.const_float(0.0)
+		}
+		var z = ShaderBuilder.gen_child(node, "z")
+		if (!z) {
+			z = module.const_float(0.0)
+		}
+		var w = ShaderBuilder.gen_child(node, "w")
+		if (!w) {
+			w = module.const_float(0.0)
+		}
+		var xy = ShaderBuilder.gen_child(node, "xy")
+		if (xy) {
+			x = bb.compose_extract(xy, 0)
+			y = bb.compose_extract(xy, 1)
+		}		
+		var xyz = ShaderBuilder.gen_child(node, "xyz")
+		if (xyz) {
+			x = bb.compose_extract(xyz, 0)
+			y = bb.compose_extract(xyz, 1)
+			z = bb.compose_extract(xyz, 2)
+		}
+		var grey = ShaderBuilder.gen_child(node, "grey")
+		if (grey) {
+			x = grey
+			y = grey
+			z = grey
+		}
+
+		if (idx == 0) {
+			return bb.compose_float4(x, y, z, w)
+		} else if (idx == 1) {
+			return bb.compose_float3(x, y, z)
+		} else if (idx == 2) {
+			return bb.compose_float2(x, y)
+		}
+
+		return nil
+	}
 }

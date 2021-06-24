@@ -82,4 +82,23 @@ class Divide is Node
 			return ctx.bb.div(a, b)
 		}
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var a = ShaderBuilder.gen_child(node, "a")
+		var b = ShaderBuilder.gen_child(node, "b")
+
+		if (!a and !b) {
+			return nil
+		} else if (!a) {
+			return b
+		} else if (!b) {
+			return a
+		} else {
+			var bb = node.find_value("bb")
+			return bb.div(a, b)
+		}
+	}
 }

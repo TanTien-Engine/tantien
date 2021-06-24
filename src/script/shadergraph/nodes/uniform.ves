@@ -40,6 +40,47 @@ class Uniform is Node
 //    	this.unif_name = nil
     }
 
+	shader_gen2(node, idx)
+	{
+		if (!this.unif) 
+		{
+			var val = Blueprint.calc_input_value(this, 0)
+			if (!val) {
+				return nil
+			}
+
+			var name = this.query_param("unif_name").value
+			var type = ""
+			if (val.type == VAR_TYPE_BOOLEAN) {
+				type = "bool"
+			} else if (val.type == VAR_TYPE_INTEGER) {
+				type = "int"
+			} else if (val.type == VAR_TYPE_NUMBER) {
+				type = "float"
+			} else if (val.type == VAR_TYPE_NUMBER2) {
+				type = "vec2"
+			} else if (val.type == VAR_TYPE_NUMBER3) {
+				type = "vec3"
+			} else if (val.type == VAR_TYPE_NUMBER4) {
+				type = "vec4"
+			} else {
+				return nil
+			}
+
+			var global = node.find_value("global")
+			var module = node.find_value("module")
+			this.unif = global.gen.add_uniform(module, name, type)
+			this.unif_name = global.gen.query_unif_name(this.unif)
+		}
+
+		if (this.unif) {
+			var bb = node.find_value("bb")
+			return bb.load(this.unif)
+		} else {
+			return nil
+		}
+	}
+
 	calc_inst(idx, ctx) 
 	{
 		if (!this.unif) 

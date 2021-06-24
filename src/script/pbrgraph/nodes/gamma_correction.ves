@@ -25,4 +25,15 @@ class GammaCorrection is Node
 		var y = ctx.module.const_float3(1.0/2.2, 1.0/2.2, 1.0/2.2)
 		return ctx.bb.pow(x, y)
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var x = ShaderBuilder.gen_child(node, "linear")
+		var module = node.find_value("module")
+		var y = module.const_float3(1.0/2.2, 1.0/2.2, 1.0/2.2)
+		var bb = node.find_value("bb")
+		return bb.pow(x, y)
+	}	
 }

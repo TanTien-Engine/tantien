@@ -25,21 +25,12 @@ class Store is Node
 
 		this.var_name = "store"
 
-		this.inst = nil
+		this.insts = []
 	}
 
-	shader_gen(ctx)
+	setup(ctx)
 	{
-		super.shader_gen(ctx)
-
-		var v = Blueprint.calc_input_inst(this, 0, ctx)
-		var dst = Blueprint.calc_input_inst(this, 1, ctx)
-		if (dst) {
-			this.inst = dst
-			ctx.bb.store(dst, v)
-		} else {
-			this.inst = ctx.func.add_variable(this.var_name, v)
-		}
+		this.insts.clear()
 	}
 
 	calc_value(idx)
@@ -47,9 +38,67 @@ class Store is Node
 		return Blueprint.calc_input_value(this, 0)
 	}
 
+	query_inst(key)
+	{
+		for (var pair in this.insts) {
+			if (pair[0] == key) {
+				return pair[1]
+			}
+		}	
+		return nil
+	}
+
+	shader_gen(ctx)
+ 	{
+ 		super.shader_gen(ctx)
+
+		var v = Blueprint.calc_input_inst(this, 0, ctx)
+		var dst = Blueprint.calc_input_inst(this, 1, ctx)
+		if (dst) 
+		{
+			var pair = this.query_inst(ctx.bb)
+			if (!pair) {
+				ctx.bb.store(dst, v)
+				this.insts.add([ctx.bb, dst])
+			}
+		} 
+		else 
+		{
+			var pair = this.query_inst(ctx.func)
+			if (!pair) {
+				var inst = ctx.func.add_variable(this.var_name, v)
+				this.insts.add([ctx.func, inst])
+			}
+		} 		
+ 	}
+
+ 	shader_gen2(node, idx)
+ 	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var src = ShaderBuilder.gen_child(node, "var")
+		var dst = ShaderBuilder.gen_child(node, "dst")
+		if (dst)
+		{
+			var bb = node.find_value("bb")
+			bb.store(dst, src)
+			return dst
+		}
+		else
+		{
+			var func = node.find_value("func").impl
+			return func.add_variable(this.var_name, src)
+		}
+ 	}
+
 	calc_inst(idx, ctx) 
 	{
-		return this.inst
+		var dst = Blueprint.calc_input_inst(this, 1, ctx)
+		if (dst) {
+			return this.query_inst(ctx.bb)
+		} else {
+			return this.query_inst(ctx.func)
+		}
 	}
 
 	to_string(name) 

@@ -30,4 +30,18 @@ class Reflect is Node
 			return nil
 		}
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var I = ShaderBuilder.gen_child(node, "I")
+		var N = ShaderBuilder.gen_child(node, "N")
+		if (I and N) {
+			var bb = node.find_value("bb")
+			return bb.reflect(I, N)		
+		} else {
+			return nil
+		}
+	}
 }

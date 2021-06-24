@@ -152,6 +152,8 @@ uniform sampler2D in_tex;
 
 	build_shader()
 	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
 		var n_cs = Blueprint.get_input_node(this, 2)
 		if (n_cs)
 		{
@@ -188,21 +190,19 @@ uniform sampler2D in_tex;
 			}
 
 			var n_fs = Blueprint.get_input_node(this, 1)
-			if (!n_fs) {
-				return
+			if (n_fs) 
+			{
+				var prev_nodes = Blueprint.get_precursor_nodes(n_fs)
+				for (var node in prev_nodes) {
+					if (!node is ShaderGen) {
+						node.setup()					
+					}
+				}
+
+				var builder = ShaderBuilder()
+				var gen = builder.build(n_fs)
+				this.shader.prog = Shader.init(v_vs.value, "", "", "", gen)
 			}
-
-			var gen = tt_ShaderGen.init()
-			var module = gen.get_main_module()
-			var func = gen.get_main_func()
-			var bb = func.get_block()
-
-			var ctx = ShaderContext(gen, module, func, bb, {})
-			n_fs.shader_gen(ctx)
-
-			ctx.bb.return_null()
-
-			this.shader.prog = Shader.init(v_vs.value, "", "", "", gen)
 		}
 	}
 }

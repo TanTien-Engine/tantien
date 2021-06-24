@@ -26,4 +26,17 @@ class WorldPos is Node
 	{
 		return ctx.bb.load(this.inst)
 	}
+
+	shader_gen2(node, idx)
+	{
+		var global = node.find_value("global")
+		var inst = global.variants["WorldPos"]
+		if (!inst) {
+			inst = global.gen.add_input("WorldPos", "vec3")
+			global.variants["WorldPos"] = inst
+		}
+
+		var bb = node.find_value("bb")
+		return bb.load(inst)
+	}
 }

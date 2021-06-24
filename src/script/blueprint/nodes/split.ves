@@ -187,4 +187,97 @@ class Split is Node
 
 		return nil
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var bb = node.find_value("bb")
+		
+		if (idx == 0)
+		{
+			var xyzw = ShaderBuilder.gen_child(node, "xyzw")
+			if (xyzw) {
+				return bb.compose_extract(xyzw, 0)
+			} else {
+				var xyz = ShaderBuilder.gen_child(node, "xyz")
+				if (xyz) {
+					return bb.compose_extract(xyz, 0)
+				} else {
+					var xy = ShaderBuilder.gen_child(node, "xy")
+					if (xy) {
+						return bb.compose_extract(xy, 0)
+					} else {
+						var mat3 = ShaderBuilder.gen_child(node, "mat3")
+						if (mat3) {
+							return bb.compose_extract(mat3, 0)
+						}
+					}
+				}
+			}
+		}
+		else if (idx == 1)
+		{
+			var xyzw = ShaderBuilder.gen_child(node, "xyzw")
+			if (xyzw) {
+				return bb.compose_extract(xyzw, 1)
+			} else {
+				var xyz = ShaderBuilder.gen_child(node, "xyz")
+				if (xyz) {
+					return bb.compose_extract(xyz, 1)
+				} else {
+					var xy = ShaderBuilder.gen_child(node, "xy")
+					if (xy) {
+						return bb.compose_extract(xy, 1)
+					} else {
+						var mat3 = ShaderBuilder.gen_child(node, "mat3")
+						if (mat3) {
+							return bb.compose_extract(mat3, 1)
+						}
+					}
+				}
+			}
+		}
+		else if (idx == 2)
+		{
+			var xyzw = ShaderBuilder.gen_child(node, "xyzw")
+			if (xyzw) {
+				return bb.compose_extract(xyzw, 2)
+			} else {
+				var xyz = ShaderBuilder.gen_child(node, "xyz")
+				if (xyz) {
+					return bb.compose_extract(xyz, 2)
+				} else {
+					var mat3 = ShaderBuilder.gen_child(node, "mat3")
+					if (mat3) {
+						return bb.compose_extract(mat3, 2)
+					}
+				}
+			}
+		}
+		else if (idx == 3)
+		{
+			var xyzw = ShaderBuilder.gen_child(node, "xyzw")
+			if (xyzw) {
+				return bb.compose_extract(xyzw, 3)
+			}
+		}
+		else if (idx == 4)
+		{
+			var xyzw = ShaderBuilder.gen_child(node, "xyzw")
+			if (xyzw) {
+				var x = bb.compose_extract(xyzw, 0)
+				var y = bb.compose_extract(xyzw, 1)
+				var z = bb.compose_extract(xyzw, 2)
+				return bb.compose_float3(x, y, z)
+			} else {
+				var xyz = ShaderBuilder.gen_child(node, "xyz")
+				if (xyz) {
+					return xyz
+				}
+			}
+		}
+
+		return nil
+	}
 }

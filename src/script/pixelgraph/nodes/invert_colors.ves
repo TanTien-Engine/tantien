@@ -50,4 +50,35 @@ class InvertColors is Node
 
 		return ctx.bb.compose_float4(r, g, b, a)
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var val = ShaderBuilder.gen_child(node, "in")
+		if (!val) {
+			return nil
+		}
+
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
+		var r = bb.compose_extract(val, 0)
+		var g = bb.compose_extract(val, 1)
+		var b = bb.compose_extract(val, 2)
+		var a = bb.compose_extract(val, 3)
+
+		var vr = this.query_param("r").value
+		var vg = this.query_param("g").value
+		var vb = this.query_param("b").value
+		var va = this.query_param("a").value
+
+		var one = module.const_float(1.0)
+		if (vr) { r = bb.sub(one, r) }
+		if (vg) { g = bb.sub(one, g) }
+		if (vb) { b = bb.sub(one, b) }
+		if (va) { a = bb.sub(one, a) }
+
+		return bb.compose_float4(r, g, b, a)
+	}
 }

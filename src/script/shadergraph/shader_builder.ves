@@ -1,0 +1,99 @@
+import "blueprint.tree" for Tree
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "shader" for ShaderGen
+
+class ShaderGlobal
+{
+	init()
+	{
+		this.gen = nil
+
+		this.variants = {}
+	}
+}
+
+class ShaderFunc
+{
+	init()
+	{
+		this.impl = nil
+
+		this.variants = {}
+	}
+}
+
+class ShaderBuilder
+{
+	init()
+	{
+	}
+
+	build(node)
+	{
+		var tree = Tree(node)
+
+		var gen    = ShaderGen.init()
+		var module = gen.get_main_module()
+		var func   = gen.get_main_func()
+		var bb     = func.get_block()
+
+		var w_global = ShaderGlobal()
+		w_global.gen = gen
+
+		var w_func = ShaderFunc()
+		w_func.impl = func
+
+		var root = tree.root		
+		root.ud["global"] = w_global
+		root.ud["module"] = module
+		root.ud["func"]   = w_func
+		root.ud["bb"]     = bb
+
+		node.shader_gen2(tree.root, 0)
+		root.ud["bb"].return_null()
+
+		return gen
+	}
+
+	static gen_child(tree_node, child_name)
+	{
+		var pin = Blueprint.query_pin(tree_node.graph_node.imports, child_name)
+		if (!pin) {
+			System.print("++ err !!!!!, %(tree_node.graph_node) %(child_name)")
+			return
+		}
+
+		var child_idx = pin.slot_idx
+		if (child_idx < 0 or child_idx >= tree_node.children.count or !tree_node.children[child_idx]) {
+			return nil
+		} 
+
+		var child = tree_node.children[child_idx]
+		var g_child = child.graph_node
+		if (g_child.has_method("shader_gen2(_,_)"))	{
+			return g_child.shader_gen2(child, child.graph_port)
+		}
+		if (g_child["node_func"]) {
+			return g_child.node_func.shader_gen2(child, child.graph_port)
+		}	
+
+		var value = Blueprint.calc_input_value(tree_node.graph_node, child_idx)
+		if (!value) {
+			return nil
+		}
+
+		var module = tree_node.find_value("module")
+		if (value.type == VAR_TYPE_NUMBER) {
+			return module.const_float(value.value)
+		} else if (value.type == VAR_TYPE_NUMBER2) {
+			return module.const_float2(value.value.x, value.value.y)	
+		} else if (value.type == VAR_TYPE_NUMBER3) {
+			return module.const_float3(value.value.x, value.value.y, value.value.z)	
+		} else if (value.type == VAR_TYPE_NUMBER4) {
+			return module.const_float4(value.value.x, value.value.y, value.value.z, value.value.w)	
+		}
+
+		return nil
+	}
+}

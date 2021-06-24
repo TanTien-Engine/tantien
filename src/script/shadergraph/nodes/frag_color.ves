@@ -75,4 +75,69 @@ class FragColor is Node
 		}
 		ctx.bb.store(frag_col, rgba)
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		ShaderBuilder.gen_child(node, "prev")
+
+		var global = node.find_value("global")
+		var frag_col = global.variants["FragColor"]
+		if (!frag_col) {
+			frag_col = global.gen.add_output("FragColor", "vec4")
+			global.variants["FragColor"] = frag_col
+		}
+
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
+		var rgba = ShaderBuilder.gen_child(node, "rgba")
+		if (!rgba) 
+		{
+			var r = nil
+			var g = nil
+			var b = nil
+			var a = module.const_float(1.0)
+
+			var rgb = ShaderBuilder.gen_child(node, "rgb")
+			if (rgb) 
+			{
+				r = bb.compose_extract(rgb, 0)
+				g = bb.compose_extract(rgb, 1)
+				b = bb.compose_extract(rgb, 2)
+			} 
+			else 
+			{
+				var rg = ShaderBuilder.gen_child(node, "rg")
+				if (rg) 
+				{
+					r = bb.compose_extract(rg, 0)
+					g = bb.compose_extract(rg, 1)
+					b = module.const_float(0.0)
+				} 
+				else 
+				{
+					var grey = ShaderBuilder.gen_child(node, "grey")
+					if (grey) 
+					{
+						r = grey
+						g = grey
+						b = grey
+					}
+					else
+					{
+						r = module.const_float(0.0)
+						g = r
+						b = r
+					}
+				}
+			}
+
+			rgba = bb.compose_float4(r, g, b, a)			
+		}
+		bb.store(frag_col, rgba)
+
+		return nil
+	}	
 }

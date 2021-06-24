@@ -53,4 +53,32 @@ class ChannelMixer is Node
 
 		return ctx.bb.compose_float3(x, y, z)
 	}
+
+	// vec3(dot(in, this.r), dot(in, this.g), dot(in, this.b))
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var val = ShaderBuilder.gen_child(node, "in")
+		if (!val) {
+			return nil
+		}
+
+		var r = this.query_param("r").value
+		var g = this.query_param("g").value
+		var b = this.query_param("b").value
+
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+
+		var r_inst = module.const_float3(r.x, r.y, r.z)
+		var g_inst = module.const_float3(g.x, g.y, g.z)
+		var b_inst = module.const_float3(b.x, b.y, b.z)
+
+		var x = bb.dot(val, r_inst)
+		var y = bb.dot(val, g_inst)
+		var z = bb.dot(val, b_inst)
+
+		return bb.compose_float3(x, y, z)
+	}
 }

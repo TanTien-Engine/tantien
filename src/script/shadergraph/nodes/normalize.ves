@@ -28,4 +28,17 @@ class Normalize is Node
 			return nil
 		}
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var v = ShaderBuilder.gen_child(node, "v")
+		if (v) {
+			var bb = node.find_value("bb")
+			return bb.normalize(v)		
+		} else {
+			return nil
+		}
+	}
 }

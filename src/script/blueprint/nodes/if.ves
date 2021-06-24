@@ -57,4 +57,41 @@ class If is Node
 
 		ctx.bb = merge_bb
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var func = node.find_value("func").impl
+
+		var bb_true = func.add_block("bb_true")
+		var bb_false = func.add_block("bb_false")
+
+		ShaderBuilder.gen_child(node, "prev")
+
+		if (node.children[2]) 
+		{
+			node.children[2].ud["bb"] = bb_true
+			ShaderBuilder.gen_child(node, "true")
+		}
+		if (node.children[3]) 
+		{
+			node.children[3].ud["bb"] = bb_false
+			ShaderBuilder.gen_child(node, "false")
+		}
+
+		var cond = ShaderBuilder.gen_child(node, "cond")
+		if (!cond) {
+			var module = node.find_value("module")
+			cond = module.const_bool(false)
+		}
+
+		var merge_bb = func.add_block("bb_merge")
+
+		var bb = node.find_value("bb")
+		bb.branch_if(cond, bb_true, bb_false, merge_bb)
+		node.change_value("bb", merge_bb)
+
+		return nil
+	}
 }

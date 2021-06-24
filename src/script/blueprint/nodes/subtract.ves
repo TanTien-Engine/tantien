@@ -55,6 +55,16 @@ class Subtract is Node
 		return ctx.bb.sub(a, b)
 	}
 	
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var a = ShaderBuilder.gen_child(node, "a")
+		var b = ShaderBuilder.gen_child(node, "b")
+		var bb = node.find_value("bb")
+		return bb.sub(a, b)
+	}
+		
 	static sub_from(v, ret)
 	{
 		if (v.type == VAR_TYPE_NUMBER) {

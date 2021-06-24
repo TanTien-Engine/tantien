@@ -37,4 +37,31 @@ class TexCoord is Node
 	{
 		return ctx.bb.load(this.inst)
 	}
+
+	shader_gen2(node, idx)
+	{
+		var inst = nil
+
+		var global = node.find_value("global")
+		var v_set_id = Blueprint.calc_input_value(this, 0)
+		if (v_set_id and v_set_id.value != 0) 
+		{
+			inst = global.variants["TexCoord2"]
+			if (!inst) {
+				inst = global.gen.add_input("TexCoord2", "vec2")
+				global.variants["TexCoord2"] = inst
+			}
+		} 
+		else 
+		{
+			inst = global.variants["TexCoord"]
+			if (!inst) {
+				inst = global.gen.add_input("TexCoord", "vec2")
+				global.variants["TexCoord"] = inst
+			}
+		}
+
+		var bb = node.find_value("bb")
+		return bb.load(inst)
+	}
 }

@@ -54,6 +54,35 @@ class Compare is Node
 		}
 	}
 
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var a = ShaderBuilder.gen_child(node, "a")
+		var b = ShaderBuilder.gen_child(node, "b")
+		if (!a or !b) {
+			return nil
+		}
+
+		var bb = node.find_value("bb")
+
+		if (this.cmp == "equal") {
+			return bb.is_equal(a, b)
+		} else if (this.cmp == "not_equal") {
+			return bb.is_not_equal(a, b)
+		} else if (this.cmp == "greater") {
+			return bb.is_greater(a, b)
+		} else if (this.cmp == "greater_equal") {
+			return bb.is_greater_equal(a, b)
+		} else if (this.cmp == "less") {
+			return bb.is_less(a, b)
+		} else if (this.cmp == "less_equal") {
+			return bb.is_less_equal(a, b)
+		} else {
+			return nil
+		}
+	}
+
 	layout() 
 	{
 		super.layout()

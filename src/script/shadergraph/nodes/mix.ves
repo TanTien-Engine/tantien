@@ -28,4 +28,15 @@ class Mix is Node
 		var a = Blueprint.calc_input_inst(this, 2, ctx)
 		return ctx.bb.mix(x, y, a)
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var x = ShaderBuilder.gen_child(node, "x")
+		var y = ShaderBuilder.gen_child(node, "y")
+		var a = ShaderBuilder.gen_child(node, "a")
+		var bb = node.find_value("bb")
+		return bb.mix(x, y, a)
+	}
 }

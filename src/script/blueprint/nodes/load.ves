@@ -41,6 +41,19 @@ class Load is Node
 		}
 	}
 
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var v = ShaderBuilder.gen_child(node, "var")
+		if (v) {
+			var bb = node.find_value("bb")
+			return bb.load(v)
+		} else {
+			return nil
+		}
+	}
+	
 	to_string(name) 
 	{
 		if (this.var_name == "load")

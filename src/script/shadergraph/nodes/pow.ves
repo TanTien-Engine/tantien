@@ -26,4 +26,14 @@ class Pow is Node
 		var y = Blueprint.calc_input_inst(this, 1, ctx)
 		return ctx.bb.pow(x, y)
 	}
+
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var x = ShaderBuilder.gen_child(node, "x")
+		var y = ShaderBuilder.gen_child(node, "y")
+		var bb = node.find_value("bb")
+		return bb.pow(x, y)
+	}
 }

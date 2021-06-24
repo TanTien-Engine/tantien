@@ -26,4 +26,17 @@ class Normal is Node
 	{
 		return ctx.bb.load(this.inst)
 	}
+
+	shader_gen2(node, idx)
+	{
+		var global = node.find_value("global")
+		var inst = global.variants["Normal"]
+		if (!inst) {
+			inst = global.gen.add_input("Normal", "vec3")
+			global.variants["Normal"] = inst
+		}
+
+		var bb = node.find_value("bb")
+		return bb.load(inst)
+	}
 }

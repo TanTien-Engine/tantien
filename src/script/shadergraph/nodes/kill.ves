@@ -21,4 +21,10 @@ class Kill is Node
 
 		ctx.bb.kill()
 	}
+
+	shader_gen2(node, idx)
+	{
+		var bb = node.find_value("bb")
+		bb.kill()
+	}
 }

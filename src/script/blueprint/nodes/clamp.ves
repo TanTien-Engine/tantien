@@ -47,6 +47,23 @@ class Clamp is Node
 		return ctx.bb.clamp(v, min, max)
 	}
 
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var v = ShaderBuilder.gen_child(node, "v")
+		if (!v) {
+			return nil
+		}
+
+		var module = node.find_value("module")
+		var bb = node.find_value("bb")
+		
+		var min = module.const_float(this.min)
+		var max = module.const_float(this.max)
+		return bb.clamp(v, min, max)
+	}
+
 	layout()
 	{
 		super.layout()

@@ -25,4 +25,10 @@ class Finish is Node
 
 		ctx.bb.return_null()
 	}
+
+	shader_gen2(node, idx)
+	{
+		var bb = node.find_value("bb")
+		bb.return_null()
+	}
 }

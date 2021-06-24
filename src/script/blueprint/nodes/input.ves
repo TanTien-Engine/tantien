@@ -36,6 +36,12 @@ class Input is Node
 		}
 	}	
 
+	shader_gen2(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+		return ShaderBuilder.gen_child(node, this.parent_node.imports[this.parent_pin_idx].name)
+	}
+
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)

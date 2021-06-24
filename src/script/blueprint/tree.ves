@@ -1,0 +1,138 @@
+class TreeNode
+{
+	init()
+	{
+		this.parent = nil
+		this.children = []
+
+		// blueprint
+		this.graph_node = nil
+		this.graph_port = -1
+
+		this.ud = {}
+	}
+
+	find_value(key)
+	{
+		var v = this.ud[key]
+		if (v) {
+			return v
+		}
+
+		if (this.parent) {
+			return this.parent.find_value(key)
+		} else {
+			return nil
+		}
+	}
+
+	change_value(key, val)	
+	{
+		var v = this.ud[key]
+		if (v) {
+			this.ud[key] = val
+			return true
+		} else if (this.parent) {
+			return this.parent.change_value(key, val)
+		} else {
+			return false
+		}
+	}
+
+	print(num)
+	{
+		var header = []
+		for (var i in 0..num) {
+			header.add(" ")
+		}
+
+		System.print("%(header) %(this.graph_node), %(this.children.count)")
+		for (var child in this.children) {
+			if (child) {
+				child.print(num + 1)			
+			} else {
+				System.print("%(header) null")
+			}
+		}
+	}
+}
+
+class Tree
+{
+	init(root)
+	{
+		this.all_nodes = []
+
+		this.root = this.build(root, -1, nil)
+
+		if (this.root) {
+//			this.root.print(0)
+		}
+	}
+
+	build(graph_node, graph_port, parent)
+	{
+		import "blueprint.nodes.input" for Input
+		import "blueprint.nodes.subgraph" for Subgraph
+
+		var ret = nil
+
+		if (graph_node is Input)
+		{
+			if (graph_node.parent_node)
+			{
+				var conns = graph_node.parent_node.imports[graph_node.parent_pin_idx].conns
+				if (!conns.isEmpty) {
+					var pin = conns.front().from
+					return this.build(pin.node, pin.slot_idx, parent)					
+				}
+			}
+		}
+		else if (graph_node is Subgraph)
+		{
+			var out_node = nil
+
+			var name = graph_node.exports[graph_port].name
+			for (var node in graph_node.out_nodes) {
+				if (node.var_name == name) {
+					out_node = node
+				}
+			}
+
+			if (out_node)
+			{
+				var conns = out_node.imports[0].conns
+				if (!conns.isEmpty) {
+					var pin = conns.front().from
+					return this.build(pin.node, pin.slot_idx, parent)
+				}
+			}
+		}
+		else
+		{
+			ret = TreeNode()
+			ret.parent = parent
+			ret.graph_node = graph_node
+			ret.graph_port = graph_port
+		}
+
+		// children
+		if (ret)
+		{
+			for (var pin in ret.graph_node.imports)
+			{
+				var child = nil
+				if (!pin.conns.isEmpty) 
+				{
+					var conn = pin.conns.front()
+					child = this.build(conn.from.node, conn.from.slot_idx, ret)
+				} 
+				ret.children.add(child)
+			}
+		}		
+
+		this.all_nodes.add(ret)
+
+		return ret
+	}
+}

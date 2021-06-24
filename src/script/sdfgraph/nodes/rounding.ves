@@ -36,4 +36,17 @@ class Rounding is Node
 
         ClosureBuilder.gen_primitive3d(ctx.gen, this, "primitive")
     }	
+
+    shader_gen2(node, idx)
+    {
+        import "shadergraph.shader_builder" for ShaderBuilder
+        ShaderBuilder.gen_child(node, 2)
+
+        var ret = this.node_func.shader_gen2(node, idx)
+
+        var global = node.find_value("global")
+        ClosureBuilder.gen_primitive3d(global.gen, this, "primitive")
+
+        return ret
+    }
 }

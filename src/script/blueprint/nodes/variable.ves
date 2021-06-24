@@ -44,6 +44,31 @@ class Variable is Node
 		return this.inst
 	}
 
+	shader_gen2(node, idx)
+	{
+		var w_func = node.find_value("func")
+
+		var inst = w_func.variants[this.var_name]
+		if (inst) {
+			return inst
+		}
+
+		var func = w_func.impl	
+		if (this.var_type == VAR_TYPE_NUMBER) {
+			inst = func.variable_float(this.var_name)
+		} else if (this.var_type == VAR_TYPE_NUMBER2) {
+			inst = func.variable_float2(this.var_name)
+		} else if (this.var_type == VAR_TYPE_NUMBER3) {
+			inst = func.variable_float3(this.var_name)
+		} else if (this.var_type == VAR_TYPE_NUMBER4) {
+			inst = func.variable_float4(this.var_name)
+		}
+
+		w_func.variants[this.var_name] = inst
+
+		return inst
+	}
+
 	to_string(name) 
 	{
 		var type_str = NodeHelper.var_type_to_string(this.var_type)
