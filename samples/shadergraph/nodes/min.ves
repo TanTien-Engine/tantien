@@ -1,0 +1,34 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+import "shadergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
+
+_editor.add_node(node0, 247.43001708984, -155.58458862305)
+
+var node1 = Number()
+
+node1.value = 0.87695652246475
+
+_editor.add_node(node1, -381.89262004212, -136.82763182356)
+
+var node2 = Number()
+
+node2.value = 0
+
+_editor.add_node(node2, -378.47755460998, -205.1289735029)
+
+var node3 = Combine()
+
+_editor.add_node(node3, -11.01631996692, -154.58598926066)
+
+var node4 = Min()
+
+_editor.add_node(node4, -202, -180.5)
+
+Blueprint.connect(node1, "v", node4, "a")
+Blueprint.connect(node2, "v", node4, "b")
+Blueprint.connect(node4, "min", node3, "grey")
+Blueprint.connect(node3, "xyz", node0, "rgb")

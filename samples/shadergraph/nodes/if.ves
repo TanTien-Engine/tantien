@@ -1,69 +1,67 @@
 
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
-
 import "rendergraph.nodes.*"
 import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
 var node0 = FragColor()
 
-_editor.add_node(node0, 245.70305823616, 355.37877159214)
+_editor.add_node(node0, 231.53057023616, -184.94733340786)
 
 var node1 = Texture()
 node1.query_param("unif_name").value = "u_tex"
 node1.gamma_correction = false
 node1.init_texture("samples/rendergraph/learnopengl/resources/textures/awesomeface.png")
 
-_editor.add_node(node1, -544.92279772959, 363.99600068482)
+_editor.add_node(node1, -559.09528572959, -176.33010431518)
 
 var node2 = SampleTexture()
 
-_editor.add_node(node2, -221.56667752404, 332.09401570678)
+_editor.add_node(node2, -235.73916552404, -208.23208929322)
 
 var node3 = TexCoord()
 
-_editor.add_node(node3, -372.7991140784, 343.3865397923)
+_editor.add_node(node3, -386.9716020784, -196.9395652077)
 
 var node4 = Kill()
 
-_editor.add_node(node4, 245.25016067812, 263.11389207883)
+_editor.add_node(node4, 231.07767267812, -277.21221292117)
 
 var node5 = If()
 
-_editor.add_node(node5, 453.05672709876, 486.43372860338)
+_editor.add_node(node5, 438.88423909876, -53.89237639662)
 
 var node6 = Compare()
 
 node6.cmp = "less"
 
-_editor.add_node(node6, 244.32904036988, 475.66467442206)
+_editor.add_node(node6, 230.15655236988, -64.66143057794)
 
 var node7 = Split()
 
-_editor.add_node(node7, -26.957140506166, 485.99454116504)
+_editor.add_node(node7, -41.129628506166, -54.33156383496)
 
 var node8 = Number()
 
 node8.value = 0.077251009643078
 
-_editor.add_node(node8, 105.30473901897, 456.41610717773)
+_editor.add_node(node8, 91.13225101897, -83.90999782227)
 
 var node9 = ShaderGen()
 
-_editor.add_node(node9, 605.60600811552, 539.89106015845)
+_editor.add_node(node9, 591.43352011552, -0.43504484155027)
 
 var node10 = ShaderCode()
 node10.init_filepath("../../../assets/shaders/screen_vert.glsl")
 
-_editor.add_node(node10, 459.30450213714, 574.92964581217)
+_editor.add_node(node10, 445.13201413714, 34.60354081217)
 
 var node11 = Draw()
 
 node11.set_prim_type("tri_strip")
-node11.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "double_sided" : false, "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "alpha_cutoff" : 0.5, "depth_test" : false, "depth_func" : "less", "clip_plane" : false, "alpha_mode" : "opaque" }
+node11.render_state = { "stencil_test" : false, "rasterization" : "fill", "cull" : "disable", "depth_func" : "less", "clip_plane" : false, "stencil_func" : "always", "stencil_mask" : 255, "blend" : false, "stencil_ref" : 0, "alpha_cutoff" : 0.5, "depth_test" : false, "double_sided" : false, "alpha_mode" : "opaque" }
 node11.skip = false
 
-_editor.add_node(node11, 768.88315339809, 430.80944017142)
+_editor.add_node(node11, 754.71066539809, -109.51666482858)
 
 var node12 = PrimitiveShape()
 
@@ -71,14 +69,14 @@ node12.type = "quad"
 node12.layout = [ "position", "texture" ]
 node12.shape_params = {  }
 
-_editor.add_node(node12, 605.84782385593, 421.79367815185)
+_editor.add_node(node12, 595.67533585593, -146.53242684815)
 
 var node13 = Clear()
 
 node13.masks = [ "color" ]
 node13.values = { "color" : [ 128, 128, 128, 255 ] }
 
-_editor.add_node(node13, 626.88464355469, 660.71179199219)
+_editor.add_node(node13, 591.8030646456, 164.02205062855)
 
 Blueprint.connect(node1, "tex", node2, "tex")
 Blueprint.connect(node3, "uv", node2, "uv")
