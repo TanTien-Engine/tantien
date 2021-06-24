@@ -25,14 +25,24 @@ class ShaderFunc
 
 class ShaderBuilder
 {
-	init()
-	{
-	}
-
-	build(node)
+	init(node)
 	{
 		var tree = Tree(node)
+		
+		this.gen = this.build(node, tree.root)
 
+		this.uniforms = Set.new()
+		for (var node in tree.all_nodes)
+		{
+			var g_node = node.graph_node
+			if (g_node.has_method("bind_uniforms(_)") or g_node["node_func"]) {
+				this.uniforms.add(g_node)
+			}
+		}
+	}
+
+	build(node, root)
+	{
 		var gen    = ShaderGen.init()
 		var module = gen.get_main_module()
 		var func   = gen.get_main_func()
@@ -44,13 +54,12 @@ class ShaderBuilder
 		var w_func = ShaderFunc()
 		w_func.impl = func
 
-		var root = tree.root		
 		root.ud["global"] = w_global
 		root.ud["module"] = module
 		root.ud["func"]   = w_func
 		root.ud["bb"]     = bb
 
-		node.shader_gen(tree.root, 0)
+		node.shader_gen(root, 0)
 		root.ud["bb"].return_null()
 
 		return gen

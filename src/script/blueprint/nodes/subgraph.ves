@@ -71,13 +71,6 @@ class Subgraph is Node
 		return nil
 	}
 
-	bind_uniforms(prog)
-	{
-		for (var item in this.all_items) {
-			item[0].bind_uniforms(prog)
-		}
-	}
-
 	setup()
 	{
 		if (!this.drawlist) 

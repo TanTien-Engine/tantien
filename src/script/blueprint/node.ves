@@ -41,13 +41,6 @@ class Node
 
 	calc_value(idx) { return nil }
 
-	bind_uniforms(prog)
-	{
-		if (this["node_func"]) {
-			this.node_func.bind_uniforms(prog)
-		}
-	}
-
 	get_size() {
 		return Vector2(this.style.width, this.style.height)
 	}
