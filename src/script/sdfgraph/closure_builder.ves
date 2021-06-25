@@ -16,29 +16,26 @@ class ClosureBuilder
             return
         }
 
-        var new_func = this.build_real_func(node, node_tree, gen, f_node, proxy_name)
+        var caller_module = node_tree.tree.ud["global"].modules.query(node.node_func)[0]
+        var new_func = this.build_real_func(node, node_tree, gen, f_node, proxy_name, caller_module)
         if (new_func) {
-            var old_func = node.node_func.module.query_func(proxy_name)
+            var old_func = caller_module.query_func(proxy_name)
             gen.func_replace(old_func, new_func)
         }		
 	}
     
-    static build_real_func(node, node_tree, gen, f_node, proxy_name)
+    static build_real_func(node, node_tree, gen, f_node, proxy_name, caller_module)
     {
         if (f_node["node_func"] == nil) {
             return nil
         }
 
-        var node_func = f_node.node_func
-        if (node_func["func"] == nil) {
-            return nil
-        }
+        var callee_func = node_tree.tree.ud["global"].modules.query(f_node.node_func)[1]
 
-        var callee_src = node_func.func
-        var callee = node.node_func.module.create_decl_func(callee_src)
-        gen.add_link_decl(callee, node_func.decl_name, false)
+        var callee = caller_module.create_decl_func(callee_func)
+        gen.add_link_decl(callee, f_node.node_func.decl_name, false)
 
-        var caller = node.node_func.module.create_func(proxy_name, "float", [ "vec3" ])
+        var caller = caller_module.create_func(proxy_name, "float", [ "vec3" ])
         var pos = caller.get_param(0)
 
         var prev_nodes = Blueprint.get_precursor_nodes(f_node)
@@ -49,7 +46,7 @@ class ClosureBuilder
                 }
             }
         }        
-        var args = this.get_func_args(node, node_tree, callee_src, f_node, caller)
+        var args = this.get_func_args(node, node_tree, callee_func, f_node, caller, caller_module)
 
         var bb = caller.get_block()
         var ret = caller.call(callee, args)
@@ -58,7 +55,7 @@ class ClosureBuilder
         return caller
     }
 
-    static get_func_args(node, node_tree, callee_src, f_node, caller)
+    static get_func_args(node, node_tree, callee_src, f_node, caller, caller_module)
     {
         var args = []
         var names = callee_src.get_args()
@@ -67,14 +64,14 @@ class ClosureBuilder
         var w_func = ShaderFunc()
         w_func.impl = caller
 
-        node_tree.ud["module"] = node.node_func.module            
+        node_tree.ud["module"] = caller_module            
         node_tree.ud["func"] = w_func
         node_tree.ud["bb"] = caller.get_block()
 
         for (var name in names)
         {
             var pin = Blueprint.query_pin(f_node.imports, name)
-            args.add(f_node.node_func.calc_pin_inst(pin, node_tree, node.node_func.module))
+            args.add(f_node.node_func.calc_pin_inst(pin, node_tree, caller_module))
         }
         return args
     }      

@@ -42,10 +42,6 @@ class NodeFunction
 		this.func_name = func_name
 		this.decl_name = "bp_" + node.name
 
-		this.module = nil
-
-		this.uniforms = []
-
 		node.layout()
 	}
 
@@ -54,31 +50,21 @@ class NodeFunction
 		return this.num_params < this.node.imports.count
 	}
 
-	setup()
-	{
-		this.module = nil
-		this.func   = nil
-
-		this.uniforms.clear()
-	}
-
 	shader_gen(node, idx)
 	{
 		var global = node.tree.ud["global"]
 
-//		if (!this.module) 
+		var module_pair = node.tree.ud["global"].modules.query(this)
+		if (!module_pair) 
 		{
-			this.module = global.gen.add_module(this.stage, this.code, this.lang, this.decl_name, this.func_name)
+			var module = global.gen.add_module(this.stage, this.code, this.lang, this.decl_name, this.func_name)
 
-			this.func = this.module.query_func(this.func_name)
+			var func = module.query_func(this.func_name)
 
-			global.gen.add_link_decl(this.func, this.decl_name, true)
-		}
+			global.gen.add_link_decl(func, this.decl_name, true)
 
-		// prepare uniforms
-//		if (this.uniforms.isEmpty)
-		this.uniforms.clear()
-		{
+			// prepare uniforms
+			var uniforms = []
 			for (var i in this.num_params..this.node.imports.count)
 			{
 				var prev_pin = Blueprint.get_input_pin(this.node, i)
@@ -99,8 +85,14 @@ class NodeFunction
 					unif_name = this.node.imports[i].name
 				}
 				node.tree.ud["global"].uniforms.add(unif, [nil, unif_name])
-				this.uniforms.add(unif)
+				uniforms.add(unif)
 			}
+
+			module_pair = [module, func]
+
+			node.tree.ud["global"].modules.add(this, module_pair)
+
+			node.tree.ud["global"].uniforms.add(this, uniforms)
 		}
 
 		// func call
@@ -109,7 +101,7 @@ class NodeFunction
 		var func = w_func.impl		
 		var bb = node.find_value("bb")
 
-		var callee = module.create_decl_func(this.func)
+		var callee = module.create_decl_func(module_pair[1])
 		global.gen.add_link_decl(callee, this.decl_name, false)
 
 		var params = []
@@ -146,6 +138,7 @@ class NodeFunction
 				}
 			}
 		}
+
 		return func.call(callee, params)
 	}	
 
@@ -217,13 +210,14 @@ class NodeFunction
 
 	bind_uniforms(prog, uniforms)
 	{
-		if (this.uniforms.isEmpty) {
+		var _uniforms = uniforms.query(this)
+		if (!_uniforms) {
 			return
 		}
 
 		for (var i in this.num_params..this.node.imports.count)
 		{	
-			var unif = this.uniforms[i - this.num_params]
+			var unif = _uniforms[i - this.num_params]
 			var val = unif.bind_uniforms(prog, uniforms)
 
 			var in_node = Blueprint.get_input_node(this.node, i)
