@@ -24,28 +24,11 @@ class Store is Node
 		this.exports[0].hide = true
 
 		this.var_name = "store"
-
-		this.insts = []
-	}
-
-	setup(ctx)
-	{
-		this.insts.clear()
 	}
 
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this, 0)
-	}
-
-	query_inst(key)
-	{
-		for (var pair in this.insts) {
-			if (pair[0] == key) {
-				return pair[1]
-			}
-		}	
-		return nil
 	}
 
  	shader_gen(node, idx)
