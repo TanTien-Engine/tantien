@@ -29,12 +29,12 @@ class VertexArray is Node
 		return Variant(VAR_TYPE_VERTEX_ARRAY, this.va)
 	}
 
-	setup()
+	render_gen()
 	{
 		this.need_rebuild = true
 	}
 
-	execute() 
+	render_run() 
 	{
 		if (this.data and this.attrs and this.need_rebuild) {
 			this.va = tt_VertexArray.init(this.data, this.attrs, this.ibuf)

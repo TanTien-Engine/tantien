@@ -55,15 +55,15 @@ class Drawlist
 			if (!skip)
 			{
 				for (var node in list) {
-					if (node.has_method("execute()")) {
-						node.execute()
+					if (node.has_method("render_run()")) {
+						node.render_run()
 					}
 				}
 			}
 		}
 	}
 
-	setup()
+	render_gen()
 	{
 		for (var list in this.lists) {
 			for (var node in list) {

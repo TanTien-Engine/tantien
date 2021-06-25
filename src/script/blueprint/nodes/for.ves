@@ -49,7 +49,7 @@ class For is Node
 		return nil
 	}
 
-	setup()
+	render_gen()
 	{
 		var prev = Blueprint.get_input_node(this, 1)
 		if (prev)
@@ -63,12 +63,12 @@ class For is Node
 		}
 	}
 
-	execute() 
+	render_run() 
 	{
 		for (this.index = this.start; this.index < this.end; this.index = this.index + 1) {
 			for (var node in this.exec_list) {
-				if (node.has_method("execute()")) {
-					node.execute()
+				if (node.has_method("render_run()")) {
+					node.render_run()
 				}
 			}
 		}

@@ -33,7 +33,7 @@ class Pass is Node
 		this.executed = false
 	}
 
-	setup()
+	render_gen()
 	{
 		var prev = Blueprint.get_input_node(this, 0)
 		if (prev)
@@ -56,7 +56,7 @@ class Pass is Node
 		}
 	}
 
-	execute() 
+	render_run() 
 	{
 		if (this.once and this.executed) {
 			return
@@ -87,8 +87,8 @@ class Pass is Node
 			}
 
 			for (var node in this.drawlist) {
-				if (node.has_method("execute()")) {
-					node.execute()
+				if (node.has_method("render_run()")) {
+					node.render_run()
 				}
 			}
 

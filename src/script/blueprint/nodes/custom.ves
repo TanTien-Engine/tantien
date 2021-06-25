@@ -29,14 +29,14 @@ class Custom is Node
 
 	calc_value(idx)
 	{
-		this.execute()
+		this.render_run()
 		if (idx - 1 < this.result.count) {
 			return Variant(this.result[idx - 1])
 		}
 		return nil
 	}
 
-	execute() 
+	render_run() 
 	{
 		if (this.use_cache and this.result) {
 			return

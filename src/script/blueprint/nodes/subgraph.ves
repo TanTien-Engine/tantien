@@ -71,7 +71,7 @@ class Subgraph is Node
 		return nil
 	}
 
-	setup()
+	render_gen()
 	{
 		if (!this.drawlist) 
 		{
@@ -97,7 +97,7 @@ class Subgraph is Node
 		}
 	}
 
-	execute()
+	render_run()
 	{
 		if (this.drawlist) {
 			this.drawlist.draw()
@@ -268,7 +268,7 @@ class Subgraph is Node
 
 		editor.add_node = old_func
 
-		//this.setup()
+		//this.render_gen()
 
 		for (var item in this.all_items) {
 			var node = item[0]

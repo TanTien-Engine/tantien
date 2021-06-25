@@ -51,12 +51,12 @@ class Shader is Node
 		return uniforms
 	}
 
-	setup()
+	render_gen()
 	{
 		//this.need_rebuild = true
 	}
 
-	execute() 
+	render_run() 
 	{
 		if (!this.need_rebuild) {
 			return
@@ -159,7 +159,7 @@ class Shader is Node
 %(name).gs = \"%(this.gs)\"
 %(name).fs = \"%(this.fs)\"
 %(name).cs = \"%(this.cs)\"
-%(name).execute()
+%(name).render_run()
 "
 		for (var unif in this.uniforms) {
 			code = code + this.uniform_to_string(name, unif)

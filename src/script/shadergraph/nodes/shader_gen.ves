@@ -39,12 +39,12 @@ class ShaderGen is Node
 		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
-	setup()
+	render_gen()
 	{
 		this.build_shader()
 	}
 
-	execute() 
+	render_run() 
 	{
 		this.bind_uniforms()
 	}
@@ -163,7 +163,7 @@ uniform sampler2D in_tex;
 				var prev_nodes = Blueprint.get_precursor_nodes(n_cs)
 				for (var node in prev_nodes) {
 					if (!node is ShaderGen) {
-						node.setup()					
+						node.render_gen()					
 					}
 				}
 
@@ -190,7 +190,7 @@ uniform sampler2D in_tex;
 				var prev_nodes = Blueprint.get_precursor_nodes(n_fs)
 				for (var node in prev_nodes) {
 					if (!node is ShaderGen) {
-						node.setup()					
+						node.render_gen()					
 					}
 				}
 

@@ -41,7 +41,7 @@ class PrimitiveShape is Node
 		return Variant(VAR_TYPE_VERTEX_ARRAY, this.va)
 	}
 
-	execute() 
+	render_run() 
 	{
 		if (this.need_rebuild) {
 			this.va = VertexArray.init(this.type, this.layout, this.shape_params)

@@ -104,17 +104,17 @@ class Brush is Node
 		return nil
 	}
 
-	setup()
+	render_gen()
 	{
 		if (SHADER) {
-			SHADER.setup()
+			SHADER.render_gen()
 		}
 		if (COMPUTE) {
-			COMPUTE.setup()
+			COMPUTE.render_gen()
 		}
 	}
 
-	execute()
+	render_run()
 	{
 		if (!this.hf.tex) {
 			this.hf.tex = Texture2D.init(HEIGHTFIELD_SIZE, HEIGHTFIELD_SIZE, "r16f")
@@ -123,7 +123,7 @@ class Brush is Node
 		{
 			var shader = Shader()
 			shader.cs = CS
-			shader.execute()
+			shader.render_run()
 
 			var compute = Compute()
 			compute.num_groups = [ HEIGHTFIELD_SIZE / 32, HEIGHTFIELD_SIZE / 32, 1 ]
