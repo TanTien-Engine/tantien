@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
-import "rendergraph.drawlist" for Drawlist
 
 class ForEach is Node
 {
@@ -43,12 +42,16 @@ class ForEach is Node
 			}
 		}
 
-		this.build_drawlist()
+		var node = Blueprint.get_input_node(this, 2)
+		if (node) 
+		{
+			var prev_nodes = Blueprint.get_precursor_nodes(node)
 
-		if (this.drawlist) {
-			this.curr_index = 0
-			this.drawlist.render_gen()
+			import "rendergraph.drawlist" for Drawlist
+			this.drawlist = Drawlist(prev_nodes)
 		}
+
+		this.curr_index = 0
 	}
 
 	render_run() 
@@ -70,7 +73,7 @@ class ForEach is Node
 		}
 
 		for (this.curr_index = 0; this.curr_index < this.all_values.count; this.curr_index = this.curr_index + 1) {
-			this.drawlist.draw()	
+			this.drawlist.run()	
 		}
 	}
 
@@ -80,17 +83,6 @@ class ForEach is Node
 			return this.all_values[this.curr_index]
 		} else {
 			return nil
-		}
-	}
-
-	build_drawlist()
-	{
-		var node = Blueprint.get_input_node(this, 2)
-		if (node) {
-			var prev_nodes = Blueprint.get_precursor_nodes(node)
-			this.drawlist = Drawlist(prev_nodes)
-		} else {
-			this.drawlist = nil
 		}
 	}
 }

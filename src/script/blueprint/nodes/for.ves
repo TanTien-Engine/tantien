@@ -2,7 +2,6 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_PORT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "blueprint.node_helper" for node_setup
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "math" for Math
@@ -35,7 +34,7 @@ class For is Node
 
 		this.layout()
 
-		this.exec_list = []
+		this.drawlist = nil
 	}
 
 	calc_value(idx) 
@@ -51,26 +50,20 @@ class For is Node
 
 	render_gen()
 	{
-		var prev = Blueprint.get_input_node(this, 1)
-		if (prev)
+		var node = Blueprint.get_input_node(this, 1)
+		if (node) 
 		{
-			var nodes = Blueprint.get_precursor_nodes(prev)
-			this.exec_list = Blueprint.topo_sort(nodes)	
+			var prev_nodes = Blueprint.get_precursor_nodes(node)
 
-			for (var node in this.exec_list) {
-				node_setup(node)
-			}			
+			import "rendergraph.drawlist" for Drawlist
+			this.drawlist = Drawlist(prev_nodes)
 		}
 	}
 
 	render_run() 
 	{
 		for (this.index = this.start; this.index < this.end; this.index = this.index + 1) {
-			for (var node in this.exec_list) {
-				if (node.has_method("render_run()")) {
-					node.render_run()
-				}
-			}
+			this.drawlist.run()
 		}
 	}
 

@@ -1,50 +1,48 @@
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.subgraph" for Subgraph
-import "blueprint.node_helper" for node_setup
 import "rendergraph.nodes.draw" for Draw
 import "rendergraph.nodes.compute" for Compute
-import "rendergraph.nodes.pass" for Pass
 
 class Drawlist
 {
 	init(nodes)
 	{
-		this.for_each = nil
-
 		this.lists = []
-		this.build_lists(nodes, this.lists)
+
+		this.build_lists(nodes)
+
+		for (var list in this.lists) {
+			for (var node in list) {
+				if (node.has_method("render_gen()")) {
+					node.render_gen()
+				}
+			}
+		}
 	}
 
-	build_lists(nodes, lists)
+	build_lists(nodes)
 	{
+		import "rendergraph.nodes.pass" for Pass
+		
 		for (var node in nodes) 
 		{
 			if (node is Pass and node.exports[0].conns.isEmpty) {
-				lists.add([ node ])
+				this.lists.add([ node ])
 			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
 				var prev_nodes = Blueprint.get_precursor_nodes(node)
 				var list = Blueprint.topo_sort(prev_nodes)
-				lists.add(list)
+				this.lists.add(list)
 			}
 		}
 
 		// fixme: for terraingraph
 		if (this.lists.isEmpty) {
 			var list = Blueprint.topo_sort(nodes)
-			lists.add(list)
+			this.lists.add(list)
 		}
 	}
 
-	traverse(func)
-	{
-		for (var list in this.lists) {
-			for (var node in list) {
-				func(node)
-			}
-		}
-	}
-
-	draw()
+	run()
 	{
 		for (var list in this.lists) 
 		{
@@ -59,15 +57,6 @@ class Drawlist
 						node.render_run()
 					}
 				}
-			}
-		}
-	}
-
-	render_gen()
-	{
-		for (var list in this.lists) {
-			for (var node in list) {
-				node_setup(node)
 			}
 		}
 	}
