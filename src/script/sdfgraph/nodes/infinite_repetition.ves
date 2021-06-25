@@ -39,7 +39,7 @@ class InfiniteRepetition is Node
 
         var ret = this.node_func.shader_gen(node, idx)
 
-        var global = node.find_value("global")
+        var global = node.tree.ud["global"]
         ClosureBuilder.gen_primitive3d(global.gen, this, node.children[2], "primitive")
 
         return ret

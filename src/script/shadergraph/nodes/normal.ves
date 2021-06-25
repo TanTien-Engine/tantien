@@ -17,7 +17,7 @@ class Normal is Node
 	
 	shader_gen(node, idx)
 	{
-		var global = node.find_value("global")
+		var global = node.tree.ud["global"]
 		var inst = global.variants["Normal"]
 		if (!inst) {
 			inst = global.gen.add_input("Normal", "vec3")

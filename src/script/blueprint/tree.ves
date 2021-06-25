@@ -2,6 +2,8 @@ class TreeNode
 {
 	init()
 	{
+		this.tree = nil
+
 		this.parent = nil
 		this.children = []
 
@@ -63,14 +65,16 @@ class Tree
 	{
 		this.all_nodes = []
 
-		this.root = this.build(root, -1, nil)
+		this.root = this.build(root, -1, nil, this)
+
+		this.ud = {}
 
 		if (this.root) {
 //			this.root.print(0)
 		}
 	}
 
-	build(graph_node, graph_port, parent)
+	build(graph_node, graph_port, parent, tree)
 	{
 		import "blueprint.nodes.input" for Input
 		import "blueprint.nodes.subgraph" for Subgraph
@@ -84,7 +88,7 @@ class Tree
 				var conns = graph_node.parent_node.imports[graph_node.parent_pin_idx].conns
 				if (!conns.isEmpty) {
 					var pin = conns.front().from
-					return this.build(pin.node, pin.slot_idx, parent)					
+					return this.build(pin.node, pin.slot_idx, parent, tree)
 				}
 			}
 		}
@@ -104,13 +108,14 @@ class Tree
 				var conns = out_node.imports[0].conns
 				if (!conns.isEmpty) {
 					var pin = conns.front().from
-					return this.build(pin.node, pin.slot_idx, parent)
+					return this.build(pin.node, pin.slot_idx, parent, tree)
 				}
 			}
 		}
 		else
 		{
 			ret = TreeNode()
+			ret.tree   = tree
 			ret.parent = parent
 			ret.graph_node = graph_node
 			ret.graph_port = graph_port
@@ -125,7 +130,7 @@ class Tree
 				if (!pin.conns.isEmpty) 
 				{
 					var conn = pin.conns.front()
-					child = this.build(conn.from.node, conn.from.slot_idx, ret)
+					child = this.build(conn.from.node, conn.from.slot_idx, ret, tree)
 				} 
 				ret.children.add(child)
 			}

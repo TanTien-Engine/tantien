@@ -25,7 +25,7 @@ class TexCoord is Node
 	{
 		var inst = nil
 
-		var global = node.find_value("global")
+		var global = node.tree.ud["global"]
 		var v_set_id = Blueprint.calc_input_value(this, 0)
 		if (v_set_id and v_set_id.value != 0) 
 		{

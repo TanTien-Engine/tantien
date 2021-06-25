@@ -111,7 +111,7 @@ class Texture is Node
 
 		if (!this.unif) 
 		{
-			var global = node.find_value("global")
+			var global = node.tree.ud["global"]
 
 			var name = this.query_param("unif_name").value
 			this.unif = global.gen.add_uniform(module, name, "texture")

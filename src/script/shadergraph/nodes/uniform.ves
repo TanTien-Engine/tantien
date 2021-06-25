@@ -59,7 +59,7 @@ class Uniform is Node
 				return nil
 			}
 
-			var global = node.find_value("global")
+			var global = node.tree.ud["global"]
 			var module = node.find_value("module")
 			this.unif = global.gen.add_uniform(module, name, type)
 			this.unif_name = global.gen.query_unif_name(this.unif)

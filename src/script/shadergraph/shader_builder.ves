@@ -29,7 +29,7 @@ class ShaderBuilder
 	{
 		var tree = Tree(node)
 		
-		this.gen = this.build(node, tree.root)
+		this.gen = this.build(node, tree)
 
 		this.uniforms = Set.new()
 		for (var node in tree.all_nodes)
@@ -41,8 +41,10 @@ class ShaderBuilder
 		}
 	}
 
-	build(node, root)
+	build(node, tree)
 	{
+		var root = tree.root
+
 		var gen    = ShaderGen.init()
 		var module = gen.get_main_module()
 		var func   = gen.get_main_func()
@@ -50,11 +52,11 @@ class ShaderBuilder
 
 		var w_global = ShaderGlobal()
 		w_global.gen = gen
+		tree.ud["global"] = w_global
 
 		var w_func = ShaderFunc()
 		w_func.impl = func
 
-		root.ud["global"] = w_global
 		root.ud["module"] = module
 		root.ud["func"]   = w_func
 		root.ud["bb"]     = bb

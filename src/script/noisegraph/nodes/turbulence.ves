@@ -49,7 +49,7 @@ class Turbulence is Node
 
         var ret = this.node_func.shader_gen(node, idx)
 
-        var global = node.find_value("global")
+        var global = node.tree.ud["global"]
         ClosureBuilder.gen_noise(global.gen, this, node.children[5], "noise")
 
         return ret

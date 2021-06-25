@@ -17,7 +17,7 @@ class WorldPos is Node
 
 	shader_gen(node, idx)
 	{
-		var global = node.find_value("global")
+		var global = node.tree.ud["global"]
 		var inst = global.variants["WorldPos"]
 		if (!inst) {
 			inst = global.gen.add_input("WorldPos", "vec3")

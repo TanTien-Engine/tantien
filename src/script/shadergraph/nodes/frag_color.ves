@@ -28,7 +28,7 @@ class FragColor is Node
 
 		ShaderBuilder.gen_child(node, "prev")
 
-		var global = node.find_value("global")
+		var global = node.tree.ud["global"]
 		var frag_col = global.variants["FragColor"]
 		if (!frag_col) {
 			frag_col = global.gen.add_output("FragColor", "vec4")
