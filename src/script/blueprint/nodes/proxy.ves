@@ -15,7 +15,7 @@ class Proxy is Node
 
 	calc_value(idx)
 	{
-		if (this.real_node) {
+		if (this.real_node and this.real_node.has_method("calc_value(_)")) {
 			return this.real_node.calc_value(idx)
 		}
 

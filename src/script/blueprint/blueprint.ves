@@ -187,7 +187,11 @@ class Blueprint
 		} else {
 			var f_pin = pin.conns.front().from
 			var f_node = f_pin.node
-			return f_node.calc_value(f_pin.slot_idx)
+			if (f_node.has_method("calc_value(_)")) {
+				return f_node.calc_value(f_pin.slot_idx)			
+			} else {
+				return nil
+			}
 		}	
 	}
 
