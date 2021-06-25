@@ -10,14 +10,6 @@ class Drawlist
 		this.lists = []
 
 		this.build_lists(nodes)
-
-		for (var list in this.lists) {
-			for (var node in list) {
-				if (node.has_method("render_gen()")) {
-					node.render_gen()
-				}
-			}
-		}
 	}
 
 	build_lists(nodes)
@@ -27,17 +19,36 @@ class Drawlist
 		for (var node in nodes) 
 		{
 			if (node is Pass and node.exports[0].conns.isEmpty) {
-				this.lists.add([ node ])
+				this.build_list([ node ])
 			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
 				var prev_nodes = Blueprint.get_precursor_nodes(node)
-				var list = Blueprint.topo_sort(prev_nodes)
-				this.lists.add(list)
+				this.build_list(prev_nodes)
 			}
 		}
 
 		// fixme: for terraingraph
 		if (this.lists.isEmpty) {
-			var list = Blueprint.topo_sort(nodes)
+			this.build_list(nodes)
+		}
+	}
+
+	build_list(nodes)
+	{
+		var sorted = Blueprint.topo_sort(nodes)
+
+		for (var node in sorted) {
+			if (node.has_method("render_gen()")) {
+				node.render_gen()
+			}
+		}
+
+		var list = []
+		for (var node in sorted) {
+			if (node.has_method("render_run()")) {
+				list.add(node)
+			}
+		}
+		if (!list.isEmpty) {
 			this.lists.add(list)
 		}
 	}
