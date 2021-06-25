@@ -31,6 +31,7 @@ class ShaderGen is Node
 
 		this.uniforms = []
 		this.uniforms_nodes = nil
+		this.uniforms_insts = nil
 	}
 
 	calc_value(idx)
@@ -134,11 +135,11 @@ uniform sampler2D in_tex;
 		if (this.shader.prog and this.uniforms_nodes)
 		{
 			for (var node in this.uniforms_nodes) {
-				if (node.has_method("bind_uniforms(_)")) {
-					node.bind_uniforms(this.shader.prog)
+				if (node.has_method("bind_uniforms(_,_)")) {
+					node.bind_uniforms(this.shader.prog, this.uniforms_insts)
 				}
 				if (node["node_func"]) {
-					node.node_func.bind_uniforms(this.shader.prog)
+					node.node_func.bind_uniforms(this.shader.prog, this.uniforms_insts)
 				}
 			}
 		}
@@ -167,7 +168,8 @@ uniform sampler2D in_tex;
 				}
 
 				var builder = ShaderBuilder(n_cs)
-				this.uniforms_nodes = builder.uniforms
+				this.uniforms_nodes = builder.uniforms_nodes
+				this.uniforms_insts = builder.uniforms_insts
 				var code = builder.gen.connect_cs_main(v_cs_main.value)
 				if (code) {
 					code = code.replace("in vec2 TexCoord;", "")
@@ -193,7 +195,9 @@ uniform sampler2D in_tex;
 				}
 
 				var builder = ShaderBuilder(n_fs)
-				this.uniforms_nodes = builder.uniforms
+				this.uniforms_nodes = builder.uniforms_nodes
+				this.uniforms_insts = builder.uniforms_insts
+
 				this.shader.prog = Shader.init(v_vs.value, "", "", "", builder.gen)
 			}
 		}

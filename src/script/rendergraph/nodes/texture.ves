@@ -42,9 +42,6 @@ class Texture is Node
 
 		this.params.add(NodeParam("unif_name", "u_tex"))
 
-		this.unif = nil
-		this.unif_name = nil
-
 		// for gui
 		this.sampler_items = ["null", "nearest_clamp", "linear_clamp", "linear_clamp_mipmap", "nearest_repeat", "linear_repeat"]
 		this.sampler_selected = 0
@@ -85,9 +82,6 @@ class Texture is Node
 
 	setup()
 	{
-    	this.unif = nil
-    	this.unif_name = nil
-
 		var v_col = Blueprint.calc_input_value(this, 1)
 		if (v_col) 
 		{
@@ -109,21 +103,25 @@ class Texture is Node
 	{
 		var module = node.find_value("module")
 
-		if (!this.unif) 
+		var unif_pair = node.tree.ud["global"].uniforms.query(this)
+		if (!unif_pair) 
 		{
 			var global = node.tree.ud["global"]
 
 			var name = this.query_param("unif_name").value
-			this.unif = global.gen.add_uniform(module, name, "texture")
-			this.unif_name = global.gen.query_unif_name(this.unif)
+			var unif = global.gen.add_uniform(module, name, "texture")
+			var unif_name = global.gen.query_unif_name(unif)
+
+			unif_pair = [unif, unif_name]
+			node.tree.ud["global"].uniforms.add(this, unif_pair)
 		}
 
 		if (idx == 0)
 		{
 			var tex = this.get_texture()
-			if (tex and this.unif) {
+			if (tex and unif_pair[0]) {
 				var bb = node.find_value("bb")
-				return bb.load(this.unif)
+				return bb.load(unif_pair[0])
 			} else {
 				return nil
 			}
@@ -152,13 +150,13 @@ class Texture is Node
 		}
 	}
 
-	bind_uniforms(prog)
+	bind_uniforms(prog, uniforms)
 	{
-		if (this.unif) 
-		{
+		var unif_pair = uniforms.query(this)
+		if (unif_pair and unif_pair[1]) {
 			var tex     = this.get_texture()
 			var sampler = this.get_sampler()
-			prog.set_uniform_value([this.unif_name, "sampler", [tex, sampler]])
+			prog.set_uniform_value([unif_pair[1], "sampler", [tex, sampler]])
 		}
 	}
 

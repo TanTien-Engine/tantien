@@ -21,20 +21,12 @@ class Uniform is Node
 		this.layout()
 
 		this.params.add(NodeParam("unif_name", "unif"))
-
-		this.unif = nil
-		this.unif_name = nil
-	}
-
-	setup()
-	{
-    	this.unif = nil
-    	this.unif_name = nil	
 	}
 
 	shader_gen(node, idx)
 	{
-		if (!this.unif) 
+		var unif_pair = node.tree.ud["global"].uniforms.query(this)
+		if (!unif_pair) 
 		{
 			var val = Blueprint.calc_input_value(this, 0)
 			if (!val) {
@@ -61,21 +53,36 @@ class Uniform is Node
 
 			var global = node.tree.ud["global"]
 			var module = node.find_value("module")
-			this.unif = global.gen.add_uniform(module, name, type)
-			this.unif_name = global.gen.query_unif_name(this.unif)
+
+			var unif = global.gen.add_uniform(module, name, type)
+			var unif_name = global.gen.query_unif_name(unif)
+
+			unif_pair = [unif, unif_name]
+			node.tree.ud["global"].uniforms.add(this, unif_pair)
 		}
 
-		if (this.unif) {
+		if (unif_pair[0]) {
 			var bb = node.find_value("bb")
-			return bb.load(this.unif)
+			return bb.load(unif_pair[0])
 		} else {
 			return nil
 		}
 	}
 
-	bind_uniforms(prog)
+	query_unif_name(uniforms)
 	{
-		if (!this.unif_name) {
+		var unif_pair = uniforms.query(this)
+		if (unif_pair) {
+			return unif_pair[1]
+		}
+
+		return nil
+	}
+
+	bind_uniforms(prog, uniforms)
+	{
+		var unif_name = this.query_unif_name(uniforms)
+		if (!unif_name) {
 			return nil
 		}
 
@@ -84,12 +91,12 @@ class Uniform is Node
 			return nil
 		}
 
-		this.bind_unif_val(prog, val)
+		this.bind_unif_val(prog, val, unif_name)
 
 		return val
 	}
 
-	bind_unif_val(prog, val)
+	bind_unif_val(prog, val, unif_name)
 	{
 		var type = ""
 		var value = []
@@ -126,6 +133,6 @@ class Uniform is Node
 			return nil
 		}
 
-		prog.set_uniform_value([this.unif_name, type, value])
+		prog.set_uniform_value([unif_name, type, value])
 	}
 }

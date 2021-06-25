@@ -92,11 +92,13 @@ class NodeFunction
 				if (prev_pin) {
 					Blueprint.connect(prev_pin, unif.imports[0])
 				}
+				var unif_name = nil
 				if (this.rename_ubo) {
-					unif.unif_name = "u_" + this.node.name + "." + this.node.imports[i].name
+					unif_name = "u_" + this.node.name + "." + this.node.imports[i].name
 				} else {
-					unif.unif_name = this.node.imports[i].name
+					unif_name = this.node.imports[i].name
 				}
+				node.tree.ud["global"].uniforms.add(unif, [nil, unif_name])
 				this.uniforms.add(unif)
 			}
 		}
@@ -213,7 +215,7 @@ class NodeFunction
 		return inst
 	}
 
-	bind_uniforms(prog)
+	bind_uniforms(prog, uniforms)
 	{
 		if (this.uniforms.isEmpty) {
 			return
@@ -222,7 +224,7 @@ class NodeFunction
 		for (var i in this.num_params..this.node.imports.count)
 		{	
 			var unif = this.uniforms[i - this.num_params]
-			var val = unif.bind_uniforms(prog)
+			var val = unif.bind_uniforms(prog, uniforms)
 
 			var in_node = Blueprint.get_input_node(this.node, i)
 			if (this.node.imports[i].type == VAR_TYPE_TEXTURE) 
@@ -241,7 +243,10 @@ class NodeFunction
 				if (val) {
 					param.set_value(val.value)
 				} else {
-					unif.bind_unif_val(prog, Variant(param.value))
+					var unif_name = unif.query_unif_name(uniforms)
+					if (unif_name) {
+						unif.bind_unif_val(prog, Variant(param.value), unif_name)
+					}
 				}
 			}
 		}

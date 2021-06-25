@@ -3,6 +3,28 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "shader" for ShaderGen
 
+class KeyValList
+{
+	init()
+	{
+		this.items = []	
+	}
+
+	query(key)
+	{
+		for (var item in this.items) {
+			if (item[0] == key) {
+				return item[1]
+			}
+		}
+	}
+
+	add(key, val)
+	{
+		this.items.add([key, val])	
+	}
+}
+
 class ShaderGlobal
 {
 	init()
@@ -10,6 +32,9 @@ class ShaderGlobal
 		this.gen = nil
 
 		this.variants = {}
+
+		// todo: use map
+		this.uniforms = KeyValList()
 	}
 }
 
@@ -31,14 +56,16 @@ class ShaderBuilder
 		
 		this.gen = this.build(node, tree)
 
-		this.uniforms = Set.new()
+		this.uniforms_nodes = Set.new()
 		for (var node in tree.all_nodes)
 		{
 			var g_node = node.graph_node
-			if (g_node.has_method("bind_uniforms(_)") or g_node["node_func"]) {
-				this.uniforms.add(g_node)
+			if (g_node.has_method("bind_uniforms(_,_)") or g_node["node_func"]) {
+				this.uniforms_nodes.add(g_node)
 			}
 		}
+
+		this.uniforms_insts = tree.ud["global"].uniforms
 	}
 
 	build(node, tree)

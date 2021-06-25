@@ -41,9 +41,6 @@ class Cubemap is Node
 		this.preview = false
 
 		this.params.add(NodeParam("unif_name", "u_cube_tex"))
-
-		this.unif = nil
-		this.unif_name = nil
 	}
 
 	calc_value(idx)
@@ -87,29 +84,27 @@ class Cubemap is Node
 		return nil
 	}
 
-	setup()
-	{
-    	this.unif = nil
-    	this.unif_name = nil
-	}
-
 	shader_gen(node, idx)
 	{
 		var module = node.find_value("module")
 
-		if (!this.unif) 
+		var unif_pair = node.tree.ud["global"].uniforms.query(this)
+		if (!unif_pair) 
 		{
 			var global = node.tree.ud["global"]
 
 			var name = this.query_param("unif_name").value
-			this.unif = global.gen.add_uniform(module, name, "cubemap")
-			this.unif_name = global.gen.query_unif_name(this.unif)
+			var unif = global.gen.add_uniform(module, name, "cubemap")
+			var unif_name = global.gen.query_unif_name(unif)
+
+			unif_pair = [unif, unif_name]
+			node.tree.ud["global"].uniforms.add(this, unif_pair)
 		}
 
 		if (idx == 0)
 		{
 			var bb = node.find_value("bb")
-			return bb.load(this.unif)
+			return bb.load(unif_pair[0])
 		}
 		else
 		{
@@ -117,10 +112,11 @@ class Cubemap is Node
 		}
 	}
 
-	bind_uniforms(prog)
+	bind_uniforms(prog, uniforms)
 	{
-		if (this.unif) {
-			prog.set_uniform_value([this.unif_name, "sampler", [this.tex, this.sampler]])
+		var unif_pair = uniforms.query(this)
+		if (unif_pair and unif_pair[1]) {
+			prog.set_uniform_value([unif_pair[1], "sampler", [this.tex, this.sampler]])
 		}
 	}
 
