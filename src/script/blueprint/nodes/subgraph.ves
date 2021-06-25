@@ -150,19 +150,6 @@ class Subgraph is Node
 		return ret
 	}
 
-	shader_build(builder, gen)
-	{
-		for (var item in this.all_items) 
-		{
-			var node = item[0]
-			if (node is Subgraph) {
-				node.shader_build(builder, gen)
-			} else {
-				builder.build(node, gen)
-			}
-		}
-	}	
-
 	draw_gui(ctx) 
 	{
 		var dirty = false
