@@ -137,7 +137,7 @@ class ThermalWeathering is Node
 		{
 			var shader = Shader()
 			shader.cs = CS
-			shader.render_run()
+			shader.render_gen()
 
 			var compute = Compute()
 			Blueprint.connect(shader, "out", compute, "shader")

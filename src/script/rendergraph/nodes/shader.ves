@@ -27,7 +27,7 @@ class Shader is Node
 		this.cs  = ""
 
 		this.shader = var_Shader(this)
-		this.need_rebuild = true
+		this.need_rebuild = false
 
 		this.uniforms = []
 
@@ -53,12 +53,7 @@ class Shader is Node
 
 	render_gen()
 	{
-		//this.need_rebuild = true
-	}
-
-	render_run() 
-	{
-		if (!this.need_rebuild) {
+		if (!this.need_rebuild and this.shader.prog) {
 			return
 		}
 
@@ -78,8 +73,6 @@ class Shader is Node
 
 			this.layout()
 		}
-
-		this.need_rebuild = false
 	}
 
 	layout() 
@@ -159,7 +152,7 @@ class Shader is Node
 %(name).gs = \"%(this.gs)\"
 %(name).fs = \"%(this.fs)\"
 %(name).cs = \"%(this.cs)\"
-%(name).render_run()
+%(name).render_gen()
 "
 		for (var unif in this.uniforms) {
 			code = code + this.uniform_to_string(name, unif)

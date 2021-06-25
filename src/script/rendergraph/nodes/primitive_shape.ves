@@ -41,12 +41,13 @@ class PrimitiveShape is Node
 		return Variant(VAR_TYPE_VERTEX_ARRAY, this.va)
 	}
 
-	render_run() 
+	render_gen()
 	{
-		if (this.need_rebuild) {
-			this.va = VertexArray.init(this.type, this.layout, this.shape_params)
-			this.need_rebuild = false
+		if (!this.need_rebuild and this.va) {
+			return
 		}
+
+		this.va = VertexArray.init(this.type, this.layout, this.shape_params)
 	}
 
 	layout() 
@@ -149,7 +150,7 @@ class PrimitiveShape is Node
 		}
 
 		if (dirty) {
-			this.need_rebuild = true
+			this.render_gen()
 		}
 
 		return dirty

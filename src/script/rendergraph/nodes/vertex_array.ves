@@ -20,6 +20,7 @@ class VertexArray is Node
 		this.ibuf = nil
 
 		this.va = nil
+		this.need_rebuild = false
 
 		this.layout()
 	}
@@ -31,14 +32,12 @@ class VertexArray is Node
 
 	render_gen()
 	{
-		this.need_rebuild = true
-	}
+		if (!this.need_rebuild and this.va) {
+			return
+		}
 
-	render_run() 
-	{
-		if (this.data and this.attrs and this.need_rebuild) {
+		if (this.data and this.attrs) {
 			this.va = tt_VertexArray.init(this.data, this.attrs, this.ibuf)
-			this.need_rebuild = false
 		}
 	}
 
