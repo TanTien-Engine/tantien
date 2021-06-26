@@ -27,9 +27,9 @@ class ShaderUniforms
 		}
 	}
 
-	static get_shader_uniforms(stage, code, lang, uniforms, entry_point)
+	static get_shader_uniforms(stage, code, lang, inc_dir, uniforms, entry_point)
 	{
-		var unifs = Render.get_shader_uniforms(stage, code, lang, entry_point)
+		var unifs = Render.get_shader_uniforms(stage, code, lang, inc_dir, entry_point)
 
 		// init
 		for (var unif in unifs) {

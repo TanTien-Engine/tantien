@@ -21,7 +21,7 @@ class NodeFunction
 			code = code.replace("__UBO__", "UBO_" + node.name)
 		}
 
-		this.num_params = NodeHelper.init_pins_from_code(node, stage, code, lang, func_name)
+		this.num_params = NodeHelper.init_pins_from_code(node, stage, code, nil, lang, func_name)
 		
 		for (var param in params)
 		{

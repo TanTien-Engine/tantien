@@ -32,10 +32,10 @@ class NodeHelper
 		return pin_type
 	}
 
-	static init_pins_from_code(node, stage, code, lang, name)
+	static init_pins_from_code(node, stage, code, inc_dir, lang, name)
 	{
 		// func params
-		var args = Render.get_shader_func_argus(stage, code, lang, name)
+		var args = Render.get_shader_func_argus(stage, code, inc_dir, lang, name)
 		if (!args) {
 			return
 		}
@@ -49,7 +49,7 @@ class NodeHelper
 		// uniforms
 		var uniforms = []
 		import "rendergraph.components.shader_uniforms" for ShaderUniforms		
-		ShaderUniforms.get_shader_uniforms(stage, code, lang, uniforms, name)
+		ShaderUniforms.get_shader_uniforms(stage, code, inc_dir, lang, uniforms, name)
 		for (var unif in uniforms) {
 			ShaderUniforms.add_uniform_to_imports(node, unif)
 		}

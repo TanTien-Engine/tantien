@@ -73,8 +73,8 @@ void DTex::Init(const ur::Device& dev)
     m_tex_renderer = std::make_unique<dtex::TexRenderer>(*UR_DEV);
 
     std::vector<unsigned int> _vs, _fs;
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs, _vs);
-    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs, _fs);
+    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs, nullptr, _vs);
+    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs, nullptr, _fs);
     m_debug_shader = dev.CreateShaderProgram(_vs, _fs);
 
     m_debug_va = dev.CreateVertexArray();

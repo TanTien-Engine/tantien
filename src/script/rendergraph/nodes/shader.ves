@@ -1,13 +1,16 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_STRING
 import "blueprint.node_helper" for NodeHelper
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VAR_TYPE_SHADER
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
+import "rendergraph.nodes.shader_code" for ShaderCode
 import "gui" for GUI
 import "render" for Shader as tt_Shader
+import "filesystem" for Filesystem
 
 class Shader is Node
 {
@@ -15,6 +18,9 @@ class Shader is Node
 	{
 		super.init(Shader.name)
 
+		this.imports = [
+			Pin(this, "cs", VAR_TYPE_STRING)
+		]
 		this.exports = [
 			Pin(this, "out", VAR_TYPE_SHADER)
 		]
@@ -39,15 +45,19 @@ class Shader is Node
 		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
-	get_shader_uniforms()
+	get_shader_uniforms(cs, inc_dir)
 	{
 		var uniforms = []
-		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  "glsl", uniforms, "main")
-		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, "glsl", uniforms, "main")
-		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, "glsl", uniforms, "main")
-		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  "glsl", uniforms, "main")
-		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  "glsl", uniforms, "main")
-		ShaderUniforms.get_shader_uniforms("compute",   this.cs,  "glsl", uniforms, "main")		
+		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  nil, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, nil, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, nil, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  nil, "glsl", uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  nil, "glsl", uniforms, "main")
+		if (cs) {
+			ShaderUniforms.get_shader_uniforms("compute", cs, inc_dir, "glsl", uniforms, "main")
+		} else {
+			ShaderUniforms.get_shader_uniforms("compute", this.cs, nil, "glsl", uniforms, "main")		
+		}
 		return uniforms
 	}
 
@@ -57,16 +67,33 @@ class Shader is Node
 			return
 		}
 
+		var inc_dir = nil
+
+		var cs = nil
+		var v_cs = Blueprint.calc_input_value(this, 0)
+		if (v_cs and v_cs.type == VAR_TYPE_STRING) 
+		{
+			cs = v_cs.value
+
+			// fixme
+			var n_cs = Blueprint.get_input_node(this, 0)
+			if (n_cs and n_cs is ShaderCode) {
+				inc_dir = Filesystem.get_directory(n_cs.filepath)
+			}
+		}
+
 		this.shader.prog = nil
-		if (this.cs != "") {
-			this.shader.prog = tt_Shader.init(this.cs)
-		} else {
-			this.shader.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs)
+		if (cs) {
+			this.shader.prog = tt_Shader.init(cs, inc_dir)
+		} else if (this.cs != "") {
+			this.shader.prog = tt_Shader.init(this.cs, nil)
+		} else if (this.vs != "" and this.fs != "") {
+			this.shader.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs, nil)
 		}
 
 		if (this.shader.prog)
 		{
-			this.uniforms = this.get_shader_uniforms()
+			this.uniforms = this.get_shader_uniforms(cs, inc_dir)
 			for (var unif in this.uniforms) {
 				ShaderUniforms.add_uniform_to_imports(this, unif)
 			}

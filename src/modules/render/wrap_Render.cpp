@@ -28,6 +28,7 @@
 #include <shadertrans/ShaderReflection.h>
 #include <shadertrans/ShaderPreprocess.h>
 #include <shadertrans/ShaderBuilder.h>
+#include <shadertrans/ShaderPreprocess.h>
 #include <SM_Matrix.h>
 #include <gimg_typedef.h>
 #include <guard/check.h>
@@ -40,12 +41,18 @@
 namespace
 {
 
-void read_shader(std::vector<unsigned int>& dst, int src, shadertrans::ShaderStage stage)
+void read_shader(std::vector<unsigned int>& dst, int src, const char* inc_dir, shadertrans::ShaderStage stage)
 {
-    if (ves_type(src) == VES_TYPE_STRING) {
-        const char* str = ves_tostring(src);
-        shadertrans::ShaderTrans::GLSL2SpirV(stage, str, dst);
-    } else {
+    if (ves_type(src) == VES_TYPE_STRING) 
+    {
+        std::string str = ves_tostring(src);
+        if (!str.empty()) {
+            str = shadertrans::ShaderPreprocess::PrepareGLSL(stage, str);
+            shadertrans::ShaderTrans::GLSL2SpirV(stage, str, inc_dir, dst);
+        }
+    } 
+    else 
+    {
         auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(src))->obj;
         dst = builder->Link();
     }
@@ -56,14 +63,16 @@ void w_Shader_allocate()
     std::shared_ptr<ur::ShaderProgram> prog = nullptr;
 
     int num = ves_argnum();
-    if (num == 6)
+    if (num == 7)
     {
+        const char* inc_dir = ves_tostring(6);
+
         std::vector<unsigned int> vs, tcs, tes, gs, fs;
-        read_shader(vs, 1, shadertrans::ShaderStage::VertexShader);
-        read_shader(tcs, 2, shadertrans::ShaderStage::TessCtrlShader);
-        read_shader(tes, 3, shadertrans::ShaderStage::TessEvalShader);
-        read_shader(gs, 4, shadertrans::ShaderStage::GeometryShader);
-        read_shader(fs, 5, shadertrans::ShaderStage::PixelShader);
+        read_shader(vs,  1, inc_dir, shadertrans::ShaderStage::VertexShader);
+        read_shader(tcs, 2, inc_dir, shadertrans::ShaderStage::TessCtrlShader);
+        read_shader(tes, 3, inc_dir, shadertrans::ShaderStage::TessEvalShader);
+        read_shader(gs,  4, inc_dir, shadertrans::ShaderStage::GeometryShader);
+        read_shader(fs,  5, inc_dir, shadertrans::ShaderStage::PixelShader);
 
         if (!vs.empty()) 
         {
@@ -76,25 +85,31 @@ void w_Shader_allocate()
             prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
         }
     }
-    else if (num == 2)
+    else if (num == 3)
     {
-        //std::vector<unsigned int> cs;
-        //read_shader(cs, 1, shadertrans::ShaderStage::ComputeShader);
-
-//        if (!cs.empty())
-//        {
-//#ifdef SHADER_DEBUG_PRINT
-//            std::string cs_glsl;
-//            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
-//            printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
-//#endif // SHADER_DEBUG_PRINT
-//
-//            prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
-//        }
-
-        const char* cs = ves_tostring(1);
-        if (cs) {
-            prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+        const char* inc_dir = ves_tostring(2);
+        if (inc_dir)
+        {
+            std::vector<unsigned int> cs;
+            read_shader(cs, 1, inc_dir, shadertrans::ShaderStage::ComputeShader);
+            
+            if (!cs.empty())
+            {
+#ifdef SHADER_DEBUG_PRINT
+                std::string cs_glsl;
+                shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::ComputeShader, cs, cs_glsl);
+                printf("cs:\n%s\nfs:\n%s\n", cs_glsl.c_str(), cs_glsl.c_str());
+#endif // SHADER_DEBUG_PRINT
+            
+                prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+            }
+        }
+        else
+        {
+            const char* cs = ves_tostring(1);
+            if (cs) {
+                prog = tt::Render::Instance()->Device()->CreateShaderProgram(cs);
+            }
         }
     }
 
@@ -1426,7 +1441,7 @@ void w_Render_set_viewport()
     tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
-std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* entry_point, const char* lang_str, bool no_link)
+std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* inc_dir, const char* entry_point, const char* lang_str, bool no_link)
 {
     std::vector<unsigned int> spirv;
 
@@ -1449,7 +1464,7 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
 
     if (strcmp(lang_str, "glsl") == 0) {
         auto code = shadertrans::ShaderPreprocess::PrepareGLSL(stage, shader_str);
-        shadertrans::ShaderTrans::GLSL2SpirV(stage, code, spirv, no_link);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, code, inc_dir, spirv, no_link);
     }  else if (strcmp(lang_str, "hlsl") == 0) {
         shadertrans::ShaderTrans::HLSL2SpirV(stage, shader_str, entry_point, spirv);
     }
@@ -1457,10 +1472,10 @@ std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const ch
     return spirv;
 }
 
-void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* entry_point, const char* lang_str,
+void get_shader_uniforms(const char* stage_str, const char* shader_str, const char* inc_dir, const char* entry_point, const char* lang_str,
                          std::vector<shadertrans::ShaderReflection::Variable>& uniforms)
 {
-    auto spirv = shader_string_to_spirv(stage_str, shader_str, entry_point, lang_str, true);
+    auto spirv = shader_string_to_spirv(stage_str, shader_str, inc_dir, entry_point, lang_str, true);
     if (!spirv.empty()) {
         shadertrans::ShaderReflection::GetUniforms(spirv, uniforms);
     }
@@ -1557,29 +1572,31 @@ void push_variants(const std::vector<shadertrans::ShaderReflection::Variable>& v
 
 void w_Render_get_shader_uniforms()
 {
-    const char* stage = ves_tostring(1);
-    const char* code  = ves_tostring(2);
-    const char* lang  = ves_tostring(3);
-    const char* entry_point = ves_tostring(4);
+    const char* stage       = ves_tostring(1);
+    const char* code        = ves_tostring(2);
+    const char* inc_dir     = ves_tostring(3);
+    const char* lang        = ves_tostring(4);
+    const char* entry_point = ves_tostring(5);
 
     std::vector<shadertrans::ShaderReflection::Variable> uniforms;
     if (strlen(code) != 0) {
-        get_shader_uniforms(stage, code, entry_point, lang, uniforms);
+        get_shader_uniforms(stage, code, inc_dir, entry_point, lang, uniforms);
     }
 
-    ves_pop(5);
+    ves_pop(6);
 
     push_variants(uniforms);
 } 
 
 void w_Render_get_shader_func_argus()
 {
-    const char* stage = ves_tostring(1);
-    const char* code = ves_tostring(2);
-    const char* lang = ves_tostring(3);
-    const char* name = ves_tostring(4);
+    const char* stage   = ves_tostring(1);
+    const char* code    = ves_tostring(2);
+    const char* inc_dir = ves_tostring(3);
+    const char* lang    = ves_tostring(4);
+    const char* name    = ves_tostring(5);
 
-    auto spirv = shader_string_to_spirv(stage, code, name, lang, true);
+    auto spirv = shader_string_to_spirv(stage, code, inc_dir, name, lang, true);
     if (spirv.empty()) {
         ves_set_nil(0);
         return;
@@ -1592,7 +1609,7 @@ void w_Render_get_shader_func_argus()
         return;
     }
     
-    ves_pop(5);
+    ves_pop(6);
 
     auto vars = func.arguments;
     vars.push_back(func.ret_type);
@@ -1625,8 +1642,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
-    if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_,_)") == 0) return w_Render_get_shader_uniforms;
-    if (strcmp(signature, "static Render.get_shader_func_argus(_,_,_,_)") == 0) return w_Render_get_shader_func_argus;
+    if (strcmp(signature, "static Render.get_shader_uniforms(_,_,_,_,_)") == 0) return w_Render_get_shader_uniforms;
+    if (strcmp(signature, "static Render.get_shader_func_argus(_,_,_,_,_)") == 0) return w_Render_get_shader_func_argus;
     if (strcmp(signature, "static Render.get_fbo()") == 0) return w_Render_get_fbo;
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;

@@ -100,7 +100,7 @@ class ShaderGen is Node
 			return
 		}
 
-		ShaderUniforms.get_shader_uniforms("vertex", v_vs.value, "glsl", this.uniforms, "main")
+		ShaderUniforms.get_shader_uniforms("vertex", v_vs.value, nil, "glsl", this.uniforms, "main")
 		for (var unif in this.uniforms) {
 			ShaderUniforms.add_uniform_to_imports(this, unif)
 		}
@@ -118,11 +118,11 @@ class ShaderGen is Node
 		}
 
 		// fixme
-//		ShaderUniforms.get_shader_uniforms("compute", v_cs_main.value, "glsl", this.uniforms, "main")
+//		ShaderUniforms.get_shader_uniforms("compute", v_cs_main.value, nil, "glsl", this.uniforms, "main")
 		ShaderUniforms.get_shader_uniforms("compute", "
 layout(binding = 0, r16f) writeonly uniform image2D out_tex;
 uniform sampler2D in_tex;
-", "glsl", this.uniforms, "main")
+", nil, "glsl", this.uniforms, "main")
 		for (var unif in this.uniforms) {
 			ShaderUniforms.add_uniform_to_imports(this, unif)
 		}
@@ -173,7 +173,7 @@ uniform sampler2D in_tex;
 				var code = builder.gen.connect_cs_main(v_cs_main.value)
 				if (code) {
 					code = code.replace("in vec2 TexCoord;", "")
-					this.shader.prog = Shader.init(code)
+					this.shader.prog = Shader.init(code, nil)
 				}				
 			}
 		}
@@ -198,7 +198,7 @@ uniform sampler2D in_tex;
 				this.uniforms_nodes = builder.uniforms_nodes
 				this.uniforms_insts = builder.uniforms_insts
 
-				this.shader.prog = Shader.init(v_vs.value, "", "", "", builder.gen)
+				this.shader.prog = Shader.init(v_vs.value, "", "", "", builder.gen, nil)
 			}
 		}
 	}

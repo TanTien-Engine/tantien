@@ -108,7 +108,7 @@ void w_ShaderTools_code2spirv()
     std::vector<unsigned int> spirv;
     auto stage = to_shader_stage(stage_str);
     if (strcmp(lang_str, "glsl") == 0) {
-        shadertrans::ShaderTrans::GLSL2SpirV(stage, code_str, spirv, true);
+        shadertrans::ShaderTrans::GLSL2SpirV(stage, code_str, nullptr, spirv, true);
     } else if (strcmp(lang_str, "hlsl") == 0) {
         shadertrans::ShaderTrans::HLSL2SpirV(stage, code_str, "main", spirv);
     }

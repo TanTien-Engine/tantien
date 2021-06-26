@@ -3,8 +3,8 @@ static const char* renderModuleSource = QUOTE(
 
 foreign class Shader
 {
-	init(vs, tcs, tes, gs, fs) {}
-	init(cs) {}
+	init(vs, tcs, tes, gs, fs, inc_dir) {}
+	init(cs, inc_dir) {}
 
 	// name(string) + type(string) + value(list)
 	foreign set_uniform_value(uniform)
@@ -108,8 +108,8 @@ foreign class Render
 	// lang: <"glsl", "hlsl">
 	// return: list, name + type + values
 	// uniform types: unknown, bool, int, int2, int3, int4, float, float2, float3, float4, mat2, mat3, mat4, sampler
-	foreign static get_shader_uniforms(stage, code, lang, entry_point)
-	foreign static get_shader_func_argus(stage, code, lang, name)
+	foreign static get_shader_uniforms(stage, code, inc_dir, lang, entry_point)
+	foreign static get_shader_func_argus(stage, code, inc_dir, lang, name)
 
 	foreign static get_fbo()
 	foreign static set_fbo(fbo)	

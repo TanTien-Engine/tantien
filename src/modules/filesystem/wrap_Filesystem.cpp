@@ -77,6 +77,13 @@ void w_Filesystem_get_filename()
     ves_set_lstring(0, filename.c_str(), filename.size());
 }
 
+void w_Filesystem_get_directory()
+{
+    const char* path = ves_tostring(1);
+    auto directory = std::filesystem::path(path).parent_path().string();
+    ves_set_lstring(0, directory.c_str(), directory.size());
+}
+
 void w_Filesystem_get_directory_files()
 {
     std::vector<std::string> files;
@@ -116,6 +123,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.get_absolute_path(_)") == 0) return w_Filesystem_get_absolute_path;
     if (strcmp(signature, "static Filesystem.get_relative_path(_)") == 0) return w_Filesystem_get_relative_path;
     if (strcmp(signature, "static Filesystem.get_filename(_)") == 0) return w_Filesystem_get_filename;
+    if (strcmp(signature, "static Filesystem.get_directory(_)") == 0) return w_Filesystem_get_directory;
     if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
     if (strcmp(signature, "static Filesystem.remove_file(_)") == 0) return w_Filesystem_remove_file;
 
