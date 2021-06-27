@@ -113,6 +113,13 @@ class Shader is Node
 		}
 	}
 
+	on_connected(pin)
+	{
+		if (pin.is_input and pin.slot_idx == 0) {
+			this.render_gen()
+		}
+	}
+
 	set_uniform(unif, name, value)
 	{
 		if (unif[1] == "array" or unif[1] == "struct")
