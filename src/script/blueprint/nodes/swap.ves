@@ -1,0 +1,65 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.load" for Load
+import "blueprint.nodes.store" for Store
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "rendergraph.nodes.texture" for Texture
+
+class Swap is Node
+{
+	init() 
+	{
+		super.init(Swap.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "a", VAR_TYPE_ANY),
+			Pin(this, "b", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	render_run() 
+	{
+		var a = Blueprint.calc_input_value(this, 1)
+		var b = Blueprint.calc_input_value(this, 2)
+		if (!a and !b) {
+			return
+		}
+
+		if (a.type == VAR_TYPE_TEXTURE and b.type == VAR_TYPE_TEXTURE) 
+		{
+			var tex_a = this.get_input_tex_node(1)
+			var tex_b = this.get_input_tex_node(2)
+			if (tex_a and tex_b)
+			{
+				var tmp = tex_b.tex
+				tex_b.tex = tex_a.tex
+				tex_a.tex = tmp
+			}
+		}
+	}
+
+	get_input_tex_node(idx)
+	{
+		var p = Blueprint.get_input_node(this, idx)
+		if (p is Texture) {
+			return p
+		} else if (p is Load) {
+			var pp = Blueprint.get_input_node(p, 0)
+			if (pp is Store) {
+				var ppp = Blueprint.get_input_node(pp, 0)
+				if (ppp is Texture) {
+					return ppp
+				}
+			}
+		}
+		return nil
+	}
+}
