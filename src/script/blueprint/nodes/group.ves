@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "render" for Render
+
+class Group is Node
+{
+	init()
+	{
+		super.init(Group.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "do",  VAR_TYPE_PORT)
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.imports[1].stop_port_pass = true
+
+		this.drawlist = nil
+
+		this.debug_msg = ""
+	}
+
+	to_string(name) {
+		return "
+%(name).debug_msg = \"%(this.debug_msg)\"
+"
+	}
+
+	render_gen()
+	{
+		var node = Blueprint.get_input_node(this, 1)
+		if (node) 
+		{
+			var prev_nodes = Blueprint.get_precursor_nodes(node)
+
+			import "rendergraph.drawlist" for Drawlist
+			this.drawlist = Drawlist(prev_nodes)
+		}
+	}
+
+	render_run() 
+	{
+		Render.push_debug_group(this.debug_msg)
+
+		this.drawlist.run()
+
+		Render.pop_debug_group()		
+	}
+}

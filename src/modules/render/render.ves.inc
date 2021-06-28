@@ -117,6 +117,9 @@ foreign class Render
 	// [x, y, w, h]
 	foreign static get_viewport()
 	foreign static set_viewport(vp)
+
+	foreign static push_debug_group(msg)
+	foreign static pop_debug_group()
 }
 
 );

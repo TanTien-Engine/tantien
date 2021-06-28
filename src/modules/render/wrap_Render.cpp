@@ -1441,6 +1441,17 @@ void w_Render_set_viewport()
     tt::Render::Instance()->Context()->SetViewport(x, y, w, h);
 }
 
+void w_Render_push_debug_group()
+{
+    const char* msg = ves_tostring(1);
+    tt::Render::Instance()->Device()->PushDebugGroup(msg);
+}
+
+void w_Render_pop_debug_group()
+{
+    tt::Render::Instance()->Device()->PopDebugGroup();
+}
+
 std::vector<unsigned int> shader_string_to_spirv(const char* stage_str, const char* shader_str, const char* inc_dir, const char* entry_point, const char* lang_str, bool no_link)
 {
     std::vector<unsigned int> spirv;
@@ -1648,6 +1659,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "static Render.set_fbo(_)") == 0) return w_Render_set_fbo;
     if (strcmp(signature, "static Render.get_viewport()") == 0) return w_Render_get_viewport;
     if (strcmp(signature, "static Render.set_viewport(_)") == 0) return w_Render_set_viewport;
+    if (strcmp(signature, "static Render.push_debug_group(_)") == 0) return w_Render_push_debug_group;
+    if (strcmp(signature, "static Render.pop_debug_group()") == 0) return w_Render_pop_debug_group;
 
     return NULL;
 }
