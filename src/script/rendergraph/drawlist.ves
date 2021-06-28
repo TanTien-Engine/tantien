@@ -1,5 +1,6 @@
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.subgraph" for Subgraph
+import "rendergraph.nodes.pass" for Pass
 import "rendergraph.nodes.draw" for Draw
 import "rendergraph.nodes.compute" for Compute
 
@@ -14,8 +15,7 @@ class Drawlist
 
 	build_lists(nodes)
 	{
-		import "rendergraph.nodes.pass" for Pass
-		
+		// 0. find Pass, Draw and Compute
 		for (var node in nodes) 
 		{
 			if (node is Pass and node.exports[0].conns.isEmpty) {
@@ -25,11 +25,28 @@ class Drawlist
 				this.build_list(prev_nodes)
 			}
 		}
-
-		// fixme: for terraingraph
-		if (this.lists.isEmpty) {
-			this.build_list(nodes)
+		if (!this.lists.isEmpty) {
+			return
 		}
+
+		// 1. find Subgraph
+		if (this.lists.isEmpty) {
+			for (var node in nodes) {
+				if (node is Subgraph and node.exports[0].conns.isEmpty) {
+					var prev_node = Blueprint.get_input_node(node, 0)
+					if (prev_node) {
+						var prev_nodes = Blueprint.get_precursor_nodes(prev_node)
+						this.build_list(prev_nodes)
+					}
+				}
+			}
+		}
+		if (!this.lists.isEmpty) {
+			return
+		}
+
+		// 2. all
+		this.build_list(nodes)
 	}
 
 	build_list(nodes)
