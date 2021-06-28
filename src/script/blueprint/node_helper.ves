@@ -1,5 +1,5 @@
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "render" for Render
 
 class NodeHelper
@@ -13,11 +13,11 @@ class NodeHelper
 			pin_type = VAR_TYPE_INTEGER
 		} else if (type == "float") {
 			pin_type = VAR_TYPE_NUMBER
-		} else if (type == "float2") {
+		} else if (type == "float2" or type == "int2") {
 			pin_type = VAR_TYPE_NUMBER2
-		} else if (type == "float3") {
+		} else if (type == "float3" or type == "int3") {
 			pin_type = VAR_TYPE_NUMBER3
-		} else if (type == "float4") {
+		} else if (type == "float4" or type == "int4") {
 			pin_type = VAR_TYPE_NUMBER4
 		} else if (type == "mat2") {
 			pin_type = VAR_TYPE_MATRIX2
@@ -28,6 +28,8 @@ class NodeHelper
 		} else if (type == "sampler" or type == "image") {
 			import "rendergraph.variant" for VAR_TYPE_TEXTURE		
 			pin_type = VAR_TYPE_TEXTURE
+		} else if (type == "array") {
+			pin_type = VAR_TYPE_ARRAY
 		}
 		return pin_type
 	}
