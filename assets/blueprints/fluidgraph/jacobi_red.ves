@@ -1,0 +1,53 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = ShaderCode()
+node0.init_filepath("../../shaders/fluid2d/jacobiRed.glsl")
+
+_editor.add_node(node0, -135.33981926837, 187.98612520313)
+
+var node1 = Shader()
+
+node1.vs = ""
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
+node1.fs = ""
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 48.866244628324, 148.58496213227)
+
+var node2 = Compute()
+
+node2.num_groups = [ 16, 16, 1 ]
+
+_editor.add_node(node2, 238.72215509585, 177.62428937935)
+
+var node3 = Input()
+
+node3.var_name = "pressure_WRITE"
+node3.var_type = "texture"
+
+_editor.add_node(node3, -143.62801846338, 27.282146706817)
+
+var node4 = Input()
+
+node4.var_name = "pressure_READ"
+node4.var_type = "texture"
+
+_editor.add_node(node4, -145.49404919131, 124.78219103802)
+
+var node5 = Input()
+
+node5.var_name = "divergence"
+node5.var_type = "texture"
+
+_editor.add_node(node5, -143.62801901018, 77.198442781807)
+
+Blueprint.connect(node0, "code", node1, "cs")
+Blueprint.connect(node4, "var", node1, "pressure_READ")
+Blueprint.connect(node5, "var", node1, "divergence")
+Blueprint.connect(node3, "var", node1, "pressure_WRITE")
+Blueprint.connect(node1, "out", node2, "shader")

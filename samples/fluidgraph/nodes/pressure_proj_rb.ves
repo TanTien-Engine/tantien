@@ -1,0 +1,96 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
+
+_editor.add_node(node0, -31, -12)
+
+var node1 = Number3()
+
+node1.value.set(0, 0.07639566808939, 0)
+
+_editor.add_node(node1, -252.66122250866, -42.470683690305)
+
+var node2 = Number()
+
+node2.value = 3.5120646953583
+
+_editor.add_node(node2, -250.60857915594, -138.43124455955)
+
+var node3 = Number2()
+
+node3.value.set(299.5895690918, 572.65625)
+
+_editor.add_node(node3, -253.33112832919, 58.186705346674)
+
+var node4 = Texture()
+node4.query_param("unif_name").value = "read"
+node4.gamma_correction = false
+node4.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node4, -290.55529961704, -251.1025546996)
+
+var node5 = Texture()
+node5.query_param("unif_name").value = "write"
+node5.gamma_correction = false
+node5.init_texture(512, 512, "rgba16f")
+
+_editor.add_node(node5, 617.37859843671, -264.22917757062)
+
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
+
+_editor.add_node(node6, 918.12025874332, -233.43258913823)
+
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/pressure_proj_rb.ves")
+
+_editor.add_node(node7, 924.27852612354, 4.6315344894031)
+
+var node8 = Subgraph()
+node8.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
+
+_editor.add_node(node8, 452.89, -13.65)
+
+var node9 = Number3()
+
+node9.value.set(0.60791355371475, 0, 0)
+
+_editor.add_node(node9, 231.22877749134, -44.120683690305)
+
+var node10 = Number()
+
+node10.value = 3.5120646953583
+
+_editor.add_node(node10, 233.28142084406, -140.08124455955)
+
+var node11 = Number2()
+
+node11.value.set(391.8635559082, 572.65625)
+
+_editor.add_node(node11, 230.55887167081, 56.536705346674)
+
+var node12 = Texture()
+node12.query_param("unif_name").value = "read"
+node12.gamma_correction = false
+node12.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node12, 192.50825410197, -245.31453817067)
+
+Blueprint.connect(node3, "v2", node0, "spotPos")
+Blueprint.connect(node1, "v3", node0, "color")
+Blueprint.connect(node2, "v", node0, "intensity")
+Blueprint.connect(node4, "tex", node0, "field")
+Blueprint.connect(node0, "next", node8, "prev")
+Blueprint.connect(node11, "v2", node8, "spotPos")
+Blueprint.connect(node9, "v3", node8, "color")
+Blueprint.connect(node10, "v", node8, "intensity")
+Blueprint.connect(node12, "tex", node8, "field")
+Blueprint.connect(node8, "next", node7, "prev")
+Blueprint.connect(node4, "tex", node7, "pressure_READ")
+Blueprint.connect(node12, "tex", node7, "velocities_READ")
+Blueprint.connect(node5, "tex", node7, "velocities_WRITE")
+Blueprint.connect(node7, "next", node6, "prev")
+Blueprint.connect(node5, "tex", node6, "texture1")

@@ -1,0 +1,45 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = ShaderCode()
+node0.init_filepath("../../shaders/fluid2d/copy.glsl")
+
+_editor.add_node(node0, -174.33981926837, 183.98612520313)
+
+var node1 = Shader()
+
+node1.vs = ""
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
+node1.fs = ""
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 48.866244628324, 148.58496213227)
+
+var node2 = Compute()
+
+node2.num_groups = [ 32, 32, 1 ]
+
+_editor.add_node(node2, 266.72215509585, 137.62428937935)
+
+var node3 = Input()
+
+node3.var_name = "tex_READ"
+node3.var_type = "texture"
+
+_editor.add_node(node3, -176.56248911152, 136.60292642054)
+
+var node4 = Input()
+
+node4.var_name = "tex_WRITE"
+node4.var_type = "texture"
+
+_editor.add_node(node4, -175.94156302449, 90.03382311396)
+
+Blueprint.connect(node0, "code", node1, "cs")
+Blueprint.connect(node3, "var", node1, "tex_READ")
+Blueprint.connect(node4, "var", node1, "tex_WRITE")
+Blueprint.connect(node1, "out", node2, "shader")

@@ -1,0 +1,85 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = ShaderCode()
+node0.init_filepath("../../shaders/fluid2d/mccormack.glsl")
+
+_editor.add_node(node0, -136.74597723347, 322.29058193843)
+
+var node1 = Shader()
+
+node1.vs = ""
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
+node1.fs = ""
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 48.866244628324, 148.58496213227)
+
+var node2 = Compute()
+
+node2.num_groups = [ 32, 32, 1 ]
+
+_editor.add_node(node2, 241.86927619414, 207.35279153084)
+
+var node3 = Input()
+
+node3.var_name = "dt"
+node3.var_type = "num"
+
+_editor.add_node(node3, -136.06642497082, 272.33678982063)
+
+var node4 = Input()
+
+node4.var_name = "revert"
+node4.var_type = "num"
+
+_editor.add_node(node4, -135.1013475789, 228.57542297126)
+
+var node5 = Input()
+
+node5.var_name = "field_WRITE"
+node5.var_type = "texture"
+
+_editor.add_node(node5, -130.03527293151, 0.34690867431345)
+
+var node6 = Input()
+
+node6.var_name = "field_n"
+node6.var_type = "texture"
+
+_editor.add_node(node6, -131.72869323669, 90.098264025263)
+
+var node7 = Input()
+
+node7.var_name = "field_n_1_READ"
+node7.var_type = "texture"
+
+_editor.add_node(node7, -132.85764101807, 133.56275122436)
+
+var node8 = Input()
+
+node8.var_name = "field_n_hat_READ"
+node8.var_type = "texture"
+
+_editor.add_node(node8, -131.72870493284, 178.1561959436)
+
+var node9 = Input()
+
+node9.var_name = "velocities_READ"
+node9.var_type = "texture"
+
+_editor.add_node(node9, -130.03528102783, 44.940347327876)
+
+Blueprint.connect(node0, "code", node1, "cs")
+Blueprint.connect(node3, "var", node1, "dt")
+Blueprint.connect(node4, "var", node1, "revert")
+Blueprint.connect(node8, "var", node1, "field_n_hat_READ")
+Blueprint.connect(node7, "var", node1, "field_n_1_READ")
+Blueprint.connect(node6, "var", node1, "field_n")
+Blueprint.connect(node9, "var", node1, "velocities_READ")
+Blueprint.connect(node5, "var", node1, "field_WRITE")
+Blueprint.connect(node1, "out", node2, "shader")

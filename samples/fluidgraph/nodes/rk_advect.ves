@@ -1,0 +1,103 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
+
+_editor.add_node(node0, -31, -12)
+
+var node1 = Number3()
+
+node1.value.set(0, 0.07639566808939, 0)
+
+_editor.add_node(node1, -252.66122250866, -42.470683690305)
+
+var node2 = Number()
+
+node2.value = 3.5120646953583
+
+_editor.add_node(node2, -250.60857915594, -138.43124455955)
+
+var node3 = Number2()
+
+node3.value.set(299.5895690918, 572.65625)
+
+_editor.add_node(node3, -253.33112832919, 58.186705346674)
+
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
+
+_editor.add_node(node4, 1250.8788834698, 55.787981405962)
+
+var node5 = Texture()
+node5.query_param("unif_name").value = "u_tex"
+node5.gamma_correction = false
+node5.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node5, -288.55529961704, -237.1025546996)
+
+var node6 = Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
+
+_editor.add_node(node6, 539.7460555973, 61.269722013524)
+
+var node7 = Number3()
+
+node7.value.set(0.74013602733612, 0, 0)
+
+_editor.add_node(node7, 321.33877749134, -40.470683690305)
+
+var node8 = Number()
+
+node8.value = 3.5120646953583
+
+_editor.add_node(node8, 323.39142084406, -136.43124455955)
+
+var node9 = Number2()
+
+node9.value.set(572.65625, 572.65625)
+
+_editor.add_node(node9, 320.66887167081, 60.186705346674)
+
+var node10 = Texture()
+node10.query_param("unif_name").value = "u_tex"
+node10.gamma_correction = false
+node10.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node10, 285.44470038296, -235.1025546996)
+
+var node11 = Subgraph()
+node11.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/rk_advect.ves")
+
+_editor.add_node(node11, 958.26787787719, 25.919780069667)
+
+var node12 = Texture()
+node12.query_param("unif_name").value = "u_tex"
+node12.gamma_correction = false
+node12.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node12, 694.98831079209, -210.79424242585)
+
+var node13 = Number()
+
+node13.value = 1
+
+_editor.add_node(node13, 733.59002584662, -92.192573295152)
+
+Blueprint.connect(node3, "v2", node0, "spotPos")
+Blueprint.connect(node1, "v3", node0, "color")
+Blueprint.connect(node2, "v", node0, "intensity")
+Blueprint.connect(node5, "tex", node0, "field")
+Blueprint.connect(node0, "next", node6, "prev")
+Blueprint.connect(node9, "v2", node6, "spotPos")
+Blueprint.connect(node7, "v3", node6, "color")
+Blueprint.connect(node8, "v", node6, "intensity")
+Blueprint.connect(node10, "tex", node6, "field")
+Blueprint.connect(node6, "next", node11, "prev")
+Blueprint.connect(node13, "v", node11, "dt")
+Blueprint.connect(node10, "tex", node11, "velocities_READ")
+Blueprint.connect(node5, "tex", node11, "field_READ")
+Blueprint.connect(node12, "tex", node11, "field_WRITE")
+Blueprint.connect(node11, "next", node4, "prev")
+Blueprint.connect(node12, "tex", node4, "texture1")

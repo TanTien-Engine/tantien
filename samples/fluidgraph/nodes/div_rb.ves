@@ -1,0 +1,60 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
+
+_editor.add_node(node0, -31, -12)
+
+var node1 = Number3()
+
+node1.value.set(0, 0.07639566808939, 0)
+
+_editor.add_node(node1, -252.66122250866, -42.470683690305)
+
+var node2 = Number()
+
+node2.value = 3.5120646953583
+
+_editor.add_node(node2, -250.60857915594, -138.43124455955)
+
+var node3 = Number2()
+
+node3.value.set(299.5895690918, 572.65625)
+
+_editor.add_node(node3, -253.33112832919, 58.186705346674)
+
+var node4 = Texture()
+node4.query_param("unif_name").value = "u_tex"
+node4.gamma_correction = false
+node4.init_texture(1024, 1024, "rgba16f")
+
+_editor.add_node(node4, -288.55529961704, -237.1025546996)
+
+var node5 = Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/div_rb.ves")
+
+_editor.add_node(node5, 352.06316576172, 6.9947673266684)
+
+var node6 = Texture()
+node6.query_param("unif_name").value = "u_tex"
+node6.gamma_correction = false
+node6.init_texture(512, 512, "rgba16f")
+
+_editor.add_node(node6, 13.209076546129, -239.79735324168)
+
+var node7 = Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
+
+_editor.add_node(node7, 333.95620096039, -207.06100659605)
+
+Blueprint.connect(node3, "v2", node0, "spotPos")
+Blueprint.connect(node1, "v3", node0, "color")
+Blueprint.connect(node2, "v", node0, "intensity")
+Blueprint.connect(node4, "tex", node0, "field")
+Blueprint.connect(node0, "next", node5, "prev")
+Blueprint.connect(node4, "tex", node5, "velocities_READ")
+Blueprint.connect(node6, "tex", node5, "divergence")
+Blueprint.connect(node5, "next", node7, "prev")
+Blueprint.connect(node6, "tex", node7, "texture1")

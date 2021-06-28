@@ -1,0 +1,90 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "rendergraph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "rk_advect.ves")
+
+_editor.add_node(node0, -387.59149169922, 197.28106689453)
+
+var node1 = Subgraph()
+node1.load_from_file(_editor, "rk_advect.ves")
+
+_editor.add_node(node1, -116.90909090909, 198.86363636364)
+
+var node2 = Subgraph()
+node2.load_from_file(_editor, "mac_cormack_step.ves")
+
+_editor.add_node(node2, 324.59429000751, 167.31292261458)
+
+var node3 = Input()
+
+node3.var_name = "dt"
+node3.var_type = "num"
+
+_editor.add_node(node3, -636.75622292625, 355.18086929379)
+
+var node4 = Input()
+
+node4.var_name = "revert"
+node4.var_type = "num"
+
+_editor.add_node(node4, 118.50295250117, 195.81948343531)
+
+var node5 = Input()
+
+node5.var_name = "velocities"
+node5.var_type = "texture"
+
+_editor.add_node(node5, -628.11980248315, 214.36419675225)
+
+var node6 = Input()
+
+node6.var_name = "fields0"
+node6.var_type = "texture"
+
+_editor.add_node(node6, -626.54339954968, 169.54322465099)
+
+var node7 = Input()
+
+node7.var_name = "fields1"
+node7.var_type = "texture"
+
+_editor.add_node(node7, -627.53290927766, 125.16172117938)
+
+var node8 = Input()
+
+node8.var_name = "fields2"
+node8.var_type = "texture"
+
+_editor.add_node(node8, -332.75693120339, 97.345982892959)
+
+var node9 = Input()
+
+node9.var_name = "fields3"
+node9.var_type = "texture"
+
+_editor.add_node(node9, 127.8944955277, 148.76971181043)
+
+var node10 = Negate()
+
+_editor.add_node(node10, -436, 297.5)
+
+Blueprint.connect(node3, "var", node10, "v")
+Blueprint.connect(node3, "var", node0, "dt")
+Blueprint.connect(node5, "var", node0, "velocities_READ")
+Blueprint.connect(node6, "var", node0, "field_READ")
+Blueprint.connect(node7, "var", node0, "field_WRITE")
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node10, "v", node1, "dt")
+Blueprint.connect(node5, "var", node1, "velocities_READ")
+Blueprint.connect(node7, "var", node1, "field_READ")
+Blueprint.connect(node8, "var", node1, "field_WRITE")
+Blueprint.connect(node1, "next", node2, "prev")
+Blueprint.connect(node3, "var", node2, "dt")
+Blueprint.connect(node4, "var", node2, "revert")
+Blueprint.connect(node9, "var", node2, "field_WRITE")
+Blueprint.connect(node6, "var", node2, "field_n")
+Blueprint.connect(node7, "var", node2, "field_n_1_READ")
+Blueprint.connect(node8, "var", node2, "field_n_hat_READ")
+Blueprint.connect(node5, "var", node2, "velocities_READ")
