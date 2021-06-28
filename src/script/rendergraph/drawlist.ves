@@ -22,6 +22,7 @@ class Drawlist
 				this.build_list([ node ])
 			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
 				var prev_nodes = Blueprint.get_precursor_nodes(node)
+				prev_nodes.add(node)
 				this.build_list(prev_nodes)
 			}
 		}
@@ -36,6 +37,7 @@ class Drawlist
 					var prev_node = Blueprint.get_input_node(node, 0)
 					if (prev_node) {
 						var prev_nodes = Blueprint.get_precursor_nodes(prev_node)
+						prev_nodes.add(node)
 						this.build_list(prev_nodes)
 					}
 				}
