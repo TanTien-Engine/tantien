@@ -99,7 +99,8 @@ class ShaderBuilder
 	{
 		var pin = Blueprint.query_pin(tree_node.graph_node.imports, child_name)
 		if (!pin) {
-			System.print("++ err !!!!!, %(tree_node.graph_node) %(child_name)")
+			import "logger.logger" for Logger
+			Logger.error("Pin not exists, %(tree_node.graph_node) %(child_name)")
 			return
 		}
 

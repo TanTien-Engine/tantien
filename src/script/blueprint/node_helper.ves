@@ -30,6 +30,9 @@ class NodeHelper
 			pin_type = VAR_TYPE_TEXTURE
 		} else if (type == "array") {
 			pin_type = VAR_TYPE_ARRAY
+		} else {
+			import "logger.logger" for Logger
+			Logger.error("unknown type: %(type)")
 		}
 		return pin_type
 	}

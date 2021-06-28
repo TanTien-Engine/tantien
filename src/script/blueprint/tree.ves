@@ -48,12 +48,14 @@ class TreeNode
 			header.add(" ")
 		}
 
-		System.print("%(header) %(this.graph_node), %(this.children.count)")
+		import "logger.logger" for Logger
+
+		Logger.info("%(header) %(this.graph_node), %(this.children.count)")
 		for (var child in this.children) {
 			if (child) {
 				child.print(num + 1)			
 			} else {
-				System.print("%(header) null")
+				Logger.info("%(header) null")
 			}
 		}
 	}
