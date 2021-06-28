@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
 
 class Negate is Node
 {
@@ -16,6 +17,16 @@ class Negate is Node
 		]
 
 		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v = Blueprint.calc_input_value(this, 0)
+		if (v.type == VAR_TYPE_NUMBER) {
+			return Variant(VAR_TYPE_NUMBER, -v.value)		
+		} else {
+			return nil
+		}
 	}
 	
 	shader_gen(node, idx)
