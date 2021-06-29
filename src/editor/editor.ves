@@ -248,6 +248,7 @@ class Editor
 		for (var node in scene.nodes) {
 			var bp_node = node.components["bp"]
 			if (bp_node.draw_gui(this.gui_nodes)) {
+				bp_node.on_gui_dirty()
 				dirty = true
 			}
 		}

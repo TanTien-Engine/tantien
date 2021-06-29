@@ -152,6 +152,8 @@ class Node
 	on_mouse_dragged(x, y, btn) {}
 	on_mouse_scrolled(x, y, dx, dy) {}
 
+	on_gui_dirty() {}
+
 	calc_panel_height() {
 		return DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
 	}
