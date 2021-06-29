@@ -954,8 +954,13 @@ import \"editor\" for _editor
 			this.scene_stack.bp_dirty = false
 		}
 
+		Graphics.on_cam_update(0, 0, 1)
+
 		Render.clear(["color"], { "color" : [128,128,128,128] })
 
 		this.drawlist.run()
+
+		Graphics.flush()
+		Graphics.on_cam_update(this.camera.pos.x, this.camera.pos.y, this.camera.scale)		
 	}
 }
