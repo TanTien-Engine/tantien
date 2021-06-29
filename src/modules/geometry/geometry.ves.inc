@@ -1,6 +1,22 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* geometryModuleSource = QUOTE(
 
+foreign class Rect
+{
+	init(x, y, w, h) {}
+
+	// [x, y, w, h]
+	foreign get()
+}
+
+foreign class Circle
+{
+	init(x, y, radius) {}
+
+	// [x, y, radius]
+	foreign get()
+}
+
 foreign class Bezier
 {
 	init() {}

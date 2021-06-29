@@ -1,0 +1,53 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_SHAPE
+import "geometry" for Circle as tt_Circle
+
+class Circle is Node
+{
+	init()
+	{
+		super.init(Circle.name)
+
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_SHAPE),
+		]
+
+		var x = NodeParam("x", 0)
+		x.min = -1000
+		x.max = 1000
+		this.params.add(x)
+
+		var y = NodeParam("y", 0)
+		y.min = -1000
+		y.max = 1000
+		this.params.add(y)
+
+		var r = NodeParam("r", 100)
+		r.region = 1000
+		this.params.add(r)
+
+		this.layout()
+
+		this.shape = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.shape) 
+		{
+			var x = this.query_param("x").value
+			var y = this.query_param("y").value
+			var r = this.query_param("r").value
+			this.shape = tt_Circle.init(x, y, r)
+		}
+
+		return this.shape
+	}
+
+	on_gui_dirty() 
+	{
+		this.shape = nil
+	}	
+}

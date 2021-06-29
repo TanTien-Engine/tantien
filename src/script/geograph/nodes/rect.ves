@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_SHAPE
+import "geometry" for Rect as tt_Rect
+
+class Rect is Node
+{
+	init()
+	{
+		super.init(Rect.name)
+
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_SHAPE),
+		]
+
+		var x = NodeParam("x", 0)
+		x.min = -1000
+		x.max = 1000
+		this.params.add(x)
+
+		var y = NodeParam("y", 0)
+		y.min = -1000
+		y.max = 1000
+		this.params.add(y)
+
+		var w = NodeParam("w", 100)
+		w.region = 1000
+		this.params.add(w)
+
+		var h = NodeParam("h", 100)
+		h.region = 1000
+		this.params.add(h)
+
+		this.layout()
+
+		this.shape = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.shape) 
+		{
+			var x = this.query_param("x").value
+			var y = this.query_param("y").value
+			var w = this.query_param("w").value
+			var h = this.query_param("h").value
+			this.shape = tt_Rect.init(x, y, w, h)
+		}
+
+		return this.shape
+	}
+
+	on_gui_dirty() 
+	{
+		this.shape = nil
+	}	
+}

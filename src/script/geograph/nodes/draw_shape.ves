@@ -1,0 +1,60 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT
+import "geograph.variant" for VAR_TYPE_SHAPE
+import "graphics" for Painter, Graphics
+import "geometry" for Rect, Circle
+
+class DrawShape is Node
+{
+	init()
+	{
+		super.init(DrawShape.name)
+
+		this.imports = [
+			Pin(this, "prev",   VAR_TYPE_PORT),
+			Pin(this, "shapes", [ VAR_TYPE_SHAPE, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	render_run() 
+	{
+		var v_shapes = Blueprint.calc_input_value(this, 1)
+		if (!v_shapes or !v_shapes.value) {
+			return
+		}
+
+		var pt = Painter.init()
+
+		if (v_shapes.type == VAR_TYPE_ARRAY) {
+			for (var shape in v_shapes.value) {
+				this.draw_shape(pt, v_shapes.value)
+			}
+		} else {
+			this.draw_shape(pt, v_shapes.value)
+		}
+
+		Graphics.on_cam_update(0, 0, 1)
+		Graphics.draw_painter(pt)
+	}
+
+	draw_shape(pt, shape)
+	{
+		if (shape is Rect)
+		{
+			var rect = shape.get()
+			pt.add_rect(rect, [255,0,0,255], 1)
+		}
+		else if (shape is Circle)
+		{
+			var c = shape.get()
+			pt.add_circle(c[0], c[1], c[2], [255,0,0,255])
+		}
+	}
+}
