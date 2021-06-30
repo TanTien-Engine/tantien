@@ -49,12 +49,12 @@ class DrawShape is Node
 		if (shape is Rect)
 		{
 			var rect = shape.get()
-			pt.add_rect(rect, [255,0,0,255], 1)
+			pt.add_rect(rect, [255,0,0,255], 2)
 		}
 		else if (shape is Circle)
 		{
 			var c = shape.get()
-			pt.add_circle(c[0], c[1], c[2], [255,0,0,255])
+			pt.add_circle(c[0], c[1], c[2], [255,0,0,255], 2.0, 24)
 		}
 	}
 }

@@ -16,8 +16,8 @@ foreign class Painter
 	foreign add_polyline(vertices, color, line_width)
 
 	// color: list [r, g, b, a]
-	foreign add_circle(x, y, radius, color)
-	foreign add_circle_filled(x, y, radius, color)
+	foreign add_circle(x, y, radius, color, line_width, num_segments)
+	foreign add_circle_filled(x, y, radius, color, num_segments)
 
 	// 
 	foreign add_bezier(bezier, color, line_width)

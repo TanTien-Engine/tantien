@@ -120,8 +120,10 @@ void w_Painter_add_circle()
     const float y = (float)ves_tonumber(2);
     const float r = (float)ves_tonumber(3);
     uint32_t col = tt::list_to_abgr(4);
+    const float width = (float)ves_tonumber(5);
+    const uint32_t seg = (uint32_t)ves_tonumber(6);
 
-    pt->AddCircle(sm::vec2(x, y), r, col);
+    pt->AddCircle(sm::vec2(x, y), r, col, width, seg);
 }
 
 void w_Painter_add_circle_filled()
@@ -132,8 +134,9 @@ void w_Painter_add_circle_filled()
     const float y = (float)ves_tonumber(2);
     const float r = (float)ves_tonumber(3);
     uint32_t col = tt::list_to_abgr(4);
+    const uint32_t seg = (uint32_t)ves_tonumber(5);
 
-    pt->AddCircleFilled(sm::vec2(x, y), r, col);
+    pt->AddCircleFilled(sm::vec2(x, y), r, col, seg);
 }
 
 void w_Painter_add_bezier()
@@ -363,8 +366,8 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
     if (strcmp(signature, "Painter.add_polygon(_,_,_)") == 0) return w_Painter_add_polygon;
     if (strcmp(signature, "Painter.add_polyline(_,_,_)") == 0) return w_Painter_add_polyline;
-    if (strcmp(signature, "Painter.add_circle(_,_,_,_)") == 0) return w_Painter_add_circle;
-    if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_)") == 0) return w_Painter_add_circle_filled;
+    if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
+    if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
     if (strcmp(signature, "Painter.add_bezier(_,_,_)") == 0) return w_Painter_add_bezier;
 
     if (strcmp(signature, "static Graphics.on_size(_,_)") == 0) return w_Graphics_on_size;
