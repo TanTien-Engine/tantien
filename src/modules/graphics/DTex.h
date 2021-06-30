@@ -37,6 +37,8 @@ public:
 	void DebugDraw(ur::Context& ctx) const;
 
 private:
+	bool m_inited = false;
+
     std::unique_ptr<dtex::TextureBuffer> m_texture_buffer = nullptr;
 	bool m_c2_enable = true;
 

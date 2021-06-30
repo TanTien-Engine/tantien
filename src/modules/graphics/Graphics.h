@@ -34,6 +34,8 @@ public:
 	auto GetWidth() const { return m_width; }
 	auto GetHeight() const { return m_height; }
 
+	void EnableDTex(bool enable);
+
 private:
 	void RelocatePaletteUV();
 
@@ -41,6 +43,8 @@ private:
 	float m_width = 0, m_height = 0;
 
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
+
+	bool m_use_dtex = false;
 
 	TT_SINGLETON_DECLARATION(Graphics)
 

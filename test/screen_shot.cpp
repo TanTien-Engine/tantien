@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     GLFWwindow *window;
-    if((window = glfwCreateWindow(100, 100, "screen_shot", 0, 0)) == 0) {
+    if((window = glfwCreateWindow(512, 512, "screen_shot", 0, 0)) == 0) {
         std::cerr << "failed to open window" << std::endl;
         glfwTerminate();
         return 1;

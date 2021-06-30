@@ -65,6 +65,10 @@ void DTex::InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)(
 
 void DTex::Init(const ur::Device& dev)
 {
+    if (m_inited) {
+        return;
+    }
+
     UR_DEV = &dev;
 
     m_glyph_buffer = std::make_unique<dtex::PixelBuffer>(*UR_DEV, 1024, 512);
@@ -108,6 +112,8 @@ void DTex::Init(const ur::Device& dev)
     });
 
     vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
+
+    m_inited = true;
 }
 
 void DTex::LoadSymStart()

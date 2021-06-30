@@ -22,7 +22,6 @@ TT_SINGLETON_DEFINITION(Graphics)
 Graphics::Graphics()
 {
     auto dev = tt::Render::Instance()->Device();
-    DTex::Instance()->Init(*dev);
     GTxt::Instance()->Init(*dev);
 
     auto filtpath = "assets\\fonts\\default2.ttf";
@@ -71,12 +70,24 @@ void Graphics::Flush()
 {
     auto ctx = Render::Instance()->Context();
 
-    DTex::Instance()->Flush(*ctx);
-    LoadingList::Instance()->Flush(*ctx);
-
     m_spr_rd->Flush(*ctx);
 
-    RelocatePaletteUV();
+    if (m_use_dtex)
+    {
+        DTex::Instance()->Flush(*ctx);
+        LoadingList::Instance()->Flush(*ctx);
+
+        RelocatePaletteUV();
+    }
+}
+
+void Graphics::EnableDTex(bool enable)
+{ 
+    if (enable) {
+        auto dev = tt::Render::Instance()->Device();
+        DTex::Instance()->Init(*dev);
+    }
+    m_use_dtex = enable; 
 }
 
 void Graphics::RelocatePaletteUV()

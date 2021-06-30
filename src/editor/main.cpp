@@ -1,4 +1,5 @@
-﻿#include "modules/render/wrap_Render.h"
+﻿#include "tantien.h"
+#include "modules/render/wrap_Render.h"
 #include "modules/render/render.ves.inc"
 #include "modules/graphics/wrap_Graphics.h"
 #include "modules/graphics/graphics.ves.inc"
@@ -597,6 +598,7 @@ int main(int argc, char* argv[])
     ves_init_vm();
 
     tt::System::Instance()->SetWindow(window);
+    tt_enable_dtex();
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;

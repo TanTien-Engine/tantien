@@ -299,10 +299,20 @@ void SpriteRenderer::DrawPainter(ur::Context& ctx, const ur::RenderState& rs,
 	if (auto palette = pt.GetPalette())
 	{
 		auto relocated_tex = palette->GetRelocatedTex();
-		if (relocated_tex) {
+		if (relocated_tex) 
+		{
 			if (m_tex != relocated_tex) {
 				Flush(ctx);
 				m_tex = relocated_tex;
+			}
+			CopyVertexBuffer(mat, pt.GetBuffer());
+		}
+		else
+		{
+			auto tex = palette->GetTexture();
+			if (m_tex != tex) {
+				Flush(ctx);
+				m_tex = tex;
 			}
 			CopyVertexBuffer(mat, pt.GetBuffer());
 		}
