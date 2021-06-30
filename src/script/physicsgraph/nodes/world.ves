@@ -1,0 +1,81 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY
+import "physics" for World as tt_World
+
+class World is Node
+{
+	init()
+	{
+		super.init(World.name)
+
+		this.imports = [
+			Pin(this, "bodies", [ VAR_TYPE_BODY, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "world", VAR_TYPE_WORLD),
+		]
+
+		this.params.add(NodeParam("update", false))
+		this.params.add(NodeParam("debug_draw", true))
+
+		this.layout()
+
+		this.world = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.world) {
+			this.world = this.build_world()
+		}
+		return Variant(VAR_TYPE_WORLD, this.world)
+	}
+
+	render_gen()
+	{
+		this.world = this.build_world()
+	}
+
+	render_run() 
+	{
+		if (!this.world) {
+			return
+		}
+
+		var update = this.query_param("update").value
+		if (update) {
+			this.world.update()
+		}
+
+		var debug_draw = this.query_param("debug_draw").value
+		if (debug_draw) {
+			this.world.debug_draw()
+		}
+	}
+
+	build_world()
+	{
+		import "logger.logger" for Logger
+		Logger.info("build physics world")
+
+		var world = tt_World.init()
+
+		var v_bodies = Blueprint.calc_input_value(this, 0)
+		if (v_bodies.type == VAR_TYPE_ARRAY)
+		{
+			for (var body in v_bodies.value) {
+				world.add_body(body.value)
+			}
+		}
+		else
+		{
+			world.add_body(v_bodies.value)
+		}
+
+		return world
+	}
+}

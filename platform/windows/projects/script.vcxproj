@@ -125,7 +125,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2dd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -146,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -197,6 +197,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\tessellation\platform\msvc\projects\tessellation_new.vcxproj">
       <Project>{a9af029b-59cb-45ad-b4fb-5cf528d5e5fa}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\uniphysics\platform\msvc\projects\uniphysics.vcxproj">
+      <Project>{a94bc06e-93b2-4f30-ab4e-7d677a1d5b54}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\unirender\platform\msvc\projects\unirender_new.vcxproj">
       <Project>{637a0e9c-1867-459d-8611-65a064e3b2c2}</Project>

@@ -19,6 +19,8 @@
 #include "modules/system/system.ves.inc"
 #include "modules/shader/wrap_Shader.h"
 #include "modules/shader/shader.ves.inc"
+#include "modules/physics/wrap_Physics.h"
+#include "modules/physics/physics.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -88,7 +90,8 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "filesystem") == 0 &&
         !strcmp(module, "model") == 0 &&
         !strcmp(module, "system") == 0 &&
-        !strcmp(module, "shader") == 0) {
+        !strcmp(module, "shader") == 0 &&
+        !strcmp(module, "physics") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -117,6 +120,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = systemModuleSource;
     } else if (strcmp(module, "shader") == 0) {
         source = shaderModuleSource;
+    } else if (strcmp(module, "physics") == 0) {
+        source = physicsModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -220,6 +225,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::ShaderBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::PhysicsBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -264,6 +272,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::ShaderBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::PhysicsBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
