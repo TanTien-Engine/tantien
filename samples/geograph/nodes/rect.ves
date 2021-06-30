@@ -1,0 +1,17 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "geograph.nodes.*"
+var node0 = Rect()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("w").value = 249.81248474121
+node0.query_param("h").value = 100
+
+_editor.add_node(node0, -276.48313589268, 186.56720071174)
+
+var node1 = DrawShape()
+
+_editor.add_node(node1, -109.54140939624, 239.06057147802)
+
+Blueprint.connect(node0, "shape", node1, "shapes")
