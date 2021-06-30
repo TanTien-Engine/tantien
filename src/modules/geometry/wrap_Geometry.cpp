@@ -4,6 +4,7 @@
 
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
+#include <geoshape/Polyline2D.h>
 #include <geoshape/Bezier.h>
 #include <guard/check.h>
 
@@ -93,6 +94,26 @@ void w_Circle_get()
     ves_pop(1);
 }
 
+void w_Polyline_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
+    proxy->obj = std::make_shared<gs::Polyline2D>();
+}
+
+int w_Polyline_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Polyline2D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Polyline2D>);
+}
+
+void w_Polyline_set_vertices()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto vertices = tt::list_to_vec2_array(1);
+    polyline->SetVertices(vertices);
+}
+
 void w_Bezier_allocate()
 {
     auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
@@ -125,6 +146,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
     if (strcmp(signature, "Circle.get()") == 0) return w_Circle_get;
 
+    if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
+
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
     return nullptr;
@@ -143,6 +166,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Circle_allocate;
         methods->finalize = w_Circle_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Polyline") == 0)
+    {
+        methods->allocate = w_Polyline_allocate;
+        methods->finalize = w_Polyline_finalize;
         return;
     }
 

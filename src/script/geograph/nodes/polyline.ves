@@ -1,0 +1,39 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_SHAPE
+import "geometry" for Polyline as tt_Polyline
+
+class Polyline is Node
+{
+	init()
+	{
+		super.init(Polyline.name)
+
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_SHAPE),
+		]
+
+		this.params.add(NodeParam("vertices", []))
+
+		this.layout()
+
+		this.shape = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.shape) 
+		{
+			this.shape = tt_Polyline.init()
+			this.shape.set_vertices(this.query_param("vertices").value)
+		}
+
+		return this.shape
+	}
+
+	on_gui_dirty() 
+	{
+		this.shape = nil
+	}	
+}

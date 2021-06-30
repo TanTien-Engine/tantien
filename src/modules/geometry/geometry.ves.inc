@@ -17,6 +17,14 @@ foreign class Circle
 	foreign get()
 }
 
+foreign class Polyline
+{
+	init() {}
+
+	// vertices: list
+	foreign set_vertices(vertices)
+}
+
 foreign class Bezier
 {
 	init() {}
