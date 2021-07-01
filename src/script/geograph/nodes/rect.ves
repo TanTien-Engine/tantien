@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Rect as tt_Rect
 
 class Rect is Node
@@ -26,20 +27,40 @@ class Rect is Node
 
 	calc_value(idx)
 	{
+		var geo = this.get_geo()
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	on_gui_dirty() 
+	{
+		var geo = this.get_geo()
+		this.update_geo(geo)
+	}
+
+	geo_solver_gen(scene)
+	{
+		var geo = this.get_geo()
+		geo.geo_id = scene.add_geo(geo.shape)
+	}
+
+	get_geo()
+	{
 		if (!this.geo) 
 		{
-			var x = this.query_param("x").value
-			var y = this.query_param("y").value
-			var w = this.query_param("w").value
-			var h = this.query_param("h").value
-			this.geo = tt_Rect.init(x, y, w, h)
+			this.geo = VarGeo()
+			this.geo.shape = tt_Rect.init()
+			this.update_geo(this.geo)
 		}
 
 		return this.geo
 	}
 
-	on_gui_dirty() 
+	update_geo(geo)
 	{
-		this.geo = nil
+		var x = this.query_param("x").value
+		var y = this.query_param("y").value
+		var w = this.query_param("w").value
+		var h = this.query_param("h").value
+		this.geo.shape.set(x, y, w, h)
 	}	
 }

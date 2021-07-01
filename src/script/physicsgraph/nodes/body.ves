@@ -50,12 +50,12 @@ class Body is Node
 		if (v_geos is List)
 		{
 			for (var geo in v_geos.value) {
-				body.add_shape(geo)
+				body.add_shape(geo.value.shape)
 			}
 		}
 		else
 		{
-			body.add_shape(v_geos.value)
+			body.add_shape(v_geos.value.shape)
 		}
 
 		return body

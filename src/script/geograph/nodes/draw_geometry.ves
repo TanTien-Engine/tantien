@@ -46,19 +46,20 @@ class DrawGeometry is Node
 
 	draw_geo(pt, geo)
 	{
-		if (geo is Line)
+		var shape = geo.shape
+		if (shape is Line)
 		{
-			var line = geo.get()
+			var line = shape.get()
 			pt.add_line(line, [255,0,0,255], 2)			
 		}
-		else if (geo is Rect)
+		else if (shape is Rect)
 		{
-			var rect = geo.get()
+			var rect = shape.get()
 			pt.add_rect(rect, [255,0,0,255], 2)
 		}
-		else if (geo is Circle)
+		else if (shape is Circle)
 		{
-			var c = geo.get()
+			var c = shape.get()
 			pt.add_circle(c[0], c[1], c[2], [255,0,0,255], 2.0, 24)
 		}
 	}

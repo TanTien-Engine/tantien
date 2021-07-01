@@ -1,7 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CONS
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CONS, VarCons
+import "geometry" for Constraint
 
 class Distance is Node
 {
@@ -19,5 +22,36 @@ class Distance is Node
 		this.params.add(NodeParam("distance", 100, { "region" : 1000 }))
 
 		this.layout()
+
+		this.cons = VarCons()		
+	}
+
+	calc_value(idx)
+	{
+		return Variant(VAR_TYPE_CONS, this.cons)
+	}
+
+	geo_solver_gen(scene)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return
+		}
+
+		var id0 = v_geo.value.geo_id
+		var dist = this.query_param("distance").value
+		this.cons.cons = Constraint.init("distance", id0, nil, dist)
+
+		this.cons.cons_id = scene.add_cons(this.cons.cons)
+	}
+
+	geo_solver_update(scene)
+	{
+		if (this.cons.cons_id < 0) {
+			return
+		}
+
+		var dist = this.query_param("distance").value
+		this.cons.cons.set_value(dist)
 	}
 }

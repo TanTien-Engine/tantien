@@ -3,26 +3,29 @@ static const char* geometryModuleSource = QUOTE(
 
 foreign class Line
 {
-	init(x0, y0, x1, y1) {}
+	init() {}
 
 	// [x0, y0, x1, y1]
 	foreign get()
+	foreign set(x0, y0, x1, y1)
 }
 
 foreign class Rect
 {
-	init(x, y, w, h) {}
+	init() {}
 
 	// [x, y, w, h]
 	foreign get()
+	foreign set(x, y, w, h)
 }
 
 foreign class Circle
 {
-	init(x, y, radius) {}
+	init() {}
 
 	// [x, y, radius]
 	foreign get()
+	foreign set(x, y, radius)
 }
 
 foreign class Polyline
@@ -41,11 +44,19 @@ foreign class Bezier
 	foreign set_ctrl_pos(vertices)
 }
 
+foreign class Constraint
+{
+	init(type, geo0, geo1, value) {}
+
+	foreign set_value(v)
+}
+
 foreign class ConstraintSolver
 {
 	init() {}
 
-	foreign add_distance(line, dist)
+	foreign add_geo(shape)
+	foreign add_cons(cons)
 
 	foreign solve()
 	foreign clear()

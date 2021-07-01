@@ -10,6 +10,7 @@
 #include <geoshape/Bezier.h>
 #include <guard/check.h>
 #include <constraints2/Scene.h>
+#include <constraints2/Constraint.h>
 
 #include <string>
 
@@ -18,13 +19,8 @@ namespace
 
 void w_Line_allocate()
 {
-    float x0 = (float)ves_tonumber(1);
-    float y0 = (float)ves_tonumber(2);
-    float x1 = (float)ves_tonumber(3);
-    float y1 = (float)ves_tonumber(4);
-
     auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
-    proxy->obj = std::make_shared<gs::Line2D>(sm::vec2(x0, y0), sm::vec2(x1, y1));
+    proxy->obj = std::make_shared<gs::Line2D>();
 }
 
 int w_Line_finalize(void* data)
@@ -58,15 +54,23 @@ void w_Line_get()
     ves_pop(1);
 }
 
+void w_Line_set()
+{
+    auto l = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
+
+    float x0 = (float)ves_tonumber(1);
+    float y0 = (float)ves_tonumber(2);
+    float x1 = (float)ves_tonumber(3);
+    float y1 = (float)ves_tonumber(4);
+
+    l->SetStart({ x0, y0 });
+    l->SetEnd({ x1, y1 });
+}
+
 void w_Rect_allocate()
 {
-    float x = (float)ves_tonumber(1);
-    float y = (float)ves_tonumber(2);
-    float w = (float)ves_tonumber(3);
-    float h = (float)ves_tonumber(4);
-
     auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Rect>));
-    proxy->obj = std::make_shared<gs::Rect>(sm::rect(x, y, x + w, y + h));
+    proxy->obj = std::make_shared<gs::Rect>();
 }
 
 int w_Rect_finalize(void* data)
@@ -102,14 +106,22 @@ void w_Rect_get()
     ves_pop(1);
 }
 
+void w_Rect_set()
+{
+    auto r = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
+
+    float x = (float)ves_tonumber(1);
+    float y = (float)ves_tonumber(2);
+    float w = (float)ves_tonumber(3);
+    float h = (float)ves_tonumber(4);
+
+    r->SetRect(sm::rect(x, y, x + w, y + h));
+}
+
 void w_Circle_allocate()
 {
-    float cx = (float)ves_tonumber(1);
-    float cy = (float)ves_tonumber(2);
-    float r  = (float)ves_tonumber(3);
-
     auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Circle>));
-    proxy->obj = std::make_shared<gs::Circle>(sm::vec2(cx, cy), r);
+    proxy->obj = std::make_shared<gs::Circle>();
 }
 
 int w_Circle_finalize(void* data)
@@ -137,6 +149,18 @@ void w_Circle_get()
     ves_pushnumber(c->GetRadius());
     ves_seti(-2, 2);
     ves_pop(1);
+}
+
+void w_Circle_set()
+{
+    auto c = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
+
+    float cx = (float)ves_tonumber(1);
+    float cy = (float)ves_tonumber(2);
+    float r  = (float)ves_tonumber(3);
+
+    c->SetCenter({ cx, cy });
+    c->SetRadius(r);
 }
 
 void w_Polyline_allocate()
@@ -180,6 +204,36 @@ void w_Bezier_set_ctrl_pos()
     b->SetCtrlPos({ vertices[0], vertices[1], vertices[2], vertices[3] });
 }
 
+void w_Constraint_allocate()
+{
+    const char* type_str = ves_tostring(1);
+    int geo0 = (int)ves_optnumber(2, -1);
+    int geo1 = (int)ves_optnumber(3, -1);
+    double value = ves_tonumber(4);
+
+    ct2::ConstraintType type = ct2::ConstraintType::None;
+    if (strcmp(type_str, "distance") == 0) {
+        type = ct2::ConstraintType::Distance;
+    }
+
+    auto proxy = (tt::Proxy<ct2::Constraint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ct2::Constraint>));
+    proxy->obj = std::make_shared<ct2::Constraint>(type, geo0, geo1, value);
+}
+
+int w_Constraint_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ct2::Constraint>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ct2::Constraint>);
+}
+
+void w_Constraint_set_value()
+{
+    auto cons = ((tt::Proxy<ct2::Constraint>*)ves_toforeign(0))->obj;
+    double value = ves_tonumber(1);
+    cons->SetValue(value);
+}
+
 void w_ConstraintSolver_allocate()
 {
     auto proxy = (tt::Proxy<ct2::Scene>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ct2::Scene>));
@@ -193,25 +247,22 @@ int w_ConstraintSolver_finalize(void* data)
     return sizeof(tt::Proxy<ct2::Scene>);
 }
 
-void w_ConstraintSolver_add_distance()
+void w_ConstraintSolver_add_geo()
 {
     auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
-    auto line = ((tt::Proxy<gs::Line2D>*)ves_toforeign(1))->obj;
-    double dist = ves_tonumber(2);
+    auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
 
-    auto p0 = std::make_shared<gs::Point2D>(sm::vec2(line->GetStart()));
-    auto p0_id = scene->AddPoint(p0);
+    int id = scene->AddGeometry(shape);
+    ves_set_number(0, id);
+}
 
-    auto p1 = std::make_shared<gs::Point2D>(sm::vec2(line->GetEnd()));
-    auto p1_id = scene->AddPoint(p1);
+void w_ConstraintSolver_add_cons()
+{
+    auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
+    auto cons = ((tt::Proxy<ct2::Constraint>*)ves_toforeign(1))->obj;
 
-    auto cons = scene->AddDistanceConstraint(p0_id, ct2::Scene::PointPos::Start,
-        p1_id, ct2::Scene::PointPos::Start, &dist);
-
-    scene->Solve();
-
-    line->SetStart(p0->GetPos());
-    line->SetEnd(p1->GetPos());
+    int id = scene->AddConstraint(cons);
+    ves_set_number(0, id);
 }
 
 void w_ConstraintSolver_solve()
@@ -224,7 +275,6 @@ void w_ConstraintSolver_clear()
 {
     auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
     scene->Clear();
-    scene->ClearConstraints();
 }
 
 }
@@ -235,16 +285,22 @@ namespace tt
 VesselForeignMethodFn GeometryBindMethod(const char* signature)
 {
     if (strcmp(signature, "Line.get()") == 0) return w_Line_get;
+    if (strcmp(signature, "Line.set(_,_,_,_)") == 0) return w_Line_set;
 
     if (strcmp(signature, "Rect.get()") == 0) return w_Rect_get;
+    if (strcmp(signature, "Rect.set(_,_,_,_)") == 0) return w_Rect_set;
 
     if (strcmp(signature, "Circle.get()") == 0) return w_Circle_get;
+    if (strcmp(signature, "Circle.set(_,_,_)") == 0) return w_Circle_set;
 
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
 
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
-    if (strcmp(signature, "ConstraintSolver.add_distance(_,_)") == 0) return w_ConstraintSolver_add_distance;
+    if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
+
+    if (strcmp(signature, "ConstraintSolver.add_geo(_)") == 0) return w_ConstraintSolver_add_geo;
+    if (strcmp(signature, "ConstraintSolver.add_cons(_)") == 0) return w_ConstraintSolver_add_cons;
     if (strcmp(signature, "ConstraintSolver.solve()") == 0) return w_ConstraintSolver_solve;
     if (strcmp(signature, "ConstraintSolver.clear()") == 0) return w_ConstraintSolver_clear;
 
@@ -292,6 +348,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Bezier_allocate;
         methods->finalize = w_Bezier_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Constraint") == 0)
+    {
+        methods->allocate = w_Constraint_allocate;
+        methods->finalize = w_Constraint_finalize;
         return;
     }
 
