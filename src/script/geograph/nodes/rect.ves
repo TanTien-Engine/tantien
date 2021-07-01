@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_SHAPE
+import "geograph.variant" for VAR_TYPE_GEO
 import "geometry" for Rect as tt_Rect
 
 class Rect is Node
@@ -11,7 +11,7 @@ class Rect is Node
 		super.init(Rect.name)
 
 		this.exports = [
-			Pin(this, "shape", VAR_TYPE_SHAPE),
+			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
 		var x = NodeParam("x", 0)
@@ -34,25 +34,25 @@ class Rect is Node
 
 		this.layout()
 
-		this.shape = nil
+		this.geo = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.shape) 
+		if (!this.geo) 
 		{
 			var x = this.query_param("x").value
 			var y = this.query_param("y").value
 			var w = this.query_param("w").value
 			var h = this.query_param("h").value
-			this.shape = tt_Rect.init(x, y, w, h)
+			this.geo = tt_Rect.init(x, y, w, h)
 		}
 
-		return this.shape
+		return this.geo
 	}
 
 	on_gui_dirty() 
 	{
-		this.shape = nil
+		this.geo = nil
 	}	
 }

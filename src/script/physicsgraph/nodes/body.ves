@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_SHAPE
+import "geograph.variant" for VAR_TYPE_GEO
 import "physicsgraph.variant" for VAR_TYPE_BODY
 import "physics" for Body as tt_Body
 
@@ -13,7 +13,7 @@ class Body is Node
 		super.init(Body.name)
 
 		this.imports = [
-			Pin(this, "shapes", [ VAR_TYPE_SHAPE, VAR_TYPE_ARRAY ]),
+			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "body", VAR_TYPE_BODY),
@@ -46,16 +46,16 @@ class Body is Node
 	{
 		var body = tt_Body.init()
 
-		var v_shapes = Blueprint.calc_input_value(this, 0)
-		if (v_shapes is List)
+		var v_geos = Blueprint.calc_input_value(this, 0)
+		if (v_geos is List)
 		{
-			for (var shape in v_shapes.value) {
-				body.add_shape(shape)
+			for (var geo in v_geos.value) {
+				body.add_shape(geo)
 			}
 		}
 		else
 		{
-			body.add_shape(v_shapes.value)
+			body.add_shape(v_geos.value)
 		}
 
 		return body

@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_SHAPE
+import "geograph.variant" for VAR_TYPE_GEO
 import "geometry" for Polyline as tt_Polyline
 
 class Polyline is Node
@@ -11,29 +11,29 @@ class Polyline is Node
 		super.init(Polyline.name)
 
 		this.exports = [
-			Pin(this, "shape", VAR_TYPE_SHAPE),
+			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
 		this.params.add(NodeParam("vertices", []))
 
 		this.layout()
 
-		this.shape = nil
+		this.geo = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.shape) 
+		if (!this.geo) 
 		{
-			this.shape = tt_Polyline.init()
-			this.shape.set_vertices(this.query_param("vertices").value)
+			this.geo = tt_Polyline.init()
+			this.geo.set_vertices(this.query_param("vertices").value)
 		}
 
-		return this.shape
+		return this.geo
 	}
 
 	on_gui_dirty() 
 	{
-		this.shape = nil
+		this.geo = nil
 	}	
 }

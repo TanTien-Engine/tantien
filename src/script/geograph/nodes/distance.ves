@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_SHAPE, VAR_TYPE_CONS
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CONS
 
 class Distance is Node
 {
@@ -10,7 +10,7 @@ class Distance is Node
 		super.init(Distance.name)
 
 		this.imports = [
-			Pin(this, "shape", VAR_TYPE_SHAPE),
+			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 		this.exports = [
 			Pin(this, "cons", VAR_TYPE_CONS),

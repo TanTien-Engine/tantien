@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_SHAPE, VAR_TYPE_CONS
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CONS
 import "geograph.nodes.distance" for Distance
 import "geometry" for ConstraintSolver as tt_ConstraintSolver
 
@@ -14,7 +14,7 @@ class ConstraintSolver is Node
 
 		this.imports = [
 			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "shapes", [ VAR_TYPE_SHAPE, VAR_TYPE_ARRAY ]),
+			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "constraint", [ VAR_TYPE_CONS, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [

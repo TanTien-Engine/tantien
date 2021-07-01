@@ -2,7 +2,7 @@
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.*"
 import "geograph.nodes.*"
-var node0 = DrawShape()
+var node0 = DrawGeometry()
 
 _editor.add_node(node0, -77, 159.5)
 
@@ -13,4 +13,4 @@ node1.query_param("r").value = 150
 
 _editor.add_node(node1, -276, 101.5)
 
-Blueprint.connect(node1, "shape", node0, "shapes")
+Blueprint.connect(node1, "geo", node0, "geos")

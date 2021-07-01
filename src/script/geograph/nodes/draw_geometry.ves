@@ -2,19 +2,19 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT
-import "geograph.variant" for VAR_TYPE_SHAPE
+import "geograph.variant" for VAR_TYPE_GEO
 import "graphics" for Painter, Graphics
 import "geometry" for Line, Rect, Circle
 
-class DrawShape is Node
+class DrawGeometry is Node
 {
 	init()
 	{
-		super.init(DrawShape.name)
+		super.init(DrawGeometry.name)
 
 		this.imports = [
 			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "shapes", [ VAR_TYPE_SHAPE, VAR_TYPE_ARRAY ]),
+			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -25,40 +25,40 @@ class DrawShape is Node
 
 	render_run() 
 	{
-		var v_shapes = Blueprint.calc_input_value(this, 1)
-		if (!v_shapes or !v_shapes.value) {
+		var v_geos = Blueprint.calc_input_value(this, 1)
+		if (!v_geos or !v_geos.value) {
 			return
 		}
 
 		var pt = Painter.init()
 
-		if (v_shapes.type == VAR_TYPE_ARRAY) {
-			for (var shape in v_shapes.value) {
-				this.draw_shape(pt, v_shapes.value)
+		if (v_geos.type == VAR_TYPE_ARRAY) {
+			for (var geo in v_geos.value) {
+				this.draw_geo(pt, geo.value)
 			}
 		} else {
-			this.draw_shape(pt, v_shapes.value)
+			this.draw_geo(pt, v_geos.value)
 		}
 
 		Graphics.on_cam_update(0, 0, 1)
 		Graphics.draw_painter(pt)
 	}
 
-	draw_shape(pt, shape)
+	draw_geo(pt, geo)
 	{
-		if (shape is Line)
+		if (geo is Line)
 		{
-			var line = shape.get()
+			var line = geo.get()
 			pt.add_line(line, [255,0,0,255], 2)			
 		}
-		else if (shape is Rect)
+		else if (geo is Rect)
 		{
-			var rect = shape.get()
+			var rect = geo.get()
 			pt.add_rect(rect, [255,0,0,255], 2)
 		}
-		else if (shape is Circle)
+		else if (geo is Circle)
 		{
-			var c = shape.get()
+			var c = geo.get()
 			pt.add_circle(c[0], c[1], c[2], [255,0,0,255], 2.0, 24)
 		}
 	}
