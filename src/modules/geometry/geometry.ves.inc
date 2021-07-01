@@ -1,6 +1,14 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* geometryModuleSource = QUOTE(
 
+foreign class Line
+{
+	init(x0, y0, x1, y1) {}
+
+	// [x0, y0, x1, y1]
+	foreign get()
+}
+
 foreign class Rect
 {
 	init(x, y, w, h) {}
@@ -31,6 +39,16 @@ foreign class Bezier
 	
 	// vertices: list [x0, y0, x1, y1, x2, y2, x3, y3]
 	foreign set_ctrl_pos(vertices)
+}
+
+foreign class ConstraintSolver
+{
+	init() {}
+
+	foreign add_distance(line, dist)
+
+	foreign solve()
+	foreign clear()
 }
 
 );

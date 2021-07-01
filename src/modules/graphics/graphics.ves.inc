@@ -1,25 +1,25 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* graphicsModuleSource = QUOTE(
 
+// color: list [r, g, b, a]
 foreign class Painter
 {
 	init() {}
 
-	// rect: list [x, y, width, height]
-	// color: list [r, g, b, a]
+	// line: list [x0, x1, y0, y1]
+	foreign add_line(line, color, line_width)
+
+	// rect: list [x, y, width, height]	
 	foreign add_rect(rect, color, line_width)
 	foreign add_rect_filled(rect, color)
 
 	// vertices: list [x0, y0, x1, y1 ...]
-	// color: list [r, g, b, a]
 	foreign add_polygon(vertices, color, line_width)
 	foreign add_polyline(vertices, color, line_width)
 
-	// color: list [r, g, b, a]
 	foreign add_circle(x, y, radius, color, line_width, num_segments)
 	foreign add_circle_filled(x, y, radius, color, num_segments)
 
-	// 
 	foreign add_bezier(bezier, color, line_width)
 }
 

@@ -7,6 +7,7 @@
 #include <uniphysics/rigid/box2d/World.h>
 #include <uniphysics/rigid/box2d/Body.h>
 #include <uniphysics/rigid/box2d/Shape.h>
+#include <geoshape/Line2D.h>
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
 #include <geoshape/Polyline2D.h>
@@ -65,6 +66,15 @@ void w_Body_add_shape()
 
     bool inited = false;
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
+
+    if (!inited)
+    {
+        auto line = std::dynamic_pointer_cast<gs::Line2D>(shape);
+        if (line) {
+            inited = true;
+            phy_shape->InitEdgeShape(line->GetStart(), line->GetEnd());
+        }
+    }
 
     if (!inited)
     {

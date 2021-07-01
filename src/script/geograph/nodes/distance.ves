@@ -1,0 +1,25 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_SHAPE, VAR_TYPE_CONS
+
+class Distance is Node
+{
+	init()
+	{
+		super.init(Distance.name)
+
+		this.imports = [
+			Pin(this, "shape", VAR_TYPE_SHAPE),
+		]
+		this.exports = [
+			Pin(this, "cons", VAR_TYPE_CONS),
+		]
+
+		var dist = NodeParam("distance", 100)
+		dist.region = 1000
+		this.params.add(dist)
+
+		this.layout()
+	}
+}

@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_SHAPE
+import "geometry" for Line as tt_Line
+
+class Line is Node
+{
+	init()
+	{
+		super.init(Line.name)
+
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_SHAPE),
+		]
+
+		this.params.add(NodeParam("x0", 0.0))
+		this.params.add(NodeParam("y0", 0.0))
+		this.params.add(NodeParam("x1", 100.0))
+		this.params.add(NodeParam("y1", 100.0))
+
+		this.layout()
+
+		this.shape = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.shape) 
+		{
+			var x0 = this.query_param("x0").value
+			var y0 = this.query_param("y0").value
+			var x1 = this.query_param("x1").value
+			var y1 = this.query_param("y1").value
+			this.shape = tt_Line.init(x0, y0, x1, y1)
+		}
+
+		return this.shape
+	}
+
+	on_gui_dirty() 
+	{
+		this.shape = nil
+	}	
+}

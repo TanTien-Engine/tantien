@@ -1,0 +1,64 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_SHAPE, VAR_TYPE_CONS
+import "geograph.nodes.distance" for Distance
+import "geometry" for ConstraintSolver as tt_ConstraintSolver
+
+class ConstraintSolver is Node
+{
+	init()
+	{
+		super.init(ConstraintSolver.name)
+
+		this.imports = [
+			Pin(this, "prev",   VAR_TYPE_PORT),
+			Pin(this, "shapes", [ VAR_TYPE_SHAPE, VAR_TYPE_ARRAY ]),
+			Pin(this, "constraint", [ VAR_TYPE_CONS, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.cons_solver = nil
+	}
+
+	render_gen()
+	{
+		if (!this.cons_solver) {
+			this.cons_solver = tt_ConstraintSolver.init()
+		}
+
+		this.cons_solver.clear()
+
+		var v_cons = Blueprint.calc_input_value(this, 2)
+		if (v_cons.type == VAR_TYPE_ARRAY)
+		{
+			for (var cons in v_cons.value) {
+				//world.add_body(cons.value)
+			}
+		}
+		else
+		{
+			//world.add_body(v_cons.value)
+
+			var cons = Blueprint.get_input_node(this, 2)
+			if (cons is Distance)
+			{
+				var v_line = Blueprint.calc_input_value(cons, 0)
+				if (v_line) {
+					var dist = cons.query_param("distance").value
+					this.cons_solver.add_distance(v_line.value, dist)
+				}
+			}
+		}
+	}
+
+	render_run() 
+	{
+		this.cons_solver.solve()
+	}
+}

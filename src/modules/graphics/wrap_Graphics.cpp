@@ -33,6 +33,31 @@ int w_Painter_finalize(void* data)
     return sizeof(tt::Proxy<tess::Painter>);
 }
 
+void w_Painter_add_line()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+
+    float x0, y0, x1, y1;
+    GD_ASSERT(ves_len(1) == 4, "error number");
+    ves_geti(1, 0);
+    x0 = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_geti(1, 1);
+    y0 = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_geti(1, 2);
+    x1 = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_geti(1, 3);
+    y1 = (float)ves_tonumber(-1);
+    ves_pop(1);
+
+    const uint32_t col = tt::list_to_abgr(2);
+    const float width = (float)ves_tonumber(3);
+
+    pt->AddLine(sm::vec2(x0, y0), sm::vec2(x1, y1), col, width);
+}
+
 void w_Painter_add_rect()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
@@ -362,6 +387,7 @@ namespace tt
 
 VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Painter.add_line(_,_,_)") == 0) return w_Painter_add_line;
     if (strcmp(signature, "Painter.add_rect(_,_,_)") == 0) return w_Painter_add_rect;
     if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
     if (strcmp(signature, "Painter.add_polygon(_,_,_)") == 0) return w_Painter_add_polygon;
