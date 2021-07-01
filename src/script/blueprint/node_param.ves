@@ -20,6 +20,15 @@ class NodeParam
 		this.serialize = true
 	}
 
+	init(name, value, params)
+	{
+		this.init(name, value)
+		
+		for (var entry in params) {
+			this[entry.key] = entry.value
+		}
+	}
+
 	to_string(name) 
 	{
 		if (this.serialize) 

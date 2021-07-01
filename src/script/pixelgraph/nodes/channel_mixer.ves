@@ -17,17 +17,11 @@ class ChannelMixer is Node
 			Pin(this, "out", VAR_TYPE_NUMBER3),
 		]
 
-		this.layout()
+		this.params.add(NodeParam("r", Vector3(1, 0, 0), { "gui" : false }))
+		this.params.add(NodeParam("g", Vector3(0, 1, 0), { "gui" : false }))
+		this.params.add(NodeParam("b", Vector3(0, 0, 1), { "gui" : false }))
 
-		var r = NodeParam("r", Vector3(1, 0, 0))
-		var g = NodeParam("g", Vector3(0, 1, 0))
-		var b = NodeParam("b", Vector3(0, 0, 1))
-		r.gui = false
-		g.gui = false
-		b.gui = false
-		this.params.add(r)
-		this.params.add(g)
-		this.params.add(b)
+		this.layout()
 	}
 
 	// vec3(dot(in, this.r), dot(in, this.g), dot(in, this.b))

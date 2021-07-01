@@ -16,9 +16,7 @@ class Distance is Node
 			Pin(this, "cons", VAR_TYPE_CONS),
 		]
 
-		var dist = NodeParam("distance", 100)
-		dist.region = 1000
-		this.params.add(dist)
+		this.params.add(NodeParam("distance", 100, { "region" : 1000 }))
 
 		this.layout()
 	}

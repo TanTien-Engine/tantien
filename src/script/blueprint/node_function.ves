@@ -25,13 +25,13 @@ class NodeFunction
 		
 		for (var param in params)
 		{
-			var node_param = NodeParam(param[0], param[1])
-			node.params.add(node_param)
+			var node_param = nil
 			if (param.count > 2) {
-				for (var entry in param[2]) {
-					node_param[entry.key] = entry.value
-				}
+				node_param = NodeParam(param[0], param[1], param[2])
+			} else {
+				node_param = NodeParam(param[0], param[1])
 			}
+			node.params.add(node_param)			
 		}
 
 		this.node  = node

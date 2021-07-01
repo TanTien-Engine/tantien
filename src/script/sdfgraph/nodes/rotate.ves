@@ -21,11 +21,7 @@ class Rotate is Node
 		]
 
 		this.params.add(NodeParam("theta", 0.0))
-
-		var axis = NodeParam("axis", 0)
-		axis.region = 2.0
-		axis.integer = true
-		this.params.add(axis)
+		this.params.add(NodeParam("axis", 0, { "region" : 2.0, "integer" : true }))
 
 		this.layout()
 	}

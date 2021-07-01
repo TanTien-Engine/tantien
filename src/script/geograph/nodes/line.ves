@@ -14,10 +14,10 @@ class Line is Node
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
-		this.params.add(NodeParam("x0", 0.0))
-		this.params.add(NodeParam("y0", 0.0))
-		this.params.add(NodeParam("x1", 100.0))
-		this.params.add(NodeParam("y1", 100.0))
+		this.params.add(NodeParam("x0", 0.0, { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("y0", 0.0, { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("x1", 100.0, { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("y1", 100.0, { "min" : -1000, "max" : 1000 }))
 
 		this.layout()
 

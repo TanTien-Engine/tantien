@@ -14,19 +14,9 @@ class Circle is Node
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
-		var x = NodeParam("x", 0)
-		x.min = -1000
-		x.max = 1000
-		this.params.add(x)
-
-		var y = NodeParam("y", 0)
-		y.min = -1000
-		y.max = 1000
-		this.params.add(y)
-
-		var r = NodeParam("r", 100)
-		r.region = 1000
-		this.params.add(r)
+		this.params.add(NodeParam("x", 0, { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("r", 100, { "region" : 1000 }))
 
 		this.layout()
 
