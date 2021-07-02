@@ -1,0 +1,43 @@
+
+import "blueprint.blueprint" for Blueprint
+import "geograph.nodes.*"
+import "aigraph.nodes.*"
+var node0 = BehaviorTree()
+
+_editor.add_node(node0, 299.87928782223, 97.976928188944)
+
+var node1 = Sequence()
+
+_editor.add_node(node1, 145.21225574507, 57.189179204103)
+
+var node2 = DrawGeometry()
+
+_editor.add_node(node2, -71.834853555704, 246.15276837772)
+
+var node3 = Circle()
+node3.query_param("x").value = 0
+node3.query_param("y").value = 0
+node3.query_param("r").value = 100
+node3.query_param("fill").value = false
+node3.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node3, -320.42623168287, 138.97571017975)
+
+var node4 = Translate()
+node4.query_param("dx").value = 1
+node4.query_param("dy").value = 0
+
+_editor.add_node(node4, -69.036295902598, 119.01122687734)
+
+var node5 = Translate()
+node5.query_param("dx").value = 0
+node5.query_param("dy").value = 1
+
+_editor.add_node(node5, -67.226759350989, -0.69623862022213)
+
+Blueprint.connect(node3, "geo", node5, "geo")
+Blueprint.connect(node3, "geo", node4, "geo")
+Blueprint.connect(node4, "next", node1, "child0")
+Blueprint.connect(node5, "next", node1, "child1")
+Blueprint.connect(node1, "parent", node0, "root")
+Blueprint.connect(node3, "geo", node2, "geos")

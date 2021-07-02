@@ -1,0 +1,25 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "geograph.nodes.*"
+var node0 = Circle()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("r").value = 100
+node0.query_param("fill").value = false
+node0.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node0, -152, -149.5)
+
+var node1 = DrawGeometry()
+
+_editor.add_node(node1, 173, -89.5)
+
+var node2 = Translated()
+node2.query_param("dx").value = 233.9571685791
+node2.query_param("dy").value = 111.7349395752
+
+_editor.add_node(node2, 11.943856393759, -159.27399127857)
+
+Blueprint.connect(node0, "geo", node2, "geo")
+Blueprint.connect(node2, "geo", node1, "geos")
