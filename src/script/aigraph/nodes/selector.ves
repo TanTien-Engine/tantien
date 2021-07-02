@@ -1,0 +1,83 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "aigraph.behavior" for Behavior, STATUS_IDLE, STATUS_RUNNING, STATUS_SUCCESS, STATUS_FAILURE
+
+class Selector is Node
+{
+	init() 
+	{
+		super.init(Selector.name)
+
+		this.imports = [
+			Pin(this, "child0", VAR_TYPE_PORT),
+			Pin(this, "child1", VAR_TYPE_PORT),
+			Pin(this, "child2", VAR_TYPE_PORT),
+			Pin(this, "child3", VAR_TYPE_PORT),
+			Pin(this, "child4", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "parent", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.status = STATUS_IDLE
+
+		this.curr_child_idx = 0
+	}
+
+	behavior_tick()
+	{
+		this.status = STATUS_RUNNING
+
+		var children_count = this.imports.count
+		while (this.curr_child_idx < children_count)
+		{
+			var status = Behavior.tick_input(this, this.curr_child_idx)
+			if (status == STATUS_RUNNING) 
+			{
+				return status
+			} 
+			else if (status == STATUS_SUCCESS) 
+			{
+				this.behavior_halt_children()
+				this.curr_child_idx = 0
+				return status
+			} 
+			else if (status == STATUS_FAILURE)
+			{
+				this.curr_child_idx = this.curr_child_idx + 1
+			} 
+			else if (status == STATUS_IDLE) 
+			{
+				import "logger.logger" for Logger
+				Logger.error("A child node must never return IDLE")
+				this.curr_child_idx = this.curr_child_idx + 1
+			}
+		}
+
+		if (this.curr_child_idx == children_count) 
+		{
+			this.behavior_halt_children()
+			this.curr_child_idx = 0
+		}
+
+		return STATUS_SUCCESS
+	}
+
+	behavior_halt_children()
+	{
+		for (var i = 0; i < this.imports.count; i = i + 1) {
+			Behavior.halt_input(this, i)
+		}
+	}
+
+	behavior_halt()
+	{
+		this.curr_child_idx = 0
+
+		this.behavior_halt_children()
+		this.status = STATUS_IDLE
+	}
+}

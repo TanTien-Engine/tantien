@@ -1,0 +1,34 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_BOOLEAN
+import "blueprint.blueprint" for Blueprint
+import "aigraph.behavior" for STATUS_IDLE, STATUS_SUCCESS, STATUS_FAILURE
+
+class Condition is Node
+{
+	init() 
+	{
+		super.init(Condition.name)
+
+		this.imports = [
+			Pin(this, "cond", VAR_TYPE_BOOLEAN),
+		]
+		this.exports = [
+			Pin(this, "parent", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.status = STATUS_IDLE
+	}
+
+	behavior_tick()
+	{
+		var b = Blueprint.calc_input_value(this, 0)
+		if (b) {
+			return STATUS_SUCCESS
+		} else {
+			return STATUS_FAILURE
+		}
+	}
+}

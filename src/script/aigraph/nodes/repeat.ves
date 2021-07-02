@@ -1,0 +1,64 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "aigraph.behavior" for Behavior, STATUS_IDLE, STATUS_RUNNING, STATUS_SUCCESS, STATUS_FAILURE
+
+class Repeat is Node
+{
+	init() 
+	{
+		super.init(Repeat.name)
+
+		this.imports = [
+			Pin(this, "child", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "parent", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.status = STATUS_IDLE
+
+		this.num_cycles = -1
+		this.try_index = 0
+	}
+
+	behavior_tick()
+	{
+		this.status = STATUS_RUNNING
+
+		while (this.try_index < this.num_cycles or this.num_cycles == -1)
+		{
+			var status = Behavior.tick_input(this, this.curr_child_idx)
+			if (status == STATUS_SUCCESS) 
+			{
+				this.try_index = this.try_index + 1
+				Behavior.halt_input(this, 0)
+			}
+			else if (status == STATUS_FAILURE)
+			{
+				this.try_index = 0
+				Behavior.halt_input(this, 0)
+				return status
+			}
+			else if (status == STATUS_RUNNING)
+			{
+				return status
+			}
+			else if (status == STATUS_IDLE) 
+			{
+				import "logger.logger" for Logger
+				Logger.error("A child node must never return IDLE")
+			}
+		}
+	}
+
+	behavior_halt()
+	{
+		this.try_index = 0
+
+		Behavior.halt_input(this, 0)
+		this.status = STATUS_IDLE
+	}
+}

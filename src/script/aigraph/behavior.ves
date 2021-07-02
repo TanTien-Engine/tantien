@@ -1,0 +1,60 @@
+var STATUS_IDLE    = "idle"
+var STATUS_RUNNING = "running"
+var STATUS_SUCCESS = "success"
+var STATUS_FAILURE = "failure"
+
+import "blueprint.blueprint" for Blueprint
+
+class Behavior
+{
+	static tick_input(node, slot)
+	{
+		var pin = Blueprint.query_pin(node.imports, slot)
+		if (!pin or pin.conns.isEmpty) {
+			return STATUS_SUCCESS
+		} else {
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			if (f_node.has_method("behavior_tick()")) {
+				var status = f_node.behavior_tick()
+				f_node.status = status
+				return status
+			} else {
+				return STATUS_IDLE
+			}
+		}
+	}
+
+	static halt_input(node, slot)
+	{
+		var pin = Blueprint.query_pin(node.imports, slot)
+		if (pin and !pin.conns.isEmpty)
+		{
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			if (f_node.has_method("behavior_halt()")) 
+			{
+				if (f_node.status == STATUS_RUNNING) {
+					f_node.behavior_halt()				
+				}
+				f_node.status == STATUS_IDLE
+			}
+		}
+	}
+
+	static get_status_input(node, slot)
+	{
+		var pin = Blueprint.query_pin(node.imports, slot)
+		if (!pin or pin.conns.isEmpty) {
+			return STATUS_SUCCESS
+		} else {
+			var f_pin = pin.conns.front().from
+			var f_node = f_pin.node
+			if (f_node.has_method("behavior_tick()")) {
+				return f_node.status
+			} else {
+				return STATUS_IDLE
+			}
+		}
+	}
+}

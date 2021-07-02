@@ -1,0 +1,35 @@
+import "editor.editor" for Editor
+
+class Aigraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		this.clear_popup_nodes()
+			
+		import "editor.geonodes" for GEO_NODES
+		for (var node in GEO_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.ainodes" for AI_NODES
+		for (var node in AI_NODES) {
+			super.add_popup_node(node)
+		}		
+	}
+
+	load_file_imports()
+	{
+		return "
+import \"blueprint.blueprint\" for Blueprint
+import \"geograph.nodes.*\"
+import \"aigraph.nodes.*\"
+"
+	}
+}

@@ -1,0 +1,104 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "aigraph.behavior" for STATUS_IDLE, STATUS_SUCCESS, STATUS_FAILURE
+
+class Parallel is Node
+{
+	init() 
+	{
+		super.init(Parallel.name)
+
+		this.imports = [
+			Pin(this, "child0", VAR_TYPE_PORT),
+			Pin(this, "child1", VAR_TYPE_PORT),
+			Pin(this, "child2", VAR_TYPE_PORT),
+			Pin(this, "child3", VAR_TYPE_PORT),
+			Pin(this, "child4", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "parent", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+
+		this.status = STATUS_IDLE
+
+		this.success_threshold = 1
+		this.failure_threshold = 1
+
+		this.skip_list = Set.new()
+	}
+
+	behavior_tick()
+	{
+		var success_childred_num = 0
+		var failure_childred_num = 0
+		var children_count = this.imports.count
+		if (children_count < this.success_threshold) {
+			import "logger.logger" for Logger
+			Logger.error("success_threshold too large")
+		}
+		if (children_count < this.failure_threshold) {
+			import "logger.logger" for Logger
+			Logger.error("failure_threshold too large")
+		}
+
+		for (var i = 0; i < children_count; i = i + 1)
+		{
+			var in_skip_list = this.skip_list.find(i)
+
+			var child_status
+			if (in_skip_list) {
+				child_status = Behavior.get_status_input(this, i)
+			} else {
+				child_status = Behavior.tick_input(this, i)				
+			}
+
+			if (child_status == STATUS_SUCCESS) 
+			{
+				if (!in_skip_list) {
+					this.skip_list.add(i)
+				}
+				success_childred_num = success_childred_num + 1
+				if (success_childred_num == this.success_threshold) {
+					this.skip_list.clear()
+					this.behavior_halt_children()
+					return STATUS_SUCCESS
+				}
+			}
+			else if (child_status == STATUS_FAILURE)
+			{
+				if (!in_skip_list) {
+					this.skip_list.add(i)
+				}
+				failure_childred_num = failure_childred_num + 1
+				if (failure_childred_num > children_count - success_childred_num or failure_childred_num == this.failure_threshold) {
+					this.skip_list.clear()
+					this.behavior_halt_children()
+					return STATUS_FAILURE
+				}
+			}
+			else if (status == STATUS_IDLE) 
+			{
+				import "logger.logger" for Logger
+				Logger.error("A child node must never return IDLE")
+			}
+		}
+	}
+
+	behavior_halt_children()
+	{
+		for (var i = 0; i < this.imports.count; i = i + 1) {
+			Behavior.halt_input(this, i)
+		}
+	}
+
+	behavior_halt()
+	{
+		this.skip_list.clear()
+
+		this.behavior_halt_children()
+		this.status = STATUS_IDLE
+	}
+}

@@ -1,0 +1,47 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "aigraph.behavior" for Behavior
+
+class BehaviorTree is Node
+{
+	init()
+	{
+		super.init(BehaviorTree.name)
+
+		this.imports = [
+			Pin(this, "root", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+
+		this.update_time = 10
+		this.curr_tick = 0
+	}
+
+	render_gen()
+	{
+		this.build_tree()
+	}
+
+	render_run()
+	{
+		this.update_tree()
+	}
+
+	build_tree()
+	{
+	}
+
+	update_tree()
+	{
+		this.curr_tick = this.curr_tick + 1
+		if (this.curr_tick < this.update_time) {
+			return
+		}
+
+		Behavior.tick_input(this, 0)
+
+		this.curr_tick = 0
+	}
+}
