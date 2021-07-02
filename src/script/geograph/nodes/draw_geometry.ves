@@ -55,12 +55,26 @@ class DrawGeometry is Node
 		else if (shape is Rect)
 		{
 			var rect = shape.get()
-			pt.add_rect(rect, [255,0,0,255], 2)
+
+			var color = geo.render_style["color"]
+			var fill = geo.render_style["fill"]
+			if (fill) {
+				pt.add_rect_filled(rect, [255 * color.x, 255 * color.y, 255 * color.z, 255])
+			} else {
+				pt.add_rect(rect, [255 * color.x, 255 * color.y, 255 * color.z, 255], 2)	
+			}
 		}
 		else if (shape is Circle)
 		{
 			var c = shape.get()
-			pt.add_circle(c[0], c[1], c[2], [255,0,0,255], 2.0, 24)
+
+			var color = geo.render_style["color"]
+			var fill = geo.render_style["fill"]
+			if (fill) {
+				pt.add_circle_filled(c[0], c[1], c[2], [255 * color.x, 255 * color.y, 255 * color.z, 255], 24)
+			} else {
+				pt.add_circle(c[0], c[1], c[2], [255 * color.x, 255 * color.y, 255 * color.z, 255], 2.0, 24)
+			}
 		}
 	}
 }

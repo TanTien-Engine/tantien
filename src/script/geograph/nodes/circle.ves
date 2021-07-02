@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Circle as tt_Circle
+import "maths.vector" for Vector3
 
 class Circle is Node
 {
@@ -15,9 +16,14 @@ class Circle is Node
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
+		// shape
 		this.params.add(NodeParam("x", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("r", 100, { "region" : 1000 }))
+
+		// draw
+		this.params.add(NodeParam("fill", false))
+		this.params.add(NodeParam("color", Vector3(1.0, 0.0, 0.0)))
 
 		this.layout()
 
@@ -59,6 +65,9 @@ class Circle is Node
 		var x = this.query_param("x").value
 		var y = this.query_param("y").value
 		var r = this.query_param("r").value
-		geo.shape.set(x, y, r)		
+		geo.shape.set(x, y, r)
+
+		this.geo.render_style["fill"] = this.query_param("fill").value
+		this.geo.render_style["color"] = this.query_param("color").value
 	}
 }

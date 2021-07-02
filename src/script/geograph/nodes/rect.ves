@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Rect as tt_Rect
+import "maths.vector" for Vector3
 
 class Rect is Node
 {
@@ -15,10 +16,15 @@ class Rect is Node
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
+		// shape
 		this.params.add(NodeParam("x", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("w", 100, { "region" : 1000 }))
 		this.params.add(NodeParam("h", 100, { "region" : 1000 }))
+
+		// draw
+		this.params.add(NodeParam("fill", false))
+		this.params.add(NodeParam("color", Vector3(1.0, 0.0, 0.0)))
 
 		this.layout()
 
@@ -62,5 +68,19 @@ class Rect is Node
 		var w = this.query_param("w").value
 		var h = this.query_param("h").value
 		this.geo.shape.set(x, y, w, h)
-	}	
+
+		this.geo.render_style["fill"] = this.query_param("fill").value
+		this.geo.render_style["color"] = this.query_param("color").value
+	}
+
+	static clone_geo(geo)
+	{
+		var new = VarGeo()
+		new.shape = tt_Rect.init()
+
+		var rect = geo.shape.get()
+		
+
+		this.geo.shape = tt_Rect.init()
+	}
 }
