@@ -30,6 +30,16 @@ int w_Line_finalize(void* data)
     return sizeof(tt::Proxy<gs::Line2D>);
 }
 
+void w_Line_clone()
+{
+    auto src = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Line2D>(src->GetStart(), src->GetEnd());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
+    proxy->obj = dst;
+}
+
 void w_Line_get()
 {
     auto l = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
@@ -78,6 +88,16 @@ int w_Rect_finalize(void* data)
     auto proxy = (tt::Proxy<gs::Rect>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<gs::Rect>);
+}
+
+void w_Rect_clone()
+{
+    auto src = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Rect>(src->GetRect());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Rect>));
+    proxy->obj = dst;
 }
 
 void w_Rect_get()
@@ -131,6 +151,16 @@ int w_Circle_finalize(void* data)
     return sizeof(tt::Proxy<gs::Circle>);
 }
 
+void w_Circle_clone()
+{
+    auto src = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Circle>(src->GetCenter(), src->GetRadius());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Circle>));
+    proxy->obj = dst;
+}
+
 void w_Circle_get()
 {
     auto c = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
@@ -176,6 +206,16 @@ int w_Polyline_finalize(void* data)
     return sizeof(tt::Proxy<gs::Polyline2D>);
 }
 
+void w_Polyline_clone()
+{
+    auto src = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Polyline2D>(src->GetVertices());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
+    proxy->obj = dst;
+}
+
 void w_Polyline_set_vertices()
 {
     auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
@@ -194,6 +234,16 @@ int w_Bezier_finalize(void* data)
     auto proxy = (tt::Proxy<gs::Bezier>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<gs::Bezier>);
+}
+
+void w_Bezier_clone()
+{
+    auto src = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Bezier>(src->GetCtrlPos());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
+    proxy->obj = dst;
 }
 
 void w_Bezier_set_ctrl_pos()
@@ -284,17 +334,22 @@ namespace tt
 
 VesselForeignMethodFn GeometryBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Line.clone()") == 0) return w_Line_clone;
     if (strcmp(signature, "Line.get()") == 0) return w_Line_get;
     if (strcmp(signature, "Line.set(_,_,_,_)") == 0) return w_Line_set;
 
+    if (strcmp(signature, "Rect.clone()") == 0) return w_Rect_clone;
     if (strcmp(signature, "Rect.get()") == 0) return w_Rect_get;
     if (strcmp(signature, "Rect.set(_,_,_,_)") == 0) return w_Rect_set;
 
+    if (strcmp(signature, "Circle.clone()") == 0) return w_Circle_clone;
     if (strcmp(signature, "Circle.get()") == 0) return w_Circle_get;
     if (strcmp(signature, "Circle.set(_,_,_)") == 0) return w_Circle_set;
 
+    if (strcmp(signature, "Polyline.clone()") == 0) return w_Polyline_clone;
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
 
+    if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;

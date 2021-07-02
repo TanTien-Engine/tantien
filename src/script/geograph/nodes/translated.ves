@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "blueprint.variant" for Variant
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Line, Rect, Circle
+
+class Translated is Node
+{
+	init()
+	{
+		super.init(Translated.name)
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("dx", 0, { "region" : 1000 }))
+		this.params.add(NodeParam("dy", 0, { "region" : 1000 }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var dx = this.query_param("dx").value
+		var dy = this.query_param("dy").value
+
+		var new_geo = this.clone_and_trans_geo(v_geo.value, dx, dy)
+		return Variant(VAR_TYPE_GEO, new_geo)
+	}
+
+	clone_and_trans_geo(geo, dx, dy)
+	{
+		var ret = geo.clone()
+
+		var shape = ret.shape
+		if (shape is Circle)
+		{
+			var c = shape.get()
+			shape.set(c[0] + dx, c[1] + dy, c[2])
+		}
+
+		return ret
+	}
+}

@@ -5,6 +5,8 @@ foreign class Line
 {
 	init() {}
 
+	foreign clone()
+
 	// [x0, y0, x1, y1]
 	foreign get()
 	foreign set(x0, y0, x1, y1)
@@ -13,6 +15,8 @@ foreign class Line
 foreign class Rect
 {
 	init() {}
+
+	foreign clone()
 
 	// [x, y, w, h]
 	foreign get()
@@ -23,6 +27,8 @@ foreign class Circle
 {
 	init() {}
 
+	foreign clone()
+
 	// [x, y, radius]
 	foreign get()
 	foreign set(x, y, radius)
@@ -32,6 +38,8 @@ foreign class Polyline
 {
 	init() {}
 
+	foreign clone()
+
 	// vertices: list
 	foreign set_vertices(vertices)
 }
@@ -39,6 +47,8 @@ foreign class Polyline
 foreign class Bezier
 {
 	init() {}
+
+	foreign clone()
 	
 	// vertices: list [x0, y0, x1, y1, x2, y2, x3, y3]
 	foreign set_ctrl_pos(vertices)

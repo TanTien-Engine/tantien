@@ -11,6 +11,19 @@ class VarGeo
 
 		this.render_style = {}
 	}
+
+	clone()
+	{
+		var geo = VarGeo()
+		
+		geo.shape = this.shape.clone()
+
+		for (var entry in this.render_style) {
+			geo.render_style[entry.key] = entry.value
+		}
+
+		return geo
+	}
 }
 
 class VarCons

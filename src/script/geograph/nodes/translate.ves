@@ -1,0 +1,54 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_GEO
+import "aigraph.behavior" for STATUS_SUCCESS
+import "geometry" for Line, Rect, Circle
+
+class Translate is Node
+{
+	init()
+	{
+		super.init(Translate.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "geo",  VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.params.add(NodeParam("dx", 0, { "region" : 1000 }))
+		this.params.add(NodeParam("dy", 0, { "region" : 1000 }))
+
+		this.layout()
+	}
+
+	behavior_tick()
+	{
+		var v_geo = Blueprint.calc_input_value(this, 1)
+		if (!v_geo) {
+			return STATUS_SUCCESS
+		}
+
+		var dx = this.query_param("dx").value
+		var dy = this.query_param("dy").value
+
+		var shape = v_geo.value.shape
+		if (shape is Circle)
+		{
+			var c = shape.get()
+			shape.set(c[0] + dx, c[1] + dy, c[2])
+		}
+
+		return STATUS_SUCCESS
+	}
+
+	render_run()
+	{
+		this.behavior_tick()
+	}
+}
