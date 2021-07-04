@@ -6,6 +6,7 @@ import "blueprint.edit_op" for EditOP as BlueprintEditOP
 import "blueprint.node_op" for NodeOP
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.execute_list" for ExecuteList
 import "maths.vector" for Vector2
 import "graphics" for Graphics, Textbox
 import "scene.node" for Node as SceneNode
@@ -73,6 +74,7 @@ class Editor
 		this.TB_TITLE = tb
 
 		this.drawlist = nil
+		this.exe_list = nil
 
 		Rendergraph.regist()
 	}
@@ -936,21 +938,33 @@ import \"editor\" for _editor
 		return true
 	}
 
-	rebuild_drawlist()
+	check_and_rebuild_list()
 	{
+		if (this.drawlist and this.exe_list and !this.scene_stack.bp_dirty) {
+			return
+		}
+
 		var scene = this.scene_stack.root()
 
 		var nodes = []
 		for (var node in scene.nodes) {
 			nodes.add(node.components["bp"])
 		}
-		this.drawlist = Drawlist(nodes)
+
+		if (this.scene_stack.bp_dirty or !this.drawlist) {
+			this.drawlist = Drawlist(nodes)
+		}
+		if (this.scene_stack.bp_dirty or !this.exe_list) {
+			this.exe_list = ExecuteList(nodes)
+			this.exe_list.run()
+		}
 	}
 
 	draw_preview()
 	{
-		if (!this.drawlist or this.scene_stack.bp_dirty) {
-			this.rebuild_drawlist()
+		this.check_and_rebuild_list()
+
+		if (!this.drawlist or !this.exe_list or this.scene_stack.bp_dirty) {
 			this.scene_stack.bp_dirty = false
 		}
 

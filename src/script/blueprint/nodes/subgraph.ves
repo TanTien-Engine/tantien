@@ -10,6 +10,7 @@ import "blueprint.nodes.proxy" for Proxy
 import "blueprint.nodes.camera3d" for Camera3d
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.execute_list" for ExecuteList
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
@@ -45,6 +46,7 @@ class Subgraph is Node
 		this.proxy_nodes = []
 
 		this.drawlist = nil
+		this.exe_list = nil
 
 		this.op_node = nil
 	}
@@ -100,6 +102,21 @@ class Subgraph is Node
 		if (this.drawlist) {
 			this.drawlist.run()
 		}
+	}
+
+	execute_run() 
+	{
+		if (!this.exe_list) 
+		{
+			var nodes = []
+			for (var item in this.all_items) {
+				nodes.add(item[0])
+			}
+
+			this.exe_list = ExecuteList(nodes)
+		}
+
+		this.exe_list.run()
 	}
 
 	layout()

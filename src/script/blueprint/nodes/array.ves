@@ -27,9 +27,12 @@ class Array is Node
 
 	calc_value(idx) 
 	{
-		if (idx == 0) {
+		if (idx == 0) 
+		{
 			return Variant(VAR_TYPE_ARRAY, this.list)
-		} else if (idx == 1) {
+		} 
+		else if (idx == 1) 
+		{
 			var v_index = Blueprint.calc_input_value(this, 0)
 			if (v_index) {
 				var idx = v_index.value
@@ -49,5 +52,10 @@ class Array is Node
 		} else {
 			return ""
 		}
+	}
+
+	execute_run() 
+	{
+		this.list.clear()
 	}
 }

@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.execute_list" for ExecuteList
 
 class ForEach is Node
 {
@@ -29,19 +30,11 @@ class ForEach is Node
 		this.curr_index = 0
 
 		this.drawlist = nil
+		this.exe_list = nil
 	}
 
 	render_gen()
-	{
-		this.all_values = []
-		
-		var v_all = Blueprint.calc_input_value(this, 1)
-		if (v_all and v_all.value) {
-			for (var entry in v_all.value) {
-				this.all_values.add(Variant(entry.value))
-			}
-		}
-
+	{		
 		var node = Blueprint.get_input_node(this, 2)
 		if (node) 
 		{
@@ -56,24 +49,34 @@ class ForEach is Node
 
 	render_run() 
 	{
-		this.all_values = []
-		this.curr_index = 0
-
 		if (!this.drawlist) {
 			return
 		}
 
-		var v_all = Blueprint.calc_input_value(this, 1)
-		if (!v_all or !v_all.value) {
+		this.all_values = this.get_all_values()
+		for (this.curr_index = 0; this.curr_index < this.all_values.count; this.curr_index = this.curr_index + 1) {
+			this.drawlist.run()	
+		}
+	}
+
+	execute_run() 
+	{
+		if (!this.exe_list) 
+		{
+			var node = Blueprint.get_input_node(this, 2)
+			if (node) {
+				var prev_nodes = Blueprint.get_precursor_nodes(node)
+				this.exe_list = ExecuteList(prev_nodes)
+			}
+		}
+
+		if (!this.exe_list) {
 			return
 		}
 
-		for (var entry in v_all.value) {
-			this.all_values.add(Variant(entry.value))
-		}
-
+		this.all_values = this.get_all_values()
 		for (this.curr_index = 0; this.curr_index < this.all_values.count; this.curr_index = this.curr_index + 1) {
-			this.drawlist.run()	
+			this.exe_list.run()	
 		}
 	}
 
@@ -84,5 +87,24 @@ class ForEach is Node
 		} else {
 			return nil
 		}
+	}
+
+	get_all_values()
+	{
+		var all_values = []
+		
+		var v_all = Blueprint.calc_input_value(this, 1)
+		if (v_all and v_all.value) 
+		{
+			if (v_all.value is List or v_all.value is Map) {
+				for (var entry in v_all.value) {
+					all_values.add(Variant(entry.value))
+				}
+			} else {
+				all_values.add(Variant(v_all.value))
+			}
+		}
+
+		return all_values
 	}
 }

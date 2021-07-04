@@ -210,9 +210,14 @@ class Blueprint
 
 	static is_out_conns_empty(node)
 	{
-		for (var p in node.exports) {
-			if (!p.conns.isEmpty) {
-				return false
+		for (var p in node.exports) 
+		{
+			if (!p.conns.isEmpty) 
+			{
+				var conn = p.conns[0]
+				if (!conn.to.stop_port_pass) {
+					return false
+				}
 			}
 		}
 		return true

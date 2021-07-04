@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_PORT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
+import "blueprint.execute_list" for ExecuteList
 import "gui" for GUI
 import "math" for Math
 
@@ -37,6 +38,7 @@ class For is Node
 		this.layout()
 
 		this.drawlist = nil
+		this.exe_list = nil
 	}
 
 	calc_value(idx) 
@@ -77,6 +79,28 @@ class For is Node
 		}
 		this.index = 0
 	}
+
+	execute_run() 
+	{
+		if (!this.exe_list) 
+		{
+			var node = Blueprint.get_input_node(this, 1)
+			if (node) {
+				this.exe_list = ExecuteList([ node ])
+			}
+		}
+
+		if (!this.exe_list) {
+			return
+		}
+
+		var start = this.get_start()
+		var end = this.get_end()
+		for (this.index = start; this.index < end; this.index = this.index + 1) {
+			this.exe_list.run()
+		}
+		this.index = 0
+	}	
 
 	layout()
 	{

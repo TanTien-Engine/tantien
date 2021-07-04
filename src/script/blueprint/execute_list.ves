@@ -1,0 +1,78 @@
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_PORT
+
+class ExecuteList
+{
+	init(nodes)
+	{
+		this.lists = []
+
+		this.build_lists(nodes)
+	}
+
+	run()
+	{
+		for (var list in this.lists) {
+			for (var node in list) {
+				if (node.has_method("execute_run()")) {
+					node.execute_run()
+				}
+			}
+		}
+	}
+
+	is_root_node(node)
+	{
+		if (Blueprint.is_out_conns_empty(node)) {
+			return true
+		}
+
+		if (!node.exports.isEmpty) {
+			var pin = node.exports[0]
+			if (pin.type == VAR_TYPE_PORT and pin.conns.isEmpty) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	build_lists(nodes)
+	{
+		if (nodes.count == 1)
+		{
+			var list = this.build_list(nodes[0])
+			this.lists.add(list)
+		}
+		else
+		{
+			for (var node in nodes) {
+				if (this.is_root_node(node)) {
+					var list = this.build_list(node)
+					this.lists.add(list)
+				}
+			}
+		}
+	}
+
+	build_list(root)
+	{
+		var list = []
+
+		var node = root
+		while (node)
+		{
+			list.add(node)
+
+			var prev = nil			
+			if (!node.imports.isEmpty and node.imports[0].type == VAR_TYPE_PORT) {
+				prev = Blueprint.get_input_node(node, 0)
+			}
+			node = prev
+		}
+
+		list.reverse()
+
+		return list
+	}
+}
