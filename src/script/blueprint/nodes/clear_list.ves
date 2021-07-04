@@ -1,0 +1,30 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class ClearList is Node
+{
+	init() 
+	{
+		super.init(ClearList.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	execute_run() 
+	{
+		var v_list = Blueprint.calc_input_value(this, 1)
+		if (v_list) {
+			v_list.value.clear()
+		}
+	}
+}

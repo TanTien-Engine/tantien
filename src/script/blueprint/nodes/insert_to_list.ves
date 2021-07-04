@@ -1,0 +1,32 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class InsertToList is Node
+{
+	init() 
+	{
+		super.init(InsertToList.name)
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "list", VAR_TYPE_ARRAY),
+			Pin(this, "item", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	execute_run() 
+	{
+		var v_list = Blueprint.calc_input_value(this, 1)
+		var v_item = Blueprint.calc_input_value(this, 2)
+		if (v_list and v_item) {
+			v_list.value.add(v_item)
+		}
+	}
+}
