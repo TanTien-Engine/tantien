@@ -2,38 +2,48 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_NUMBER
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Line, Rect, Circle
 
-class Translated is Node
+class CopyAndTranslate is Node
 {
 	init()
 	{
-		super.init(Translated.name)
+		super.init(CopyAndTranslate.name)
 
 		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
 			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "dx", VAR_TYPE_NUMBER),
+			Pin(this, "dy", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
-
-		this.params.add(NodeParam("dx", 0, { "region" : 1000 }))
-		this.params.add(NodeParam("dy", 0, { "region" : 1000 }))
 
 		this.layout()
 	}
 
 	calc_value(idx)
 	{
-		var v_geo = Blueprint.calc_input_value(this, 0)
+		var v_geo = Blueprint.calc_input_value(this, 1)
 		if (!v_geo) {
 			return nil
 		}
 
-		var dx = this.query_param("dx").value
-		var dy = this.query_param("dy").value
+		var dx = 0
+		var dy = 0
+
+		var v_dx = Blueprint.calc_input_value(this, 2)
+		if (v_dx) {
+			dx = v_dx.value
+		}
+		var v_dy = Blueprint.calc_input_value(this, 3)
+		if (v_dy) {
+			dy = v_dy.value
+		}
 
 		var new_geo = this.clone_and_trans_geo(v_geo.value, dx, dy)
 		return Variant(VAR_TYPE_GEO, new_geo)

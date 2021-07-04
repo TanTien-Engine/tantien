@@ -1,0 +1,106 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "geograph.nodes.*"
+var node0 = CopyAndTranslate()
+
+_editor.add_node(node0, -397.56290243463, -13.576730070263)
+
+var node1 = For()
+
+node1.start = 0
+node1.end = 5
+
+_editor.add_node(node1, 163.27924682031, 54.765575062996)
+
+var node2 = Circle()
+node2.query_param("x").value = 0
+node2.query_param("y").value = 0
+node2.query_param("r").value = 27.623832702637
+node2.query_param("fill").value = false
+node2.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node2, -1085.5765848467, 109.49142029667)
+
+var node3 = Number()
+
+node3.value = 10
+
+_editor.add_node(node3, -1084.7470102305, -22.700983268819)
+
+var node4 = Multiply()
+
+_editor.add_node(node4, -605.84221703532, -144.14245926459)
+
+var node5 = InsertToList()
+
+_editor.add_node(node5, -186.46825733632, -0.5765040207211)
+
+var node6 = Array()
+
+_editor.add_node(node6, -386.92643111838, -282.31618993779)
+
+var node7 = Input()
+
+node7.var_name = "geo"
+node7.var_type = "any"
+
+_editor.add_node(node7, -191.33761055571, 70.6762146982)
+
+var node8 = Output()
+
+node8.var_name = "geos"
+node8.var_type = "array"
+
+_editor.add_node(node8, -175.93355420509, -258.22954304845)
+
+var node9 = Multiply()
+
+_editor.add_node(node9, -604.16593262452, -215.40336362408)
+
+var node10 = Input()
+
+node10.var_name = "dx"
+node10.var_type = "num"
+
+_editor.add_node(node10, -761.48040620158, -134.53625387397)
+
+var node11 = Input()
+
+node11.var_name = "dy"
+node11.var_type = "num"
+
+_editor.add_node(node11, -756.52168765738, -209.74287622626)
+
+var node12 = ForEach()
+
+_editor.add_node(node12, -24.105905580126, 53.428213324428)
+
+var node13 = ClearList()
+
+_editor.add_node(node13, -59.367986816406, 151.55347900391)
+
+var node14 = Input()
+
+node14.var_name = "tot_num"
+node14.var_type = "num"
+
+_editor.add_node(node14, -14.808547973633, -80.875934524489)
+
+Blueprint.connect(node7, "var", node12, "in")
+Blueprint.connect(node5, "next", node12, "do")
+Blueprint.connect(node6, "all", node13, "list")
+Blueprint.connect(node13, "next", node1, "prev")
+Blueprint.connect(node12, "next", node1, "do")
+Blueprint.connect(node14, "var", node1, "end")
+Blueprint.connect(node11, "var", node9, "a")
+Blueprint.connect(node1, "index", node9, "b")
+Blueprint.connect(node10, "var", node4, "a")
+Blueprint.connect(node1, "index", node4, "b")
+Blueprint.connect(node12, "out", node0, "geo")
+Blueprint.connect(node4, "v", node0, "dx")
+Blueprint.connect(node9, "v", node0, "dy")
+Blueprint.connect(node0, "next", node5, "prev")
+Blueprint.connect(node6, "all", node5, "list")
+Blueprint.connect(node0, "geo", node5, "item")
+Blueprint.connect(node6, "all", node8, "var")
