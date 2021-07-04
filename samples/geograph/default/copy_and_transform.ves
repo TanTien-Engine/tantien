@@ -1,0 +1,48 @@
+
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.*"
+import "geograph.nodes.*"
+var node0 = Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/geograph/copy_and_transform.ves")
+
+_editor.add_node(node0, -52, 28)
+
+var node1 = Circle()
+node1.query_param("x").value = 0
+node1.query_param("y").value = 0
+node1.query_param("r").value = 10
+node1.query_param("fill").value = true
+node1.query_param("color").value.set(1, 1, 0)
+
+_editor.add_node(node1, -353.99395110796, 27.547650982009)
+
+var node2 = DrawGeometry()
+
+_editor.add_node(node2, 494.83269039365, 56.215430498073)
+
+var node3 = Number()
+
+node3.value = 30
+
+_editor.add_node(node3, -356.33606086074, -108.50685635354)
+
+var node4 = Subgraph()
+node4.load_from_file(_editor, "../../../assets/blueprints/geograph/copy_and_transform.ves")
+
+_editor.add_node(node4, 248.50081374205, 26.975970184633)
+
+var node5 = Number()
+
+node5.value = 6
+
+_editor.add_node(node5, -354.50840454407, -181.83610093327)
+
+Blueprint.connect(node1, "geo", node0, "geo")
+Blueprint.connect(node3, "v", node0, "dx")
+Blueprint.connect(node5, "v", node0, "tot_num")
+Blueprint.connect(node0, "next", node4, "prev")
+Blueprint.connect(node0, "geos", node4, "geo")
+Blueprint.connect(node3, "v", node4, "dy")
+Blueprint.connect(node5, "v", node4, "tot_num")
+Blueprint.connect(node4, "next", node2, "prev")
+Blueprint.connect(node4, "geos", node2, "geos")
