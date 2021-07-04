@@ -13,13 +13,15 @@ class For is Node
 		super.init(For.name)
 
 		this.imports = [
-			Pin(this, "prev", VAR_TYPE_PORT),
-			Pin(this, "do",   VAR_TYPE_PORT)			
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "do",    VAR_TYPE_PORT),
+			Pin(this, "start", VAR_TYPE_NUMBER),
+			Pin(this, "end",   VAR_TYPE_NUMBER),
 		]
 		this.exports = [
 			Pin(this, "next",  VAR_TYPE_PORT),
 			Pin(this, "index", VAR_TYPE_NUMBER),
-			Pin(this, "num", VAR_TYPE_NUMBER)			
+			Pin(this, "num",   VAR_TYPE_NUMBER)			
 		]
 
 		// stop execute path for "do" and "index" and "num"
@@ -42,7 +44,9 @@ class For is Node
 		if (idx == 1) {
 			return Variant(VAR_TYPE_NUMBER, this.index)
 		} else if (idx == 2) {
-			return Variant(VAR_TYPE_NUMBER, this.end - this.start)		
+			var start = this.get_start()
+			var end = this.get_end()			
+			return Variant(VAR_TYPE_NUMBER, end - start)		
 		}
 
 		return nil
@@ -62,9 +66,16 @@ class For is Node
 
 	render_run() 
 	{
-		for (this.index = this.start; this.index < this.end; this.index = this.index + 1) {
+		if (!this.drawlist) {
+			return
+		}
+
+		var start = this.get_start()
+		var end = this.get_end()
+		for (this.index = start; this.index < end; this.index = this.index + 1) {
 			this.drawlist.run()
 		}
+		this.index = 0
 	}
 
 	layout()
@@ -105,5 +116,25 @@ class For is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
+	}
+
+	get_start()
+	{
+		var v_start = Blueprint.calc_input_value(this, 2)
+		if (v_start) {
+			return v_start.value
+		} else {
+			return this.start
+		}
+	}
+
+	get_end()
+	{
+		var v_end = Blueprint.calc_input_value(this, 3)
+		if (v_end) {
+			return v_end.value
+		} else {
+			return this.end
+		}
 	}
 }
