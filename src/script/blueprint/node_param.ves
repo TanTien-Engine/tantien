@@ -55,6 +55,8 @@ class NodeParam
 
 		if (this.value is Bool or this.value is Num) {
 			return 1
+		} else if (this.value is Vector3) {
+			return 3
 		}
 
 		return 0
@@ -70,19 +72,11 @@ class NodeParam
 
 		if (this.value is Num)
 		{
-			var region = this.region
-			if (this.max) {
-				region = this.max
-			}
-			var value = GUI.slider(ctx, this.name, this.value, pos.x, pos.y, width - 20, region, false)
-			if (this.integer) {
-				value = Math.floor(value)
-			}
+			var value = this.draw_number(ctx, pos, width, this.name, this.value)
 			if (value != this.value) {
 				this.value = value
 				dirty = true
 			}
-			pos.y = pos.y - DEFAULT_HEIGHT
 		}
 		else if (this.value is Bool)
 		{
@@ -93,8 +87,43 @@ class NodeParam
 			}
 			pos.y = pos.y - DEFAULT_HEIGHT
 		}
+		else if (this.value is Vector3)
+		{
+			var x = this.draw_number(ctx, pos, width, this.name + "_x", this.value.x)
+			if (x != this.value.x) {
+				this.value.x = x
+				dirty = true
+			}
+
+			var y = this.draw_number(ctx, pos, width, this.name + "_y", this.value.y)
+			if (y != this.value.y) {
+				this.value.y = y
+				dirty = true
+			}
+
+			var z = this.draw_number(ctx, pos, width, this.name + "_z", this.value.z)
+			if (z != this.value.z) {
+				this.value.z = z
+				dirty = true
+			}
+		}
 
 		return dirty
+	}
+
+	draw_number(ctx, pos, width, name, number)
+	{
+		var region = this.region
+		if (this.max) {
+			region = this.max
+		}
+		var value = GUI.slider(ctx, name, number, pos.x, pos.y, width - 20, region, false)
+		if (this.integer) {
+			value = Math.floor(value)
+		}
+		pos.y = pos.y - DEFAULT_HEIGHT
+
+		return value
 	}
 
 	set_value(value)
