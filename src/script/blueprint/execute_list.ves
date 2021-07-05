@@ -21,16 +21,34 @@ class ExecuteList
 		}
 	}
 
-	is_root_node(node)
+	is_exe_root_node(node, all_nodes)
 	{
-		if (Blueprint.is_out_conns_empty(node)) {
+		import "editorgraph.nodes.trigger" for Trigger
+		if (node is Trigger) {
+			return false
+		}
+		
+		if (Blueprint.is_out_ports_empty(node)) {
 			return true
 		}
 
-		if (!node.exports.isEmpty) {
+		if (!node.exports.isEmpty) 
+		{
 			var pin = node.exports[0]
-			if (pin.type == VAR_TYPE_PORT and pin.conns.isEmpty) {
-				return true
+			if (pin.type == VAR_TYPE_PORT)
+			{
+				if (pin.conns.isEmpty) {
+					return true
+				} else {
+					for (var conn in pin.conns) {
+						for (var n in all_nodes) {
+							if (conn.to.node == n) {
+								return false
+							}
+						}
+					}
+					return true
+				}
 			}
 		}
 
@@ -47,7 +65,7 @@ class ExecuteList
 		else
 		{
 			for (var node in nodes) {
-				if (this.is_root_node(node)) {
+				if (this.is_exe_root_node(node, nodes)) {
 					var list = this.build_list(node)
 					this.lists.add(list)
 				}

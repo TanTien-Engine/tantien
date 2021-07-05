@@ -210,16 +210,28 @@ class Blueprint
 
 	static is_out_conns_empty(node)
 	{
-		for (var p in node.exports) 
-		{
-			if (!p.conns.isEmpty) 
-			{
-				var conn = p.conns[0]
-				if (!conn.to.stop_port_pass) {
-					return false
-				}
+		for (var p in node.exports) {
+			if (!p.conns.isEmpty) {
+				return false
 			}
 		}
 		return true
+	}
+
+	static is_out_ports_empty(node)
+	{
+		var port_num = 0
+		for (var p in node.exports) 
+		{
+			if (p.type == VAR_TYPE_PORT) {
+				if (!p.conns.isEmpty) {
+					return false
+				} else {
+					port_num = port_num + 1
+				}
+			}
+		}
+
+		return port_num > 0
 	}
 }

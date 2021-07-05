@@ -1,0 +1,49 @@
+import "blueprint.nodes.subgraph" for Subgraph
+import "editorgraph.nodes.trigger" for Trigger
+
+class TriggerList
+{
+	init(nodes)
+	{
+		this.lists = {}
+
+		this.events = []
+
+		for (var node in nodes) {
+			this.build_lists(node)
+		}
+	}
+
+	run(event)
+	{
+		var list = this.lists[event]
+		if (list) {
+			for (var node in list) {
+				node.execute_run()
+			}
+		}
+	}
+
+	build_lists(node)
+	{
+		if (node is Trigger)
+		{
+			var key = node.get_event()
+			if (key)
+			{
+				var list = this.lists[key]
+				if (list) {
+					list.add(node)
+				} else {
+					this.lists[key] = [node]
+				}
+			}
+		}
+		else if (node is Subgraph) 
+		{
+			for (var item in node.all_items) {
+				this.build_lists(item[0])
+			}
+		}
+	}
+}

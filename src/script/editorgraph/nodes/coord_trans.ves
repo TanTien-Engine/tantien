@@ -1,0 +1,39 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+
+class CoordTrans is Node
+{
+	init()
+	{
+		super.init(CoordTrans.name)
+
+		this.imports = [
+			Pin(this, "screen", VAR_TYPE_NUMBER2),
+		]
+		this.exports = [
+			Pin(this, "world", VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 0) 
+		{
+			var v_screen = Blueprint.calc_input_value(this, 0)
+			if (v_screen)
+			{
+				import "blueprint.blackboard" for BLACKBOARD
+				var pos = BLACKBOARD.editor_cam.screen2world(v_screen.value)
+				return Variant(pos)
+			}
+
+			retunr v_screen
+		}
+
+		return nil
+	}
+}

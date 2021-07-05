@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER2
+import "editorgraph.variant" for VAR_TYPE_EVENT
+
+class BlueprintChanged is Node
+{
+	init()
+	{
+		super.init(BlueprintChanged.name)
+
+		this.exports = [
+			Pin(this, "event", VAR_TYPE_EVENT),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		import "editorgraph.event_types" for EVENT_BLUEPRINT_CHANGED
+		return Variant(VAR_TYPE_EVENT, EVENT_BLUEPRINT_CHANGED)
+	}
+}

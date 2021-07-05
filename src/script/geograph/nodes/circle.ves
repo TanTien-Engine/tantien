@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Circle as tt_Circle
 import "maths.vector" for Vector3
@@ -12,8 +13,12 @@ class Circle is Node
 	{
 		super.init(Circle.name)
 
+		this.imports = [
+			Pin(this, "center", VAR_TYPE_NUMBER2),
+		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "new_geo", VAR_TYPE_GEO),
 		]
 
 		// shape
@@ -32,8 +37,19 @@ class Circle is Node
 
 	calc_value(idx)
 	{
-		var geo = this.get_geo()
-		return Variant(VAR_TYPE_GEO, geo)
+		if (idx == 0)
+		{
+			var geo = this.get_geo()
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		else if (idx == 1)
+		{
+			var geo = VarGeo()
+			geo.shape = tt_Circle.init()
+			this.update_geo(geo)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		return nil
 	}
 
 	on_gui_dirty() 
@@ -62,12 +78,22 @@ class Circle is Node
 
 	update_geo(geo)
 	{
-		var x = this.query_param("x").value
-		var y = this.query_param("y").value
+		var x = 0
+		var y = 0
+		var v_center = Blueprint.calc_input_value(this, 0)
+		if (v_center) {
+			x = v_center.value.x
+			y = v_center.value.y
+		} else {
+			x = this.query_param("x").value
+			y = this.query_param("y").value		
+		}
+
 		var r = this.query_param("r").value
+
 		geo.shape.set(x, y, r)
 
-		this.geo.render_style["fill"] = this.query_param("fill").value
-		this.geo.render_style["color"] = this.query_param("color").value
+		geo.render_style["fill"] = this.query_param("fill").value
+		geo.render_style["color"] = this.query_param("color").value.clone()
 	}
 }

@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.execute_list" for ExecuteList
+import "blueprint.blueprint" for Blueprint
+import "editorgraph.variant" for VAR_TYPE_EVENT
+
+class Trigger is Node
+{
+	init()
+	{
+		super.init(Trigger.name)
+
+		this.imports = [
+			Pin(this, "prev",   VAR_TYPE_PORT),
+			Pin(this, "event",  VAR_TYPE_EVENT),
+			Pin(this, "action", VAR_TYPE_PORT),			
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+
+		this.imports[2].stop_port_pass = true
+
+		this.exe_list = nil
+	}
+
+	execute_run()
+	{
+		System.traceback()
+		
+		if (!this.exe_list) 
+		{
+			var node = Blueprint.get_input_node(this, 2)
+			if (node) {
+				this.exe_list = ExecuteList([ node ])
+			}
+		}
+
+		if (this.exe_list) {
+			this.exe_list.run()
+		}
+	}
+
+	get_event()
+	{
+		var v_event = Blueprint.calc_input_value(this, 1)
+		if (!v_event) {
+			return nil
+		} else {
+			return v_event.value
+		}
+	}
+}

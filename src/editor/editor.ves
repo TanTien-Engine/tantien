@@ -26,6 +26,7 @@ import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.shader_code" for ShaderCode
 import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
+import "editorgraph.trigger_list" for TriggerList
 
 class Editor
 {
@@ -34,6 +35,9 @@ class Editor
 		this.scene_stack = SceneStack()
 
 		this.camera = tt_Camera2D()
+
+		import "blueprint.blackboard" for BLACKBOARD
+		BLACKBOARD.editor_cam = this.camera
 
 		this.nodes_op = BlueprintEditOP(this.camera, this.scene_stack, this.popup_cb)
 		this.preview_op = NodeOP(this.scene_stack)
@@ -75,6 +79,7 @@ class Editor
 
 		this.drawlist = nil
 		this.exe_list = nil
+		this.trigger_list = nil
 
 		Rendergraph.regist()
 	}
@@ -201,6 +206,18 @@ class Editor
 
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_pressed(x, y, btn)
+		}
+
+		if (this.hide_nodes)
+		{
+			if (btn == MOUSE_LEFT) 
+			{
+				import "blueprint.blackboard" for BLACKBOARD
+				BLACKBOARD.mouse_pos.set(x, y)
+
+				import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN
+				this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
+			}
 		}
 	}
 
@@ -957,6 +974,9 @@ import \"editor\" for _editor
 		if (this.scene_stack.bp_dirty or !this.exe_list) {
 			this.exe_list = ExecuteList(nodes)
 			this.exe_list.run()
+		}
+		if (this.scene_stack.bp_dirty or !this.trigger_list) {
+			this.trigger_list = TriggerList(nodes)
 		}
 	}
 
