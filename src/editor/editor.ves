@@ -704,7 +704,8 @@ import \"editor\" for _editor
 
 			var name = "node%(index)"
 
-			file.write("var %(name) = %(bp.type().name)()\n")
+			var scope = bp.get_class().module.replace(".", "::")
+			file.write("var %(name) = ::%(scope)::%(bp.get_class().name)()\n")
 
 			var node_str = bp.to_string(name)
 			file.write("%(node_str)\n")
