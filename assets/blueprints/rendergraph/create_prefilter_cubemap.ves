@@ -1,8 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
@@ -10,13 +6,13 @@ node0.skip = false
 
 _editor.add_node(node0, 201.5802241559, 331.0448724385)
 
-var node1 = Pass()
+var node1 = ::rendergraph::nodes::pass::Pass()
 
 node1.once = true
 
 _editor.add_node(node1, 976.79212901553, -79.613740923133)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -156,7 +152,7 @@ node2.render_gen()
 
 _editor.add_node(node2, -14.749751273145, 379.23929381911)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position" ]
@@ -164,7 +160,7 @@ node3.shape_params = {  }
 
 _editor.add_node(node3, 17.574015125081, 228.0304245447)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 90
 node4.aspect = 1
@@ -173,32 +169,32 @@ node4.zfar = 10
 
 _editor.add_node(node4, -196.36238572382, 483.8702304338)
 
-var node5 = Clear()
+var node5 = ::rendergraph::nodes::clear::Clear()
 
 node5.masks = [ "color" ]
 node5.values = { "color" : [ 255, 255, 255, 255 ] }
 
 _editor.add_node(node5, 4.5011493567613, 558.1085693723)
 
-var node6 = RenderTarget()
+var node6 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node6.width = 32
 node6.height = 32
 
 _editor.add_node(node6, 16.711829403841, 38.321903012524)
 
-var node7 = Loop()
+var node7 = ::blueprint::nodes::loop::Loop()
 
 node7.start = 0
 node7.end = 6
 
 _editor.add_node(node7, 771.63060203633, -95.89321188616)
 
-var node8 = Fetch()
+var node8 = ::blueprint::nodes::fetch::Fetch()
 
 _editor.add_node(node8, -170.23870943051, 20.126739094496)
 
-var node9 = Custom()
+var node9 = ::blueprint::nodes::custom::Custom()
 
 node9.code = "
 import \"maths\" for Matrix44
@@ -219,62 +215,64 @@ node9.use_cache = false
 
 _editor.add_node(node9, -356.78707918211, 365.2285525693)
 
-var node10 = Fetch()
+var node10 = ::blueprint::nodes::fetch::Fetch()
 
 _editor.add_node(node10, -176.82361764384, 377.7266535079)
 
-var node11 = Cubemap()
+var node11 = ::rendergraph::nodes::cubemap::Cubemap()
 node11.query_param("unif_name").value = "u_prefilter_cubemap"
 
 node11.init_texture(32, 32, "rgb16f")
 
 _editor.add_node(node11, -340.65024463212, -12.842887032788)
 
-var node12 = Input()
+var node12 = ::blueprint::nodes::input::Input()
 
 node12.var_name = "environmentMap"
 node12.var_type = "unknown"
 
 _editor.add_node(node12, -184.14451766593, 287.83664353992)
 
-var node13 = Output()
+var node13 = ::blueprint::nodes::output::Output()
 
 node13.var_name = "tex"
 node13.var_type = "texture"
 
 _editor.add_node(node13, -187.10556446422, 94.644868393575)
 
-var node14 = Print()
+var node14 = ::blueprint::nodes::print::Print()
 
 _editor.add_node(node14, -349.97003173828, 177.62628173828)
 
-var node15 = Loop()
+var node15 = ::blueprint::nodes::loop::Loop()
 
 node15.start = 0
 node15.end = 5
 
 _editor.add_node(node15, 289.63060203633, -151.89321188616)
 
-var node16 = Divide()
+var node16 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node16, 581.6653137207, -228.70376586914)
 
-var node17 = Subtract()
+var node17 = ::blueprint::nodes::subtract::Subtract()
 
 _editor.add_node(node17, 435.6653137207, -232.70376586914)
 
-var node18 = Number()
+var node18 = ::blueprint::nodes::number::Number()
 
 node18.value = 1
 
 _editor.add_node(node18, 296.6653137207, -263.70376586914)
 
-var node19 = Pass()
+var node19 = ::rendergraph::nodes::pass::Pass()
 
 node19.once = false
 
 _editor.add_node(node19, 354.2306526121, 422.45099179607)
 
+Blueprint.connect(node0, "next", node19, "prev")
+Blueprint.connect(node6, "fbo", node19, "fbo")
 Blueprint.connect(node19, "next", node15, "do")
 Blueprint.connect(node15, "num", node17, "a")
 Blueprint.connect(node18, "v", node17, "b")
@@ -289,7 +287,6 @@ Blueprint.connect(node11, "sides", node8, "items")
 Blueprint.connect(node7, "index", node8, "index")
 Blueprint.connect(node8, "item", node6, "col0")
 Blueprint.connect(node15, "index", node6, "mipmap")
-Blueprint.connect(node7, "next", node1, "prev")
 Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node10, "item", node2, "view")
 Blueprint.connect(node16, "v", node2, "roughness")
@@ -297,5 +294,4 @@ Blueprint.connect(node12, "var", node2, "environmentMap")
 Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node0, "next", node19, "prev")
-Blueprint.connect(node6, "fbo", node19, "fbo")
+Blueprint.connect(node7, "next", node1, "prev")

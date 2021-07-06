@@ -1,16 +1,8 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "noisegraph.nodes.*"
-var node0 = TexCoord()
+var node0 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node0, -226.12908502727, 31.163197059234)
 
-var node1 = Dither()
+var node1 = ::noisegraph::nodes::dither::Dither()
 node1.query_param("var").value = 2
 node1.query_param("strength").value = 153.58758544922
 node1.query_param("motion").value = true
@@ -19,7 +11,7 @@ node1.query_param("swing").value = 0.5
 
 _editor.add_node(node1, 121.79261905178, -13.277440065569)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../../../assets/textures/noise/pd80_bluenoise_rgba.png")
@@ -27,25 +19,25 @@ node2.set_sampler("linear_repeat")
 
 _editor.add_node(node2, -105.18059361267, 352.71484069532)
 
-var node3 = Viewport()
+var node3 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node3, -380.2919726677, -56.555908699263)
 
-var node4 = Divide()
+var node4 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node4, -223.98778293032, -83.268734807078)
 
-var node5 = Number()
+var node5 = ::blueprint::nodes::number::Number()
 
 node5.value = 512
 
 _editor.add_node(node5, -376.29977645233, -120.15145926759)
 
-var node6 = Multiply()
+var node6 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node6, -70.992759539405, -43.653953145529)
 
-var node7 = Subgraph()
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
 node7.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node7, 322.97637384588, 87.401518388228)

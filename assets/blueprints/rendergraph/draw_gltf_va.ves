@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -13,7 +6,7 @@ node0.skip = false
 
 _editor.add_node(node0, 11.240167232071, -13.523568493438)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = "
 #version 330 core
@@ -63,14 +56,14 @@ node1.render_gen()
 
 _editor.add_node(node1, -197.37606979578, -120.5877095474)
 
-var node2 = Clear()
+var node2 = ::rendergraph::nodes::clear::Clear()
 
 node2.masks = [ "color", "depth" ]
 node2.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
 _editor.add_node(node2, -181.40594233567, 154.09172663351)
 
-var node3 = Perspective()
+var node3 = ::blueprint::nodes::perspective::Perspective()
 
 node3.fovy = 45
 node3.aspect = 0
@@ -79,39 +72,39 @@ node3.zfar = 100
 
 _editor.add_node(node3, -421.69599251269, -42.960075321102)
 
-var node4 = Proxy()
+var node4 = ::blueprint::nodes::proxy::Proxy()
 
 node4.real_name = "view_cam"
 node4.init_real_node(_editor.popup_nodes, "Camera3d")
 
 _editor.add_node(node4, -425.53384713513, 105.15559416076)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "va"
 node5.var_type = "va"
 
 _editor.add_node(node5, -175.85512834516, -269.41153260327)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "diffuse_tex"
 node6.var_type = "unknown"
 
 _editor.add_node(node6, -393.83784445497, -221.19656339265)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "texcoord"
 node7.var_type = "num"
 
 _editor.add_node(node7, -393, -151.5)
 
+Blueprint.connect(node4, "zoom", node3, "fovy")
+Blueprint.connect(node4, "mat", node1, "view")
+Blueprint.connect(node3, "mat", node1, "projection")
 Blueprint.connect(node7, "var", node1, "texcoord")
 Blueprint.connect(node6, "var", node1, "diffuse_tex")
-Blueprint.connect(node5, "var", node0, "va")
-Blueprint.connect(node4, "mat", node1, "view")
-Blueprint.connect(node4, "zoom", node3, "fovy")
-Blueprint.connect(node3, "mat", node1, "projection")
-Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node5, "var", node0, "va")

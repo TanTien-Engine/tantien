@@ -1,41 +1,48 @@
-var node0 = Subgraph()
-node0.load_from_file(_editor, "assets/blueprints/rendergraph/ssss.ves")
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/rendergraph/ssss.ves")
+
+node0.op_node.cam.position.set(-0.13016721848106, 0.33143328307611, 0.41881437280284)
+node0.op_node.cam.yaw = -66.2
+node0.op_node.cam.pitch = -20.5
+node0.op_node.cam.zoom = 45
+node0.op_node.cam.update_vectors()
+node0.op_node.speed = 0.01
 
 _editor.add_node(node0, 39.461513, -121.3715445)
 
-var node1 = Texture()
+var node1 = ::rendergraph::nodes::texture::Texture()
+node1.query_param("unif_name").value = "u_tex"
 node1.gamma_correction = false
 node1.init_texture("../skin/Head_02_Albedo.png")
 
-
 _editor.add_node(node1, -297.82184630206, 176.21518714392)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
+node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../skin/Head_02_Normal.png")
 
-
 _editor.add_node(node2, -512.37668571171, 172.93808605122)
 
-var node3 = Texture()
+var node3 = ::rendergraph::nodes::texture::Texture()
+node3.query_param("unif_name").value = "u_tex"
 node3.gamma_correction = false
 node3.init_texture("../skin/Head_02_AO.png")
 
-
 _editor.add_node(node3, -506.64722359196, -160.78666644999)
 
-var node4 = Model()
+var node4 = ::rendergraph::nodes::model::Model()
 node4.init_model("../skin/Head2.fbx")
 
 _editor.add_node(node4, -258.95030903234, -115.22419637747)
 
-var node5 = Pass()
+var node5 = ::rendergraph::nodes::pass::Pass()
 
 node5.once = false
 
 _editor.add_node(node5, 533.63897020615, -58.33642906239)
 
-var node6 = Camera3d()
+var node6 = ::blueprint::nodes::camera3d::Camera3d()
 
 node6.cam.position.set(-0.17856333151949, 0.3176969269319, 0.63992939999596)
 node6.cam.yaw = -81.7
@@ -46,24 +53,24 @@ node6.speed = 0.01
 
 _editor.add_node(node6, -257.48811582679, -217.26518067508)
 
-var node7 = Subgraph()
-node7.load_from_file(_editor, "assets/blueprints/rendergraph/draw_tex_quad.ves")
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
+node7.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
 
 _editor.add_node(node7, 361.37995645895, -198.96935933383)
 
-var node8 = Pass()
+var node8 = ::rendergraph::nodes::pass::Pass()
 
 node8.once = false
 
 _editor.add_node(node8, 566.78597446085, -197.73873537869)
 
+Blueprint.connect(node7, "next", node8, "prev")
 Blueprint.connect(node0, "next", node5, "prev")
-Blueprint.connect(node0, "tex", node7, "texture1")
 Blueprint.connect(node1, "tex", node0, "diffuseTex")
 Blueprint.connect(node2, "tex", node0, "aoTex")
 Blueprint.connect(node3, "tex", node0, "normalTex")
 Blueprint.connect(node4, "model", node0, "model")
 Blueprint.connect(node6, "mat", node0, "view")
-Blueprint.connect(node6, "zoom", node0, "fovy")
 Blueprint.connect(node6, "pos", node0, "viewPos")
-Blueprint.connect(node7, "next", node8, "prev")
+Blueprint.connect(node6, "zoom", node0, "fovy")
+Blueprint.connect(node0, "tex", node7, "texture1")

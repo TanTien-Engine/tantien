@@ -1,19 +1,12 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = SampleTexture()
+var node0 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node0, -141.27187287565, -80.67201516111)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -461.4819330374, -64.756986421459)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
@@ -21,25 +14,25 @@ node2.set_sampler("linear_repeat")
 
 _editor.add_node(node2, -461.09629405629, 231.86247909168)
 
-var node3 = Number2()
+var node3 = ::blueprint::nodes::number2::Number2()
 
 node3.value.set(4.7676596641541, 4.7676596641541)
 
 _editor.add_node(node3, -453.90896236269, -137.08250314951)
 
-var node4 = TilingAndOffset()
+var node4 = ::pixelgraph::nodes::tiling_and_offset::TilingAndOffset()
 node4.query_param("tiling").value.set(1, 1)
 node4.query_param("offset").value.set(0, 0)
 
 _editor.add_node(node4, -302.09090909091, -83.590909090909)
 
-var node5 = Subgraph()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node5, 92.393409729004, -51.865997314453)
 
+Blueprint.connect(node1, "uv", node4, "uv")
 Blueprint.connect(node3, "v2", node4, "tiling")
 Blueprint.connect(node2, "tex", node0, "tex")
-Blueprint.connect(node1, "uv", node4, "uv")
 Blueprint.connect(node4, "ret", node0, "uv")
 Blueprint.connect(node0, "rgb", node5, "rgb")

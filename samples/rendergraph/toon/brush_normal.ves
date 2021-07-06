@@ -1,4 +1,4 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
@@ -6,7 +6,7 @@ node0.skip = false
 
 _editor.add_node(node0, 556.9485185, -24.8843735)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = "
 #version 330 core
@@ -31,6 +31,9 @@ void main()
     TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
 node1.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -77,19 +80,20 @@ void main()
     FragColor = vec4(normal, 1.0);
 }
 "
-node1.gs = ""
+node1.cs = ""
 node1.render_gen()
 
 _editor.add_node(node1, 300.34326204692, 80.64195122923)
 
-var node2 = PrimitiveShape()
+var node2 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node2.type = "quad"
 node2.layout = [ "position", "texture", "normal" ]
+node2.shape_params = {  }
 
 _editor.add_node(node2, 215.46763922878, -183.29915605223)
 
-var node3 = Camera2d()
+var node3 = ::blueprint::nodes::camera2d::Camera2d()
 
 node3.x = -328.53371422104
 node3.y = 311.00647982804
@@ -98,7 +102,7 @@ node3.speed = 0.17111074924469
 
 _editor.add_node(node3, 50.99301312891, 109.74331204688)
 
-var node4 = Orthographic()
+var node4 = ::blueprint::nodes::orthographic::Orthographic()
 
 node4.left = 0
 node4.right = 0
@@ -109,14 +113,14 @@ node4.far = -1
 
 _editor.add_node(node4, 54.4628922793, 8.7309347216596)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("samples/rendergraph/learnopengl/resources/textures/brickwall_normal.jpg")
 
-
 _editor.add_node(node5, 16.70993678015, -119.53990421359)
 
-var node6 = Draw()
+var node6 = ::rendergraph::nodes::draw::Draw()
 
 node6.set_prim_type("tri_strip")
 node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
@@ -124,7 +128,7 @@ node6.skip = false
 
 _editor.add_node(node6, 714.31792595632, -377.07703691483)
 
-var node7 = Shader()
+var node7 = ::rendergraph::nodes::shader::Shader()
 
 node7.vs = "
 #version 330 core
@@ -148,15 +152,8 @@ void main()
     gl_Position = view * model * vec4(aPos, 1.0); 
 }
 "
-node7.fs = "
-#version 330 core
-out vec4 FragColor;
-
-void main()
-{
-    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-}
-"
+node7.tcs = ""
+node7.tes = ""
 node7.gs = "
 #version 330 core
 layout (triangles) in;
@@ -189,11 +186,21 @@ void main()
     GenerateLine(2); // third vertex normal
 }
 "
+node7.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+"
+node7.cs = ""
 node7.render_gen()
 
 _editor.add_node(node7, 496.56974244613, -318.5076556084)
 
-var node8 = Camera3d()
+var node8 = ::blueprint::nodes::camera3d::Camera3d()
 
 node8.cam.position.set(0, 0, 3)
 node8.cam.yaw = -93.1
@@ -204,7 +211,7 @@ node8.speed = 0.01
 
 _editor.add_node(node8, 211.27245921162, -347.30137455749)
 
-var node9 = Perspective()
+var node9 = ::blueprint::nodes::perspective::Perspective()
 
 node9.fovy = 33
 node9.aspect = 0
@@ -213,20 +220,21 @@ node9.zfar = 100
 
 _editor.add_node(node9, 358.80335854608, -483.90406401927)
 
-var node10 = PrimitiveShape()
+var node10 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node10.type = "quad"
 node10.layout = [ "position", "normal" ]
+node10.shape_params = {  }
 
 _editor.add_node(node10, 558.53875271771, -385.50632911559)
 
-Blueprint.connect(node1, "out", node0, "shader")
-Blueprint.connect(node2, "out", node0, "va")
+Blueprint.connect(node8, "zoom", node9, "fovy")
+Blueprint.connect(node8, "mat", node7, "view")
+Blueprint.connect(node9, "mat", node7, "projection")
+Blueprint.connect(node7, "out", node6, "shader")
+Blueprint.connect(node10, "out", node6, "va")
 Blueprint.connect(node3, "mat", node1, "view")
 Blueprint.connect(node4, "mat", node1, "projection")
 Blueprint.connect(node5, "tex", node1, "normal_tex")
-Blueprint.connect(node7, "out", node6, "shader")
-Blueprint.connect(node8, "mat", node7, "view")
-Blueprint.connect(node8, "zoom", node9, "fovy")
-Blueprint.connect(node9, "mat", node7, "projection")
-Blueprint.connect(node10, "out", node6, "va")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")

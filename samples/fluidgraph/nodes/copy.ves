@@ -1,48 +1,44 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
 
 _editor.add_node(node0, -31, -12)
 
-var node1 = Number3()
+var node1 = ::blueprint::nodes::number3::Number3()
 
 node1.value.set(0, 0.07639566808939, 0)
 
 _editor.add_node(node1, -252.66122250866, -42.470683690305)
 
-var node2 = Number()
+var node2 = ::blueprint::nodes::number::Number()
 
 node2.value = 3.5120646953583
 
 _editor.add_node(node2, -250.60857915594, -138.43124455955)
 
-var node3 = Number2()
+var node3 = ::blueprint::nodes::number2::Number2()
 
 node3.value.set(299.5895690918, 572.65625)
 
 _editor.add_node(node3, -253.33112832919, 58.186705346674)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
 
 _editor.add_node(node4, 800.14271627752, 20.182244723763)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
 node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node5, -288.55529961704, -237.1025546996)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/copy.ves")
 
 _editor.add_node(node6, 481.36817263009, 13.316489320076)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture(1024, 1024, "rgba16f")

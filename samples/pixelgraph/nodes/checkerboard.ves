@@ -1,22 +1,15 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = TexCoord()
+var node0 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node0, -258.12417015534, -36.41680990225)
 
-var node1 = Checkerboard()
+var node1 = ::pixelgraph::nodes::checkerboard::Checkerboard()
 node1.query_param("col_a").value.set(1, 0, 0)
 node1.query_param("col_b").value.set(1, 1, 0)
 node1.query_param("freq").value.set(5, 5)
 
 _editor.add_node(node1, -99.90058509468, -67.521051290616)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node2, 95.371367797852, -33.969877929688)

@@ -1,29 +1,30 @@
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
+node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("samples/rendergraph/learnopengl/resources/textures/container.jpg")
 
-
 _editor.add_node(node0, -273.94087853814, 24.395207816406)
 
-var node1 = Subgraph()
-node1.load_from_file(_editor, "assets/blueprints/rendergraph/gaussian_blur.ves")
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../assets/blueprints/rendergraph/gaussian_blur.ves")
 
 _editor.add_node(node1, -32.781625513413, 69.771747733496)
 
-var node2 = Pass()
+var node2 = ::rendergraph::nodes::pass::Pass()
 
 node2.once = false
 
 _editor.add_node(node2, 642.51435186795, 48.750866053396)
 
-var node3 = Draw()
+var node3 = ::rendergraph::nodes::draw::Draw()
 
 node3.set_prim_type("tri_strip")
 node3.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node3.skip = false
 
 _editor.add_node(node3, 427.61901699549, -2.4153937122643)
 
-var node4 = Shader()
+var node4 = ::rendergraph::nodes::shader::Shader()
 
 node4.vs = "
 #version 330 core
@@ -38,6 +39,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node4.tcs = ""
+node4.tes = ""
+node4.gs = ""
 node4.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -52,21 +56,22 @@ void main()
 	FragColor = texture(texture1, TexCoord);
 }
 "
-node4.gs = ""
+node4.cs = ""
 node4.render_gen()
 
 _editor.add_node(node4, 240.52878068049, -28.334930662204)
 
-var node5 = PrimitiveShape()
+var node5 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node5.type = "quad"
 node5.layout = [ "position", "texture" ]
+node5.shape_params = {  }
 
 _editor.add_node(node5, 273.58662938658, -135.02164238696)
 
-Blueprint.connect(node0, "tex", node1, "in0")
-Blueprint.connect(node1, "next", node3, "prev")
-Blueprint.connect(node1, "tex", node4, "texture1")
 Blueprint.connect(node3, "next", node2, "prev")
+Blueprint.connect(node0, "tex", node1, "in0")
+Blueprint.connect(node1, "tex", node4, "texture1")
+Blueprint.connect(node1, "next", node3, "prev")
 Blueprint.connect(node4, "out", node3, "shader")
 Blueprint.connect(node5, "out", node3, "va")

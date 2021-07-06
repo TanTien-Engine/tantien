@@ -1,16 +1,17 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.skip = false
 
 _editor.add_node(node0, -10.492079074999, 33.045530735999)
 
-var node1 = Model()
+var node1 = ::rendergraph::nodes::model::Model()
 node1.init_model("resources/objects/nanosuit/nanosuit.obj")
 
 _editor.add_node(node1, -171.53144669701, -130.6945747701)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -34,19 +35,8 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0); 
 }
 "
-node2.fs = "
-#version 330 core
-out vec4 FragColor;
-
-in vec2 TexCoords;
-
-uniform sampler2D texture_diffuse1;
-
-void main()
-{
-    FragColor = texture(texture_diffuse1, TexCoords);
-}
-"
+node2.tcs = ""
+node2.tes = ""
 node2.gs = "
 #version 330 core
 layout (triangles) in;
@@ -92,18 +82,32 @@ void main() {
     EndPrimitive();
 }
 "
+node2.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
+
+void main()
+{
+    FragColor = texture(texture_diffuse1, TexCoords);
+}
+"
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -197.32513742956, -20.047283797561)
 
-var node3 = Clear()
+var node3 = ::rendergraph::nodes::clear::Clear()
 
 node3.masks = [ "depth" ]
 node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
 
 _editor.add_node(node3, -181.40594233567, 154.09172663351)
 
-var node4 = Camera3d()
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
 
 node4.cam.position.set(-3.4741800262782, 0.48399370362902, 17.34073460926)
 node4.cam.yaw = -797.2
@@ -114,7 +118,7 @@ node4.speed = 0.14068865776062
 
 _editor.add_node(node4, -459.69639832783, 155.17591555759)
 
-var node5 = Perspective()
+var node5 = ::blueprint::nodes::perspective::Perspective()
 
 node5.fovy = 45
 node5.aspect = 0
@@ -123,14 +127,14 @@ node5.zfar = 100
 
 _editor.add_node(node5, -483.19745298173, -7.5054677744243)
 
-var node6 = Time()
+var node6 = ::blueprint::nodes::time::Time()
 
 _editor.add_node(node6, -396.21146306078, -114.71948988068)
 
-Blueprint.connect(node1, "model", node0, "model")
-Blueprint.connect(node2, "out", node0, "shader")
-Blueprint.connect(node3, "next", node0, "prev")
-Blueprint.connect(node4, "mat", node2, "view")
 Blueprint.connect(node4, "zoom", node5, "fovy")
 Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node4, "mat", node2, "view")
 Blueprint.connect(node6, "time", node2, "time")
+Blueprint.connect(node3, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node1, "model", node0, "model")

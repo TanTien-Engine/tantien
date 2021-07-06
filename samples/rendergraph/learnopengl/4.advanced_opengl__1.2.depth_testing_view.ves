@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "depth", "color" ]
 node0.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
 
 _editor.add_node(node0, -181.45454545455, 568.59090909091)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 56.80518593489, 434.01631470776)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -30,6 +31,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -48,12 +52,12 @@ void main()
     FragColor = vec4(vec3(depth), 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -164.03965761902, 389.53503742566)
 
-var node3 = Camera3d()
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
 
 node3.cam.position.set(4.1498765330915, 9.8766539658422, 13.269100888032)
 node3.cam.yaw = -106.3
@@ -64,7 +68,7 @@ node3.speed = 0.17553623020649
 
 _editor.add_node(node3, -617.0056622191, 680.20527317839)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -73,29 +77,30 @@ node4.zfar = 100
 
 _editor.add_node(node4, -592.25183128148, 509.99043217132)
 
-var node5 = VertexArray()
+var node5 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node5.data = [ 5, -0.5, 5, 2, 0, -5, -0.5, 5, 0, 0, -5, -0.5, -5, 0, 2, 5, -0.5, 5, 2, 0, -5, -0.5, -5, 0, 2, 5, -0.5, -5, 2, 2 ]
 node5.attrs = [ 3, 2 ]
 
 _editor.add_node(node5, -298.56524639287, 169.80069776803)
 
-var node6 = Merge()
+var node6 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node6, -143.3981628418, 29.329940795898)
 
-var node7 = PrimitiveShape()
+var node7 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node7.type = "cube"
 node7.layout = [ "position", "texture" ]
+node7.shape_params = {  }
 
 _editor.add_node(node7, -299.85587693749, 22.904105807213)
 
-var node8 = Matrix()
+var node8 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node8, -658.90679931641, 150.671875)
 
-var node9 = Translate()
+var node9 = ::blueprint::nodes::translate::Translate()
 
 node9.dx = -1
 node9.dy = 0
@@ -103,7 +108,7 @@ node9.dz = -1
 
 _editor.add_node(node9, -656.42981933594, 53.518882446289)
 
-var node10 = Translate()
+var node10 = ::blueprint::nodes::translate::Translate()
 
 node10.dx = 2
 node10.dy = 0
@@ -111,19 +116,19 @@ node10.dz = 0
 
 _editor.add_node(node10, -655.21981933594, -88.051117553712)
 
-var node11 = Merge()
+var node11 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node11, -484.14837646484, 10.860900878905)
 
-Blueprint.connect(node0, "next", node1, "prev")
-Blueprint.connect(node2, "out", node1, "shader")
-Blueprint.connect(node3, "mat", node2, "view")
-Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "out", node6, "in0")
-Blueprint.connect(node6, "list", node1, "va")
-Blueprint.connect(node7, "out", node6, "in1")
 Blueprint.connect(node8, "mat", node11, "in0")
 Blueprint.connect(node9, "mat", node11, "in1")
 Blueprint.connect(node10, "mat", node11, "in2")
+Blueprint.connect(node5, "out", node6, "in0")
+Blueprint.connect(node7, "out", node6, "in1")
+Blueprint.connect(node3, "zoom", node4, "fovy")
 Blueprint.connect(node11, "list", node2, "model")
+Blueprint.connect(node3, "mat", node2, "view")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node6, "list", node1, "va")

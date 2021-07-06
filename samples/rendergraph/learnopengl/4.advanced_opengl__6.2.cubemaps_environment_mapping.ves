@@ -1,11 +1,11 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, -164.13573774767, 542.13841863758)
 
-var node1 = Perspective()
+var node1 = ::blueprint::nodes::perspective::Perspective()
 
 node1.fovy = 45
 node1.aspect = 0
@@ -14,7 +14,7 @@ node1.zfar = 100
 
 _editor.add_node(node1, -189.47658775336, 262.28134415158)
 
-var node2 = Camera3d()
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
 
 node2.cam.position.set(-1.1928802071155, 0.030192873474144, 2.1992923022259)
 node2.cam.yaw = -62.5
@@ -25,62 +25,64 @@ node2.speed = 0.01
 
 _editor.add_node(node2, -191.2356396421, 92.095212075674)
 
-var node3 = Cubemap()
+var node3 = ::rendergraph::nodes::cubemap::Cubemap()
+node3.query_param("unif_name").value = "u_cube_tex"
 
 node3.init_texture(0, 0, "rgba8")
 
 _editor.add_node(node3, -188.15088886465, -87.967905812846)
 
-var node4 = Texture()
+var node4 = ::rendergraph::nodes::texture::Texture()
+node4.query_param("unif_name").value = "u_tex"
 node4.gamma_correction = false
 node4.init_texture("resources/textures/skybox/right.jpg")
 
-
 _editor.add_node(node4, -976.99946713661, 224.98787820459)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("resources/textures/skybox/left.jpg")
 
-
 _editor.add_node(node5, -753.70320074161, 216.30149273506)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/skybox/top.jpg")
 
-
 _editor.add_node(node6, -539.8609837257, 205.1527637084)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("resources/textures/skybox/bottom.jpg")
 
-
 _editor.add_node(node7, -968.72004304781, -54.883981697497)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
+node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("resources/textures/skybox/front.jpg")
 
-
 _editor.add_node(node8, -756.21683439839, -56.773890242972)
 
-var node9 = Texture()
+var node9 = ::rendergraph::nodes::texture::Texture()
+node9.query_param("unif_name").value = "u_tex"
 node9.gamma_correction = false
 node9.init_texture("resources/textures/skybox/back.jpg")
 
-
 _editor.add_node(node9, -536.27214499221, -51.279392452607)
 
-var node10 = Draw()
+var node10 = ::rendergraph::nodes::draw::Draw()
 
 node10.set_prim_type("triangles")
 node10.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "less" }
+node10.skip = false
 
 _editor.add_node(node10, 359.27463888888, 357.54985651473)
 
-var node11 = Shader()
+var node11 = ::rendergraph::nodes::shader::Shader()
 
 node11.vs = "
 #version 330 core
@@ -104,6 +106,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node11.tcs = ""
+node11.tes = ""
+node11.gs = ""
 node11.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -124,47 +129,47 @@ void main()
     FragColor = vec4(texture(skybox, R).rgb, 1.0);
 }
 "
-node11.gs = ""
+node11.cs = ""
 node11.render_gen()
 
 _editor.add_node(node11, 158.40993225748, 429.8237266456)
 
-var node12 = VertexArray()
+var node12 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node12.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0.5, -0.5, -0.5, 0, 0, -1, 0.5, 0.5, -0.5, 0, 0, -1, 0.5, 0.5, -0.5, 0, 0, -1, -0.5, 0.5, -0.5, 0, 0, -1, -0.5, -0.5, -0.5, 0, 0, -1, -0.5, -0.5, 0.5, 0, 0, 1, 0.5, -0.5, 0.5, 0, 0, 1, 0.5, 0.5, 0.5, 0, 0, 1, 0.5, 0.5, 0.5, 0, 0, 1, -0.5, 0.5, 0.5, 0, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, -0.5, 0.5, 0.5, -1, 0, 0, -0.5, 0.5, -0.5, -1, 0, 0, -0.5, -0.5, -0.5, -1, 0, 0, -0.5, -0.5, -0.5, -1, 0, 0, -0.5, -0.5, 0.5, -1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 0.5, 0.5, -0.5, 1, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0, 0.5, -0.5, -0.5, 1, 0, 0, 0.5, -0.5, 0.5, 1, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0.5, -0.5, -0.5, 0, -1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 0.5, -0.5, 0.5, 0, -1, 0, -0.5, -0.5, 0.5, 0, -1, 0, -0.5, -0.5, -0.5, 0, -1, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0.5, 0.5, -0.5, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, -0.5, 0.5, -0.5, 0, 1, 0 ]
 node12.attrs = [ 3, 3 ]
 
 _editor.add_node(node12, 175.50352993772, 305.39869979075)
 
-var node13 = Subgraph()
-node13.load_from_file(_editor, "assets/blueprints/rendergraph/draw_skybox.ves")
+var node13 = ::blueprint::nodes::subgraph::Subgraph()
+node13.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
 node13.set_prop_value("tonemap", 0)
 node13.set_prop_value("gamma_correct", 0)
 
 _editor.add_node(node13, 645.93339911202, 383.05800504424)
 
-var node14 = Pass()
+var node14 = ::rendergraph::nodes::pass::Pass()
 
 node14.once = false
 
 _editor.add_node(node14, 855.96960449219, 402.22043609619)
 
-Blueprint.connect(node0, "next", node10, "prev")
-Blueprint.connect(node1, "mat", node11, "projection")
-Blueprint.connect(node1, "mat", node13, "projection")
-Blueprint.connect(node2, "mat", node11, "view")
-Blueprint.connect(node2, "zoom", node1, "fovy")
-Blueprint.connect(node2, "rot", node13, "view")
-Blueprint.connect(node2, "pos", node11, "cameraPos")
-Blueprint.connect(node3, "tex", node11, "skybox")
-Blueprint.connect(node3, "tex", node13, "skybox")
+Blueprint.connect(node13, "next", node14, "prev")
 Blueprint.connect(node4, "tex", node3, "right")
 Blueprint.connect(node5, "tex", node3, "left")
 Blueprint.connect(node6, "tex", node3, "top")
 Blueprint.connect(node7, "tex", node3, "bottom")
 Blueprint.connect(node8, "tex", node3, "front")
 Blueprint.connect(node9, "tex", node3, "back")
-Blueprint.connect(node10, "next", node13, "prev")
+Blueprint.connect(node2, "zoom", node1, "fovy")
+Blueprint.connect(node2, "mat", node11, "view")
+Blueprint.connect(node1, "mat", node11, "projection")
+Blueprint.connect(node2, "pos", node11, "cameraPos")
+Blueprint.connect(node3, "tex", node11, "skybox")
+Blueprint.connect(node0, "next", node10, "prev")
 Blueprint.connect(node11, "out", node10, "shader")
 Blueprint.connect(node12, "out", node10, "va")
-Blueprint.connect(node13, "next", node14, "prev")
+Blueprint.connect(node10, "next", node13, "prev")
+Blueprint.connect(node1, "mat", node13, "projection")
+Blueprint.connect(node2, "rot", node13, "view")
+Blueprint.connect(node3, "tex", node13, "skybox")

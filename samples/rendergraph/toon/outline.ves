@@ -1,4 +1,4 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -6,12 +6,12 @@ node0.skip = false
 
 _editor.add_node(node0, 1593.7416105096, 372.65929428944)
 
-var node1 = Model()
+var node1 = ::rendergraph::nodes::model::Model()
 node1.init_model("../learnopengl/resources/objects/backpack/backpack.obj")
 
 _editor.add_node(node1, -94.035444330909, 47.0920029138)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -67,14 +67,14 @@ node2.set_uniform("dist", [ 0.01 ])
 
 _editor.add_node(node2, 1351.4122457852, 206.76294084239)
 
-var node3 = Clear()
+var node3 = ::rendergraph::nodes::clear::Clear()
 
 node3.masks = [ "depth", "color" ]
 node3.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
 _editor.add_node(node3, 1352.596658439, 459.82074306807)
 
-var node4 = Camera3d()
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
 
 node4.cam.position.set(-1.13537731586, 1.1157364157419, -2.3371155376176)
 node4.cam.yaw = 68.1
@@ -85,7 +85,7 @@ node4.speed = 0.21111145615578
 
 _editor.add_node(node4, -324.2695329915, 213.76534955785)
 
-var node5 = Perspective()
+var node5 = ::blueprint::nodes::perspective::Perspective()
 
 node5.fovy = 45
 node5.aspect = 0
@@ -94,7 +94,7 @@ node5.zfar = 100
 
 _editor.add_node(node5, -320.22283332775, 58.35527158874)
 
-var node6 = Draw()
+var node6 = ::rendergraph::nodes::draw::Draw()
 
 node6.set_prim_type("triangles")
 node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "front", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -102,14 +102,14 @@ node6.skip = false
 
 _editor.add_node(node6, 926.4973793462, 298.69981632394)
 
-var node7 = Clear()
+var node7 = ::rendergraph::nodes::clear::Clear()
 
 node7.masks = [ "depth", "color" ]
 node7.values = { "color" : [ 128, 125.72415161133, 128, 255 ] }
 
 _editor.add_node(node7, 686.83681124013, 463.02620705056)
 
-var node8 = Shader()
+var node8 = ::rendergraph::nodes::shader::Shader()
 
 node8.vs = "
 #version 330 core
@@ -261,21 +261,21 @@ node8.set_uniform("rimAmount", [ 0.68 ])
 
 _editor.add_node(node8, 737.1005497475, 133.41398703134)
 
-var node9 = Commentary()
+var node9 = ::blueprint::nodes::commentary::Commentary()
 
 node9.set_size(1058.3312988281, 706.05834960938)
 node9.title = "Main"
 
 _editor.add_node(node9, 637.70490851017, 574.06501773893)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
+node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture("samples/rendergraph/learnopengl/resources/objects/backpack/normal.png")
 
-
 _editor.add_node(node10, 471.62710801958, 137.77728837576)
 
-var node11 = Camera3d()
+var node11 = ::blueprint::nodes::camera3d::Camera3d()
 
 node11.cam.position.set(7.6322342785631, 16.984345708486, -1.7379706063585)
 node11.cam.yaw = -164.2
@@ -286,41 +286,41 @@ node11.speed = 0.19831281900406
 
 _editor.add_node(node11, -333.68403873828, 423.42719476456)
 
-var node12 = Texture()
+var node12 = ::rendergraph::nodes::texture::Texture()
+node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture("diffuse_ramp_4.jpg")
 
-
 _editor.add_node(node12, 227.47450297497, 69.821222563127)
 
-var node13 = Texture()
+var node13 = ::rendergraph::nodes::texture::Texture()
+node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture("107017.png")
 
-
 _editor.add_node(node13, 232, 442.5)
 
-var node14 = Commentary()
+var node14 = ::blueprint::nodes::commentary::Commentary()
 
 node14.set_size(508.44375610352, 515.13751220703)
 node14.title = "Outline"
 
 _editor.add_node(node14, 1468.9081243096, 566.36989913551)
 
-var node15 = Commentary()
+var node15 = ::blueprint::nodes::commentary::Commentary()
 
 node15.set_size(400, 613.55834960938)
 node15.title = "Input"
 
 _editor.add_node(node15, -218.56462711719, 554.67486801563)
 
-var node16 = Pass()
+var node16 = ::rendergraph::nodes::pass::Pass()
 
 node16.once = false
 
 _editor.add_node(node16, 1881.9633340625, 469.12254547266)
 
-var node17 = Rotate()
+var node17 = ::blueprint::nodes::rotate::Rotate()
 
 node17.angle = 185.36694335938
 node17.axis_x = 0
@@ -329,27 +329,27 @@ node17.axis_z = 0
 
 _editor.add_node(node17, 545.65827121721, 368.73636276779)
 
-var node18 = Matrix()
+var node18 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node18, 394.01041646795, 416.4648895149)
 
+Blueprint.connect(node18, "mat", node17, "mat")
 Blueprint.connect(node0, "next", node16, "prev")
-Blueprint.connect(node1, "model", node0, "model")
-Blueprint.connect(node1, "model", node6, "model")
-Blueprint.connect(node2, "out", node0, "shader")
-Blueprint.connect(node4, "mat", node2, "view")
-Blueprint.connect(node4, "mat", node8, "view")
 Blueprint.connect(node4, "zoom", node5, "fovy")
-Blueprint.connect(node4, "pos", node8, "viewPos")
-Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node17, "mat", node8, "model")
+Blueprint.connect(node4, "mat", node8, "view")
 Blueprint.connect(node5, "mat", node8, "projection")
-Blueprint.connect(node6, "next", node0, "prev")
+Blueprint.connect(node11, "pos", node8, "lightPos")
+Blueprint.connect(node4, "pos", node8, "viewPos")
+Blueprint.connect(node13, "tex", node8, "palette_tex")
+Blueprint.connect(node12, "tex", node8, "diffuse_ramp")
+Blueprint.connect(node10, "tex", node8, "texture_normal1")
+Blueprint.connect(node17, "mat", node2, "model")
+Blueprint.connect(node4, "mat", node2, "view")
+Blueprint.connect(node5, "mat", node2, "projection")
 Blueprint.connect(node7, "next", node6, "prev")
 Blueprint.connect(node8, "out", node6, "shader")
-Blueprint.connect(node10, "tex", node8, "texture_normal1")
-Blueprint.connect(node11, "pos", node8, "lightPos")
-Blueprint.connect(node12, "tex", node8, "diffuse_ramp")
-Blueprint.connect(node13, "tex", node8, "palette_tex")
-Blueprint.connect(node17, "mat", node8, "model")
-Blueprint.connect(node17, "mat", node2, "model")
-Blueprint.connect(node18, "mat", node17, "mat")
+Blueprint.connect(node1, "model", node6, "model")
+Blueprint.connect(node6, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node1, "model", node0, "model")

@@ -1,75 +1,76 @@
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
+node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
 
-
 _editor.add_node(node0, 203.81910637772, -801.64788621246)
 
-var node1 = Subgraph()
-node1.load_from_file(_editor, "assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node1, 482.12741975388, -759.19653164321)
 
-var node2 = Cubemap()
+var node2 = ::rendergraph::nodes::cubemap::Cubemap()
+node2.query_param("unif_name").value = "u_cube_tex"
 
 node2.init_texture(0, 0, "rgba8")
 
 _editor.add_node(node2, 490.41741043452, -4.160144974879)
 
-var node3 = Texture()
+var node3 = ::rendergraph::nodes::texture::Texture()
+node3.query_param("unif_name").value = "u_tex"
 node3.gamma_correction = false
 node3.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/right.jpg")
 
-
 _editor.add_node(node3, 150.89302078032, 347.17920765516)
 
-var node4 = Texture()
+var node4 = ::rendergraph::nodes::texture::Texture()
+node4.query_param("unif_name").value = "u_tex"
 node4.gamma_correction = false
 node4.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/left.jpg")
 
-
 _editor.add_node(node4, -88.217695700777, 351.97191307146)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/top.jpg")
 
-
 _editor.add_node(node5, 148.84056534708, 17.375232516846)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/bottom.jpg")
 
-
 _editor.add_node(node6, -83.164762157991, 18.050732824199)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/front.jpg")
 
-
 _editor.add_node(node7, -71.967522898345, -326.89483441848)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
+node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("samples/rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
-
 _editor.add_node(node8, 147.35082967317, -325.05069808899)
 
-var node9 = Subgraph()
-node9.load_from_file(_editor, "assets/blueprints/rendergraph/cubemap_project_to_2d.ves")
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
+node9.load_from_file(_editor, "../../../assets/blueprints/rendergraph/cubemap_project_to_2d.ves")
 
 _editor.add_node(node9, 977.83464900672, -271.81798222346)
 
-var node10 = Pass()
+var node10 = ::rendergraph::nodes::pass::Pass()
 
 node10.once = false
 
 _editor.add_node(node10, 1163.0830078125, -285.40804443359)
 
-var node11 = Camera2d()
+var node11 = ::blueprint::nodes::camera2d::Camera2d()
 
 node11.x = 0
 node11.y = 0
@@ -78,13 +79,13 @@ node11.speed = 0.01
 
 _editor.add_node(node11, 751.32601074219, -292.23665161133)
 
-Blueprint.connect(node0, "tex", node1, "equirectangularMap")
-Blueprint.connect(node1, "tex", node9, "environmentMap")
+Blueprint.connect(node9, "next", node10, "prev")
 Blueprint.connect(node3, "tex", node2, "right")
 Blueprint.connect(node4, "tex", node2, "left")
 Blueprint.connect(node5, "tex", node2, "top")
 Blueprint.connect(node6, "tex", node2, "bottom")
 Blueprint.connect(node7, "tex", node2, "front")
 Blueprint.connect(node8, "tex", node2, "back")
-Blueprint.connect(node9, "next", node10, "prev")
+Blueprint.connect(node0, "tex", node1, "equirectangularMap")
+Blueprint.connect(node1, "tex", node9, "environmentMap")
 Blueprint.connect(node11, "mat", node9, "view")

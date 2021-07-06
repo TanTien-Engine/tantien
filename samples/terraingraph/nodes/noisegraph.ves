@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(0.84910460519739, 1.4828905344536, 2.5175276125537)
 node0.cam.yaw = -116.6
@@ -16,12 +9,12 @@ node0.speed = 0.20714285969734
 
 _editor.add_node(node0, -63.984130802469, 417.62642924135)
 
-var node1 = PerlinNoise()
+var node1 = ::noisegraph::nodes::perlin_noise::PerlinNoise()
 node1.query_param("seed").value = 0.34088975191116
 
 _editor.add_node(node1, -509.36817277069, 429.9690590689)
 
-var node2 = Turbulence()
+var node2 = ::noisegraph::nodes::turbulence::Turbulence()
 node2.query_param("seed").value = 0
 node2.query_param("octaves").value = 5
 node2.query_param("lacunarity").value = 3
@@ -29,46 +22,47 @@ node2.query_param("gain").value = 0.5
 
 _editor.add_node(node2, -361.6028725309, 478.16466680032)
 
-var node3 = Parameter()
+var node3 = ::shadergraph::nodes::parameter::Parameter()
 
 node3.var_name = "p"
 
 _editor.add_node(node3, -660.60516803744, 460.15146674404)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
 _editor.add_node(node4, 186.90326529927, 524.18381895147)
 
-var node5 = Subgraph()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
 _editor.add_node(node5, -117.07417905785, 569.81479308264)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "perlin_perm2d_tex"
 node6.gamma_correction = false
 node6.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
 
 _editor.add_node(node6, -937.42040483688, 328.40452579123)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "perlin_grad2d_tex"
 node7.gamma_correction = false
 node7.init_texture("../../../assets/textures/noise/perlin_grad2d.png")
 
 _editor.add_node(node7, -704.51273062209, 323.89664705135)
 
-var node8 = Pass()
+var node8 = ::rendergraph::nodes::pass::Pass()
 
 node8.once = false
 
 _editor.add_node(node8, 415.89422362089, 551.48574813052)
 
-var node9 = TexCoord()
+var node9 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node9, -509.21301522993, 568.05106051679)
 
+Blueprint.connect(node4, "next", node8, "prev")
 Blueprint.connect(node3, "var", node1, "p")
 Blueprint.connect(node6, "tex", node1, "perlin_perm2d_tex")
 Blueprint.connect(node7, "tex", node1, "perlin_grad2d_tex")
@@ -77,4 +71,3 @@ Blueprint.connect(node1, "ret", node2, "noise(p,seed)")
 Blueprint.connect(node2, "ret", node5, "height")
 Blueprint.connect(node5, "heightmap", node4, "tes_heightmap")
 Blueprint.connect(node0, "this", node4, "view_cam")
-Blueprint.connect(node4, "next", node8, "prev")

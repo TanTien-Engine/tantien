@@ -1,38 +1,29 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "texture0"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node0, -391.00250474025, 116.90340472597)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -350.65301524309, 250.04116321124)
 
-var node2 = GaussianHori()
+var node2 = ::postprocessing::nodes::gaussian_hori::GaussianHori()
 node2.query_param("BlurSigma").value = 12
 
 _editor.add_node(node2, -192.62353062946, 191.09502433678)
 
-var node3 = Viewport()
+var node3 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node3, -350.12460650737, 205.33237093912)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node4, 4.8854141235352, 226.69049072266)
 
-Blueprint.connect(node3, "size", node2, "screen_size")
 Blueprint.connect(node1, "uv", node2, "texcoord")
+Blueprint.connect(node3, "size", node2, "screen_size")
 Blueprint.connect(node0, "tex", node2, "texture0")
 Blueprint.connect(node2, "ret", node4, "rgb")

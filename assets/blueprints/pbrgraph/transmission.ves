@@ -1,410 +1,400 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "pixelgraph.nodes.*"
-
-import "pbrgraph.nodes.*"
-var node0 = Normal()
+var node0 = ::shadergraph::nodes::normal::Normal()
 
 _editor.add_node(node0, -844.58102064346, 299.54297612593)
 
-var node1 = WorldPos()
+var node1 = ::shadergraph::nodes::world_pos::WorldPos()
 
 _editor.add_node(node1, -841.47619626178, 340.85758194888)
 
-var node2 = D_GGX()
+var node2 = ::pbrgraph::nodes::d__g_g_x::D_GGX()
 node2.query_param("roughness").value = 0.37798529863358
 
 _editor.add_node(node2, 1316.1183542068, 251.44629675853)
 
-var node3 = F_Schlick()
+var node3 = ::pbrgraph::nodes::f__schlick::F_Schlick()
 node3.query_param("f0").value.set(0.04, 0.04, 0.04)
 node3.query_param("f90").value = 1
 
 _editor.add_node(node3, 1175.5222692927, 34.235584912474)
 
-var node4 = Commentary()
+var node4 = ::blueprint::nodes::commentary::Commentary()
 
 node4.set_size(772.76666259766, 313.67291259766)
 node4.title = "Dirs"
 
 _editor.add_node(node4, -534.05133760624, 402.4286628871)
 
-var node5 = Uniform()
+var node5 = ::shadergraph::nodes::uniform::Uniform()
 node5.query_param("unif_name").value = "u_light_pos"
 
 _editor.add_node(node5, -690.61066274567, 117.59253793371)
 
-var node6 = Uniform()
+var node6 = ::shadergraph::nodes::uniform::Uniform()
 node6.query_param("unif_name").value = "u_cam_pos"
 
 _editor.add_node(node6, -692.72986010688, 166.10777370081)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "model"
 node7.var_type = [ "table", "array" ]
 
 _editor.add_node(node7, -633.52227002379, -74.504547583982)
 
-var node8 = Output()
+var node8 = ::blueprint::nodes::output::Output()
 
 node8.var_name = "frag_out"
 node8.var_type = "num4"
 
 _editor.add_node(node8, 1417.4476326806, -345.21347854416)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "cam_pos"
 node9.var_type = "num3"
 
 _editor.add_node(node9, -829.66771893993, 164.37491987428)
 
-var node10 = Input()
+var node10 = ::blueprint::nodes::input::Input()
 
 node10.var_name = "light_pos"
 node10.var_type = "vec3"
 
 _editor.add_node(node10, -827.50546940854, 116.34927425016)
 
-var node11 = Subgraph()
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
 node11.load_from_file(_editor, "lighting_dirs.ves")
 
 _editor.add_node(node11, -418.80456583384, 258.31681043291)
 
-var node12 = Subgraph()
+var node12 = ::blueprint::nodes::subgraph::Subgraph()
 node12.load_from_file(_editor, "../shadergraph/calc_normal.ves")
 
 _editor.add_node(node12, -652.2500385659, 277.01316501149)
 
-var node13 = Subgraph()
+var node13 = ::blueprint::nodes::subgraph::Subgraph()
 node13.load_from_file(_editor, "surface_output.ves")
 
 _editor.add_node(node13, -440.36337185859, -174.77489436424)
 
-var node14 = Store()
+var node14 = ::blueprint::nodes::store::Store()
 
 node14.var_name = "NoV"
 
 _editor.add_node(node14, -224.61428069973, 360.0555495095)
 
-var node15 = Store()
+var node15 = ::blueprint::nodes::store::Store()
 
 node15.var_name = "NoH"
 
 _editor.add_node(node15, -222.37718035193, 273.55720784956)
 
-var node16 = Store()
+var node16 = ::blueprint::nodes::store::Store()
 
 node16.var_name = "NoL"
 
 _editor.add_node(node16, -223.40191462921, 315.91844742837)
 
-var node17 = Store()
+var node17 = ::blueprint::nodes::store::Store()
 
 node17.var_name = "VoH"
 
 _editor.add_node(node17, -221.06643685362, 230.45816589943)
 
-var node18 = Store()
+var node18 = ::blueprint::nodes::store::Store()
 
 node18.var_name = "metallic"
 
 _editor.add_node(node18, -242.82973633973, -116.92972320041)
 
-var node19 = Store()
+var node19 = ::blueprint::nodes::store::Store()
 
 node19.var_name = "occlusion"
 
 _editor.add_node(node19, -242.25749275534, -159.73992063255)
 
-var node20 = Store()
+var node20 = ::blueprint::nodes::store::Store()
 
 node20.var_name = "emission"
 
 _editor.add_node(node20, -242.12371682613, -245.47746595944)
 
-var node21 = Store()
+var node21 = ::blueprint::nodes::store::Store()
 
 node21.var_name = "albedo"
 
 _editor.add_node(node21, -244.42351219653, -203.66775679786)
 
-var node22 = Store()
+var node22 = ::blueprint::nodes::store::Store()
 
 node22.var_name = "normal"
 
 _editor.add_node(node22, -248.33925214179, -33.540558536356)
 
-var node23 = Load()
+var node23 = ::blueprint::nodes::load::Load()
 
 node23.var_name = "normal"
 
 _editor.add_node(node23, -836.11719288417, 213.42521744156)
 
-var node24 = Store()
+var node24 = ::blueprint::nodes::store::Store()
 
 node24.var_name = "normal_uv"
 
 _editor.add_node(node24, -246.14364077476, -74.818558367526)
 
-var node25 = Load()
+var node25 = ::blueprint::nodes::load::Load()
 
 node25.var_name = "normal_uv"
 
 _editor.add_node(node25, -841.07272924886, 257.38643239852)
 
-var node26 = Commentary()
+var node26 = ::blueprint::nodes::commentary::Commentary()
 
 node26.set_size(573.14581298828, 352.61459350586)
 node26.title = "Surface"
 
 _editor.add_node(node26, -430.3304963677, 24.25319757193)
 
-var node27 = Store()
+var node27 = ::blueprint::nodes::store::Store()
 
 node27.var_name = "N"
 
 _editor.add_node(node27, -221.65201057875, 187.07301948484)
 
-var node28 = Store()
+var node28 = ::blueprint::nodes::store::Store()
 
 node28.var_name = "V"
 
 _editor.add_node(node28, -222.03509798917, 141.17749162154)
 
-var node29 = Number()
+var node29 = ::blueprint::nodes::number::Number()
 
 node29.value = 1.5
 
 _editor.add_node(node29, 135.78323342937, 252.1490382572)
 
-var node30 = Uniform()
+var node30 = ::shadergraph::nodes::uniform::Uniform()
 node30.query_param("unif_name").value = "ior"
 
 _editor.add_node(node30, 281.78100526266, 263.97032172273)
 
-var node31 = Number()
+var node31 = ::blueprint::nodes::number::Number()
 
 node31.value = 0.4450615644455
 
 _editor.add_node(node31, 129.03883487994, 164.51064637945)
 
-var node32 = Store()
+var node32 = ::blueprint::nodes::store::Store()
 
 node32.var_name = "ior"
 
 _editor.add_node(node32, 436.77348744573, 266.15487491552)
 
-var node33 = Load()
+var node33 = ::blueprint::nodes::load::Load()
 
 node33.var_name = "ior"
 
 _editor.add_node(node33, 134.21839762386, 103.71546230888)
 
-var node34 = Load()
+var node34 = ::blueprint::nodes::load::Load()
 
 node34.var_name = "ior"
 
 _editor.add_node(node34, 881.65313394915, 73.130011781628)
 
-var node35 = V_SmithGGXCorrelated()
+var node35 = ::pbrgraph::nodes::v__smith_g_g_x_correlated::V_SmithGGXCorrelated()
 node35.query_param("roughness").value = 0
 
 _editor.add_node(node35, 1299.3478574083, -198.26888989306)
 
-var node36 = Store()
+var node36 = ::blueprint::nodes::store::Store()
 
 node36.var_name = "L"
 
 _editor.add_node(node36, -221.9833865559, 92.483242866087)
 
-var node37 = Add()
+var node37 = ::blueprint::nodes::add::Add()
 
 _editor.add_node(node37, 189.96989382879, -158.26795990808)
 
-var node38 = Load()
+var node38 = ::blueprint::nodes::load::Load()
 
 node38.var_name = "V"
 
 _editor.add_node(node38, 57.691503050258, -170.46364961008)
 
-var node39 = Normalize()
+var node39 = ::shadergraph::nodes::normalize::Normalize()
 
 _editor.add_node(node39, 323.59024387618, -147.21736272648)
 
-var node40 = Subgraph()
+var node40 = ::blueprint::nodes::subgraph::Subgraph()
 node40.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
 _editor.add_node(node40, 1064.9353214988, -225.04846023813)
 
-var node41 = Load()
+var node41 = ::blueprint::nodes::load::Load()
 
 node41.var_name = "NoV"
 
 _editor.add_node(node41, 1112.8938990196, -149.96525857098)
 
-var node42 = Number()
+var node42 = ::blueprint::nodes::number::Number()
 
 node42.value = 1
 
 _editor.add_node(node42, 1183.7014806942, 132.25532142048)
 
-var node43 = Subtract()
+var node43 = ::blueprint::nodes::subtract::Subtract()
 
 _editor.add_node(node43, 1325.0853636127, 98.78766878598)
 
-var node44 = Multiply()
+var node44 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node44, 1474.2234352834, 146.12623413104)
 
-var node45 = Multiply()
+var node45 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node45, 1626.2760677563, 80.863071766426)
 
-var node46 = Subgraph()
+var node46 = ::blueprint::nodes::subgraph::Subgraph()
 node46.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
 _editor.add_node(node46, 1108.1389278099, 306.99511602034)
 
-var node47 = Subgraph()
+var node47 = ::blueprint::nodes::subgraph::Subgraph()
 node47.load_from_file(_editor, "../shadergraph/clamped_dot.ves")
 
 _editor.add_node(node47, 974.1723266562, -5.6316912283754)
 
-var node48 = Load()
+var node48 = ::blueprint::nodes::load::Load()
 
 node48.var_name = "V"
 
 _editor.add_node(node48, 782.31647636526, 23.032326708324)
 
-var node49 = Multiply()
+var node49 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node49, 1772.3828681859, 30.773384266416)
 
-var node50 = Load()
+var node50 = ::blueprint::nodes::load::Load()
 
 node50.var_name = "albedo"
 
 _editor.add_node(node50, 1632.5937954289, -7.8294916181875)
 
-var node51 = Combine()
+var node51 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node51, 1263.6246289886, -422.85614476655)
 
-var node52 = Number()
+var node52 = ::blueprint::nodes::number::Number()
 
 node52.value = 0.30622017383575
 
 _editor.add_node(node52, 968.09608476189, -387.910140126)
 
-var node53 = Store()
+var node53 = ::blueprint::nodes::store::Store()
 
 node53.var_name = "normal"
 
 _editor.add_node(node53, -497.40679931641, 110.19734191895)
 
-var node54 = Load()
+var node54 = ::blueprint::nodes::load::Load()
 
 node54.var_name = "normal"
 
 _editor.add_node(node54, 907.68961009532, 332.36995862454)
 
-var node55 = Uniform()
+var node55 = ::shadergraph::nodes::uniform::Uniform()
 node55.query_param("unif_name").value = "alpha"
 
 _editor.add_node(node55, 1098.5677050537, -378.97993842042)
 
-var node56 = IorToRoughness()
+var node56 = ::pbrgraph::nodes::ior_to_roughness::IorToRoughness()
 
 _editor.add_node(node56, 290.84952883644, 157.04694683783)
 
-var node57 = MirrorLight()
+var node57 = ::pbrgraph::nodes::mirror_light::MirrorLight()
 
 _editor.add_node(node57, 294.22765082347, 13.370710148678)
 
-var node58 = Load()
+var node58 = ::blueprint::nodes::load::Load()
 
 node58.var_name = "L"
 
 _editor.add_node(node58, 142.87266486658, -12.497218427952)
 
-var node59 = IorToF0()
+var node59 = ::pbrgraph::nodes::ior_to_f0::IorToF0()
 
 _editor.add_node(node59, 1022.4411475332, 73.802694962458)
 
-var node60 = Load()
+var node60 = ::blueprint::nodes::load::Load()
 
 node60.var_name = "normal"
 
 _editor.add_node(node60, 141.7955363449, 35.382642521198)
 
-var node61 = Load()
+var node61 = ::blueprint::nodes::load::Load()
 
 node61.var_name = "normal"
 
 _editor.add_node(node61, 879.89270771272, -212.25669857475)
 
-var node62 = Store()
+var node62 = ::blueprint::nodes::store::Store()
 
 node62.var_name = "mirror_l"
 
 _editor.add_node(node62, 445.0976332586, 24.621803171428)
 
-var node63 = Load()
+var node63 = ::blueprint::nodes::load::Load()
 
 node63.var_name = "mirror_l"
 
 _editor.add_node(node63, 891.94454131199, -255.69622785726)
 
-var node64 = Load()
+var node64 = ::blueprint::nodes::load::Load()
 
 node64.var_name = "mirror_l"
 
 _editor.add_node(node64, 54.633533118068, -119.39112128698)
 
-var node65 = Store()
+var node65 = ::blueprint::nodes::store::Store()
 
 node65.var_name = "H"
 
 _editor.add_node(node65, 468.76881988544, -145.49831355368)
 
-var node66 = Load()
+var node66 = ::blueprint::nodes::load::Load()
 
 node66.var_name = "H"
 
 _editor.add_node(node66, 908.10455795835, 284.43636104868)
 
-var node67 = Load()
+var node67 = ::blueprint::nodes::load::Load()
 
 node67.var_name = "H"
 
 _editor.add_node(node67, 786.88657333957, -24.698673662955)
 
-var node68 = Store()
+var node68 = ::blueprint::nodes::store::Store()
 
 node68.var_name = "roughness"
 
 _editor.add_node(node68, 446.165668046, 165.8092334322)
 
-var node69 = Load()
+var node69 = ::blueprint::nodes::load::Load()
 
 node69.var_name = "roughness"
 
 _editor.add_node(node69, 1179.0150562884, 205.50853190861)
 
-var node70 = Load()
+var node70 = ::blueprint::nodes::load::Load()
 
 node70.var_name = "roughness"
 
 _editor.add_node(node70, 1110.5113778644, -105.46955346433)
 
-var node71 = Commentary()
+var node71 = ::blueprint::nodes::commentary::Commentary()
 
 node71.set_size(1987.8333740234, 663.79998779297)
 node71.title = "BTDF"

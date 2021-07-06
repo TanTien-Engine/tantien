@@ -1,46 +1,38 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "sdfgraph.nodes.*"
-var node0 = Sdf()
+var node0 = ::sdfgraph::nodes::sdf::Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -128, 59)
 
-var node2 = Parameter()
+var node2 = ::shadergraph::nodes::parameter::Parameter()
 
 node2.var_name = "p"
 
 _editor.add_node(node2, -445.02938946229, -59.936458922865)
 
-var node3 = Viewport()
+var node3 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node3, -127, 6)
 
-var node4 = Onion()
+var node4 = ::sdfgraph::nodes::onion::Onion()
 node4.query_param("thickness").value = 0.01
 
 _editor.add_node(node4, -120.98659342968, -83.644053594443)
 
-var node5 = Torus()
+var node5 = ::sdfgraph::nodes::torus::Torus()
 node5.query_param("t").value.set(0.8, 0.25)
 
 _editor.add_node(node5, -277.47691600866, -44.863060020487)
 
-var node6 = Sphere()
+var node6 = ::sdfgraph::nodes::sphere::Sphere()
 node6.query_param("s").value = 0.5
 
 _editor.add_node(node6, -282.14256535393, -130.79092970117)
 
-var node7 = Subgraph()
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
 node7.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node7, 218.58423864994, 31.946748135952)

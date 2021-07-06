@@ -1,8 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
@@ -10,14 +6,14 @@ node0.skip = false
 
 _editor.add_node(node0, 261.90909090909, 136.5)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 255, 255, 255, 255 ] }
 
 _editor.add_node(node1, 28.09090909091, 302.0454545455)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -155,7 +151,7 @@ node2.render_gen()
 
 _editor.add_node(node2, 14.99999861284, 189.22726162997)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "quad"
 node3.layout = [ "position", "texture" ]
@@ -163,37 +159,37 @@ node3.shape_params = {  }
 
 _editor.add_node(node3, 36.81818043102, 81.95451216264)
 
-var node4 = RenderTarget()
+var node4 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node4.width = 512
 node4.height = 512
 
 _editor.add_node(node4, 39.54545177113, -88.04548783736)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
 node5.query_param("unif_name").value = "u_brdf_lut"
 node5.gamma_correction = false
 node5.init_texture(512, 512, "rg16f")
 
 _editor.add_node(node5, -292.27272311124, -68.04548228871)
 
-var node6 = Pass()
+var node6 = ::rendergraph::nodes::pass::Pass()
 
 node6.once = true
 
 _editor.add_node(node6, 410.24724922546, 187.83396770996)
 
-var node7 = Output()
+var node7 = ::blueprint::nodes::output::Output()
 
 node7.var_name = "tex"
 node7.var_type = "texture"
 
 _editor.add_node(node7, -103.6142689098, -86.34794477983)
 
+Blueprint.connect(node0, "next", node6, "prev")
+Blueprint.connect(node4, "fbo", node6, "fbo")
 Blueprint.connect(node5, "tex", node7, "var")
 Blueprint.connect(node5, "tex", node4, "col0")
 Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node0, "next", node6, "prev")
-Blueprint.connect(node4, "fbo", node6, "fbo")

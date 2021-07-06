@@ -1,14 +1,15 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.2, 0.3, 0.3, 1 ] }
 
 _editor.add_node(node0, -185, 54)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 87, 28)
 

@@ -1,255 +1,244 @@
+var node0 = ::rendergraph::nodes::draw::Draw()
 
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
+node0.set_prim_type("tri_strip")
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
 
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-import "postprocessing.nodes.*"
+_editor.add_node(node0, 1844.6538645618, -64.223105984438)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
-node1.set_prim_type("tri_strip")
-node1.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node1.skip = false
+node1.type = "quad"
+node1.layout = [ "position", "texture" ]
+node1.shape_params = {  }
 
-_editor.add_node(node1, 1844.6538645618, -64.223105984438)
+_editor.add_node(node1, 1647.5113459429, -75.399696370168)
 
-var node2 = PrimitiveShape()
+var node2 = ::rendergraph::nodes::clear::Clear()
 
-node2.type = "quad"
-node2.layout = [ "position", "texture" ]
-node2.shape_params = {  }
+node2.masks = [ "color" ]
+node2.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
 
-_editor.add_node(node2, 1647.5113459429, -75.399696370168)
+_editor.add_node(node2, 1658.6092309392, 191.94292272523)
 
-var node3 = Clear()
+var node3 = ::shadergraph::nodes::tex_coord::TexCoord()
 
-node3.masks = [ "color" ]
-node3.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+_editor.add_node(node3, 1276.6407893041, 90.127568698242)
 
-_editor.add_node(node3, 1658.6092309392, 191.94292272523)
+var node4 = ::postprocessing::nodes::luma_sharpen2::LumaSharpen2()
 
-var node4 = TexCoord()
+_editor.add_node(node4, 1440.500099037, 37.140218711102)
 
-_editor.add_node(node4, 1276.6407893041, 90.127568698242)
+var node5 = ::blueprint::nodes::viewport::Viewport()
 
-var node5 = LumaSharpen2()
+_editor.add_node(node5, 1278.485976741, 42.318363876352)
 
-_editor.add_node(node5, 1440.500099037, 37.140218711102)
+var node6 = ::rendergraph::nodes::texture::Texture()
+node6.query_param("unif_name").value = "u_tex_origin"
+node6.gamma_correction = false
+node6.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
-var node6 = Viewport()
+_editor.add_node(node6, -1654.3635047403, 15.62640472597)
 
-_editor.add_node(node6, 1278.485976741, 42.318363876352)
+var node7 = ::rendergraph::nodes::draw::Draw()
 
-var node7 = Texture()
-node7.query_param("unif_name").value = "u_tex_origin"
-node7.gamma_correction = false
-node7.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
+node7.set_prim_type("tri_strip")
+node7.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node7.skip = false
 
-_editor.add_node(node7, -1654.3635047403, 15.62640472597)
+_editor.add_node(node7, -1027.3637082009, 14.93638535283)
 
-var node9 = Draw()
+var node8 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
-node9.set_prim_type("tri_strip")
-node9.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node9.skip = false
+node8.type = "quad"
+node8.layout = [ "position", "texture" ]
+node8.shape_params = {  }
 
-_editor.add_node(node9, -1027.3637082009, 14.93638535283)
+_editor.add_node(node8, -1254.7562268198, -11.970205032904)
 
-var node10 = PrimitiveShape()
+var node9 = ::rendergraph::nodes::clear::Clear()
 
-node10.type = "quad"
-node10.layout = [ "position", "texture" ]
-node10.shape_params = {  }
+node9.masks = [ "color" ]
+node9.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
 
-_editor.add_node(node10, -1254.7562268198, -11.970205032904)
+_editor.add_node(node9, -1243.6583418236, 255.3724140625)
 
-var node11 = Clear()
+var node10 = ::shadergraph::nodes::tex_coord::TexCoord()
 
-node11.masks = [ "color" ]
-node11.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+_editor.add_node(node10, -1614.0140152431, 148.76416321124)
 
-_editor.add_node(node11, -1243.6583418236, 255.3724140625)
+var node11 = ::postprocessing::nodes::gaussian_hori::GaussianHori()
+node11.query_param("BlurSigma").value = 0.02007975243032
 
-var node12 = TexCoord()
+_editor.add_node(node11, -1448.5059848724, 87.64118707292)
 
-_editor.add_node(node12, -1614.0140152431, 148.76416321124)
+var node12 = ::blueprint::nodes::viewport::Viewport()
 
-var node13 = GaussianHori()
-node13.query_param("BlurSigma").value = 0.02007975243032
+_editor.add_node(node12, -1613.4856065074, 104.05537093912)
 
-_editor.add_node(node13, -1448.5059848724, 87.64118707292)
+var node13 = ::rendergraph::nodes::render_target::RenderTarget()
 
-var node14 = Viewport()
+node13.width = 1024
+node13.height = 1024
 
-_editor.add_node(node14, -1613.4856065074, 104.05537093912)
+_editor.add_node(node13, -1240.0215409704, -178.26568475191)
 
-var node15 = RenderTarget()
+var node14 = ::rendergraph::nodes::texture::Texture()
+node14.query_param("unif_name").value = "u_tex_hori"
+node14.gamma_correction = false
+node14.init_texture(1024, 1024, "rgb")
 
-node15.width = 1024
-node15.height = 1024
+_editor.add_node(node14, -1427.02484126, -169.94417393098)
 
-_editor.add_node(node15, -1240.0215409704, -178.26568475191)
+var node15 = ::rendergraph::nodes::draw::Draw()
 
-var node16 = Texture()
-node16.query_param("unif_name").value = "u_tex_hori"
-node16.gamma_correction = false
-node16.init_texture(1024, 1024, "rgb")
+node15.set_prim_type("tri_strip")
+node15.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node15.skip = false
 
-_editor.add_node(node16, -1427.02484126, -169.94417393098)
+_editor.add_node(node15, 623.02789179907, -101.94961464717)
 
-var node18 = Draw()
+var node16 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
-node18.set_prim_type("tri_strip")
-node18.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
-node18.skip = false
+node16.type = "quad"
+node16.layout = [ "position", "texture" ]
+node16.shape_params = {  }
 
-_editor.add_node(node18, 623.02789179907, -101.94961464717)
+_editor.add_node(node16, 371.43537318017, -34.476205032904)
 
-var node19 = PrimitiveShape()
+var node17 = ::rendergraph::nodes::clear::Clear()
 
-node19.type = "quad"
-node19.layout = [ "position", "texture" ]
-node19.shape_params = {  }
+node17.masks = [ "color" ]
+node17.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
 
-_editor.add_node(node19, 371.43537318017, -34.476205032904)
+_editor.add_node(node17, 382.53325817643, 232.8664140625)
 
-var node20 = Clear()
+var node18 = ::rendergraph::nodes::render_target::RenderTarget()
 
-node20.masks = [ "color" ]
-node20.values = { "color" : [ 119.84246826172, 128, 128, 255 ] }
+node18.width = 1024
+node18.height = 1024
 
-_editor.add_node(node20, 382.53325817643, 232.8664140625)
+_editor.add_node(node18, 386.17005902958, -200.77168475191)
 
-var node21 = RenderTarget()
+var node19 = ::rendergraph::nodes::texture::Texture()
+node19.query_param("unif_name").value = "u_tex_vert"
+node19.gamma_correction = false
+node19.init_texture(1024, 1024, "rgb")
 
-node21.width = 1024
-node21.height = 1024
+_editor.add_node(node19, 180.42729676275, -196.1316164554)
 
-_editor.add_node(node21, 386.17005902958, -200.77168475191)
+var node20 = ::postprocessing::nodes::gaussian_vert::GaussianVert()
+node20.query_param("BlurSigma").value = 1.2000000476837
 
-var node22 = Texture()
-node22.query_param("unif_name").value = "u_tex_vert"
-node22.gamma_correction = false
-node22.init_texture(1024, 1024, "rgb")
+_editor.add_node(node20, 149.00656679768, 61.252709960935)
 
-_editor.add_node(node22, 180.42729676275, -196.1316164554)
+var node21 = ::shadergraph::nodes::tex_coord::TexCoord()
 
-var node23 = GaussianVert()
-node23.query_param("BlurSigma").value = 1.2000000476837
+_editor.add_node(node21, 13.445984756921, 102.69416321124)
 
-_editor.add_node(node23, 149.00656679768, 61.252709960935)
+var node22 = ::blueprint::nodes::viewport::Viewport()
 
-var node24 = TexCoord()
+_editor.add_node(node22, 13.974393492641, 57.985370939119)
 
-_editor.add_node(node24, 13.445984756921, 102.69416321124)
+var node23 = ::rendergraph::nodes::pass::Pass()
 
-var node25 = Viewport()
+node23.once = false
 
-_editor.add_node(node25, 13.974393492641, 57.985370939119)
+_editor.add_node(node23, -853.7649395752, 106.24360351562)
 
-var node26 = Pass()
+var node24 = ::rendergraph::nodes::pass::Pass()
 
-node26.once = false
+node24.once = false
 
-_editor.add_node(node26, -853.7649395752, 106.24360351562)
+_editor.add_node(node24, 775.69752685547, -14.19105224609)
 
-var node27 = Pass()
+var node25 = ::rendergraph::nodes::pass::Pass()
 
-node27.once = false
+node25.once = false
 
-_editor.add_node(node27, 775.69752685547, -14.19105224609)
+_editor.add_node(node25, 2023.2645814808, 22.885440222302)
 
-var node28 = Pass()
+var node26 = ::blueprint::nodes::store::Store()
 
-node28.once = false
+node26.var_name = "tex_base"
 
-_editor.add_node(node28, 2023.2645814808, 22.885440222302)
+_editor.add_node(node26, -1449.0525396605, -4.7352036850004)
 
-var node29 = Store()
+var node27 = ::blueprint::nodes::load::Load()
 
-node29.var_name = "tex_base"
+node27.var_name = "tex_base"
 
-_editor.add_node(node29, -1449.0525396605, -4.7352036850004)
+_editor.add_node(node27, 1280.0359415661, -10.591097863638)
 
-var node30 = Load()
+var node28 = ::blueprint::nodes::store::Store()
 
-node30.var_name = "tex_base"
+node28.var_name = "tex_hori"
 
-_editor.add_node(node30, 1280.0359415661, -10.591097863638)
+_editor.add_node(node28, -1241.9568108557, -290.10259268106)
 
-var node31 = Store()
+var node29 = ::blueprint::nodes::load::Load()
 
-node31.var_name = "tex_hori"
+node29.var_name = "tex_hori"
 
-_editor.add_node(node31, -1241.9568108557, -290.10259268106)
+_editor.add_node(node29, 15.384722525786, 12.895298823267)
 
-var node32 = Load()
+var node30 = ::blueprint::nodes::store::Store()
 
-node32.var_name = "tex_hori"
+node30.var_name = "tex_vert"
 
-_editor.add_node(node32, 15.384722525786, 12.895298823267)
+_editor.add_node(node30, 387.55957298109, -304.89201624464)
 
-var node33 = Store()
+var node31 = ::blueprint::nodes::load::Load()
 
-node33.var_name = "tex_vert"
+node31.var_name = "tex_vert"
 
-_editor.add_node(node33, 387.55957298109, -304.89201624464)
+_editor.add_node(node31, 1279.479239053, -53.910025237028)
 
-var node34 = Load()
+var node32 = ::blueprint::nodes::commentary::Commentary()
 
-node34.var_name = "tex_vert"
+node32.set_size(1041.9916992188, 857.78332519531)
+node32.title = "blur hori"
 
-_editor.add_node(node34, 1279.479239053, -53.910025237028)
+_editor.add_node(node32, -1297.1303604726, 380.93488618729)
 
-var node35 = Commentary()
+var node33 = ::blueprint::nodes::commentary::Commentary()
 
-node35.set_size(1041.9916992188, 857.78332519531)
-node35.title = "blur hori"
+node33.set_size(948.76770019531, 809.16247558594)
+node33.title = "blur vert"
 
-_editor.add_node(node35, -1297.1303604726, 380.93488618729)
+_editor.add_node(node33, 384.29407653809, 344.75924560546)
 
-var node36 = Commentary()
+var node34 = ::blueprint::nodes::commentary::Commentary()
 
-node36.set_size(948.76770019531, 809.16247558594)
-node36.title = "blur vert"
+node34.set_size(933.47918701172, 525.92498779297)
+node34.title = "final"
 
-_editor.add_node(node36, 384.29407653809, 344.75924560546)
+_editor.add_node(node34, 1623.9041979141, 321.66452396561)
 
-var node37 = Commentary()
-
-node37.set_size(933.47918701172, 525.92498779297)
-node37.title = "final"
-
-_editor.add_node(node37, 1623.9041979141, 321.66452396561)
-
-Blueprint.connect(node25, "size", node23, "screen_size")
-Blueprint.connect(node24, "uv", node23, "texcoord")
-Blueprint.connect(node22, "tex", node21, "col0")
-Blueprint.connect(node22, "tex", node33, "var")
-Blueprint.connect(node33, "var", node34, "var")
-Blueprint.connect(node34, "var", node5, "texture1")
-Blueprint.connect(node21, "fbo", node18, "fbo")
-Blueprint.connect(node20, "next", node18, "prev")
-Blueprint.connect(node19, "out", node18, "va")
-Blueprint.connect(node16, "tex", node15, "col0")
-Blueprint.connect(node16, "tex", node31, "var")
-Blueprint.connect(node31, "var", node32, "var")
-Blueprint.connect(node32, "var", node23, "texture0")
-Blueprint.connect(node18, "next", node27, "prev")
-Blueprint.connect(node15, "fbo", node9, "fbo")
-Blueprint.connect(node14, "size", node13, "screen_size")
-Blueprint.connect(node12, "uv", node13, "texcoord")
-Blueprint.connect(node11, "next", node9, "prev")
-Blueprint.connect(node10, "out", node9, "va")
-Blueprint.connect(node7, "tex", node13, "texture0")
-Blueprint.connect(node7, "tex", node29, "var")
-Blueprint.connect(node29, "var", node30, "var")
-Blueprint.connect(node30, "var", node5, "texture0")
-Blueprint.connect(node9, "next", node26, "prev")
-Blueprint.connect(node6, "size", node5, "screen_size")
-Blueprint.connect(node4, "uv", node5, "texcoord")
-Blueprint.connect(node3, "next", node1, "prev")
-Blueprint.connect(node2, "out", node1, "va")
-Blueprint.connect(node1, "next", node28, "prev")
+Blueprint.connect(node0, "next", node25, "prev")
+Blueprint.connect(node15, "next", node24, "prev")
+Blueprint.connect(node7, "next", node23, "prev")
+Blueprint.connect(node19, "tex", node30, "var")
+Blueprint.connect(node30, "var", node31, "var")
+Blueprint.connect(node19, "tex", node18, "col0")
+Blueprint.connect(node17, "next", node15, "prev")
+Blueprint.connect(node16, "out", node15, "va")
+Blueprint.connect(node14, "tex", node28, "var")
+Blueprint.connect(node28, "var", node29, "var")
+Blueprint.connect(node21, "uv", node20, "texcoord")
+Blueprint.connect(node22, "size", node20, "screen_size")
+Blueprint.connect(node29, "var", node20, "texture0")
+Blueprint.connect(node14, "tex", node13, "col0")
+Blueprint.connect(node9, "next", node7, "prev")
+Blueprint.connect(node8, "out", node7, "va")
+Blueprint.connect(node6, "tex", node26, "var")
+Blueprint.connect(node26, "var", node27, "var")
+Blueprint.connect(node10, "uv", node11, "texcoord")
+Blueprint.connect(node12, "size", node11, "screen_size")
+Blueprint.connect(node6, "tex", node11, "texture0")
+Blueprint.connect(node3, "uv", node4, "texcoord")
+Blueprint.connect(node5, "size", node4, "screen_size")
+Blueprint.connect(node27, "var", node4, "texture0")
+Blueprint.connect(node31, "var", node4, "texture1")
+Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node1, "out", node0, "va")

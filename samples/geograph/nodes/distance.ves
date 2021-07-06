@@ -1,13 +1,9 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "geograph.nodes.*"
-var node0 = Distance()
+var node0 = ::geograph::nodes::distance::Distance()
 node0.query_param("distance").value = 100
 
 _editor.add_node(node0, 30.64683236987, 146.46065221576)
 
-var node1 = Line()
+var node1 = ::geograph::nodes::line::Line()
 node1.query_param("x0").value = 0
 node1.query_param("y0").value = 0
 node1.query_param("x1").value = 100
@@ -15,11 +11,11 @@ node1.query_param("y1").value = 100
 
 _editor.add_node(node1, -161.06706842371, 108.82896928606)
 
-var node2 = DrawGeometry()
+var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
 
 _editor.add_node(node2, 43.216058315492, 250.39903282897)
 
-var node3 = ConstraintSolver()
+var node3 = ::geograph::nodes::constraint_solver::ConstraintSolver()
 
 _editor.add_node(node3, 225.14599439203, 182.09769017101)
 

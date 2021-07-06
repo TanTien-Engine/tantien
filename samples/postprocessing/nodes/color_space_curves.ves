@@ -1,28 +1,19 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node0, -675.38447070134, 293.86598179783)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -516.36716636333, 187.66166235911)
 
-var node2 = SampleTexture()
+var node2 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node2, -356.70451556645, 181.78035750518)
 
-var node3 = ColorSpaceCurves()
+var node3 = ::postprocessing::nodes::color_space_curves::ColorSpaceCurves()
 node3.query_param("color_space").value = 1
 node3.query_param("pos0_shoulder_grey").value = 0.71998935937881
 node3.query_param("pos1_shoulder_grey").value = 0.80887824296951
@@ -32,12 +23,12 @@ node3.query_param("colorsat").value = 0
 
 _editor.add_node(node3, -201.19856642189, 79.636359776015)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node4, 22.762790679932, 212.45440673828)
 
-Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node2, "rgba", node3, "color")
 Blueprint.connect(node3, "ret", node4, "rgb")

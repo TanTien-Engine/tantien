@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(0.38667230481442, 0.24482685805611, 0.091996373815822)
 node0.cam.yaw = 228.2
@@ -16,7 +9,7 @@ node0.speed = 0.10714285820723
 
 _editor.add_node(node0, 240.43332056659, -179.74502399822)
 
-var node1 = Worley()
+var node1 = ::terraingraph::nodes::worley::Worley()
 node1.query_param("offset").value.set(0, 0)
 node1.query_param("seed").value = 0
 node1.query_param("frequency").value = 4
@@ -26,12 +19,12 @@ node1.query_param("features_mode").value = 0
 
 _editor.add_node(node1, -188.9355667442, 239.79474007007)
 
-var node2 = Combiner()
+var node2 = ::terraingraph::nodes::combiner::Combiner()
 node2.query_param("method").value = 1
 
 _editor.add_node(node2, 41.833755013629, 182.28949536769)
 
-var node3 = Erosion()
+var node3 = ::terraingraph::nodes::erosion::Erosion()
 
 node3.iter = 755555
 node3.radius = 1.6942986249924
@@ -45,7 +38,7 @@ node3.g = 4.3609652519226
 
 _editor.add_node(node3, 231.7513148009, 144.5)
 
-var node4 = PerlinNoise()
+var node4 = ::noisegraph::nodes::perlin_noise::PerlinNoise()
 node4.query_param("seed").value = 0
 
 _editor.add_node(node4, -196.86602403427, 15.424979505428)

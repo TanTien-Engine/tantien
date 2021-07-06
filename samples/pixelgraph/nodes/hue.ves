@@ -1,19 +1,12 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = SampleTexture()
+var node0 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node0, -255.06684057565, -70.03092926111)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -415.97690260016, -106.26973998846)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
@@ -21,12 +14,12 @@ node2.set_sampler("linear_repeat")
 
 _editor.add_node(node2, -514.89126175629, 194.50356499168)
 
-var node3 = Hue()
+var node3 = ::pixelgraph::nodes::hue::Hue()
 node3.query_param("offset").value = 0.72581857442856
 
 _editor.add_node(node3, -92.118645518599, -57.478704781777)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node4, 105.67663312378, -41.595418701784)

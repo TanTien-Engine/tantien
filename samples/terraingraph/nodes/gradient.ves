@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(0.028954609443303, 0.79717790614566, 1.6227468507254)
 node0.cam.yaw = -86.9
@@ -16,38 +9,38 @@ node0.speed = 0.20714285969734
 
 _editor.add_node(node0, 80.897368, 191.02243)
 
-var node1 = Gradient()
+var node1 = ::terraingraph::nodes::gradient::Gradient()
 node1.query_param("angle").value = 0
 
 _editor.add_node(node1, 85.63038653388, 333.52631623646)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
 _editor.add_node(node2, 313.70361328125, 346.63958740234)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
 _editor.add_node(node3, 574.41091707308, 223.82463654163)
 
-var node4 = Pass()
+var node4 = ::rendergraph::nodes::pass::Pass()
 
 node4.once = false
 
 _editor.add_node(node4, 781.13103994168, 253.2829273183)
 
-var node5 = TexCoord()
+var node5 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node5, -59.507763286498, 355.89302539314)
 
-var node6 = Print()
+var node6 = ::blueprint::nodes::print::Print()
 
 _editor.add_node(node6, 535.76960724635, 451.64209539189)
 
 Blueprint.connect(node5, "uv", node1, "tex_coords")
 Blueprint.connect(node1, "ret", node2, "height")
 Blueprint.connect(node2, "heightmap", node6, "value")
+Blueprint.connect(node3, "next", node4, "prev")
 Blueprint.connect(node2, "heightmap", node3, "tes_heightmap")
 Blueprint.connect(node0, "this", node3, "view_cam")
-Blueprint.connect(node3, "next", node4, "prev")

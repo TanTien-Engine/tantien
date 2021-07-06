@@ -1,45 +1,37 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "noisegraph.nodes.*"
-var node0 = PerlinNoise()
+var node0 = ::noisegraph::nodes::perlin_noise::PerlinNoise()
 node0.query_param("seed").value = 0.58301198482513
 
 _editor.add_node(node0, 108.52892561984, -19.743801652893)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -188, 50)
 
-var node2 = Multiply()
+var node2 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node2, -28, -6)
 
-var node3 = Number()
+var node3 = ::blueprint::nodes::number::Number()
 
 node3.value = 10
 
 _editor.add_node(node3, -352, -69)
 
-var node4 = Uniform()
+var node4 = ::shadergraph::nodes::uniform::Uniform()
 node4.query_param("unif_name").value = "unif_0"
 
 _editor.add_node(node4, -198, -54.5)
 
-var node5 = Combine()
+var node5 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node5, 267.87456967896, 13.018633846433)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node6, 464.87596796754, 54.789705523074)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "perlin_perm2d_tex"
 node7.gamma_correction = false
 node7.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
@@ -47,7 +39,7 @@ node7.set_sampler("nearest_repeat")
 
 _editor.add_node(node7, -342.19058227539, -200.65524291992)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
 node8.query_param("unif_name").value = "perlin_grad2d_tex"
 node8.gamma_correction = false
 node8.init_texture("../../../assets/textures/noise/perlin_grad2d.png")

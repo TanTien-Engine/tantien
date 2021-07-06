@@ -1,72 +1,68 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "rk_advect.ves")
 
 _editor.add_node(node0, -387.59149169922, 197.28106689453)
 
-var node1 = Subgraph()
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "rk_advect.ves")
 
 _editor.add_node(node1, -116.90909090909, 198.86363636364)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "mac_cormack_step.ves")
 
 _editor.add_node(node2, 324.59429000751, 167.31292261458)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "dt"
 node3.var_type = "num"
 
 _editor.add_node(node3, -636.75622292625, 355.18086929379)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "revert"
 node4.var_type = "num"
 
 _editor.add_node(node4, 118.50295250117, 195.81948343531)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "velocities"
 node5.var_type = "texture"
 
 _editor.add_node(node5, -628.11980248315, 214.36419675225)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "fields0"
 node6.var_type = "texture"
 
 _editor.add_node(node6, -626.54339954968, 169.54322465099)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "fields1"
 node7.var_type = "texture"
 
 _editor.add_node(node7, -627.53290927766, 125.16172117938)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "fields2"
 node8.var_type = "texture"
 
 _editor.add_node(node8, -332.75693120339, 97.345982892959)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "fields3"
 node9.var_type = "texture"
 
 _editor.add_node(node9, 127.8944955277, 148.76971181043)
 
-var node10 = Negate()
+var node10 = ::blueprint::nodes::negate::Negate()
 
 _editor.add_node(node10, -436, 297.5)
 

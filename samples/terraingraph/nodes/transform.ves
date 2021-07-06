@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Worley()
+var node0 = ::terraingraph::nodes::worley::Worley()
 node0.query_param("offset").value.set(0, 0)
 node0.query_param("seed").value = 0
 node0.query_param("frequency").value = 4
@@ -15,7 +8,7 @@ node0.query_param("features_mode").value = 0
 
 _editor.add_node(node0, -291.41264074741, 309.29545592405)
 
-var node1 = Camera3d()
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
 node1.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
 node1.cam.yaw = -56.7
@@ -26,7 +19,7 @@ node1.speed = 0
 
 _editor.add_node(node1, 0.53742456889054, 201.49836140271)
 
-var node2 = Transform()
+var node2 = ::terraingraph::nodes::transform::Transform()
 node2.query_param("dx").value = 0.4969265460968
 node2.query_param("dy").value = 0
 node2.query_param("rot").value = 0.33025985956192
@@ -34,26 +27,26 @@ node2.query_param("scale").value = 1
 
 _editor.add_node(node2, -456.37690523156, 364.63199499383)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
 _editor.add_node(node3, 255.82862877624, 308.62048345093)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
 _editor.add_node(node4, -68.292320251465, 403.00054931641)
 
-var node5 = TexCoord()
+var node5 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node5, -597.93821085486, 450.81145318933)
 
-var node6 = Uniform()
+var node6 = ::shadergraph::nodes::uniform::Uniform()
 node6.query_param("unif_name").value = "unif"
 
 _editor.add_node(node6, -599.7742573405, 385.90595131615)
 
-var node7 = Number()
+var node7 = ::blueprint::nodes::number::Number()
 
 node7.value = 0
 

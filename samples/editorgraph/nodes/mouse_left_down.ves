@@ -1,0 +1,43 @@
+var node0 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
+
+_editor.add_node(node0, -557.45430555523, 156.71160198109)
+
+var node1 = ::blueprint::nodes::insert_to_list::InsertToList()
+
+_editor.add_node(node1, -175, 74.5)
+
+var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node2, 16.461794428755, 25.624092819835)
+
+var node3 = ::geograph::nodes::circle::Circle()
+node3.query_param("x").value = 0
+node3.query_param("y").value = 0
+node3.query_param("r").value = 11.111110687256
+node3.query_param("fill").value = true
+node3.query_param("color").value.set(1, 0.62222224473953, 0.53333336114883)
+
+_editor.add_node(node3, -345, -143.5)
+
+var node4 = ::blueprint::nodes::array::Array()
+node4.query_param("serialize").value = true
+
+node4.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-155, 85, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-149, -76, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-92.704345703125, -3.4094769954681, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-207.10433959961, -29.809476852417, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-329.30157470703, 25.099203109741, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-316.10159301758, -134.4008026123, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })) ]
+
+_editor.add_node(node4, -344, 0.5)
+
+var node5 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node5, 23.8992557206, 155.54049910579)
+
+var node6 = ::editorgraph::nodes::coord_trans::CoordTrans()
+
+_editor.add_node(node6, -524.69004082339, -3.3142730804605)
+
+Blueprint.connect(node4, "all", node2, "geos")
+Blueprint.connect(node0, "pos", node6, "screen")
+Blueprint.connect(node6, "world", node3, "center")
+Blueprint.connect(node4, "all", node1, "list")
+Blueprint.connect(node3, "new_geo", node1, "item")
+Blueprint.connect(node0, "event", node5, "event")
+Blueprint.connect(node1, "next", node5, "action")

@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Worley()
+var node0 = ::terraingraph::nodes::worley::Worley()
 node0.query_param("offset").value.set(0, 0)
 node0.query_param("seed").value = 0
 node0.query_param("frequency").value = 4
@@ -15,7 +8,7 @@ node0.query_param("features_mode").value = { "max" : 5, "integer" : true, "min" 
 
 _editor.add_node(node0, -277.12491921373, 306.99230898796)
 
-var node1 = Camera3d()
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
 node1.cam.position.set(-0.91584190619618, 1.9415093588389, 1.5145041824892)
 node1.cam.yaw = -56.7
@@ -26,36 +19,36 @@ node1.speed = 0.17548675835133
 
 _editor.add_node(node1, 166.60565479071, 257.49417526404)
 
-var node2 = Clamp()
+var node2 = ::blueprint::nodes::clamp::Clamp()
 
 node2.min = 0.060394626110792
 node2.max = 0.54444444179535
 
 _editor.add_node(node2, -109.5835758861, 377.5310008748)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
 _editor.add_node(node3, 111.53435303826, 396.29087671534)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
 _editor.add_node(node4, 365.69101976945, 337.63285734432)
 
-var node5 = Pass()
+var node5 = ::rendergraph::nodes::pass::Pass()
 
 node5.once = false
 
 _editor.add_node(node5, 566.49466348349, 368.25061052449)
 
-var node6 = TexCoord()
+var node6 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node6, -419.29162428775, 399.43577243874)
 
 Blueprint.connect(node6, "uv", node0, "tex_coords")
 Blueprint.connect(node0, "ret", node2, "v")
 Blueprint.connect(node2, "v", node3, "height")
+Blueprint.connect(node4, "next", node5, "prev")
 Blueprint.connect(node3, "heightmap", node4, "tes_heightmap")
 Blueprint.connect(node1, "this", node4, "view_cam")
-Blueprint.connect(node4, "next", node5, "prev")

@@ -1,16 +1,11 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, 156.90238929685, 219.18522882334)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable", "clip_plane" : false }
@@ -18,7 +13,7 @@ node1.skip = false
 
 _editor.add_node(node1, 384.35404057273, 85.636402239849)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -105,14 +100,14 @@ node2.set_uniform("blinn", [ 0 ])
 
 _editor.add_node(node2, 56.392354250067, -41.131581182307)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, 10, 0, 1, 0, 0, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, -10, 0, 1, 0, 10, 10 ]
 node3.attrs = [ 3, 3, 2 ]
 
 _editor.add_node(node3, 239.2417436206, 54.33978971928)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -121,7 +116,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -232.64462809917, 215.03695102794)
 
-var node5 = Lookat()
+var node5 = ::blueprint::nodes::lookat::Lookat()
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
@@ -129,7 +124,7 @@ node5.up.set(0, 1, 0)
 
 _editor.add_node(node5, -228.16132777816, 123.21180247251)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/wood.png")
@@ -137,9 +132,9 @@ node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -224.53483258756, 6.5953025564666)
 
-Blueprint.connect(node6, "tex", node2, "floorTexture")
-Blueprint.connect(node5, "mat", node2, "view")
 Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node6, "tex", node2, "floorTexture")
+Blueprint.connect(node0, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node0, "next", node1, "prev")

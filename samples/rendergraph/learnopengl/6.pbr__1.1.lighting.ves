@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color", "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, -303.38767843727, 804.93296222935)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
+node1.skip = false
 
 _editor.add_node(node1, -51, 593.5)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -37,6 +38,9 @@ void main()
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -162,7 +166,7 @@ void main()
     FragColor = vec4(color, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 node2.set_uniform("albedo", [ 0.5, 0, 0 ])
 node2.set_uniform("ao", [ 1 ])
@@ -177,14 +181,15 @@ node2.set_uniform("lightColors[3]", [ 300, 300, 300 ])
 
 _editor.add_node(node2, -397.16704193754, -13.140775401506)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, -231.47232292876, 502.84410764292)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -193,7 +198,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -733.34811374976, 659.17193283298)
 
-var node5 = Camera3d()
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
 node5.cam.position.set(-0.5993959034489, 2.9060500064888, 22.794398417472)
 node5.cam.yaw = -446.1
@@ -204,20 +209,20 @@ node5.speed = 0.35880517959595
 
 _editor.add_node(node5, -907.18250114434, 483.8883574907)
 
-var node6 = Loop()
+var node6 = ::blueprint::nodes::loop::Loop()
 
 node6.start = 0
 node6.end = 7
 
 _editor.add_node(node6, 194.42221763255, 598.2649711854)
 
-var node7 = Pass()
+var node7 = ::rendergraph::nodes::pass::Pass()
 
 node7.once = false
 
 _editor.add_node(node7, 662.68143889079, 627.62939136237)
 
-var node8 = Translate()
+var node8 = ::blueprint::nodes::translate::Translate()
 
 node8.dx = 6.25
 node8.dy = 6.25
@@ -225,33 +230,33 @@ node8.dz = 0
 
 _editor.add_node(node8, -664.48324813534, 204.08319612336)
 
-var node9 = Matrix()
+var node9 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node9, -805.99329968292, 260.04610835564)
 
-var node10 = Loop()
+var node10 = ::blueprint::nodes::loop::Loop()
 
 node10.start = 0
 node10.end = 7
 
 _editor.add_node(node10, 443, 599.5)
 
-var node11 = Divide()
+var node11 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node11, 778.46466448305, 286.51801919656)
 
-var node12 = Divide()
+var node12 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node12, 448.5059962251, 283.4289767011)
 
-var node13 = Clamp()
+var node13 = ::blueprint::nodes::clamp::Clamp()
 
 node13.min = 0.05
 node13.max = 1
 
 _editor.add_node(node13, 583.24698695279, 272.31007792172)
 
-var node14 = Custom()
+var node14 = ::blueprint::nodes::custom::Custom()
 
 node14.code = "
 import \"maths.vector\" for Vector3
@@ -271,30 +276,31 @@ if (_editor.script_stack.count == 4)
 }
 "
 node14.init_ports(4, 1)
+node14.use_cache = false
 
 _editor.add_node(node14, -811.35968163247, 138.52380605555)
 
-Blueprint.connect(node0, "next", node10, "prev")
+Blueprint.connect(node10, "next", node7, "prev")
 Blueprint.connect(node1, "next", node6, "do")
-Blueprint.connect(node2, "out", node1, "shader")
-Blueprint.connect(node3, "out", node1, "va")
+Blueprint.connect(node6, "index", node12, "a")
+Blueprint.connect(node6, "num", node12, "b")
+Blueprint.connect(node12, "v", node13, "v")
+Blueprint.connect(node5, "zoom", node4, "fovy")
+Blueprint.connect(node0, "next", node10, "prev")
+Blueprint.connect(node6, "next", node10, "do")
+Blueprint.connect(node6, "index", node14, "in0")
+Blueprint.connect(node6, "num", node14, "in1")
+Blueprint.connect(node10, "index", node14, "in2")
+Blueprint.connect(node10, "num", node14, "in3")
+Blueprint.connect(node9, "mat", node8, "mat")
+Blueprint.connect(node14, "next", node8, "offset")
+Blueprint.connect(node10, "index", node11, "a")
+Blueprint.connect(node10, "num", node11, "b")
 Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node5, "mat", node2, "view")
-Blueprint.connect(node5, "zoom", node4, "fovy")
-Blueprint.connect(node5, "pos", node2, "camPos")
-Blueprint.connect(node6, "next", node10, "do")
-Blueprint.connect(node6, "index", node12, "a")
-Blueprint.connect(node6, "index", node14, "in0")
-Blueprint.connect(node6, "num", node12, "b")
-Blueprint.connect(node6, "num", node14, "in1")
 Blueprint.connect(node8, "mat", node2, "model")
-Blueprint.connect(node9, "mat", node8, "mat")
-Blueprint.connect(node10, "next", node7, "prev")
-Blueprint.connect(node10, "index", node11, "a")
-Blueprint.connect(node10, "index", node14, "in2")
-Blueprint.connect(node10, "num", node11, "b")
-Blueprint.connect(node10, "num", node14, "in3")
 Blueprint.connect(node11, "v", node2, "metallic")
-Blueprint.connect(node12, "v", node13, "v")
 Blueprint.connect(node13, "v", node2, "roughness")
-Blueprint.connect(node14, "next", node8, "offset")
+Blueprint.connect(node5, "pos", node2, "camPos")
+Blueprint.connect(node2, "out", node1, "shader")
+Blueprint.connect(node3, "out", node1, "va")

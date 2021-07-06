@@ -1,10 +1,10 @@
-var node0 = Pass()
+var node0 = ::rendergraph::nodes::pass::Pass()
 
 node0.once = false
 
 _editor.add_node(node0, 1107.8621528562, 1169.3885810789)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
@@ -12,12 +12,12 @@ node1.skip = true
 
 _editor.add_node(node1, -137.76714579421, 914.650811726)
 
-var node2 = Model()
+var node2 = ::rendergraph::nodes::model::Model()
 node2.init_model("../learnopengl/resources/objects/backpack/backpack.obj")
 
 _editor.add_node(node2, -680.42554533091, 149.0672719138)
 
-var node3 = Shader()
+var node3 = ::rendergraph::nodes::shader::Shader()
 
 node3.vs = "
 #version 330 core
@@ -40,6 +40,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node3.tcs = ""
+node3.tes = ""
+node3.gs = ""
 node3.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -53,19 +56,19 @@ void main()
     FragColor = texture(texture_diffuse1, TexCoords);
 }
 "
-node3.gs = ""
+node3.cs = ""
 node3.render_gen()
 
 _editor.add_node(node3, -392.32715503552, 850.7483135673)
 
-var node4 = Clear()
+var node4 = ::rendergraph::nodes::clear::Clear()
 
 node4.masks = [ "depth", "color" ]
 node4.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
 _editor.add_node(node4, -379.82051404001, 989.2708461337)
 
-var node5 = Camera3d()
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
 node5.cam.position.set(-0.98465210042772, 0.7542657795043, 2.3530035031234)
 node5.cam.yaw = -52.9
@@ -76,7 +79,7 @@ node5.speed = 0.21111145615578
 
 _editor.add_node(node5, -909.75054308241, 316.74061855785)
 
-var node6 = Perspective()
+var node6 = ::blueprint::nodes::perspective::Perspective()
 
 node6.fovy = 45
 node6.aspect = 0
@@ -85,7 +88,7 @@ node6.zfar = 100
 
 _editor.add_node(node6, -906.61293432775, 160.33054058874)
 
-var node7 = Draw()
+var node7 = ::rendergraph::nodes::draw::Draw()
 
 node7.set_prim_type("triangles")
 node7.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
@@ -93,14 +96,14 @@ node7.skip = false
 
 _editor.add_node(node7, 889.2945983462, 270.35484032394)
 
-var node8 = Clear()
+var node8 = ::rendergraph::nodes::clear::Clear()
 
 node8.masks = [ "depth", "color" ]
 node8.values = { "color" : [ 128, 125.72415161133, 128, 255 ] }
 
 _editor.add_node(node8, 649.63403024013, 434.68123105056)
 
-var node9 = Shader()
+var node9 = ::rendergraph::nodes::shader::Shader()
 
 node9.vs = "
 #version 330 core
@@ -136,6 +139,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node9.tcs = ""
+node9.tes = ""
+node9.gs = ""
 node9.fs = "
 #version 330 core
 layout (location = 0) out vec3 gMain;
@@ -286,55 +292,55 @@ void main()
     gNormal = normal;
 }
 "
-node9.gs = ""
+node9.cs = ""
 node9.render_gen()
 node9.set_uniform("rimThreshold", [ 0.05 ])
 node9.set_uniform("rimAmount", [ 0.68 ])
 
 _editor.add_node(node9, 685.8977687475, 83.06901103134)
 
-var node10 = Commentary()
+var node10 = ::blueprint::nodes::commentary::Commentary()
 
 node10.set_size(1058.3312988281, 706.05834960938)
 node10.title = "Lighting"
 
 _editor.add_node(node10, 600.50212751017, 545.72004173893)
 
-var node11 = Texture()
+var node11 = ::rendergraph::nodes::texture::Texture()
+node11.query_param("unif_name").value = "u_tex"
 node11.gamma_correction = false
 node11.init_texture("samples/rendergraph/learnopengl/resources/objects/backpack/normal.png")
 
-
 _editor.add_node(node11, 434.42432701958, 109.43231237576)
 
-var node12 = RenderTarget()
+var node12 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node12.width = 1024
 node12.height = 1024
 
 _editor.add_node(node12, 755.86435824711, -341.20686748678)
 
-var node13 = Texture()
+var node13 = ::rendergraph::nodes::texture::Texture()
+node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture(1024, 1024, "rgb")
 
-
 _editor.add_node(node13, 224.04295076971, -524.00974261786)
 
-var node14 = Pass()
+var node14 = ::rendergraph::nodes::pass::Pass()
 
 node14.once = false
 
 _editor.add_node(node14, 1058.6991462506, 325.6690578414)
 
-var node15 = Texture()
+var node15 = ::rendergraph::nodes::texture::Texture()
+node15.query_param("unif_name").value = "u_tex"
 node15.gamma_correction = false
 node15.init_texture(1024, 1024, "r16")
 
-
 _editor.add_node(node15, 469.69248296636, -519.09847458377)
 
-var node16 = Draw()
+var node16 = ::rendergraph::nodes::draw::Draw()
 
 node16.set_prim_type("tri_strip")
 node16.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
@@ -342,7 +348,7 @@ node16.skip = false
 
 _editor.add_node(node16, 1626.9281613854, -603.40160915683)
 
-var node17 = Shader()
+var node17 = ::rendergraph::nodes::shader::Shader()
 
 node17.vs = "
 #version 330 core
@@ -358,6 +364,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node17.tcs = ""
+node17.tes = ""
+node17.gs = ""
 node17.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -425,7 +434,7 @@ void main()
 	FragColor = alphaBlend(edgeColor, color);
 }
 "
-node17.gs = ""
+node17.cs = ""
 node17.render_gen()
 node17.set_uniform("scale", [ 2.4900879859924 ])
 node17.set_uniform("depthThreshold", [ 0.090087890625 ])
@@ -433,34 +442,35 @@ node17.set_uniform("normalThreshold", [ 0.55675452947617 ])
 
 _editor.add_node(node17, 1231.9545946528, -628.71965015131)
 
-var node18 = PrimitiveShape()
+var node18 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node18.type = "quad"
 node18.layout = [ "position", "texture" ]
+node18.shape_params = {  }
 
 _editor.add_node(node18, 1415.632484151, -670.59665653931)
 
-var node19 = Clear()
+var node19 = ::rendergraph::nodes::clear::Clear()
 
 node19.masks = [ "color" ]
 node19.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node19, 1396.7204507813, -422.73711254883)
 
-var node20 = Texture()
+var node20 = ::rendergraph::nodes::texture::Texture()
+node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture(1024, 1024, "rgb")
 
-
 _editor.add_node(node20, 692.59302422541, -521.14118051994)
 
-var node21 = RenderBuffer()
+var node21 = ::rendergraph::nodes::render_buffer::RenderBuffer()
 
 node21.init_rbo(1024, 1024, "depth_component")
 
 _editor.add_node(node21, 913.77459930113, -491.09075322799)
 
-var node22 = Camera3d()
+var node22 = ::blueprint::nodes::camera3d::Camera3d()
 
 node22.cam.position.set(0.1595037414114, 0.46282664372839, 3.4915687732147)
 node22.cam.yaw = -92.3
@@ -471,49 +481,49 @@ node22.speed = 0.19831281900406
 
 _editor.add_node(node22, -920.07413973828, 525.40246376456)
 
-var node23 = Texture()
+var node23 = ::rendergraph::nodes::texture::Texture()
+node23.query_param("unif_name").value = "u_tex"
 node23.gamma_correction = false
 node23.init_texture("diffuse_ramp_4.jpg")
 
-
 _editor.add_node(node23, 190.27172197497, 41.476246563127)
 
-var node24 = Texture()
+var node24 = ::rendergraph::nodes::texture::Texture()
+node24.query_param("unif_name").value = "u_tex"
 node24.gamma_correction = false
 node24.init_texture("107017.png")
 
-
 _editor.add_node(node24, 194.797219, 414.155024)
 
-var node25 = Commentary()
+var node25 = ::blueprint::nodes::commentary::Commentary()
 
 node25.set_size(635.08331298828, 464.41665649414)
 node25.title = "Outline"
 
 _editor.add_node(node25, 1405.1999917969, -301.39054882813)
 
-var node26 = Commentary()
+var node26 = ::blueprint::nodes::commentary::Commentary()
 
 node26.set_size(934.75103759766, 556.74530029297)
 node26.title = "GBuffer"
 
 _editor.add_node(node26, 547.0199625679, -220.34552357993)
 
-var node27 = Commentary()
+var node27 = ::blueprint::nodes::commentary::Commentary()
 
 node27.set_size(508.44375610352, 326.62030029297)
 node27.title = "Origin"
 
 _editor.add_node(node27, -281.384237043, 1115.4476605721)
 
-var node28 = Commentary()
+var node28 = ::blueprint::nodes::commentary::Commentary()
 
 node28.set_size(400, 613.55834960938)
 node28.title = "Input"
 
 _editor.add_node(node28, -804.95472811719, 656.65013701563)
 
-var node29 = Draw()
+var node29 = ::rendergraph::nodes::draw::Draw()
 
 node29.set_prim_type("triangles")
 node29.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
@@ -521,7 +531,7 @@ node29.skip = false
 
 _editor.add_node(node29, 809.15662939453, 1126.098765625)
 
-var node30 = Shader()
+var node30 = ::rendergraph::nodes::shader::Shader()
 
 node30.vs = "
 #version 330 core
@@ -538,6 +548,9 @@ void main()
     gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
 }
 "
+node30.tcs = ""
+node30.tes = ""
+node30.gs = ""
 node30.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -547,37 +560,37 @@ void main()
      gl_FragDepth = gl_FragCoord.z;
 }
 "
-node30.gs = ""
+node30.cs = ""
 node30.render_gen()
 
 _editor.add_node(node30, 628.46351936507, 1135.5141895044)
 
-var node31 = RenderTarget()
+var node31 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node31.width = 1024
 node31.height = 1024
 
 _editor.add_node(node31, 964.06051055656, 1050.8101887348)
 
-var node32 = Texture()
+var node32 = ::rendergraph::nodes::texture::Texture()
+node32.query_param("unif_name").value = "u_tex"
 node32.gamma_correction = false
 node32.init_texture(1024, 1024, "depth")
 
-
 _editor.add_node(node32, 774.80431523599, 912.79362399519)
 
-var node33 = Multiply()
+var node33 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node33, 384.23901567342, 794.80270769709)
 
-var node34 = Clear()
+var node34 = ::rendergraph::nodes::clear::Clear()
 
 node34.masks = [ "depth" ]
 node34.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node34, 656.95867919922, 1256.1926269531)
 
-var node35 = Orthographic()
+var node35 = ::blueprint::nodes::orthographic::Orthographic()
 
 node35.left = -5
 node35.right = 5
@@ -588,49 +601,49 @@ node35.far = 10
 
 _editor.add_node(node35, 207.00520836292, 782.32325843393)
 
-var node36 = Commentary()
+var node36 = ::blueprint::nodes::commentary::Commentary()
 
 node36.set_size(1106.2979736328, 730.83123779297)
 node36.title = "Shadow"
 
 _editor.add_node(node36, 672.27192675782, 1376.3333085937)
 
-Blueprint.connect(node2, "model", node1, "model")
-Blueprint.connect(node2, "model", node7, "model")
-Blueprint.connect(node2, "model", node29, "model")
-Blueprint.connect(node3, "out", node1, "shader")
-Blueprint.connect(node4, "next", node1, "prev")
-Blueprint.connect(node5, "mat", node3, "view")
-Blueprint.connect(node5, "mat", node9, "view")
-Blueprint.connect(node5, "zoom", node6, "fovy")
-Blueprint.connect(node5, "pos", node9, "viewPos")
-Blueprint.connect(node6, "mat", node3, "projection")
-Blueprint.connect(node6, "mat", node9, "projection")
+Blueprint.connect(node32, "tex", node31, "depth")
+Blueprint.connect(node35, "mat", node33, "a")
+Blueprint.connect(node22, "mat", node33, "b")
+Blueprint.connect(node33, "v", node30, "lightSpaceMatrix")
 Blueprint.connect(node7, "next", node14, "prev")
-Blueprint.connect(node8, "next", node7, "prev")
-Blueprint.connect(node9, "out", node7, "shader")
-Blueprint.connect(node11, "tex", node9, "texture_normal1")
 Blueprint.connect(node12, "fbo", node14, "fbo")
-Blueprint.connect(node13, "tex", node12, "col0")
-Blueprint.connect(node13, "tex", node17, "main_tex")
-Blueprint.connect(node15, "tex", node12, "col1")
+Blueprint.connect(node20, "tex", node17, "cam_normal_tex")
 Blueprint.connect(node15, "tex", node17, "cam_depth_tex")
+Blueprint.connect(node13, "tex", node17, "main_tex")
+Blueprint.connect(node19, "next", node16, "prev")
 Blueprint.connect(node17, "out", node16, "shader")
 Blueprint.connect(node18, "out", node16, "va")
-Blueprint.connect(node19, "next", node16, "prev")
+Blueprint.connect(node13, "tex", node12, "col0")
+Blueprint.connect(node15, "tex", node12, "col1")
 Blueprint.connect(node20, "tex", node12, "col2")
-Blueprint.connect(node20, "tex", node17, "cam_normal_tex")
 Blueprint.connect(node21, "rbo", node12, "depth")
-Blueprint.connect(node22, "mat", node33, "b")
-Blueprint.connect(node22, "pos", node9, "lightPos")
-Blueprint.connect(node23, "tex", node9, "diffuse_ramp")
-Blueprint.connect(node24, "tex", node9, "palette_tex")
-Blueprint.connect(node29, "next", node0, "prev")
-Blueprint.connect(node30, "out", node29, "shader")
-Blueprint.connect(node31, "fbo", node0, "fbo")
-Blueprint.connect(node32, "tex", node31, "depth")
-Blueprint.connect(node32, "tex", node9, "shadowMap")
-Blueprint.connect(node33, "v", node30, "lightSpaceMatrix")
+Blueprint.connect(node5, "zoom", node6, "fovy")
+Blueprint.connect(node5, "mat", node9, "view")
+Blueprint.connect(node6, "mat", node9, "projection")
 Blueprint.connect(node33, "v", node9, "lightSpaceMatrix")
+Blueprint.connect(node22, "pos", node9, "lightPos")
+Blueprint.connect(node5, "pos", node9, "viewPos")
+Blueprint.connect(node32, "tex", node9, "shadowMap")
+Blueprint.connect(node24, "tex", node9, "palette_tex")
+Blueprint.connect(node23, "tex", node9, "diffuse_ramp")
+Blueprint.connect(node11, "tex", node9, "texture_normal1")
+Blueprint.connect(node5, "mat", node3, "view")
+Blueprint.connect(node6, "mat", node3, "projection")
 Blueprint.connect(node34, "next", node29, "prev")
-Blueprint.connect(node35, "mat", node33, "a")
+Blueprint.connect(node30, "out", node29, "shader")
+Blueprint.connect(node2, "model", node29, "model")
+Blueprint.connect(node8, "next", node7, "prev")
+Blueprint.connect(node9, "out", node7, "shader")
+Blueprint.connect(node2, "model", node7, "model")
+Blueprint.connect(node4, "next", node1, "prev")
+Blueprint.connect(node3, "out", node1, "shader")
+Blueprint.connect(node2, "model", node1, "model")
+Blueprint.connect(node29, "next", node0, "prev")
+Blueprint.connect(node31, "fbo", node0, "fbo")

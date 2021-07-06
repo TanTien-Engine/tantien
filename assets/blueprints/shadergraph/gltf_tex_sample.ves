@@ -1,79 +1,72 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
-var node0 = SampleTexture()
+var node0 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node0, 451.5401738835, 54.50518522949)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, 23.62642998534, 9.76041988446)
 
-var node2 = Fetch()
+var node2 = ::blueprint::nodes::fetch::Fetch()
 node2.index = "tex_coord"
 
 _editor.add_node(node2, -156.0009486222, -11.365825912266)
 
-var node3 = Fetch()
+var node3 = ::blueprint::nodes::fetch::Fetch()
 node3.index = "texture"
 
 _editor.add_node(node3, -157.59295090388, 93.24991263158)
 
-var node4 = Fetch()
+var node4 = ::blueprint::nodes::fetch::Fetch()
 node4.index = "tex_trans"
 
 _editor.add_node(node4, -154.10570459554, -119.73293785111)
 
-var node5 = Multiply()
+var node5 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node5, 214.3242996452, -34.760311821418)
 
-var node6 = Output()
+var node6 = ::blueprint::nodes::output::Output()
 
 node6.var_name = "rgb"
 node6.var_type = "num3"
 
 _editor.add_node(node6, 603.55785788414, 96.384611635849)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "items"
 node7.var_type = [ "table", "array" ]
 
 _editor.add_node(node7, -381.15766346863, 5.2853918536243)
 
-var node8 = Fetch()
+var node8 = ::blueprint::nodes::fetch::Fetch()
 node8.index = "scale"
 
 _editor.add_node(node8, 43.098488558389, -121.44154738628)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "prefix"
 node9.var_type = "string"
 
 _editor.add_node(node9, -376.48216548535, -57.992547691404)
 
-var node10 = Output()
+var node10 = ::blueprint::nodes::output::Output()
 
 node10.var_name = "alpha"
 node10.var_type = "num"
 
 _editor.add_node(node10, 599.98165226675, 3.6917188869103)
 
-Blueprint.connect(node9, "var", node3, "prefix")
-Blueprint.connect(node7, "var", node3, "items")
-Blueprint.connect(node7, "var", node2, "items")
 Blueprint.connect(node7, "var", node4, "items")
 Blueprint.connect(node4, "item", node8, "items")
-Blueprint.connect(node8, "item", node5, "b")
-Blueprint.connect(node3, "item", node0, "tex")
+Blueprint.connect(node7, "var", node3, "items")
+Blueprint.connect(node9, "var", node3, "prefix")
+Blueprint.connect(node7, "var", node2, "items")
 Blueprint.connect(node2, "item", node1, "set_id")
 Blueprint.connect(node1, "uv", node5, "a")
+Blueprint.connect(node8, "item", node5, "b")
+Blueprint.connect(node3, "item", node0, "tex")
 Blueprint.connect(node5, "v", node0, "uv")
-Blueprint.connect(node0, "rgb", node6, "var")
 Blueprint.connect(node0, "a", node10, "var")
+Blueprint.connect(node0, "rgb", node6, "var")

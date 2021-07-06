@@ -1,26 +1,19 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("samples/rendergraph/learnopengl/resources/textures/awesomeface.png")
 
 _editor.add_node(node0, -286.48064896926, 91.64866785236)
 
-var node1 = SampleTexture()
+var node1 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node1, 48.869792289872, 83.48096207781)
 
-var node2 = TexCoord()
+var node2 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node2, -102.97935449914, 36.130040919276)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node3, 263.52954353774, 115.09724350606)

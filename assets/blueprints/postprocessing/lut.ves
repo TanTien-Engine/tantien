@@ -1,73 +1,65 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-import "postprocessing.nodes.*"
-var node0 = LUT()
+var node0 = ::postprocessing::nodes::l_u_t::LUT()
 
 _editor.add_node(node0, -58, 22.5)
 
-var node1 = Input()
+var node1 = ::blueprint::nodes::input::Input()
 
 node1.var_name = "src_tex"
 node1.var_type = "unknown"
 
 _editor.add_node(node1, -371.62208344426, 198.67230114203)
 
-var node2 = Input()
+var node2 = ::blueprint::nodes::input::Input()
 
 node2.var_name = "lut_tex"
 node2.var_type = "unknown"
 
 _editor.add_node(node2, -219.52632472923, -9.8875756563592)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "texcoord"
 node3.var_type = "num2"
 
 _editor.add_node(node3, -370.44146222708, 147.04074543802)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../shadergraph/mix_color.ves")
 
 _editor.add_node(node4, 207.11724540118, -7.6817988800753)
 
-var node5 = SampleTexture()
+var node5 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node5, -207.97993812952, 142.75727427988)
 
-var node6 = Output()
+var node6 = ::blueprint::nodes::output::Output()
 
 node6.var_name = "col"
 node6.var_type = "num3"
 
 _editor.add_node(node6, 415.19727648321, 24.443697233326)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "chroma"
 node7.var_type = "num"
 
 _editor.add_node(node7, -14.099813724485, -45.177995896549)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "luma"
 node8.var_type = "num"
 
 _editor.add_node(node8, -13.633295454497, -90.429228296725)
 
-Blueprint.connect(node8, "var", node4, "luma")
-Blueprint.connect(node7, "var", node4, "chroma")
-Blueprint.connect(node3, "var", node0, "texcoord")
-Blueprint.connect(node3, "var", node5, "uv")
-Blueprint.connect(node2, "var", node0, "lut_tex")
 Blueprint.connect(node1, "var", node5, "tex")
-Blueprint.connect(node5, "rgb", node4, "col_a")
+Blueprint.connect(node3, "var", node5, "uv")
 Blueprint.connect(node5, "rgb", node0, "color")
+Blueprint.connect(node2, "var", node0, "lut_tex")
+Blueprint.connect(node3, "var", node0, "texcoord")
+Blueprint.connect(node5, "rgb", node4, "col_a")
 Blueprint.connect(node0, "ret", node4, "col_b")
+Blueprint.connect(node7, "var", node4, "chroma")
+Blueprint.connect(node8, "var", node4, "luma")
 Blueprint.connect(node4, "col", node6, "var")

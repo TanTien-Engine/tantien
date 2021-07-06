@@ -1,13 +1,9 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = ShaderCode()
+var node0 = ::rendergraph::nodes::shader_code::ShaderCode()
 node0.init_filepath("../../shaders/fluid2d/mccormack.glsl")
 
 _editor.add_node(node0, -136.74597723347, 322.29058193843)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = ""
 node1.tcs = ""
@@ -19,55 +15,55 @@ node1.render_gen()
 
 _editor.add_node(node1, 48.866244628324, 148.58496213227)
 
-var node2 = Compute()
+var node2 = ::rendergraph::nodes::compute::Compute()
 
 node2.num_groups = [ 32, 32, 1 ]
 
 _editor.add_node(node2, 241.86927619414, 207.35279153084)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "dt"
 node3.var_type = "num"
 
 _editor.add_node(node3, -136.06642497082, 272.33678982063)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "revert"
 node4.var_type = "num"
 
 _editor.add_node(node4, -135.1013475789, 228.57542297126)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "field_WRITE"
 node5.var_type = "texture"
 
 _editor.add_node(node5, -130.03527293151, 0.34690867431345)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "field_n"
 node6.var_type = "texture"
 
 _editor.add_node(node6, -131.72869323669, 90.098264025263)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "field_n_1_READ"
 node7.var_type = "texture"
 
 _editor.add_node(node7, -132.85764101807, 133.56275122436)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "field_n_hat_READ"
 node8.var_type = "texture"
 
 _editor.add_node(node8, -131.72870493284, 178.1561959436)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "velocities_READ"
 node9.var_type = "texture"

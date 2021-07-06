@@ -1,40 +1,31 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node0, -757.95947792019, 192.1685760533)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -578.92900697118, 154.21428633927)
 
-var node2 = SampleTexture()
+var node2 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node2, -428.85445685512, 201.21402821646)
 
-var node3 = Curves()
+var node3 = ::postprocessing::nodes::curves::Curves()
 node3.query_param("mode").value = 0
 node3.query_param("formula").value = 4
 node3.query_param("contrast").value = 0.65
 
 _editor.add_node(node3, -255.1374714405, 199.7137523396)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node4, -61.189861297607, 251.87631225586)
 
-Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node0, "tex", node2, "tex")
+Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node2, "rgba", node3, "color")
 Blueprint.connect(node3, "ret", node4, "rgb")

@@ -1,9 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
@@ -11,14 +6,14 @@ node0.skip = false
 
 _editor.add_node(node0, 23.493459158335, 448.32236965027)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0, 0, 0, 255 ] }
 
 _editor.add_node(node1, -486.34558150286, 673.61242033965)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -121,7 +116,7 @@ node2.set_uniform("lights[3].Color", [ 0, 5, 0 ])
 
 _editor.add_node(node2, -336.80952452474, 65.326874053263)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "cube"
 node3.layout = [ "position", "normal", "texture" ]
@@ -129,7 +124,7 @@ node3.shape_params = {  }
 
 _editor.add_node(node3, -144.62534376452, 333.3091883221)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -138,7 +133,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -789.17732924848, 528.44056797897)
 
-var node5 = Camera3d()
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
 node5.cam.position.set(0.37432003333603, 2.3518213242048, -1.2709788177503)
 node5.cam.yaw = -221.6
@@ -149,14 +144,14 @@ node5.speed = 0.14392133057117
 
 _editor.add_node(node5, -762.96714550786, 374.24737489047)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/container2.png")
 
 _editor.add_node(node6, -798.45789635755, 10.26673357437)
 
-var node7 = Scale()
+var node7 = ::blueprint::nodes::scale::Scale()
 
 node7.sx = 0.5
 node7.sy = 0.5
@@ -164,7 +159,7 @@ node7.sz = 0.5
 
 _editor.add_node(node7, -1469.1788330078, 576.87048339844)
 
-var node8 = Translate()
+var node8 = ::blueprint::nodes::translate::Translate()
 
 node8.dx = 0
 node8.dy = 1.5
@@ -172,11 +167,11 @@ node8.dz = 0
 
 _editor.add_node(node8, -1312.1788330078, 597.87048339844)
 
-var node9 = Merge()
+var node9 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node9, -1051.9408977474, 232.60822075183)
 
-var node10 = Scale()
+var node10 = ::blueprint::nodes::scale::Scale()
 
 node10.sx = 0.5
 node10.sy = 0.5
@@ -184,7 +179,7 @@ node10.sz = 0.5
 
 _editor.add_node(node10, -1468.0788330078, 397.07048339844)
 
-var node11 = Translate()
+var node11 = ::blueprint::nodes::translate::Translate()
 
 node11.dx = 0
 node11.dy = 0
@@ -192,7 +187,7 @@ node11.dz = 1
 
 _editor.add_node(node11, -1308.7904032557, 236.69692967943)
 
-var node12 = Translate()
+var node12 = ::blueprint::nodes::translate::Translate()
 
 node12.dx = -1
 node12.dy = -1
@@ -200,7 +195,7 @@ node12.dz = 2
 
 _editor.add_node(node12, -1321.5061057351, 416.25230158026)
 
-var node13 = Rotate()
+var node13 = ::blueprint::nodes::rotate::Rotate()
 
 node13.angle = 60
 node13.axis_x = 1
@@ -209,7 +204,7 @@ node13.axis_z = 1
 
 _editor.add_node(node13, -1469.9576355485, 226.36845713214)
 
-var node14 = Translate()
+var node14 = ::blueprint::nodes::translate::Translate()
 
 node14.dx = 0
 node14.dy = 2.7
@@ -217,7 +212,7 @@ node14.dz = 4
 
 _editor.add_node(node14, -1298.0466016028, 59.010979266208)
 
-var node15 = Rotate()
+var node15 = ::blueprint::nodes::rotate::Rotate()
 
 node15.angle = 23
 node15.axis_x = 1
@@ -226,7 +221,7 @@ node15.axis_z = 1
 
 _editor.add_node(node15, -1486.4865611683, 51.161845561889)
 
-var node16 = Scale()
+var node16 = ::blueprint::nodes::scale::Scale()
 
 node16.sx = 1.25
 node16.sy = 1.25
@@ -234,7 +229,7 @@ node16.sz = 1.25
 
 _editor.add_node(node16, -1676.7974479242, 40.355708371143)
 
-var node17 = Translate()
+var node17 = ::blueprint::nodes::translate::Translate()
 
 node17.dx = -2
 node17.dy = 1
@@ -242,7 +237,7 @@ node17.dz = -3
 
 _editor.add_node(node17, -1328.6732732782, -128.22944147008)
 
-var node18 = Rotate()
+var node18 = ::blueprint::nodes::rotate::Rotate()
 
 node18.angle = 135.07275390625
 node18.axis_x = 0.47520208358765
@@ -251,7 +246,7 @@ node18.axis_z = 0
 
 _editor.add_node(node18, -1491.7682220181, -138.55791401737)
 
-var node19 = Scale()
+var node19 = ::blueprint::nodes::scale::Scale()
 
 node19.sx = 0.5
 node19.sy = 0.5
@@ -259,7 +254,7 @@ node19.sz = 0.5
 
 _editor.add_node(node19, -1512.1617030303, -304.45588775107)
 
-var node20 = Translate()
+var node20 = ::blueprint::nodes::translate::Translate()
 
 node20.dx = -3
 node20.dy = 0
@@ -267,7 +262,7 @@ node20.dz = 0
 
 _editor.add_node(node20, -1364.9416429252, -286.07932877286)
 
-var node21 = Scale()
+var node21 = ::blueprint::nodes::scale::Scale()
 
 node21.sx = 12.5
 node21.sy = 0.5
@@ -275,7 +270,7 @@ node21.sz = 12.5
 
 _editor.add_node(node21, -1474.4644532229, 751.56307888446)
 
-var node22 = Translate()
+var node22 = ::blueprint::nodes::translate::Translate()
 
 node22.dx = 0
 node22.dy = -1
@@ -283,7 +278,7 @@ node22.dz = 0
 
 _editor.add_node(node22, -1327.2443931178, 769.93963786267)
 
-var node23 = Texture()
+var node23 = ::rendergraph::nodes::texture::Texture()
 node23.query_param("unif_name").value = "u_tex"
 node23.gamma_correction = false
 node23.init_texture("resources/textures/wood.png")
@@ -291,49 +286,49 @@ node23.set_sampler("linear_repeat")
 
 _editor.add_node(node23, -1013.4578963576, 10.26673357437)
 
-var node24 = Merge()
+var node24 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node24, -595.89608154297, -50.86323852539)
 
-var node25 = Pass()
+var node25 = ::rendergraph::nodes::pass::Pass()
 
 node25.once = false
 
 _editor.add_node(node25, 823.03750441265, 503.47023931515)
 
-var node26 = RenderTarget()
+var node26 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node26.width = 1024
 node26.height = 1024
 
 _editor.add_node(node26, 569.36535670129, 392.64107054371)
 
-var node27 = Texture()
+var node27 = ::rendergraph::nodes::texture::Texture()
 node27.query_param("unif_name").value = "u_tex"
 node27.gamma_correction = false
 node27.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node27, -85.875688553011, 169.35151268772)
 
-var node28 = Texture()
+var node28 = ::rendergraph::nodes::texture::Texture()
 node28.query_param("unif_name").value = "u_tex"
 node28.gamma_correction = false
 node28.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node28, 121.31149031738, 169.17740040282)
 
-var node29 = Subgraph()
+var node29 = ::blueprint::nodes::subgraph::Subgraph()
 node29.load_from_file(_editor, "../../../assets/blueprints/rendergraph/gaussian_blur.ves")
 
 _editor.add_node(node29, 606.80582283526, -203.03062452558)
 
-var node30 = Pass()
+var node30 = ::rendergraph::nodes::pass::Pass()
 
 node30.once = false
 
 _editor.add_node(node30, 1116.0970098393, -301.16286758015)
 
-var node31 = Draw()
+var node31 = ::rendergraph::nodes::draw::Draw()
 
 node31.set_prim_type("tri_strip")
 node31.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
@@ -341,7 +336,7 @@ node31.skip = false
 
 _editor.add_node(node31, 879.22874999817, -345.99378216383)
 
-var node32 = Shader()
+var node32 = ::rendergraph::nodes::shader::Shader()
 
 node32.vs = "
 #version 330 core
@@ -395,7 +390,7 @@ node32.set_uniform("exposure", [ 4.4842934608459 ])
 
 _editor.add_node(node32, 627.73556705191, -351.73384242126)
 
-var node33 = PrimitiveShape()
+var node33 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node33.type = "quad"
 node33.layout = [ "position", "texture" ]
@@ -403,47 +398,47 @@ node33.shape_params = {  }
 
 _editor.add_node(node33, 634.2324912102, -537.65418759869)
 
-var node34 = RenderBuffer()
+var node34 = ::rendergraph::nodes::render_buffer::RenderBuffer()
 
 node34.init_rbo(1024, 1024, "depth_component")
 
 _editor.add_node(node34, 400.27377596465, 320.84944026171)
 
-Blueprint.connect(node34, "rbo", node26, "depth")
-Blueprint.connect(node33, "out", node31, "va")
-Blueprint.connect(node28, "tex", node26, "col1")
-Blueprint.connect(node28, "tex", node29, "in0")
-Blueprint.connect(node29, "next", node31, "prev")
-Blueprint.connect(node29, "tex", node32, "bloomBlur")
-Blueprint.connect(node27, "tex", node26, "col0")
-Blueprint.connect(node27, "tex", node32, "scene")
-Blueprint.connect(node32, "out", node31, "shader")
 Blueprint.connect(node31, "next", node30, "prev")
+Blueprint.connect(node28, "tex", node29, "in0")
+Blueprint.connect(node27, "tex", node32, "scene")
+Blueprint.connect(node29, "tex", node32, "bloomBlur")
+Blueprint.connect(node29, "next", node31, "prev")
+Blueprint.connect(node32, "out", node31, "shader")
+Blueprint.connect(node33, "out", node31, "va")
+Blueprint.connect(node27, "tex", node26, "col0")
+Blueprint.connect(node28, "tex", node26, "col1")
+Blueprint.connect(node34, "rbo", node26, "depth")
+Blueprint.connect(node0, "next", node25, "prev")
 Blueprint.connect(node26, "fbo", node25, "fbo")
-Blueprint.connect(node23, "tex", node24, "in0")
 Blueprint.connect(node21, "mat", node22, "mat")
-Blueprint.connect(node22, "mat", node9, "in0")
 Blueprint.connect(node19, "mat", node20, "mat")
-Blueprint.connect(node20, "mat", node9, "in6")
 Blueprint.connect(node18, "mat", node17, "mat")
-Blueprint.connect(node17, "mat", node9, "in5")
 Blueprint.connect(node16, "mat", node15, "mat")
 Blueprint.connect(node15, "mat", node14, "mat")
-Blueprint.connect(node14, "mat", node9, "in4")
 Blueprint.connect(node13, "mat", node11, "mat")
-Blueprint.connect(node11, "mat", node9, "in3")
 Blueprint.connect(node10, "mat", node12, "mat")
-Blueprint.connect(node12, "mat", node9, "in2")
 Blueprint.connect(node7, "mat", node8, "mat")
+Blueprint.connect(node22, "mat", node9, "in0")
 Blueprint.connect(node8, "mat", node9, "in1")
-Blueprint.connect(node9, "list", node2, "model")
+Blueprint.connect(node12, "mat", node9, "in2")
+Blueprint.connect(node11, "mat", node9, "in3")
+Blueprint.connect(node14, "mat", node9, "in4")
+Blueprint.connect(node17, "mat", node9, "in5")
+Blueprint.connect(node20, "mat", node9, "in6")
+Blueprint.connect(node23, "tex", node24, "in0")
 Blueprint.connect(node6, "tex", node24, "in1")
-Blueprint.connect(node24, "list", node2, "diffuseTexture")
-Blueprint.connect(node5, "mat", node2, "view")
 Blueprint.connect(node5, "zoom", node4, "fovy")
-Blueprint.connect(node5, "pos", node2, "viewPos")
 Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node9, "list", node2, "model")
+Blueprint.connect(node5, "pos", node2, "viewPos")
+Blueprint.connect(node24, "list", node2, "diffuseTexture")
+Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node1, "next", node0, "prev")
-Blueprint.connect(node0, "next", node25, "prev")

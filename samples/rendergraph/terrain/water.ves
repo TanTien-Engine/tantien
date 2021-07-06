@@ -1,9 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -11,14 +6,14 @@ node0.skip = false
 
 _editor.add_node(node0, 1787.2998622665, -294.00749126529)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node1, -40.096956301563, 415.37335808587)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -167,7 +162,7 @@ node2.set_uniform("sun_pos", [ 1.9060709476471, 4.3727374076843 ])
 
 _editor.add_node(node2, 1390.1191960905, -626.14379066019)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "quad"
 node3.layout = [ "position", "texture" ]
@@ -175,7 +170,7 @@ node3.shape_params = {  }
 
 _editor.add_node(node3, 1574.2480686021, -322.28411620549)
 
-var node4 = Texture()
+var node4 = ::rendergraph::nodes::texture::Texture()
 node4.query_param("unif_name").value = "u_tex"
 node4.gamma_correction = false
 node4.init_texture("assets/textures/water/normal.png")
@@ -183,7 +178,7 @@ node4.set_sampler("linear_repeat")
 
 _editor.add_node(node4, 830.22526460956, -351.24934017479)
 
-var node5 = Perspective()
+var node5 = ::blueprint::nodes::perspective::Perspective()
 
 node5.fovy = 45
 node5.aspect = 0
@@ -192,7 +187,7 @@ node5.zfar = 100
 
 _editor.add_node(node5, 191.81796625368, -206.50454287129)
 
-var node6 = Camera3d()
+var node6 = ::blueprint::nodes::camera3d::Camera3d()
 
 node6.cam.position.set(-0.50815893218389, 0.6854959593749, -0.81100480857262)
 node6.cam.yaw = 63.9
@@ -203,88 +198,88 @@ node6.speed = 0.14950735867023
 
 _editor.add_node(node6, -79.711328393299, -417.27111654576)
 
-var node7 = Time()
+var node7 = ::blueprint::nodes::time::Time()
 
 _editor.add_node(node7, 1178.5215789638, -230.71648587209)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
 node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("gale.png")
 
 _editor.add_node(node8, -438.71575328427, 150.53536626626)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_splatmap.ves")
 node9.set_prop_value("tes.clip_plane", [ 0, 0, 0, 0 ])
 
 _editor.add_node(node9, 358.80155234678, 430.92507543136)
 
-var node10 = Pass()
+var node10 = ::rendergraph::nodes::pass::Pass()
 
 node10.once = false
 
 _editor.add_node(node10, 1292.6569208136, 451.61858998212)
 
-var node11 = Subgraph()
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
 node11.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_splatmap.ves")
 node11.set_prop_value("tes.clip_plane", [ 0, -1, 0, 0.002 ])
 
 _editor.add_node(node11, 855.6633041419, 421.85788016954)
 
-var node12 = RenderTarget()
+var node12 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node12.width = 1024
 node12.height = 1024
 
 _editor.add_node(node12, 1094.498273964, 295.7220605907)
 
-var node13 = Texture()
+var node13 = ::rendergraph::nodes::texture::Texture()
 node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture(1024, 1024, "rgb")
 
 _editor.add_node(node13, 867.7377845548, 213.07742828627)
 
-var node14 = Pass()
+var node14 = ::rendergraph::nodes::pass::Pass()
 
 node14.once = false
 
 _editor.add_node(node14, 604.87714417687, 463.40232189476)
 
-var node15 = Pass()
+var node15 = ::rendergraph::nodes::pass::Pass()
 
 node15.once = false
 
 _editor.add_node(node15, 2252.4897310166, 469.86439664097)
 
-var node16 = Subgraph()
+var node16 = ::blueprint::nodes::subgraph::Subgraph()
 node16.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_splatmap.ves")
 node16.set_prop_value("tes.clip_plane", [ 0, -1, 0, 0 ])
 
 _editor.add_node(node16, 1814.6696680639, 440.10368682839)
 
-var node17 = RenderTarget()
+var node17 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node17.width = 1024
 node17.height = 1024
 
 _editor.add_node(node17, 2054.331084167, 313.96786724955)
 
-var node18 = Texture()
+var node18 = ::rendergraph::nodes::texture::Texture()
 node18.query_param("unif_name").value = "u_tex"
 node18.gamma_correction = false
 node18.init_texture(1024, 1024, "rgb")
 
 _editor.add_node(node18, 1827.5705947578, 231.32323494512)
 
-var node19 = Pass()
+var node19 = ::rendergraph::nodes::pass::Pass()
 
 node19.once = false
 
 _editor.add_node(node19, 1971.11816306, -202.66251087259)
 
-var node20 = Texture()
+var node20 = ::rendergraph::nodes::texture::Texture()
 node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture("assets/textures/water/XZnoise.png")
@@ -292,11 +287,11 @@ node20.set_sampler("linear_repeat")
 
 _editor.add_node(node20, 1046.3228057329, -360.53503372859)
 
-var node21 = Viewport()
+var node21 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node21, 1169.1283766132, -293.86999630429)
 
-var node22 = Scale()
+var node22 = ::blueprint::nodes::scale::Scale()
 
 node22.sx = 1
 node22.sy = -1
@@ -304,67 +299,67 @@ node22.sz = 1
 
 _editor.add_node(node22, 1589.9146690647, 280.40126804793)
 
-var node23 = Texture()
+var node23 = ::rendergraph::nodes::texture::Texture()
 node23.query_param("unif_name").value = "u_tex"
 node23.gamma_correction = false
 node23.init_texture("assets/textures/water/fresnel.bmp")
 
 _editor.add_node(node23, 867.24181985306, -720.25677194469)
 
-var node24 = Commentary()
+var node24 = ::blueprint::nodes::commentary::Commentary()
 
 node24.set_size(797.67498779297, 273.26251220703)
 node24.title = "terrain"
 
 _editor.add_node(node24, 280.20370109496, 561.15791039383)
 
-var node25 = Commentary()
+var node25 = ::blueprint::nodes::commentary::Commentary()
 
 node25.set_size(655.79791259766, 587.53125)
 node25.title = "refract"
 
 _editor.add_node(node25, 1037.6435810038, 539.18213425465)
 
-var node26 = Commentary()
+var node26 = ::blueprint::nodes::commentary::Commentary()
 
 node26.set_size(813.64581298828, 554.57086181641)
 node26.title = "reflect"
 
 _editor.add_node(node26, 1919.1626812886, 542.52732847383)
 
-var node27 = Commentary()
+var node27 = ::blueprint::nodes::commentary::Commentary()
 
 node27.set_size(1371.1125488281, 1020.1583251953)
 node27.title = "water"
 
 _editor.add_node(node27, 1391.241044775, -120.4459521498)
 
-Blueprint.connect(node23, "tex", node2, "fresnel_tex")
-Blueprint.connect(node22, "mat", node16, "tcs.model")
-Blueprint.connect(node21, "size", node2, "viewport_size")
-Blueprint.connect(node20, "tex", node2, "noise_tex")
+Blueprint.connect(node0, "next", node19, "prev")
 Blueprint.connect(node18, "tex", node17, "col0")
-Blueprint.connect(node18, "tex", node2, "reflected_tex")
-Blueprint.connect(node17, "fbo", node15, "fbo")
-Blueprint.connect(node13, "tex", node12, "col0")
-Blueprint.connect(node13, "tex", node2, "refracted_tex")
-Blueprint.connect(node12, "fbo", node10, "fbo")
-Blueprint.connect(node8, "tex", node9, "tes_heightmap")
-Blueprint.connect(node8, "tex", node11, "tes_heightmap")
-Blueprint.connect(node8, "tex", node16, "tes_heightmap")
-Blueprint.connect(node7, "time", node2, "time")
-Blueprint.connect(node6, "this", node9, "view_cam")
-Blueprint.connect(node6, "this", node11, "view_cam")
-Blueprint.connect(node6, "this", node16, "view_cam")
-Blueprint.connect(node6, "mat", node2, "view")
-Blueprint.connect(node6, "zoom", node5, "fovy")
-Blueprint.connect(node6, "pos", node2, "cam_pos")
 Blueprint.connect(node16, "next", node15, "prev")
+Blueprint.connect(node17, "fbo", node15, "fbo")
+Blueprint.connect(node9, "next", node14, "prev")
+Blueprint.connect(node13, "tex", node12, "col0")
 Blueprint.connect(node11, "next", node10, "prev")
+Blueprint.connect(node12, "fbo", node10, "fbo")
+Blueprint.connect(node8, "tex", node16, "tes_heightmap")
+Blueprint.connect(node22, "mat", node16, "tcs.model")
+Blueprint.connect(node6, "this", node16, "view_cam")
+Blueprint.connect(node8, "tex", node11, "tes_heightmap")
+Blueprint.connect(node6, "this", node11, "view_cam")
+Blueprint.connect(node6, "zoom", node5, "fovy")
 Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node6, "mat", node2, "view")
+Blueprint.connect(node7, "time", node2, "time")
+Blueprint.connect(node6, "pos", node2, "cam_pos")
+Blueprint.connect(node21, "size", node2, "viewport_size")
 Blueprint.connect(node4, "tex", node2, "norm_tex")
+Blueprint.connect(node13, "tex", node2, "refracted_tex")
+Blueprint.connect(node18, "tex", node2, "reflected_tex")
+Blueprint.connect(node20, "tex", node2, "noise_tex")
+Blueprint.connect(node23, "tex", node2, "fresnel_tex")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node0, "next", node19, "prev")
 Blueprint.connect(node1, "next", node9, "prev")
-Blueprint.connect(node9, "next", node14, "prev")
+Blueprint.connect(node8, "tex", node9, "tes_heightmap")
+Blueprint.connect(node6, "this", node9, "view_cam")

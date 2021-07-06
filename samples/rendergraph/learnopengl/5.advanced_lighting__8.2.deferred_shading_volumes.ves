@@ -1,16 +1,17 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
+node0.skip = false
 
 _editor.add_node(node0, -10.492079074999, 33.045530735999)
 
-var node1 = Model()
+var node1 = ::rendergraph::nodes::model::Model()
 node1.init_model("resources/objects/backpack/backpack.obj")
 
 _editor.add_node(node1, -169.48240633091, -63.807067086194)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -25,6 +26,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -86,7 +90,7 @@ void main()
     FragColor = vec4(lighting, 1.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 node2.set_uniform("lights[0].Position", [ 3.5058226585388, 0.43915608525276, 0.43915608525276 ])
 node2.set_uniform("lights[0].Color", [ 2.1724894046783, 0.86, 0.88 ])
@@ -111,14 +115,14 @@ node2.set_uniform("lights[3].Radius", [ 3.10582280159 ])
 
 _editor.add_node(node2, -226.12083420746, -1056.937155588)
 
-var node3 = Clear()
+var node3 = ::rendergraph::nodes::clear::Clear()
 
 node3.masks = [ "depth", "color" ]
 node3.values = { "color" : [ 0.05, 0.05, 0.05, 1 ] }
 
 _editor.add_node(node3, -177.01364233567, 177.51732663351)
 
-var node4 = Camera3d()
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
 
 node4.cam.position.set(6.4138713302534, 4.6944717744292, 4.4056056723589)
 node4.cam.yaw = -140.7
@@ -129,7 +133,7 @@ node4.speed = 0.21111145615578
 
 _editor.add_node(node4, -530.64512659629, -69.941932487161)
 
-var node5 = Perspective()
+var node5 = ::blueprint::nodes::perspective::Perspective()
 
 node5.fovy = 45
 node5.aspect = 0
@@ -138,7 +142,7 @@ node5.zfar = 100
 
 _editor.add_node(node5, -529.962092297, -227.03502391164)
 
-var node6 = Scale()
+var node6 = ::blueprint::nodes::scale::Scale()
 
 node6.sx = 0.5
 node6.sy = 0.5
@@ -146,7 +150,7 @@ node6.sz = 0.5
 
 _editor.add_node(node6, -857.478425747, 141.6282181848)
 
-var node7 = Translate()
+var node7 = ::blueprint::nodes::translate::Translate()
 
 node7.dx = 0
 node7.dy = 0
@@ -154,54 +158,55 @@ node7.dz = 0
 
 _editor.add_node(node7, -484.71283818481, 103.72434875305)
 
-var node8 = Array()
+var node8 = ::blueprint::nodes::array::Array()
+node8.query_param("serialize").value = true
 
 node8.list = [ [ -3, -0.5, -3 ], [ 0, -0.5, -3 ], [ 3, -0.5, -3 ], [ -3, -0.5, 0 ], [ 0, -0.5, 0 ], [ 3, -0.5, 0 ], [ -3, -0.5, 3 ], [ 0, -0.5, 3 ], [ 3, -0.5, 3 ] ]
 
 _editor.add_node(node8, -659.15812938756, 92.204533898678)
 
-var node9 = Pass()
+var node9 = ::rendergraph::nodes::pass::Pass()
 
 node9.once = false
 
 _editor.add_node(node9, 753.54658345978, -59.806147337231)
 
-var node10 = RenderTarget()
+var node10 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node10.width = 1024
 node10.height = 1024
 
 _editor.add_node(node10, 546.12564328797, -262.054983855)
 
-var node11 = Texture()
+var node11 = ::rendergraph::nodes::texture::Texture()
+node11.query_param("unif_name").value = "u_tex"
 node11.gamma_correction = false
 node11.init_texture(1024, 1024, "rgba16f")
 
-
 _editor.add_node(node11, 86.200410647363, -172.59782195472)
 
-var node12 = Texture()
+var node12 = ::rendergraph::nodes::texture::Texture()
+node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgba16f")
 
-
 _editor.add_node(node12, 312.37947120351, -169.72923896727)
 
-var node13 = Texture()
+var node13 = ::rendergraph::nodes::texture::Texture()
+node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture(1024, 1024, "rgba8")
 
-
 _editor.add_node(node13, 99.561292159656, -498.91103646775)
 
-var node14 = Texture()
+var node14 = ::rendergraph::nodes::texture::Texture()
+node14.query_param("unif_name").value = "u_tex"
 node14.gamma_correction = false
 node14.init_texture(1024, 1024, "depth")
 
-
 _editor.add_node(node14, 314.68525216599, -507.84492026085)
 
-var node15 = Shader()
+var node15 = ::rendergraph::nodes::shader::Shader()
 
 node15.vs = "
 #version 330 core
@@ -232,6 +237,9 @@ void main()
     gl_Position = projection * view * worldPos;
 }
 "
+node15.tcs = ""
+node15.tes = ""
+node15.gs = ""
 node15.fs = "
 #version 330 core
 layout (location = 0) out vec3 gPosition;
@@ -257,51 +265,53 @@ void main()
     gAlbedoSpec.a = texture(texture_specular1, TexCoords).r;
 }
 "
-node15.gs = ""
+node15.cs = ""
 node15.render_gen()
 
 _editor.add_node(node15, -306.68234014475, 20.522819484651)
 
-var node16 = Draw()
+var node16 = ::rendergraph::nodes::draw::Draw()
 
 node16.set_prim_type("tri_strip")
 node16.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node16.skip = false
 
 _editor.add_node(node16, 183.97544794534, -998.135354111)
 
-var node17 = PrimitiveShape()
+var node17 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node17.type = "quad"
 node17.layout = [ "position", "texture" ]
+node17.shape_params = {  }
 
 _editor.add_node(node17, -7.0266220308195, -1118.9157951755)
 
-var node18 = Clear()
+var node18 = ::rendergraph::nodes::clear::Clear()
 
 node18.masks = [ "depth", "color" ]
 node18.values = { "color" : [ 0, 0, 0, 255 ] }
 
 _editor.add_node(node18, -10.993169793346, -939.23521382587)
 
-Blueprint.connect(node0, "next", node9, "prev")
-Blueprint.connect(node1, "model", node0, "model")
-Blueprint.connect(node2, "out", node16, "shader")
-Blueprint.connect(node3, "next", node0, "prev")
-Blueprint.connect(node4, "mat", node15, "view")
-Blueprint.connect(node4, "zoom", node5, "fovy")
-Blueprint.connect(node4, "pos", node2, "viewPos")
-Blueprint.connect(node5, "mat", node15, "projection")
-Blueprint.connect(node6, "mat", node7, "mat")
-Blueprint.connect(node7, "mat", node15, "model")
-Blueprint.connect(node8, "all", node7, "offset")
-Blueprint.connect(node10, "fbo", node9, "fbo")
 Blueprint.connect(node11, "tex", node10, "col0")
-Blueprint.connect(node11, "tex", node2, "gPosition")
 Blueprint.connect(node12, "tex", node10, "col1")
-Blueprint.connect(node12, "tex", node2, "gNormal")
 Blueprint.connect(node13, "tex", node10, "col2")
-Blueprint.connect(node13, "tex", node2, "gAlbedoSpec")
 Blueprint.connect(node14, "tex", node10, "depth")
-Blueprint.connect(node15, "out", node0, "shader")
-Blueprint.connect(node17, "out", node16, "va")
+Blueprint.connect(node0, "next", node9, "prev")
+Blueprint.connect(node10, "fbo", node9, "fbo")
+Blueprint.connect(node6, "mat", node7, "mat")
+Blueprint.connect(node8, "all", node7, "offset")
+Blueprint.connect(node4, "zoom", node5, "fovy")
+Blueprint.connect(node7, "mat", node15, "model")
+Blueprint.connect(node4, "mat", node15, "view")
+Blueprint.connect(node5, "mat", node15, "projection")
+Blueprint.connect(node4, "pos", node2, "viewPos")
+Blueprint.connect(node11, "tex", node2, "gPosition")
+Blueprint.connect(node12, "tex", node2, "gNormal")
+Blueprint.connect(node13, "tex", node2, "gAlbedoSpec")
 Blueprint.connect(node18, "next", node16, "prev")
+Blueprint.connect(node2, "out", node16, "shader")
+Blueprint.connect(node17, "out", node16, "va")
+Blueprint.connect(node3, "next", node0, "prev")
+Blueprint.connect(node15, "out", node0, "shader")
+Blueprint.connect(node1, "model", node0, "model")

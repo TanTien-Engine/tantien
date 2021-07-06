@@ -1,13 +1,9 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = ShaderCode()
+var node0 = ::rendergraph::nodes::shader_code::ShaderCode()
 node0.init_filepath("../../shaders/fluid2d/pressureProjectionRB.glsl")
 
 _editor.add_node(node0, -174.33981926837, 183.98612520313)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = ""
 node1.tcs = ""
@@ -19,27 +15,27 @@ node1.render_gen()
 
 _editor.add_node(node1, 48.866244628324, 148.58496213227)
 
-var node2 = Compute()
+var node2 = ::rendergraph::nodes::compute::Compute()
 
 node2.num_groups = [ 16, 16, 1 ]
 
 _editor.add_node(node2, 266.72215509585, 137.62428937935)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "pressure_READ"
 node3.var_type = "texture"
 
 _editor.add_node(node3, -173.30053215961, 139.91469186097)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "velocities_READ"
 node4.var_type = "texture"
 
 _editor.add_node(node4, -174.14872692495, 95.384438847085)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "velocities_WRITE"
 node5.var_type = "texture"

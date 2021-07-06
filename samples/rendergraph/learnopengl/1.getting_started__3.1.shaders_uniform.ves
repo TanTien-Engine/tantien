@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 _editor.add_node(node0, -209.84346315436, 164.38591538003)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 134, 19)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -22,6 +23,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -34,51 +38,51 @@ void main()
     FragColor = ourColor;
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -38.867495656879, 1.7349913137585)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ -0.5, -0.5, 0, 0.5, -0.5, 0, 0, 0.5, 0 ]
 node3.attrs = [ 3 ]
 
 _editor.add_node(node3, -29, -122)
 
-var node4 = Combine()
+var node4 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node4, -202.79502605872, 8.0418940897648)
 
-var node5 = Number()
+var node5 = ::blueprint::nodes::number::Number()
 
 node5.value = 0.5
 
 _editor.add_node(node5, -620.60251550117, -57.83935329285)
 
-var node6 = Time()
+var node6 = ::blueprint::nodes::time::Time()
 
 _editor.add_node(node6, -820.23296146582, 21.5067398287)
 
-var node7 = Sin()
+var node7 = ::blueprint::nodes::sin::Sin()
 
 _editor.add_node(node7, -648.61326741548, 20.362292067618)
 
-var node8 = Multiply()
+var node8 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node8, -499.117803, 14.391165)
 
-var node9 = Add()
+var node9 = ::blueprint::nodes::add::Add()
 
 _editor.add_node(node9, -345.404976, 8.0852210000001)
 
+Blueprint.connect(node6, "time", node7, "v")
+Blueprint.connect(node7, "v", node8, "a")
+Blueprint.connect(node5, "v", node8, "b")
+Blueprint.connect(node8, "v", node9, "a")
+Blueprint.connect(node5, "v", node9, "b")
+Blueprint.connect(node9, "v", node4, "y")
+Blueprint.connect(node4, "xyzw", node2, "ourColor")
 Blueprint.connect(node0, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node4, "xyzw", node2, "ourColor")
-Blueprint.connect(node5, "v", node8, "b")
-Blueprint.connect(node5, "v", node9, "b")
-Blueprint.connect(node6, "time", node7, "v")
-Blueprint.connect(node7, "v", node8, "a")
-Blueprint.connect(node8, "v", node9, "a")
-Blueprint.connect(node9, "v", node4, "y")

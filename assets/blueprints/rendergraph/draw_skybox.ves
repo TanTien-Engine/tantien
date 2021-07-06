@@ -1,11 +1,12 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable", "depth_func" : "lequal" }
+node0.skip = false
 
 _editor.add_node(node0, 203.85918701258, 59.330746129723)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = "
 #version 330 core
@@ -26,6 +27,9 @@ void main()
     gl_Position = pos.xyww;
 }  
 "
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
 node1.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -54,57 +58,57 @@ void main()
     FragColor = vec4(envColor, 1.0);
 }
 "
-node1.gs = ""
+node1.cs = ""
 node1.render_gen()
 
 _editor.add_node(node1, -73.748493212811, 82.017393205064)
 
-var node2 = VertexArray()
+var node2 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node2.data = [ -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, 1 ]
 node2.attrs = [ 3 ]
 
 _editor.add_node(node2, -41.151425200496, 5.1311638353625)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "projection"
 node3.var_type = "mat4"
 
 _editor.add_node(node3, -254.18951700326, 194.39497374342)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "view"
 node4.var_type = "mat4"
 
 _editor.add_node(node4, -254.36151030917, 148.19219487124)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "skybox"
 node5.var_type = "texture"
 
 _editor.add_node(node5, -254.57691881883, 4.0887243212114)
 
-var node6 = Property()
+var node6 = ::blueprint::nodes::property::Property()
 
 node6.var_name = "tonemap"
 node6.var_type = "num"
 
 _editor.add_node(node6, -254.03792578327, 103.24493380689)
 
-var node7 = Property()
+var node7 = ::blueprint::nodes::property::Property()
 
 node7.var_name = "gamma_correct"
 node7.var_type = "num"
 
 _editor.add_node(node7, -254.78922767553, 55.160776277308)
 
-Blueprint.connect(node1, "out", node0, "shader")
-Blueprint.connect(node2, "out", node0, "va")
 Blueprint.connect(node3, "var", node1, "projection")
 Blueprint.connect(node4, "var", node1, "view")
-Blueprint.connect(node5, "var", node1, "skybox")
 Blueprint.connect(node6, "var", node1, "tonemap")
 Blueprint.connect(node7, "var", node1, "gamma_correct")
+Blueprint.connect(node5, "var", node1, "skybox")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")

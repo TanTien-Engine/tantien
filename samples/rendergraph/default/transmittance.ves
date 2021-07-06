@@ -1,14 +1,21 @@
-var node0 = Subgraph()
-node0.load_from_file(_editor, "assets/blueprints/rendergraph/transmittance.ves")
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/rendergraph/transmittance.ves")
+
+node0.op_node.cam.position.set(-0.10923194878468, 0.33230045651671, 0.61797473538041)
+node0.op_node.cam.yaw = -91.3
+node0.op_node.cam.pitch = -14.4
+node0.op_node.cam.zoom = 45
+node0.op_node.cam.update_vectors()
+node0.op_node.speed = 0.01
 
 _editor.add_node(node0, -19, 453.5)
 
-var node1 = Model()
+var node1 = ::rendergraph::nodes::model::Model()
 node1.init_model("../skin/Head2.fbx")
 
 _editor.add_node(node1, -216.85827849177, 436.45001194181)
 
-var node2 = Pass()
+var node2 = ::rendergraph::nodes::pass::Pass()
 
 node2.once = false
 

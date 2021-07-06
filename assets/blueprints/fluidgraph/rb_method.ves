@@ -1,75 +1,71 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "div_rb.ves")
 
 _editor.add_node(node0, -238.1928853437, 310.72257882111)
 
-var node1 = Subgraph()
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "pressure_proj_rb.ves")
 
 _editor.add_node(node1, 672.20686246735, 318.04227312737)
 
-var node2 = Input()
+var node2 = ::blueprint::nodes::input::Input()
 
 node2.var_name = "velocities_READ"
 node2.var_type = "texture"
 
 _editor.add_node(node2, -451.68045527614, 342.36450728375)
 
-var node3 = Input()
+var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "velocities_WRITE"
 node3.var_type = "texture"
 
 _editor.add_node(node3, 390.84395077028, 273.81215538618)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "divergence"
 node4.var_type = "texture"
 
 _editor.add_node(node4, -564.66553361877, 185.14358059465)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "pressure_READ"
 node5.var_type = "texture"
 
 _editor.add_node(node5, -578.04456982079, 123.10879712729)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "jacobi_black.ves")
 
 _editor.add_node(node6, -309.44441898383, -31.209193687525)
 
-var node7 = Subgraph()
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
 node7.load_from_file(_editor, "jacobi_red.ves")
 
 _editor.add_node(node7, -54.448201650252, -30.608141852536)
 
-var node8 = Loop()
+var node8 = ::blueprint::nodes::loop::Loop()
 
 node8.start = 0
 node8.end = 50
 
 _editor.add_node(node8, 175.45935023813, -18.528007148193)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "copy.ves")
 
 _editor.add_node(node9, 58.74998231654, 279.14029036134)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
 node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture(512, 512, "rgba16f")
 
 _editor.add_node(node10, -191.13731359056, 444.57980724997)
 
-var node11 = Group()
+var node11 = ::blueprint::nodes::group::Group()
 
 node11.debug_msg = "jacobi"
 

@@ -1,9 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("patches")
 node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : true }
@@ -11,7 +6,7 @@ node0.skip = false
 
 _editor.add_node(node0, 558.8075282446, -339.48126638417)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = "
 #version 330 core
@@ -308,14 +303,14 @@ node1.set_uniform("fs.sample_tile_type", [ 0 ])
 
 _editor.add_node(node1, 157.79557543759, -355.9795922234)
 
-var node2 = Clear()
+var node2 = ::rendergraph::nodes::clear::Clear()
 
 node2.masks = [ "color", "depth" ]
 node2.values = { "color" : [ 0, 0, 0, 255 ] }
 
 _editor.add_node(node2, 335.02348918957, -188.12587085987)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "grids"
 node3.layout = [ "position", "texture" ]
@@ -323,14 +318,14 @@ node3.shape_params = { "grids_size" : 64 }
 
 _editor.add_node(node3, 381.67421297039, -401.33131969581)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "tes_heightmap"
 node4.var_type = "texture"
 
 _editor.add_node(node4, -251.06667315772, 79.375127070942)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
 node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("assets/textures/terrain/dark_dirt.jpg")
@@ -338,7 +333,7 @@ node5.set_sampler("linear_repeat")
 
 _editor.add_node(node5, -398.28562958109, -303.05954756096)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("assets/textures/terrain/rock.jpg")
@@ -346,7 +341,7 @@ node6.set_sampler("linear_repeat")
 
 _editor.add_node(node6, -164.60783767928, -303.48366069446)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("assets/textures/terrain/grass.jpg")
@@ -354,7 +349,7 @@ node7.set_sampler("linear_repeat")
 
 _editor.add_node(node7, -405.89994659973, -600.57493158753)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
 node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("assets/textures/terrain/snow.png")
@@ -362,7 +357,7 @@ node8.set_sampler("linear_repeat")
 
 _editor.add_node(node8, -163.47868212477, -600.57491890504)
 
-var node9 = Custom()
+var node9 = ::blueprint::nodes::custom::Custom()
 
 node9.code = "
 import \"maths.vector\" for Vector4
@@ -416,28 +411,28 @@ node9.use_cache = false
 
 _editor.add_node(node9, -252.76502418668, -137.49332885429)
 
-var node10 = Property()
+var node10 = ::blueprint::nodes::property::Property()
 
 node10.var_name = "tes.clip_plane"
 node10.var_type = "num4"
 
 _editor.add_node(node10, -100.82996987323, 97.773203908102)
 
-var node11 = Input()
+var node11 = ::blueprint::nodes::input::Input()
 
 node11.var_name = "tcs.model"
 node11.var_type = "mat4"
 
 _editor.add_node(node11, -102.68643271646, 151.71171482009)
 
-var node12 = Proxy()
+var node12 = ::blueprint::nodes::proxy::Proxy()
 
 node12.real_name = "view_cam"
 node12.init_real_node(_editor.popup_nodes, "Camera3d")
 
 _editor.add_node(node12, -305.91326836226, 217.13073328478)
 
-var node13 = Perspective()
+var node13 = ::blueprint::nodes::perspective::Perspective()
 
 node13.fovy = 45
 node13.aspect = 0
@@ -446,41 +441,41 @@ node13.zfar = 100
 
 _editor.add_node(node13, -134.60698499512, 344.54891007019)
 
-var node14 = Input()
+var node14 = ::blueprint::nodes::input::Input()
 
 node14.var_name = "fs.mouse_pos"
 node14.var_type = "num2"
 
 _editor.add_node(node14, -247.05421839203, 31.474460990285)
 
-var node15 = Input()
+var node15 = ::blueprint::nodes::input::Input()
 
 node15.var_name = "fs.draw_radius"
 node15.var_type = "num"
 
 _editor.add_node(node15, -247.0542146495, -17.702509322296)
 
-Blueprint.connect(node15, "var", node1, "fs.draw_radius")
-Blueprint.connect(node14, "var", node1, "fs.mouse_pos")
-Blueprint.connect(node12, "mat", node1, "tcs.view")
-Blueprint.connect(node12, "mat", node1, "tes.view")
 Blueprint.connect(node12, "zoom", node13, "fovy")
-Blueprint.connect(node12, "pos", node1, "tcs.cam_pos")
 Blueprint.connect(node13, "mat", node1, "tcs.projection")
-Blueprint.connect(node13, "mat", node1, "tes.projection")
+Blueprint.connect(node12, "mat", node1, "tcs.view")
 Blueprint.connect(node11, "var", node1, "tcs.model")
+Blueprint.connect(node12, "pos", node1, "tcs.cam_pos")
+Blueprint.connect(node13, "mat", node1, "tes.projection")
+Blueprint.connect(node12, "mat", node1, "tes.view")
 Blueprint.connect(node11, "var", node1, "tes.model")
 Blueprint.connect(node10, "var", node1, "tes.clip_plane")
+Blueprint.connect(node4, "var", node1, "tes_heightmap")
 Blueprint.connect(node9, "out0", node1, "fs.layer_height_scale")
 Blueprint.connect(node9, "out1", node1, "fs.layer_height_bias")
 Blueprint.connect(node9, "out2", node1, "fs.layer_slope_scale")
 Blueprint.connect(node9, "out3", node1, "fs.layer_slope_bias")
-Blueprint.connect(node8, "tex", node1, "splatmap3")
-Blueprint.connect(node7, "tex", node1, "splatmap2")
-Blueprint.connect(node6, "tex", node1, "splatmap1")
-Blueprint.connect(node5, "tex", node1, "splatmap0")
-Blueprint.connect(node4, "var", node1, "tes_heightmap")
+Blueprint.connect(node14, "var", node1, "fs.mouse_pos")
+Blueprint.connect(node15, "var", node1, "fs.draw_radius")
 Blueprint.connect(node4, "var", node1, "fs_heightmap")
+Blueprint.connect(node5, "tex", node1, "splatmap0")
+Blueprint.connect(node6, "tex", node1, "splatmap1")
+Blueprint.connect(node7, "tex", node1, "splatmap2")
+Blueprint.connect(node8, "tex", node1, "splatmap3")
+Blueprint.connect(node2, "next", node0, "prev")
 Blueprint.connect(node1, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node2, "next", node0, "prev")

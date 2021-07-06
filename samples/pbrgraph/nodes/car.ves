@@ -1,28 +1,18 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "pixelgraph.nodes.*"
-
-import "pbrgraph.nodes.*"
-var node0 = Gltf()
+var node0 = ::rendergraph::nodes::gltf::Gltf()
 node0.init_model("assets/models/ToyCar/ToyCar.gltf")
 
 _editor.add_node(node0, -354.43629568388, 117.945632941)
 
-var node1 = Expand()
+var node1 = ::blueprint::nodes::expand::Expand()
 
 _editor.add_node(node1, -178.78799141067, 103.45607473247)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/clearcoat.ves")
 
 _editor.add_node(node2, 227.43185160261, 237.29112903161)
 
-var node3 = Camera3d()
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
 
 node3.cam.position.set(-0.14086845520135, 0.090644043410464, 0.18272740026073)
 node3.cam.yaw = -51.2
@@ -33,7 +23,7 @@ node3.speed = 0.038704462349415
 
 _editor.add_node(node3, -524.62011134799, -492.03527994823)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 8
 node4.aspect = 0
@@ -42,212 +32,215 @@ node4.zfar = 100
 
 _editor.add_node(node4, -355.38015102217, -512.43845474006)
 
-var node5 = OrbitCamera()
+var node5 = ::blueprint::nodes::orbit_camera::OrbitCamera()
 node5.query_param("speed").value = 0.5761501789093
 
 _editor.add_node(node5, -382.39667702339, -220.37867802767)
 
-var node6 = Number3()
+var node6 = ::blueprint::nodes::number3::Number3()
 
 node6.value.set(6.8739829063416, 7.2073159217834, 6.3184270858765)
 
 _editor.add_node(node6, -532.8658185635, -59.083332435571)
 
-var node7 = Subtract()
+var node7 = ::blueprint::nodes::subtract::Subtract()
 
 _editor.add_node(node7, -374.13957712068, -95.344448707929)
 
-var node8 = Number3()
+var node8 = ::blueprint::nodes::number3::Number3()
 
 node8.value.set(5.049777507782, 5.383111000061, 5.383111000061)
 
 _editor.add_node(node8, -525.44801150158, -168.1301922319)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/cloth_model.ves")
 
 _editor.add_node(node9, 494.15568750168, -109.43131508502)
 
-var node10 = Load()
+var node10 = ::blueprint::nodes::load::Load()
 
 node10.var_name = "light_pos"
 
 _editor.add_node(node10, 36.534458028824, 184.58435216174)
 
-var node11 = Store()
+var node11 = ::blueprint::nodes::store::Store()
 
 node11.var_name = "light_pos"
 
 _editor.add_node(node11, -237.56657470703, -90.395013122559)
 
-var node12 = Load()
+var node12 = ::blueprint::nodes::load::Load()
 
 node12.var_name = "light_pos"
 
 _editor.add_node(node12, 303.10381804521, -158.26702411037)
 
-var node13 = Store()
+var node13 = ::blueprint::nodes::store::Store()
 
 node13.var_name = "local_mat"
 
 _editor.add_node(node13, -221.89, -212.03)
 
-var node14 = Load()
+var node14 = ::blueprint::nodes::load::Load()
 
 node14.var_name = "local_mat"
 
 _editor.add_node(node14, 540.37955057715, -214.19537599891)
 
-var node15 = Load()
+var node15 = ::blueprint::nodes::load::Load()
 
 node15.var_name = "local_mat"
 
 _editor.add_node(node15, 234.81845502356, 85.447681169318)
 
-var node16 = Store()
+var node16 = ::blueprint::nodes::store::Store()
 
 node16.var_name = "view_mat"
 
 _editor.add_node(node16, -355.98250411723, -414.78772016107)
 
-var node17 = Load()
+var node17 = ::blueprint::nodes::load::Load()
 
 node17.var_name = "view_mat"
 
 _editor.add_node(node17, 628.09577485928, 214.11383893829)
 
-var node18 = Load()
+var node18 = ::blueprint::nodes::load::Load()
 
 node18.var_name = "view_mat"
 
 _editor.add_node(node18, 939.67209909768, -108.98587210509)
 
-var node19 = Store()
+var node19 = ::blueprint::nodes::store::Store()
 
 node19.var_name = "proj_mat"
 
 _editor.add_node(node19, -201.95085455426, -471.4443487401)
 
-var node20 = Load()
+var node20 = ::blueprint::nodes::load::Load()
 
 node20.var_name = "proj_mat"
 
 _editor.add_node(node20, 630.79954937621, 167.65113126192)
 
-var node21 = Load()
+var node21 = ::blueprint::nodes::load::Load()
 
 node21.var_name = "proj_mat"
 
 _editor.add_node(node21, 942.61024818968, -156.42267963265)
 
-var node22 = Store()
+var node22 = ::blueprint::nodes::store::Store()
 
 node22.var_name = "cam_pos"
 
 _editor.add_node(node22, -357.08299817395, -609.85220490174)
 
-var node23 = Load()
+var node23 = ::blueprint::nodes::load::Load()
 
 node23.var_name = "cam_pos"
 
 _editor.add_node(node23, 33.149992263363, 233.14985303329)
 
-var node24 = Load()
+var node24 = ::blueprint::nodes::load::Load()
 
 node24.var_name = "cam_pos"
 
 _editor.add_node(node24, 300.34485349153, -112.79647226635)
 
-var node25 = Load()
+var node25 = ::blueprint::nodes::load::Load()
 
 node25.var_name = "light_pos"
 
 _editor.add_node(node25, 469.02798887534, -469.11125132017)
 
-var node26 = Load()
+var node26 = ::blueprint::nodes::load::Load()
 
 node26.var_name = "local_mat"
 
 _editor.add_node(node26, 715.88148248917, -526.06589922673)
 
-var node27 = Load()
+var node27 = ::blueprint::nodes::load::Load()
 
 node27.var_name = "cam_pos"
 
 _editor.add_node(node27, 470.77691312707, -415.37623666622)
 
-var node28 = Load()
+var node28 = ::blueprint::nodes::load::Load()
 
 node28.var_name = "view_mat"
 
 _editor.add_node(node28, 1039.0631168131, -372.80775765405)
 
-var node29 = Load()
+var node29 = ::blueprint::nodes::load::Load()
 
 node29.var_name = "proj_mat"
 
 _editor.add_node(node29, 1042.0012659051, -420.24456518161)
 
-var node30 = Subgraph()
+var node30 = ::blueprint::nodes::subgraph::Subgraph()
 node30.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/transmission.ves")
 
 _editor.add_node(node30, 680.39721679688, -419.82220458984)
 
-var node31 = Pass()
+var node31 = ::rendergraph::nodes::pass::Pass()
 
 node31.once = false
 
 _editor.add_node(node31, 1073.7726409035, 255.56540068603)
 
-var node32 = Subgraph()
+var node32 = ::blueprint::nodes::subgraph::Subgraph()
 node32.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
 _editor.add_node(node32, 838.46649441933, 214.4455809481)
 
-var node33 = Subgraph()
+var node33 = ::blueprint::nodes::subgraph::Subgraph()
 node33.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
 _editor.add_node(node33, 442.19785780304, 83.592438236906)
 
-var node34 = Subgraph()
+var node34 = ::blueprint::nodes::subgraph::Subgraph()
 node34.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
 _editor.add_node(node34, 730.35475512934, -215.45820193502)
 
-var node35 = Subgraph()
+var node35 = ::blueprint::nodes::subgraph::Subgraph()
 node35.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
 _editor.add_node(node35, 1113.1461332968, -117.64464304843)
 
-var node36 = Subgraph()
+var node36 = ::blueprint::nodes::subgraph::Subgraph()
 node36.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
 _editor.add_node(node36, 1235.2098692186, -428.965162757)
 
-var node37 = Subgraph()
+var node37 = ::blueprint::nodes::subgraph::Subgraph()
 node37.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
 _editor.add_node(node37, 914.12969470866, -531.8301418657)
 
-var node38 = Pass()
+var node38 = ::rendergraph::nodes::pass::Pass()
 
 node38.once = false
 
 _editor.add_node(node38, 1350.9812011719, -76.553325306286)
 
-var node39 = Pass()
+var node39 = ::rendergraph::nodes::pass::Pass()
 
 node39.once = false
 
 _editor.add_node(node39, 1456.9371091589, -387.65944191471)
 
-var node40 = Clear()
+var node40 = ::rendergraph::nodes::clear::Clear()
 
 node40.masks = [ "color", "depth" ]
 node40.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node40, 381, 463.5)
 
+Blueprint.connect(node36, "next", node39, "prev")
+Blueprint.connect(node35, "next", node38, "prev")
+Blueprint.connect(node32, "next", node31, "prev")
 Blueprint.connect(node6, "v3", node7, "a")
 Blueprint.connect(node8, "v3", node7, "b")
 Blueprint.connect(node7, "v", node11, "var")
@@ -286,7 +279,6 @@ Blueprint.connect(node37, "model_mat", node36, "model")
 Blueprint.connect(node28, "var", node36, "view")
 Blueprint.connect(node29, "var", node36, "projection")
 Blueprint.connect(node37, "va", node36, "va")
-Blueprint.connect(node36, "next", node39, "prev")
 Blueprint.connect(node1, "Fabric", node9, "model")
 Blueprint.connect(node24, "var", node9, "cam_pos")
 Blueprint.connect(node12, "var", node9, "light_pos")
@@ -295,7 +287,6 @@ Blueprint.connect(node34, "model_mat", node35, "model")
 Blueprint.connect(node18, "var", node35, "view")
 Blueprint.connect(node21, "var", node35, "projection")
 Blueprint.connect(node34, "va", node35, "va")
-Blueprint.connect(node35, "next", node38, "prev")
 Blueprint.connect(node1, "ToyCar", node2, "model")
 Blueprint.connect(node23, "var", node2, "cam_pos")
 Blueprint.connect(node10, "var", node2, "light_pos")
@@ -305,4 +296,3 @@ Blueprint.connect(node33, "model_mat", node32, "model")
 Blueprint.connect(node17, "var", node32, "view")
 Blueprint.connect(node20, "var", node32, "projection")
 Blueprint.connect(node33, "va", node32, "va")
-Blueprint.connect(node32, "next", node31, "prev")

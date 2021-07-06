@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, 214.47878435183, 300.33590159159)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 578.13035857362, 91.91437918664)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -29,6 +30,9 @@ void main()
     gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -38,23 +42,23 @@ void main()
      gl_FragDepth = gl_FragCoord.z;
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, 139.92346956451, 134.37955174739)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ 25, -0.5, 25, 0, 1, 0, 25, 0, -25, -0.5, 25, 0, 1, 0, 0, 0, -25, -0.5, -25, 0, 1, 0, 0, 25, 25, -0.5, 25, 0, 1, 0, 25, 0, -25, -0.5, -25, 0, 1, 0, 0, 25, 25, -0.5, -25, 0, 1, 0, 25, 10 ]
 node3.attrs = [ 3, 3, 2 ]
 
 _editor.add_node(node3, -97.987280812155, -361.77532102453)
 
-var node4 = Matrix()
+var node4 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node4, -456.71438449437, 16.28092325043)
 
-var node5 = Orthographic()
+var node5 = ::blueprint::nodes::orthographic::Orthographic()
 
 node5.left = -10
 node5.right = 10
@@ -65,7 +69,7 @@ node5.far = 7.5
 
 _editor.add_node(node5, -331.31305524337, 328.98706672605)
 
-var node6 = Lookat()
+var node6 = ::blueprint::nodes::lookat::Lookat()
 
 node6.eye.set(-2, 4, -1)
 node6.center.set(0, 0, 0)
@@ -73,18 +77,19 @@ node6.up.set(0, 1, 0)
 
 _editor.add_node(node6, -313.35437604416, 190.5821197762)
 
-var node7 = Multiply()
+var node7 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node7, -35.129315452441, 198.34937982454)
 
-var node8 = PrimitiveShape()
+var node8 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node8.type = "cube"
 node8.layout = [ "position" ]
+node8.shape_params = {  }
 
 _editor.add_node(node8, -92.284764573031, -472.28694971267)
 
-var node9 = Translate()
+var node9 = ::blueprint::nodes::translate::Translate()
 
 node9.dx = 0
 node9.dy = 1.5
@@ -92,7 +97,7 @@ node9.dz = 0
 
 _editor.add_node(node9, -482.29133535817, -167.74669443311)
 
-var node10 = Scale()
+var node10 = ::blueprint::nodes::scale::Scale()
 
 node10.sx = 0.5
 node10.sy = 0.5
@@ -100,7 +105,7 @@ node10.sz = 0.5
 
 _editor.add_node(node10, -632.17806160781, -187.87490608565)
 
-var node11 = Translate()
+var node11 = ::blueprint::nodes::translate::Translate()
 
 node11.dx = 2
 node11.dy = 0
@@ -108,7 +113,7 @@ node11.dz = 1
 
 _editor.add_node(node11, -413.02024895697, -376.5730693392)
 
-var node12 = Scale()
+var node12 = ::blueprint::nodes::scale::Scale()
 
 node12.sx = 0.5
 node12.sy = 0.5
@@ -116,7 +121,7 @@ node12.sz = 0.5
 
 _editor.add_node(node12, -562.90697520661, -396.70128099174)
 
-var node13 = Translate()
+var node13 = ::blueprint::nodes::translate::Translate()
 
 node13.dx = -1
 node13.dy = 0
@@ -124,7 +129,7 @@ node13.dz = 2
 
 _editor.add_node(node13, -366.47646834094, -581.23749308074)
 
-var node14 = Scale()
+var node14 = ::blueprint::nodes::scale::Scale()
 
 node14.sx = 0.25
 node14.sy = 0.25
@@ -132,7 +137,7 @@ node14.sz = 0.25
 
 _editor.add_node(node14, -728.36319459054, -601.36570473328)
 
-var node15 = Rotate()
+var node15 = ::blueprint::nodes::rotate::Rotate()
 
 node15.angle = 1
 node15.axis_x = 1
@@ -141,41 +146,43 @@ node15.axis_z = 1
 
 _editor.add_node(node15, -552.80769117257, -588.11394740906)
 
-var node16 = Pass()
+var node16 = ::rendergraph::nodes::pass::Pass()
 
 node16.once = false
 
 _editor.add_node(node16, 1280.766126598, 31.67838290128)
 
-var node17 = RenderTarget()
+var node17 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node17.width = 1024
 node17.height = 1024
 
 _editor.add_node(node17, 1069.1661598899, -74.395275656959)
 
-var node18 = Texture()
+var node18 = ::rendergraph::nodes::texture::Texture()
+node18.query_param("unif_name").value = "u_tex"
 node18.gamma_correction = false
 node18.init_texture(1024, 1024, "depth")
 
-
 _editor.add_node(node18, 772.5251953125, -163.17887318004)
 
-var node19 = Draw()
+var node19 = ::rendergraph::nodes::draw::Draw()
 
 node19.set_prim_type("tri_strip")
 node19.render_state = { "depth_test" : false, "depth_func" : "less", "cull" : "disable" }
+node19.skip = false
 
 _editor.add_node(node19, 1379.7377722022, -256.05199519965)
 
-var node20 = PrimitiveShape()
+var node20 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node20.type = "quad"
 node20.layout = [ "position", "texture" ]
+node20.shape_params = {  }
 
 _editor.add_node(node20, 1108.7898518916, -490.73398227265)
 
-var node21 = Shader()
+var node21 = ::rendergraph::nodes::shader::Shader()
 
 node21.vs = "
 #version 330 core
@@ -190,6 +197,9 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 }
 "
+node21.tcs = ""
+node21.tes = ""
+node21.gs = ""
 node21.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -218,41 +228,41 @@ void main()
     FragColor = vec4(vec3(depthValue), 1.0); // orthographic
 }
 "
-node21.gs = ""
+node21.cs = ""
 node21.render_gen()
 node21.set_uniform("near_plane", [ 1 ])
 node21.set_uniform("far_plane", [ 7.5 ])
 
 _editor.add_node(node21, 1077.8336349205, -323.60801326485)
 
-var node22 = Merge()
+var node22 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node22, -105.38901746147, -217.81096194181)
 
-var node23 = Merge()
+var node23 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node23, 73.781866629165, -393.62472515936)
 
-Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node18, "tex", node21, "depthMap")
+Blueprint.connect(node21, "out", node19, "shader")
+Blueprint.connect(node20, "out", node19, "va")
+Blueprint.connect(node18, "tex", node17, "depth")
 Blueprint.connect(node1, "next", node16, "prev")
-Blueprint.connect(node2, "out", node1, "shader")
-Blueprint.connect(node3, "out", node23, "in0")
-Blueprint.connect(node4, "mat", node22, "in0")
-Blueprint.connect(node5, "mat", node7, "a")
-Blueprint.connect(node6, "mat", node7, "b")
-Blueprint.connect(node7, "v", node2, "lightSpaceMatrix")
-Blueprint.connect(node8, "out", node23, "in1")
-Blueprint.connect(node9, "mat", node22, "in1")
-Blueprint.connect(node10, "mat", node9, "mat")
-Blueprint.connect(node11, "mat", node22, "in2")
-Blueprint.connect(node12, "mat", node11, "mat")
-Blueprint.connect(node13, "mat", node22, "in3")
+Blueprint.connect(node17, "fbo", node16, "fbo")
 Blueprint.connect(node14, "mat", node15, "mat")
 Blueprint.connect(node15, "mat", node13, "mat")
-Blueprint.connect(node17, "fbo", node16, "fbo")
-Blueprint.connect(node18, "tex", node17, "depth")
-Blueprint.connect(node18, "tex", node21, "depthMap")
-Blueprint.connect(node20, "out", node19, "va")
-Blueprint.connect(node21, "out", node19, "shader")
+Blueprint.connect(node12, "mat", node11, "mat")
+Blueprint.connect(node10, "mat", node9, "mat")
+Blueprint.connect(node5, "mat", node7, "a")
+Blueprint.connect(node6, "mat", node7, "b")
+Blueprint.connect(node4, "mat", node22, "in0")
+Blueprint.connect(node9, "mat", node22, "in1")
+Blueprint.connect(node11, "mat", node22, "in2")
+Blueprint.connect(node13, "mat", node22, "in3")
+Blueprint.connect(node7, "v", node2, "lightSpaceMatrix")
 Blueprint.connect(node22, "list", node2, "model")
+Blueprint.connect(node3, "out", node23, "in0")
+Blueprint.connect(node8, "out", node23, "in1")
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node23, "list", node1, "va")

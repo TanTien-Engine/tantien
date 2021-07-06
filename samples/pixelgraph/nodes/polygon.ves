@@ -1,26 +1,19 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = TexCoord()
+var node0 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node0, -386.38417015534, -36.41680990225)
 
-var node1 = Combine()
+var node1 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node1, -79.832611081203, -78.164864884266)
 
-var node2 = Polygon()
+var node2 = ::pixelgraph::nodes::polygon::Polygon()
 node2.query_param("sides").value = 5
 node2.query_param("width").value = 0.5
 node2.query_param("height").value = 0.5
 
 _editor.add_node(node2, -238.08894870938, -100.67204313186)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node3, 122.30069277748, -36.771064038665)

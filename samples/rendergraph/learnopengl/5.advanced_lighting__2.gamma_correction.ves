@@ -1,16 +1,11 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "depth", "color" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, 278.47878435183, 253.33590159159)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "cull" : "disable", "clip_plane" : false }
@@ -18,7 +13,7 @@ node1.skip = false
 
 _editor.add_node(node1, 461.85154757362, 206.05502118664)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -120,14 +115,14 @@ node2.set_uniform("ubo_fs.gamma", [ 0 ])
 
 _editor.add_node(node2, 54.781844250067, -41.131581182307)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, 10, 0, 1, 0, 0, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, 10, 0, 1, 0, 10, 0, -10, -0.5, -10, 0, 1, 0, 0, 10, 10, -0.5, -10, 0, 1, 0, 10, 10 ]
 node3.attrs = [ 3, 3, 2 ]
 
 _editor.add_node(node3, 293.2417436206, 127.33978971928)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -136,7 +131,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -202.3871320265, 434.55747558227)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
 node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("resources/textures/wood.png")
@@ -144,7 +139,7 @@ node5.set_sampler("linear_repeat")
 
 _editor.add_node(node5, -200.53483258756, 152.59530255647)
 
-var node6 = Camera3d()
+var node6 = ::blueprint::nodes::camera3d::Camera3d()
 
 node6.cam.position.set(-0.50480193206081, 1.1974717037242, 6.961510605705)
 node6.cam.yaw = -88.6
@@ -155,11 +150,11 @@ node6.speed = 0.10690787434578
 
 _editor.add_node(node6, -202.96711389612, 297.97362508566)
 
-Blueprint.connect(node6, "mat", node2, "ubo_vs.view")
 Blueprint.connect(node6, "zoom", node4, "fovy")
-Blueprint.connect(node6, "pos", node2, "ubo_fs.viewPos")
 Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
+Blueprint.connect(node6, "mat", node2, "ubo_vs.view")
+Blueprint.connect(node6, "pos", node2, "ubo_fs.viewPos")
 Blueprint.connect(node5, "tex", node2, "floorTexture")
+Blueprint.connect(node0, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node0, "next", node1, "prev")

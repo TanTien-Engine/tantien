@@ -1,282 +1,278 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
 
 _editor.add_node(node0, -31, -12)
 
-var node1 = Number3()
+var node1 = ::blueprint::nodes::number3::Number3()
 
 node1.value.set(0.96780735254288, 1.0789184570312, 0)
 
 _editor.add_node(node1, -243.14001494088, -16.024402698569)
 
-var node2 = Number()
+var node2 = ::blueprint::nodes::number::Number()
 
 node2.value = 50
 
 _editor.add_node(node2, -250.60857915594, -138.43124455955)
 
-var node3 = Number2()
+var node3 = ::blueprint::nodes::number2::Number2()
 
 node3.value.set(260.03680419922, 233.7336730957)
 
 _editor.add_node(node3, -246.4190321609, 117.99136349844)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
 
 _editor.add_node(node4, 2618.4202057839, 10.967067356371)
 
-var node5 = Subgraph()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
 
 _editor.add_node(node5, 374.5689555973, -9.4063779864767)
 
-var node6 = Number3()
+var node6 = ::blueprint::nodes::number3::Number3()
 
 node6.value.set(0.74013602733612, 0, 0)
 
 _editor.add_node(node6, 158.82367749134, -41.934783690305)
 
-var node7 = Number()
+var node7 = ::blueprint::nodes::number::Number()
 
 node7.value = 2.5009527206421
 
 _editor.add_node(node7, 161.97632084406, -140.09534455955)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
 node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node8, -1346.3314616005, 111.84249670536)
 
-var node9 = Store()
+var node9 = ::blueprint::nodes::store::Store()
 
 node9.var_name = "density0"
 
 _editor.add_node(node9, -1127.0269591781, 141.98757901783)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
 node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node10, -1352.5596616005, -225.12380329464)
 
-var node11 = Store()
+var node11 = ::blueprint::nodes::store::Store()
 
 node11.var_name = "density1"
 
 _editor.add_node(node11, -1133.2551591781, -194.97872098217)
 
-var node12 = Texture()
+var node12 = ::rendergraph::nodes::texture::Texture()
 node12.query_param("unif_name").value = "u_tex"
 node12.gamma_correction = false
 node12.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node12, -1336.8860916005, -574.85857329464)
 
-var node13 = Store()
+var node13 = ::blueprint::nodes::store::Store()
 
 node13.var_name = "density2"
 
 _editor.add_node(node13, -1117.5815891781, -544.71349098217)
 
-var node14 = Texture()
+var node14 = ::rendergraph::nodes::texture::Texture()
 node14.query_param("unif_name").value = "u_tex"
 node14.gamma_correction = false
 node14.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node14, -1329.7020116005, -960.37711329465)
 
-var node15 = Store()
+var node15 = ::blueprint::nodes::store::Store()
 
 node15.var_name = "density3"
 
 _editor.add_node(node15, -1110.3975091781, -930.23203098218)
 
-var node16 = Texture()
+var node16 = ::rendergraph::nodes::texture::Texture()
 node16.query_param("unif_name").value = "u_tex"
 node16.gamma_correction = false
 node16.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node16, -862.43598314957, 96.278208063874)
 
-var node17 = Store()
+var node17 = ::blueprint::nodes::store::Store()
 
 node17.var_name = "velocities0"
 
 _editor.add_node(node17, -643.13148072717, 126.42329037634)
 
-var node18 = Texture()
+var node18 = ::rendergraph::nodes::texture::Texture()
 node18.query_param("unif_name").value = "u_tex"
 node18.gamma_correction = false
 node18.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node18, -868.66418314957, -240.68809193613)
 
-var node19 = Store()
+var node19 = ::blueprint::nodes::store::Store()
 
 node19.var_name = "velocities1"
 
 _editor.add_node(node19, -649.35968072717, -210.54300962366)
 
-var node20 = Texture()
+var node20 = ::rendergraph::nodes::texture::Texture()
 node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node20, -852.99061314957, -590.42286193613)
 
-var node21 = Store()
+var node21 = ::blueprint::nodes::store::Store()
 
 node21.var_name = "velocities2"
 
 _editor.add_node(node21, -633.68611072717, -560.27777962366)
 
-var node22 = Texture()
+var node22 = ::rendergraph::nodes::texture::Texture()
 node22.query_param("unif_name").value = "u_tex"
 node22.gamma_correction = false
 node22.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node22, -845.80653314957, -975.94140193614)
 
-var node23 = Store()
+var node23 = ::blueprint::nodes::store::Store()
 
 node23.var_name = "velocities3"
 
 _editor.add_node(node23, -625.8190172718, -945.79631962367)
 
-var node24 = Texture()
+var node24 = ::rendergraph::nodes::texture::Texture()
 node24.query_param("unif_name").value = "u_tex"
 node24.gamma_correction = false
 node24.init_texture(512, 512, "rgba16f")
 
 _editor.add_node(node24, 1567.8963622712, -209.90407319784)
 
-var node25 = Texture()
+var node25 = ::rendergraph::nodes::texture::Texture()
 node25.query_param("unif_name").value = "u_tex"
 node25.gamma_correction = false
 node25.init_texture(512, 512, "rgba16f")
 
 _editor.add_node(node25, 1783.8903353605, -210.93292573524)
 
-var node26 = Load()
+var node26 = ::blueprint::nodes::load::Load()
 
 node26.var_name = "velocities0"
 
 _editor.add_node(node26, -253.75572620738, -210.06554343484)
 
-var node27 = Load()
+var node27 = ::blueprint::nodes::load::Load()
 
 node27.var_name = "density0"
 
 _editor.add_node(node27, 162.49784229624, -212.47091303212)
 
-var node28 = Subgraph()
+var node28 = ::blueprint::nodes::subgraph::Subgraph()
 node28.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/mc_advect.ves")
 
 _editor.add_node(node28, 760.1716308896, -38.762639415726)
 
-var node29 = Load()
+var node29 = ::blueprint::nodes::load::Load()
 
 node29.var_name = "velocities0"
 
 _editor.add_node(node29, 566.1934797126, -54.810886938789)
 
-var node30 = Load()
+var node30 = ::blueprint::nodes::load::Load()
 
 node30.var_name = "velocities1"
 
 _editor.add_node(node30, 569.22374306641, -102.50488381348)
 
-var node31 = Load()
+var node31 = ::blueprint::nodes::load::Load()
 
 node31.var_name = "velocities2"
 
 _editor.add_node(node31, 570.55930888546, -150.90345418169)
 
-var node32 = Load()
+var node32 = ::blueprint::nodes::load::Load()
 
 node32.var_name = "velocities3"
 
 _editor.add_node(node32, 571.27188642862, -199.42707262643)
 
-var node33 = Number()
+var node33 = ::blueprint::nodes::number::Number()
 
 node33.value = 0.14227972924709
 
 _editor.add_node(node33, 638.45308242188, 271.40357578125)
 
-var node34 = Subgraph()
+var node34 = ::blueprint::nodes::subgraph::Subgraph()
 node34.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/mc_advect.ves")
 
 _editor.add_node(node34, 1364.1132073977, -46.461582678122)
 
-var node35 = Load()
+var node35 = ::blueprint::nodes::load::Load()
 
 node35.var_name = "density0"
 
 _editor.add_node(node35, 1135.3010138672, -78.023089404299)
 
-var node36 = Load()
+var node36 = ::blueprint::nodes::load::Load()
 
 node36.var_name = "density1"
 
 _editor.add_node(node36, 1142.2874330078, -133.03483974609)
 
-var node37 = Load()
+var node37 = ::blueprint::nodes::load::Load()
 
 node37.var_name = "density2"
 
 _editor.add_node(node37, 1143.0894349609, -181.59184658203)
 
-var node38 = Load()
+var node38 = ::blueprint::nodes::load::Load()
 
 node38.var_name = "density3"
 
 _editor.add_node(node38, 1145.7864411865, -227.08583461914)
 
-var node39 = Subgraph()
+var node39 = ::blueprint::nodes::subgraph::Subgraph()
 node39.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/rb_method.ves")
 
 _editor.add_node(node39, 2010.0438427734, -12.18660625)
 
-var node40 = Load()
+var node40 = ::blueprint::nodes::load::Load()
 
 node40.var_name = "density0"
 
 _editor.add_node(node40, 2428.9460318131, -24.943797215429)
 
-var node41 = Load()
+var node41 = ::blueprint::nodes::load::Load()
 
 node41.var_name = "velocities0"
 
 _editor.add_node(node41, 1823.6281245561, -14.98147183505)
 
-var node42 = Load()
+var node42 = ::blueprint::nodes::load::Load()
 
 node42.var_name = "velocities1"
 
 _editor.add_node(node42, 1821.2081514116, -73.94147000399)
 
-var node43 = Swap()
+var node43 = ::blueprint::nodes::swap::Swap()
 
 _editor.add_node(node43, 957.3294456941, 18.80245181224)
 
-var node44 = Swap()
+var node44 = ::blueprint::nodes::swap::Swap()
 
 _editor.add_node(node44, 1558.834979899, 14.660734927645)
 
-var node45 = Swap()
+var node45 = ::blueprint::nodes::swap::Swap()
 
 _editor.add_node(node45, 2233.1481445313, 14.013568359375)
 
-var node46 = Load()
+var node46 = ::blueprint::nodes::load::Load()
 
 node46.var_name = "velocities0"
 

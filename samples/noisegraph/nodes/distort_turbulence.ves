@@ -1,31 +1,23 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "noisegraph.nodes.*"
-var node0 = TexCoord()
+var node0 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node0, -128.1657634143, 195.63427395387)
 
-var node1 = Multiply()
+var node1 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node1, 27.221080166023, 163.488226485)
 
-var node2 = Number()
+var node2 = ::blueprint::nodes::number::Number()
 
 node2.value = 10
 
 _editor.add_node(node2, -252.65258831054, 131.38824516909)
 
-var node3 = Uniform()
+var node3 = ::shadergraph::nodes::uniform::Uniform()
 node3.query_param("unif_name").value = "unif_0"
 
 _editor.add_node(node3, -127.44075874328, 142.50140158877)
 
-var node4 = DistortTurbulence()
+var node4 = ::noisegraph::nodes::distort_turbulence::DistortTurbulence()
 node4.query_param("seed").value = 0
 node4.query_param("noiseTransform").value.set(0.3, 0.3, 0.3, 0.3)
 node4.query_param("octaves").value = 4
@@ -33,12 +25,12 @@ node4.query_param("lacunarity").value = 2
 
 _editor.add_node(node4, 186, 75.292094937741)
 
-var node5 = Subgraph()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node5, 525.72894639079, 233.38564615596)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "perlin_perm2d_tex"
 node6.gamma_correction = false
 node6.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
@@ -46,7 +38,7 @@ node6.set_sampler("nearest_repeat")
 
 _editor.add_node(node6, -272.20894411318, 10.900322495722)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "perlin_grad2d_tex"
 node7.gamma_correction = false
 node7.init_texture("../../../assets/textures/noise/perlin_grad2d.png")
@@ -54,7 +46,7 @@ node7.set_sampler("nearest_repeat")
 
 _editor.add_node(node7, -53.757520526122, 13.158219490965)
 
-var node8 = Combine()
+var node8 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node8, 336.20496964002, 194.99647193483)
 

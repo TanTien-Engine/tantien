@@ -1,20 +1,16 @@
-
-import "blueprint.blueprint" for Blueprint
-import "geograph.nodes.*"
-import "aigraph.nodes.*"
-var node0 = BehaviorTree()
+var node0 = ::aigraph::nodes::behavior_tree::BehaviorTree()
 
 _editor.add_node(node0, 299.87928782223, 97.976928188944)
 
-var node1 = Sequence()
+var node1 = ::aigraph::nodes::sequence::Sequence()
 
 _editor.add_node(node1, 145.21225574507, 57.189179204103)
 
-var node2 = DrawGeometry()
+var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
 
 _editor.add_node(node2, -71.834853555704, 246.15276837772)
 
-var node3 = Circle()
+var node3 = ::geograph::nodes::circle::Circle()
 node3.query_param("x").value = 0
 node3.query_param("y").value = 0
 node3.query_param("r").value = 100
@@ -23,13 +19,13 @@ node3.query_param("color").value.set(1, 0, 0)
 
 _editor.add_node(node3, -320.42623168287, 138.97571017975)
 
-var node4 = Translate()
+var node4 = ::geograph::nodes::translate::Translate()
 node4.query_param("dx").value = 1
 node4.query_param("dy").value = 0
 
 _editor.add_node(node4, -69.036295902598, 119.01122687734)
 
-var node5 = Translate()
+var node5 = ::geograph::nodes::translate::Translate()
 node5.query_param("dx").value = 0
 node5.query_param("dy").value = 1
 

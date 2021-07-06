@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 _editor.add_node(node0, -212.26346315436, 26.44591538003)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 134, 19)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -25,6 +26,9 @@ void main()
     ourColor = aColor;
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -34,12 +38,12 @@ void main()
     FragColor = vec4(ourColor, 1.0f);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -25.557495656879, 22.304991313759)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ 0.5, -0.5, 0, 1, 0, 0, -0.5, -0.5, 0, 0, 1, 0, 0, 0.5, 0, 0, 0, 1 ]
 node3.attrs = [ 3, 3 ]

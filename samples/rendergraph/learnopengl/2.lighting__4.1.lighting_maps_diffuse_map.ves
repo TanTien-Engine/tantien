@@ -1,18 +1,19 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
+node0.skip = false
 
 _editor.add_node(node0, 288, 419)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node1, 104.61577275634, 720.28026537048)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -40,6 +41,9 @@ void main()
     gl_Position = ubo_vs.projection * ubo_vs.view * vec4(FragPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -92,7 +96,7 @@ void main()
     FragColor = vec4(result, 1.0);
 } 
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 node2.set_uniform("ubo_fs.viewPos", [ 0.61252337694168, 0.53474563360214, 0.52363449335098 ])
 node2.set_uniform("ubo_fs.material.specular", [ 0.5, 0.5, 0.5 ])
@@ -104,14 +108,14 @@ node2.set_uniform("ubo_fs.light.specular", [ 1, 1, 1 ])
 
 _editor.add_node(node2, -53.127097378661, 373.1309566719)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
 _editor.add_node(node3, 142.36267687706, 407.49150265223)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -120,7 +124,7 @@ node4.zfar = 194.57363891602
 
 _editor.add_node(node4, -278.51163020742, 506.32078183062)
 
-var node5 = Lookat()
+var node5 = ::blueprint::nodes::lookat::Lookat()
 
 node5.eye.set(0, 0, 3)
 node5.center.set(0, 0, 0)
@@ -128,7 +132,7 @@ node5.up.set(0, 1, 0)
 
 _editor.add_node(node5, -285.28779525623, 642.42103089521)
 
-var node6 = Rotate()
+var node6 = ::blueprint::nodes::rotate::Rotate()
 
 node6.angle = 1.5880110263824
 node6.axis_x = 0
@@ -137,18 +141,18 @@ node6.axis_z = 1
 
 _editor.add_node(node6, -262.75812027475, 815.24195641983)
 
-var node7 = Matrix()
+var node7 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node7, -418.17726423899, 862.68965707053)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
+node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("resources/textures/container2.png")
 
-
 _editor.add_node(node8, -284.1, 401.1)
 
-var node9 = Camera3d()
+var node9 = ::blueprint::nodes::camera3d::Camera3d()
 
 node9.cam.position.set(-1.0053784736365, 0.69616852151278, 1.6192541116902)
 node9.cam.yaw = -56.9
@@ -159,12 +163,12 @@ node9.speed = 0.01
 
 _editor.add_node(node9, -486.04661747465, 690.35946552221)
 
+Blueprint.connect(node9, "zoom", node4, "fovy")
+Blueprint.connect(node7, "mat", node6, "mat")
+Blueprint.connect(node6, "mat", node2, "ubo_vs.model")
+Blueprint.connect(node9, "mat", node2, "ubo_vs.view")
+Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
+Blueprint.connect(node8, "tex", node2, "mat_diffuse")
 Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node2, "ubo_vs.projection")
-Blueprint.connect(node6, "mat", node2, "ubo_vs.model")
-Blueprint.connect(node7, "mat", node6, "mat")
-Blueprint.connect(node8, "tex", node2, "mat_diffuse")
-Blueprint.connect(node9, "mat", node2, "ubo_vs.view")
-Blueprint.connect(node9, "zoom", node4, "fovy")

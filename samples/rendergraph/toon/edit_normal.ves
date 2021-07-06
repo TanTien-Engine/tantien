@@ -1,4 +1,4 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
@@ -6,12 +6,12 @@ node0.skip = false
 
 _editor.add_node(node0, 88.423171373616, 240.57972797787)
 
-var node1 = Model()
+var node1 = ::rendergraph::nodes::model::Model()
 node1.init_model("samples/rendergraph/learnopengl/resources/objects/backpack/backpack.obj")
 
 _editor.add_node(node1, -149.91577554597, -178.10863502543)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -43,6 +43,9 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -83,19 +86,19 @@ void main()
     FragColor = vec4(lighting, 0.0);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -117.89238450354, 139.51392906397)
 
-var node3 = Clear()
+var node3 = ::rendergraph::nodes::clear::Clear()
 
 node3.masks = [ "color", "depth" ]
 node3.values = { "color" : [ 0.50447165966034, 0.5014414191246, 0.5, 1 ] }
 
 _editor.add_node(node3, -103.40245275783, 335.43564874514)
 
-var node4 = Camera3d()
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
 
 node4.cam.position.set(-3.0144684526855, 2.1129674932678, 6.0569057209132)
 node4.cam.yaw = -67.9
@@ -106,7 +109,7 @@ node4.speed = 0.31825432181358
 
 _editor.add_node(node4, -433.55561062704, 39.910626922309)
 
-var node5 = Perspective()
+var node5 = ::blueprint::nodes::perspective::Perspective()
 
 node5.fovy = 32
 node5.aspect = 0
@@ -115,7 +118,7 @@ node5.zfar = 100
 
 _editor.add_node(node5, -432.87257632775, -118.09155541126)
 
-var node6 = Draw()
+var node6 = ::rendergraph::nodes::draw::Draw()
 
 node6.set_prim_type("triangles")
 node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less" }
@@ -123,7 +126,7 @@ node6.skip = false
 
 _editor.add_node(node6, 622.70084648562, -154.26455012092)
 
-var node7 = Shader()
+var node7 = ::rendergraph::nodes::shader::Shader()
 
 node7.vs = "
 #version 330 core
@@ -147,15 +150,8 @@ void main()
     gl_Position = view * model * vec4(aPos, 1.0); 
 }
 "
-node7.fs = "
-#version 330 core
-out vec4 FragColor;
-
-void main()
-{
-    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-}
-"
+node7.tcs = ""
+node7.tes = ""
 node7.gs = "
 #version 330 core
 layout (triangles) in;
@@ -188,11 +184,21 @@ void main()
     GenerateLine(2); // third vertex normal
 }
 "
+node7.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+"
+node7.cs = ""
 node7.render_gen()
 
 _editor.add_node(node7, 363.53551778982, -90.384022890073)
 
-var node8 = Camera3d()
+var node8 = ::blueprint::nodes::camera3d::Camera3d()
 
 node8.cam.position.set(-0.63107668398667, 1.7028345264903, -3.7769916712574)
 node8.cam.yaw = -116.6
@@ -203,14 +209,14 @@ node8.speed = 0.24816545844078
 
 _editor.add_node(node8, -438.74316803971, 207.05955623114)
 
-Blueprint.connect(node1, "model", node0, "model")
-Blueprint.connect(node1, "model", node6, "model")
-Blueprint.connect(node2, "out", node0, "shader")
-Blueprint.connect(node3, "next", node0, "prev")
-Blueprint.connect(node4, "mat", node7, "view")
-Blueprint.connect(node4, "mat", node2, "view")
 Blueprint.connect(node4, "zoom", node5, "fovy")
-Blueprint.connect(node5, "mat", node2, "projection")
+Blueprint.connect(node4, "mat", node7, "view")
 Blueprint.connect(node5, "mat", node7, "projection")
-Blueprint.connect(node7, "out", node6, "shader")
+Blueprint.connect(node4, "mat", node2, "view")
+Blueprint.connect(node5, "mat", node2, "projection")
 Blueprint.connect(node8, "pos", node2, "lightPos")
+Blueprint.connect(node7, "out", node6, "shader")
+Blueprint.connect(node1, "model", node6, "model")
+Blueprint.connect(node3, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node1, "model", node0, "model")

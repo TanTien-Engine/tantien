@@ -1,18 +1,19 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "cull" : "disable" }
+node0.skip = false
 
 _editor.add_node(node0, 441.05634861007, 820.31042961546)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "color", "depth" ]
 node1.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node1, 139.52495826033, 1035.4714698962)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -40,6 +41,9 @@ void main()
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -195,7 +199,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 node2.set_uniform("dirLight.direction", [ -0.2, -1, -0.3 ])
 node2.set_uniform("dirLight.ambient", [ 0.050000000745058, 0.050000000745058, 0.050000000745058 ])
@@ -239,14 +243,14 @@ node2.set_uniform("material.shininess", [ 32 ])
 
 _editor.add_node(node2, -53.683709296394, 182.72381296137)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, 0.5, -0.5, -0.5, 0, 0, -1, 1, 0, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, 0.5, 0.5, -0.5, 0, 0, -1, 1, 1, -0.5, 0.5, -0.5, 0, 0, -1, 0, 1, -0.5, -0.5, -0.5, 0, 0, -1, 0, 0, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, 0.5, -0.5, 0.5, 0, 0, 1, 1, 0, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 1, 1, 1, -0.5, 0.5, 0.5, 0, 0, 1, 0, 1, -0.5, -0.5, 0.5, 0, 0, 1, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, -0.5, 0.5, -0.5, -1, 0, 0, 1, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, -0.5, -1, 0, 0, 0, 1, -0.5, -0.5, 0.5, -1, 0, 0, 0, 0, -0.5, 0.5, 0.5, -1, 0, 0, 1, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, 0.5, 0.5, -0.5, 1, 0, 0, 1, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, -0.5, 1, 0, 0, 0, 1, 0.5, -0.5, 0.5, 1, 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 0, 0, 1, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, 0.5, -0.5, -0.5, 0, -1, 0, 1, 1, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, 0.5, -0.5, 0.5, 0, -1, 0, 1, 0, -0.5, -0.5, 0.5, 0, -1, 0, 0, 0, -0.5, -0.5, -0.5, 0, -1, 0, 0, 1, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1, 0.5, 0.5, -0.5, 0, 1, 0, 1, 1, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0, -0.5, 0.5, 0.5, 0, 1, 0, 0, 0, -0.5, 0.5, -0.5, 0, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
 
 _editor.add_node(node3, 264.63548093709, 818.9132355167)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -255,7 +259,7 @@ node4.zfar = 102.21896362305
 
 _editor.add_node(node4, -300.72537224233, 639.98535933338)
 
-var node5 = Rotate()
+var node5 = ::blueprint::nodes::rotate::Rotate()
 
 node5.angle = 0
 node5.axis_x = 1
@@ -264,24 +268,25 @@ node5.axis_z = 0.5
 
 _editor.add_node(node5, -444.03749850576, 993.16478017438)
 
-var node6 = Matrix()
+var node6 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node6, -644.98397592906, 1042.6724464234)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("resources/textures/container2.png")
 
-
 _editor.add_node(node7, -538.65806912096, 343.89642374154)
 
-var node8 = Array()
+var node8 = ::blueprint::nodes::array::Array()
+node8.query_param("serialize").value = true
 
 node8.list = [ [ 0, 0, 0 ], [ 2, 5, -15 ], [ -1.5, -2.2, -2.5 ], [ -3.8, -2, -12.3 ], [ 2.4, -0.4, -3.5 ], [ -1.7, 3, -7.5 ], [ 1.3, -2, -2.5 ], [ 1.5, 2, -2.5 ], [ 1.5, 0.2, -1.5 ], [ -1.3, 1, -1.5 ] ]
 
 _editor.add_node(node8, -410.89937006432, 872.29574880783)
 
-var node9 = Translate()
+var node9 = ::blueprint::nodes::translate::Translate()
 
 node9.dx = -1.3
 node9.dy = 1
@@ -289,14 +294,14 @@ node9.dz = -1.5
 
 _editor.add_node(node9, -267.61532204085, 1002.1179065638)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
+node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture("resources/textures/container2_specular.png")
 
-
 _editor.add_node(node10, -298.36817387506, 340.2180262707)
 
-var node11 = Camera3d()
+var node11 = ::blueprint::nodes::camera3d::Camera3d()
 
 node11.cam.position.set(1.5812811868422, 5.2809154655564, 1.8444331164479)
 node11.cam.yaw = -102.2
@@ -307,59 +312,60 @@ node11.speed = 0.080249026417732
 
 _editor.add_node(node11, -492.89509433343, 768.6441732807)
 
-var node12 = Cos()
+var node12 = ::blueprint::nodes::cos::Cos()
 
 _editor.add_node(node12, -283.03571565612, 536.70686891515)
 
-var node13 = Radians()
+var node13 = ::blueprint::nodes::radians::Radians()
 
 _editor.add_node(node13, -409.97736326991, 537.00416178502)
 
-var node14 = Number()
+var node14 = ::blueprint::nodes::number::Number()
 
 node14.value = 12.5
 
 _editor.add_node(node14, -539.05518749557, 527.84885462599)
 
-var node15 = Cos()
+var node15 = ::blueprint::nodes::cos::Cos()
 
 _editor.add_node(node15, -280.91011177537, 479.47907212585)
 
-var node16 = Radians()
+var node16 = ::blueprint::nodes::radians::Radians()
 
 _editor.add_node(node16, -407.85175938916, 479.77636499572)
 
-var node17 = Number()
+var node17 = ::blueprint::nodes::number::Number()
 
 node17.value = 15
 
 _editor.add_node(node17, -536.92958361482, 458.3579585247)
 
-var node18 = Array()
+var node18 = ::blueprint::nodes::array::Array()
+node18.query_param("serialize").value = true
 
 node18.list = [ 20, 40, 60, 80, 100, 120, 140, 160, 180, 200 ]
 
 _editor.add_node(node18, -606.18518358097, 878.76470504915)
 
-Blueprint.connect(node1, "next", node0, "prev")
-Blueprint.connect(node2, "out", node0, "shader")
-Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node5, "mat", node9, "mat")
+Blueprint.connect(node17, "v", node16, "v")
+Blueprint.connect(node16, "v", node15, "v")
+Blueprint.connect(node14, "v", node13, "v")
+Blueprint.connect(node13, "v", node12, "v")
+Blueprint.connect(node11, "zoom", node4, "fovy")
 Blueprint.connect(node6, "mat", node5, "mat")
-Blueprint.connect(node7, "tex", node2, "mat_diffuse")
+Blueprint.connect(node18, "all", node5, "angle")
+Blueprint.connect(node5, "mat", node9, "mat")
 Blueprint.connect(node8, "all", node9, "offset")
 Blueprint.connect(node9, "mat", node2, "model")
-Blueprint.connect(node10, "tex", node2, "mat_specular")
 Blueprint.connect(node11, "mat", node2, "view")
-Blueprint.connect(node11, "zoom", node4, "fovy")
+Blueprint.connect(node4, "mat", node2, "projection")
 Blueprint.connect(node11, "pos", node2, "viewPos")
 Blueprint.connect(node11, "pos", node2, "spotLight.position")
 Blueprint.connect(node11, "front", node2, "spotLight.direction")
 Blueprint.connect(node12, "v", node2, "spotLight.cutOff")
-Blueprint.connect(node13, "v", node12, "v")
-Blueprint.connect(node14, "v", node13, "v")
 Blueprint.connect(node15, "v", node2, "spotLight.outerCutOff")
-Blueprint.connect(node16, "v", node15, "v")
-Blueprint.connect(node17, "v", node16, "v")
-Blueprint.connect(node18, "all", node5, "angle")
+Blueprint.connect(node7, "tex", node2, "mat_diffuse")
+Blueprint.connect(node10, "tex", node2, "mat_specular")
+Blueprint.connect(node1, "next", node0, "prev")
+Blueprint.connect(node2, "out", node0, "shader")
+Blueprint.connect(node3, "out", node0, "va")

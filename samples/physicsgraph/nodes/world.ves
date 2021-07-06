@@ -1,47 +1,46 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "geograph.nodes.*"
-import "physicsgraph.nodes.*"
-var node0 = Body()
+var node0 = ::physicsgraph::nodes::body::Body()
 
 _editor.add_node(node0, -174.64151107413, 185.32940186649)
 
-var node1 = Rect()
+var node1 = ::geograph::nodes::rect::Rect()
 node1.query_param("x").value = 0
 node1.query_param("y").value = 0
 node1.query_param("w").value = 100
 node1.query_param("h").value = 50
+node1.query_param("fill").value = false
+node1.query_param("color").value.set(1, 0, 0)
 
 _editor.add_node(node1, -325.64151107413, 145.32940186649)
 
-var node2 = World()
+var node2 = ::physicsgraph::nodes::world::World()
 node2.query_param("update").value = true
 node2.query_param("debug_draw").value = true
 
 _editor.add_node(node2, 204.303, 28.035)
 
-var node3 = Polyline()
+var node3 = ::geograph::nodes::polyline::Polyline()
 node3.query_param("vertices").value = [ -300, -200, 300, -200 ]
 
 _editor.add_node(node3, -286.35988599885, -106.67658381506)
 
-var node4 = Body()
+var node4 = ::physicsgraph::nodes::body::Body()
 
 _editor.add_node(node4, -136.98786604297, -105.71148979993)
 
-var node5 = Merge()
+var node5 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node5, 48, -43.93663)
 
-var node6 = Circle()
+var node6 = ::geograph::nodes::circle::Circle()
 node6.query_param("x").value = 0
 node6.query_param("y").value = 0
 node6.query_param("r").value = 46.531169891357
+node6.query_param("fill").value = false
+node6.query_param("color").value.set(1, 0, 0)
 
 _editor.add_node(node6, -320.18781425539, 17.663103592297)
 
-var node7 = Body()
+var node7 = ::physicsgraph::nodes::body::Body()
 
 _editor.add_node(node7, -168.91315050362, 48.074596562661)
 

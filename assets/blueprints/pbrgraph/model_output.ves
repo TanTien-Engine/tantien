@@ -1,116 +1,109 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pbrgraph.nodes.*"
-var node0 = Matrix()
+var node0 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node0, 113.23459286188, 114.75391050789)
 
-var node1 = Multiply()
+var node1 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node1, 277.71057925428, 161.71962083399)
 
-var node2 = Fetch()
+var node2 = ::blueprint::nodes::fetch::Fetch()
 node2.index = "scale"
 
 _editor.add_node(node2, -162.92894723352, 201.99703009939)
 
-var node3 = Fetch()
+var node3 = ::blueprint::nodes::fetch::Fetch()
 node3.index = "rotation"
 
 _editor.add_node(node3, -162.01981193522, 101.08795583619)
 
-var node4 = Fetch()
+var node4 = ::blueprint::nodes::fetch::Fetch()
 node4.index = "translation"
 
 _editor.add_node(node4, -166.21221510803, -3.502608114912)
 
-var node5 = Fetch()
+var node5 = ::blueprint::nodes::fetch::Fetch()
 node5.index = "va"
 
 _editor.add_node(node5, -168.87660981586, 309.51213448389)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "model"
 node6.var_type = [ "table", "array" ]
 
 _editor.add_node(node6, -489.11087395715, 240.85939976671)
 
-var node7 = Output()
+var node7 = ::blueprint::nodes::output::Output()
 
 node7.var_name = "model_mat"
 node7.var_type = "mat4"
 
 _editor.add_node(node7, 469.95590156068, 161.10350529389)
 
-var node8 = Output()
+var node8 = ::blueprint::nodes::output::Output()
 
 node8.var_name = "va"
 node8.var_type = "va"
 
 _editor.add_node(node8, 30.503901936483, 340.05051395024)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "local_mat"
 node9.var_type = "mat4"
 
 _editor.add_node(node9, 102.63989748898, 207.28306298919)
 
-var node10 = Fetch()
+var node10 = ::blueprint::nodes::fetch::Fetch()
 node10.index = "double_sided"
 
 _editor.add_node(node10, -167.22935391922, 632.99928141417)
 
-var node11 = Output()
+var node11 = ::blueprint::nodes::output::Output()
 
 node11.var_name = "double_sided"
 node11.var_type = "bool"
 
 _editor.add_node(node11, 20.028618590203, 664.80084775874)
 
-var node12 = Fetch()
+var node12 = ::blueprint::nodes::fetch::Fetch()
 node12.index = "alpha_mode"
 
 _editor.add_node(node12, -171.82170099415, 527.00867332707)
 
-var node13 = Fetch()
+var node13 = ::blueprint::nodes::fetch::Fetch()
 node13.index = "alpha_cutoff"
 
 _editor.add_node(node13, -171.13869030269, 419.09257133322)
 
-var node14 = Output()
+var node14 = ::blueprint::nodes::output::Output()
 
 node14.var_name = "alpha_mode"
 node14.var_type = "string"
 
 _editor.add_node(node14, 16.668666203967, 556.93954648002)
 
-var node15 = Output()
+var node15 = ::blueprint::nodes::output::Output()
 
 node15.var_name = "alpha_cutoff"
 node15.var_type = "num"
 
 _editor.add_node(node15, 9.6710564991356, 451.50891546831)
 
-Blueprint.connect(node9, "var", node1, "a")
+Blueprint.connect(node6, "var", node13, "items")
+Blueprint.connect(node13, "item", node15, "var")
+Blueprint.connect(node6, "var", node12, "items")
+Blueprint.connect(node12, "item", node14, "var")
+Blueprint.connect(node6, "var", node10, "items")
+Blueprint.connect(node10, "item", node11, "var")
 Blueprint.connect(node6, "var", node5, "items")
+Blueprint.connect(node5, "item", node8, "var")
 Blueprint.connect(node6, "var", node4, "items")
 Blueprint.connect(node6, "var", node3, "items")
 Blueprint.connect(node6, "var", node2, "items")
-Blueprint.connect(node6, "var", node10, "items")
-Blueprint.connect(node6, "var", node12, "items")
-Blueprint.connect(node6, "var", node13, "items")
-Blueprint.connect(node13, "item", node15, "var")
-Blueprint.connect(node12, "item", node14, "var")
-Blueprint.connect(node10, "item", node11, "var")
-Blueprint.connect(node5, "item", node8, "var")
-Blueprint.connect(node4, "item", node0, "translation")
-Blueprint.connect(node3, "item", node0, "rotation")
 Blueprint.connect(node2, "item", node0, "scaling")
+Blueprint.connect(node3, "item", node0, "rotation")
+Blueprint.connect(node4, "item", node0, "translation")
+Blueprint.connect(node9, "var", node1, "a")
 Blueprint.connect(node0, "mat", node1, "b")
 Blueprint.connect(node1, "v", node7, "var")

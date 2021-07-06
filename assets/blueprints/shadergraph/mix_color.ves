@@ -1,82 +1,76 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-var node0 = Input()
+var node0 = ::blueprint::nodes::input::Input()
 
 node0.var_name = "col_a"
 node0.var_type = "num3"
 
 _editor.add_node(node0, -354.01490028649, 197.36002903392)
 
-var node1 = Input()
+var node1 = ::blueprint::nodes::input::Input()
 
 node1.var_name = "col_b"
 node1.var_type = "num3"
 
 _editor.add_node(node1, -351.55890581244, 124.85286114336)
 
-var node2 = Normalize()
+var node2 = ::shadergraph::nodes::normalize::Normalize()
 
 _editor.add_node(node2, -150.2876467961, 295.0406834283)
 
-var node3 = Normalize()
+var node3 = ::shadergraph::nodes::normalize::Normalize()
 
 _editor.add_node(node3, -147.32161594914, 250.10476544037)
 
-var node4 = Mix()
+var node4 = ::shadergraph::nodes::mix::Mix()
 
 _editor.add_node(node4, -3.0727510103565, 256.95933538111)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "chroma"
 node5.var_type = "num"
 
 _editor.add_node(node5, -145.02353776311, 206.22913344303)
 
-var node6 = Multiply()
+var node6 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node6, 159.73833354352, 165.52388193177)
 
-var node7 = Length()
+var node7 = ::shadergraph::nodes::length::Length()
 
 _editor.add_node(node7, -147.68479003906, 121.74829032444)
 
-var node8 = Length()
+var node8 = ::shadergraph::nodes::length::Length()
 
 _editor.add_node(node8, -148.78479919434, 76.648278117409)
 
-var node9 = Mix()
+var node9 = ::shadergraph::nodes::mix::Mix()
 
 _editor.add_node(node9, 5.2151824951172, 79.523913574218)
 
-var node10 = Input()
+var node10 = ::blueprint::nodes::input::Input()
 
 node10.var_name = "luma"
 node10.var_type = "num"
 
 _editor.add_node(node10, -147.76438587502, 29.016224414759)
 
-var node11 = Output()
+var node11 = ::blueprint::nodes::output::Output()
 
 node11.var_name = "col"
 node11.var_type = "num3"
 
 _editor.add_node(node11, 298.24338286526, 173.132058661)
 
-Blueprint.connect(node10, "var", node9, "a")
-Blueprint.connect(node5, "var", node4, "a")
-Blueprint.connect(node1, "var", node3, "v")
 Blueprint.connect(node1, "var", node8, "v")
-Blueprint.connect(node8, "v", node9, "y")
-Blueprint.connect(node3, "v", node4, "y")
-Blueprint.connect(node0, "var", node2, "v")
+Blueprint.connect(node1, "var", node3, "v")
 Blueprint.connect(node0, "var", node7, "v")
 Blueprint.connect(node7, "v", node9, "x")
-Blueprint.connect(node9, "mix", node6, "b")
+Blueprint.connect(node8, "v", node9, "y")
+Blueprint.connect(node10, "var", node9, "a")
+Blueprint.connect(node0, "var", node2, "v")
 Blueprint.connect(node2, "v", node4, "x")
+Blueprint.connect(node3, "v", node4, "y")
+Blueprint.connect(node5, "var", node4, "a")
 Blueprint.connect(node4, "mix", node6, "a")
+Blueprint.connect(node9, "mix", node6, "b")
 Blueprint.connect(node6, "v", node11, "var")

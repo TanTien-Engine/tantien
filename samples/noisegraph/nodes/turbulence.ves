@@ -1,36 +1,28 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "noisegraph.nodes.*"
-var node0 = PerlinNoise()
+var node0 = ::noisegraph::nodes::perlin_noise::PerlinNoise()
 node0.query_param("seed").value = 0.58301198482513
 
 _editor.add_node(node0, 76.8986695914, 52.469429503136)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -128.1657634143, 195.63427395387)
 
-var node2 = Multiply()
+var node2 = ::blueprint::nodes::multiply::Multiply()
 
 _editor.add_node(node2, 27.221080166023, 163.488226485)
 
-var node3 = Number()
+var node3 = ::blueprint::nodes::number::Number()
 
 node3.value = 10
 
 _editor.add_node(node3, -252.65258831054, 131.38824516909)
 
-var node4 = Uniform()
+var node4 = ::shadergraph::nodes::uniform::Uniform()
 node4.query_param("unif_name").value = "unif_0"
 
 _editor.add_node(node4, -127.44075874328, 142.50140158877)
 
-var node5 = Turbulence()
+var node5 = ::noisegraph::nodes::turbulence::Turbulence()
 node5.query_param("seed").value = 0
 node5.query_param("octaves").value = 5
 node5.query_param("lacunarity").value = 3
@@ -38,28 +30,28 @@ node5.query_param("gain").value = 0.5
 
 _editor.add_node(node5, 255.37549112436, 88.565526267266)
 
-var node6 = Parameter()
+var node6 = ::shadergraph::nodes::parameter::Parameter()
 
 node6.var_name = "p"
 
 _editor.add_node(node6, -52.49628553955, 80.841604025289)
 
-var node7 = Parameter()
+var node7 = ::shadergraph::nodes::parameter::Parameter()
 
 node7.var_name = "seed"
 
 _editor.add_node(node7, -53.625234973759, 36.248165476707)
 
-var node8 = Combine()
+var node8 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node8, 442.84571832647, 197.47852201679)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node9, 647.74976933288, 216.60290389149)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
 node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture("../../../assets/textures/noise/perlin_perm2d.png")
@@ -67,7 +59,7 @@ node10.set_sampler("nearest_repeat")
 
 _editor.add_node(node10, -355.30463856996, -77.297195355837)
 
-var node11 = Texture()
+var node11 = ::rendergraph::nodes::texture::Texture()
 node11.query_param("unif_name").value = "u_tex"
 node11.gamma_correction = false
 node11.init_texture("../../../assets/textures/noise/perlin_grad2d.png")

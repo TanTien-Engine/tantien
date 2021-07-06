@@ -1,28 +1,23 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node0, 247.43001708984, -155.58458862305)
 
-var node1 = Combine()
+var node1 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node1, -32.546479448313, -125.7493405432)
 
-var node2 = Pow()
+var node2 = ::shadergraph::nodes::pow::Pow()
 
 _editor.add_node(node2, -217.26555166147, -112.33496866174)
 
-var node3 = Number()
+var node3 = ::blueprint::nodes::number::Number()
 
 node3.value = 1.9368387460709
 
 _editor.add_node(node3, -375.43155854886, -157.69468809149)
 
-var node4 = Number()
+var node4 = ::blueprint::nodes::number::Number()
 
 node4.value = 0.51740181446075
 

@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(-0.97170452273828, 1.1072343328322, -1.0733780695596)
 node0.cam.yaw = 42.7
@@ -16,7 +9,7 @@ node0.speed = 0.20714285969734
 
 _editor.add_node(node0, 80.897368, 191.02243)
 
-var node1 = Worley()
+var node1 = ::terraingraph::nodes::worley::Worley()
 node1.query_param("offset").value.set(0, 0)
 node1.query_param("seed").value = 0
 node1.query_param("frequency").value = 4
@@ -26,7 +19,7 @@ node1.query_param("features_mode").value = 0
 
 _editor.add_node(node1, -185.81874023565, 492.96391077615)
 
-var node2 = ThermalWeathering()
+var node2 = ::terraingraph::nodes::thermal_weathering::ThermalWeathering()
 
 node2.iter = 17
 node2.amplitude = 0.052902940660715

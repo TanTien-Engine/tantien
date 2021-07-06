@@ -1,11 +1,11 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "depth" ]
 node0.values = { "color" : [ 0.10000000149012, 0.10000000149012, 0.10000000149012, 1 ] }
 
 _editor.add_node(node0, -17.515820092996, -161.44941641092)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
@@ -13,7 +13,7 @@ node1.skip = false
 
 _editor.add_node(node1, -248.60344882102, -302.85908327663)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -207,7 +207,7 @@ node2.set_uniform("lightColors[3]", [ 300, 300, 300 ])
 
 _editor.add_node(node2, -594.77049075856, -909.49985867813)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "sphere"
 node3.layout = [ "position", "normal" ]
@@ -215,7 +215,7 @@ node3.shape_params = {  }
 
 _editor.add_node(node3, -429.07577174978, -393.51497563371)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -224,7 +224,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -930.95156257078, -237.18715044365)
 
-var node5 = Camera3d()
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
 node5.cam.position.set(-2.0833028954365, 1.744076305107, 21.570873673811)
 node5.cam.yaw = -1533.4
@@ -235,14 +235,14 @@ node5.speed = 0.35880517959595
 
 _editor.add_node(node5, -1104.7859499654, -412.47072578593)
 
-var node6 = Loop()
+var node6 = ::blueprint::nodes::loop::Loop()
 
 node6.start = 0
 node6.end = 7
 
 _editor.add_node(node6, -3.1812311884657, -298.09411209123)
 
-var node7 = Translate()
+var node7 = ::blueprint::nodes::translate::Translate()
 
 node7.dx = 6.25
 node7.dy = 6.25
@@ -250,40 +250,40 @@ node7.dz = 0
 
 _editor.add_node(node7, -862.08669695636, -692.27588715327)
 
-var node8 = Matrix()
+var node8 = ::blueprint::nodes::matrix::Matrix()
 
 _editor.add_node(node8, -987.95595211025, -606.82875253181)
 
-var node9 = Loop()
+var node9 = ::blueprint::nodes::loop::Loop()
 
 node9.start = 0
 node9.end = 7
 
 _editor.add_node(node9, 245.39655117898, -296.85908327663)
 
-var node10 = Divide()
+var node10 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node10, 580.86121566203, -609.84106408007)
 
-var node11 = Divide()
+var node11 = ::blueprint::nodes::divide::Divide()
 
 _editor.add_node(node11, 250.90254740408, -612.93010657553)
 
-var node12 = Clamp()
+var node12 = ::blueprint::nodes::clamp::Clamp()
 
 node12.min = 0.05
 node12.max = 1
 
 _editor.add_node(node12, 387.0095650425, -624.73201881028)
 
-var node13 = Texture()
+var node13 = ::rendergraph::nodes::texture::Texture()
+node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture("resources/textures/hdr/newport_loft.hdr")
 
-
 _editor.add_node(node13, -1720.2755756002, 115.27263569417)
 
-var node14 = Custom()
+var node14 = ::blueprint::nodes::custom::Custom()
 
 node14.code = "
 import \"maths.vector\" for Vector3
@@ -307,85 +307,85 @@ node14.use_cache = false
 
 _editor.add_node(node14, -1010.5093812548, -769.16997004821)
 
-var node15 = Subgraph()
-node15.load_from_file(_editor, "assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
+var node15 = ::blueprint::nodes::subgraph::Subgraph()
+node15.load_from_file(_editor, "../../../assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
 
 _editor.add_node(node15, -1476.9280264241, 226.72508847101)
 
-var node16 = Subgraph()
-node16.load_from_file(_editor, "assets/blueprints/rendergraph/draw_skybox.ves")
+var node16 = ::blueprint::nodes::subgraph::Subgraph()
+node16.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
 node16.set_prop_value("tonemap", 1)
 node16.set_prop_value("gamma_correct", 1)
 
 _editor.add_node(node16, 119.20793922662, 126.26774566313)
 
-var node17 = Pass()
+var node17 = ::rendergraph::nodes::pass::Pass()
 
 node17.once = false
 
 _editor.add_node(node17, 447.21875443419, 135.03891127859)
 
-var node18 = Pass()
+var node18 = ::rendergraph::nodes::pass::Pass()
 
 node18.once = true
 
 _editor.add_node(node18, -398.45562998953, 249.66293305829)
 
-var node19 = Subgraph()
-node19.load_from_file(_editor, "assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
+var node19 = ::blueprint::nodes::subgraph::Subgraph()
+node19.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
 
 _editor.add_node(node19, -1198.9896440133, 299.99157197682)
 
-var node20 = Subgraph()
-node20.load_from_file(_editor, "assets/blueprints/rendergraph/create_brdf_lut.ves")
+var node20 = ::blueprint::nodes::subgraph::Subgraph()
+node20.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_brdf_lut.ves")
 
 _editor.add_node(node20, -944.98997192508, 300.61358458318)
 
-var node21 = Subgraph()
-node21.load_from_file(_editor, "assets/blueprints/rendergraph/create_prefilter_cubemap.ves")
+var node21 = ::blueprint::nodes::subgraph::Subgraph()
+node21.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_prefilter_cubemap.ves")
 
 _editor.add_node(node21, -675.23622920311, 244.35478655029)
 
-var node22 = Print()
+var node22 = ::blueprint::nodes::print::Print()
 
 _editor.add_node(node22, -471.01340553977, 394.42065297277)
 
-Blueprint.connect(node0, "next", node9, "prev")
+Blueprint.connect(node21, "next", node18, "prev")
+Blueprint.connect(node16, "next", node17, "prev")
+Blueprint.connect(node13, "tex", node15, "equirectangularMap")
+Blueprint.connect(node15, "next", node19, "prev")
+Blueprint.connect(node15, "tex", node19, "environmentMap")
+Blueprint.connect(node19, "next", node20, "prev")
+Blueprint.connect(node20, "next", node21, "prev")
+Blueprint.connect(node15, "tex", node21, "environmentMap")
+Blueprint.connect(node21, "tex", node22, "value")
 Blueprint.connect(node1, "next", node6, "do")
+Blueprint.connect(node6, "index", node11, "a")
+Blueprint.connect(node6, "num", node11, "b")
+Blueprint.connect(node11, "v", node12, "v")
+Blueprint.connect(node5, "zoom", node4, "fovy")
+Blueprint.connect(node0, "next", node9, "prev")
+Blueprint.connect(node6, "next", node9, "do")
+Blueprint.connect(node9, "next", node16, "prev")
+Blueprint.connect(node4, "mat", node16, "projection")
+Blueprint.connect(node5, "rot", node16, "view")
+Blueprint.connect(node15, "tex", node16, "skybox")
+Blueprint.connect(node6, "index", node14, "in0")
+Blueprint.connect(node6, "num", node14, "in1")
+Blueprint.connect(node9, "index", node14, "in2")
+Blueprint.connect(node9, "num", node14, "in3")
+Blueprint.connect(node8, "mat", node7, "mat")
+Blueprint.connect(node14, "out0", node7, "offset")
+Blueprint.connect(node9, "index", node10, "a")
+Blueprint.connect(node9, "num", node10, "b")
+Blueprint.connect(node4, "mat", node2, "projection")
+Blueprint.connect(node5, "mat", node2, "view")
+Blueprint.connect(node7, "mat", node2, "model")
+Blueprint.connect(node10, "v", node2, "metallic")
+Blueprint.connect(node12, "v", node2, "roughness")
+Blueprint.connect(node5, "pos", node2, "camPos")
+Blueprint.connect(node19, "tex", node2, "irradianceMap")
+Blueprint.connect(node21, "tex", node2, "prefilterMap")
+Blueprint.connect(node20, "tex", node2, "brdfLUT")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node4, "mat", node2, "projection")
-Blueprint.connect(node4, "mat", node16, "projection")
-Blueprint.connect(node5, "mat", node2, "view")
-Blueprint.connect(node5, "zoom", node4, "fovy")
-Blueprint.connect(node5, "rot", node16, "view")
-Blueprint.connect(node5, "pos", node2, "camPos")
-Blueprint.connect(node6, "next", node9, "do")
-Blueprint.connect(node6, "index", node11, "a")
-Blueprint.connect(node6, "index", node14, "in0")
-Blueprint.connect(node6, "num", node11, "b")
-Blueprint.connect(node6, "num", node14, "in1")
-Blueprint.connect(node7, "mat", node2, "model")
-Blueprint.connect(node8, "mat", node7, "mat")
-Blueprint.connect(node9, "next", node16, "prev")
-Blueprint.connect(node9, "index", node10, "a")
-Blueprint.connect(node9, "index", node14, "in2")
-Blueprint.connect(node9, "num", node10, "b")
-Blueprint.connect(node9, "num", node14, "in3")
-Blueprint.connect(node10, "v", node2, "metallic")
-Blueprint.connect(node11, "v", node12, "v")
-Blueprint.connect(node12, "v", node2, "roughness")
-Blueprint.connect(node13, "tex", node15, "equirectangularMap")
-Blueprint.connect(node14, "out0", node7, "offset")
-Blueprint.connect(node15, "next", node19, "prev")
-Blueprint.connect(node15, "tex", node16, "skybox")
-Blueprint.connect(node15, "tex", node21, "environmentMap")
-Blueprint.connect(node15, "tex", node19, "environmentMap")
-Blueprint.connect(node16, "next", node17, "prev")
-Blueprint.connect(node19, "next", node20, "prev")
-Blueprint.connect(node19, "tex", node2, "irradianceMap")
-Blueprint.connect(node20, "next", node21, "prev")
-Blueprint.connect(node20, "tex", node2, "brdfLUT")
-Blueprint.connect(node21, "next", node18, "prev")
-Blueprint.connect(node21, "tex", node2, "prefilterMap")
-Blueprint.connect(node21, "tex", node22, "value")

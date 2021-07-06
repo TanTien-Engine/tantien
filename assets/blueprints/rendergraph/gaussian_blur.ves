@@ -1,36 +1,32 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = RenderTarget()
+var node0 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node0.width = 1024
 node0.height = 1024
 
 _editor.add_node(node0, -518.08635916386, -110.94944992639)
 
-var node1 = RenderTarget()
+var node1 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node1.width = 1024
 node1.height = 1024
 
 _editor.add_node(node1, -519.08635916386, 85.050550073612)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node2, -741.08635916386, 183.05055007361)
 
-var node3 = Texture()
+var node3 = ::rendergraph::nodes::texture::Texture()
 node3.query_param("unif_name").value = "u_tex"
 node3.gamma_correction = false
 node3.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node3, -737.08635916386, -155.94944992639)
 
-var node4 = Draw()
+var node4 = ::rendergraph::nodes::draw::Draw()
 
 node4.set_prim_type("tri_strip")
 node4.render_state = { "blend" : false, "depth_test" : false, "depth_func" : "less", "cull" : "disable", "clip_plane" : false }
@@ -38,7 +34,7 @@ node4.skip = false
 
 _editor.add_node(node4, 354.00457548614, 88.464645445912)
 
-var node5 = Shader()
+var node5 = ::rendergraph::nodes::shader::Shader()
 
 node5.vs = "
 #version 330 core
@@ -98,7 +94,7 @@ node5.render_gen()
 
 _editor.add_node(node5, 121.82353928574, 153.19417395174)
 
-var node6 = PrimitiveShape()
+var node6 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node6.type = "quad"
 node6.layout = [ "position", "texture" ]
@@ -106,56 +102,57 @@ node6.shape_params = {  }
 
 _editor.add_node(node6, 163.76576242049, 22.62740349013)
 
-var node7 = Array()
+var node7 = ::blueprint::nodes::array::Array()
+node7.query_param("serialize").value = true
 
 node7.list = [ 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 ]
 
 _editor.add_node(node7, -273.44351337606, 167.49047647809)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "in0"
 node8.var_type = "any"
 
 _editor.add_node(node8, -501.2185341028, 423.14973289002)
 
-var node9 = Merge()
+var node9 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node9, -331.72924010314, 333.95116452391)
 
-var node10 = Merge()
+var node10 = ::blueprint::nodes::merge::Merge()
 
 _editor.add_node(node10, -328.56221313477, -14.278495788575)
 
-var node11 = Output()
+var node11 = ::blueprint::nodes::output::Output()
 
 node11.var_name = "tex"
 node11.var_type = "texture"
 
 _editor.add_node(node11, -566.0532968064, 329.16260623144)
 
-var node12 = Pass()
+var node12 = ::rendergraph::nodes::pass::Pass()
 
 node12.once = false
 
 _editor.add_node(node12, 521.00667770717, 167.55377219985)
 
-var node13 = Loop()
+var node13 = ::blueprint::nodes::loop::Loop()
 
 node13.start = 0
 node13.end = 10
 
 _editor.add_node(node13, 693.09641900993, 148.51526800776)
 
-var node14 = Fetch()
+var node14 = ::blueprint::nodes::fetch::Fetch()
 
 _editor.add_node(node14, -90.410966673975, 45.665278158901)
 
-var node15 = Fetch()
+var node15 = ::blueprint::nodes::fetch::Fetch()
 
 _editor.add_node(node15, -58.548378514426, -124.27532337836)
 
-var node16 = Fetch()
+var node16 = ::blueprint::nodes::fetch::Fetch()
 
 _editor.add_node(node16, -80.801389413993, 156.56147875648)
 

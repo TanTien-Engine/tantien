@@ -1,11 +1,12 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
+node0.skip = false
 
 _editor.add_node(node0, 148.91947125898, 485.81236523337)
 
-var node1 = Shader()
+var node1 = ::rendergraph::nodes::shader::Shader()
 
 node1.vs = "
 #version 330 core
@@ -33,6 +34,9 @@ void main()
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 "
+node1.tcs = ""
+node1.tes = ""
+node1.gs = ""
 node1.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -213,7 +217,7 @@ void main()
     FragColor = vec4(color , 1.0);
 }
 "
-node1.gs = ""
+node1.cs = ""
 node1.render_gen()
 node1.set_uniform("lightPositions[0]", [ -10, 10, 10 ])
 node1.set_uniform("lightPositions[1]", [ 10, 10, 10 ])
@@ -226,114 +230,115 @@ node1.set_uniform("lightColors[3]", [ 300, 300, 300 ])
 
 _editor.add_node(node1, -234.64757067856, -114.22841016813)
 
-var node2 = PrimitiveShape()
+var node2 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node2.type = "sphere"
 node2.layout = [ "position", "normal", "texture" ]
+node2.shape_params = {  }
 
 _editor.add_node(node2, -31.55285166978, 395.15647287629)
 
-var node3 = Pass()
+var node3 = ::rendergraph::nodes::pass::Pass()
 
 node3.once = false
 
 _editor.add_node(node3, 407.61166520037, 532.04509164372)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "normalMap"
 node4.var_type = "texture"
 
 _editor.add_node(node4, -743.01176080411, 357.69728796851)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "albedoMap"
 node5.var_type = "texture"
 
 _editor.add_node(node5, -739.93283226574, 316.64461622002)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "metallicMap"
 node6.var_type = "texture"
 
 _editor.add_node(node6, -738.39605671685, 274.31312179511)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "roughnessMap"
 node7.var_type = "texture"
 
 _editor.add_node(node7, -736.76632851504, 231.68748051216)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "aoMap"
 node8.var_type = "texture"
 
 _editor.add_node(node8, -734.0675703293, 189.27769857054)
 
-var node9 = Input()
+var node9 = ::blueprint::nodes::input::Input()
 
 node9.var_name = "model"
 node9.var_type = "mat4"
 
 _editor.add_node(node9, -518.43911721498, 459.78098073586)
 
-var node10 = Input()
+var node10 = ::blueprint::nodes::input::Input()
 
 node10.var_name = "projection"
 node10.var_type = "mat4"
 
 _editor.add_node(node10, -520.64192244461, 563.61311468079)
 
-var node11 = Input()
+var node11 = ::blueprint::nodes::input::Input()
 
 node11.var_name = "view"
 node11.var_type = "mat4"
 
 _editor.add_node(node11, -524.70613955746, 511.34279808277)
 
-var node12 = Input()
+var node12 = ::blueprint::nodes::input::Input()
 
 node12.var_name = "camPos"
 node12.var_type = "num3"
 
 _editor.add_node(node12, -521.61700869931, 399.68666293813)
 
-var node13 = Input()
+var node13 = ::blueprint::nodes::input::Input()
 
 node13.var_name = "irradianceMap"
 node13.var_type = "texture"
 
 _editor.add_node(node13, -480.19296879982, 91.21640503176)
 
-var node14 = Input()
+var node14 = ::blueprint::nodes::input::Input()
 
 node14.var_name = "prefilterMap"
 node14.var_type = "texture"
 
 _editor.add_node(node14, -483.66284643903, 48.421101596777)
 
-var node15 = Input()
+var node15 = ::blueprint::nodes::input::Input()
 
 node15.var_name = "brdfLUT"
 node15.var_type = "texture"
 
 _editor.add_node(node15, -473.63870391439, -5.169408423593)
 
-Blueprint.connect(node1, "out", node0, "shader")
-Blueprint.connect(node2, "out", node0, "va")
+Blueprint.connect(node10, "var", node1, "projection")
+Blueprint.connect(node11, "var", node1, "view")
+Blueprint.connect(node9, "var", node1, "model")
+Blueprint.connect(node12, "var", node1, "camPos")
 Blueprint.connect(node4, "var", node1, "normalMap")
 Blueprint.connect(node5, "var", node1, "albedoMap")
 Blueprint.connect(node6, "var", node1, "metallicMap")
 Blueprint.connect(node7, "var", node1, "roughnessMap")
 Blueprint.connect(node8, "var", node1, "aoMap")
-Blueprint.connect(node9, "var", node1, "model")
-Blueprint.connect(node10, "var", node1, "projection")
-Blueprint.connect(node11, "var", node1, "view")
-Blueprint.connect(node12, "var", node1, "camPos")
 Blueprint.connect(node13, "var", node1, "irradianceMap")
 Blueprint.connect(node14, "var", node1, "prefilterMap")
 Blueprint.connect(node15, "var", node1, "brdfLUT")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node2, "out", node0, "va")

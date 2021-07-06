@@ -599,7 +599,6 @@ class Editor
 	{
 		return "
 import \"blueprint.blueprint\" for Blueprint
-import \"blueprint.nodes.*\"
 "
 	}
 
@@ -692,7 +691,7 @@ import \"editor\" for _editor
 			var scene = this.scene_stack.top()
 			file.write(scene.ud.import_files_header())
 		} else {
-			file.write(this.load_file_imports())
+			//file.write(this.load_file_imports())
 		}
 
 		// nodes

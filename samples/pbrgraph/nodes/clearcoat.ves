@@ -1,28 +1,18 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "pixelgraph.nodes.*"
-
-import "pbrgraph.nodes.*"
-var node0 = Gltf()
+var node0 = ::rendergraph::nodes::gltf::Gltf()
 node0.init_model("assets/models/ToyCar/ToyCar.gltf")
 
 _editor.add_node(node0, -354.43629568388, 117.945632941)
 
-var node1 = Expand()
+var node1 = ::blueprint::nodes::expand::Expand()
 
 _editor.add_node(node1, -178.78799141067, 103.45607473247)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/clearcoat.ves")
 
 _editor.add_node(node2, 216.77772154443, 107.44623088811)
 
-var node3 = Camera3d()
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
 
 node3.cam.position.set(-0.096572794566669, 0.060522103484915, 0.12684191527631)
 node3.cam.yaw = -52.8
@@ -33,7 +23,7 @@ node3.speed = 0.038704462349415
 
 _editor.add_node(node3, -54.735606501695, 366.1529835832)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 8
 node4.aspect = 0
@@ -42,50 +32,51 @@ node4.zfar = 100
 
 _editor.add_node(node4, -55.81618439048, 209.68358753226)
 
-var node5 = OrbitCamera()
+var node5 = ::blueprint::nodes::orbit_camera::OrbitCamera()
 node5.query_param("speed").value = 0.5761501789093
 
 _editor.add_node(node5, -9.9217443002129, -150.9943647977)
 
-var node6 = Number3()
+var node6 = ::blueprint::nodes::number3::Number3()
 
 node6.value.set(4.6757965087891, 6.7869071960449, 3.1202409267426)
 
 _editor.add_node(node6, -175.08216996771, -29.726886154579)
 
-var node7 = Subtract()
+var node7 = ::blueprint::nodes::subtract::Subtract()
 
 _editor.add_node(node7, -25.249577120684, -66.814448707929)
 
-var node8 = Number3()
+var node8 = ::blueprint::nodes::number3::Number3()
 
 node8.value.set(5.1833629608154, 5.1295571327209, 5.5166964530945)
 
 _editor.add_node(node8, -176.55801150158, -139.6001922319)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
 _editor.add_node(node9, 635.4536158173, 61.225737691732)
 
-var node10 = Subgraph()
+var node10 = ::blueprint::nodes::subgraph::Subgraph()
 node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
 _editor.add_node(node10, 226.34780414466, -69.256308099851)
 
-var node11 = Clear()
+var node11 = ::rendergraph::nodes::clear::Clear()
 
 node11.masks = [ "color", "depth" ]
 node11.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node11, 429.13000488281, 229.74989318848)
 
-var node12 = Pass()
+var node12 = ::rendergraph::nodes::pass::Pass()
 
 node12.once = false
 
 _editor.add_node(node12, 829.58085392723, 104.28031410085)
 
+Blueprint.connect(node9, "next", node12, "prev")
 Blueprint.connect(node6, "v3", node7, "a")
 Blueprint.connect(node8, "v3", node7, "b")
 Blueprint.connect(node3, "zoom", node4, "fovy")
@@ -101,4 +92,3 @@ Blueprint.connect(node10, "model_mat", node9, "model")
 Blueprint.connect(node3, "mat", node9, "view")
 Blueprint.connect(node4, "mat", node9, "projection")
 Blueprint.connect(node10, "va", node9, "va")
-Blueprint.connect(node9, "next", node12, "prev")

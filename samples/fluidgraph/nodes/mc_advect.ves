@@ -1,68 +1,64 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Subgraph()
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/add_splat.ves")
 
 _editor.add_node(node0, 124.1946, 50.9563)
 
-var node1 = Number3()
+var node1 = ::blueprint::nodes::number3::Number3()
 
 node1.value.set(0, 0.07639566808939, 0)
 
 _editor.add_node(node1, -97.466622508659, 20.485616309695)
 
-var node2 = Number()
+var node2 = ::blueprint::nodes::number::Number()
 
 node2.value = 3.5120646953583
 
 _editor.add_node(node2, -95.41397915594, -75.47494455955)
 
-var node3 = Number2()
+var node3 = ::blueprint::nodes::number2::Number2()
 
 node3.value.set(299.5895690918, 572.65625)
 
 _editor.add_node(node3, -98.13652832919, 121.14300534667)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_tex_quad.ves")
 
 _editor.add_node(node4, 1087.9697925607, -332.03020041222)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
 node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node5, -133.36069961704, -174.1462546996)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
 node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node6, 336.38996368465, -168.46779614486)
 
-var node7 = Number()
+var node7 = ::blueprint::nodes::number::Number()
 
 node7.value = 10
 
 _editor.add_node(node7, 710.96741171756, 55.981607554393)
 
-var node8 = Subgraph()
+var node8 = ::blueprint::nodes::subgraph::Subgraph()
 node8.load_from_file(_editor, "../../../assets/blueprints/fluidgraph/mc_advect.ves")
 
 _editor.add_node(node8, 1033.8585245674, 28.272325292161)
 
-var node9 = Texture()
+var node9 = ::rendergraph::nodes::texture::Texture()
 node9.query_param("unif_name").value = "u_tex"
 node9.gamma_correction = false
 node9.init_texture(1024, 1024, "rgba16f")
 
 _editor.add_node(node9, 561.08087277556, -172.0355647399)
 
-var node10 = Texture()
+var node10 = ::rendergraph::nodes::texture::Texture()
 node10.query_param("unif_name").value = "u_tex"
 node10.gamma_correction = false
 node10.init_texture(1024, 1024, "rgba16f")

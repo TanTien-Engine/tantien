@@ -1,19 +1,12 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-var node0 = SampleTexture()
+var node0 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node0, -292.25937287565, -75.15381516111)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -453.16943490016, -111.39262588846)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../../rendergraph/learnopengl/resources/textures/bricks2.jpg")
@@ -21,7 +14,7 @@ node2.set_sampler("linear_repeat")
 
 _editor.add_node(node2, -552.08379405629, 189.38067909168)
 
-var node3 = ReplaceColor()
+var node3 = ::pixelgraph::nodes::replace_color::ReplaceColor()
 node3.query_param("from").value.set(0, 0, 0)
 node3.query_param("to").value.set(1, 1, 1)
 node3.query_param("range").value = 0.5
@@ -29,26 +22,26 @@ node3.query_param("fuzziness").value = 0.1
 
 _editor.add_node(node3, -116.55774793388, -95.01485785124)
 
-var node4 = Number3()
+var node4 = ::blueprint::nodes::number3::Number3()
 
 node4.value.set(1.0218369960785, 0, 0)
 
 _editor.add_node(node4, -316.26297873259, -225.23639439366)
 
-var node5 = Number3()
+var node5 = ::blueprint::nodes::number3::Number3()
 
 node5.value.set(0, 0, 0.98381888866425)
 
 _editor.add_node(node5, -315.23665188156, -331.46012894455)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node6, 99.114514160156, -54.846680297852)
 
-Blueprint.connect(node5, "v3", node3, "to")
-Blueprint.connect(node4, "v3", node3, "from")
 Blueprint.connect(node2, "tex", node0, "tex")
 Blueprint.connect(node1, "uv", node0, "uv")
 Blueprint.connect(node0, "rgb", node3, "rgb")
+Blueprint.connect(node4, "v3", node3, "from")
+Blueprint.connect(node5, "v3", node3, "to")
 Blueprint.connect(node3, "ret", node6, "rgb")

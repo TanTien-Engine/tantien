@@ -1,55 +1,46 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "u_lut_tex"
 node0.gamma_correction = false
 node0.init_texture("../../../assets/textures/lut/evening.png")
 
 _editor.add_node(node0, -557.43904754003, 134.72924757949)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -514.43481494505, -2.280742563193)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
 node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node2, -777.12582330401, 132.84123855344)
 
-var node3 = Subgraph()
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../../assets/blueprints/postprocessing/lut.ves")
 
 _editor.add_node(node3, -173.69872276484, -22.54207362885)
 
-var node4 = Uniform()
+var node4 = ::shadergraph::nodes::uniform::Uniform()
 node4.query_param("unif_name").value = "unif"
 
 _editor.add_node(node4, -474.70764078539, -78.847180266992)
 
-var node5 = Number()
+var node5 = ::blueprint::nodes::number::Number()
 
 node5.value = 0.37196180224419
 
 _editor.add_node(node5, -601.34765147652, -90.610353114184)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node6, 107.04320057556, 18.248578120118)
 
 Blueprint.connect(node5, "v", node4, "v")
+Blueprint.connect(node2, "tex", node3, "src_tex")
+Blueprint.connect(node0, "tex", node3, "lut_tex")
+Blueprint.connect(node1, "uv", node3, "texcoord")
 Blueprint.connect(node4, "v", node3, "chroma")
 Blueprint.connect(node4, "v", node3, "luma")
-Blueprint.connect(node2, "tex", node3, "src_tex")
-Blueprint.connect(node1, "uv", node3, "texcoord")
-Blueprint.connect(node0, "tex", node3, "lut_tex")
 Blueprint.connect(node3, "col", node6, "rgb")

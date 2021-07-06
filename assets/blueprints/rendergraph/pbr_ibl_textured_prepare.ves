@@ -1,77 +1,77 @@
-var node0 = Subgraph()
-node0.load_from_file(_editor, "assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "equirectangular_to_cubemap.ves")
 
 _editor.add_node(node0, -483.9280264241, -15.27491152899)
 
-var node1 = Pass()
+var node1 = ::rendergraph::nodes::pass::Pass()
 
 node1.once = true
 
 _editor.add_node(node1, 594.54437001047, 7.66293305829)
 
-var node2 = Subgraph()
-node2.load_from_file(_editor, "assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "create_irradiance_cubemap.ves")
 
 _editor.add_node(node2, -205.9896440133, 57.99157197682)
 
-var node3 = Subgraph()
-node3.load_from_file(_editor, "assets/blueprints/rendergraph/create_brdf_lut.ves")
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "create_brdf_lut.ves")
 
 _editor.add_node(node3, 48.01002807492, 58.61358458318)
 
-var node4 = Subgraph()
-node4.load_from_file(_editor, "assets/blueprints/rendergraph/create_prefilter_cubemap.ves")
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
+node4.load_from_file(_editor, "create_prefilter_cubemap.ves")
 
 _editor.add_node(node4, 317.76377079689, 2.35478655029)
 
-var node5 = Print()
+var node5 = ::blueprint::nodes::print::Print()
 
 _editor.add_node(node5, 521.98659446023, 152.42065297277)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "equirectangularMap"
 node6.var_type = "texture"
 
 _editor.add_node(node6, -720.4308922372, -11.14163370937)
 
-var node7 = Output()
+var node7 = ::blueprint::nodes::output::Output()
 
 node7.var_name = "cubemap"
 node7.var_type = "texture"
 
 _editor.add_node(node7, -247.78818067015, -94.400018920287)
 
-var node8 = Output()
+var node8 = ::blueprint::nodes::output::Output()
 
 node8.var_name = "irradiance"
 node8.var_type = "texture"
 
 _editor.add_node(node8, 7.9185174261556, -88.190805453496)
 
-var node9 = Output()
+var node9 = ::blueprint::nodes::output::Output()
 
 node9.var_name = "brdf"
 node9.var_type = "texture"
 
 _editor.add_node(node9, 248.38440334412, -108.51186855164)
 
-var node10 = Output()
+var node10 = ::blueprint::nodes::output::Output()
 
 node10.var_name = "prefilter"
 node10.var_type = "texture"
 
 _editor.add_node(node10, 532.31477746339, -101.17370194092)
 
+Blueprint.connect(node6, "var", node0, "equirectangularMap")
+Blueprint.connect(node0, "tex", node7, "var")
 Blueprint.connect(node0, "next", node2, "prev")
 Blueprint.connect(node0, "tex", node2, "environmentMap")
-Blueprint.connect(node0, "tex", node4, "environmentMap")
-Blueprint.connect(node0, "tex", node7, "var")
-Blueprint.connect(node2, "next", node3, "prev")
 Blueprint.connect(node2, "tex", node8, "var")
-Blueprint.connect(node3, "next", node4, "prev")
+Blueprint.connect(node2, "next", node3, "prev")
 Blueprint.connect(node3, "tex", node9, "var")
-Blueprint.connect(node4, "next", node1, "prev")
-Blueprint.connect(node4, "tex", node5, "value")
+Blueprint.connect(node3, "next", node4, "prev")
+Blueprint.connect(node0, "tex", node4, "environmentMap")
 Blueprint.connect(node4, "tex", node10, "var")
-Blueprint.connect(node6, "var", node0, "equirectangularMap")
+Blueprint.connect(node4, "tex", node5, "value")
+Blueprint.connect(node4, "next", node1, "prev")

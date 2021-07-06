@@ -1,11 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-import "terraingraph.nodes.*"
-import "shadergraph.nodes.*"
-import "noisegraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(0.028954609443303, 0.79717790614566, 1.6227468507254)
 node0.cam.yaw = -86.9
@@ -16,7 +9,7 @@ node0.speed = 0.18308258056641
 
 _editor.add_node(node0, -0.044579652890008, 38.068628041322)
 
-var node1 = Worley()
+var node1 = ::terraingraph::nodes::worley::Worley()
 node1.query_param("offset").value.set(0, 0)
 node1.query_param("seed").value = 0
 node1.query_param("frequency").value = 4
@@ -26,28 +19,28 @@ node1.query_param("features_mode").value = { "max" : 5, "integer" : true, "min" 
 
 _editor.add_node(node1, -332.52737210924, 112.01448124139)
 
-var node2 = Subgraph()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
 _editor.add_node(node2, 232.90326529927, 150.68381895147)
 
-var node3 = TexCoord()
+var node3 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node3, -490.47415191372, 201.62934052971)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/terraingraph/gen_heightmap.ves")
 
 _editor.add_node(node4, -71.07417905785, 196.31479308264)
 
-var node5 = Pass()
+var node5 = ::rendergraph::nodes::pass::Pass()
 
 node5.once = false
 
 _editor.add_node(node5, 467, 176.5)
 
+Blueprint.connect(node2, "next", node5, "prev")
 Blueprint.connect(node3, "uv", node1, "tex_coords")
 Blueprint.connect(node1, "ret", node4, "height")
 Blueprint.connect(node4, "heightmap", node2, "tes_heightmap")
 Blueprint.connect(node0, "this", node2, "view_cam")
-Blueprint.connect(node2, "next", node5, "prev")

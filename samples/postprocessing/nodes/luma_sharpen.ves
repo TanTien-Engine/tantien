@@ -1,24 +1,15 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "texture0"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node0, -549.32991337231, 97.788534948308)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -500.07199894267, 241.76419289061)
 
-var node2 = LumaSharpen()
+var node2 = ::postprocessing::nodes::luma_sharpen::LumaSharpen()
 node2.query_param("sharp_strength").value = 0.85
 node2.query_param("sharp_clamp").value = 0.035
 node2.query_param("pattern").value = 2
@@ -27,16 +18,16 @@ node2.query_param("show_sharpen").value = false
 
 _editor.add_node(node2, -354.03934157503, 121.13793456731)
 
-var node3 = Viewport()
+var node3 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node3, -499.92690838878, 196.01007337621)
 
-var node4 = Subgraph()
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node4, -123.58518981934, 243.89309692383)
 
-Blueprint.connect(node3, "size", node2, "screen_size")
 Blueprint.connect(node1, "uv", node2, "tex")
+Blueprint.connect(node3, "size", node2, "screen_size")
 Blueprint.connect(node0, "tex", node2, "texture0")
 Blueprint.connect(node2, "ret", node4, "rgb")

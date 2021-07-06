@@ -1,14 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "pixelgraph.nodes.*"
-
-import "pbrgraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -16,48 +6,48 @@ node0.skip = false
 
 _editor.add_node(node0, 383.03894618395, -4.3723831784738)
 
-var node1 = ShaderGen()
+var node1 = ::shadergraph::nodes::shader_gen::ShaderGen()
 
 _editor.add_node(node1, 216.51126212912, 63.238847903249)
 
-var node2 = ShaderCode()
+var node2 = ::rendergraph::nodes::shader_code::ShaderCode()
 node2.init_filepath("../../shaders/model_vert.glsl")
 
 _editor.add_node(node2, 55.140644831376, 135.01740722014)
 
-var node3 = FragColor()
+var node3 = ::shadergraph::nodes::frag_color::FragColor()
 
 _editor.add_node(node3, 57.685210790249, 43.44295080676)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "rgb"
 node4.var_type = "num3"
 
 _editor.add_node(node4, -89.944502336617, 41.23814559637)
 
-var node5 = Input()
+var node5 = ::blueprint::nodes::input::Input()
 
 node5.var_name = "model"
 node5.var_type = "mat4"
 
 _editor.add_node(node5, 63.612335205078, -46.620361328125)
 
-var node6 = Input()
+var node6 = ::blueprint::nodes::input::Input()
 
 node6.var_name = "view"
 node6.var_type = "mat4"
 
 _editor.add_node(node6, 61.612335205078, -95.620361328125)
 
-var node7 = Input()
+var node7 = ::blueprint::nodes::input::Input()
 
 node7.var_name = "projection"
 node7.var_type = "mat4"
 
 _editor.add_node(node7, 65.612335205078, -144.62036132813)
 
-var node8 = Input()
+var node8 = ::blueprint::nodes::input::Input()
 
 node8.var_name = "va"
 node8.var_type = "va"

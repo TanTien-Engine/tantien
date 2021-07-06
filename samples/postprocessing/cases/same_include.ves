@@ -1,32 +1,23 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-import "pixelgraph.nodes.*"
-
-import "postprocessing.nodes.*"
-var node0 = Texture()
+var node0 = ::rendergraph::nodes::texture::Texture()
 node0.query_param("unif_name").value = "u_tex"
 node0.gamma_correction = false
 node0.init_texture("../../rendergraph/learnopengl/resources/textures/skybox/back.jpg")
 
 _editor.add_node(node0, -1068.0475866559, 144.35763417775)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -889.01711570692, 106.40334446372)
 
-var node2 = SampleTexture()
+var node2 = ::shadergraph::nodes::sample_texture::SampleTexture()
 
 _editor.add_node(node2, -729.92678798004, 155.65703074361)
 
-var node3 = Add()
+var node3 = ::blueprint::nodes::add::Add()
 
 _editor.add_node(node3, -253.07814271742, 214.93468738747)
 
-var node4 = BlackAndWhite()
+var node4 = ::postprocessing::nodes::black_and_white::BlackAndWhite()
 node4.query_param("curve_str").value = 1.5
 node4.query_param("show_clip").value = false
 node4.query_param("bw_mode").value = 13
@@ -42,7 +33,7 @@ node4.query_param("tintsat").value = 0.12
 
 _editor.add_node(node4, -513.94084472656, 213.48133544922)
 
-var node5 = ColorSpaceCurves()
+var node5 = ::postprocessing::nodes::color_space_curves::ColorSpaceCurves()
 node5.query_param("color_space").value = 1
 node5.query_param("pos0_shoulder_grey").value = 0.73601615428925
 node5.query_param("pos1_shoulder_grey").value = 0.8
@@ -52,15 +43,15 @@ node5.query_param("colorsat").value = 0
 
 _editor.add_node(node5, -514.24148194728, -223.98913754593)
 
-var node6 = Subgraph()
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
 node6.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node6, -62.761322021484, 223.04119873047)
 
-Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node0, "tex", node2, "tex")
-Blueprint.connect(node2, "rgba", node4, "color")
+Blueprint.connect(node1, "uv", node2, "uv")
 Blueprint.connect(node2, "rgba", node5, "color")
-Blueprint.connect(node5, "ret", node3, "b")
+Blueprint.connect(node2, "rgba", node4, "color")
 Blueprint.connect(node4, "ret", node3, "a")
+Blueprint.connect(node5, "ret", node3, "b")
 Blueprint.connect(node3, "v", node6, "rgb")

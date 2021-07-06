@@ -1,18 +1,19 @@
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("tri_strip")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less" }
+node0.skip = false
 
 _editor.add_node(node0, 319.30050275821, -169.04286659416)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "color" ]
 node1.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node1, -195.87972269609, -10.621836605118)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 
@@ -39,6 +40,9 @@ void main()
 }
 
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 
 #version 330 core
@@ -66,26 +70,27 @@ void main()
 }
 
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, 32.753094207104, -137.29665616138)
 
-var node3 = PrimitiveShape()
+var node3 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node3.type = "quad"
 node3.layout = [ "position", "texture" ]
+node3.shape_params = {  }
 
 _editor.add_node(node3, 61.306104075084, -243.87563990273)
 
-var node4 = Input()
+var node4 = ::blueprint::nodes::input::Input()
 
 node4.var_name = "texture1"
 node4.var_type = "texture"
 
 _editor.add_node(node4, -142, -140.5)
 
+Blueprint.connect(node4, "var", node2, "texture1")
 Blueprint.connect(node1, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node4, "var", node2, "texture1")

@@ -1,38 +1,30 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "sdfgraph.nodes.*"
-var node0 = Sdf()
+var node0 = ::sdfgraph::nodes::sdf::Sdf()
 node0.query_param("eye").value.set(8, 5, 7)
 
 _editor.add_node(node0, 20, 1)
 
-var node1 = TexCoord()
+var node1 = ::shadergraph::nodes::tex_coord::TexCoord()
 
 _editor.add_node(node1, -128, 59)
 
-var node2 = Parameter()
+var node2 = ::shadergraph::nodes::parameter::Parameter()
 
 node2.var_name = "p"
 
 _editor.add_node(node2, -291.0714452428, -65.630209108922)
 
-var node3 = Viewport()
+var node3 = ::blueprint::nodes::viewport::Viewport()
 
 _editor.add_node(node3, -127, 6)
 
-var node4 = CappedTorus()
+var node4 = ::sdfgraph::nodes::capped_torus::CappedTorus()
 node4.query_param("ang").value = 2.2
 node4.query_param("ra").value = 0.8
 node4.query_param("rb").value = 0.2
 
 _editor.add_node(node4, -125.19176574707, -114.99178649902)
 
-var node5 = Subgraph()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
 node5.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_screen.ves")
 
 _editor.add_node(node5, 216.07881164551, 30.056735992432)

@@ -1,14 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-import "shadergraph.nodes.*"
-
-import "pixelgraph.nodes.*"
-
-import "pbrgraph.nodes.*"
-var node0 = Camera3d()
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
 
 node0.cam.position.set(0.31251028579762, 0.8504978580486, 0.75376969050028)
 node0.cam.yaw = -112.3
@@ -19,7 +9,7 @@ node0.speed = 0.091084942221642
 
 _editor.add_node(node0, 151.46541873395, -36.818171458258)
 
-var node1 = Perspective()
+var node1 = ::blueprint::nodes::perspective::Perspective()
 
 node1.fovy = 6
 node1.aspect = 0
@@ -28,64 +18,65 @@ node1.zfar = 100
 
 _editor.add_node(node1, 315.67126390038, -15.698874681421)
 
-var node2 = Number3()
+var node2 = ::blueprint::nodes::number3::Number3()
 
 node2.value.set(6.4398865699768, 6.8843307495117, 4.6900091171265)
 
 _editor.add_node(node2, -16.070494031783, -270.59063212947)
 
-var node3 = Subtract()
+var node3 = ::blueprint::nodes::subtract::Subtract()
 
 _editor.add_node(node3, 121.75292076781, -300.19812972342)
 
-var node4 = Number3()
+var node4 = ::blueprint::nodes::number3::Number3()
 
 node4.value.set(5, 5, 5)
 
 _editor.add_node(node4, -12.606897757083, -375.56282796823)
 
-var node5 = Expand()
+var node5 = ::blueprint::nodes::expand::Expand()
 
 _editor.add_node(node5, 154.11281642753, -189.61267187172)
 
-var node6 = Gltf()
+var node6 = ::rendergraph::nodes::gltf::Gltf()
 node6.init_model("assets/models/SheenCloth/SheenCloth.gltf")
 
 _editor.add_node(node6, -19.951514177491, -158.82074943143)
 
-var node7 = OrbitCamera()
+var node7 = ::blueprint::nodes::orbit_camera::OrbitCamera()
 node7.query_param("speed").value = 0.43336790800095
 
 _editor.add_node(node7, 182.99688741977, -403.64770796108)
 
-var node8 = Subgraph()
+var node8 = ::blueprint::nodes::subgraph::Subgraph()
 node8.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/cloth_model.ves")
 
 _editor.add_node(node8, 419.03234611911, -216.55413457442)
 
-var node9 = Subgraph()
+var node9 = ::blueprint::nodes::subgraph::Subgraph()
 node9.load_from_file(_editor, "../../../assets/blueprints/shadergraph/draw_model.ves")
 
 _editor.add_node(node9, 833.38781673338, -255.42739425851)
 
-var node10 = Subgraph()
+var node10 = ::blueprint::nodes::subgraph::Subgraph()
 node10.load_from_file(_editor, "../../../assets/blueprints/pbrgraph/model_output.ves")
 
 _editor.add_node(node10, 424.28200506074, -385.9094400501)
 
-var node11 = Clear()
+var node11 = ::rendergraph::nodes::clear::Clear()
 
 node11.masks = [ "color", "depth" ]
 node11.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node11, 566.62060546875, 14.873847007751)
 
-var node12 = Pass()
+var node12 = ::rendergraph::nodes::pass::Pass()
 
 node12.once = false
 
 _editor.add_node(node12, 1027.6402587891, -211.17852020264)
 
+Blueprint.connect(node9, "next", node12, "prev")
 Blueprint.connect(node6, "desc", node5, "data")
 Blueprint.connect(node5, "SheenCloth_mesh", node10, "model")
 Blueprint.connect(node7, "mat", node10, "local_mat")
@@ -101,4 +92,3 @@ Blueprint.connect(node10, "model_mat", node9, "model")
 Blueprint.connect(node0, "mat", node9, "view")
 Blueprint.connect(node1, "mat", node9, "projection")
 Blueprint.connect(node10, "va", node9, "va")
-Blueprint.connect(node9, "next", node12, "prev")

@@ -1,8 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-import "rendergraph.nodes.*"
-var node0 = Draw()
+var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
 node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
@@ -10,14 +6,14 @@ node0.skip = false
 
 _editor.add_node(node0, 419.17248364728, -614.94842814451)
 
-var node1 = Clear()
+var node1 = ::rendergraph::nodes::clear::Clear()
 
 node1.masks = [ "depth", "color" ]
 node1.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node1, 152.71743481182, -385.48383761108)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -207,14 +203,14 @@ node2.set_uniform("ambient", [ 0.19279581308365 ])
 
 _editor.add_node(node2, 150.95113152161, -704.56720496823)
 
-var node3 = Texture()
+var node3 = ::rendergraph::nodes::texture::Texture()
 node3.query_param("unif_name").value = "u_tex"
 node3.gamma_correction = false
 node3.init_texture("assets/textures/beckmann.jpg")
 
 _editor.add_node(node3, -103.6992535953, -685.9844071648)
 
-var node4 = Perspective()
+var node4 = ::blueprint::nodes::perspective::Perspective()
 
 node4.fovy = 45
 node4.aspect = 0
@@ -223,7 +219,7 @@ node4.zfar = 100
 
 _editor.add_node(node4, -75.04054660547, -448.01030607813)
 
-var node5 = Camera3d()
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
 node5.cam.position.set(-0.13016721848106, 0.33143328307611, 0.41881437280284)
 node5.cam.yaw = -66.2
@@ -234,41 +230,41 @@ node5.speed = 0.01
 
 _editor.add_node(node5, -299.43589083762, -395.79108780427)
 
-var node6 = RenderTarget()
+var node6 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node6.width = 2048
 node6.height = 2048
 
 _editor.add_node(node6, -240.2319044918, -1505.2498841702)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
 node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture(2048, 2048, "rgba8")
 
 _editor.add_node(node7, -465.62440443845, -1368.7714169007)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
 node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture(2048, 2048, "depth")
 
 _editor.add_node(node8, -465.17868555518, -1702.8043428238)
 
-var node9 = Pass()
+var node9 = ::rendergraph::nodes::pass::Pass()
 
 node9.once = false
 
 _editor.add_node(node9, 582.08497865463, -534.47724821779)
 
-var node10 = Commentary()
+var node10 = ::blueprint::nodes::commentary::Commentary()
 
 node10.set_size(1077.5629882813, 744.18518066406)
 node10.title = "Lighting"
 
 _editor.add_node(node10, 132.43077759375, -274.40898269922)
 
-var node11 = Draw()
+var node11 = ::rendergraph::nodes::draw::Draw()
 
 node11.set_prim_type("tri_strip")
 node11.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
@@ -276,14 +272,14 @@ node11.skip = false
 
 _editor.add_node(node11, 572.66582932266, -1396.7914714975)
 
-var node12 = Clear()
+var node12 = ::rendergraph::nodes::clear::Clear()
 
 node12.masks = [ "color" ]
 node12.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node12, 292.00137717654, -1200.0579559291)
 
-var node13 = Shader()
+var node13 = ::rendergraph::nodes::shader::Shader()
 
 node13.vs = "
 #version 330 core
@@ -377,7 +373,7 @@ node13.set_uniform("SSSIntencity", [ 0.1 ])
 
 _editor.add_node(node13, 119.67524652302, -1347.6761985859)
 
-var node14 = PrimitiveShape()
+var node14 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
 
 node14.type = "quad"
 node14.layout = [ "position", "texture" ]
@@ -385,21 +381,21 @@ node14.shape_params = {  }
 
 _editor.add_node(node14, 304.43148949626, -1455.9785878489)
 
-var node15 = RenderTarget()
+var node15 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node15.width = 2048
 node15.height = 2048
 
 _editor.add_node(node15, 362.15171412109, -1647.1301340625)
 
-var node16 = Texture()
+var node16 = ::rendergraph::nodes::texture::Texture()
 node16.query_param("unif_name").value = "u_tex"
 node16.gamma_correction = false
 node16.init_texture(2048, 2048, "rgba8")
 
 _editor.add_node(node16, 150.95176294922, -1638.3301340625)
 
-var node17 = Draw()
+var node17 = ::rendergraph::nodes::draw::Draw()
 
 node17.set_prim_type("tri_strip")
 node17.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
@@ -407,7 +403,7 @@ node17.skip = false
 
 _editor.add_node(node17, 1557.9023166477, -1775.3101226795)
 
-var node18 = Shader()
+var node18 = ::rendergraph::nodes::shader::Shader()
 
 node18.vs = "
 #version 330 core
@@ -501,104 +497,104 @@ node18.set_uniform("SSSIntencity", [ 0.1 ])
 
 _editor.add_node(node18, 1347.9849612758, -1697.7895281063)
 
-var node19 = RenderTarget()
+var node19 = ::rendergraph::nodes::render_target::RenderTarget()
 
 node19.width = 2048
 node19.height = 2048
 
 _editor.add_node(node19, 1401.730863039, -1844.5713730179)
 
-var node20 = Texture()
+var node20 = ::rendergraph::nodes::texture::Texture()
 node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture(2048, 2048, "rgba8")
 
 _editor.add_node(node20, 1200.0660068837, -1839.5724094096)
 
-var node21 = Commentary()
+var node21 = ::blueprint::nodes::commentary::Commentary()
 
 node21.set_size(912.26666259766, 830.73748779297)
 node21.title = "SSSS BlurX"
 
 _editor.add_node(node21, 394.27344974375, -1085.8761199969)
 
-var node22 = Commentary()
+var node22 = ::blueprint::nodes::commentary::Commentary()
 
 node22.set_size(863.86663818359, 340.52084350586)
 node22.title = "SSSS BlurY"
 
 _editor.add_node(node22, 1434.6913663052, -1603.1961572919)
 
-var node23 = Commentary()
+var node23 = ::blueprint::nodes::commentary::Commentary()
 
 node23.set_size(486.10208129883, 672.83123779297)
 node23.title = "Lighting result"
 
 _editor.add_node(node23, -364.14337667002, -1277.0318127864)
 
-var node24 = Input()
+var node24 = ::blueprint::nodes::input::Input()
 
 node24.var_name = "diffuseTex"
 node24.var_type = "texture"
 
 _editor.add_node(node24, -321.05248264062, -845.91170012109)
 
-var node25 = Input()
+var node25 = ::blueprint::nodes::input::Input()
 
 node25.var_name = "aoTex"
 node25.var_type = "texture"
 
 _editor.add_node(node25, -321.05245822656, -909.71173674219)
 
-var node26 = Input()
+var node26 = ::blueprint::nodes::input::Input()
 
 node26.var_name = "normalTex"
 node26.var_type = "texture"
 
 _editor.add_node(node26, -318.85250705469, -973.51171232813)
 
-var node27 = Input()
+var node27 = ::blueprint::nodes::input::Input()
 
 node27.var_name = "model"
 node27.var_type = "model"
 
 _editor.add_node(node27, 174.8813120815, -955.82282205824)
 
-var node28 = Input()
+var node28 = ::blueprint::nodes::input::Input()
 
 node28.var_name = "view"
 node28.var_type = "mat4"
 
 _editor.add_node(node28, -297.98043363494, -497.85191995863)
 
-var node29 = Input()
+var node29 = ::blueprint::nodes::input::Input()
 
 node29.var_name = "viewPos"
 node29.var_type = "num3"
 
 _editor.add_node(node29, -297.07132053125, -542.39738282706)
 
-var node30 = Input()
+var node30 = ::blueprint::nodes::input::Input()
 
 node30.var_name = "fovy"
 node30.var_type = "num"
 
 _editor.add_node(node30, -296.16224626811, -587.85193660458)
 
-var node31 = Output()
+var node31 = ::blueprint::nodes::output::Output()
 
 node31.var_name = "tex"
 node31.var_type = "texture"
 
 _editor.add_node(node31, 1400.2367896017, -1937.7725348178)
 
-var node32 = Pass()
+var node32 = ::rendergraph::nodes::pass::Pass()
 
 node32.once = false
 
 _editor.add_node(node32, 755.5450033252, -1319.8714056043)
 
-var node33 = Pass()
+var node33 = ::rendergraph::nodes::pass::Pass()
 
 node33.once = false
 

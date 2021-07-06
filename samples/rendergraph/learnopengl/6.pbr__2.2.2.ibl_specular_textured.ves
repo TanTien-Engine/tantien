@@ -1,9 +1,4 @@
-
-import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.*"
-
-import "rendergraph.nodes.*"
-var node0 = Perspective()
+var node0 = ::blueprint::nodes::perspective::Perspective()
 
 node0.fovy = 45
 node0.aspect = 0
@@ -12,7 +7,7 @@ node0.zfar = 100
 
 _editor.add_node(node0, -915.95156257078, -215.18715044365)
 
-var node1 = Camera3d()
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
 node1.cam.position.set(-0.16943259494248, -0.031310069130555, 9.4667649381922)
 node1.cam.yaw = -94.6
@@ -23,62 +18,62 @@ node1.speed = 0.35880517959595
 
 _editor.add_node(node1, -1094.7859499654, -357.47072578593)
 
-var node2 = Texture()
+var node2 = ::rendergraph::nodes::texture::Texture()
+node2.query_param("unif_name").value = "u_tex"
 node2.gamma_correction = false
 node2.init_texture("resources/textures/hdr/newport_loft.hdr")
 
-
 _editor.add_node(node2, -929.09561005695, 137.2997913154)
 
-var node3 = Subgraph()
-node3.load_from_file(_editor, "assets/blueprints/rendergraph/draw_skybox.ves")
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
 node3.set_prop_value("tonemap", 1.3319863080978)
 node3.set_prop_value("gamma_correct", 1)
 
 _editor.add_node(node3, 1178.6922546268, -3170.7260220788)
 
-var node4 = Pass()
+var node4 = ::rendergraph::nodes::pass::Pass()
 
 node4.once = false
 
 _editor.add_node(node4, 1471.1872598344, -3148.3577564633)
 
-var node5 = Texture()
+var node5 = ::rendergraph::nodes::texture::Texture()
+node5.query_param("unif_name").value = "u_tex"
 node5.gamma_correction = false
 node5.init_texture("resources/textures/pbr/rusted_iron/albedo.png")
 
-
 _editor.add_node(node5, 63.700452570055, -460.21512019085)
 
-var node6 = Texture()
+var node6 = ::rendergraph::nodes::texture::Texture()
+node6.query_param("unif_name").value = "u_tex"
 node6.gamma_correction = false
 node6.init_texture("resources/textures/pbr/rusted_iron/normal.png")
 
-
 _editor.add_node(node6, -159.1621253002, -455.58275070578)
 
-var node7 = Texture()
+var node7 = ::rendergraph::nodes::texture::Texture()
+node7.query_param("unif_name").value = "u_tex"
 node7.gamma_correction = false
 node7.init_texture("resources/textures/pbr/rusted_iron/metallic.png")
 
-
 _editor.add_node(node7, -365.2202105234, -805.96828886223)
 
-var node8 = Texture()
+var node8 = ::rendergraph::nodes::texture::Texture()
+node8.query_param("unif_name").value = "u_tex"
 node8.gamma_correction = false
 node8.init_texture("resources/textures/pbr/rusted_iron/roughness.png")
 
-
 _editor.add_node(node8, -142.8520433422, -800.11188886223)
 
-var node9 = Texture()
+var node9 = ::rendergraph::nodes::texture::Texture()
+node9.query_param("unif_name").value = "u_tex"
 node9.gamma_correction = false
 node9.init_texture("resources/textures/pbr/rusted_iron/ao.png")
 
-
 _editor.add_node(node9, 67.978356657855, -803.04008886223)
 
-var node10 = Translate()
+var node10 = ::blueprint::nodes::translate::Translate()
 
 node10.dx = -5
 node10.dy = 0
@@ -86,69 +81,69 @@ node10.dz = 2
 
 _editor.add_node(node10, -333.69155981944, -455.69758730283)
 
-var node11 = Subgraph()
-node11.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_prepare.ves")
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
+node11.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_prepare.ves")
 
 _editor.add_node(node11, -648.38114810196, 142.17379758031)
 
-var node12 = Subgraph()
-node12.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
+var node12 = ::blueprint::nodes::subgraph::Subgraph()
+node12.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
 
 _editor.add_node(node12, 319.55355251336, -549.44941446862)
 
-var node13 = Pass()
+var node13 = ::rendergraph::nodes::pass::Pass()
 
 node13.once = true
 
 _editor.add_node(node13, -389.52637537327, 206.97996002275)
 
-var node14 = Print()
+var node14 = ::blueprint::nodes::print::Print()
 
 _editor.add_node(node14, -196.60302921508, 102.02947352413)
 
-var node15 = Clear()
+var node15 = ::rendergraph::nodes::clear::Clear()
 
 node15.masks = [ "color", "depth" ]
 node15.values = { "color" : [ 255, 255, 255, 255 ] }
 
 _editor.add_node(node15, -610.55354379727, -386.38979689336)
 
-var node16 = Texture()
+var node16 = ::rendergraph::nodes::texture::Texture()
+node16.query_param("unif_name").value = "u_tex"
 node16.gamma_correction = false
 node16.init_texture("resources/textures/pbr/gold/albedo.png")
 
-
 _editor.add_node(node16, 97.888330062207, -1236.0729761812)
 
-var node17 = Texture()
+var node17 = ::rendergraph::nodes::texture::Texture()
+node17.query_param("unif_name").value = "u_tex"
 node17.gamma_correction = false
 node17.init_texture("resources/textures/pbr/gold/normal.png")
 
-
 _editor.add_node(node17, -175.68424780804, -1225.2806066961)
 
-var node18 = Texture()
+var node18 = ::rendergraph::nodes::texture::Texture()
+node18.query_param("unif_name").value = "u_tex"
 node18.gamma_correction = false
 node18.init_texture("resources/textures/pbr/gold/metallic.png")
 
-
 _editor.add_node(node18, -447.56633303125, -1581.9581448525)
 
-var node19 = Texture()
+var node19 = ::rendergraph::nodes::texture::Texture()
+node19.query_param("unif_name").value = "u_tex"
 node19.gamma_correction = false
 node19.init_texture("resources/textures/pbr/gold/roughness.png")
 
-
 _editor.add_node(node19, -166.63416585004, -1588.0807448525)
 
-var node20 = Texture()
+var node20 = ::rendergraph::nodes::texture::Texture()
+node20.query_param("unif_name").value = "u_tex"
 node20.gamma_correction = false
 node20.init_texture("resources/textures/pbr/gold/ao.png")
 
-
 _editor.add_node(node20, 101.42923415001, -1587.0159448525)
 
-var node21 = Translate()
+var node21 = ::blueprint::nodes::translate::Translate()
 
 node21.dx = -3
 node21.dy = 0
@@ -156,47 +151,47 @@ node21.dz = 2
 
 _editor.add_node(node21, -365.00688140204, -1220.2568150868)
 
-var node22 = Subgraph()
-node22.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
+var node22 = ::blueprint::nodes::subgraph::Subgraph()
+node22.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
 
 _editor.add_node(node22, 368.19331776109, -1318.9559136474)
 
-var node23 = Texture()
+var node23 = ::rendergraph::nodes::texture::Texture()
+node23.query_param("unif_name").value = "u_tex"
 node23.gamma_correction = false
 node23.init_texture("resources/textures/pbr/grass/albedo.png")
 
-
 _editor.add_node(node23, 84.634638397121, -2031.6798957367)
 
-var node24 = Texture()
+var node24 = ::rendergraph::nodes::texture::Texture()
+node24.query_param("unif_name").value = "u_tex"
 node24.gamma_correction = false
 node24.init_texture("resources/textures/pbr/grass/normal.png")
 
-
 _editor.add_node(node24, -138.22793947308, -2027.0475262516)
 
-var node25 = Texture()
+var node25 = ::rendergraph::nodes::texture::Texture()
+node25.query_param("unif_name").value = "u_tex"
 node25.gamma_correction = false
 node25.init_texture("resources/textures/pbr/grass/metallic.png")
 
-
 _editor.add_node(node25, -344.28602469628, -2377.433064408)
 
-var node26 = Texture()
+var node26 = ::rendergraph::nodes::texture::Texture()
+node26.query_param("unif_name").value = "u_tex"
 node26.gamma_correction = false
 node26.init_texture("resources/textures/pbr/grass/roughness.png")
 
-
 _editor.add_node(node26, -121.91785751513, -2371.576664408)
 
-var node27 = Texture()
+var node27 = ::rendergraph::nodes::texture::Texture()
+node27.query_param("unif_name").value = "u_tex"
 node27.gamma_correction = false
 node27.init_texture("resources/textures/pbr/grass/ao.png")
 
-
 _editor.add_node(node27, 88.912542484921, -2374.504864408)
 
-var node28 = Translate()
+var node28 = ::blueprint::nodes::translate::Translate()
 
 node28.dx = -1
 node28.dy = 0
@@ -204,47 +199,47 @@ node28.dz = 2
 
 _editor.add_node(node28, -316.56990258828, -2033.315339656)
 
-var node29 = Subgraph()
-node29.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
+var node29 = ::blueprint::nodes::subgraph::Subgraph()
+node29.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
 
 _editor.add_node(node29, 370.95683160138, -2128.0965403934)
 
-var node30 = Texture()
+var node30 = ::rendergraph::nodes::texture::Texture()
+node30.query_param("unif_name").value = "u_tex"
 node30.gamma_correction = false
 node30.init_texture("resources/textures/pbr/plastic/albedo.png")
 
-
 _editor.add_node(node30, 114.96146010708, -2850.5040819056)
 
-var node31 = Texture()
+var node31 = ::rendergraph::nodes::texture::Texture()
+node31.query_param("unif_name").value = "u_tex"
 node31.gamma_correction = false
 node31.init_texture("resources/textures/pbr/plastic/normal.png")
 
-
 _editor.add_node(node31, -107.90111776312, -2845.8717124205)
 
-var node32 = Texture()
+var node32 = ::rendergraph::nodes::texture::Texture()
+node32.query_param("unif_name").value = "u_tex"
 node32.gamma_correction = false
 node32.init_texture("resources/textures/pbr/plastic/metallic.png")
 
-
 _editor.add_node(node32, -313.95920298632, -3196.2572505769)
 
-var node33 = Texture()
+var node33 = ::rendergraph::nodes::texture::Texture()
+node33.query_param("unif_name").value = "u_tex"
 node33.gamma_correction = false
 node33.init_texture("resources/textures/pbr/plastic/roughness.png")
 
-
 _editor.add_node(node33, -91.591035805172, -3190.4008505769)
 
-var node34 = Texture()
+var node34 = ::rendergraph::nodes::texture::Texture()
+node34.query_param("unif_name").value = "u_tex"
 node34.gamma_correction = false
 node34.init_texture("resources/textures/pbr/plastic/ao.png")
 
-
 _editor.add_node(node34, 119.23936419488, -3193.3290505769)
 
-var node35 = Translate()
+var node35 = ::blueprint::nodes::translate::Translate()
 
 node35.dx = 1
 node35.dy = 0
@@ -252,47 +247,47 @@ node35.dz = 2
 
 _editor.add_node(node35, -286.24308087832, -2852.1395258249)
 
-var node36 = Subgraph()
-node36.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
+var node36 = ::blueprint::nodes::subgraph::Subgraph()
+node36.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
 
 _editor.add_node(node36, 401.28365331134, -2946.9207265623)
 
-var node37 = Texture()
+var node37 = ::rendergraph::nodes::texture::Texture()
+node37.query_param("unif_name").value = "u_tex"
 node37.gamma_correction = false
 node37.init_texture("resources/textures/pbr/wall/albedo.png")
 
-
 _editor.add_node(node37, 145.28828181704, -3654.1648572194)
 
-var node38 = Texture()
+var node38 = ::rendergraph::nodes::texture::Texture()
+node38.query_param("unif_name").value = "u_tex"
 node38.gamma_correction = false
 node38.init_texture("resources/textures/pbr/wall/normal.png")
 
-
 _editor.add_node(node38, -77.574296053165, -3649.5324877343)
 
-var node39 = Texture()
+var node39 = ::rendergraph::nodes::texture::Texture()
+node39.query_param("unif_name").value = "u_tex"
 node39.gamma_correction = false
 node39.init_texture("resources/textures/pbr/wall/metallic.png")
 
-
 _editor.add_node(node39, -283.63238127637, -3999.9180258907)
 
-var node40 = Texture()
+var node40 = ::rendergraph::nodes::texture::Texture()
+node40.query_param("unif_name").value = "u_tex"
 node40.gamma_correction = false
 node40.init_texture("resources/textures/pbr/wall/roughness.png")
 
-
 _editor.add_node(node40, -61.264214095215, -3994.0616258907)
 
-var node41 = Texture()
+var node41 = ::rendergraph::nodes::texture::Texture()
+node41.query_param("unif_name").value = "u_tex"
 node41.gamma_correction = false
 node41.init_texture("resources/textures/pbr/wall/ao.png")
 
-
 _editor.add_node(node41, 149.56618590484, -3996.9898258907)
 
-var node42 = Translate()
+var node42 = ::blueprint::nodes::translate::Translate()
 
 node42.dx = 3
 node42.dy = 0
@@ -300,82 +295,82 @@ node42.dz = 2
 
 _editor.add_node(node42, -255.91625916837, -3655.8003011387)
 
-var node43 = Subgraph()
-node43.load_from_file(_editor, "assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
+var node43 = ::blueprint::nodes::subgraph::Subgraph()
+node43.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_textured_sphere.ves")
 
 _editor.add_node(node43, 405.67305042029, -3745.3940169559)
 
-Blueprint.connect(node0, "mat", node3, "projection")
-Blueprint.connect(node0, "mat", node12, "projection")
-Blueprint.connect(node0, "mat", node22, "projection")
-Blueprint.connect(node0, "mat", node29, "projection")
-Blueprint.connect(node0, "mat", node36, "projection")
-Blueprint.connect(node0, "mat", node43, "projection")
-Blueprint.connect(node1, "mat", node12, "view")
-Blueprint.connect(node1, "mat", node22, "view")
-Blueprint.connect(node1, "mat", node29, "view")
-Blueprint.connect(node1, "mat", node36, "view")
-Blueprint.connect(node1, "mat", node43, "view")
-Blueprint.connect(node1, "zoom", node0, "fovy")
-Blueprint.connect(node1, "rot", node3, "view")
-Blueprint.connect(node1, "pos", node12, "camPos")
-Blueprint.connect(node1, "pos", node22, "camPos")
-Blueprint.connect(node1, "pos", node29, "camPos")
-Blueprint.connect(node1, "pos", node36, "camPos")
-Blueprint.connect(node1, "pos", node43, "camPos")
-Blueprint.connect(node2, "tex", node11, "equirectangularMap")
+Blueprint.connect(node11, "next", node13, "prev")
 Blueprint.connect(node3, "next", node4, "prev")
-Blueprint.connect(node5, "tex", node12, "albedoMap")
+Blueprint.connect(node2, "tex", node11, "equirectangularMap")
+Blueprint.connect(node11, "prefilter", node14, "value")
+Blueprint.connect(node1, "zoom", node0, "fovy")
+Blueprint.connect(node15, "next", node12, "prev")
 Blueprint.connect(node6, "tex", node12, "normalMap")
+Blueprint.connect(node5, "tex", node12, "albedoMap")
 Blueprint.connect(node7, "tex", node12, "metallicMap")
 Blueprint.connect(node8, "tex", node12, "roughnessMap")
 Blueprint.connect(node9, "tex", node12, "aoMap")
 Blueprint.connect(node10, "mat", node12, "model")
-Blueprint.connect(node11, "next", node13, "prev")
-Blueprint.connect(node11, "cubemap", node3, "skybox")
+Blueprint.connect(node0, "mat", node12, "projection")
+Blueprint.connect(node1, "mat", node12, "view")
+Blueprint.connect(node1, "pos", node12, "camPos")
 Blueprint.connect(node11, "irradiance", node12, "irradianceMap")
-Blueprint.connect(node11, "irradiance", node22, "irradianceMap")
-Blueprint.connect(node11, "irradiance", node29, "irradianceMap")
-Blueprint.connect(node11, "irradiance", node36, "irradianceMap")
-Blueprint.connect(node11, "irradiance", node43, "irradianceMap")
-Blueprint.connect(node11, "brdf", node12, "brdfLUT")
-Blueprint.connect(node11, "brdf", node22, "brdfLUT")
-Blueprint.connect(node11, "brdf", node29, "brdfLUT")
-Blueprint.connect(node11, "brdf", node36, "brdfLUT")
-Blueprint.connect(node11, "brdf", node43, "brdfLUT")
 Blueprint.connect(node11, "prefilter", node12, "prefilterMap")
-Blueprint.connect(node11, "prefilter", node22, "prefilterMap")
-Blueprint.connect(node11, "prefilter", node29, "prefilterMap")
-Blueprint.connect(node11, "prefilter", node36, "prefilterMap")
-Blueprint.connect(node11, "prefilter", node43, "prefilterMap")
-Blueprint.connect(node11, "prefilter", node14, "value")
+Blueprint.connect(node11, "brdf", node12, "brdfLUT")
 Blueprint.connect(node12, "next", node22, "prev")
-Blueprint.connect(node15, "next", node12, "prev")
-Blueprint.connect(node16, "tex", node22, "albedoMap")
 Blueprint.connect(node17, "tex", node22, "normalMap")
+Blueprint.connect(node16, "tex", node22, "albedoMap")
 Blueprint.connect(node18, "tex", node22, "metallicMap")
 Blueprint.connect(node19, "tex", node22, "roughnessMap")
 Blueprint.connect(node20, "tex", node22, "aoMap")
 Blueprint.connect(node21, "mat", node22, "model")
+Blueprint.connect(node0, "mat", node22, "projection")
+Blueprint.connect(node1, "mat", node22, "view")
+Blueprint.connect(node1, "pos", node22, "camPos")
+Blueprint.connect(node11, "irradiance", node22, "irradianceMap")
+Blueprint.connect(node11, "prefilter", node22, "prefilterMap")
+Blueprint.connect(node11, "brdf", node22, "brdfLUT")
 Blueprint.connect(node22, "next", node29, "prev")
-Blueprint.connect(node23, "tex", node29, "albedoMap")
 Blueprint.connect(node24, "tex", node29, "normalMap")
+Blueprint.connect(node23, "tex", node29, "albedoMap")
 Blueprint.connect(node25, "tex", node29, "metallicMap")
 Blueprint.connect(node26, "tex", node29, "roughnessMap")
 Blueprint.connect(node27, "tex", node29, "aoMap")
 Blueprint.connect(node28, "mat", node29, "model")
+Blueprint.connect(node0, "mat", node29, "projection")
+Blueprint.connect(node1, "mat", node29, "view")
+Blueprint.connect(node1, "pos", node29, "camPos")
+Blueprint.connect(node11, "irradiance", node29, "irradianceMap")
+Blueprint.connect(node11, "prefilter", node29, "prefilterMap")
+Blueprint.connect(node11, "brdf", node29, "brdfLUT")
 Blueprint.connect(node29, "next", node36, "prev")
-Blueprint.connect(node30, "tex", node36, "albedoMap")
 Blueprint.connect(node31, "tex", node36, "normalMap")
+Blueprint.connect(node30, "tex", node36, "albedoMap")
 Blueprint.connect(node32, "tex", node36, "metallicMap")
 Blueprint.connect(node33, "tex", node36, "roughnessMap")
 Blueprint.connect(node34, "tex", node36, "aoMap")
 Blueprint.connect(node35, "mat", node36, "model")
+Blueprint.connect(node0, "mat", node36, "projection")
+Blueprint.connect(node1, "mat", node36, "view")
+Blueprint.connect(node1, "pos", node36, "camPos")
+Blueprint.connect(node11, "irradiance", node36, "irradianceMap")
+Blueprint.connect(node11, "prefilter", node36, "prefilterMap")
+Blueprint.connect(node11, "brdf", node36, "brdfLUT")
 Blueprint.connect(node36, "next", node43, "prev")
-Blueprint.connect(node37, "tex", node43, "albedoMap")
 Blueprint.connect(node38, "tex", node43, "normalMap")
+Blueprint.connect(node37, "tex", node43, "albedoMap")
 Blueprint.connect(node39, "tex", node43, "metallicMap")
 Blueprint.connect(node40, "tex", node43, "roughnessMap")
 Blueprint.connect(node41, "tex", node43, "aoMap")
 Blueprint.connect(node42, "mat", node43, "model")
+Blueprint.connect(node0, "mat", node43, "projection")
+Blueprint.connect(node1, "mat", node43, "view")
+Blueprint.connect(node1, "pos", node43, "camPos")
+Blueprint.connect(node11, "irradiance", node43, "irradianceMap")
+Blueprint.connect(node11, "prefilter", node43, "prefilterMap")
+Blueprint.connect(node11, "brdf", node43, "brdfLUT")
 Blueprint.connect(node43, "next", node3, "prev")
+Blueprint.connect(node0, "mat", node3, "projection")
+Blueprint.connect(node1, "rot", node3, "view")
+Blueprint.connect(node11, "cubemap", node3, "skybox")

@@ -1,18 +1,19 @@
-var node0 = Clear()
+var node0 = ::rendergraph::nodes::clear::Clear()
 
 node0.masks = [ "color" ]
 node0.values = { "color" : [ 0.20000000298023, 0.30000001192093, 0.30000001192093, 1 ] }
 
 _editor.add_node(node0, -191, 110)
 
-var node1 = Draw()
+var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
 node1.render_state = { "depth_test" : false, "cull" : "disable" }
+node1.skip = false
 
 _editor.add_node(node1, 134, 19)
 
-var node2 = Shader()
+var node2 = ::rendergraph::nodes::shader::Shader()
 
 node2.vs = "
 #version 330 core
@@ -30,6 +31,9 @@ void main()
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
 "
+node2.tcs = ""
+node2.tes = ""
+node2.gs = ""
 node2.fs = "
 #version 330 core
 out vec4 FragColor;
@@ -45,12 +49,12 @@ void main()
 	FragColor = texture(texture1, TexCoord);
 }
 "
-node2.gs = ""
+node2.cs = ""
 node2.render_gen()
 
 _editor.add_node(node2, -23.5, -3)
 
-var node3 = VertexArray()
+var node3 = ::rendergraph::nodes::vertex_array::VertexArray()
 
 node3.data = [ 0.5, 0.5, 0, 1, 0, 0, 1, 1, 0.5, -0.5, 0, 0, 1, 0, 1, 0, -0.5, -0.5, 0, 0, 0, 1, 0, 0, -0.5, 0.5, 0, 1, 1, 0, 0, 1 ]
 node3.attrs = [ 3, 3, 2 ]
@@ -59,14 +63,14 @@ node3.ibuf = [ 0, 1, 3, 1, 2, 3 ]
 
 _editor.add_node(node3, -29, -122)
 
-var node4 = Texture()
+var node4 = ::rendergraph::nodes::texture::Texture()
+node4.query_param("unif_name").value = "u_tex"
 node4.gamma_correction = false
 node4.init_texture("resources/textures/container.jpg")
 
-
 _editor.add_node(node4, -166, -5)
 
+Blueprint.connect(node4, "tex", node2, "texture1")
 Blueprint.connect(node0, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")
-Blueprint.connect(node4, "tex", node2, "texture1")
