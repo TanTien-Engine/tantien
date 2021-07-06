@@ -4,6 +4,12 @@ static const char* geometryModuleSource = QUOTE(
 foreign class Line
 {
 	init() {}
+	init(x0, y0, x1, y1) { this.set(x0, y0, x1, y1) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Line.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]))"
+	}
 
 	foreign clone()
 
@@ -15,6 +21,12 @@ foreign class Line
 foreign class Rect
 {
 	init() {}
+	init(x, y, w, h) { this.set(x, y, w, h) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Rect.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]))"
+	}
 
 	foreign clone()
 
@@ -26,6 +38,12 @@ foreign class Rect
 foreign class Circle
 {
 	init() {}
+	init(x, y, radius) { this.set(x, y, radius) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Circle.init(%(params[0]), %(params[1]), %(params[2]))"
+	}
 
 	foreign clone()
 

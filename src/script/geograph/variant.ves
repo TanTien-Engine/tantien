@@ -6,10 +6,15 @@ class VarGeo
 {
 	init()
 	{
-		this.shape = nil
+		this.init(nil, {})
+	}
+
+	init(shape, style)
+	{
+		this.shape = shape
 		this.geo_id = -1
 
-		this.render_style = {}
+		this.render_style = style
 	}
 
 	clone()
@@ -23,6 +28,11 @@ class VarGeo
 		}
 
 		return geo
+	}
+
+	toString()
+	{
+		return "::geograph::variant::VarGeo(%(this.shape.toString()), %(this.render_style))"
 	}
 }
 

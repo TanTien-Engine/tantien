@@ -11,6 +11,10 @@ class Vector2
 		this.set(x, y)
 	}
 
+	toString() {
+		return "::maths::vector::Vector2(%(this.x), %(this.y))"
+	}
+
 	clone() {
 		return Vector2(this.x, this.y)
 	}
@@ -53,6 +57,10 @@ class Vector3
 
 	init(x, y, z) {
 		this.set(x, y, z)
+	}
+
+	toString() {
+		return "::maths::vector::Vector3(%(this.x), %(this.y), %(this.z))"
 	}
 
 	clone() {
@@ -108,6 +116,10 @@ class Vector4
 
 	init(x, y, z, w) {
 		this.set(x, y, z, w)
+	}
+
+	toString() {
+		return "::maths::vector::Vector4(%(this.x), %(this.y), %(this.z), %(this.w))"
 	}
 
 	clone() {

@@ -118,4 +118,11 @@ class Variant
 			Graphics.draw_text("%(this.value)", x, y, 0.5, TB_TITLE)
 		}
 	}
+
+	toString()
+	{
+		var type = "\"%(this.type)\""
+		var value = this.value.toString()
+		return "::blueprint::variant::Variant(%(type), %(value))"
+	}
 }
