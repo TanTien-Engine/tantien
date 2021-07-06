@@ -19,6 +19,8 @@
 #include "modules/system/system.ves.inc"
 #include "modules/shader/wrap_Shader.h"
 #include "modules/shader/shader.ves.inc"
+#include "modules/physics/wrap_Physics.h"
+#include "modules/physics/physics.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -95,6 +97,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = systemModuleSource;
     } else if (strcmp(module, "shader") == 0) {
         source = shaderModuleSource;
+    } else if (strcmp(module, "physics") == 0) {
+        source = physicsModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -199,6 +203,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::ShaderBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::PhysicsBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -245,6 +252,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::ShaderBindMethod(fullName);
     if (method != NULL) return method;
 
+    method = tt::PhysicsBindMethod(fullName);
+    if (method != NULL) return method;
+
     return NULL;
 }
 
@@ -264,6 +274,55 @@ void save_dir(const char* dir_path)
         ves_pushstring("savetofile()");
         ves_call(0, 0);
     }
+}
+
+void save(const char* name)
+{
+    ves_init_vm();
+
+    VesselConfiguration cfg;
+    cfg.load_module_fn = read_module;
+    cfg.expand_modules_fn = expand_modules;
+    cfg.bind_foreign_class_fn = bind_foreign_class;
+    cfg.bind_foreign_method_fn = bind_foreign_method;
+    cfg.write_fn = write;
+    ves_set_config(&cfg);
+
+    char code[255];
+    std::string cls = name;
+    cls[0] = std::toupper(cls[0]);
+    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", name, cls.c_str(), cls.c_str());
+    ves_interpret("editor", code);
+
+    ves_getglobal("_editor");
+    ves_pushstring("load()");
+    ves_call(0, 0);
+
+    //save_dir("samples");
+    //save_dir("assets");
+
+    //save_dir("samples/shadergraph");
+
+//    auto dir_path = std::string("samples/") + name;
+    auto dir_path = std::string("assets/blueprints/") + name;
+    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path))
+    {
+        auto filepath = std::filesystem::absolute(p).string();
+        if (filepath.find(".ves") == std::string::npos) {
+            continue;
+        }
+
+        printf("++ %s\n", filepath.c_str());
+
+        ves_pushstring(filepath.c_str());
+        ves_pushstring("loadfromfile(_)");
+        ves_call(1, 0);
+
+        ves_pushstring("savetofile()");
+        ves_call(0, 0);
+    }
+
+    ves_free_vm();
 }
 
 }
@@ -307,34 +366,22 @@ int main(int argc, char* argv[])
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
 
-    ves_init_vm();
-
     tt::System::Instance()->SetWindow(window);
 
-    VesselConfiguration cfg;
-    cfg.load_module_fn = read_module;
-    cfg.expand_modules_fn = expand_modules;
-    cfg.bind_foreign_class_fn = bind_foreign_class;
-    cfg.bind_foreign_method_fn = bind_foreign_method;
-    cfg.write_fn = write;
-    ves_set_config(&cfg);
-
-    char code[255];
-    std::string cls = argv[1];
-    cls[0] = std::toupper(cls[0]);
-    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls.c_str(), cls.c_str());
-    ves_interpret("editor", code);
-
-    ves_getglobal("_editor");
-    ves_pushstring("load()");
-    ves_call(0, 0);
-
-    //save_dir("samples");
-    //save_dir("assets");
-
-    save_dir("samples/shadergraph");
-
-    ves_free_vm();
+    if (strcmp(argv[1], "all") == 0)
+    {
+        for (const auto& entry : std::filesystem::directory_iterator("assets/blueprints/")) {
+//        for (const auto& entry : std::filesystem::directory_iterator("samples/")) {
+            const auto name = entry.path().filename().string();
+            if (entry.is_directory()) {
+                save(name.c_str());
+            }
+        }
+    }
+    else
+    {
+        save(argv[1]);
+    }
 
     glfwDestroyWindow(window);
     glfwTerminate();
