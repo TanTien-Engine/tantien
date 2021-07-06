@@ -184,7 +184,7 @@ class Curves is Node
 {
 	init() 
 	{
-		super.init(Curves.name)
+		super.init()
 
 		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "curves_pass", [
             [ "mode", 0, { "integer" : true, "min" : 0, "max" : 2 } ],  // 0: Luma, 1: Chroma, 2: Both Luma and Chroma

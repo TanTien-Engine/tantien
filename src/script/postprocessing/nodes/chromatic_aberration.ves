@@ -36,7 +36,7 @@ class ChromaticAberration is Node
 {
 	init() 
 	{
-		super.init(ChromaticAberration.name)
+		super.init()
 
 		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "chromatic_aberration_pass", [
             [ "shift", Vector2(2.5, -0.5), { "min" : -10.0, "max" : 10.0 } ],

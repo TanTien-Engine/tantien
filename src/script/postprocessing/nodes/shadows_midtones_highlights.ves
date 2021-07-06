@@ -164,7 +164,7 @@ class ShadowsMidtonesHighlights is Node
 {
 	init() 
 	{
-		super.init(ShadowsMidtonesHighlights.name)
+		super.init()
 
 		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "shadows_midtones_highlights_pass", [
             [ "luma_mode", 2, { "integer" : true, "min" : 0, "max" : 2 } ],         // 0: Use Average, 1: Use Perceived Luma, 2: Use Max Value

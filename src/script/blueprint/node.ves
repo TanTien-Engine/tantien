@@ -20,10 +20,25 @@ class Style
 
 class Node
 {
-	init(name) 
+	init() 
 	{
-		this.name = name
+		this.imports = []
+		this.exports = []
 
+		this.style = Style()
+
+		this.pos = Vector2()
+
+		this.params = []
+
+		// for aabb update
+		this.aabb_dirty = false
+
+		this.dummy = false
+	}
+
+	init() 
+	{
 		this.imports = []
 		this.exports = []
 
@@ -194,6 +209,6 @@ class Node
 
 	get_title()
 	{
-		return this.name
+		return this.type().name
 	}
 }

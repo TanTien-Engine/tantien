@@ -201,7 +201,7 @@ class ColorGamut is Node
 {
 	init() 
 	{
-		super.init(ColorGamut.name)
+		super.init()
 
 		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "color_gamut_pass", [
             [ "colorgamut", 0, { "integer" : true, "min" : 0, "max" : 15 } ],      // 0: No Change, 1: Adobe RGB, 2: Apple RGB, 3: Best RGB, 4: Beta RGB, 5: Bruce RGB, 6: CIE RGB, 7: Color Match, 8: Don, 9: ECI, 10: Ekta Space PS5, 11: NTSC, 12: PAL-SECAM, 13: ProPhoto, 14: SMPTE-C, 15: Wide Gamut RGB

@@ -49,7 +49,7 @@ class Tonemap is Node
 {
 	init() 
 	{
-		super.init(Tonemap.name)
+		super.init()
 
 		this.node_func = NodeFunction(this, "pixel", CODE, "hlsl", "tonemap_pass", [
             [ "gamma", 1.0, { "min" : 0.0, "max" : 2.0 } ],
