@@ -46,12 +46,14 @@ class Array is Node
 
 	to_string(name) 
 	{
+		var ret = super.to_string(name)
+
 		var serialize = this.query_param("serialize").value
 		if (serialize) {
-			return "\n%(name).list = %(this.list)\n"
-		} else {
-			return ""
+			ret = ret + "\n%(name).list = %(this.list)\n"
 		}
+
+		return ret
 	}
 
 	execute_run() 
