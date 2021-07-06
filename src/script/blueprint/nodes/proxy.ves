@@ -26,7 +26,7 @@ class Proxy is Node
 	{
 		var cls = ""
 		if (this.real_node) {
-			cls = this.real_node.type().name
+			cls = this.real_node.get_class().name
 		}
 		return "
 %(name).real_name = \"%(this.real_name)\"

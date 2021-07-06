@@ -18,7 +18,7 @@ class NodeFunction
 
 		this.rename_ubo = code.contains("__UBO__")
 		if (this.rename_ubo) {
-			code = code.replace("__UBO__", "UBO_" + node.type().name)
+			code = code.replace("__UBO__", "UBO_" + node.get_class().name)
 		}
 
 		this.num_params = NodeHelper.init_pins_from_code(node, stage, code, nil, lang, func_name)
@@ -39,7 +39,7 @@ class NodeFunction
 		this.code  = code
 		this.lang  = lang
 		this.func_name = func_name
-		this.decl_name = "bp_" + node.type().name
+		this.decl_name = "bp_" + node.get_class().name
 
 		node.layout()
 	}
@@ -79,7 +79,7 @@ class NodeFunction
 				}
 				var unif_name = nil
 				if (this.rename_ubo) {
-					unif_name = "u_" + this.node.type().name + "." + this.node.imports[i].name
+					unif_name = "u_" + this.node.get_class().name + "." + this.node.imports[i].name
 				} else {
 					unif_name = this.node.imports[i].name
 				}

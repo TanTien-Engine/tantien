@@ -121,7 +121,7 @@ class Editor
 			if (node) {
 				var x = -Graphics.get_width() * 0.5 + 200
 				var y = Graphics.get_height() * 0.5 - 50
-				Graphics.draw_text(node.type().name, x, y, 1.0, this.TB_TITLE)
+				Graphics.draw_text(node.get_class().name, x, y, 1.0, this.TB_TITLE)
 			}
 		}
 
@@ -464,7 +464,7 @@ class Editor
 		if (prev_pin)
 		{
 			for (var node in this.popup_nodes) {
-				if (this.is_pin_node_type_match(prev_pin, this.all_nodes[node.type().name])) {
+				if (this.is_pin_node_type_match(prev_pin, this.all_nodes[node.get_class().name])) {
 					num = num + 1
 				}
 			}
@@ -488,11 +488,11 @@ class Editor
 		{
 			var show = true
 			if (prev_pin) {
-				show = this.is_pin_node_type_match(prev_pin, this.all_nodes[node.type().name])
+				show = this.is_pin_node_type_match(prev_pin, this.all_nodes[node.get_class().name])
 			}
 			if (show)
 			{
-				if (GUI.selectable(this.gui_top, node.type().name, false, x, y, ITEM_WIDTH)) {
+				if (GUI.selectable(this.gui_top, node.get_class().name, false, x, y, ITEM_WIDTH)) {
 					return node()
 				}
 				y = y - ITEM_HEIGHT
@@ -524,7 +524,7 @@ class Editor
 	add_popup_node(node)
 	{
 		this.popup_nodes.add(node)
-		this.all_nodes[node.type().name] = node()
+		this.all_nodes[node.get_class().name] = node()
 	}
 
 	is_gui_active()
