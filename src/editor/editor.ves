@@ -218,6 +218,14 @@ class Editor
 				import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN
 				this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
 			}
+			else if (btn == MOUSE_RIGHT) 
+			{
+				import "blueprint.blackboard" for BLACKBOARD
+				BLACKBOARD.mouse_pos.set(x, y)
+
+				import "editorgraph.event_types" for EVENT_MOUSE_RIGHT_DOWN
+				this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
+			}
 		}
 	}
 
@@ -228,7 +236,9 @@ class Editor
 
 		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
 			this.right_press_pos = nil
-			this.popup_pos = Vector2(x, y)
+			if (!this.hide_nodes) {
+				this.popup_pos = Vector2(x, y)			
+			}
 		} else if (btn == MOUSE_LEFT) {
 			this.popup_pos = nil
 			this.prev_pin = nil
