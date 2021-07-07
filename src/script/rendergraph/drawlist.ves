@@ -1,8 +1,5 @@
 import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.subgraph" for Subgraph
-import "rendergraph.nodes.pass" for Pass
 import "rendergraph.nodes.draw" for Draw
-import "rendergraph.nodes.compute" for Compute
 
 class Drawlist
 {
@@ -15,40 +12,19 @@ class Drawlist
 
 	build_lists(nodes)
 	{
-		// 0. find Pass, Draw and Compute
-		for (var node in nodes) 
+		// query end port and build
+		for (var node in nodes)
 		{
-			if (node is Pass and node.exports[0].conns.isEmpty) {
-				this.build_list([ node ])
-			} else if ((node is Draw or node is Compute) and node.exports[0].conns.isEmpty) {
+			if (Blueprint.is_out_ports_empty(node)) {
 				var prev_nodes = Blueprint.get_precursor_nodes(node)
-				prev_nodes.add(node)
 				this.build_list(prev_nodes)
 			}
 		}
-		if (!this.lists.isEmpty) {
-			return
-		}
 
-		// 1. find Subgraph
+		// build all if prev fail
 		if (this.lists.isEmpty) {
-			for (var node in nodes) {
-				if (node is Subgraph and node.exports[0].conns.isEmpty) {
-					var prev_node = Blueprint.get_input_node(node, 0)
-					if (prev_node) {
-						var prev_nodes = Blueprint.get_precursor_nodes(prev_node)
-						prev_nodes.add(node)
-						this.build_list(prev_nodes)
-					}
-				}
-			}
+			this.build_list(nodes)
 		}
-		if (!this.lists.isEmpty) {
-			return
-		}
-
-		// 2. all
-		this.build_list(nodes)
 	}
 
 	build_list(nodes)
