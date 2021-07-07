@@ -24,12 +24,7 @@ class Scene
 	{
 		this.selection_remove(node)
 
-		for (var i in 0..this.nodes.count) {
-			if (this.nodes[i] == node) {
-				this.nodes.removeAt(i)
-				return
-			}
-		}
+		this.nodes.remove(node)
 	}
 
 	clear()
