@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+
+class IsIntersect is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",  VAR_TYPE_GEO),
+			Pin(this, "rect", VAR_TYPE_NUMBER4),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_BOOLEAN),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo or !v_geo.value) {
+			return Variant(false)
+		}
+
+		var v_rect = Blueprint.calc_input_value(this, 1)
+		if (!v_rect or !v_rect.value) {
+			return Variant(false)
+		}
+
+		var shape = v_geo.value.shape
+		var rect = v_rect.value
+		var b = shape.is_intersect(rect.x, rect.y, rect.z, rect.w)
+		return Variant(b)
+	}
+}

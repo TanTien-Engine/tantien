@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Rect as tt_Rect
 import "maths.vector" for Vector3
@@ -12,8 +13,13 @@ class Rect is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "pos", VAR_TYPE_NUMBER2),
+			Pin(this, "size", VAR_TYPE_NUMBER2),			
+		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "new_geo", VAR_TYPE_GEO),
 		]
 
 		// shape
@@ -33,8 +39,19 @@ class Rect is Node
 
 	calc_value(idx)
 	{
-		var geo = this.get_geo()
-		return Variant(VAR_TYPE_GEO, geo)
+		if (idx == 0)
+		{
+			var geo = this.get_geo()
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		else if (idx == 1)
+		{
+			var geo = VarGeo()
+			geo.shape = tt_Rect.init()
+			this.update_geo(geo)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		return nil
 	}
 
 	on_gui_dirty() 
@@ -63,24 +80,31 @@ class Rect is Node
 
 	update_geo(geo)
 	{
-		var x = this.query_param("x").value
-		var y = this.query_param("y").value
-		var w = this.query_param("w").value
-		var h = this.query_param("h").value
-		this.geo.shape.set(x, y, w, h)
+		var x = 0
+		var y = 0
+		var v_pos = Blueprint.calc_input_value(this, 0)
+		if (v_pos) {
+			x = v_pos.value.x
+			y = v_pos.value.y
+		} else {
+			x = this.query_param("x").value
+			y = this.query_param("y").value
+		}
 
-		this.geo.render_style["fill"] = this.query_param("fill").value
-		this.geo.render_style["color"] = this.query_param("color").value
-	}
-
-	static clone_geo(geo)
-	{
-		var new = VarGeo()
-		new.shape = tt_Rect.init()
-
-		var rect = geo.shape.get()
+		var w = 0
+		var h = 0
+		var v_size = Blueprint.calc_input_value(this, 1)
+		if (v_size) {
+			w = v_size.value.x
+			h = v_size.value.y
+		} else {
+			w = this.query_param("w").value
+			h = this.query_param("h").value		
+		}
 		
+		geo.shape.set(x, y, w, h)
 
-		this.geo.shape = tt_Rect.init()
+		geo.render_style["fill"] = this.query_param("fill").value
+		geo.render_style["color"] = this.query_param("color").value
 	}
 }

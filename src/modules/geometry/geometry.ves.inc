@@ -1,7 +1,13 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* geometryModuleSource = QUOTE(
 
-foreign class Line
+foreign class Shape2D
+{
+	foreign is_contain(x, y)
+	foreign is_intersect(x, y, w, h)
+}
+
+foreign class Line is Shape2D
 {
 	init() {}
 	init(x0, y0, x1, y1) { this.set(x0, y0, x1, y1) }
@@ -18,7 +24,7 @@ foreign class Line
 	foreign set(x0, y0, x1, y1)
 }
 
-foreign class Rect
+foreign class Rect is Shape2D
 {
 	init() {}
 	init(x, y, w, h) { this.set(x, y, w, h) }
@@ -35,7 +41,7 @@ foreign class Rect
 	foreign set(x, y, w, h)
 }
 
-foreign class Circle
+foreign class Circle is Shape2D
 {
 	init() {}
 	init(x, y, radius) { this.set(x, y, radius) }
@@ -52,7 +58,7 @@ foreign class Circle
 	foreign set(x, y, radius)
 }
 
-foreign class Polyline
+foreign class Polyline is Shape2D
 {
 	init() {}
 
@@ -62,7 +68,7 @@ foreign class Polyline
 	foreign set_vertices(vertices)
 }
 
-foreign class Bezier
+foreign class Bezier is Shape2D
 {
 	init() {}
 
