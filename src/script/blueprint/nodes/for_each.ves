@@ -98,10 +98,10 @@ class ForEach is Node
 		{
 			if (v_all.value is List or v_all.value is Map) {
 				for (var entry in v_all.value) {
-					all_values.add(Variant(entry.value))
+					all_values.add(Variant(entry))
 				}
 			} else {
-				all_values.add(Variant(v_all.value))
+				all_values.add(Variant(v_all))
 			}
 		}
 
