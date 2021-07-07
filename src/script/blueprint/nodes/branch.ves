@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_BOOLEAN
+import "blueprint.execute_list" for ExecuteList
 
 class Branch is Node
 {
@@ -24,8 +25,11 @@ class Branch is Node
 		this.imports[2].stop_port_pass = true
 		this.imports[3].stop_port_pass = true
 
-		this.drawlist_true = nil
-		this.drawlist_false = nil		
+		this.drawlist_t = nil
+		this.drawlist_f = nil
+
+		this.exe_list_t = nil
+		this.exe_list_f = nil
 	}
 
 	render_gen()
@@ -36,11 +40,11 @@ class Branch is Node
 			var prev_nodes = Blueprint.get_precursor_nodes(t_node)
 
 			import "rendergraph.drawlist" for Drawlist
-			this.drawlist_true = Drawlist(prev_nodes)
+			this.drawlist_t = Drawlist(prev_nodes)
 		}
 		else
 		{
-			this.drawlist_true = nil
+			this.drawlist_t = nil
 		}
 
 		var f_node = Blueprint.get_input_node(this, 3)
@@ -49,11 +53,11 @@ class Branch is Node
 			var prev_nodes = Blueprint.get_precursor_nodes(f_node)
 
 			import "rendergraph.drawlist" for Drawlist
-			this.drawlist_false = Drawlist(prev_nodes)
+			this.drawlist_f = Drawlist(prev_nodes)
 		}
 		else
 		{
-			this.drawlist_false = nil
+			this.drawlist_f = nil
 		}		
 	}
 
@@ -61,12 +65,12 @@ class Branch is Node
 	{
 		var v_cond = Blueprint.calc_input_value(this, 1)
 		if (v_cond and v_cond.value) {
-			if (this.drawlist_true) {
-				this.drawlist_true.run()			
+			if (this.drawlist_t) {
+				this.drawlist_t.run()
 			}
 		} else {
-			if (this.drawlist_false) {
-				this.drawlist_false.run()			
+			if (this.drawlist_f) {
+				this.drawlist_f.run()
 			}
 		}
 	}
@@ -106,5 +110,34 @@ class Branch is Node
 		node.change_value("bb", merge_bb)
 
 		return nil
+	}
+
+	execute_gen()
+	{
+		var t_node = Blueprint.get_input_node(this, 2)
+		if (t_node) {
+			var prev_nodes = Blueprint.get_precursor_nodes(t_node)
+			this.exe_list_t = ExecuteList(prev_nodes)
+		}
+
+		var f_node = Blueprint.get_input_node(this, 3)
+		if (f_node) {
+			var prev_nodes = Blueprint.get_precursor_nodes(f_node)
+			this.exe_list_f = ExecuteList(prev_nodes)
+		}
+	}
+
+	execute_run()
+	{
+		var v_cond = Blueprint.calc_input_value(this, 1)
+		if (v_cond and v_cond.value) {
+			if (this.exe_list_t) {
+				this.exe_list_t.run()
+			}
+		} else {
+			if (this.exe_list_f) {
+				this.exe_list_f.run()
+			}
+		}
 	}
 }
