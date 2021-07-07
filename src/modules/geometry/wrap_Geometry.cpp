@@ -39,6 +39,16 @@ void w_Shape2D_is_intersect()
     ves_set_boolean(0, l->IsIntersect(sm::rect(x, y, x + w, y + h)));
 }
 
+void w_Shape2D_translate()
+{
+    auto l = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
+
+    float dx = (float)ves_tonumber(1);
+    float dy = (float)ves_tonumber(2);
+
+    l->Translate(dx, dy);
+}
+
 void w_Line_allocate()
 {
     auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
@@ -358,6 +368,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 {
     if (strcmp(signature, "Shape2D.is_contain(_,_)") == 0) return w_Shape2D_is_contain;
     if (strcmp(signature, "Shape2D.is_intersect(_,_,_,_)") == 0) return w_Shape2D_is_intersect;
+    if (strcmp(signature, "Shape2D.translate(_,_)") == 0) return w_Shape2D_translate;
 
     if (strcmp(signature, "Line.clone()") == 0) return w_Line_clone;
     if (strcmp(signature, "Line.get()") == 0) return w_Line_get;

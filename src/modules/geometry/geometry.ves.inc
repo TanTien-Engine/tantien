@@ -5,6 +5,8 @@ foreign class Shape2D
 {
 	foreign is_contain(x, y)
 	foreign is_intersect(x, y, w, h)
+
+	foreign translate(dx, dy)
 }
 
 foreign class Line is Shape2D

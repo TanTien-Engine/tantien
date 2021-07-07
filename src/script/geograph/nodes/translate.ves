@@ -5,7 +5,6 @@ import "blueprint.variant" for VAR_TYPE_PORT
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "aigraph.behavior" for STATUS_SUCCESS
-import "geometry" for Line, Rect, Circle
 
 class Translate is Node
 {
@@ -36,13 +35,7 @@ class Translate is Node
 
 		var dx = this.query_param("dx").value
 		var dy = this.query_param("dy").value
-
-		var shape = v_geo.value.shape
-		if (shape is Circle)
-		{
-			var c = shape.get()
-			shape.set(c[0] + dx, c[1] + dy, c[2])
-		}
+		v_geo.value.shape.translate(dx, dy)
 
 		return STATUS_SUCCESS
 	}

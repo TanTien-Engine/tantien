@@ -4,7 +4,6 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_NUMBER
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Line, Rect, Circle
 
 class CopyAndTranslate is Node
 {
@@ -52,14 +51,7 @@ class CopyAndTranslate is Node
 	clone_and_trans_geo(geo, dx, dy)
 	{
 		var ret = geo.clone()
-
-		var shape = ret.shape
-		if (shape is Circle)
-		{
-			var c = shape.get()
-			shape.set(c[0] + dx, c[1] + dy, c[2])
-		}
-
+		ret.shape.translate(dx, dy)
 		return ret
 	}
 }
