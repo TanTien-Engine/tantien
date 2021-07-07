@@ -1,7 +1,7 @@
 var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("patches")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : true }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : true }
 node0.skip = false
 
 _editor.add_node(node0, 558.8075282446, -339.48126638417)
@@ -456,6 +456,7 @@ node15.var_type = "num"
 _editor.add_node(node15, -247.0542146495, -17.702509322296)
 
 Blueprint.connect(node12, "zoom", node13, "fovy")
+Blueprint.connect(node9, "next", node2, "prev")
 Blueprint.connect(node13, "mat", node1, "tcs.projection")
 Blueprint.connect(node12, "mat", node1, "tcs.view")
 Blueprint.connect(node11, "var", node1, "tcs.model")

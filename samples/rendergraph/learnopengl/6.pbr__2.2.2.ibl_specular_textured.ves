@@ -300,8 +300,9 @@ node43.load_from_file(_editor, "../../../assets/blueprints/rendergraph/pbr_ibl_t
 
 _editor.add_node(node43, 405.67305042029, -3745.3940169559)
 
-Blueprint.connect(node11, "next", node13, "prev")
-Blueprint.connect(node3, "next", node4, "prev")
+Blueprint.connect(node11, "next", node13, "do")
+Blueprint.connect(node13, "next", node15, "prev")
+Blueprint.connect(node3, "next", node4, "do")
 Blueprint.connect(node2, "tex", node11, "equirectangularMap")
 Blueprint.connect(node11, "prefilter", node14, "value")
 Blueprint.connect(node1, "zoom", node0, "fovy")

@@ -53,7 +53,7 @@ _editor.add_node(node10, 459.30450213714, 574.92964581217)
 var node11 = ::rendergraph::nodes::draw::Draw()
 
 node11.set_prim_type("tri_strip")
-node11.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "alpha_mode" : "opaque", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "alpha_cutoff" : 0.5, "depth_test" : false, "depth_func" : "less", "clip_plane" : false, "double_sided" : false }
+node11.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "double_sided" : false, "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "alpha_cutoff" : 0.5, "depth_test" : false, "depth_func" : "less", "clip_plane" : false, "alpha_mode" : "opaque" }
 node11.skip = false
 
 _editor.add_node(node11, 768.88315339809, 430.80944017142)
@@ -78,7 +78,6 @@ Blueprint.connect(node3, "uv", node2, "uv")
 Blueprint.connect(node2, "rgba", node7, "xyzw")
 Blueprint.connect(node7, "w", node6, "a")
 Blueprint.connect(node8, "v", node6, "b")
-Blueprint.connect(node2, "rgba", node0, "rgba")
 Blueprint.connect(node6, "out", node5, "cond")
 Blueprint.connect(node4, "next", node5, "true")
 Blueprint.connect(node0, "next", node5, "false")
@@ -87,3 +86,4 @@ Blueprint.connect(node5, "next", node9, "fs")
 Blueprint.connect(node13, "next", node11, "prev")
 Blueprint.connect(node9, "shader", node11, "shader")
 Blueprint.connect(node12, "out", node11, "va")
+Blueprint.connect(node2, "rgba", node0, "rgba")

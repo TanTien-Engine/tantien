@@ -7,7 +7,7 @@ var node1 = ::rendergraph::nodes::pass::Pass()
 
 node1.once = true
 
-_editor.add_node(node1, 594.54437001047, 7.66293305829)
+_editor.add_node(node1, 706.93112948418, 2.0746411507576)
 
 var node2 = ::blueprint::nodes::subgraph::Subgraph()
 node2.load_from_file(_editor, "create_irradiance_cubemap.ves")
@@ -74,4 +74,4 @@ Blueprint.connect(node3, "next", node4, "prev")
 Blueprint.connect(node0, "tex", node4, "environmentMap")
 Blueprint.connect(node4, "tex", node10, "var")
 Blueprint.connect(node4, "tex", node5, "value")
-Blueprint.connect(node4, "next", node1, "prev")
+Blueprint.connect(node4, "next", node1, "do")

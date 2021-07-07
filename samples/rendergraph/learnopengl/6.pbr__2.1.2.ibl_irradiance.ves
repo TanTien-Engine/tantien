@@ -8,7 +8,7 @@ _editor.add_node(node0, -17.515820092996, -161.44941641092)
 var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
+node1.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
 node1.skip = false
 
 _editor.add_node(node1, -248.60344882102, -302.85908327663)
@@ -307,7 +307,7 @@ var node17 = ::rendergraph::nodes::pass::Pass()
 
 node17.once = false
 
-_editor.add_node(node17, 447.21875443419, 135.03891127859)
+_editor.add_node(node17, 439.70560642517, 189.88489174441)
 
 var node18 = ::rendergraph::nodes::pass::Pass()
 
@@ -320,8 +320,9 @@ node19.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_ir
 
 _editor.add_node(node19, -691.5196440133, 193.35057197682)
 
-Blueprint.connect(node19, "next", node18, "prev")
-Blueprint.connect(node16, "next", node17, "prev")
+Blueprint.connect(node19, "next", node18, "do")
+Blueprint.connect(node18, "next", node17, "prev")
+Blueprint.connect(node16, "next", node17, "do")
 Blueprint.connect(node13, "tex", node15, "equirectangularMap")
 Blueprint.connect(node15, "next", node19, "prev")
 Blueprint.connect(node15, "tex", node19, "environmentMap")
@@ -351,5 +352,6 @@ Blueprint.connect(node10, "v", node2, "metallic")
 Blueprint.connect(node12, "v", node2, "roughness")
 Blueprint.connect(node5, "pos", node2, "camPos")
 Blueprint.connect(node19, "tex", node2, "irradianceMap")
+Blueprint.connect(node14, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")

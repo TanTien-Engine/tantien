@@ -68,7 +68,7 @@ var node10 = ::rendergraph::nodes::pass::Pass()
 
 node10.once = false
 
-_editor.add_node(node10, 1163.0830078125, -285.40804443359)
+_editor.add_node(node10, 1172.4466441761, -255.31713534268)
 
 var node11 = ::blueprint::nodes::camera2d::Camera2d()
 
@@ -79,7 +79,7 @@ node11.speed = 0.01
 
 _editor.add_node(node11, 751.32601074219, -292.23665161133)
 
-Blueprint.connect(node9, "next", node10, "prev")
+Blueprint.connect(node9, "next", node10, "do")
 Blueprint.connect(node3, "tex", node2, "right")
 Blueprint.connect(node4, "tex", node2, "left")
 Blueprint.connect(node5, "tex", node2, "top")
@@ -87,5 +87,6 @@ Blueprint.connect(node6, "tex", node2, "bottom")
 Blueprint.connect(node7, "tex", node2, "front")
 Blueprint.connect(node8, "tex", node2, "back")
 Blueprint.connect(node0, "tex", node1, "equirectangularMap")
+Blueprint.connect(node1, "next", node9, "prev")
 Blueprint.connect(node1, "tex", node9, "environmentMap")
 Blueprint.connect(node11, "mat", node9, "view")

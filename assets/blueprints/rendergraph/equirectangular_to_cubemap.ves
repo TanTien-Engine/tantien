@@ -10,7 +10,7 @@ var node1 = ::rendergraph::nodes::pass::Pass()
 
 node1.once = true
 
-_editor.add_node(node1, 622.79212901553, -78.613740923133)
+_editor.add_node(node1, 601.68080403152, -58.123337262181)
 
 var node2 = ::rendergraph::nodes::shader::Shader()
 
@@ -125,7 +125,7 @@ _editor.script_stack.add(capture_views)
 node9.init_ports(0, 1)
 node9.use_cache = false
 
-_editor.add_node(node9, -319.78707918211, 332.2285525693)
+_editor.add_node(node9, -384.98381810332, 375.07212386038)
 
 var node10 = ::blueprint::nodes::fetch::Fetch()
 
@@ -158,9 +158,10 @@ node14.once = false
 
 _editor.add_node(node14, 364.02366398583, 420.5240020408)
 
-Blueprint.connect(node0, "next", node14, "prev")
+Blueprint.connect(node0, "next", node14, "do")
 Blueprint.connect(node6, "fbo", node14, "fbo")
 Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node9, "next", node5, "prev")
 Blueprint.connect(node14, "next", node7, "do")
 Blueprint.connect(node9, "out0", node10, "items")
 Blueprint.connect(node7, "index", node10, "index")
@@ -173,4 +174,4 @@ Blueprint.connect(node12, "var", node2, "equirectangularMap")
 Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node7, "next", node1, "do")

@@ -146,11 +146,11 @@ _editor.script_stack.add(capture_views)
 node9.init_ports(0, 1)
 node9.use_cache = false
 
-_editor.add_node(node9, -319.78707918211, 332.2285525693)
+_editor.add_node(node9, -354.78446284544, 355.3719837015)
 
 var node10 = ::blueprint::nodes::fetch::Fetch()
 
-_editor.add_node(node10, -165.82361764384, 350.7266535079)
+_editor.add_node(node10, -176.34202485646, 343.21350549888)
 
 var node11 = ::rendergraph::nodes::cubemap::Cubemap()
 node11.query_param("unif_name").value = "u_irradiance_cubemap"
@@ -179,9 +179,10 @@ node14.once = false
 
 _editor.add_node(node14, 369.28287515848, 418.27006772655)
 
-Blueprint.connect(node0, "next", node14, "prev")
+Blueprint.connect(node0, "next", node14, "do")
 Blueprint.connect(node6, "fbo", node14, "fbo")
 Blueprint.connect(node11, "tex", node13, "var")
+Blueprint.connect(node9, "next", node5, "prev")
 Blueprint.connect(node14, "next", node7, "do")
 Blueprint.connect(node9, "out0", node10, "items")
 Blueprint.connect(node7, "index", node10, "index")
@@ -194,4 +195,4 @@ Blueprint.connect(node12, "var", node2, "environmentMap")
 Blueprint.connect(node5, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node3, "out", node0, "va")
-Blueprint.connect(node7, "next", node1, "prev")
+Blueprint.connect(node7, "next", node1, "do")

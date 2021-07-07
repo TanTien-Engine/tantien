@@ -39,8 +39,9 @@ node5.once = false
 
 _editor.add_node(node5, 467, 176.5)
 
-Blueprint.connect(node2, "next", node5, "prev")
+Blueprint.connect(node2, "next", node5, "do")
 Blueprint.connect(node3, "uv", node1, "tex_coords")
 Blueprint.connect(node1, "ret", node4, "height")
+Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node4, "heightmap", node2, "tes_heightmap")
 Blueprint.connect(node0, "this", node2, "view_cam")

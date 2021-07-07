@@ -34,13 +34,13 @@ _editor.add_node(node3, 111.53435303826, 396.29087671534)
 var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_terrain_gray.ves")
 
-_editor.add_node(node4, 365.69101976945, 337.63285734432)
+_editor.add_node(node4, 358.9173326088, 372.0657670776)
 
 var node5 = ::rendergraph::nodes::pass::Pass()
 
 node5.once = false
 
-_editor.add_node(node5, 566.49466348349, 368.25061052449)
+_editor.add_node(node5, 572.88479060867, 410.96678004956)
 
 var node6 = ::shadergraph::nodes::tex_coord::TexCoord()
 
@@ -49,6 +49,7 @@ _editor.add_node(node6, -419.29162428775, 399.43577243874)
 Blueprint.connect(node6, "uv", node0, "tex_coords")
 Blueprint.connect(node0, "ret", node2, "v")
 Blueprint.connect(node2, "v", node3, "height")
-Blueprint.connect(node4, "next", node5, "prev")
+Blueprint.connect(node4, "next", node5, "do")
+Blueprint.connect(node3, "next", node4, "prev")
 Blueprint.connect(node3, "heightmap", node4, "tes_heightmap")
 Blueprint.connect(node1, "this", node4, "view_cam")

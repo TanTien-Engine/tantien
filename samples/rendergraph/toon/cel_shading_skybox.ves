@@ -1,7 +1,7 @@
 var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("triangles")
-node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = true
 
 _editor.add_node(node0, 502.8121562967, 784.63764981691)
@@ -85,7 +85,7 @@ _editor.add_node(node5, -320.22283332775, 58.35527158874)
 var node6 = ::rendergraph::nodes::draw::Draw()
 
 node6.set_prim_type("triangles")
-node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "back", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node6.skip = false
 
 _editor.add_node(node6, 926.4973793462, 298.69981632394)
@@ -294,7 +294,7 @@ _editor.add_node(node14, 543.65645922946, -1249.9414222285)
 var node15 = ::rendergraph::nodes::draw::Draw()
 
 node15.set_prim_type("tri_strip")
-node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node15.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
 node15.skip = false
 
 _editor.add_node(node15, 1712.5216625687, -1240.6358080604)
@@ -477,14 +477,14 @@ _editor.add_node(node27, -218.56462711719, 554.67486801563)
 var node28 = ::blueprint::nodes::subgraph::Subgraph()
 node28.load_from_file(_editor, "../../../assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
 
-_editor.add_node(node28, -555.78948568975, -1255.3757692954)
+_editor.add_node(node28, -1212.8964856898, -270.50176929539)
 
 var node29 = ::rendergraph::nodes::texture::Texture()
 node29.query_param("unif_name").value = "u_tex"
 node29.gamma_correction = false
 node29.init_texture("samples/rendergraph/learnopengl/resources/textures/hdr/newport_loft.hdr")
 
-_editor.add_node(node29, -801.19636369733, -1287.4261468564)
+_editor.add_node(node29, -1458.3033636973, -302.55214685639)
 
 var node30 = ::blueprint::nodes::subgraph::Subgraph()
 node30.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
@@ -563,8 +563,8 @@ node41.once = false
 
 _editor.add_node(node41, 1866.0393868171, -1141.3559029114)
 
-Blueprint.connect(node15, "next", node41, "prev")
-Blueprint.connect(node38, "next", node39, "prev")
+Blueprint.connect(node38, "next", node39, "do")
+Blueprint.connect(node39, "next", node3, "prev")
 Blueprint.connect(node32, "tex", node31, "right")
 Blueprint.connect(node33, "tex", node31, "left")
 Blueprint.connect(node34, "tex", node31, "top")
@@ -572,10 +572,9 @@ Blueprint.connect(node35, "tex", node31, "bottom")
 Blueprint.connect(node36, "tex", node31, "front")
 Blueprint.connect(node37, "tex", node31, "back")
 Blueprint.connect(node29, "tex", node28, "equirectangularMap")
+Blueprint.connect(node28, "next", node38, "prev")
 Blueprint.connect(node28, "tex", node38, "environmentMap")
 Blueprint.connect(node38, "tex", node40, "value")
-Blueprint.connect(node30, "next", node13, "prev")
-Blueprint.connect(node11, "fbo", node13, "fbo")
 Blueprint.connect(node19, "tex", node16, "cam_normal_tex")
 Blueprint.connect(node14, "tex", node16, "cam_depth_tex")
 Blueprint.connect(node12, "tex", node16, "main_tex")
@@ -607,3 +606,8 @@ Blueprint.connect(node31, "tex", node30, "skybox")
 Blueprint.connect(node3, "next", node0, "prev")
 Blueprint.connect(node2, "out", node0, "shader")
 Blueprint.connect(node1, "model", node0, "model")
+Blueprint.connect(node0, "next", node13, "prev")
+Blueprint.connect(node30, "next", node13, "do")
+Blueprint.connect(node11, "fbo", node13, "fbo")
+Blueprint.connect(node13, "next", node41, "prev")
+Blueprint.connect(node15, "next", node41, "do")

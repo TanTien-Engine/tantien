@@ -8,10 +8,10 @@ _editor.add_node(node0, -303.38767843727, 804.93296222935)
 var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back" }
+node1.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
 node1.skip = false
 
-_editor.add_node(node1, -51, 593.5)
+_editor.add_node(node1, -56.324, 550.908)
 
 var node2 = ::rendergraph::nodes::shader::Shader()
 
@@ -214,7 +214,7 @@ var node6 = ::blueprint::nodes::loop::Loop()
 node6.start = 0
 node6.end = 7
 
-_editor.add_node(node6, 194.42221763255, 598.2649711854)
+_editor.add_node(node6, 177.11921763255, 557.0039711854)
 
 var node7 = ::blueprint::nodes::translate::Translate()
 
@@ -255,7 +255,7 @@ node13.query_param("unif_name").value = "u_tex"
 node13.gamma_correction = false
 node13.init_texture("resources/textures/hdr/newport_loft.hdr")
 
-_editor.add_node(node13, 484.73265029081, 1207.7693353708)
+_editor.add_node(node13, 415.11853954701, 1183.4845923956)
 
 var node14 = ::blueprint::nodes::custom::Custom()
 
@@ -279,27 +279,35 @@ if (_editor.script_stack.count == 4)
 node14.init_ports(4, 1)
 node14.use_cache = false
 
-_editor.add_node(node14, -812.90593243376, 127.18911322842)
+_editor.add_node(node14, -801.99684152467, 131.73456777387)
 
 var node15 = ::blueprint::nodes::subgraph::Subgraph()
 node15.load_from_file(_editor, "../../../assets/blueprints/rendergraph/equirectangular_to_cubemap.ves")
 
-_editor.add_node(node15, 796.00860281038, 1220.7973339574)
+_editor.add_node(node15, 691.30449206658, 1219.5025909822)
 
 var node16 = ::blueprint::nodes::subgraph::Subgraph()
 node16.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skybox.ves")
 node16.set_prop_value("tonemap", 1)
 node16.set_prop_value("gamma_correct", 1)
 
-_editor.add_node(node16, 1146.0922038555, 1196.9984063273)
+_editor.add_node(node16, 1117.1241741034, 891.48306417854)
 
 var node17 = ::rendergraph::nodes::pass::Pass()
 
 node17.once = false
 
-_editor.add_node(node17, 1513.8875085742, 1206.7759571086)
+_editor.add_node(node17, 1421.133924726, 917.06588500134)
 
-Blueprint.connect(node16, "next", node17, "prev")
+var node18 = ::rendergraph::nodes::pass::Pass()
+
+node18.once = false
+
+_editor.add_node(node18, 890.91775112103, 1229.0029434595)
+
+Blueprint.connect(node15, "next", node18, "do")
+Blueprint.connect(node18, "next", node17, "prev")
+Blueprint.connect(node16, "next", node17, "do")
 Blueprint.connect(node13, "tex", node15, "equirectangularMap")
 Blueprint.connect(node1, "next", node6, "do")
 Blueprint.connect(node6, "index", node11, "a")
@@ -326,5 +334,6 @@ Blueprint.connect(node7, "mat", node2, "model")
 Blueprint.connect(node10, "v", node2, "metallic")
 Blueprint.connect(node12, "v", node2, "roughness")
 Blueprint.connect(node5, "pos", node2, "camPos")
+Blueprint.connect(node14, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")

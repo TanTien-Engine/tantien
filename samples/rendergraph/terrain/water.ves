@@ -1,7 +1,7 @@
 var node0 = ::rendergraph::nodes::draw::Draw()
 
 node0.set_prim_type("tri_strip")
-node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node0.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node0.skip = false
 
 _editor.add_node(node0, 1787.2998622665, -294.00749126529)
@@ -334,14 +334,17 @@ node27.title = "water"
 
 _editor.add_node(node27, 1391.241044775, -120.4459521498)
 
-Blueprint.connect(node0, "next", node19, "prev")
 Blueprint.connect(node18, "tex", node17, "col0")
-Blueprint.connect(node16, "next", node15, "prev")
-Blueprint.connect(node17, "fbo", node15, "fbo")
-Blueprint.connect(node9, "next", node14, "prev")
-Blueprint.connect(node13, "tex", node12, "col0")
-Blueprint.connect(node11, "next", node10, "prev")
+Blueprint.connect(node9, "next", node14, "do")
+Blueprint.connect(node14, "next", node10, "prev")
+Blueprint.connect(node11, "next", node10, "do")
 Blueprint.connect(node12, "fbo", node10, "fbo")
+Blueprint.connect(node10, "next", node15, "prev")
+Blueprint.connect(node16, "next", node15, "do")
+Blueprint.connect(node17, "fbo", node15, "fbo")
+Blueprint.connect(node15, "next", node19, "prev")
+Blueprint.connect(node0, "next", node19, "do")
+Blueprint.connect(node13, "tex", node12, "col0")
 Blueprint.connect(node8, "tex", node16, "tes_heightmap")
 Blueprint.connect(node22, "mat", node16, "tcs.model")
 Blueprint.connect(node6, "this", node16, "view_cam")

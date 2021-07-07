@@ -15,14 +15,15 @@ class Pass is Node
 
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "do",   VAR_TYPE_PORT),
 			Pin(this, "fbo",  VAR_TYPE_FRAME_BUFFER)
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
-		this.imports[0].stop_port_pass = true
 		this.imports[1].stop_port_pass = true
+		this.imports[2].stop_port_pass = true
 		
 		this.layout()
 
@@ -34,7 +35,7 @@ class Pass is Node
 
 	render_gen()
 	{
-		var prev = Blueprint.get_input_node(this, 0)
+		var prev = Blueprint.get_input_node(this, 1)
 		if (prev)
 		{
 			var prev_nodes = Blueprint.get_precursor_nodes(prev)
@@ -43,7 +44,7 @@ class Pass is Node
 			this.drawlist = Drawlist(prev_nodes)
 		}
 
-		var fbo = Blueprint.get_input_node(this, 1)
+		var fbo = Blueprint.get_input_node(this, 2)
 		if (fbo) 
 		{
 			var prev_nodes = Blueprint.get_precursor_nodes(fbo)
@@ -61,7 +62,7 @@ class Pass is Node
 
 		var prev_fbo = nil
 		var prev_vp = nil
-		var v_fbo = Blueprint.calc_input_value(this, 1).value
+		var v_fbo = Blueprint.calc_input_value(this, 2).value
 		var count = 1
 		if (v_fbo and v_fbo is List) {
 			count = v_fbo.count

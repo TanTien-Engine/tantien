@@ -8,7 +8,7 @@ _editor.add_node(node0, -17.515820092996, -161.44941641092)
 var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
+node1.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
 node1.skip = false
 
 _editor.add_node(node1, -248.60344882102, -302.85908327663)
@@ -317,19 +317,19 @@ node16.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_skyb
 node16.set_prop_value("tonemap", 1)
 node16.set_prop_value("gamma_correct", 1)
 
-_editor.add_node(node16, 119.20793922662, 126.26774566313)
+_editor.add_node(node16, 535.00793922662, -17.83225433687)
 
 var node17 = ::rendergraph::nodes::pass::Pass()
 
 node17.once = false
 
-_editor.add_node(node17, 447.21875443419, 135.03891127859)
+_editor.add_node(node17, 794.81875443419, 30.53891127859)
 
 var node18 = ::rendergraph::nodes::pass::Pass()
 
 node18.once = true
 
-_editor.add_node(node18, -398.45562998953, 249.66293305829)
+_editor.add_node(node18, -382.6780191706, 245.15504425288)
 
 var node19 = ::blueprint::nodes::subgraph::Subgraph()
 node19.load_from_file(_editor, "../../../assets/blueprints/rendergraph/create_irradiance_cubemap.ves")
@@ -348,10 +348,11 @@ _editor.add_node(node21, -675.23622920311, 244.35478655029)
 
 var node22 = ::blueprint::nodes::print::Print()
 
-_editor.add_node(node22, -471.01340553977, 394.42065297277)
+_editor.add_node(node22, -376.07915366709, 410.32855463792)
 
-Blueprint.connect(node21, "next", node18, "prev")
-Blueprint.connect(node16, "next", node17, "prev")
+Blueprint.connect(node21, "next", node18, "do")
+Blueprint.connect(node18, "next", node17, "prev")
+Blueprint.connect(node16, "next", node17, "do")
 Blueprint.connect(node13, "tex", node15, "equirectangularMap")
 Blueprint.connect(node15, "next", node19, "prev")
 Blueprint.connect(node15, "tex", node19, "environmentMap")
@@ -387,5 +388,6 @@ Blueprint.connect(node5, "pos", node2, "camPos")
 Blueprint.connect(node19, "tex", node2, "irradianceMap")
 Blueprint.connect(node21, "tex", node2, "prefilterMap")
 Blueprint.connect(node20, "tex", node2, "brdfLUT")
+Blueprint.connect(node14, "next", node1, "prev")
 Blueprint.connect(node2, "out", node1, "shader")
 Blueprint.connect(node3, "out", node1, "va")

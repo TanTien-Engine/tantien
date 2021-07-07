@@ -123,7 +123,7 @@ var node8 = ::rendergraph::nodes::pass::Pass()
 
 node8.once = false
 
-_editor.add_node(node8, -170.4709474426, 597.91144585079)
+_editor.add_node(node8, -216.23284895206, 724.95194854869)
 
 var node9 = ::rendergraph::nodes::render_target::RenderTarget()
 
@@ -670,15 +670,11 @@ node44.once = false
 
 _editor.add_node(node44, 1747.5629443359, 789.05961914062)
 
-Blueprint.connect(node23, "next", node44, "prev")
-Blueprint.connect(node25, "fbo", node44, "fbo")
-Blueprint.connect(node44, "next", node16, "prev")
-Blueprint.connect(node17, "next", node43, "prev")
-Blueprint.connect(node19, "fbo", node43, "fbo")
+Blueprint.connect(node34, "next", node35, "prev")
+Blueprint.connect(node35, "next", node22, "prev")
 Blueprint.connect(node33, "mat", node32, "mat")
 Blueprint.connect(node26, "tex", node25, "col0")
 Blueprint.connect(node20, "tex", node24, "ssaoInput")
-Blueprint.connect(node43, "next", node23, "prev")
 Blueprint.connect(node24, "out", node23, "shader")
 Blueprint.connect(node27, "out", node23, "va")
 Blueprint.connect(node20, "tex", node19, "col0")
@@ -686,8 +682,15 @@ Blueprint.connect(node10, "tex", node9, "col0")
 Blueprint.connect(node11, "tex", node9, "col1")
 Blueprint.connect(node12, "tex", node9, "col2")
 Blueprint.connect(node13, "rbo", node9, "depth")
-Blueprint.connect(node29, "next", node8, "prev")
+Blueprint.connect(node29, "next", node8, "do")
 Blueprint.connect(node9, "fbo", node8, "fbo")
+Blueprint.connect(node8, "next", node43, "prev")
+Blueprint.connect(node17, "next", node43, "do")
+Blueprint.connect(node19, "fbo", node43, "fbo")
+Blueprint.connect(node43, "next", node44, "prev")
+Blueprint.connect(node23, "next", node44, "do")
+Blueprint.connect(node25, "fbo", node44, "fbo")
+Blueprint.connect(node44, "next", node16, "prev")
 Blueprint.connect(node7, "mat", node6, "mat")
 Blueprint.connect(node36, "v3", node37, "a")
 Blueprint.connect(node4, "mat", node37, "b")

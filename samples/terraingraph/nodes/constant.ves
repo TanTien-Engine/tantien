@@ -32,6 +32,7 @@ node4.value = 0.87060546875
 _editor.add_node(node4, -317.83545694559, -46.510505727858)
 
 Blueprint.connect(node4, "v", node1, "height")
-Blueprint.connect(node2, "next", node3, "prev")
+Blueprint.connect(node2, "next", node3, "do")
+Blueprint.connect(node1, "next", node2, "prev")
 Blueprint.connect(node1, "heightmap", node2, "tes_heightmap")
 Blueprint.connect(node0, "this", node2, "view_cam")

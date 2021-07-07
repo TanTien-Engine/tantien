@@ -54,8 +54,8 @@ node7.speed = 0.24698987603188
 _editor.add_node(node7, 212.42141723633, 379.60809326172)
 
 Blueprint.connect(node7, "zoom", node6, "fovy")
-Blueprint.connect(node5, "next", node4, "prev")
-Blueprint.connect(node0, "next", node3, "prev")
+Blueprint.connect(node5, "next", node4, "do")
+Blueprint.connect(node0, "next", node3, "do")
 Blueprint.connect(node1, "tex", node0, "equirectangularMap")
 Blueprint.connect(node6, "mat", node5, "projection")
 Blueprint.connect(node7, "mat", node5, "view")
