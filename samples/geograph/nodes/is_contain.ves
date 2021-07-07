@@ -1,0 +1,95 @@
+var node0 = ::geograph::nodes::circle::Circle()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("r").value = 10
+node0.query_param("fill").value = true
+node0.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node0, 170.68892389024, -309.56985430872)
+
+var node1 = ::geograph::nodes::is_contain::IsContain()
+
+_editor.add_node(node1, -33.335906017348, -70.404309814904)
+
+var node2 = ::blueprint::nodes::number2::Number2()
+
+node2.value.set(34.543750762939, 0)
+
+_editor.add_node(node2, -227.03609273381, -163.57292276178)
+
+var node3 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node3, -5.7272727272727, -282.40909090909)
+
+var node4 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node4, 581.04740479816, -74.347501875785)
+
+var node5 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node5, 325.13865027132, -239.4577799885)
+
+var node6 = ::blueprint::nodes::number2::Number2()
+
+node6.value.set(0, 55.777084350586)
+
+_editor.add_node(node6, -228.9349142092, -252.87432812492)
+
+var node7 = ::geograph::nodes::circle::Circle()
+node7.query_param("x").value = 0
+node7.query_param("y").value = 0
+node7.query_param("r").value = 77.286102294922
+node7.query_param("fill").value = false
+node7.query_param("color").value.set(1, 1, 0)
+
+_editor.add_node(node7, -250.9557407281, 121.59090909091)
+
+var node8 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node8, -93.906567190215, 216.69974188228)
+
+var node9 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node9, 482.32913624157, -231.36967329546)
+
+var node10 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node10, 324.81256850979, -426.10027385821)
+
+var node11 = ::geograph::nodes::circle::Circle()
+node11.query_param("x").value = 0
+node11.query_param("y").value = 0
+node11.query_param("r").value = 10
+node11.query_param("fill").value = true
+node11.query_param("color").value.set(0, 1, 0)
+
+_editor.add_node(node11, 169.61278793599, -517.93212262389)
+
+var node12 = ::blueprint::nodes::number2::Number2()
+
+node12.value.set(109.31944274902, 29.674999237061)
+
+_editor.add_node(node12, -223.60817266018, -347.27990712158)
+
+var node13 = ::blueprint::nodes::number2::Number2()
+
+node13.value.set(0, 95.637153625488)
+
+_editor.add_node(node13, -227.40560196747, -439.28862555715)
+
+Blueprint.connect(node7, "geo", node8, "geos")
+Blueprint.connect(node3, "list", node4, "in")
+Blueprint.connect(node9, "next", node4, "do")
+Blueprint.connect(node4, "out", node11, "center")
+Blueprint.connect(node11, "new_geo", node10, "geos")
+Blueprint.connect(node7, "geo", node1, "geo")
+Blueprint.connect(node4, "out", node1, "pos")
+Blueprint.connect(node1, "out", node9, "cond")
+Blueprint.connect(node5, "next", node9, "true")
+Blueprint.connect(node10, "next", node9, "false")
+Blueprint.connect(node4, "out", node0, "center")
+Blueprint.connect(node0, "new_geo", node5, "geos")
+Blueprint.connect(node2, "v2", node3, "in0")
+Blueprint.connect(node6, "v2", node3, "in1")
+Blueprint.connect(node12, "v2", node3, "in2")
+Blueprint.connect(node13, "v2", node3, "in3")
