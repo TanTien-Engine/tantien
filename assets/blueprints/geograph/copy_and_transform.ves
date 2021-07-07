@@ -9,97 +9,80 @@ node1.end = 5
 
 _editor.add_node(node1, 163.27924682031, 54.765575062996)
 
-var node2 = ::geograph::nodes::circle::Circle()
-node2.query_param("x").value = 0
-node2.query_param("y").value = 0
-node2.query_param("r").value = 27.623832702637
-node2.query_param("fill").value = false
-node2.query_param("color").value.set(1, 0, 0)
+var node2 = ::blueprint::nodes::multiply::Multiply()
 
-_editor.add_node(node2, -1085.5765848467, 109.49142029667)
+_editor.add_node(node2, -605.84221703532, -144.14245926459)
 
-var node3 = ::blueprint::nodes::number::Number()
+var node3 = ::blueprint::nodes::list_add::ListAdd()
 
-node3.value = 10
+_editor.add_node(node3, -186.46825733632, -0.5765040207211)
 
-_editor.add_node(node3, -1084.7470102305, -22.700983268819)
+var node4 = ::blueprint::nodes::array::Array()
+node4.query_param("serialize").value = false
 
-var node4 = ::blueprint::nodes::multiply::Multiply()
+_editor.add_node(node4, -386.92643111838, -282.31618993779)
 
-_editor.add_node(node4, -605.84221703532, -144.14245926459)
+var node5 = ::blueprint::nodes::input::Input()
 
-var node5 = ::blueprint::nodes::insert_to_list::InsertToList()
+node5.var_name = "geo"
+node5.var_type = "any"
 
-_editor.add_node(node5, -186.46825733632, -0.5765040207211)
+_editor.add_node(node5, -191.33761055571, 70.6762146982)
 
-var node6 = ::blueprint::nodes::array::Array()
-node6.query_param("serialize").value = true
+var node6 = ::blueprint::nodes::output::Output()
 
-node6.list = [  ]
+node6.var_name = "geos"
+node6.var_type = "array"
 
-_editor.add_node(node6, -386.92643111838, -282.31618993779)
+_editor.add_node(node6, -175.93355420509, -258.22954304845)
 
-var node7 = ::blueprint::nodes::input::Input()
+var node7 = ::blueprint::nodes::multiply::Multiply()
 
-node7.var_name = "geo"
-node7.var_type = "any"
+_editor.add_node(node7, -604.16593262452, -215.40336362408)
 
-_editor.add_node(node7, -191.33761055571, 70.6762146982)
+var node8 = ::blueprint::nodes::input::Input()
 
-var node8 = ::blueprint::nodes::output::Output()
+node8.var_name = "dx"
+node8.var_type = "num"
 
-node8.var_name = "geos"
-node8.var_type = "array"
+_editor.add_node(node8, -761.48040620158, -134.53625387397)
 
-_editor.add_node(node8, -175.93355420509, -258.22954304845)
+var node9 = ::blueprint::nodes::input::Input()
 
-var node9 = ::blueprint::nodes::multiply::Multiply()
+node9.var_name = "dy"
+node9.var_type = "num"
 
-_editor.add_node(node9, -604.16593262452, -215.40336362408)
+_editor.add_node(node9, -756.52168765738, -209.74287622626)
 
-var node10 = ::blueprint::nodes::input::Input()
+var node10 = ::blueprint::nodes::for_each::ForEach()
 
-node10.var_name = "dx"
-node10.var_type = "num"
+_editor.add_node(node10, -24.105905580126, 53.428213324428)
 
-_editor.add_node(node10, -761.48040620158, -134.53625387397)
+var node11 = ::blueprint::nodes::list_clear::ListClear()
 
-var node11 = ::blueprint::nodes::input::Input()
+_editor.add_node(node11, -59.367986816406, 151.55347900391)
 
-node11.var_name = "dy"
-node11.var_type = "num"
+var node12 = ::blueprint::nodes::input::Input()
 
-_editor.add_node(node11, -756.52168765738, -209.74287622626)
+node12.var_name = "tot_num"
+node12.var_type = "num"
 
-var node12 = ::blueprint::nodes::for_each::ForEach()
+_editor.add_node(node12, -14.808547973633, -80.875934524489)
 
-_editor.add_node(node12, -24.105905580126, 53.428213324428)
-
-var node13 = ::blueprint::nodes::clear_list::ClearList()
-
-_editor.add_node(node13, -59.367986816406, 151.55347900391)
-
-var node14 = ::blueprint::nodes::input::Input()
-
-node14.var_name = "tot_num"
-node14.var_type = "num"
-
-_editor.add_node(node14, -14.808547973633, -80.875934524489)
-
-Blueprint.connect(node7, "var", node12, "in")
-Blueprint.connect(node5, "next", node12, "do")
-Blueprint.connect(node6, "all", node13, "list")
-Blueprint.connect(node13, "next", node1, "prev")
-Blueprint.connect(node12, "next", node1, "do")
-Blueprint.connect(node14, "var", node1, "end")
-Blueprint.connect(node11, "var", node9, "a")
-Blueprint.connect(node1, "index", node9, "b")
-Blueprint.connect(node10, "var", node4, "a")
-Blueprint.connect(node1, "index", node4, "b")
-Blueprint.connect(node12, "out", node0, "geo")
-Blueprint.connect(node4, "v", node0, "dx")
-Blueprint.connect(node9, "v", node0, "dy")
-Blueprint.connect(node0, "next", node5, "prev")
-Blueprint.connect(node6, "all", node5, "list")
-Blueprint.connect(node0, "geo", node5, "item")
-Blueprint.connect(node6, "all", node8, "var")
+Blueprint.connect(node5, "var", node10, "in")
+Blueprint.connect(node3, "next", node10, "do")
+Blueprint.connect(node4, "all", node11, "list")
+Blueprint.connect(node11, "next", node1, "prev")
+Blueprint.connect(node10, "next", node1, "do")
+Blueprint.connect(node12, "var", node1, "end")
+Blueprint.connect(node9, "var", node7, "a")
+Blueprint.connect(node1, "index", node7, "b")
+Blueprint.connect(node8, "var", node2, "a")
+Blueprint.connect(node1, "index", node2, "b")
+Blueprint.connect(node10, "out", node0, "geo")
+Blueprint.connect(node2, "v", node0, "dx")
+Blueprint.connect(node7, "v", node0, "dy")
+Blueprint.connect(node0, "next", node3, "prev")
+Blueprint.connect(node4, "all", node3, "list")
+Blueprint.connect(node0, "geo", node3, "more")
+Blueprint.connect(node4, "all", node6, "var")

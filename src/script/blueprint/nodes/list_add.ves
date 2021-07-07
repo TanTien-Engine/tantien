@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 
-class InsertToList is Node
+class ListAdd is Node
 {
 	init() 
 	{
@@ -12,7 +12,7 @@ class InsertToList is Node
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT),
 			Pin(this, "list", VAR_TYPE_ARRAY),
-			Pin(this, "item", VAR_TYPE_ANY),
+			Pin(this, "more", [ VAR_TYPE_ANY, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT),
@@ -24,9 +24,17 @@ class InsertToList is Node
 	execute_run() 
 	{
 		var v_list = Blueprint.calc_input_value(this, 1)
-		var v_item = Blueprint.calc_input_value(this, 2)
-		if (v_list and v_item) {
-			v_list.value.add(v_item)
+		var v_more = Blueprint.calc_input_value(this, 2)
+		if (!v_list or !v_more) {
+			return
+		}
+
+		if (v_more.value is List) {
+			for (var item in v_more.value) {
+				v_list.value.add(item)
+			}
+		} else {
+			v_list.value.add(v_more)
 		}
 	}
 }
