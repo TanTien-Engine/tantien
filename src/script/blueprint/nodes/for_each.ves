@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_INTEGER, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.execute_list" for ExecuteList
 
@@ -16,8 +16,9 @@ class ForEach is Node
 			Pin(this, "do",   VAR_TYPE_PORT)
 		]
 		this.exports = [
-			Pin(this, "next", VAR_TYPE_PORT),
-			Pin(this, "out",  VAR_TYPE_ANY),
+			Pin(this, "next",     VAR_TYPE_PORT),
+			Pin(this, "out",      VAR_TYPE_ANY),
+			Pin(this, "curr_idx", VAR_TYPE_INTEGER),			
 		]
 
 		this.layout()
@@ -25,6 +26,7 @@ class ForEach is Node
 		this.imports[1].stop_port_pass = true
 		this.imports[2].stop_port_pass = true
 		this.exports[1].stop_port_pass = true
+		this.exports[2].stop_port_pass = true
 
 		this.all_values = []
 		this.curr_index = 0
@@ -82,8 +84,10 @@ class ForEach is Node
 
 	calc_value(idx) 
 	{
-		if (this.curr_index < this.all_values.count) {
+		if (idx == 1) {
 			return this.all_values[this.curr_index]
+		} else if (idx == 2) {
+			return Variant(VAR_TYPE_INTEGER, this.curr_index)
 		} else {
 			return nil
 		}
