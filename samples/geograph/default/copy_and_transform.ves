@@ -14,7 +14,7 @@ _editor.add_node(node1, -353.99395110796, 27.547650982009)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
 
-_editor.add_node(node2, 494.83269039365, 56.215430498073)
+_editor.add_node(node2, 505.55769506467, 20.089098974631)
 
 var node3 = ::blueprint::nodes::number::Number()
 
@@ -25,7 +25,7 @@ _editor.add_node(node3, -356.33606086074, -108.50685635354)
 var node4 = ::blueprint::nodes::subgraph::Subgraph()
 node4.load_from_file(_editor, "../../../assets/blueprints/geograph/copy_and_transform.ves")
 
-_editor.add_node(node4, 248.50081374205, 26.975970184633)
+_editor.add_node(node4, 240.03370479124, 23.58912660431)
 
 var node5 = ::blueprint::nodes::number::Number()
 
@@ -33,6 +33,16 @@ node5.value = 6
 
 _editor.add_node(node5, -354.50840454407, -181.83610093327)
 
+var node6 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node6, 484.83417151551, 185.27685435119)
+
+var node7 = ::editorgraph::nodes::blueprint_changed::BlueprintChanged()
+
+_editor.add_node(node7, 343.15123121216, 194.30843314452)
+
+Blueprint.connect(node7, "event", node6, "event")
+Blueprint.connect(node4, "next", node6, "action")
 Blueprint.connect(node1, "geo", node0, "geo")
 Blueprint.connect(node3, "v", node0, "dx")
 Blueprint.connect(node5, "v", node0, "tot_num")
@@ -40,5 +50,4 @@ Blueprint.connect(node0, "next", node4, "prev")
 Blueprint.connect(node0, "geos", node4, "geo")
 Blueprint.connect(node3, "v", node4, "dy")
 Blueprint.connect(node5, "v", node4, "tot_num")
-Blueprint.connect(node4, "next", node2, "prev")
 Blueprint.connect(node4, "geos", node2, "geos")

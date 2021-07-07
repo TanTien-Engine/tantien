@@ -22,12 +22,7 @@ class ExecuteList
 	}
 
 	is_exe_root_node(node, all_nodes)
-	{
-		import "editorgraph.nodes.trigger" for Trigger
-		if (node is Trigger) {
-			return false
-		}
-		
+	{		
 		if (Blueprint.is_out_ports_empty(node)) {
 			return true
 		}

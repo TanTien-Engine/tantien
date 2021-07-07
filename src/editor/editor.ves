@@ -971,12 +971,15 @@ import \"editor\" for _editor
 		if (this.scene_stack.bp_dirty or !this.drawlist) {
 			this.drawlist = Drawlist(nodes)
 		}
-		if (this.scene_stack.bp_dirty or !this.exe_list) {
-			this.exe_list = ExecuteList(nodes)
-			this.exe_list.run()
-		}
 		if (this.scene_stack.bp_dirty or !this.trigger_list) {
 			this.trigger_list = TriggerList(nodes)
+		}		
+		if (this.scene_stack.bp_dirty or !this.exe_list) 
+		{
+			this.exe_list = ExecuteList(nodes)
+
+			import "editorgraph.event_types" for EVENT_BLUEPRINT_CHANGED
+			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
 		}
 	}
 
