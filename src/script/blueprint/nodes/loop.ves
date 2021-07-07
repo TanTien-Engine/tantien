@@ -80,16 +80,16 @@ class Loop is Node
 		this.index = 0
 	}
 
+	execute_gen()
+	{
+		var node = Blueprint.get_input_node(this, 1)
+		if (node) {
+			this.exe_list = ExecuteList([ node ])
+		}
+	}
+
 	execute_run() 
 	{
-		if (!this.exe_list) 
-		{
-			var node = Blueprint.get_input_node(this, 1)
-			if (node) {
-				this.exe_list = ExecuteList([ node ])
-			}
-		}
-
 		if (!this.exe_list) {
 			return
 		}

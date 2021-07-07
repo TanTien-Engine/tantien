@@ -99,19 +99,21 @@ class Subgraph is Node
 		}
 	}
 
-	execute_run() 
+	execute_gen()
 	{
-		if (!this.exe_list) 
-		{
-			var nodes = []
-			for (var item in this.all_items) {
-				nodes.add(item[0])
-			}
-
-			this.exe_list = ExecuteList(nodes)
+		var nodes = []
+		for (var item in this.all_items) {
+			nodes.add(item[0])
 		}
 
-		this.exe_list.run()
+		this.exe_list = ExecuteList(nodes)
+	}	
+
+	execute_run() 
+	{
+		if (this.exe_list) {
+			this.exe_list.run()
+		}
 	}
 
 	layout()

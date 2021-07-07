@@ -27,16 +27,16 @@ class Trigger is Node
 		this.exe_list = nil
 	}
 
-	execute_run()
-	{		
-		if (!this.exe_list) 
-		{
-			var node = Blueprint.get_input_node(this, 2)
-			if (node) {
-				this.exe_list = ExecuteList([ node ])
-			}
+	execute_gen()
+	{
+		var node = Blueprint.get_input_node(this, 2)
+		if (node) {
+			this.exe_list = ExecuteList([ node ])
 		}
+	}
 
+	execute_run()
+	{
 		if (this.exe_list) {
 			this.exe_list.run()
 		}

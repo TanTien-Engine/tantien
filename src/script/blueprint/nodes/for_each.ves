@@ -59,17 +59,17 @@ class ForEach is Node
 		}
 	}
 
+	execute_gen()
+	{
+		var node = Blueprint.get_input_node(this, 2)
+		if (node) {
+			var prev_nodes = Blueprint.get_precursor_nodes(node)
+			this.exe_list = ExecuteList(prev_nodes)
+		}
+	}
+
 	execute_run() 
 	{
-		if (!this.exe_list) 
-		{
-			var node = Blueprint.get_input_node(this, 2)
-			if (node) {
-				var prev_nodes = Blueprint.get_precursor_nodes(node)
-				this.exe_list = ExecuteList(prev_nodes)
-			}
-		}
-
 		if (!this.exe_list) {
 			return
 		}

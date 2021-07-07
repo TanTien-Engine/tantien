@@ -8,6 +8,19 @@ class ExecuteList
 		this.lists = []
 
 		this.build_lists(nodes)
+
+		this.gen()
+	}
+
+	gen()
+	{
+		for (var list in this.lists) {
+			for (var node in list) {
+				if (node.has_method("execute_gen()")) {
+					node.execute_gen()
+				}
+			}
+		}
 	}
 
 	run()
