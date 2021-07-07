@@ -10,7 +10,11 @@ class BehaviorTree is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "root", VAR_TYPE_PORT),
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "root",  VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.layout()

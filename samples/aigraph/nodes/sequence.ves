@@ -1,6 +1,6 @@
 var node0 = ::aigraph::nodes::behavior_tree::BehaviorTree()
 
-_editor.add_node(node0, 299.87928782223, 97.976928188944)
+_editor.add_node(node0, 302.35862666521, 102.1091595939)
 
 var node1 = ::aigraph::nodes::sequence::Sequence()
 
@@ -8,7 +8,7 @@ _editor.add_node(node1, 145.21225574507, 57.189179204103)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
 
-_editor.add_node(node2, -71.834853555704, 246.15276837772)
+_editor.add_node(node2, 490.52386907253, 186.33029375167)
 
 var node3 = ::geograph::nodes::circle::Circle()
 node3.query_param("x").value = 0
@@ -36,4 +36,5 @@ Blueprint.connect(node3, "geo", node4, "geo")
 Blueprint.connect(node4, "next", node1, "child0")
 Blueprint.connect(node5, "next", node1, "child1")
 Blueprint.connect(node1, "parent", node0, "root")
+Blueprint.connect(node0, "next", node2, "prev")
 Blueprint.connect(node3, "geo", node2, "geos")
