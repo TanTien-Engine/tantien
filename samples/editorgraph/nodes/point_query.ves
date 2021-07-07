@@ -1,0 +1,98 @@
+var node0 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
+
+_editor.add_node(node0, -845.05761134036, 36.050444956297)
+
+var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node1, -391.16705605959, 199.51890874771)
+
+var node2 = ::blueprint::nodes::array::Array()
+node2.query_param("serialize").value = true
+
+node2.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-155, 85, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-149, -76, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-92.704345703125, -3.4094769954681, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-207.10433959961, -29.809476852417, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-329.30157470703, 25.099203109741, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-316.10159301758, -134.4008026123, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-1037.2133789063, 403.07015991211, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })) ]
+
+_editor.add_node(node2, -568.94755822689, 158.57032306537)
+
+var node3 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node3, 386.82187029611, 96.68249760316)
+
+var node4 = ::editorgraph::nodes::coord_trans::CoordTrans()
+
+_editor.add_node(node4, -634.60739619529, -135.54567803914)
+
+var node5 = ::geograph::nodes::is_contain::IsContain()
+
+_editor.add_node(node5, -482.17591134124, -128.14576818409)
+
+var node6 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node6, -110.60098305686, -3.1139028146773)
+
+var node7 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node7, -229.09596581463, -158.36627044792)
+
+var node8 = ::blueprint::nodes::list_add::ListAdd()
+
+_editor.add_node(node8, -437.29278559867, -221.52928503253)
+
+var node9 = ::blueprint::nodes::array::Array()
+node9.query_param("serialize").value = false
+
+_editor.add_node(node9, -673.20564477521, -275.62395522005)
+
+var node10 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node10, -263.46586436091, -506.48250885979)
+
+var node11 = ::blueprint::nodes::number3::Number3()
+
+node11.value.set(0, 0, 0.93263077735901)
+
+_editor.add_node(node11, -470.81119587808, -568.51945222935)
+
+var node12 = ::blueprint::nodes::list_clear::ListClear()
+
+_editor.add_node(node12, -23.417257078244, -149.92089758915)
+
+var node13 = ::blueprint::nodes::array::Array()
+node13.query_param("serialize").value = false
+
+_editor.add_node(node13, -470.94888471373, -461.59205773662)
+
+var node14 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node14, 129.21287956939, -74.56937491875)
+
+var node15 = ::blueprint::nodes::list_add::ListAdd()
+
+_editor.add_node(node15, -24.199422814027, -237.03846389398)
+
+var node16 = ::blueprint::nodes::list_clear::ListClear()
+
+_editor.add_node(node16, -379.72369384766, -32.218597412111)
+
+Blueprint.connect(node13, "all", node12, "list")
+Blueprint.connect(node13, "all", node10, "geos")
+Blueprint.connect(node11, "v3", node10, "color")
+Blueprint.connect(node9, "all", node16, "list")
+Blueprint.connect(node16, "next", node6, "prev")
+Blueprint.connect(node2, "all", node6, "in")
+Blueprint.connect(node7, "next", node6, "do")
+Blueprint.connect(node6, "next", node14, "prev")
+Blueprint.connect(node9, "empty", node14, "cond")
+Blueprint.connect(node12, "next", node14, "true")
+Blueprint.connect(node15, "next", node14, "false")
+Blueprint.connect(node9, "all", node8, "list")
+Blueprint.connect(node6, "out", node8, "more")
+Blueprint.connect(node13, "all", node15, "list")
+Blueprint.connect(node9, "all", node15, "more")
+Blueprint.connect(node2, "all", node1, "geos")
+Blueprint.connect(node0, "pos", node4, "screen")
+Blueprint.connect(node6, "out", node5, "geo")
+Blueprint.connect(node4, "world", node5, "pos")
+Blueprint.connect(node5, "out", node7, "cond")
+Blueprint.connect(node8, "next", node7, "true")
+Blueprint.connect(node0, "event", node3, "event")
+Blueprint.connect(node14, "next", node3, "action")
