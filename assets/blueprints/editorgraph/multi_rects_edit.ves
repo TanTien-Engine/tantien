@@ -26,7 +26,7 @@ _editor.add_node(node4, -131.30754840544, 80.44145109777)
 
 var node5 = ::blueprint::nodes::number2::Number2()
 
-node5.value.set(-753.43026931451, -560.36484472214)
+node5.value.set(-32.885014876105, -17.831323397774)
 
 _editor.add_node(node5, -1062.3239828125, 179.85141270597)
 
@@ -52,7 +52,7 @@ _editor.add_node(node10, -161.15263922674, -284.01948655007)
 
 var node11 = ::blueprint::nodes::number2::Number2()
 
-node11.value.set(-753.43026931451, -560.36484472214)
+node11.value.set(-32.885014876105, -17.831323397774)
 
 _editor.add_node(node11, -1061.7700044882, 82.893736963241)
 
@@ -236,7 +236,7 @@ var node42 = ::blueprint::nodes::load::Load()
 
 node42.var_name = "rects"
 
-_editor.add_node(node42, -523.55820288333, -895.5025647882)
+_editor.add_node(node42, -496.92067812409, -894.13653787747)
 
 var node43 = ::blueprint::nodes::assignment::Assignment()
 
@@ -254,7 +254,38 @@ node45.var_name = "second_pos"
 
 _editor.add_node(node45, -49.421910550249, -650.57512929952)
 
+var node46 = ::blueprint::nodes::subgraph::Subgraph()
+node46.load_from_file(_editor, "left_down_select.ves")
+
+_editor.add_node(node46, -297.85462157194, -1012.8117973391)
+
+var node47 = ::blueprint::nodes::load::Load()
+
+node47.var_name = "rects"
+
+_editor.add_node(node47, -498.09360792336, -1002.5002543322)
+
+var node48 = ::blueprint::nodes::array::Array()
+node48.query_param("serialize").value = false
+
+_editor.add_node(node48, -525.35874035277, -1107.2682885482)
+
+var node49 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node49, -347.94665013, -1133.5996925852)
+
+var node50 = ::blueprint::nodes::number3::Number3()
+
+node50.value.set(0, 0.54259234666824, 0)
+
+_editor.add_node(node50, -520.65838875173, -1232.1675641329)
+
+Blueprint.connect(node48, "all", node49, "geos")
+Blueprint.connect(node50, "v3", node49, "color")
 Blueprint.connect(node16, "all", node33, "var")
+Blueprint.connect(node33, "var", node47, "var")
+Blueprint.connect(node47, "var", node46, "geos")
+Blueprint.connect(node48, "all", node46, "selected")
 Blueprint.connect(node33, "var", node42, "var")
 Blueprint.connect(node42, "var", node41, "geos")
 Blueprint.connect(node33, "var", node35, "var")
