@@ -27,6 +27,8 @@ import "rendergraph.nodes.shader_code" for ShaderCode
 import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
 import "editorgraph.trigger_list" for TriggerList
+import "blueprint.blackboard" for BLACKBOARD
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED
 
 class Editor
 {
@@ -36,7 +38,6 @@ class Editor
 
 		this.camera = tt_Camera2D()
 
-		import "blueprint.blackboard" for BLACKBOARD
 		BLACKBOARD.editor_cam = this.camera
 
 		this.nodes_op = BlueprintEditOP(this.camera, this.scene_stack, this.popup_cb)
@@ -194,13 +195,11 @@ class Editor
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
 
-		if (this.hide_nodes)
-		{
-			import "blueprint.blackboard" for BLACKBOARD
-			BLACKBOARD.mouse_pos.set(x, y)
-
-			import "editorgraph.event_types" for EVENT_MOUSE_DRAG
-			this.trigger_list.run(EVENT_MOUSE_DRAG)
+		if (this.hide_nodes) {
+			if (btn == MOUSE_LEFT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
+			}
 		}
 	}
 
@@ -219,20 +218,11 @@ class Editor
 
 		if (this.hide_nodes)
 		{
-			if (btn == MOUSE_LEFT) 
-			{
-				import "blueprint.blackboard" for BLACKBOARD
+			if (btn == MOUSE_LEFT) {
 				BLACKBOARD.mouse_pos.set(x, y)
-
-				import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN
 				this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
-			}
-			else if (btn == MOUSE_RIGHT) 
-			{
-				import "blueprint.blackboard" for BLACKBOARD
+			} else if (btn == MOUSE_RIGHT) {
 				BLACKBOARD.mouse_pos.set(x, y)
-
-				import "editorgraph.event_types" for EVENT_MOUSE_RIGHT_DOWN
 				this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
 			}
 		}
@@ -255,6 +245,17 @@ class Editor
 
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_released(x, y, btn)
+		}
+
+		if (this.hide_nodes)
+		{
+			if (btn == MOUSE_LEFT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_LEFT_UP)
+			} else if (btn == MOUSE_RIGHT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_RIGHT_UP)
+			}
 		}
 	}
 
@@ -994,11 +995,8 @@ import \"editor\" for _editor
 		if (this.scene_stack.bp_dirty or !this.trigger_list) {
 			this.trigger_list = TriggerList(nodes)
 		}		
-		if (this.scene_stack.bp_dirty or !this.exe_list) 
-		{
+		if (this.scene_stack.bp_dirty or !this.exe_list) {
 			this.exe_list = ExecuteList(nodes)
-
-			import "editorgraph.event_types" for EVENT_BLUEPRINT_CHANGED
 			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
 		}
 	}

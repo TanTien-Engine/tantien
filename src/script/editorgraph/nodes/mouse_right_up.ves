@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "editorgraph.variant" for VAR_TYPE_EVENT
 
-class MouseDrag is Node
+class MouseRightUp is Node
 {
 	init()
 	{
@@ -20,8 +20,8 @@ class MouseDrag is Node
 	calc_value(idx)
 	{
 		if (idx == 0) {
-			import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DRAG
-			return Variant(VAR_TYPE_EVENT, EVENT_MOUSE_LEFT_DRAG)
+			import "editorgraph.event_types" for EVENT_MOUSE_RIGHT_UP
+			return Variant(VAR_TYPE_EVENT, EVENT_MOUSE_RIGHT_UP)
 		} else if (idx == 1) {
 			import "blueprint.blackboard" for BLACKBOARD
 			return Variant(BLACKBOARD.mouse_pos)
