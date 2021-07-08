@@ -1,0 +1,46 @@
+var node0 = ::blueprint::nodes::list_remove::ListRemove()
+
+_editor.add_node(node0, -127.39372108295, -202.0198349351)
+
+var node1 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node1, 196.39808933076, -61.8544111847)
+
+var node2 = ::geograph::nodes::is_contain::IsContain()
+
+_editor.add_node(node2, -131.70231459716, -126.8911115044)
+
+var node3 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node3, 342.52899797778, 13.4265045091)
+
+var node4 = ::editorgraph::nodes::mouse_right_down::MouseRightDown()
+
+_editor.add_node(node4, -433.74498025039, 4.2615831058999)
+
+var node5 = ::editorgraph::nodes::coord_trans::CoordTrans()
+
+_editor.add_node(node5, -291.77685960751, -110.1437974456)
+
+var node6 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node6, 41.904659558621, -155.2653936072)
+
+var node7 = ::blueprint::nodes::input::Input()
+
+node7.var_name = "geos"
+node7.var_type = "array"
+
+_editor.add_node(node7, -280, -49.5)
+
+Blueprint.connect(node4, "pos", node5, "screen")
+Blueprint.connect(node4, "event", node3, "event")
+Blueprint.connect(node1, "next", node3, "action")
+Blueprint.connect(node7, "var", node1, "in")
+Blueprint.connect(node6, "next", node1, "do")
+Blueprint.connect(node1, "out", node2, "geo")
+Blueprint.connect(node5, "world", node2, "pos")
+Blueprint.connect(node2, "out", node6, "cond")
+Blueprint.connect(node0, "next", node6, "true")
+Blueprint.connect(node7, "var", node0, "list")
+Blueprint.connect(node1, "curr_idx", node0, "index")
