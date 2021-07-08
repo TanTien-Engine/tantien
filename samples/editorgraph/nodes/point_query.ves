@@ -34,6 +34,7 @@ var node7 = ::blueprint::nodes::branch::Branch()
 _editor.add_node(node7, -229.09596581463, -158.36627044792)
 
 var node8 = ::blueprint::nodes::list_add::ListAdd()
+node8.query_param("unique").value = false
 
 _editor.add_node(node8, -437.29278559867, -221.52928503253)
 
@@ -66,6 +67,7 @@ var node14 = ::blueprint::nodes::branch::Branch()
 _editor.add_node(node14, 129.21287956939, -74.56937491875)
 
 var node15 = ::blueprint::nodes::list_add::ListAdd()
+node15.query_param("unique").value = false
 
 _editor.add_node(node15, -24.199422814027, -237.03846389398)
 
@@ -73,15 +75,20 @@ var node16 = ::blueprint::nodes::list_clear::ListClear()
 
 _editor.add_node(node16, -379.72369384766, -32.218597412111)
 
+var node17 = ::blueprint::nodes::list_info::ListInfo()
+
+_editor.add_node(node17, -27.067706714977, -79.639498623935)
+
 Blueprint.connect(node13, "all", node12, "list")
 Blueprint.connect(node13, "all", node10, "geos")
 Blueprint.connect(node11, "v3", node10, "color")
+Blueprint.connect(node9, "all", node17, "list")
 Blueprint.connect(node9, "all", node16, "list")
 Blueprint.connect(node16, "next", node6, "prev")
 Blueprint.connect(node2, "all", node6, "in")
 Blueprint.connect(node7, "next", node6, "do")
 Blueprint.connect(node6, "next", node14, "prev")
-Blueprint.connect(node9, "empty", node14, "cond")
+Blueprint.connect(node17, "empty", node14, "cond")
 Blueprint.connect(node12, "next", node14, "true")
 Blueprint.connect(node15, "next", node14, "false")
 Blueprint.connect(node9, "all", node8, "list")

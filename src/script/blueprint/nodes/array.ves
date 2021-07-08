@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_BOOLEAN
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY, VAR_TYPE_ARRAY
 import "blueprint.node_param" for NodeParam
 
 class Array is Node
@@ -16,7 +16,6 @@ class Array is Node
 		this.exports = [
 			Pin(this, "all",   VAR_TYPE_ARRAY),
 			Pin(this, "one",   VAR_TYPE_ANY),
-			Pin(this, "empty", VAR_TYPE_BOOLEAN),
 		]
 
 		this.params.add(NodeParam("serialize", false))

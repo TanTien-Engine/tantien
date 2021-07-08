@@ -8,7 +8,7 @@ _editor.add_node(node1, 334.82187029611, 132.68249760316)
 
 var node2 = ::editorgraph::nodes::coord_trans::CoordTrans()
 
-_editor.add_node(node2, -698.36677676418, -48.182041675504)
+_editor.add_node(node2, -662.8500770852, -72.087512613281)
 
 var node3 = ::geograph::nodes::is_contain::IsContain()
 
@@ -16,11 +16,11 @@ _editor.add_node(node3, -522.74533965898, -62.212771804063)
 
 var node4 = ::blueprint::nodes::for_each::ForEach()
 
-_editor.add_node(node4, -52.159619762, 28.157595033831)
+_editor.add_node(node4, -52.159619762, 50.697039060878)
 
 var node5 = ::blueprint::nodes::branch::Branch()
 
-_editor.add_node(node5, -348.91414763281, -90.911724993375)
+_editor.add_node(node5, -350.96318799891, -73.836388609248)
 
 var node6 = ::blueprint::nodes::list_add::ListAdd()
 node6.query_param("unique").value = false
@@ -30,11 +30,11 @@ _editor.add_node(node6, -518.39803797214, -149.25177666562)
 var node7 = ::blueprint::nodes::array::Array()
 node7.query_param("serialize").value = false
 
-_editor.add_node(node7, -944.29655386611, -323.71486431096)
+_editor.add_node(node7, -977.02382659338, -280.0785006746)
 
 var node8 = ::blueprint::nodes::list_clear::ListClear()
 
-_editor.add_node(node8, -38.591885177422, -111.59684800238)
+_editor.add_node(node8, -37.225858266692, -140.96642658308)
 
 var node9 = ::blueprint::nodes::branch::Branch()
 
@@ -43,52 +43,64 @@ _editor.add_node(node9, 159.21287956939, -18.56937491875)
 var node10 = ::blueprint::nodes::list_add::ListAdd()
 node10.query_param("unique").value = true
 
-_editor.add_node(node10, -42.913141822289, -211.037246764)
+_editor.add_node(node10, -41.547114911559, -240.4068253447)
 
 var node11 = ::blueprint::nodes::list_clear::ListClear()
 
-_editor.add_node(node11, -255.45574766912, 42.150981168587)
+_editor.add_node(node11, -254.77273421375, 63.324398284904)
 
 var node12 = ::blueprint::nodes::input::Input()
 
 node12.var_name = "geos"
 node12.var_type = "array"
 
-_editor.add_node(node12, -257.10895128485, -11.496964509823)
+_editor.add_node(node12, -256.42593782948, 9.6764526064942)
 
 var node13 = ::blueprint::nodes::input::Input()
 
 node13.var_name = "selected"
 node13.var_type = "array"
 
-_editor.add_node(node13, -203.83647117928, -163.91406060841)
+_editor.add_node(node13, -202.47044426855, -193.28363918911)
 
 var node14 = ::blueprint::nodes::store::Store()
 
 node14.var_name = "tmp_list"
 
-_editor.add_node(node14, -801.38913796164, -303.71978066184)
+_editor.add_node(node14, -834.11641068891, -260.08341702548)
 
 var node15 = ::blueprint::nodes::load::Load()
 
 node15.var_name = "tmp_list"
 
-_editor.add_node(node15, -395.0254350142, 30.825666947798)
+_editor.add_node(node15, -394.34242155883, 51.999084064115)
 
 var node16 = ::blueprint::nodes::load::Load()
 
 node16.var_name = "tmp_list"
 
-_editor.add_node(node16, -657.75274658203, -141.90159052069)
+_editor.add_node(node16, -660.48480040349, -141.21857706532)
 
 var node17 = ::blueprint::nodes::load::Load()
 
 node17.var_name = "tmp_list"
 
-_editor.add_node(node17, -201.38910466974, -226.44705616344)
+_editor.add_node(node17, -200.02307775901, -255.81663474414)
+
+var node18 = ::blueprint::nodes::load::Load()
+
+node18.var_name = "tmp_list"
+
+_editor.add_node(node18, -178.91240004758, -63.972684924976)
+
+var node19 = ::blueprint::nodes::list_info::ListInfo()
+
+_editor.add_node(node19, -34.796614165482, -71.485844218888)
 
 Blueprint.connect(node13, "var", node8, "list")
 Blueprint.connect(node7, "all", node14, "var")
+Blueprint.connect(node14, "var", node18, "var")
+Blueprint.connect(node18, "var", node19, "list")
 Blueprint.connect(node14, "var", node17, "var")
 Blueprint.connect(node13, "var", node10, "list")
 Blueprint.connect(node17, "var", node10, "add")
@@ -99,7 +111,7 @@ Blueprint.connect(node11, "next", node4, "prev")
 Blueprint.connect(node12, "var", node4, "in")
 Blueprint.connect(node5, "next", node4, "do")
 Blueprint.connect(node4, "next", node9, "prev")
-Blueprint.connect(node7, "empty", node9, "cond")
+Blueprint.connect(node19, "empty", node9, "cond")
 Blueprint.connect(node8, "next", node9, "true")
 Blueprint.connect(node10, "next", node9, "false")
 Blueprint.connect(node16, "var", node6, "list")

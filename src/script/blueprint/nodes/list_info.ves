@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER
+import "blueprint.blueprint" for Blueprint
+
+class ListInfo is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "empty", VAR_TYPE_BOOLEAN),
+			Pin(this, "count", VAR_TYPE_INTEGER),			
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+
+		if (idx == 0) {
+			return Variant(v_list.value.isEmpty)
+		} else if (idx == 1) {
+			return Variant(VAR_TYPE_INTEGER, v_list.value.count)
+		} else {
+			return nil
+		}
+	}
+}
