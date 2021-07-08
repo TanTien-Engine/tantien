@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_NUMBER_SET
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
@@ -12,11 +12,11 @@ class Compare is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "a", VAR_TYPE_ANY),
-			Pin(this, "b", VAR_TYPE_ANY),
+			Pin(this, "a", VAR_TYPE_NUMBER_SET),
+			Pin(this, "b", VAR_TYPE_NUMBER_SET),
 		]
 		this.exports = [
-			Pin(this, "out", VAR_TYPE_ANY),
+			Pin(this, "out", VAR_TYPE_BOOLEAN),
 		]
 
 		this.layout()
@@ -29,6 +29,100 @@ class Compare is Node
 		this.cmp_selected = -1
 	}
 	
+	calc_value(idx)
+	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (!v_a or !v_b or v_a.type != v_b.type) {
+			return
+		}
+
+		var num = 0
+		var a = [0, 0, 0, 0]
+		var b = [0, 0, 0, 0]
+		if (v_a.type == VAR_TYPE_INTEGER or v_a.type == VAR_TYPE_NUMBER)
+		{
+			num = 1
+			a[0] = v_a.value
+			b[0] = v_b.value
+		}
+		else if (v_a.type == VAR_TYPE_NUMBER2)
+		{
+			num = 2
+			a[0] = v_a.value.x
+			a[1] = v_a.value.y
+			b[0] = v_b.value.x
+			b[1] = v_b.value.y
+		}
+		else if (v_a.type == VAR_TYPE_NUMBER3)
+		{
+			num = 3
+			a[0] = v_a.value.x
+			a[1] = v_a.value.y
+			a[2] = v_a.value.z
+			b[0] = v_b.value.x
+			b[1] = v_b.value.y
+			b[2] = v_b.value.z
+		}
+		else if (v_a.type == VAR_TYPE_NUMBER4)
+		{
+			num = 4
+			a[0] = v_a.value.x
+			a[1] = v_a.value.y
+			a[2] = v_a.value.z
+			a[3] = v_a.value.w
+			b[0] = v_b.value.x
+			b[1] = v_b.value.y
+			b[2] = v_b.value.z
+			b[3] = v_b.value.w			
+		}
+
+		if (num == 0) {
+			return Variant(false)
+		}
+
+		var count = 0
+		if (this.cmp == "equal") {
+			for (var i in 0..num) {
+				if (a[i] == b[i]) {
+					count = count + 1
+				}
+			}
+		} else if (this.cmp == "not_equal") {
+			for (var i in 0..num) {
+				if (a[i] != b[i]) {
+					count = count + 1
+				}
+			}
+		} else if (this.cmp == "greater") {
+			for (var i in 0..num) {
+				if (a[i] > b[i]) {
+					count = count + 1
+				}
+			}
+		} else if (this.cmp == "greater_equal") {
+			for (var i in 0..num) {
+				if (a[i] >= b[i]) {
+					count = count + 1
+				}
+			}
+		} else if (this.cmp == "less") {
+			for (var i in 0..num) {
+				if (a[i] < b[i]) {
+					count = count + 1
+				}
+			}
+		} else if (this.cmp == "less_equal") {
+			for (var i in 0..num) {
+				if (a[i] <= b[i]) {
+					count = count + 1
+				}
+			}
+		}
+
+		return Variant(count == num)
+	}
+
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder
