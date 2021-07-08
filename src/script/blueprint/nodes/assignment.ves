@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.load" for Load
 
 class Assignment is Node
 {
@@ -28,10 +29,35 @@ class Assignment is Node
 
 	execute_run() 
 	{
+		var dirty = this.assign()
+
+		if (dirty) 
+		{
+			var prev = Blueprint.get_input_node(this, 2)
+			if (prev)
+			{
+				if (prev is Load) 
+				{
+					var store = Blueprint.get_input_node(prev, 0)
+					if (store) {
+						prev = store
+					}
+				}
+
+				var nodes = Blueprint.get_successor_nodes(prev)
+				for (var node in nodes) {
+					node.on_gui_dirty()
+				}
+			}
+		}
+	}
+
+	assign()
+	{
 		var v_src = Blueprint.calc_input_value(this, 1)
 		var v_dst = Blueprint.calc_input_value(this, 2)
 		if (!v_src or !v_dst or v_src.type != v_dst.type) {
-			return
+			return false
 		}
 
 		if (v_src.type == VAR_TYPE_NUMBER2)
@@ -52,5 +78,11 @@ class Assignment is Node
 			v_dst.value.z = v_src.value.z
 			v_dst.value.w = v_src.value.w			
 		}
+		else
+		{
+			return false
+		}
+
+		return true
 	}
 }
