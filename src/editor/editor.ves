@@ -798,8 +798,9 @@ import \"editor\" for _editor
 			if (index >= 0) {
 				name = "node%(index)"
 			}
+			var scope = bp.get_class().module.replace(".", "::")
 			var source = "
-var %(name) = %(bp.name)()
+var %(name) = ::%(scope)::%(bp.get_class().name)()
 %(bp.to_string(name))
 _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.position.x), %(trans.position.y)))
 "
