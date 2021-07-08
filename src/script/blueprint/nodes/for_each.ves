@@ -85,12 +85,14 @@ class ForEach is Node
 	calc_value(idx) 
 	{
 		if (idx == 1) {
-			return this.all_values[this.curr_index]
+			if (this.curr_index >= 0 and this.curr_index < this.all_values.count) {
+				return this.all_values[this.curr_index]
+			}
 		} else if (idx == 2) {
 			return Variant(VAR_TYPE_INTEGER, this.curr_index)
-		} else {
-			return nil
 		}
+
+		return nil		
 	}
 
 	get_all_values()
