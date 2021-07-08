@@ -35,6 +35,8 @@ class Node
 		this.aabb_dirty = false
 
 		this.dummy = false
+
+		this.selected = false
 	}
 
 	get_size() {
@@ -136,8 +138,8 @@ class Node
 		return dirty
 	}
 
-	on_selected() {}
-	on_deselected() {}
+	on_selected() { this.selected = true }
+	on_deselected() { this.selected = false }
 
 	on_connected(pin) {}
 	on_disconnected(pin) {}

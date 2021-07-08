@@ -29,14 +29,14 @@ class NodeRender
 	{
 		for (var pin in node.imports)
 		{
-			if (!pin.hide) {
+			if (this.is_pin_visible(pin)) {
 				var p_pos = NodeLayout.calc_pin_pos(pin)
 				this.draw_pin(p_pos.x, p_pos.y, pin)
 			}
 		}
 		for (var pin in node.exports)
 		{
-			if (!pin.hide) {
+			if (this.is_pin_visible(pin)) {
 				var p_pos = NodeLayout.calc_pin_pos(pin)
 				this.draw_pin(p_pos.x, p_pos.y, pin)
 			}
@@ -49,7 +49,7 @@ class NodeRender
 
 		for (var o in node.exports) {
 			for (var c in o.conns) {
-				if (!c.to.node.dummy and (!c.from.hide or !c.to.hide)) {
+				if (this.is_conn_visible(c)) {
 					this.draw_conn(pt, c)
 				}
 			}
@@ -80,5 +80,35 @@ class NodeRender
 	static draw_conn(pt, conn)
 	{
 		pt.add_bezier(conn.curve, conn.from.color, 2)
+	}
+
+	static is_pin_visible(pin)
+	{
+		if (pin.node.selected) {
+			return true
+		}
+
+		return !pin.hide
+	}
+
+	static is_conn_visible(conn)
+	{
+		if (conn.to.node.dummy) {
+			return false
+		}
+
+		if (conn.from.node.selected or conn.to.node.selected) {
+			return true
+		}
+
+		if (conn.from.hide and conn.to.hide) {
+			return false
+		}
+
+		if (conn.from.stop_port_pass) {
+			return false
+		}
+
+		return true
 	}
 }
