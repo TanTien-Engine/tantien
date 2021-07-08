@@ -1,0 +1,19 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/points_edit.ves")
+
+_editor.add_node(node0, 275.86947612868, 176.73867905198)
+
+var node1 = ::blueprint::nodes::array::Array()
+node1.query_param("serialize").value = true
+
+node1.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-38.535888671875, 97.647117614746, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-190.21890258789, -33.669864654541, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-98.950958251953, -29.669864654541, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-69.924598693848, 59.85277557373, 11.111110687256), { "fill" : true, "color" : ::maths::vector::Vector3(1, 0.62222224473953, 0.53333336114883) })) ]
+
+_editor.add_node(node1, -148.00826446281, 155.85950413223)
+
+var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node2, 23.063520251349, 225.20883136398)
+
+Blueprint.connect(node1, "all", node2, "geos")
+Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node1, "all", node0, "points")
