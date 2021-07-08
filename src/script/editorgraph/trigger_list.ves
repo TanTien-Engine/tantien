@@ -1,3 +1,4 @@
+import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.subgraph" for Subgraph
 import "editorgraph.nodes.trigger" for Trigger
 
@@ -9,9 +10,7 @@ class TriggerList
 
 		this.events = []
 
-		for (var node in nodes) {
-			this.build_lists(node)
-		}
+		this.build_from_multi(nodes)
 	}
 
 	run(event)
@@ -24,7 +23,15 @@ class TriggerList
 		}
 	}
 
-	build_lists(node)
+	build_from_multi(nodes)
+	{
+		var sorted = Blueprint.topo_sort(nodes)
+		for (var node in sorted) {
+			this.build_from_one(node)
+		}
+	}
+
+	build_from_one(node)
 	{
 		if (node is Trigger)
 		{
@@ -41,9 +48,11 @@ class TriggerList
 		}
 		else if (node is Subgraph) 
 		{
+			var nodes = []
 			for (var item in node.all_items) {
-				this.build_lists(item[0])
+				nodes.add(item[0])
 			}
+			this.build_from_multi(nodes)
 		}
 	}
 }
