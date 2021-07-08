@@ -99,7 +99,16 @@ class Rect is Node
 			h = v_size.value.y
 		} else {
 			w = this.query_param("w").value
-			h = this.query_param("h").value		
+			h = this.query_param("h").value
+		}
+
+		if (w < 0) {
+			x = x + w
+			w = -w
+		}
+		if (h < 0) {
+			y = y + h
+			h = -h
 		}
 		
 		geo.shape.set(x, y, w, h)
