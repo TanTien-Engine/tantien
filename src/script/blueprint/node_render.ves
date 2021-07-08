@@ -61,7 +61,11 @@ class NodeRender
 	static draw_pin(x, y, pin)
 	{
 		var pt = Painter.init()
-		pt.add_circle(x, y, PIN_RADIUS, pin.color, 1.0, 12)
+		if (pin.conns.isEmpty) {
+			pt.add_circle(x, y, PIN_RADIUS, pin.color, 1.0, 12)		
+		} else {
+			pt.add_circle_filled(x, y, PIN_RADIUS, pin.color, 12)
+		}
 		Graphics.draw_painter(pt)
 
 		var dx = 0
