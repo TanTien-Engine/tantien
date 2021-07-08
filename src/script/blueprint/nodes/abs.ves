@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_NUMBER_SET
+import "blueprint.blueprint" for Blueprint
+import "maths.vector" for Vector2, Vector3, Vector4
+import "math" for Math
+
+class Abs is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_NUMBER_SET)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_NUMBER_SET)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v = Blueprint.calc_input_value(this, 0)
+		if (v.type == VAR_TYPE_INTEGER) {
+			return Variant(VAR_TYPE_INTEGER, Math.abs(v.value))
+		} else if (v.type == VAR_TYPE_NUMBER) {
+			return Variant(VAR_TYPE_NUMBER, Math.abs(v.value))
+		} else if (v.type == VAR_TYPE_NUMBER2) {
+			return Variant(VAR_TYPE_NUMBER2, Vector2(Math.abs(v.value.x), Math.abs(v.value.y)))
+		} else if (v.type == VAR_TYPE_NUMBER3) {
+			return Variant(VAR_TYPE_NUMBER3, Vector3(Math.abs(v.value.x), Math.abs(v.value.y), Math.abs(v.value.z)))
+		} else if (v.type == VAR_TYPE_NUMBER4) {
+			return Variant(VAR_TYPE_NUMBER4, Vector4(Math.abs(v.value.x), Math.abs(v.value.y), Math.abs(v.value.z), Math.abs(v.value.w)))
+		} else {
+			return nil
+		}
+	}
+}
