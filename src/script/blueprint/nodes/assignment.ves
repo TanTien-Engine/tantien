@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
+
+class Assignment is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "src",  VAR_TYPE_ANY),
+			Pin(this, "dst",  VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		return Variant(this.variable)
+	}
+
+	execute_run() 
+	{
+		var v_src = Blueprint.calc_input_value(this, 1)
+		var v_dst = Blueprint.calc_input_value(this, 2)
+		if (!v_src or !v_dst or v_src.type != v_dst.type) {
+			return
+		}
+
+		if (v_src.type == VAR_TYPE_NUMBER2)
+		{
+			v_dst.value.x = v_src.value.x
+			v_dst.value.y = v_src.value.y
+		}
+		else if (v_src.type == VAR_TYPE_NUMBER3)
+		{
+			v_dst.value.x = v_src.value.x
+			v_dst.value.y = v_src.value.y
+			v_dst.value.z = v_src.value.z
+		}
+		else if (v_src.type == VAR_TYPE_NUMBER4)
+		{
+			v_dst.value.x = v_src.value.x
+			v_dst.value.y = v_src.value.y
+			v_dst.value.z = v_src.value.z
+			v_dst.value.w = v_src.value.w			
+		}
+	}
+}

@@ -193,6 +193,15 @@ class Editor
 		if (!this.is_gui_active()) {
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
+
+		if (this.hide_nodes)
+		{
+			import "blueprint.blackboard" for BLACKBOARD
+			BLACKBOARD.mouse_pos.set(x, y)
+
+			import "editorgraph.event_types" for EVENT_MOUSE_DRAG
+			this.trigger_list.run(EVENT_MOUSE_DRAG)
+		}
 	}
 
 	mousepressed(x, y, btn)

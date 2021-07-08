@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "aigraph.behavior" for STATUS_SUCCESS
@@ -13,8 +13,9 @@ class Translate is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "prev", VAR_TYPE_PORT),
-			Pin(this, "geo",  VAR_TYPE_GEO),
+			Pin(this, "prev",   VAR_TYPE_PORT),
+			Pin(this, "geo",    [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "offset", VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -28,20 +29,46 @@ class Translate is Node
 
 	behavior_tick()
 	{
-		var v_geo = Blueprint.calc_input_value(this, 1)
-		if (!v_geo) {
-			return STATUS_SUCCESS
-		}
-
-		var dx = this.query_param("dx").value
-		var dy = this.query_param("dy").value
-		v_geo.value.shape.translate(dx, dy)
-
+		this.translate()
 		return STATUS_SUCCESS
 	}
 
 	render_run()
 	{
 		this.behavior_tick()
+	}
+
+	execute_run() 
+	{
+		this.translate()
+	}
+
+	translate()
+	{
+		var v_geo = Blueprint.calc_input_value(this, 1)
+		if (!v_geo) {
+			return false
+		}
+
+		var dx = 0
+		var dy = 0
+		var v_offset = Blueprint.calc_input_value(this, 2)
+		if (v_offset) {
+			dx = v_offset.value.x
+			dy = v_offset.value.y
+		} else {
+			dx = this.query_param("dx").value
+			dy = this.query_param("dy").value
+		}
+
+		if (v_geo.type == VAR_TYPE_ARRAY) {
+			for (var geo in v_geo.value) {
+				geo.value.shape.translate(dx, dy)
+			}
+		} else {
+			v_geo.value.shape.translate(dx, dy)
+		}
+
+		return true
 	}
 }
