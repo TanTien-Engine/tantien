@@ -25,6 +25,7 @@ class ListClear is Node
 		var v_list = Blueprint.calc_input_value(this, 1)
 		if (v_list) {
 			v_list.value.clear()
+			Blueprint.send_pin_dirty_root(this.imports[1])
 		}
 	}
 }

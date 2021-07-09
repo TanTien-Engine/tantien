@@ -69,6 +69,8 @@ class Translate is Node
 			v_geo.value.shape.translate(dx, dy)
 		}
 
+		Blueprint.send_pin_dirty_root(this.imports[1])
+
 		return true
 	}
 }

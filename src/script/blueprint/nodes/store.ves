@@ -26,6 +26,15 @@ class Store is Node
 		this.var_name = "store"
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		} else {
+			Blueprint.send_pin_dirty(this.imports[0])		
+		}
+	}
+	
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this, 0)

@@ -25,6 +25,11 @@ class Input is Node
 		this.parent_pin_idx = -1
 	}	
 
+	on_pin_dirty(pin)
+	{
+		Blueprint.send_pin_dirty(this.parent_node.imports[this.parent_pin_idx])
+	}
+
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder

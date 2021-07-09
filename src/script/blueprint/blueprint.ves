@@ -1,6 +1,8 @@
 import "blueprint.connecting" for Connecting
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
+var DIRTY_TIMESTAMP = 0
+
 class Blueprint
 {
 	static topo_sort(nodes)
@@ -233,5 +235,32 @@ class Blueprint
 		}
 
 		return port_num > 0
+	}
+
+	static send_pin_dirty(pin)
+	{
+		if (pin.dirty_timestamp == DIRTY_TIMESTAMP) {
+			return
+		}
+
+		pin.dirty_timestamp = DIRTY_TIMESTAMP
+
+		pin.node.on_pin_dirty(pin)
+
+		if (pin.is_input) {
+			for (var conn in pin.conns) {
+				this.send_pin_dirty(conn.from)
+			}
+		} else {
+			for (var conn in pin.conns) {
+				this.send_pin_dirty(conn.to)
+			}
+		}
+	}
+
+	static send_pin_dirty_root(pin)
+	{
+		DIRTY_TIMESTAMP = DIRTY_TIMESTAMP + 1
+		this.send_pin_dirty(pin)
 	}
 }

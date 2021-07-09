@@ -20,6 +20,12 @@ class Polyline is Node
 		this.layout()
 
 		this.geo = nil
+		this.geo_dirty = false
+	}
+
+	on_pin_dirty(pin)
+	{
+		this.geo_dirty = true
 	}
 
 	calc_value(idx)
@@ -30,8 +36,7 @@ class Polyline is Node
 
 	on_gui_dirty() 
 	{
-		var geo = this.get_geo()
-		this.update_geo(geo)
+		this.geo_dirty = true
 	}
 
 	geo_solver_gen(scene)
@@ -48,6 +53,10 @@ class Polyline is Node
 			this.geo.shape = tt_Polyline.init()
 			this.update_geo(this.geo)
 		}
+		else if (this.geo_dirty)
+		{
+			this.update_geo(this.geo)
+		}
 
 		return this.geo
 	}
@@ -56,5 +65,6 @@ class Polyline is Node
 	{
 		var vertices = this.query_param("vertices").value
 		geo.shape.set_vertices(vertices)
+		this.geo_dirty = false
 	}
 }

@@ -23,6 +23,12 @@ class Line is Node
 		this.layout()
 
 		this.geo = nil
+		this.geo_dirty = false
+	}
+
+	on_pin_dirty(pin)
+	{
+		this.geo_dirty = true
 	}
 
 	calc_value(idx)
@@ -33,8 +39,7 @@ class Line is Node
 
 	on_gui_dirty() 
 	{
-		var geo = this.get_geo()
-		this.update_geo(geo)
+		this.geo_dirty = true
 	}
 
 	geo_solver_gen(scene)
@@ -51,6 +56,10 @@ class Line is Node
 			this.geo.shape = tt_Line.init()
 			this.update_geo(this.geo)
 		}
+		else if (this.geo_dirty)
+		{
+			this.update_geo(this.geo)
+		}
 
 		return this.geo
 	}
@@ -61,6 +70,8 @@ class Line is Node
 		var y0 = this.query_param("y0").value
 		var x1 = this.query_param("x1").value
 		var y1 = this.query_param("y1").value
-		geo.shape.set(x0, y0, x1, y1)	
+		geo.shape.set(x0, y0, x1, y1)
+
+		this.geo_dirty = false
 	}	
 }

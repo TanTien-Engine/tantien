@@ -35,6 +35,12 @@ class Rect is Node
 		this.layout()
 
 		this.geo = nil
+		this.geo_dirty = false
+	}
+
+	on_pin_dirty(pin)
+	{
+		this.geo_dirty = true
 	}
 
 	calc_value(idx)
@@ -56,8 +62,7 @@ class Rect is Node
 
 	on_gui_dirty() 
 	{
-		var geo = this.get_geo()
-		this.update_geo(geo)
+		this.geo_dirty = true
 	}
 
 	geo_solver_gen(scene)
@@ -72,6 +77,10 @@ class Rect is Node
 		{
 			this.geo = VarGeo()
 			this.geo.shape = tt_Rect.init()
+			this.update_geo(this.geo)
+		}
+		else if (this.geo_dirty)
+		{
 			this.update_geo(this.geo)
 		}
 
@@ -115,5 +124,7 @@ class Rect is Node
 
 		geo.render_style["fill"] = this.query_param("fill").value
 		geo.render_style["color"] = this.query_param("color").value
+
+		this.geo_dirty = false
 	}
 }

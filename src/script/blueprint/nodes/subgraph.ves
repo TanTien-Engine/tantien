@@ -46,6 +46,21 @@ class Subgraph is Node
 		this.op_node = nil
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) 
+		{
+			for (var item in this.all_items)
+			{
+				var node = item[0]
+				if (node is Input and node.var_name == pin.name) {
+					Blueprint.send_pin_dirty(node.exports[0])
+					return
+				}
+			}
+		}
+	}
+
 	calc_value(idx)
 	{
 		var name = nil

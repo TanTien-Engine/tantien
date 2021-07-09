@@ -27,6 +27,7 @@ class ListRemove is Node
 		var v_index = Blueprint.calc_input_value(this, 2)
 		if (v_list and v_index) {
 			v_list.value.removeAt(v_index.value)
+			Blueprint.send_pin_dirty_root(this.imports[1])
 		}
 	}
 }
