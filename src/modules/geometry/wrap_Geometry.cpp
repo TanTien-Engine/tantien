@@ -248,6 +248,25 @@ void w_Polyline_clone()
     proxy->obj = dst;
 }
 
+void w_Polyline_get_vertices()
+{
+    auto pl = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto& vertices = pl->GetVertices();
+
+    ves_pop(1);
+    ves_newlist(vertices.size() * 2);
+    for (int i = 0, n = vertices.size(); i < n; ++i)
+    {
+        ves_pushnumber(vertices[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
 void w_Polyline_set_vertices()
 {
     auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
@@ -383,6 +402,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Circle.set(_,_,_)") == 0) return w_Circle_set;
 
     if (strcmp(signature, "Polyline.clone()") == 0) return w_Polyline_clone;
+    if (strcmp(signature, "Polyline.get_vertices()") == 0) return w_Polyline_get_vertices;
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
 
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;

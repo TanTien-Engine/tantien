@@ -63,9 +63,16 @@ foreign class Circle is Shape2D
 foreign class Polyline is Shape2D
 {
 	init() {}
+	init(vertices) { this.set_vertices(vertices) }
+
+	toString() {
+		var vertices = this.get_vertices()
+		return "::geometry::Polyline.init(%(vertices))"
+	}
 
 	foreign clone()
 
+	foreign get_vertices()
 	// vertices: list
 	foreign set_vertices(vertices)
 }

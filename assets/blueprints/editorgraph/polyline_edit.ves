@@ -1,0 +1,76 @@
+var node0 = ::geograph::nodes::polyline::Polyline()
+node0.query_param("vertices").value = [  ]
+
+_editor.add_node(node0, -191.89443095665, -13.514399165482)
+
+var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node1, -2.8944309566534, -12.514399165482)
+
+var node2 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node2, -469.15751563303, -150.21423047713)
+
+var node3 = ::blueprint::nodes::number2::Number2()
+
+node3.value.set(0, 0)
+
+_editor.add_node(node3, -599.49968349302, -31.674713658601)
+
+var node4 = ::blueprint::nodes::number2::Number2()
+
+node4.value.set(0, 121.11389160156)
+
+_editor.add_node(node4, -600.01281772986, -132.25370018204)
+
+var node5 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node5, -118.28580754214, 329.16171172518)
+
+var node6 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
+
+_editor.add_node(node6, -702.25738525391, 416.16076660156)
+
+var node7 = ::editorgraph::nodes::coord_trans::CoordTrans()
+
+_editor.add_node(node7, -743.88580838644, 240.7089845218)
+
+var node8 = ::blueprint::nodes::list_add::ListAdd()
+node8.query_param("unique").value = false
+
+_editor.add_node(node8, -392.29587205621, 260.00281057203)
+
+var node9 = ::blueprint::nodes::array::Array()
+node9.query_param("serialize").value = false
+
+_editor.add_node(node9, -554.71309806407, 327.2313441924)
+
+var node10 = ::geograph::nodes::circle::Circle()
+node10.query_param("x").value = 0
+node10.query_param("y").value = 0
+node10.query_param("r").value = 15.641954421997
+node10.query_param("fill").value = false
+node10.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node10, -579.65121082702, 164.9651633557)
+
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
+node11.load_from_file(_editor, "points_edit.ves")
+
+_editor.add_node(node11, -177.44193656509, -147.63732944757)
+
+var node12 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node12, 81.456413874041, 417.67146295537)
+
+Blueprint.connect(node9, "all", node12, "geos")
+Blueprint.connect(node9, "all", node11, "points")
+Blueprint.connect(node9, "all", node0, "vertices")
+Blueprint.connect(node0, "geo", node1, "geos")
+Blueprint.connect(node6, "pos", node7, "screen")
+Blueprint.connect(node7, "world", node10, "center")
+Blueprint.connect(node9, "all", node8, "list")
+Blueprint.connect(node10, "new_geo", node8, "add")
+Blueprint.connect(node6, "event", node5, "event")
+Blueprint.connect(node3, "v2", node2, "in0")
+Blueprint.connect(node4, "v2", node2, "in1")

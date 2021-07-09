@@ -4,7 +4,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_NUMBER3
 import "geograph.variant" for VAR_TYPE_GEO
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle
+import "geometry" for Line, Rect, Circle, Polyline
 import "maths.vector" for Vector3
 
 class DrawGeometry is Node
@@ -91,6 +91,12 @@ class DrawGeometry is Node
 			} else {
 				pt.add_circle(c[0], c[1], c[2], col_array, 2.0, 24)
 			}
+		}
+		else if (shape is Polyline)
+		{
+			var verts = shape.get_vertices()
+
+			pt.add_polyline(verts, col_array, 2.0)
 		}
 	}
 }
