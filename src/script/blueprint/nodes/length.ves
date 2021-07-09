@@ -1,0 +1,52 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
+import "math" for Math
+
+class Length is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v = Blueprint.calc_input_value(this, 0)
+		if (v.type == VAR_TYPE_NUMBER2) {
+			var len = Math.sqrt(Math.pow(v.value.x, 2.0) + Math.pow(v.value.y, 2.0))
+			return Variant(VAR_TYPE_NUMBER, len)
+		} else if (v.type == VAR_TYPE_NUMBER3) {
+			var len = Math.sqrt(Math.pow(v.value.x, 2.0) + Math.pow(v.value.y, 2.0) + Math.pow(v.value.z, 2.0))
+			return Variant(VAR_TYPE_NUMBER, len)
+		} else if (v.type == VAR_TYPE_NUMBER4) {
+			var len = Math.sqrt(Math.pow(v.value.x, 2.0) + Math.pow(v.value.y, 2.0) + Math.pow(v.value.z, 2.0) + Math.pow(v.value.w, 2.0))
+			return Variant(VAR_TYPE_NUMBER, len)
+		} else {
+			return nil
+		}
+	}
+
+	shader_gen(node, idx)
+	{
+		import "shadergraph.shader_builder" for ShaderBuilder
+
+		var v = ShaderBuilder.gen_child(node, "v")
+		if (v) {
+			var bb = node.find_value("bb")
+			return bb.length(v)		
+		} else {
+			return nil
+		}
+	}
+}
