@@ -1,0 +1,18 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/multi_rects_edit.ves")
+
+_editor.add_node(node0, -24, -8)
+
+var node1 = ::blueprint::nodes::array::Array()
+node1.query_param("serialize").value = true
+
+node1.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-123.40808868408, -85.745056152344, 90.217132568359, 77.108657836914), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-8.1306438446045, -69.552238464355, 30.843463897705, 36.626613616943), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })) ]
+
+_editor.add_node(node1, -230.86381162241, -72.913565551328)
+
+var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node2, 24.583222688006, -109.79629176533)
+
+Blueprint.connect(node1, "all", node2, "geos")
+Blueprint.connect(node1, "all", node0, "rects")

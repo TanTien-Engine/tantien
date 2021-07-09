@@ -1,0 +1,13 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/multi_circles_edit.ves")
+
+_editor.add_node(node0, 34, 99)
+
+var node1 = ::blueprint::nodes::array::Array()
+node1.query_param("serialize").value = true
+
+node1.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(28, -13, 27.202941894531), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-782.21545410156, -521.84967041016, 0.7513148188591), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-76, 89.5, 19.235383987427), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(104, 37.5, 56.603885650635), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })) ]
+
+_editor.add_node(node1, -172, 99)
+
+Blueprint.connect(node1, "all", node0, "circles")

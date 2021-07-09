@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
@@ -15,6 +15,7 @@ class Circle is Node
 
 		this.imports = [
 			Pin(this, "center", VAR_TYPE_NUMBER2),
+			Pin(this, "raduis", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -86,11 +87,17 @@ class Circle is Node
 			y = v_center.value.y
 		} else {
 			x = this.query_param("x").value
-			y = this.query_param("y").value		
+			y = this.query_param("y").value
 		}
 
-		var r = this.query_param("r").value
-
+		var r = 0
+		var v_radius = Blueprint.calc_input_value(this, 1)
+		if (v_radius) {
+			r = v_radius.value.x
+		} else {
+			r = this.query_param("r").value
+		}
+		
 		geo.shape.set(x, y, r)
 
 		geo.render_style["fill"] = this.query_param("fill").value
