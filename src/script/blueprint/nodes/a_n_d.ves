@@ -1,0 +1,30 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN
+import "blueprint.blueprint" for Blueprint
+
+class AND is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_BOOLEAN),
+			Pin(this, "b", VAR_TYPE_BOOLEAN)
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_BOOLEAN)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		var v_b = Blueprint.calc_input_value(this, 1)
+		var ret = v_a and v_a.value and v_b and v_b.value
+		return Variant(VAR_TYPE_BOOLEAN, ret)
+	}
+}
