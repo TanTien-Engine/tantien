@@ -1,6 +1,6 @@
 var node0 = ::aigraph::nodes::behavior_tree::BehaviorTree()
 
-_editor.add_node(node0, 302.35862666521, 102.1091595939)
+_editor.add_node(node0, 298.72226302885, 85.745523230264)
 
 var node1 = ::aigraph::nodes::sequence::Sequence()
 
@@ -8,7 +8,7 @@ _editor.add_node(node1, 145.21225574507, 57.189179204103)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
 
-_editor.add_node(node2, 490.52386907253, 186.33029375167)
+_editor.add_node(node2, 477.21583000416, 76.017746794495)
 
 var node3 = ::geograph::nodes::circle::Circle()
 node3.query_param("x").value = 0
@@ -17,7 +17,7 @@ node3.query_param("r").value = 100
 node3.query_param("fill").value = false
 node3.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node3, -320.42623168287, 138.97571017975)
+_editor.add_node(node3, 70.714264184899, 370.51290026239)
 
 var node4 = ::geograph::nodes::translate::Translate()
 node4.query_param("dx").value = 1
@@ -29,12 +29,34 @@ var node5 = ::geograph::nodes::translate::Translate()
 node5.query_param("dx").value = 0
 node5.query_param("dy").value = 1
 
-_editor.add_node(node5, -67.226759350989, -0.69623862022213)
+_editor.add_node(node5, -69.888759350989, -28.647238620222)
 
-Blueprint.connect(node3, "geo", node5, "geo")
-Blueprint.connect(node3, "geo", node4, "geo")
+var node6 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node6, 507, 527.5)
+
+var node7 = ::editorgraph::nodes::blueprint_changed::BlueprintChanged()
+
+_editor.add_node(node7, 213.45454545455, 553.50826446281)
+
+var node8 = ::blueprint::nodes::list_add::ListAdd()
+node8.query_param("unique").value = false
+
+_editor.add_node(node8, 247.89256198347, 438.21900826446)
+
+var node9 = ::blueprint::nodes::array::Array()
+node9.query_param("serialize").value = false
+
+_editor.add_node(node9, -312.36363636364, 247.22727272727)
+
+Blueprint.connect(node9, "all", node5, "geo")
+Blueprint.connect(node9, "all", node4, "geo")
 Blueprint.connect(node4, "next", node1, "child0")
 Blueprint.connect(node5, "next", node1, "child1")
 Blueprint.connect(node1, "parent", node0, "root")
 Blueprint.connect(node0, "next", node2, "prev")
-Blueprint.connect(node3, "geo", node2, "geos")
+Blueprint.connect(node9, "all", node2, "geos")
+Blueprint.connect(node7, "event", node6, "event")
+Blueprint.connect(node8, "next", node6, "action")
+Blueprint.connect(node9, "all", node8, "list")
+Blueprint.connect(node3, "new_geo", node8, "add")
