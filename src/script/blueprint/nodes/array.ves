@@ -1,7 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ANY, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.node_param" for NodeParam
 
 class Array is Node
@@ -10,14 +9,8 @@ class Array is Node
 	{
 		super.init()
 
-		this.imports = [
-			Pin(this, "index", VAR_TYPE_NUMBER)		// todo: rm
-		]
 		this.exports = [
-			Pin(this, "all",   VAR_TYPE_ARRAY),
-			Pin(this, "one",   VAR_TYPE_ANY),		// todo: rm
-			Pin(this, "front", VAR_TYPE_ANY),
-			Pin(this, "back",  VAR_TYPE_ANY),			
+			Pin(this, "all", VAR_TYPE_ARRAY),
 		]
 
 		this.params.add(NodeParam("serialize", false))
@@ -27,48 +20,9 @@ class Array is Node
 		this.list = []
 	}
 
-	on_pin_dirty(pin)
-	{
-		if (pin == this.exports[0])
-		{
-			Blueprint.send_pin_dirty(this.exports[2])
-			Blueprint.send_pin_dirty(this.exports[3])			
-		}
-		else if (pin == this.exports[2] or pin == this.exports[3])
-		{
-			Blueprint.send_pin_dirty(this.exports[0])
-		}
-	}
-
 	calc_value(idx) 
 	{
-		if (idx == 0) 
-		{
-			return Variant(VAR_TYPE_ARRAY, this.list)
-		} 
-		else if (idx == 1) 
-		{
-			var v_index = Blueprint.calc_input_value(this, 0)
-			if (v_index) {
-				var idx = v_index.value
-				if (idx < this.list.count) {
-					return Variant(VAR_TYPE_ANY, this.list[idx])
-				}			
-			}
-		}
-		else if (idx == 2)
-		{
-			if (!this.list.isEmpty) {
-				return Variant(this.list[0])
-			}
-		}
-		else if (idx == 3)
-		{
-			if (!this.list.isEmpty) {
-				return Variant(this.list[this.list.count - 1])
-			}
-		}
-		return nil
+		return Variant(VAR_TYPE_ARRAY, this.list)
 	}
 
 	to_string(name) 
