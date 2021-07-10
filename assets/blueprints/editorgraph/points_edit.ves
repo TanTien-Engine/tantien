@@ -23,7 +23,7 @@ _editor.add_node(node4, -898.22737342608, -942.64015897099)
 var node5 = ::blueprint::nodes::array::Array()
 node5.query_param("serialize").value = false
 
-_editor.add_node(node5, -895.38088936843, -653.2272698003)
+_editor.add_node(node5, -1138.35609598, -687.93801360195)
 
 var node6 = ::blueprint::nodes::branch::Branch()
 
@@ -83,7 +83,7 @@ var node17 = ::blueprint::nodes::store::Store()
 
 node17.var_name = "selected"
 
-_editor.add_node(node17, -736.81246736193, -634.01711887515)
+_editor.add_node(node17, -739.89141607131, -656.08291795907)
 
 var node18 = ::blueprint::nodes::load::Load()
 
@@ -206,8 +206,23 @@ node37.var_name = "selected"
 
 _editor.add_node(node37, -81.967651367186, -114.64517211914)
 
+var node38 = ::blueprint::nodes::input::Input()
+
+node38.var_name = "selection"
+node38.var_type = "array"
+
+_editor.add_node(node38, -894.34648224319, -646.78691354151)
+
+Blueprint.connect(node38, "var", node17, "var")
+Blueprint.connect(node17, "var", node37, "var")
+Blueprint.connect(node37, "var", node36, "list")
+Blueprint.connect(node17, "var", node34, "var")
+Blueprint.connect(node17, "var", node19, "var")
+Blueprint.connect(node17, "var", node18, "var")
 Blueprint.connect(node31, "var", node24, "var")
 Blueprint.connect(node24, "var", node35, "var")
+Blueprint.connect(node35, "var", node33, "geos")
+Blueprint.connect(node34, "var", node33, "selected")
 Blueprint.connect(node24, "var", node30, "var")
 Blueprint.connect(node24, "var", node29, "var")
 Blueprint.connect(node29, "var", node32, "geos")
@@ -218,22 +233,13 @@ Blueprint.connect(node20, "var", node21, "var")
 Blueprint.connect(node9, "pos", node10, "screen")
 Blueprint.connect(node10, "world", node11, "a")
 Blueprint.connect(node22, "var", node11, "b")
-Blueprint.connect(node9, "event", node8, "event")
-Blueprint.connect(node13, "next", node8, "action")
-Blueprint.connect(node5, "all", node17, "var")
-Blueprint.connect(node17, "var", node37, "var")
-Blueprint.connect(node37, "var", node36, "list")
-Blueprint.connect(node17, "var", node34, "var")
-Blueprint.connect(node35, "var", node33, "geos")
-Blueprint.connect(node34, "var", node33, "selected")
-Blueprint.connect(node17, "var", node19, "var")
 Blueprint.connect(node19, "var", node12, "geo")
 Blueprint.connect(node11, "v", node12, "offset")
 Blueprint.connect(node12, "next", node13, "prev")
 Blueprint.connect(node10, "world", node13, "src")
 Blueprint.connect(node23, "var", node13, "dst")
-Blueprint.connect(node17, "var", node18, "var")
-Blueprint.connect(node18, "var", node3, "geos")
+Blueprint.connect(node9, "event", node8, "event")
+Blueprint.connect(node13, "next", node8, "action")
 Blueprint.connect(node4, "v3", node3, "color")
 Blueprint.connect(node0, "pos", node2, "screen")
 Blueprint.connect(node2, "world", node28, "center")

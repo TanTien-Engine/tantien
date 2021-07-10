@@ -1,7 +1,8 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Line as tt_Line
 
@@ -11,8 +12,13 @@ class Line is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "p0", VAR_TYPE_NUMBER2),
+			Pin(this, "p1", VAR_TYPE_NUMBER2),
+		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "new_geo", VAR_TYPE_GEO),
 		]
 
 		this.params.add(NodeParam("x0", 0.0, { "min" : -1000, "max" : 1000 }))
@@ -33,8 +39,19 @@ class Line is Node
 
 	calc_value(idx)
 	{
-		var geo = this.get_geo()
-		return Variant(VAR_TYPE_GEO, geo)
+		if (idx == 0)
+		{
+			var geo = this.get_geo()
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		else if (idx == 1)
+		{
+			var geo = VarGeo()
+			geo.shape = tt_Line.init()
+			this.update_geo(geo)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		return nil
 	}
 
 	on_gui_dirty() 
@@ -66,10 +83,41 @@ class Line is Node
 
 	update_geo(geo)
 	{
-		var x0 = this.query_param("x0").value
-		var y0 = this.query_param("y0").value
-		var x1 = this.query_param("x1").value
-		var y1 = this.query_param("y1").value
+		var x0 = 0
+		var y0 = 0
+		var x1 = 0
+		var y1 = 0
+
+		var v_p0 = Blueprint.calc_input_value(this, 0)
+		if (v_p0 and (v_p0.type == VAR_TYPE_NUMBER2 or v_p0.type == VAR_TYPE_GEO)) {
+			if (v_p0.type == VAR_TYPE_NUMBER2) {
+				x0 = v_p0.value.x
+				y0 = v_p0.value.y
+			} else {
+				var circle = v_p0.value.shape.get()
+				x0 = circle[0]
+				y0 = circle[1]
+			}
+		} else {
+			x0 = this.query_param("x0").value
+			y0 = this.query_param("y0").value
+		}
+
+		var v_p1 = Blueprint.calc_input_value(this, 1)
+		if (v_p1 and (v_p1.type == VAR_TYPE_NUMBER2 or v_p1.type == VAR_TYPE_GEO)) {
+			if (v_p1.type == VAR_TYPE_NUMBER2) {
+				x1 = v_p1.value.x
+				y1 = v_p1.value.y
+			} else {
+				var circle = v_p1.value.shape.get()
+				x1 = circle[0]
+				y1 = circle[1]
+			}
+		} else {
+			x1 = this.query_param("x1").value
+			y1 = this.query_param("y1").value
+		}
+
 		geo.shape.set(x0, y0, x1, y1)
 
 		this.geo_dirty = false

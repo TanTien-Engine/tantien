@@ -11,11 +11,13 @@ class Array is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "index", VAR_TYPE_NUMBER)
+			Pin(this, "index", VAR_TYPE_NUMBER)		// todo: rm
 		]
 		this.exports = [
 			Pin(this, "all",   VAR_TYPE_ARRAY),
-			Pin(this, "one",   VAR_TYPE_ANY),
+			Pin(this, "one",   VAR_TYPE_ANY),		// todo: rm
+			Pin(this, "front", VAR_TYPE_ANY),
+			Pin(this, "back",  VAR_TYPE_ANY),			
 		]
 
 		this.params.add(NodeParam("serialize", false))
@@ -23,6 +25,19 @@ class Array is Node
 		this.layout()
 
 		this.list = []
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin == this.exports[0])
+		{
+			Blueprint.send_pin_dirty(this.exports[2])
+			Blueprint.send_pin_dirty(this.exports[3])			
+		}
+		else if (pin == this.exports[2] or pin == this.exports[3])
+		{
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
 	}
 
 	calc_value(idx) 
@@ -43,7 +58,15 @@ class Array is Node
 		}
 		else if (idx == 2)
 		{
-			return Variant(this.list.isEmpty)
+			if (!this.list.isEmpty) {
+				return Variant(this.list[0])
+			}
+		}
+		else if (idx == 3)
+		{
+			if (!this.list.isEmpty) {
+				return Variant(this.list[this.list.count - 1])
+			}
 		}
 		return nil
 	}
