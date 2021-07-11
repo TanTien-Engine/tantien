@@ -22,6 +22,9 @@
 #include "modules/shader/shader.ves.inc"
 #include "modules/physics/wrap_Physics.h"
 #include "modules/physics/physics.ves.inc"
+#include "modules/io/wrap_Keyboard.h"
+#include "modules/io/Keyboard.h"
+#include "modules/io/keyboard.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -91,7 +94,8 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "model") == 0 &&
         !strcmp(module, "system") == 0 &&
         !strcmp(module, "shader") == 0 &&
-        !strcmp(module, "physics") == 0) {
+        !strcmp(module, "physics") == 0 &&
+        !strcmp(module, "keyboard") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -122,6 +126,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = shaderModuleSource;
     } else if (strcmp(module, "physics") == 0) {
         source = physicsModuleSource;
+    } else if (strcmp(module, "keyboard") == 0) {
+        source = keyboardModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -228,6 +234,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::PhysicsBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::KeyboardBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -275,6 +284,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::PhysicsBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::KeyboardBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
