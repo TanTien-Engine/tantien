@@ -1,0 +1,75 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN
+import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "gui" for GUI
+import "keyboard" for Keyboard
+
+class IsKeyPressed is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "pressed", VAR_TYPE_BOOLEAN)
+		]
+
+		this.layout()
+
+		// "none", "ctrl", "shift"
+		this.key = "none"
+
+		// for gui
+		this.key_items = ["none", "ctrl", "shift"]
+		this.key_selected = -1
+	}
+
+	calc_value(idx)
+	{
+		if (this.key == "ctrl") {
+			return Variant(Keyboard.is_ctrl_pressed())
+		} else if (this.key == "shift") {
+			return Variant(Keyboard.is_shift_pressed())		
+		} else {
+			return nil
+		}
+	}
+
+	layout() 
+	{
+		super.layout()
+
+		this.style.height = this.style.height + DEFAULT_HEIGHT
+	}
+
+	to_string(name) 
+	{
+		return "
+%(name).key = \"%(this.key)\"
+"
+	}
+
+	draw_gui(ctx) 
+	{
+		var dirty = false
+
+		var x = this.pos.x - this.style.width * 0.5
+		var y = this.pos.y + this.style.height* 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
+
+		if (this.key_selected < 0) {
+			this.key_selected = this.key_items.query_index(this.key)
+		}
+
+		var item = GUI.combo(ctx, "key", this.key_selected, this.key_items, x, y, 80)
+		if (item != this.key_selected) 
+		{
+			this.key_selected = item
+			this.key = this.key_items[item]
+			dirty = true
+		}
+
+		return dirty
+	}
+}
