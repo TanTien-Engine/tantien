@@ -8,6 +8,7 @@ import "blueprint.nodes.integer" for Integer
 import "blueprint.nodes.number" for Number
 import "blueprint.nodes.load" for Load
 import "blueprint.nodes.store" for Store
+import "blueprint.nodes.output" for Output
 
 class Assignment is Node
 {
@@ -95,25 +96,37 @@ class Assignment is Node
 		return true
 	}
 
-	get_dst_node()
+	get_dst_node(dst)
 	{
-		var n_dst = Blueprint.get_input_node(this, 2)
-		if (!n_dst) {
-			return nil
-		}
-
-		if (n_dst is Load) 
+		if (dst is Load) 
 		{
-			var prev = Blueprint.get_input_node(n_dst, 0)
+			var prev = Blueprint.get_input_node(dst, 0)
 			if (prev is Store) {
 				return Blueprint.get_input_node(prev, 0)
 			}
 		}
+		else if (dst is Output)
+		{
+			var prev = Blueprint.get_input_node(dst.parent_node, dst.parent_pin_idx)
+			if (prev) {
+				return this.get_dst_node(prev)
+			}
+		}
 		else
 		{
-			return n_dst
+			return dst
 		}
 
 		return nil
+	}
+
+	get_dst_node()
+	{
+		var n_dst = Blueprint.get_input_node(this, 2)
+		if (n_dst) {
+			return this.get_dst_node(n_dst)
+		} else {
+			return nil		
+		}
 	}
 }
