@@ -61,7 +61,7 @@ _editor.add_node(node13, 220.28654474144, -844.90994733557)
 
 var node14 = ::blueprint::nodes::number2::Number2()
 
-node14.value.set(-28, 88)
+node14.value.set(90, -59)
 
 _editor.add_node(node14, -897.32651097566, -556.77342366537)
 
@@ -213,6 +213,13 @@ node38.var_type = "array"
 
 _editor.add_node(node38, -894.34648224319, -646.78691354151)
 
+var node39 = ::blueprint::nodes::output::Output()
+
+node39.var_name = "success"
+node39.var_type = "bool"
+
+_editor.add_node(node39, -60.872409670569, -614.01489850346)
+
 Blueprint.connect(node38, "var", node17, "var")
 Blueprint.connect(node17, "var", node37, "var")
 Blueprint.connect(node37, "var", node36, "list")
@@ -226,6 +233,7 @@ Blueprint.connect(node34, "var", node33, "selected")
 Blueprint.connect(node24, "var", node30, "var")
 Blueprint.connect(node24, "var", node29, "var")
 Blueprint.connect(node29, "var", node32, "geos")
+Blueprint.connect(node32, "success", node39, "var")
 Blueprint.connect(node14, "v2", node20, "var")
 Blueprint.connect(node20, "var", node23, "var")
 Blueprint.connect(node20, "var", node22, "var")
