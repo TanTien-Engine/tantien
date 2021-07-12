@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_PORT
+import "logger.logger" for Logger
+
+class Debug is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "val",  VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+			Pin(this, "val",  VAR_TYPE_ANY)
+		]
+
+		this.layout()
+
+		this.title = "debug"
+	}
+
+	to_string(name) 
+	{
+		return "
+%(name).title = \"%(this.title)\"
+"
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 1) {
+			var v_val = Blueprint.calc_input_value(this, 1)
+			if (v_val) {
+				Logger.debug("calc_val [%(this.title)] %(v_val.value)")
+				return v_val
+			}
+		}
+		return nil
+	}
+
+	execute_run() 
+	{
+		Logger.debug("exe_run [%(this.title)]")
+	}
+
+	get_title()
+	{
+		return "%(this.title)(D)"
+	}
+}
