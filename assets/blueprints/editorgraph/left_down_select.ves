@@ -4,7 +4,7 @@ _editor.add_node(node0, -940.36761134036, 80.1624449563)
 
 var node1 = ::editorgraph::nodes::trigger::Trigger()
 
-_editor.add_node(node1, 334.82187029611, 132.68249760316)
+_editor.add_node(node1, 319.94583723826, 185.57505958663)
 
 var node2 = ::editorgraph::nodes::coord_trans::CoordTrans()
 
@@ -30,11 +30,11 @@ _editor.add_node(node6, -518.39803797214, -149.25177666562)
 var node7 = ::blueprint::nodes::array::Array()
 node7.query_param("serialize").value = false
 
-_editor.add_node(node7, -977.02382659338, -280.0785006746)
+_editor.add_node(node7, -1194.0238265934, -251.0785006746)
 
 var node8 = ::blueprint::nodes::list_clear::ListClear()
 
-_editor.add_node(node8, -38.134949175783, -153.69369931035)
+_editor.add_node(node8, -295.83592588503, -228.82517940051)
 
 var node9 = ::blueprint::nodes::branch::Branch()
 
@@ -43,7 +43,7 @@ _editor.add_node(node9, 159.21287956939, -18.56937491875)
 var node10 = ::blueprint::nodes::list_add::ListAdd()
 node10.query_param("unique").value = true
 
-_editor.add_node(node10, -33.258394091077, -263.2012263847)
+_editor.add_node(node10, -274.36971907509, -380.46677580693)
 
 var node11 = ::blueprint::nodes::list_clear::ListClear()
 
@@ -61,13 +61,13 @@ var node13 = ::blueprint::nodes::input::Input()
 node13.var_name = "selected"
 node13.var_type = "array"
 
-_editor.add_node(node13, -975.86930564347, -354.30864557082)
+_editor.add_node(node13, -1192.8693056435, -325.30864557082)
 
 var node14 = ::blueprint::nodes::store::Store()
 
 node14.var_name = "tmp_list"
 
-_editor.add_node(node14, -836.84368341618, -280.08341702548)
+_editor.add_node(node14, -1053.8436834162, -251.08341702548)
 
 var node15 = ::blueprint::nodes::load::Load()
 
@@ -85,7 +85,7 @@ var node17 = ::blueprint::nodes::load::Load()
 
 node17.var_name = "tmp_list"
 
-_editor.add_node(node17, -172.969894924, -318.09558482878)
+_editor.add_node(node17, -414.08121990801, -435.36113425101)
 
 var node18 = ::blueprint::nodes::load::Load()
 
@@ -99,42 +99,97 @@ _editor.add_node(node19, -32.9784323473, -60.576753309797)
 
 var node20 = ::blueprint::nodes::list_clear::ListClear()
 
-_editor.add_node(node20, -464.39195464206, -326.09251684257)
+_editor.add_node(node20, -705.50327962607, -443.3580662648)
 
 var node21 = ::blueprint::nodes::branch::Branch()
 
-_editor.add_node(node21, -309.19054118126, -245.64357592412)
+_editor.add_node(node21, -550.92278748833, -377.19031577671)
 
 var node22 = ::editorgraph::nodes::is_key_pressed::IsKeyPressed()
 
 node22.key = "ctrl"
 
-_editor.add_node(node22, -461.33509241678, -260.81014912119)
+_editor.add_node(node22, -702.44641740079, -378.07569854342)
 
 var node23 = ::blueprint::nodes::store::Store()
 
 node23.var_name = "selection"
 
-_editor.add_node(node23, -841.59356189616, -363.91304670717)
+_editor.add_node(node23, -1058.5935618962, -334.91304670717)
 
 var node24 = ::blueprint::nodes::load::Load()
 
 node24.var_name = "selection"
 
-_editor.add_node(node24, -178.18259801943, -164.0632893758)
+_editor.add_node(node24, -435.88357472867, -239.19476946596)
 
 var node25 = ::blueprint::nodes::load::Load()
 
 node25.var_name = "selection"
 
-_editor.add_node(node25, -596.66490653688, -337.61701592747)
+_editor.add_node(node25, -837.77623152089, -454.8825653497)
 
 var node26 = ::blueprint::nodes::load::Load()
 
 node26.var_name = "selection"
 
-_editor.add_node(node26, -175.17735422365, -273.00395334475)
+_editor.add_node(node26, -416.28867920766, -390.26950276698)
 
+var node27 = ::blueprint::nodes::boolean::Boolean()
+
+node27.value = false
+
+_editor.add_node(node27, -1199.1238014915, -425.11101185192)
+
+var node28 = ::blueprint::nodes::store::Store()
+
+node28.var_name = "success"
+
+_editor.add_node(node28, -1060.1069572937, -455.0153762772)
+
+var node29 = ::blueprint::nodes::load::Load()
+
+node29.var_name = "success"
+
+_editor.add_node(node29, -160.7197075095, -236.53779291434)
+
+var node30 = ::blueprint::nodes::assignment::Assignment()
+
+_editor.add_node(node30, -30.79321295941, -201.9198278804)
+
+var node31 = ::blueprint::nodes::boolean::Boolean()
+
+node31.value = false
+
+_editor.add_node(node31, -164.52726242329, -181.63431807589)
+
+var node32 = ::blueprint::nodes::assignment::Assignment()
+
+_editor.add_node(node32, 6.3407178712825, -368.2662490661)
+
+var node33 = ::blueprint::nodes::load::Load()
+
+node33.var_name = "success"
+
+_editor.add_node(node33, -130.39295334733, -452.02563214536)
+
+var node34 = ::blueprint::nodes::boolean::Boolean()
+
+node34.value = true
+
+_editor.add_node(node34, -129.77200312967, -396.14271296505)
+
+var node35 = ::blueprint::nodes::output::Output()
+
+node35.var_name = "success"
+node35.var_type = "bool"
+
+_editor.add_node(node35, -1059.3107543436, -398.58994459118)
+
+Blueprint.connect(node27, "v", node35, "var")
+Blueprint.connect(node27, "v", node28, "var")
+Blueprint.connect(node28, "var", node33, "var")
+Blueprint.connect(node28, "var", node29, "var")
 Blueprint.connect(node22, "pressed", node21, "cond")
 Blueprint.connect(node20, "next", node21, "false")
 Blueprint.connect(node13, "var", node23, "var")
@@ -143,6 +198,9 @@ Blueprint.connect(node23, "var", node25, "var")
 Blueprint.connect(node25, "var", node20, "list")
 Blueprint.connect(node23, "var", node24, "var")
 Blueprint.connect(node24, "var", node8, "list")
+Blueprint.connect(node8, "next", node30, "prev")
+Blueprint.connect(node31, "v", node30, "src")
+Blueprint.connect(node29, "var", node30, "dst")
 Blueprint.connect(node7, "all", node14, "var")
 Blueprint.connect(node14, "var", node18, "var")
 Blueprint.connect(node18, "var", node19, "list")
@@ -150,6 +208,9 @@ Blueprint.connect(node14, "var", node17, "var")
 Blueprint.connect(node21, "next", node10, "prev")
 Blueprint.connect(node26, "var", node10, "list")
 Blueprint.connect(node17, "var", node10, "add")
+Blueprint.connect(node10, "next", node32, "prev")
+Blueprint.connect(node34, "v", node32, "src")
+Blueprint.connect(node33, "var", node32, "dst")
 Blueprint.connect(node14, "var", node16, "var")
 Blueprint.connect(node14, "var", node15, "var")
 Blueprint.connect(node15, "var", node11, "list")
@@ -158,8 +219,8 @@ Blueprint.connect(node12, "var", node4, "in")
 Blueprint.connect(node5, "next", node4, "do")
 Blueprint.connect(node4, "next", node9, "prev")
 Blueprint.connect(node19, "empty", node9, "cond")
-Blueprint.connect(node8, "next", node9, "true")
-Blueprint.connect(node10, "next", node9, "false")
+Blueprint.connect(node30, "next", node9, "true")
+Blueprint.connect(node32, "next", node9, "false")
 Blueprint.connect(node16, "var", node6, "list")
 Blueprint.connect(node4, "out", node6, "add")
 Blueprint.connect(node0, "pos", node2, "screen")
