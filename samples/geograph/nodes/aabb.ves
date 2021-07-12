@@ -1,0 +1,54 @@
+var node0 = ::geograph::nodes::a_a_b_b::AABB()
+
+_editor.add_node(node0, -81.257895720215, 82.227621007688)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, -230.80166350837, 33.790760868568)
+
+var node2 = ::blueprint::nodes::number2::Number2()
+
+node2.value.set(284.0114440918, 0)
+
+_editor.add_node(node2, -397.96195022189, 188.72350605879)
+
+var node3 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node3, 90.98087582373, 80.54065001533)
+
+var node4 = ::blueprint::nodes::number2::Number2()
+
+node4.value.set(406.83786010742, 109.15902709961)
+
+_editor.add_node(node4, -397.01773928435, 102.38465266648)
+
+var node5 = ::geograph::nodes::draw_geometry::DrawGeometry()
+
+_editor.add_node(node5, -86.203131952515, 158.51861890258)
+
+var node6 = ::blueprint::nodes::number2::Number2()
+
+node6.value.set(307.58438110352, 109.15902709961)
+
+_editor.add_node(node6, -398.03379235845, 16.302378333275)
+
+var node7 = ::blueprint::nodes::number2::Number2()
+
+node7.value.set(282.80798339844, 66.630210876465)
+
+_editor.add_node(node7, -400.85616200872, -71.021738646044)
+
+var node8 = ::blueprint::nodes::number2::Number2()
+
+node8.value.set(233.80868530273, 154.16423034668)
+
+_editor.add_node(node8, -402.54958379888, -159.53125087848)
+
+Blueprint.connect(node2, "v2", node1, "in0")
+Blueprint.connect(node4, "v2", node1, "in1")
+Blueprint.connect(node6, "v2", node1, "in2")
+Blueprint.connect(node7, "v2", node1, "in3")
+Blueprint.connect(node8, "v2", node1, "in4")
+Blueprint.connect(node1, "list", node5, "geos")
+Blueprint.connect(node1, "list", node0, "vertices")
+Blueprint.connect(node0, "rect", node3, "geos")

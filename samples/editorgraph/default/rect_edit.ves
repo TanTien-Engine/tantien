@@ -1,0 +1,13 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/rect_edit.ves")
+
+_editor.add_node(node0, -33.45105587671, 28.241842646118)
+
+var node1 = ::blueprint::nodes::rect::Rect()
+node1.query_param("min").value.set(-74.609359632621, -34.049133388746)
+node1.query_param("max").value.set(211.74283933681, 120.70790597997)
+
+_editor.add_node(node1, -234.63143840441, 34.330886036245)
+
+Blueprint.connect(node1, "min", node0, "min")
+Blueprint.connect(node1, "max", node0, "max")
