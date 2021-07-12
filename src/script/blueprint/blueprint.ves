@@ -1,7 +1,8 @@
 import "blueprint.connecting" for Connecting
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
-var DIRTY_TIMESTAMP = 0
+var PIN_DIRTY_TIMESTAMP = 0
+var NODE_DIRTY_TIMESTAMP = 0
 
 class Blueprint
 {
@@ -239,11 +240,11 @@ class Blueprint
 
 	static send_pin_dirty(pin)
 	{
-		if (pin.dirty_timestamp == DIRTY_TIMESTAMP) {
+		if (pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
 			return
 		}
 
-		pin.dirty_timestamp = DIRTY_TIMESTAMP
+		pin.dirty_timestamp = PIN_DIRTY_TIMESTAMP
 
 		pin.node.on_pin_dirty(pin)
 
@@ -260,7 +261,30 @@ class Blueprint
 
 	static send_pin_dirty_root(pin)
 	{
-		DIRTY_TIMESTAMP = DIRTY_TIMESTAMP + 1
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
 		this.send_pin_dirty(pin)
+	}
+
+	static send_node_dirty(node)
+	{
+		if (node.dirty_timestamp == NODE_DIRTY_TIMESTAMP) {
+			return
+		}
+
+		node.dirty_timestamp = NODE_DIRTY_TIMESTAMP
+
+		node.on_node_dirty()
+
+		for (var pin in node.exports) {
+			for (var conn in pin.conns) {
+				this.send_node_dirty(conn.to.node)
+			}
+		}
+	}
+
+	static send_node_dirty_root(node)
+	{
+		NODE_DIRTY_TIMESTAMP = NODE_DIRTY_TIMESTAMP + 1
+		this.send_node_dirty(node)
 	}
 }

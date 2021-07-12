@@ -293,6 +293,7 @@ class Editor
 			var bp_node = node.components["bp"]
 			if (bp_node.draw_gui(this.gui_nodes)) {
 				bp_node.on_gui_dirty()
+				Blueprint.send_node_dirty_root(bp_node)
 				dirty = true
 			}
 		}

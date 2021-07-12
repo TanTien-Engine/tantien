@@ -37,6 +37,8 @@ class Node
 		this.dummy = false
 
 		this.selected = false
+
+		this.dirty_timestamp = 0
 	}
 
 	get_size() {
@@ -154,6 +156,7 @@ class Node
 
 	on_gui_dirty() {}
 	on_pin_dirty(pin) {}
+	on_node_dirty() {}
 
 	calc_panel_height() {
 		return DEFAULT_HEIGHT + Math.max(this.imports.count, this.exports.count) * DEFAULT_HEIGHT
