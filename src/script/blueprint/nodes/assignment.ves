@@ -3,6 +3,11 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.load" for Load
+import "blueprint.nodes.boolean" for Boolean
+import "blueprint.nodes.integer" for Integer
+import "blueprint.nodes.number" for Number
+import "blueprint.nodes.load" for Load
+import "blueprint.nodes.store" for Store
 
 class Assignment is Node
 {
@@ -33,18 +38,10 @@ class Assignment is Node
 
 		if (dirty) 
 		{
-			var prev = Blueprint.get_input_node(this, 2)
-			if (prev)
+			var n_dst = this.get_dst_node()
+			if (n_dst) 
 			{
-				if (prev is Load) 
-				{
-					var store = Blueprint.get_input_node(prev, 0)
-					if (store) {
-						prev = store
-					}
-				}
-
-				var nodes = Blueprint.get_successor_nodes(prev)
+				var nodes = Blueprint.get_successor_nodes(n_dst)
 				for (var node in nodes) {
 					node.on_gui_dirty()
 				}
@@ -80,9 +77,43 @@ class Assignment is Node
 		}
 		else
 		{
+			var n_dst = this.get_dst_node()
+			if (n_dst)
+			{
+				if (n_dst is Boolean) {
+					n_dst.value = v_src.value
+				} else if (n_dst is Integer) {
+					n_dst.value = v_src.value
+				} else if (n_dst is Number) {
+					n_dst.value = v_src.value
+				} 
+			}
+
 			return false
 		}
 
 		return true
+	}
+
+	get_dst_node()
+	{
+		var n_dst = Blueprint.get_input_node(this, 2)
+		if (!n_dst) {
+			return nil
+		}
+
+		if (n_dst is Load) 
+		{
+			var prev = Blueprint.get_input_node(n_dst, 0)
+			if (prev is Store) {
+				return Blueprint.get_input_node(prev, 0)
+			}
+		}
+		else
+		{
+			return n_dst
+		}
+
+		return nil
 	}
 }
