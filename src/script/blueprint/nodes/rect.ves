@@ -1,0 +1,46 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_RECT, VAR_TYPE_NUMBER2
+import "blueprint.node_param" for NodeParam
+import "maths.rect" for Rect as tt_Rect
+import "maths.vector" for Vector2
+
+class Rect is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "rect", VAR_TYPE_RECT),
+			Pin(this, "min",  VAR_TYPE_NUMBER2),
+			Pin(this, "max",  VAR_TYPE_NUMBER2),
+		]
+
+		this.params.add(NodeParam("min", Vector2(0, 0), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("max", Vector2(100, 100), { "min" : -1000, "max" : 1000 }))
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 0)
+		{
+			var min = this.query_param("min").value
+			var max = this.query_param("max").value
+			var rect = tt_Rect(min, max)
+			return Variant(rect)
+		}
+		else if (idx == 1)
+		{
+			return Variant(this.query_param("min").value)
+		}
+		else if (idx == 2)
+		{
+			return Variant(this.query_param("max").value)
+		}
+
+		return nil
+	}
+}

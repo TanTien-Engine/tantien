@@ -1,0 +1,74 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_RECT
+import "blueprint.blueprint" for Blueprint
+import "maths.rect" for Rect
+import "maths.vector" for Vector2
+
+class AABB is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "vertices", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "rect", VAR_TYPE_RECT),
+		]
+
+		this.layout()
+
+		this.rect = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		this.rect = nil
+	}
+
+	on_node_dirty()
+	{
+		this.rect = nil
+	}
+
+	calc_value(idx)
+	{
+		if (this.rect) {
+			return Variant(VAR_TYPE_RECT, this.rect)
+		}
+
+		var v_verts = Blueprint.calc_input_value(this, 0)
+		if (!v_verts or v_verts.value.isEmpty) {
+			return nil
+		}
+
+		var xmin = v_verts.value[0].value.x
+		var xmax = xmin
+		var ymin = v_verts.value[0].value.y
+		var ymax = ymin
+		if (v_verts.value.count > 1)
+		{
+			for (var i in 1 .. v_verts.value.count)
+			{
+				var p = v_verts.value[i].value
+				if (p.x < xmin) {
+					xmin = p.x
+				}
+				if (p.x > xmax) {
+					xmax = p.x
+				}
+				if (p.y < ymin) {
+					ymin = p.y
+				}
+				if (p.y > ymax) {
+					ymax = p.y
+				}
+			}
+		}
+
+		this.rect = Rect(Vector2(xmin, ymin), Vector2(xmax, ymax))
+		return Variant(VAR_TYPE_RECT, this.rect)
+	}
+}

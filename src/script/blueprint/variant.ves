@@ -2,6 +2,7 @@ import "graphics" for Graphics
 import "blueprint.node_style" for TB_TITLE
 import "maths" for Matrix44, Float2, Float3, Float4
 import "maths.vector" for Vector2, Vector3, Vector4
+import "maths.rect" for Rect
 
 var VAR_TYPE_NODE     = "node"
 
@@ -13,6 +14,8 @@ var VAR_TYPE_ANY      = "any"
 var VAR_TYPE_TABLE    = "table"
 var VAR_TYPE_ARRAY    = "array"
 var VAR_TYPE_FUNCTION = "func"
+
+var VAR_TYPE_RECT     = "rect"
 
 var VAR_TYPE_STRING   = "string"
 
@@ -54,6 +57,8 @@ fun get_value_type(value)
 		return VAR_TYPE_NUMBER4
 	} else if (value is Matrix44) {
 		return VAR_TYPE_MATRIX4
+	} else if (value is Rect) {
+		return VAR_TYPE_RECT		
 	} else {
 		return VAR_TYPE_UNKNOWN
 	}
@@ -90,7 +95,7 @@ class Variant
 		{
 			this.type = VAR_TYPE_NUMBER4
 			this.value = Vector4(value.x(), value.y(), value.z(), value.w())
-		}
+		}	
 		else
 		{
 			this.type = get_value_type(value)
