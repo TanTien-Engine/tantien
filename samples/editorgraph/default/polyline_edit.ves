@@ -1,0 +1,11 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/polyline_edit.ves")
+
+_editor.add_node(node0, -3, 35)
+
+var node1 = ::blueprint::nodes::array::Array()
+node1.query_param("serialize").value = false
+
+_editor.add_node(node1, -199.1309821127, 22.030719672023)
+
+Blueprint.connect(node1, "all", node0, "polyline")
