@@ -28,227 +28,192 @@ var node6 = ::blueprint::nodes::assignment::Assignment()
 
 _editor.add_node(node6, 128.44053010938, -222.36998523462)
 
-var node7 = ::editorgraph::nodes::trigger::Trigger()
+var node7 = ::blueprint::nodes::number2::Number2()
 
-_editor.add_node(node7, 392.53378800913, -780.26409533495)
+node7.value.set(-81.040270596503, -281.34042515352)
 
-var node8 = ::editorgraph::nodes::mouse_left_drag::MouseLeftDrag()
+_editor.add_node(node7, -897.32651097566, -556.77342366537)
 
-_editor.add_node(node8, -449.30349937484, -775.11776848335)
+var node8 = ::blueprint::nodes::commentary::Commentary()
 
-var node9 = ::editorgraph::nodes::coord_trans::CoordTrans()
+node8.set_size(1102.1489257813, 430.30456542969)
+node8.title = "Add"
 
-_editor.add_node(node9, -316.26721142206, -815.60505707976)
+_editor.add_node(node8, 19.083372006396, -87.48476926136)
 
-var node10 = ::blueprint::nodes::subtract::Subtract()
+var node9 = ::blueprint::nodes::store::Store()
 
-_editor.add_node(node10, -99.23669135087, -934.1808256411)
+node9.var_name = "selected"
 
-var node11 = ::geograph::nodes::translate::Translate()
-node11.query_param("dx").value = 0
-node11.query_param("dy").value = 0
+_editor.add_node(node9, -740.64273087221, -656.08291795907)
 
-_editor.add_node(node11, 69.314566020461, -863.6590785857)
+var node10 = ::blueprint::nodes::load::Load()
 
-var node12 = ::blueprint::nodes::assignment::Assignment()
+node10.var_name = "selected"
 
-_editor.add_node(node12, 220.28654474144, -844.90994733557)
+_editor.add_node(node10, -898.09141282912, -865.84286980377)
 
-var node13 = ::blueprint::nodes::number2::Number2()
+var node11 = ::blueprint::nodes::load::Load()
 
-node13.value.set(57.633844248723, 126.73302998227)
+node11.var_name = "selected"
 
-_editor.add_node(node13, -897.32651097566, -556.77342366537)
+_editor.add_node(node11, -459.50134647489, -703.84511946737)
 
-var node14 = ::blueprint::nodes::commentary::Commentary()
+var node12 = ::blueprint::nodes::store::Store()
 
-node14.set_size(1102.1489257813, 430.30456542969)
-node14.title = "Add"
+node12.var_name = "last_pos"
 
-_editor.add_node(node14, 19.083372006396, -87.48476926136)
+_editor.add_node(node12, -734.83586943976, -544.0096155217)
 
-var node15 = ::blueprint::nodes::commentary::Commentary()
+var node13 = ::blueprint::nodes::load::Load()
 
-node15.set_size(1020.3187255859, 304.48281860352)
-node15.title = "Translate"
+node13.var_name = "last_pos"
 
-_editor.add_node(node15, -23.838635848069, -713.11444171416)
+_editor.add_node(node13, -33.046468225988, -246.93707093265)
 
-var node16 = ::blueprint::nodes::store::Store()
+var node14 = ::blueprint::nodes::load::Load()
 
-node16.var_name = "selected"
+node14.var_name = "last_pos"
 
-_editor.add_node(node16, -739.89141607131, -656.08291795907)
+_editor.add_node(node14, -458.8576939454, -750.40279059502)
 
-var node17 = ::blueprint::nodes::load::Load()
+var node15 = ::blueprint::nodes::store::Store()
 
-node17.var_name = "selected"
+node15.var_name = "all_points"
 
-_editor.add_node(node17, -901.72777646548, -864.02468798559)
+_editor.add_node(node15, -737.52655699482, -744.70490914022)
 
-var node18 = ::blueprint::nodes::load::Load()
+var node16 = ::blueprint::nodes::commentary::Commentary()
 
-node18.var_name = "selected"
+node16.set_size(400, 292.4020690918)
+node16.title = "Variates"
 
-_editor.add_node(node18, -100.7194557555, -876.3084051008)
+_editor.add_node(node16, -820.56647263596, -471.32813818116)
 
-var node19 = ::blueprint::nodes::store::Store()
+var node17 = ::blueprint::nodes::commentary::Commentary()
 
-node19.var_name = "last_pos"
+node17.set_size(400, 154.11874389648)
+node17.title = "Draw"
 
-_editor.add_node(node19, -734.83586943976, -544.0096155217)
+_editor.add_node(node17, -818.00205522664, -820.16906581505)
+
+var node18 = ::blueprint::nodes::list_add::ListAdd()
+node18.query_param("unique").value = true
+
+_editor.add_node(node18, 134.02129255725, -336.4924295254)
+
+var node19 = ::geograph::nodes::circle::Circle()
+node19.query_param("x").value = 0
+node19.query_param("y").value = 0
+node19.query_param("r").value = 11.111110687256
+node19.query_param("fill").value = true
+node19.query_param("color").value.set(0, 0.62222224473953, 0.53333336114883)
+
+_editor.add_node(node19, -11.895780320281, -426.53826949537)
 
 var node20 = ::blueprint::nodes::load::Load()
 
-node20.var_name = "last_pos"
+node20.var_name = "all_points"
 
-_editor.add_node(node20, -33.046468225988, -246.93707093265)
+_editor.add_node(node20, -454.73666511794, -586.09128733939)
 
 var node21 = ::blueprint::nodes::load::Load()
 
-node21.var_name = "last_pos"
+node21.var_name = "all_points"
 
-_editor.add_node(node21, -238.13643173653, -948.2164645244)
+_editor.add_node(node21, -10.963496342561, -299.9402037783)
 
-var node22 = ::blueprint::nodes::load::Load()
+var node22 = ::blueprint::nodes::input::Input()
 
-node22.var_name = "last_pos"
+node22.var_name = "points"
+node22.var_type = "array"
 
-_editor.add_node(node22, 70.180898236881, -952.1139273911)
+_editor.add_node(node22, -893.49770519691, -733.4694825357)
 
-var node23 = ::blueprint::nodes::store::Store()
+var node23 = ::blueprint::nodes::subgraph::Subgraph()
+node23.load_from_file(_editor, "right_down_remove.ves")
 
-node23.var_name = "all_points"
+_editor.add_node(node23, -258.06289656683, -613.65056753953)
 
-_editor.add_node(node23, -737.52655699482, -744.70490914022)
+var node24 = ::blueprint::nodes::subgraph::Subgraph()
+node24.load_from_file(_editor, "left_down_select.ves")
 
-var node24 = ::blueprint::nodes::commentary::Commentary()
+_editor.add_node(node24, 73.6814005375, 13.083992149198)
 
-node24.set_size(400, 292.4020690918)
-node24.title = "Variates"
+var node25 = ::blueprint::nodes::load::Load()
 
-_editor.add_node(node24, -820.56647263596, -471.32813818116)
+node25.var_name = "selected"
 
-var node25 = ::blueprint::nodes::commentary::Commentary()
+_editor.add_node(node25, -146.763156417, -13.835282008692)
 
-node25.set_size(400, 154.11874389648)
-node25.title = "Draw"
+var node26 = ::blueprint::nodes::load::Load()
 
-_editor.add_node(node25, -818.00205522664, -820.16906581505)
+node26.var_name = "all_points"
 
-var node26 = ::blueprint::nodes::list_add::ListAdd()
-node26.query_param("unique").value = true
+_editor.add_node(node26, -147.11726371684, 37.686262387798)
 
-_editor.add_node(node26, 134.02129255725, -336.4924295254)
+var node27 = ::blueprint::nodes::input::Input()
 
-var node27 = ::geograph::nodes::circle::Circle()
-node27.query_param("x").value = 0
-node27.query_param("y").value = 0
-node27.query_param("r").value = 11.111110687256
-node27.query_param("fill").value = true
-node27.query_param("color").value.set(0, 0.62222224473953, 0.53333336114883)
+node27.var_name = "selection"
+node27.var_type = "array"
 
-_editor.add_node(node27, -11.895780320281, -426.53826949537)
+_editor.add_node(node27, -894.34648224319, -646.78691354151)
 
-var node28 = ::blueprint::nodes::load::Load()
+var node28 = ::blueprint::nodes::output::Output()
 
-node28.var_name = "all_points"
+node28.var_name = "right_rm_succ"
+node28.var_type = "bool"
 
-_editor.add_node(node28, -463.23929471974, -613.40834218537)
+_editor.add_node(node28, -62.872409670569, -604.01489850346)
 
-var node29 = ::blueprint::nodes::load::Load()
+var node29 = ::blueprint::nodes::output::Output()
 
-node29.var_name = "all_points"
+node29.var_name = "select_succ"
+node29.var_type = "bool"
 
-_editor.add_node(node29, -10.963496342561, -299.9402037783)
+_editor.add_node(node29, 285.02223668841, 45.774563640624)
 
-var node30 = ::blueprint::nodes::input::Input()
+var node30 = ::blueprint::nodes::subgraph::Subgraph()
+node30.load_from_file(_editor, "translate_selected.ves")
 
-node30.var_name = "points"
-node30.var_type = "array"
+_editor.add_node(node30, -258.74495513022, -725.73730074383)
 
-_editor.add_node(node30, -893.49770519691, -733.4694825357)
+var node31 = ::blueprint::nodes::load::Load()
 
-var node31 = ::blueprint::nodes::subgraph::Subgraph()
-node31.load_from_file(_editor, "right_down_remove.ves")
+node31.var_name = "selected"
 
-_editor.add_node(node31, -258.06289656683, -613.65056753953)
+_editor.add_node(node31, -454.04028320312, -630.34042358399)
 
-var node32 = ::blueprint::nodes::subgraph::Subgraph()
-node32.load_from_file(_editor, "left_down_select.ves")
-
-_editor.add_node(node32, 73.6814005375, 13.083992149198)
-
-var node33 = ::blueprint::nodes::load::Load()
-
-node33.var_name = "selected"
-
-_editor.add_node(node33, -146.763156417, -13.835282008692)
-
-var node34 = ::blueprint::nodes::load::Load()
-
-node34.var_name = "all_points"
-
-_editor.add_node(node34, -147.11726371684, 37.686262387798)
-
-var node35 = ::blueprint::nodes::input::Input()
-
-node35.var_name = "selection"
-node35.var_type = "array"
-
-_editor.add_node(node35, -894.34648224319, -646.78691354151)
-
-var node36 = ::blueprint::nodes::output::Output()
-
-node36.var_name = "right_rm_succ"
-node36.var_type = "bool"
-
-_editor.add_node(node36, -60.872409670569, -614.01489850346)
-
-var node37 = ::blueprint::nodes::output::Output()
-
-node37.var_name = "select_succ"
-node37.var_type = "bool"
-
-_editor.add_node(node37, 285.02223668841, 45.774563640624)
-
-Blueprint.connect(node35, "var", node16, "var")
-Blueprint.connect(node16, "var", node33, "var")
-Blueprint.connect(node16, "var", node18, "var")
-Blueprint.connect(node16, "var", node17, "var")
-Blueprint.connect(node30, "var", node23, "var")
-Blueprint.connect(node23, "var", node34, "var")
-Blueprint.connect(node34, "var", node32, "geos")
-Blueprint.connect(node33, "var", node32, "selected")
-Blueprint.connect(node32, "success", node37, "var")
-Blueprint.connect(node23, "var", node29, "var")
-Blueprint.connect(node23, "var", node28, "var")
-Blueprint.connect(node28, "var", node31, "geos")
-Blueprint.connect(node31, "success", node36, "var")
-Blueprint.connect(node13, "v2", node19, "var")
-Blueprint.connect(node19, "var", node22, "var")
-Blueprint.connect(node19, "var", node21, "var")
-Blueprint.connect(node19, "var", node20, "var")
-Blueprint.connect(node8, "pos", node9, "screen")
-Blueprint.connect(node9, "world", node10, "a")
-Blueprint.connect(node21, "var", node10, "b")
-Blueprint.connect(node18, "var", node11, "geo")
-Blueprint.connect(node10, "v", node11, "offset")
-Blueprint.connect(node11, "next", node12, "prev")
-Blueprint.connect(node9, "world", node12, "src")
-Blueprint.connect(node22, "var", node12, "dst")
-Blueprint.connect(node8, "event", node7, "event")
-Blueprint.connect(node12, "next", node7, "action")
+Blueprint.connect(node27, "var", node9, "var")
+Blueprint.connect(node9, "var", node31, "var")
+Blueprint.connect(node9, "var", node25, "var")
+Blueprint.connect(node9, "var", node11, "var")
+Blueprint.connect(node9, "var", node10, "var")
+Blueprint.connect(node22, "var", node15, "var")
+Blueprint.connect(node15, "var", node26, "var")
+Blueprint.connect(node26, "var", node24, "geos")
+Blueprint.connect(node25, "var", node24, "selected")
+Blueprint.connect(node24, "success", node29, "var")
+Blueprint.connect(node15, "var", node21, "var")
+Blueprint.connect(node15, "var", node20, "var")
+Blueprint.connect(node20, "var", node23, "geos")
+Blueprint.connect(node31, "var", node23, "selected")
+Blueprint.connect(node23, "success", node28, "var")
+Blueprint.connect(node7, "v2", node12, "var")
+Blueprint.connect(node12, "var", node14, "var")
+Blueprint.connect(node11, "var", node30, "selected")
+Blueprint.connect(node14, "var", node30, "last_pos")
+Blueprint.connect(node12, "var", node13, "var")
 Blueprint.connect(node4, "v3", node3, "color")
 Blueprint.connect(node0, "pos", node2, "screen")
-Blueprint.connect(node2, "world", node27, "center")
-Blueprint.connect(node29, "var", node26, "list")
-Blueprint.connect(node27, "new_geo", node26, "add")
+Blueprint.connect(node2, "world", node19, "center")
+Blueprint.connect(node21, "var", node18, "list")
+Blueprint.connect(node19, "new_geo", node18, "add")
 Blueprint.connect(node2, "world", node6, "src")
-Blueprint.connect(node20, "var", node6, "dst")
+Blueprint.connect(node13, "var", node6, "dst")
 Blueprint.connect(node6, "next", node5, "prev")
-Blueprint.connect(node32, "success", node5, "cond")
-Blueprint.connect(node26, "next", node5, "false")
-Blueprint.connect(node32, "next", node1, "prev")
+Blueprint.connect(node24, "success", node5, "cond")
+Blueprint.connect(node18, "next", node5, "false")
+Blueprint.connect(node24, "next", node1, "prev")
 Blueprint.connect(node0, "event", node1, "event")
 Blueprint.connect(node5, "next", node1, "action")

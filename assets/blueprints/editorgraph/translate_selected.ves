@@ -1,0 +1,50 @@
+var node0 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node0, 435.40556420913, 205.78675726505)
+
+var node1 = ::editorgraph::nodes::mouse_left_drag::MouseLeftDrag()
+
+_editor.add_node(node1, -406.43172317484, 210.93308411665)
+
+var node2 = ::editorgraph::nodes::coord_trans::CoordTrans()
+
+_editor.add_node(node2, -273.39543522206, 170.44579552024)
+
+var node3 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node3, -56.36491515087, 51.870026958901)
+
+var node4 = ::geograph::nodes::translate::Translate()
+node4.query_param("dx").value = 0
+node4.query_param("dy").value = 0
+
+_editor.add_node(node4, 112.18634222046, 122.3917740143)
+
+var node5 = ::blueprint::nodes::assignment::Assignment()
+
+_editor.add_node(node5, 263.15832094144, 141.14090526443)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "selected"
+node6.var_type = "array"
+
+_editor.add_node(node6, -57.105956116865, 113.16830868662)
+
+var node7 = ::blueprint::nodes::input::Input()
+
+node7.var_name = "last_pos"
+node7.var_type = "num2"
+
+_editor.add_node(node7, -194.62972588055, -27.454639881277)
+
+Blueprint.connect(node1, "pos", node2, "screen")
+Blueprint.connect(node2, "world", node3, "a")
+Blueprint.connect(node7, "var", node3, "b")
+Blueprint.connect(node6, "var", node4, "geo")
+Blueprint.connect(node3, "v", node4, "offset")
+Blueprint.connect(node4, "next", node5, "prev")
+Blueprint.connect(node2, "world", node5, "src")
+Blueprint.connect(node7, "var", node5, "dst")
+Blueprint.connect(node1, "event", node0, "event")
+Blueprint.connect(node5, "next", node0, "action")
