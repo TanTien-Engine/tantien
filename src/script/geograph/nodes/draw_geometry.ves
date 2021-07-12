@@ -1,11 +1,14 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_NUMBER3
-import "geograph.variant" for VAR_TYPE_GEO
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_RECT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.config" for POINT_RADIUS
 import "graphics" for Painter, Graphics
 import "geometry" for Line, Rect, Circle, Polyline
-import "maths.vector" for Vector3
+import "maths.vector" for Vector2, Vector3
+import "maths.rect" for Rect as tt_Rect
 
 class DrawGeometry is Node
 {
@@ -15,8 +18,8 @@ class DrawGeometry is Node
 
 		this.imports = [
 			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "color",  VAR_TYPE_NUMBER3),			
+			Pin(this, "geos", [ VAR_TYPE_NUMBER2, VAR_TYPE_RECT, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "color",  VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -55,6 +58,32 @@ class DrawGeometry is Node
 	}
 
 	draw_geo(pt, geo, color)
+	{
+		if (geo is VarGeo) {
+			this.draw_geo_shape(pt, geo, color)
+		} else {
+			this.draw_prim_val(pt, geo, color)		
+		}
+	}
+
+	draw_prim_val(pt, geo, color)
+	{
+		if (!color) {
+			color = Vector3(1.0, 0.0, 0.0)
+		}
+		var col_array = [255 * color.x, 255 * color.y, 255 * color.z, 255]
+
+		if (geo is Vector2)
+		{
+			pt.add_circle_filled(geo.x, geo.y, POINT_RADIUS, col_array, 24)
+		}
+		else if (geo is tt_Rect)
+		{
+			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
+		}
+	}
+
+	draw_geo_shape(pt, geo, color)
 	{
 		if (!color) {
 			color = geo.render_style["color"]
