@@ -25,11 +25,17 @@ class DrawGeometry is Node
 			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
+		this.params.add(NodeParam("skip", false))
+
 		this.layout()
 	}
 
 	render_run() 
 	{
+		if (this.query_param("skip").value) {
+			return
+		}
+
 		var v_geos = Blueprint.calc_input_value(this, 1)
 		if (!v_geos or !v_geos.value) {
 			return
