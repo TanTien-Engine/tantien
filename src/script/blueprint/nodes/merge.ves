@@ -28,6 +28,15 @@ class Merge is Node
 		this.layout()
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin == this.exports[0]) {
+			for (var pin in this.imports) {
+				Blueprint.send_pin_dirty(pin)			
+			}
+		}
+	}
+
 	calc_value(idx)
 	{
 		var ret = []
