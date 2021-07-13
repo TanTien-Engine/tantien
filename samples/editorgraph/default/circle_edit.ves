@@ -1,0 +1,26 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/editorgraph/circle_edit.ves")
+
+_editor.add_node(node0, -161.32932309886, 19.87441942775)
+
+var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node1.query_param("skip").value = false
+
+_editor.add_node(node1, 131.96969869419, 22.34824846736)
+
+var node2 = ::blueprint::nodes::number2::Number2()
+
+node2.value.set(0, 0)
+
+_editor.add_node(node2, -356.3295992306, 67.074776187839)
+
+var node3 = ::blueprint::nodes::number2::Number2()
+
+node3.value.set(340.1779904919, -11.864393628633)
+
+_editor.add_node(node3, -351.5036661969, -46.944252559819)
+
+Blueprint.connect(node2, "v2", node0, "center")
+Blueprint.connect(node3, "v2", node0, "outer")
+Blueprint.connect(node0, "next", node1, "prev")
+Blueprint.connect(node0, "circle", node1, "geos")
