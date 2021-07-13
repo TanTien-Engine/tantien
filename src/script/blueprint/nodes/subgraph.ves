@@ -61,6 +61,16 @@ class Subgraph is Node
 		}
 	}
 
+	on_node_dirty()
+	{
+		for (var item in this.all_items) {
+			var node = item[0]
+			if (node is Input) {
+				Blueprint.send_node_dirty(node)
+			}
+		}
+	}
+
 	calc_value(idx)
 	{
 		var name = nil

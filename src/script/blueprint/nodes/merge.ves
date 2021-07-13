@@ -32,8 +32,10 @@ class Merge is Node
 	{
 		if (pin == this.exports[0]) {
 			for (var pin in this.imports) {
-				Blueprint.send_pin_dirty(pin)			
+				Blueprint.send_pin_dirty(pin)
 			}
+		} else if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
 		}
 	}
 
