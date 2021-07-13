@@ -7,6 +7,10 @@ class NodeOP
 
 	draw()
 	{
+		var sel = this.get_selected()
+		if (sel) {
+			sel.draw_editor()
+		}
 	}
 
 	clear()

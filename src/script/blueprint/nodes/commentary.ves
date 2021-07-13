@@ -1,9 +1,14 @@
 import "blueprint.node" for Node
+import "blueprint.nodes.number2" for Number2
 import "blueprint.node_style" for COL_PANEL_BG, COL_PANEL_BG_LIGHT
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_editor" for NodeEditor
+import "blueprint.blueprint" for Blueprint
 import "graphics" for Painter, Graphics
 import "gui" for GUI
 import "maths.rect" for Rect
+
+var EDITOR = nil
 
 class Commentary is Node
 {
@@ -23,6 +28,9 @@ class Commentary is Node
 		this.line_width = 2
 
 		this.title = "Commentary"
+
+		this.editor_in_min = Number2()
+		this.editor_in_max = Number2()
 	}
 
 	draw(mt, cam_mt)
@@ -38,7 +46,7 @@ class Commentary is Node
 		Graphics.draw_painter(pt)
 	}
 
-	layout() 
+	layout()
 	{
 		super.layout()
 
@@ -118,5 +126,53 @@ class Commentary is Node
 	get_title()
 	{
 		return this.title
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/rect_edit.ves")
+		}
+
+		var r = this.get_comment_region(this.pos)
+		this.editor_in_min.value.set(r.x, r.y)
+		this.editor_in_max.value.set(r.x + r.w, r.y + r.h)
+
+		Blueprint.connect(this.editor_in_min.exports[0], EDITOR.editor_node.imports[1])
+		Blueprint.connect(this.editor_in_max.exports[0], EDITOR.editor_node.imports[2])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.width = (this.pos.x + this.line_width * 0.5 - this.editor_in_min.value.x) * 2
+		this.height = this.editor_in_max.value.y - this.editor_in_min.value.y
+
+		this.pos.x = this.editor_in_min.value.x + this.width * 0.5 - this.line_width * 0.5
+		this.editor_in_max.value.x = this.editor_in_min.value.x + this.width
+
+		this.layout()
 	}
 }

@@ -1,0 +1,71 @@
+import "blueprint.blackboard" for BLACKBOARD
+import "editor.node_cache" for NODE_CACHE
+import "editorgraph.trigger_list" for TriggerList
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE
+import "gui" for MOUSE_LEFT, MOUSE_RIGHT
+
+class NodeEditor
+{
+	init(filepath)
+	{
+		this.editor_node = NODE_CACHE.fetch(filepath, nil)
+
+		this.trigger_list = nil
+		if (this.editor_node) 
+		{
+			this.trigger_list = TriggerList([ this.editor_node ])
+
+			this.editor_node.execute_gen()
+			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
+		}
+	}
+
+	draw()
+	{
+		if (this.editor_node) {
+			this.editor_node.render_run()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		if (!this.trigger_list) {
+			return
+		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
+		} else if (btn == MOUSE_RIGHT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
+		}
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		if (!this.trigger_list) {
+			return
+		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_UP)
+		} else if (btn == MOUSE_RIGHT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_RIGHT_UP)
+		}
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		if (!this.trigger_list) {
+			return
+		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
+		}
+	}
+}

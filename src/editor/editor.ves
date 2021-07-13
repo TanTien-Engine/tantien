@@ -20,6 +20,7 @@ import "system" for System as tt_System
 import "maths" for Matrix44
 import "image" for ImageData
 import "render" for Render, Framebuffer, RenderBuffer
+import "blueprint.nodes.commentary" for Commentary
 import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.nodes.viewport" for Viewport
 import "math" for Math
@@ -57,7 +58,8 @@ class Editor
 //		this.filepath = "assets/blueprints/pbrgraph/clearcoat.ves"
 		this.filepath = "samples/pbrgraph/nodes/sheen.ves"
 
-		this.hide_nodes = false
+		this.editor_mode = false
+		this.node_editor_mode = false
 
 		this.popup_nodes = []
 		this.all_nodes = {}
@@ -115,12 +117,20 @@ class Editor
 	{
 		this.draw_preview()
 
-		if (!this.hide_nodes) {
+		if (!this.editor_mode) 
+		{
 			this.draw_scene()
-		} else {
-			// draw op title
+		} 
+		else 
+		{			
 			var node = this.preview_op.get_selected()
-			if (node) {
+			if (node) 
+			{
+				if (node is Commentary) {
+					this.draw_scene()
+				}
+
+				// draw op title			
 				var x = -Graphics.get_width() * 0.5 + 200
 				var y = Graphics.get_height() * 0.5 - 50
 				Graphics.draw_text(node.get_class().name, x, y, 1.0, this.TB_TITLE)
@@ -163,11 +173,17 @@ class Editor
 		} 
 		else if (key == "space") 
 		{
-			this.hide_nodes = !this.hide_nodes
-			if (this.hide_nodes) {
+			this.editor_mode = !this.editor_mode
+			if (this.editor_mode) {
 				this.editop = this.preview_op
+
+				var node = this.preview_op.get_selected()
+				if (node) {
+					this.node_editor_mode = node.bind_editor()
+				}
 			} else {
 				this.editop = this.nodes_op
+				this.node_editor_mode = false
 			}
 		}
 	}
@@ -186,7 +202,7 @@ class Editor
 			this.editop.on_mouse_moved(x, y, btn)
 		}
 
-		if (this.hide_nodes) {
+		if (this.editor_mode and !this.node_editor_mode) {
 			BLACKBOARD.mouse_pos.set(x, y)
 			this.trigger_list.run(EVENT_MOUSE_MOVE)
 		}
@@ -201,7 +217,7 @@ class Editor
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
 
-		if (this.hide_nodes) {
+		if (this.editor_mode and !this.node_editor_mode) {
 			if (btn == MOUSE_LEFT) {
 				BLACKBOARD.mouse_pos.set(x, y)
 				this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
@@ -222,7 +238,7 @@ class Editor
 			this.editop.on_mouse_pressed(x, y, btn)
 		}
 
-		if (this.hide_nodes)
+		if (this.editor_mode and !this.node_editor_mode)
 		{
 			if (btn == MOUSE_LEFT) {
 				BLACKBOARD.mouse_pos.set(x, y)
@@ -241,7 +257,7 @@ class Editor
 
 		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
 			this.right_press_pos = nil
-			if (!this.hide_nodes) {
+			if (!this.editor_mode) {
 				this.popup_pos = Vector2(x, y)			
 			}
 		} else if (btn == MOUSE_LEFT) {
@@ -253,7 +269,7 @@ class Editor
 			this.editop.on_mouse_released(x, y, btn)
 		}
 
-		if (this.hide_nodes)
+		if (this.editor_mode and !this.node_editor_mode)
 		{
 			if (btn == MOUSE_LEFT) {
 				BLACKBOARD.mouse_pos.set(x, y)
