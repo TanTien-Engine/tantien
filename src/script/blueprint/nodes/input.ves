@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_BOOLEAN
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_helper" for NodeHelper
@@ -14,6 +14,7 @@ class Input is Node
 
 		this.exports = [
 			Pin(this, "var", VAR_TYPE_ANY),
+			Pin(this, "empty", VAR_TYPE_BOOLEAN),			
 		]
 
 		this.layout()
@@ -38,7 +39,12 @@ class Input is Node
 
 	calc_value(idx)
 	{
-		return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)
+		if (idx == 0) {
+			return Blueprint.calc_input_value(this.parent_node, this.parent_pin_idx)		
+		} else {
+			var conns = this.parent_node.imports[this.parent_pin_idx].conns
+			return Variant(conns.isEmpty)
+		}
 	}
 
 	to_string(name) 
