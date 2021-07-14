@@ -75,6 +75,9 @@ foreign class Polyline is Shape2D
 	foreign get_vertices()
 	// vertices: list
 	foreign set_vertices(vertices)
+
+	foreign set_closed(is_closed)
+	foreign get_closed()
 }
 
 foreign class Bezier is Shape2D

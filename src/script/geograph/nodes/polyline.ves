@@ -25,6 +25,7 @@ class Polyline is Node
 		]
 
 		this.params.add(NodeParam("vertices", []))
+		this.params.add(NodeParam("closed", true))
 
 		this.layout()
 
@@ -113,6 +114,8 @@ class Polyline is Node
 			var vertices = this.query_param("vertices").value
 			geo.shape.set_vertices(vertices)
 		}
+
+		geo.shape.set_closed(this.query_param("closed").value)
 
 		this.geo_dirty = false
 	}

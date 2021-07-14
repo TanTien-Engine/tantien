@@ -274,6 +274,19 @@ void w_Polyline_set_vertices()
     polyline->SetVertices(vertices);
 }
 
+void w_Polyline_get_closed()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    ves_pushboolean(polyline->GetClosed());
+}
+
+void w_Polyline_set_closed()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    bool is_closed = ves_toboolean(1);
+    polyline->SetClosed(is_closed);
+}
+
 void w_Bezier_allocate()
 {
     auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
@@ -404,6 +417,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polyline.clone()") == 0) return w_Polyline_clone;
     if (strcmp(signature, "Polyline.get_vertices()") == 0) return w_Polyline_get_vertices;
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
+    if (strcmp(signature, "Polyline.get_closed()") == 0) return w_Polyline_get_closed;
+    if (strcmp(signature, "Polyline.set_closed(_)") == 0) return w_Polyline_set_closed;
 
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
