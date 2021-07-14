@@ -1,10 +1,15 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.nodes.array" for Array
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Polyline as tt_Polyline
+import "geograph.config" for POINT_RADIUS
+import "geometry" for Polyline as tt_Polyline, Circle
+
+var EDITOR = nil
 
 class Polyline is Node
 {
@@ -25,6 +30,8 @@ class Polyline is Node
 
 		this.geo = nil
 		this.geo_dirty = false
+
+		this.editor_polyline = Array()
 	}
 
 	on_pin_dirty(pin)
@@ -108,5 +115,78 @@ class Polyline is Node
 		}
 
 		this.geo_dirty = false
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/polyline_edit.ves")
+		}
+
+		this.editor_polyline.list.clear()
+		for (var i = 0; i < this.params[0].value.count; i = i + 2)
+		{
+			var x = this.params[0].value[i]
+			var y = this.params[0].value[i + 1]
+
+			var geo = VarGeo()
+			geo.shape = Circle.init(x, y, POINT_RADIUS)
+			this.editor_polyline.list.add(Variant(VAR_TYPE_GEO, geo))
+		}
+
+		Blueprint.connect(this.editor_polyline.exports[0], EDITOR.editor_node.imports[1])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+
+		this.editor_flush()
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+
+		this.editor_flush()
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.editor_flush()
+	}
+
+	on_mouse_moved(x, y, btn) 
+	{
+		EDITOR.on_mouse_moved(x, y, btn)
+	}
+
+	editor_flush()
+	{
+		var circles = this.editor_polyline.list
+
+		this.params[0].value.clear()
+		for (var circle in circles) 
+		{
+			var c = circle.value.shape.get()
+			this.params[0].value.add(c[0])
+			this.params[0].value.add(c[1])
+		}
+
+		this.geo_dirty = true
+		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }

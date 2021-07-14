@@ -57,6 +57,16 @@ class NodeEditor
 		}
 	}
 
+	on_mouse_moved(x, y, btn) 
+	{
+		if (!this.trigger_list) {
+			return
+		}
+
+		BLACKBOARD.mouse_pos.set(x, y)
+		this.trigger_list.run(EVENT_MOUSE_MOVE)
+	}
+
 	on_mouse_dragged(x, y, btn) 
 	{
 		if (!this.trigger_list) {

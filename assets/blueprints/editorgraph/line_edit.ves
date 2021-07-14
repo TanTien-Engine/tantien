@@ -1,0 +1,139 @@
+var node0 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node0.query_param("skip").value = false
+
+_editor.add_node(node0, 61.371550906983, 310.56716721547)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "translate_selected.ves")
+
+_editor.add_node(node1, 157.13605604289, -105.57805320918)
+
+var node2 = ::blueprint::nodes::array::Array()
+node2.query_param("serialize").value = false
+
+_editor.add_node(node2, -900.18953895969, 117.48656488237)
+
+var node3 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node3.query_param("skip").value = false
+
+_editor.add_node(node3, 332.83907714468, 308.28525850186)
+
+var node4 = ::blueprint::nodes::number3::Number3()
+
+node4.value.set(0, 0, 0.70140242576599)
+
+_editor.add_node(node4, 191.18156641058, 220.59465222878)
+
+var node5 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node5, -87.468170068428, 229.25711976798)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "p0"
+node6.var_type = "num2"
+
+_editor.add_node(node6, -896.90487587552, 304.94377169523)
+
+var node7 = ::blueprint::nodes::input::Input()
+
+node7.var_name = "p1"
+node7.var_type = "num2"
+
+_editor.add_node(node7, -895.23776233653, 227.15228505354)
+
+var node8 = ::blueprint::nodes::output::Output()
+
+node8.var_name = "line"
+node8.var_type = "geo"
+
+_editor.add_node(node8, 337.93637069313, 654.75965260352)
+
+var node9 = ::blueprint::nodes::store::Store()
+
+node9.var_name = "p0"
+
+_editor.add_node(node9, -742.65552867543, 305.9887972745)
+
+var node10 = ::blueprint::nodes::store::Store()
+
+node10.var_name = "p1"
+
+_editor.add_node(node10, -752.92825594815, 224.71603116121)
+
+var node11 = ::blueprint::nodes::load::Load()
+
+node11.var_name = "p0"
+
+_editor.add_node(node11, -281.08525854694, 312.73261557334)
+
+var node12 = ::blueprint::nodes::load::Load()
+
+node12.var_name = "p1"
+
+_editor.add_node(node12, -280.28364726926, 259.46809727692)
+
+var node13 = ::blueprint::nodes::load::Load()
+
+node13.var_name = "p0"
+
+_editor.add_node(node13, 22.799022327768, 667.44332608309)
+
+var node14 = ::blueprint::nodes::store::Store()
+
+node14.var_name = "selected"
+
+_editor.add_node(node14, -754.37711159713, 119.4275098117)
+
+var node15 = ::blueprint::nodes::load::Load()
+
+node15.var_name = "selected"
+
+_editor.add_node(node15, 188.56159574921, 294.91904123203)
+
+var node16 = ::blueprint::nodes::load::Load()
+
+node16.var_name = "selected"
+
+_editor.add_node(node16, -230.79003281222, -107.70423352239)
+
+var node17 = ::geograph::nodes::line::Line()
+node17.query_param("x0").value = 0
+node17.query_param("y0").value = 0
+node17.query_param("x1").value = 100
+node17.query_param("y1").value = 100
+
+_editor.add_node(node17, 184.61851789319, 604.7307315266)
+
+var node18 = ::blueprint::nodes::load::Load()
+
+node18.var_name = "p1"
+
+_editor.add_node(node18, 26.655506480825, 622.47235107422)
+
+var node19 = ::blueprint::nodes::subgraph::Subgraph()
+node19.load_from_file(_editor, "left_down_select.ves")
+
+_editor.add_node(node19, 158.01872033306, -0.96080018809468)
+
+Blueprint.connect(node7, "var", node10, "var")
+Blueprint.connect(node10, "var", node18, "var")
+Blueprint.connect(node10, "var", node12, "var")
+Blueprint.connect(node6, "var", node9, "var")
+Blueprint.connect(node9, "var", node13, "var")
+Blueprint.connect(node13, "var", node17, "p0")
+Blueprint.connect(node18, "var", node17, "p1")
+Blueprint.connect(node17, "geo", node8, "var")
+Blueprint.connect(node9, "var", node11, "var")
+Blueprint.connect(node11, "var", node5, "in0")
+Blueprint.connect(node12, "var", node5, "in1")
+Blueprint.connect(node5, "list", node0, "geos")
+Blueprint.connect(node2, "all", node14, "var")
+Blueprint.connect(node14, "var", node16, "var")
+Blueprint.connect(node5, "list", node19, "geos")
+Blueprint.connect(node16, "var", node19, "selected")
+Blueprint.connect(node16, "var", node1, "selected")
+Blueprint.connect(node14, "var", node15, "var")
+Blueprint.connect(node0, "next", node3, "prev")
+Blueprint.connect(node15, "var", node3, "geos")
+Blueprint.connect(node4, "v3", node3, "color")

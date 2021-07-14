@@ -1,10 +1,14 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.nodes.number2" for Number2
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Line as tt_Line
+
+var EDITOR = nil
 
 class Line is Node
 {
@@ -30,6 +34,9 @@ class Line is Node
 
 		this.geo = nil
 		this.geo_dirty = false
+
+		this.editor_p0 = Number2()
+		this.editor_p1 = Number2()		
 	}
 
 	on_pin_dirty(pin)
@@ -126,5 +133,56 @@ class Line is Node
 		geo.shape.set(x0, y0, x1, y1)
 
 		this.geo_dirty = false
-	}	
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/line_edit.ves")
+		}
+
+		var x0 = this.query_param("x0").value
+		var y0 = this.query_param("y0").value
+		var x1 = this.query_param("x1").value
+		var y1 = this.query_param("y1").value
+		this.editor_p0.value.set(x0, y0)
+		this.editor_p1.value.set(x1, y1)
+
+		Blueprint.connect(this.editor_p0.exports[0], EDITOR.editor_node.imports[1])
+		Blueprint.connect(this.editor_p1.exports[0], EDITOR.editor_node.imports[2])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.params[0].value = this.editor_p0.value.x
+		this.params[1].value = this.editor_p0.value.y
+		this.params[2].value = this.editor_p1.value.x
+		this.params[3].value = this.editor_p1.value.y
+
+		this.geo_dirty = true
+		Blueprint.send_pin_dirty_root(this.exports[0])
+	}
 }

@@ -1,11 +1,15 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.nodes.number2" for Number2
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
+import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Rect as tt_Rect
 import "maths.vector" for Vector3
+
+var EDITOR = nil
 
 class Rect is Node
 {
@@ -36,6 +40,9 @@ class Rect is Node
 
 		this.geo = nil
 		this.geo_dirty = false
+
+		this.editor_in_min = Number2()
+		this.editor_in_max = Number2()
 	}
 
 	on_pin_dirty(pin)
@@ -131,5 +138,56 @@ class Rect is Node
 		geo.render_style["color"] = this.query_param("color").value
 
 		this.geo_dirty = false
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/rect_edit.ves")
+		}
+
+		var x = this.query_param("x").value
+		var y = this.query_param("y").value
+		var w = this.query_param("w").value
+		var h = this.query_param("h").value
+		this.editor_in_min.value.set(x, y)
+		this.editor_in_max.value.set(x + w, y + h)
+
+		Blueprint.connect(this.editor_in_min.exports[0], EDITOR.editor_node.imports[1])
+		Blueprint.connect(this.editor_in_max.exports[0], EDITOR.editor_node.imports[2])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.params[0].value = this.editor_in_min.value.x
+		this.params[1].value = this.editor_in_min.value.y
+		this.params[2].value = this.editor_in_max.value.x - this.editor_in_min.value.x
+		this.params[3].value = this.editor_in_max.value.y - this.editor_in_min.value.y
+
+		this.geo_dirty = true
+		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }
