@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
-import "physicsgraph.variant" for VAR_TYPE_BODY
+import "physicsgraph.variant" for VAR_TYPE_BODY, VarBody
 import "physics" for Body as tt_Body
 
 class Body is Node
@@ -24,20 +24,20 @@ class Body is Node
 
 		this.layout()
 
-		this.body = nil
+		this.body = VarBody()
 	}
 
 	calc_value(idx)
 	{
-		if (!this.body) {
-			this.body = this.build_body()
+		if (!this.body.body) {
+			this.body.body = this.build_body()
 		}
 		return Variant(VAR_TYPE_BODY, this.body)
 	}
 
 	render_gen()
 	{
-		this.body = this.build_body()
+		this.body.body = this.build_body()
 	}
 
 //	render_run() 
@@ -67,7 +67,7 @@ class Body is Node
 
 	print_pos()
 	{
-		if (this.body) {
+		if (this.body.body) {
 			import "logger.logger" for Logger
 			Logger.info("pos: %(pos[0]) %(pos[1])")
 		}

@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
-import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY, VarWorld
 import "geograph.variant" for VAR_TYPE_GEO
 import "physics" for World as tt_World, Body
 
@@ -21,20 +21,20 @@ class World is Node
 
 		this.layout()
 
-		this.world = nil
+		this.world = VarWorld()
 	}
 
 	calc_value(idx)
 	{
-		if (!this.world) {
-			this.world = this.build_world()
+		if (!this.world.world) {
+			this.world.world = this.build_world()
 		}
 		return Variant(VAR_TYPE_WORLD, this.world)
 	}
 
 	render_gen()
 	{
-		this.world = this.build_world()
+		this.world.world = this.build_world()
 	}
 
 	build_world()

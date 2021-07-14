@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY
+
+class Destroy is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "obj",  [ VAR_TYPE_WORLD, VAR_TYPE_BODY ]),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run() 
+	{
+		var v_obj = Blueprint.calc_input_value(this, 1)
+		if (!v_obj) {
+			return
+		}
+
+		if (v_obj.type == VAR_TYPE_WORLD) {
+			v_obj.value.world = nil
+		} else if (v_obj.type == VAR_TYPE_BODY) {
+			v_obj.value.body = nil
+		}
+	}
+}
