@@ -30,7 +30,7 @@ import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
 import "editorgraph.trigger_list" for TriggerList
 import "blueprint.blackboard" for BLACKBOARD
-import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE, EVENT_TICKER
 
 class Editor
 {
@@ -111,6 +111,10 @@ class Editor
 
 		GUI.update(this.gui_top)
 		GUI.update(this.gui_nodes)
+
+		if (this.editor_mode and !this.node_editor_mode) {
+			this.trigger_list.run(EVENT_TICKER)
+		}
 	}
 
 	draw()
