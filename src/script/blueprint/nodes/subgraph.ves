@@ -11,9 +11,12 @@ import "blueprint.nodes.camera3d" for Camera3d
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.execute_list" for ExecuteList
+import "blueprint.blackboard" for BLACKBOARD
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE
+import "gui" for MOUSE_LEFT, MOUSE_RIGHT
 
 class Subgraph is Node
 {
@@ -42,6 +45,7 @@ class Subgraph is Node
 
 		this.drawlist = nil
 		this.exe_list = nil
+		this.trigger_list = nil
 
 		this.op_node = nil
 	}
@@ -132,6 +136,10 @@ class Subgraph is Node
 		}
 
 		this.exe_list = ExecuteList(nodes)
+
+		// trigger list
+		import "editorgraph.trigger_list" for TriggerList
+		this.trigger_list = TriggerList([ this ])
 	}	
 
 	execute_run() 
@@ -475,26 +483,56 @@ class Subgraph is Node
 			this.op_node.on_key_release(key)
 		}
 	}
-	on_mouse_pressed(x, y, btn) {
+
+	on_mouse_pressed(x, y, btn) 
+	{
 		if (this.op_node) {
 			this.op_node.on_mouse_pressed(x, y, btn)
 		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
+		} else if (btn == MOUSE_RIGHT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
+		}
 	}
-	on_mouse_released(x, y, btn) {
+
+	on_mouse_released(x, y, btn) 
+	{
 		if (this.op_node) {
 			this.op_node.on_mouse_released(x, y, btn)
-		}	
+		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_UP)
+		} else if (btn == MOUSE_RIGHT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_RIGHT_UP)
+		}		
 	}
-	on_mouse_moved(x, y, btn) {
+
+	on_mouse_moved(x, y, btn) 
+	{
 		if (this.op_node) {
 			this.op_node.on_mouse_moved(x, y, btn)
 		}	
 	}
-	on_mouse_dragged(x, y, btn) {
+
+	on_mouse_dragged(x, y, btn) 
+	{
 		if (this.op_node) {
 			this.op_node.on_mouse_dragged(x, y, btn)
 		}
+
+		if (btn == MOUSE_LEFT) {
+			BLACKBOARD.mouse_pos.set(x, y)
+			this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
+		}		
 	}
+
 	on_mouse_scrolled(x, y, dx, dy) {
 		if (this.op_node) {
 			this.op_node.on_mouse_scrolled(x, y, dx, dy)
@@ -548,5 +586,10 @@ class Subgraph is Node
 			dst[1] = trans.position.x
 			dst[2] = trans.position.y
 		}
+	}
+
+	bind_editor()
+	{
+		return true
 	}
 }
