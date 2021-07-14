@@ -27,6 +27,16 @@ class Body is Node
 		this.body = VarBody()
 	}
 
+	on_pin_dirty(pin)
+	{
+		this.body.body = nil
+	}
+
+	on_node_dirty()
+	{
+		this.body.body = nil
+	}
+
 	calc_value(idx)
 	{
 		if (!this.body.body) {
