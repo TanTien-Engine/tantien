@@ -1,0 +1,153 @@
+var node0 = ::physicsgraph::nodes::world::World()
+
+_editor.add_node(node0, 76.617580766341, 47.296769346357)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../../../assets/blueprints/editorgraph/multi_rects_edit.ves")
+
+_editor.add_node(node1, 102.44929894181, 351.1067297445)
+
+var node2 = ::blueprint::nodes::array::Array()
+node2.query_param("serialize").value = true
+
+node2.list = [ ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-355, 264.5, 53, 51), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-160, 210.5, 34, 31), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-123.36960601807, 262.9873046875, 59.09090423584, 22.727264404297), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(142.08494567871, 94.805473327637, 61.818176269531, 56.363639831543), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(72.726364135742, 186.88743591309, 61.483478546143), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(72.726364135742, 146.30128479004, 46.184234619141, 40.586135864258), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-114, 42.5, 117.7200088501), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-114, -14.5, 103, 57), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-712.00817871094, -259.43222045898, 1360.3305664063, 16.528930664063), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(190.67204284668, 24.641435623169, 19.567531585693), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(171.18486022949, 24.641435623169, 19.487167358398, 1.7715606689453), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Circle.init(-105, -287.5, 44.821868896484), { "fill" : true, "color" : ::maths::vector::Vector3(0.75072020292282, 0.39516466856003, 0) })), ::blueprint::variant::Variant("geo", ::geograph::variant::VarGeo(::geometry::Rect.init(-105, -315.5, 35, 28), { "fill" : true, "color" : ::maths::vector::Vector3(0.60412019491196, 0.60412019491196, 0) })) ]
+
+_editor.add_node(node2, -376.64809284015, 337.17181485708)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/editorgraph/multi_circles_edit.ves")
+
+_editor.add_node(node3, 100.76992955685, 262.65489521222)
+
+var node4 = ::physicsgraph::nodes::simulation::Simulation()
+node4.query_param("pause").value = false
+node4.query_param("debug_draw").value = true
+
+_editor.add_node(node4, 280.71585842971, 74.706891436082)
+
+var node5 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node5, 478.16323251059, 151.87222310686)
+
+var node6 = ::rendergraph::nodes::pass::Pass()
+
+node6.once = false
+
+_editor.add_node(node6, 477.59204838603, 42.640028701406)
+
+var node7 = ::editorgraph::nodes::mouse_right_down::MouseRightDown()
+
+_editor.add_node(node7, 279.7313902658, 239.71771470559)
+
+var node8 = ::editorgraph::nodes::ticker::Ticker()
+
+_editor.add_node(node8, 280.64731757555, 180.58994278069)
+
+var node9 = ::editorgraph::nodes::trigger::Trigger()
+
+_editor.add_node(node9, 483.08922230114, -71.113972056996)
+
+var node10 = ::editorgraph::nodes::leave_editor_mode::LeaveEditorMode()
+
+_editor.add_node(node10, 291.4840184992, -41.924976695668)
+
+var node11 = ::physicsgraph::nodes::destroy::Destroy()
+
+_editor.add_node(node11, 291.75520324707, -103.06530761719)
+
+var node12 = ::geograph::nodes::rect::Rect()
+node12.query_param("x").value = 205.11331731623
+node12.query_param("y").value = 73.545454545455
+node12.query_param("w").value = 50.181818181818
+node12.query_param("h").value = 26.454545454545
+node12.query_param("fill").value = true
+node12.query_param("color").value.set(0.37751737236977, 0.18862846493721, 0.18862846493721)
+
+_editor.add_node(node12, -888.06745154816, 87.923227453731)
+
+var node13 = ::physicsgraph::nodes::body::Body()
+node13.query_param("type").value = "dynamic"
+
+_editor.add_node(node13, -737.72241269167, 167.888160183)
+
+var node14 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node14, -78.982215646331, -43.328801035434)
+
+var node15 = ::geograph::nodes::circle::Circle()
+node15.query_param("x").value = 0
+node15.query_param("y").value = 0
+node15.query_param("r").value = 26.628668186876
+node15.query_param("fill").value = true
+node15.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node15, -740.04282494365, 26.128099173551)
+
+var node16 = ::physicsgraph::nodes::body::Body()
+node16.query_param("type").value = "dynamic"
+
+_editor.add_node(node16, -598.05672484068, 95.809755527371)
+
+var node17 = ::geograph::nodes::rect::Rect()
+node17.query_param("x").value = 130.68
+node17.query_param("y").value = -93.17
+node17.query_param("w").value = 24.98
+node17.query_param("h").value = 50.39
+node17.query_param("fill").value = false
+node17.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node17, -592.10473588424, -63.299767844463)
+
+var node18 = ::physicsgraph::nodes::body::Body()
+node18.query_param("type").value = "dynamic"
+
+_editor.add_node(node18, -455.3309321733, 16.975072853777)
+
+var node19 = ::geograph::nodes::polyline::Polyline()
+node19.query_param("vertices").value = [ -182.16249084473, -67.727104187012, -89.955673217773, -174.96022033691, 48.696060180664, -207.06184387207, 188.03080749512, -210.47691345215, 364.93127441406, -171.54515075684, 491.2887878418, -108.70790863037 ]
+node19.query_param("closed").value = true
+
+_editor.add_node(node19, -589.46202503551, -231.45351895419)
+
+var node20 = ::physicsgraph::nodes::body::Body()
+node20.query_param("type").value = "static"
+
+_editor.add_node(node20, -439.00748235529, -241.72623235529)
+
+var node21 = ::geograph::nodes::line::Line()
+node21.query_param("x0").value = -177.04958677686
+node21.query_param("y0").value = -131.18181818182
+node21.query_param("x1").value = 396.69421487603
+node21.query_param("y1").value = -223.96694214876
+
+_editor.add_node(node21, -593.4199440696, -375.17754572088)
+
+var node22 = ::physicsgraph::nodes::body::Body()
+node22.query_param("type").value = "static"
+
+_editor.add_node(node22, -443.4477107781, -334.70962637909)
+
+var node23 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node23.query_param("skip").value = false
+
+_editor.add_node(node23, -373, 198.5)
+
+Blueprint.connect(node21, "geo", node22, "geos")
+Blueprint.connect(node19, "geo", node23, "geos")
+Blueprint.connect(node19, "geo", node20, "geos")
+Blueprint.connect(node17, "geo", node18, "geos")
+Blueprint.connect(node18, "body", node14, "in3")
+Blueprint.connect(node20, "body", node14, "in4")
+Blueprint.connect(node22, "body", node14, "in5")
+Blueprint.connect(node14, "list", node0, "bodies")
+Blueprint.connect(node0, "world", node11, "obj")
+Blueprint.connect(node0, "world", node4, "world")
+Blueprint.connect(node4, "next", node6, "prev")
+Blueprint.connect(node15, "geo", node16, "geos")
+Blueprint.connect(node12, "geo", node13, "geos")
+Blueprint.connect(node10, "event", node9, "event")
+Blueprint.connect(node11, "next", node9, "action")
+Blueprint.connect(node8, "event", node5, "event")
+Blueprint.connect(node4, "next", node5, "action")
+Blueprint.connect(node2, "all", node3, "circles")
+Blueprint.connect(node2, "all", node1, "rects")

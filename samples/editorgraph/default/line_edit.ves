@@ -1,0 +1,25 @@
+var node0 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node0.query_param("skip").value = false
+
+_editor.add_node(node0, 131.96969869419, 22.34824846736)
+
+var node1 = ::blueprint::nodes::number2::Number2()
+
+node1.value.set(-211.73417116317, -12.418426461183)
+
+_editor.add_node(node1, -356.3295992306, 67.074776187839)
+
+var node2 = ::blueprint::nodes::number2::Number2()
+
+node2.value.set(130.30658329791, -5.6551803980415)
+
+_editor.add_node(node2, -351.5036661969, -46.944252559819)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/editorgraph/line_edit.ves")
+
+_editor.add_node(node3, -140.20224465406, 15.356839451159)
+
+Blueprint.connect(node1, "v2", node3, "p0")
+Blueprint.connect(node2, "v2", node3, "p1")
+Blueprint.connect(node3, "line", node0, "geos")
