@@ -1023,13 +1023,13 @@ import \"editor\" for _editor
 			nodes.add(node.components["bp"])
 		}
 
-		if (this.scene_stack.bp_dirty) {
+		if (this.scene_stack.bp_dirty or !this.drawlist) {
 			this.drawlist = Drawlist(nodes)
 		}
-		if (this.scene_stack.bp_dirty) {
+		if (this.scene_stack.bp_dirty or !this.trigger_list) {
 			this.trigger_list = TriggerList(nodes)
 		}		
-		if (this.scene_stack.bp_dirty) {
+		if (this.scene_stack.bp_dirty or !this.exe_list) {
 			this.exe_list = ExecuteList(nodes)
 			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
 		}
