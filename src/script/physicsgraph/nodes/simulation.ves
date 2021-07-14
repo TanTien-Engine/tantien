@@ -1,0 +1,55 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.node_param" for NodeParam
+import "physicsgraph.variant" for VAR_TYPE_WORLD
+
+class Simulation is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "world", VAR_TYPE_WORLD),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.params.add(NodeParam("pause", false))
+		this.params.add(NodeParam("debug_draw", true))
+
+		this.layout()
+
+		this.world = nil
+	}
+
+	render_run() 
+	{
+		var v_world = Blueprint.calc_input_value(this, 1)
+		if (!v_world) {
+			return
+		}
+
+		var debug_draw = this.query_param("debug_draw").value
+		if (debug_draw) {
+			v_world.value.world.debug_draw()
+		}
+	}
+
+	execute_run() 
+	{
+		var v_world = Blueprint.calc_input_value(this, 1)
+		if (!v_world) {
+			return
+		}
+
+		var pause = this.query_param("pause").value
+		if (!pause) {
+			v_world.value.world.update()
+		}
+	}
+}
