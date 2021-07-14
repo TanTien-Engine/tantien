@@ -64,55 +64,45 @@ void w_Body_add_shape()
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
 
-    bool inited = false;
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
-    if (!inited)
+    switch (shape->GetType())
     {
-        auto line = std::dynamic_pointer_cast<gs::Line2D>(shape);
-        if (line) {
-            inited = true;
-            phy_shape->InitEdgeShape(line->GetStart(), line->GetEnd());
-        }
-    }
-
-    if (!inited)
+    case gs::ShapeType2D::Line:
     {
-        auto rect = std::dynamic_pointer_cast<gs::Rect>(shape);
-        if (rect) {
-            inited = true;
-            phy_shape->InitRectShape(rect->GetRect());
-        }
+        auto line = std::static_pointer_cast<gs::Line2D>(shape);
+        phy_shape->InitEdgeShape(line->GetStart(), line->GetEnd());
     }
-
-    if (!inited)
+        break;
+    case gs::ShapeType2D::Rect:
     {
-        auto circle = std::dynamic_pointer_cast<gs::Circle>(shape);
-        if (circle) {
-            inited = true;
-            phy_shape->InitCircleShape(circle->GetCenter(), circle->GetRadius());
-        }
+        auto rect = std::static_pointer_cast<gs::Rect>(shape);
+        phy_shape->InitRectShape(rect->GetRect());
     }
-
-    if (!inited)
+        break;
+    case gs::ShapeType2D::Circle:
+    {
+        auto circle = std::static_pointer_cast<gs::Circle>(shape);
+        phy_shape->InitCircleShape(circle->GetCenter(), circle->GetRadius());
+    }
+        break;
+    case gs::ShapeType2D::Polyline:
     {
         auto polyline = std::dynamic_pointer_cast<gs::Polyline2D>(shape);
-        if (polyline) 
-        {
-            inited = true;
 
-            auto& vertices = polyline->GetVertices();
-            if (vertices.size() == 2) {
-                phy_shape->InitEdgeShape(vertices[0], vertices[1]);
-            } else if (vertices.size() > 2) {
-                phy_shape->InitChainShape(vertices, polyline->GetClosed());
-            }
+        auto& vertices = polyline->GetVertices();
+        if (vertices.size() == 2) {
+            phy_shape->InitEdgeShape(vertices[0], vertices[1]);
+        } else if (vertices.size() > 2) {
+            phy_shape->InitChainShape(vertices, polyline->GetClosed());
         }
     }
-
-    if (inited) {
-        body->AddShape(phy_shape);
+        break;
+    default:
+        assert(0);
     }
+
+    body->AddShape(phy_shape);
 }
 
 void w_Body_get_pos()
