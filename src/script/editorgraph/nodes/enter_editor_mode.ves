@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "editorgraph.variant" for VAR_TYPE_EVENT
+
+class EnterEditorMode is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "event", VAR_TYPE_EVENT),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		import "editorgraph.event_types" for EVENT_ENTER_EDITOR_MODE
+		return Variant(VAR_TYPE_EVENT, EVENT_ENTER_EDITOR_MODE)
+	}
+}
