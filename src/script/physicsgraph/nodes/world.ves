@@ -42,29 +42,29 @@ class World is Node
 		import "logger.logger" for Logger
 		Logger.info("build physics world")
 
-		var world = tt_World.init()
-
 		var v_bodies = Blueprint.calc_input_value(this, 0)
-		if (v_bodies.type == VAR_TYPE_ARRAY)
-		{
-			for (var v_body in v_bodies.value) {
-				this.build_world(world, v_body)
-			}
-		}
-		else
-		{
-			this.build_world(world, v_bodies)
-		}
-
+		var world = tt_World.init()
+		this.build_multi(world, v_bodies)
 		return world
 	}
 
-	build_world(world, v_body)
+	build_multi(world, v_bodies)
+	{	
+		if (v_bodies.type == VAR_TYPE_ARRAY) {
+			for (var v_body in v_bodies.value) {
+				this.build_multi(world, v_body)
+			}
+		} else {
+			this.build_single(world, v_bodies)
+		}
+	}
+
+	build_single(world, v_body)
 	{
 		if (v_body.type == VAR_TYPE_BODY) {
-			world.add_body(v_body.value)
+			world.add_body(v_body.value.body)
 		} else if (v_body.type == VAR_TYPE_GEO) {
-			var body = Body.init()
+			var body = Body.init("static")
 			body.add_shape(v_body.value.shape)
 			world.add_body(body)
 		}
