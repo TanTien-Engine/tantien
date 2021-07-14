@@ -8,14 +8,14 @@ foreign class World
 	foreign update()
 	foreign debug_draw()
 
-	foreign add_body(_)
+	foreign add_body(body)
 }
 
 foreign class Body
 {
 	init(type) {}
 
-	foreign add_shape(_)
+	foreign add_shape(shape, filled)
 
 	foreign get_pos()
 }

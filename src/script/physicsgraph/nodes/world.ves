@@ -65,7 +65,7 @@ class World is Node
 			world.add_body(v_body.value.body)
 		} else if (v_body.type == VAR_TYPE_GEO) {
 			var body = Body.init("static")
-			body.add_shape(v_body.value.shape)
+			body.add_shape(v_body.value.shape, v_body.value.render_style["fill"].value)
 			world.add_body(body)
 		}
 	}

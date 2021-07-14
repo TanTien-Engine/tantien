@@ -63,6 +63,7 @@ void w_Body_add_shape()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto filled = ves_toboolean(2);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -77,7 +78,17 @@ void w_Body_add_shape()
     case gs::ShapeType2D::Rect:
     {
         auto rect = std::static_pointer_cast<gs::Rect>(shape);
-        phy_shape->InitRectShape(rect->GetRect());
+        if (filled) {
+            phy_shape->InitRectShape(rect->GetRect());
+        } else {
+            std::vector<sm::vec2> vertices;
+            auto& r = rect->GetRect();
+            vertices.push_back({ r.xmin, r.ymin });
+            vertices.push_back({ r.xmax, r.ymin });
+            vertices.push_back({ r.xmax, r.ymax });
+            vertices.push_back({ r.xmin, r.ymax });
+            phy_shape->InitChainShape(vertices, true);
+        }
     }
         break;
     case gs::ShapeType2D::Circle:
@@ -149,7 +160,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.debug_draw()") == 0) return w_World_debug_draw;
     if (strcmp(signature, "World.add_body(_)") == 0) return w_World_add_body;
 
-    if (strcmp(signature, "Body.add_shape(_)") == 0) return w_Body_add_shape;
+    if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
 
 	return nullptr;

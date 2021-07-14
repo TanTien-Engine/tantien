@@ -64,12 +64,18 @@ class Body is Node
 		if (v_geos is List)
 		{
 			for (var geo in v_geos.value) {
-				body.add_shape(geo.value.shape)
+				body.add_shape(geo.value.shape, geo.value.render_style["fill"].value)
 			}
 		}
 		else
 		{
-			body.add_shape(v_geos.value.shape)
+			var filled = false
+			var v_fill = v_geos.value.render_style["fill"]
+			if (v_fill) {
+				filled = v_fill.value
+			}
+
+			body.add_shape(v_geos.value.shape, filled)
 		}
 
 		return body
