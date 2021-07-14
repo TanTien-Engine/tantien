@@ -134,7 +134,8 @@ void w_Body_get_pos()
 
 void w_Body_allocate()
 {
-    auto world = std::make_shared<up::rigid::box2d::Body>();
+    const char* type = ves_tostring(1);
+    auto world = std::make_shared<up::rigid::box2d::Body>(type);
 
     auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
     proxy->obj = world;

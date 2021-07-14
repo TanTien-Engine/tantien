@@ -13,7 +13,7 @@ foreign class World
 
 foreign class Body
 {
-	init() {}
+	init(type) {}
 
 	foreign add_shape(_)
 

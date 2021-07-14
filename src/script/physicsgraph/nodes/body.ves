@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "physicsgraph.variant" for VAR_TYPE_BODY
 import "physics" for Body as tt_Body
@@ -18,6 +19,8 @@ class Body is Node
 		this.exports = [
 			Pin(this, "body", VAR_TYPE_BODY),
 		]
+
+		this.params.add(NodeParam("type", "static", { "combo" : [ "static", "kinematic", "dynamic" ] }))
 
 		this.layout()
 
@@ -44,7 +47,8 @@ class Body is Node
 
 	build_body()
 	{
-		var body = tt_Body.init()
+		var type = this.query_param("type").value
+		var body = tt_Body.init(type)
 
 		var v_geos = Blueprint.calc_input_value(this, 0)
 		if (v_geos is List)
