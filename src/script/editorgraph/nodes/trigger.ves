@@ -4,6 +4,7 @@ import "blueprint.variant" for VAR_TYPE_PORT
 import "blueprint.execute_list" for ExecuteList
 import "blueprint.blueprint" for Blueprint
 import "editorgraph.variant" for VAR_TYPE_EVENT
+import "editorgraph.event_types" for EVENT_DIRTY
 
 class Trigger is Node
 {
@@ -25,6 +26,13 @@ class Trigger is Node
 		this.imports[2].stop_port_pass = true
 
 		this.exe_list = nil
+	}
+
+	on_node_dirty() 
+	{
+		if (this.get_event() == EVENT_DIRTY) {
+			this.execute_run()
+		}
 	}
 
 	execute_gen()
