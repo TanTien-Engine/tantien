@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "math" for Math
+
+class Floor is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+		this.exports = [
+			Pin(this, "v", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v = Blueprint.calc_input_value(this, 0)
+		return Variant(Math.floor(v.value))
+	}
+}
