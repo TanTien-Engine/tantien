@@ -31,6 +31,9 @@ class Print is Node
 	execute_run() 
 	{
 		this.value = Blueprint.calc_input_value(this, 1)
+
+		import "logger.logger" for Logger
+		Logger.info("Print: %(this.value)")
 	}
 
 	draw(mt, cam_mt)
