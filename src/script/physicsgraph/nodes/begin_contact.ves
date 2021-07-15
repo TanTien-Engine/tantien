@@ -1,0 +1,20 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "editorgraph.variant" for VAR_TYPE_EVENT
+import "physicsgraph.variant" for VAR_TYPE_BODY
+
+class BeginContact is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "event", VAR_TYPE_EVENT),
+			Pin(this, "a", VAR_TYPE_BODY),
+			Pin(this, "b", VAR_TYPE_BODY),
+		]
+
+		this.layout()
+	}
+}
