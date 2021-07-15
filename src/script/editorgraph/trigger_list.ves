@@ -6,21 +6,33 @@ class TriggerList
 {
 	init(nodes)
 	{
-		this.lists = {}
+		this.triggers = {}
 
-		this.events = []
+		this.events = {}
 
 		this.build_from_multi(nodes)
 	}
 
 	run(event)
 	{
-		var list = this.lists[event]
-		if (list) {
-			for (var node in list) {
+		var triggers = this.triggers[event]
+		if (triggers) {
+			for (var node in triggers) {
 				node.execute_run()
 			}
 		}
+	}
+
+	run(event, params)
+	{
+		var events = this.events[event]
+		if (events) {
+			for (var node in events) {
+				node.set_event_params(params)
+			}
+		}
+
+		this.run(event)
 	}
 
 	build_from_multi(nodes)
@@ -36,14 +48,8 @@ class TriggerList
 		if (node is Trigger)
 		{
 			var key = node.get_event()
-			if (key)
-			{
-				var list = this.lists[key]
-				if (list) {
-					list.add(node)
-				} else {
-					this.lists[key] = [node]
-				}
+			if (key) {
+				this.add_to_map_list(this.triggers, key, node)
 			}
 		}
 		else if (node is Subgraph) 
@@ -53,6 +59,23 @@ class TriggerList
 				nodes.add(item[0])
 			}
 			this.build_from_multi(nodes)
+		}
+		else if (node.has_method("set_event_params(_)")) 
+		{
+			var v_event = node.calc_value(0)
+			if (v_event) {
+				this.add_to_map_list(this.events, v_event.value, node)
+			}
+		}
+	}
+
+	add_to_map_list(map, key, val)
+	{
+		var list = map[key]
+		if (list) {
+			list.add(val)
+		} else {
+			map[key] = [val]
 		}
 	}
 }
