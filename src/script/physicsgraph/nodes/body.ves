@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
@@ -15,9 +15,10 @@ class Body is Node
 
 		this.imports = [
 			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "flag",   VAR_TYPE_INTEGER),
 		]
 		this.exports = [
-			Pin(this, "body", VAR_TYPE_BODY),
+			Pin(this, "body",   VAR_TYPE_BODY),
 			Pin(this, "bodies", VAR_TYPE_ARRAY),			
 		]
 
@@ -84,8 +85,14 @@ class Body is Node
 
 	build_body(v_geos)
 	{
+		var flag = nil
+		var v_flag = Blueprint.calc_input_value(this, 1)
+		if (v_flag) {
+			flag = v_flag.value
+		}
+
 		var type = this.query_param("type").value
-		var body = tt_Body.init(type)
+		var body = tt_Body.init(type, flag)
 		
 		if (v_geos.type == VAR_TYPE_ARRAY)
 		{

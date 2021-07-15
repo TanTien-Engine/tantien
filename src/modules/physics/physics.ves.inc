@@ -20,12 +20,13 @@ foreign class World
 
 foreign class Body
 {
-	init(type) {}
+	init(type, flag) {}
 
 	foreign add_shape(shape, filled)
 
 	foreign get_pos()
 	foreign get_type()
+	foreign get_flag()
 }
 
 );

@@ -147,10 +147,17 @@ void w_Body_get_type()
     ves_set_lstring(0, type.c_str(), type.size());
 }
 
+void w_Body_get_flag()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    ves_set_number(0, body->GetFlag());
+}
+
 void w_Body_allocate()
 {
     const char* type = ves_tostring(1);
-    auto body = std::make_shared<up::rigid::box2d::Body>(type);
+    int flag = ves_optnumber(2, -1);
+    auto body = std::make_shared<up::rigid::box2d::Body>(type, flag);
 
     auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
     proxy->obj = body;
@@ -178,6 +185,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
     if (strcmp(signature, "Body.get_type()") == 0) return w_Body_get_type;
+    if (strcmp(signature, "Body.get_flag()") == 0) return w_Body_get_flag;
 
 	return nullptr;
 }
