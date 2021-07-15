@@ -18,6 +18,7 @@ class Body is Node
 		]
 		this.exports = [
 			Pin(this, "body", VAR_TYPE_BODY),
+			Pin(this, "bodies", VAR_TYPE_ARRAY),			
 		]
 
 		this.params.add(NodeParam("type", "static", { "combo" : [ "static", "kinematic", "dynamic" ] }))
@@ -25,43 +26,76 @@ class Body is Node
 		this.layout()
 
 		this.body = VarBody()
+		this.bodies = nil
 	}
 
 	on_pin_dirty(pin)
 	{
 		this.body.body = nil
+		this.bodies = nil
 	}
 
 	on_node_dirty()
 	{
 		this.body.body = nil
+		this.bodies = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.body.body) {
-			this.body.body = this.build_body()
+		if (idx == 0)
+		{
+			if (!this.body.body) 
+			{
+				var v_geos = Blueprint.calc_input_value(this, 0)
+				this.body.body = this.build_body(v_geos)
+			}
+			return Variant(VAR_TYPE_BODY, this.body)
 		}
-		return Variant(VAR_TYPE_BODY, this.body)
-	}
+		else if (idx == 1)
+		{
+			if (!this.bodies) 
+			{
+				this.bodies = []
 
 	render_gen()
 	{
 		this.body.body = this.build_body()
 	}
+				var v_geos = Blueprint.calc_input_value(this, 0)
+				if (v_geos.type == VAR_TYPE_ARRAY)
+				{
+					for (var v_geo in v_geos.value)
+					{
+						var v_body = VarBody()
+						v_body.body = this.build_body(v_geo)
+						this.bodies.add(Variant(VAR_TYPE_BODY, v_body))
+					}
+				}
+				else
+				{
+					var v_body = VarBody()
+					v_body.body = this.build_body(v_geos)
+					this.bodies.add(Variant(VAR_TYPE_BODY, v_body))
+				}
+			}
 
 //	render_run() 
 //	{
 //		this.print_pos()
 //	}
+			return Variant(this.bodies)
+		}
 
-	build_body()
+		return nil
+	}
+
+	build_body(v_geos)
 	{
 		var type = this.query_param("type").value
 		var body = tt_Body.init(type)
-
-		var v_geos = Blueprint.calc_input_value(this, 0)
-		if (v_geos is List)
+		
+		if (v_geos.type == VAR_TYPE_ARRAY)
 		{
 			for (var geo in v_geos.value) {
 				body.add_shape(geo.value.shape, geo.value.render_style["fill"].value)
