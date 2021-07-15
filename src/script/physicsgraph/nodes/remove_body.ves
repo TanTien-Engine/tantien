@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY
+
+class RemoveBody is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "world", VAR_TYPE_WORLD),
+			Pin(this, "body",  VAR_TYPE_BODY),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run() 
+	{
+		var v_world = Blueprint.calc_input_value(this, 1)
+		var v_body  = Blueprint.calc_input_value(this, 2)
+		if (v_world and v_body) {
+			v_world.value.world.remove_body(v_body.value)
+		}
+	}
+}
