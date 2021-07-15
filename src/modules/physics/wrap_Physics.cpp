@@ -91,9 +91,9 @@ void w_Body_add_shape()
             std::vector<sm::vec2> vertices;
             auto& r = rect->GetRect();
             vertices.push_back({ r.xmin, r.ymin });
-            vertices.push_back({ r.xmax, r.ymin });
-            vertices.push_back({ r.xmax, r.ymax });
             vertices.push_back({ r.xmin, r.ymax });
+            vertices.push_back({ r.xmax, r.ymax });
+            vertices.push_back({ r.xmax, r.ymin });
             phy_shape->InitChainShape(vertices, true);
         }
     }
