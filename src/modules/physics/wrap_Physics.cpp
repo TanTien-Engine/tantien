@@ -150,10 +150,10 @@ void w_Body_get_type()
 void w_Body_allocate()
 {
     const char* type = ves_tostring(1);
-    auto world = std::make_shared<up::rigid::box2d::Body>(type);
+    auto body = std::make_shared<up::rigid::box2d::Body>(type);
 
     auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
-    proxy->obj = world;
+    proxy->obj = body;
 }
 
 int w_Body_finalize(void* data)
