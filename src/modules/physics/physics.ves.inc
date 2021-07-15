@@ -5,7 +5,7 @@ foreign class World
 {
 	init() {}
 
-	physics_begin_contact(a, b)
+	begin_contact(a, b)
 	{
 		import "editor" for _editor
 		_editor.trigger_list.run("evt_begin_contact", [a, b])

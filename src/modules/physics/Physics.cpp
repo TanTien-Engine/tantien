@@ -28,7 +28,7 @@ auto begin_contact = [](const std::shared_ptr<up::rigid::box2d::Body>& a, const 
 
 	ves_pop(1);
 
-	ves_pushstring("physics_begin_contact(_,_)");
+	ves_pushstring("begin_contact(_,_)");
 	ves_call(2, 0);
 };
 
