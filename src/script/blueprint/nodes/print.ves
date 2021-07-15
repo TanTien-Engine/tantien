@@ -19,20 +19,35 @@ class Print is Node
 		]
 
 		this.layout()
+
+		this.value = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		this.value = nil
+	}
+
+	execute_run() 
+	{
+		this.value = Blueprint.calc_input_value(this, 1)
 	}
 
 	draw(mt, cam_mt)
 	{
 		super.draw(mt, cam_mt)
 
-		var v = Blueprint.calc_input_value(this, 1)
-		if (!v) {
+		var val = this.value
+		if (!val) {
+			val = Blueprint.calc_input_value(this, 1)
+		}
+		if (!val) {
 			return
 		}
 
 		var hh = this.style.height * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT * 0.5
-		v.print(this.pos.x, y, this.style.width, cam_mt)
+		val.print(this.pos.x, y, this.style.width, cam_mt)
 	}
 
 	layout() 
