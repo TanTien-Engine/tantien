@@ -48,14 +48,7 @@ class DrawGeometry is Node
 		}
 
 		var pt = Painter.init()
-
-		if (v_geos.type == VAR_TYPE_ARRAY) {
-			for (var geo in v_geos.value) {
-				this.draw_geo(pt, geo.value, color)
-			}
-		} else {
-			this.draw_geo(pt, v_geos.value, color)
-		}
+		this.draw_geo(pt, v_geos, color)
 
 		import "blueprint.blackboard" for BLACKBOARD
 		var cam = BLACKBOARD.editor_cam
@@ -63,12 +56,22 @@ class DrawGeometry is Node
 		Graphics.draw_painter(pt)
 	}
 
-	draw_geo(pt, geo, color)
+	draw_geo(pt, v_geo, color)
 	{
-		if (geo is VarGeo) {
-			this.draw_geo_shape(pt, geo, color)
-		} else {
-			this.draw_prim_val(pt, geo, color)		
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			for (var v in v_geo.value) {
+				this.draw_geo(pt, v, color)
+			}
+		}
+		else
+		{
+			var geo = v_geo.value
+			if (geo is VarGeo) {
+				this.draw_geo_shape(pt, geo, color)
+			} else {
+				this.draw_prim_val(pt, geo, color)
+			}
 		}
 	}
 
