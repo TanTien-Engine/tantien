@@ -58,10 +58,6 @@ class Body is Node
 			{
 				this.bodies = []
 
-	render_gen()
-	{
-		this.body.body = this.build_body()
-	}
 				var v_geos = Blueprint.calc_input_value(this, 0)
 				if (v_geos.type == VAR_TYPE_ARRAY)
 				{
@@ -80,10 +76,6 @@ class Body is Node
 				}
 			}
 
-//	render_run() 
-//	{
-//		this.print_pos()
-//	}
 			return Variant(this.bodies)
 		}
 
@@ -113,13 +105,5 @@ class Body is Node
 		}
 
 		return body
-	}
-
-	print_pos()
-	{
-		if (this.body.body) {
-			import "logger.logger" for Logger
-			Logger.info("pos: %(pos[0]) %(pos[1])")
-		}
 	}
 }
