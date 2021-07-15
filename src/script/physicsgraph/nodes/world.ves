@@ -24,6 +24,11 @@ class World is Node
 		this.world = VarWorld()
 	}
 
+	on_pin_dirty(pin)
+	{
+		this.world.world = nil
+	}
+
 	calc_value(idx)
 	{
 		if (!this.world.world) {
