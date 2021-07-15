@@ -19,6 +19,7 @@ foreign class World
 	foreign debug_draw()
 
 	foreign add_body(body)
+	foreign remove_body(body)
 }
 
 foreign class Body
@@ -28,6 +29,7 @@ foreign class Body
 	foreign add_shape(shape, filled)
 
 	foreign get_pos()
+	foreign get_type()
 }
 
 );

@@ -59,6 +59,13 @@ void w_World_add_body()
     world->AddBody(body);
 }
 
+void w_World_remove_body()
+{
+    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    world->RemoveBody(body);
+}
+
 void w_Body_add_shape()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
@@ -133,6 +140,13 @@ void w_Body_get_pos()
     ves_pop(1);
 }
 
+void w_Body_get_type()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto& type = body->GetType();
+    ves_set_lstring(0, type.c_str(), type.size());
+}
+
 void w_Body_allocate()
 {
     const char* type = ves_tostring(1);
@@ -159,9 +173,11 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.update()") == 0) return w_World_update;
     if (strcmp(signature, "World.debug_draw()") == 0) return w_World_debug_draw;
     if (strcmp(signature, "World.add_body(_)") == 0) return w_World_add_body;
+    if (strcmp(signature, "World.remove_body(_)") == 0) return w_World_remove_body;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
+    if (strcmp(signature, "Body.get_type()") == 0) return w_Body_get_type;
 
 	return nullptr;
 }
