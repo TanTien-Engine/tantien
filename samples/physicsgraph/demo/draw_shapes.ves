@@ -93,7 +93,7 @@ node17.query_param("x").value = 130.68
 node17.query_param("y").value = -93.17
 node17.query_param("w").value = 24.98
 node17.query_param("h").value = 50.39
-node17.query_param("fill").value = false
+node17.query_param("fill").value = true
 node17.query_param("color").value.set(1, 0, 0)
 
 _editor.add_node(node17, -592.10473588424, -63.299767844463)
@@ -105,7 +105,7 @@ _editor.add_node(node18, -455.3309321733, 16.975072853777)
 
 var node19 = ::geograph::nodes::polyline::Polyline()
 node19.query_param("vertices").value = [ -182.16249084473, -67.727104187012, -89.955673217773, -174.96022033691, 48.696060180664, -207.06184387207, 188.03080749512, -210.47691345215, 364.93127441406, -171.54515075684, 491.2887878418, -108.70790863037 ]
-node19.query_param("closed").value = true
+node19.query_param("closed").value = false
 
 _editor.add_node(node19, -589.46202503551, -231.45351895419)
 
@@ -136,6 +136,10 @@ Blueprint.connect(node21, "geo", node22, "geos")
 Blueprint.connect(node19, "geo", node23, "geos")
 Blueprint.connect(node19, "geo", node20, "geos")
 Blueprint.connect(node17, "geo", node18, "geos")
+Blueprint.connect(node15, "geo", node16, "geos")
+Blueprint.connect(node12, "geo", node13, "geos")
+Blueprint.connect(node13, "body", node14, "in1")
+Blueprint.connect(node16, "body", node14, "in2")
 Blueprint.connect(node18, "body", node14, "in3")
 Blueprint.connect(node20, "body", node14, "in4")
 Blueprint.connect(node22, "body", node14, "in5")
@@ -143,8 +147,6 @@ Blueprint.connect(node14, "list", node0, "bodies")
 Blueprint.connect(node0, "world", node11, "obj")
 Blueprint.connect(node0, "world", node4, "world")
 Blueprint.connect(node4, "next", node6, "prev")
-Blueprint.connect(node15, "geo", node16, "geos")
-Blueprint.connect(node12, "geo", node13, "geos")
 Blueprint.connect(node10, "event", node9, "event")
 Blueprint.connect(node11, "next", node9, "action")
 Blueprint.connect(node8, "event", node5, "event")
