@@ -1,0 +1,46 @@
+var node0 = ::physicsgraph::nodes::body_info::BodyInfo()
+
+_editor.add_node(node0, -233.87415608142, 78.988432134748)
+
+var node1 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node1, 88.251445371736, 61.485036517651)
+
+var node2 = ::blueprint::nodes::compare::Compare()
+
+node2.cmp = "equal"
+
+_editor.add_node(node2, -96.35279510691, 54.134575008291)
+
+var node3 = ::physicsgraph::nodes::remove_body::RemoveBody()
+
+_editor.add_node(node3, -95.85480552454, -43.326425724379)
+
+var node4 = ::blueprint::nodes::input::Input()
+
+node4.var_name = "world"
+node4.var_type = "world"
+
+_editor.add_node(node4, -232.72320434819, -42.531336860119)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "body"
+node5.var_type = "body"
+
+_editor.add_node(node5, -415.12762764569, -76.11986594565)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "flag"
+node6.var_type = "int"
+
+_editor.add_node(node6, -232.72324656283, 23.712712093112)
+
+Blueprint.connect(node5, "var", node0, "body")
+Blueprint.connect(node0, "flag", node2, "a")
+Blueprint.connect(node6, "var", node2, "b")
+Blueprint.connect(node2, "out", node1, "cond")
+Blueprint.connect(node3, "next", node1, "true")
+Blueprint.connect(node4, "var", node3, "world")
+Blueprint.connect(node5, "var", node3, "body")
