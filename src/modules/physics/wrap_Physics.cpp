@@ -2,11 +2,13 @@
 #include "modules/physics/Physics.h"
 #include "modules/script/Proxy.h"
 #include "modules/graphics/Graphics.h"
+#include "modules/script/TransHelper.h"
 
 #include <uniphysics/rigid/DebugDraw.h>
 #include <uniphysics/rigid/box2d/World.h>
 #include <uniphysics/rigid/box2d/Body.h>
 #include <uniphysics/rigid/box2d/Shape.h>
+#include <uniphysics/rigid/box2d/Joint.h>
 #include <geoshape/Line2D.h>
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
@@ -66,11 +68,42 @@ void w_World_remove_body()
     world->RemoveBody(body);
 }
 
+void w_World_add_joint()
+{
+    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto joint = ((tt::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
+    world->AddJoint(joint);
+}
+
+void w_World_remove_joint()
+{
+    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto joint = ((tt::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
+    world->RemoveJoint(joint);
+}
+
+void w_Body_allocate()
+{
+    const char* type = ves_tostring(1);
+    int flag = ves_optnumber(2, -1);
+    auto body = std::make_shared<up::rigid::box2d::Body>(type, flag);
+
+    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+    proxy->obj = body;
+}
+
+int w_Body_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<up::rigid::box2d::Body>);
+}
+
 void w_Body_add_shape()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
-    auto filled = ves_toboolean(2);
+    auto filled = ves_optboolean(2, false);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -153,21 +186,23 @@ void w_Body_get_flag()
     ves_set_number(0, body->GetFlag());
 }
 
-void w_Body_allocate()
+void w_PrismaticJoint_allocate()
 {
-    const char* type = ves_tostring(1);
-    int flag = ves_optnumber(2, -1);
-    auto body = std::make_shared<up::rigid::box2d::Body>(type, flag);
+    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor = tt::list_to_vec2(3);
+    auto axis = tt::list_to_vec2(4);
 
-    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
-    proxy->obj = body;
+    auto joint = std::make_shared<up::rigid::box2d::PrismaticJoint>(body_a, body_b, anchor, axis);
+    auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>));
+    proxy->obj = joint;
 }
 
-int w_Body_finalize(void* data)
+int w_PrismaticJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)(data);
+    auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::Body>);
+    return sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>);
 }
 
 }
@@ -181,6 +216,8 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.debug_draw()") == 0) return w_World_debug_draw;
     if (strcmp(signature, "World.add_body(_)") == 0) return w_World_add_body;
     if (strcmp(signature, "World.remove_body(_)") == 0) return w_World_remove_body;
+    if (strcmp(signature, "World.add_joint(_)") == 0) return w_World_add_joint;
+    if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
@@ -203,6 +240,13 @@ void PhysicsBindClass(const char* class_name, VesselForeignClassMethods* methods
     {
         methods->allocate = w_Body_allocate;
         methods->finalize = w_Body_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "PrismaticJoint") == 0)
+    {
+        methods->allocate = w_PrismaticJoint_allocate;
+        methods->finalize = w_PrismaticJoint_finalize;
         return;
     }
 }

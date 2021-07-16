@@ -71,4 +71,58 @@ uint32_t list_to_rgba(int index)
     return col;
 }
 
+sm::vec2 list_to_vec2(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_LIST, "error type");
+
+    sm::vec2 ret;
+
+    const int num = ves_len(index);
+    GD_ASSERT(num == 2, "error num");
+
+    for (int i = 0; i < 2; ++i) {
+        ves_geti(index, i);
+        ret.xy[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    return ret;
+}
+
+sm::vec3 list_to_vec3(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_LIST, "error type");
+
+    sm::vec3 ret;
+
+    const int num = ves_len(index);
+    GD_ASSERT(num == 3, "error num");
+
+    for (int i = 0; i < 3; ++i) {
+        ves_geti(index, i);
+        ret.xyz[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    return ret;
+}
+
+sm::vec4 list_to_vec4(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_LIST, "error type");
+
+    sm::vec4 ret;
+
+    const int num = ves_len(index);
+    GD_ASSERT(num == 4, "error num");
+
+    for (int i = 0; i < 4; ++i) {
+        ves_geti(index, i);
+        ret.xyzw[i] = (float)ves_tonumber(-1);
+        ves_pop(1);
+    }
+
+    return ret;
+}
+
 }

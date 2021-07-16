@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
-import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY, VarWorld
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY, VAR_TYPE_JOINT, VarWorld
 import "geograph.variant" for VAR_TYPE_GEO
 import "physics" for World as tt_World, Body
 
@@ -14,6 +14,7 @@ class World is Node
 
 		this.imports = [
 			Pin(this, "bodies", [ VAR_TYPE_BODY, VAR_TYPE_ARRAY ]),
+			Pin(this, "joints", [ VAR_TYPE_JOINT, VAR_TYPE_ARRAY ]),			
 		]
 		this.exports = [
 			Pin(this, "world", VAR_TYPE_WORLD),
@@ -32,41 +33,68 @@ class World is Node
 	calc_value(idx)
 	{
 		if (!this.world.world) {
-			this.world.world = this.build_world()
+			this.build_world()
 		}
 		return Variant(VAR_TYPE_WORLD, this.world)
 	}
 
 	build_world()
 	{
+		this.world.world = nil
+		this.world.bodies.clear()
+		this.world.joints.clear()		
+
 		import "logger.logger" for Logger
 		Logger.info("build physics world")
 
-		var v_bodies = Blueprint.calc_input_value(this, 0)
-		var world = tt_World.init()
-		this.build_multi(world, v_bodies)
-		return world
-	}
+		this.world.world = tt_World.init()
 
-	build_multi(world, v_bodies)
-	{	
-		if (v_bodies.type == VAR_TYPE_ARRAY) {
-			for (var v_body in v_bodies.value) {
-				this.build_multi(world, v_body)
-			}
-		} else {
-			this.build_single(world, v_bodies)
+		var v_bodies = Blueprint.calc_input_value(this, 0)
+		if (v_bodies) {
+			this.add_multi_bodies(this.world, v_bodies)		
+		}
+
+		var v_joints = Blueprint.calc_input_value(this, 1)
+		if (v_joints) {
+			this.add_joint(this.world, v_joints)		
 		}
 	}
 
-	build_single(world, v_body)
+	add_multi_bodies(world, v_bodies)
+	{	
+		if (v_bodies.type == VAR_TYPE_ARRAY) {
+			for (var v_body in v_bodies.value) {
+				this.add_multi_bodies(world, v_body)
+			}
+		} else {
+			this.add_single_body(world, v_bodies)
+		}
+	}
+
+	add_single_body(world, v_body)
 	{
-		if (v_body.type == VAR_TYPE_BODY) {
-			world.add_body(v_body.value.body)
-		} else if (v_body.type == VAR_TYPE_GEO) {
+		if (v_body.type == VAR_TYPE_BODY) 
+		{
+			world.world.add_body(v_body.value.body)
+			world.bodies.add(v_body)
+		} 
+		else if (v_body.type == VAR_TYPE_GEO) 
+		{
 			var body = Body.init("static", -1)
 			body.add_shape(v_body.value.shape, v_body.value.render_style["fill"].value)
-			world.add_body(body)
+			world.world.add_body(body)
+		}
+	}
+
+	add_joint(world, v_joints)
+	{	
+		if (v_joints.type == VAR_TYPE_ARRAY) {
+			for (var v_joint in v_joints.value) {
+				this.add_joint(world, v_joint)
+			}
+		} else {
+			world.world.add_joint(v_joints.value.joint)
+			world.joints.add(v_joints)
 		}
 	}
 }

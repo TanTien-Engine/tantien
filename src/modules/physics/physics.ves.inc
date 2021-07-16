@@ -16,6 +16,9 @@ foreign class World
 
 	foreign add_body(body)
 	foreign remove_body(body)
+
+	foreign add_joint(joint)
+	foreign remove_joint(joint)
 }
 
 foreign class Body
@@ -27,6 +30,10 @@ foreign class Body
 	foreign get_pos()
 	foreign get_type()
 	foreign get_flag()
+
+foreign class PrismaticJoint
+{
+	init(body_a, body_b, anchor, axis) {}
 }
 
 );
