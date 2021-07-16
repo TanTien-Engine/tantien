@@ -31,6 +31,9 @@ foreign class Body
 	foreign get_type()
 	foreign get_flag()
 
+	foreign set_linear_velocity(x, y)
+}
+
 foreign class PrismaticJoint
 {
 	init(body_a, body_b, anchor, axis) {}
