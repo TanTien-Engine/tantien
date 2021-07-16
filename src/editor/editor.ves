@@ -30,7 +30,7 @@ import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
 import "editorgraph.trigger_list" for TriggerList
 import "blueprint.blackboard" for BLACKBOARD
-import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_MOUSE_MOVE, EVENT_TICKER, EVENT_BLUEPRINT_CHANGED, EVENT_ENTER_EDITOR_MODE, EVENT_LEAVE_EDITOR_MODE
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_MOUSE_MOVE, EVENT_KEY_PRESSED, EVENT_TICKER, EVENT_BLUEPRINT_CHANGED, EVENT_ENTER_EDITOR_MODE, EVENT_LEAVE_EDITOR_MODE
 
 class Editor
 {
@@ -197,6 +197,8 @@ class Editor
 				this.node_editor_mode = false
 			}
 		}
+
+		this.trigger_list.run(EVENT_KEY_PRESSED + "_" + key)
 	}
 
 	keyreleased(key)
