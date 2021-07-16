@@ -21,7 +21,7 @@ class PrismaticJoint is Node
 			Pin(this, "joint", VAR_TYPE_JOINT),
 		]
 
-		this.params.add(NodeParam("anchor", Vector2(0, 0)))
+		this.params.add(NodeParam("anchor", Vector2(0, 0), { "min" : -10, "max" : 10 }))
 		this.params.add(NodeParam("axis", Vector2(1, 0)))
 
 		this.layout()
