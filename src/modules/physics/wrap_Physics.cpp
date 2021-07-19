@@ -9,6 +9,7 @@
 #include <uniphysics/rigid/box2d/Body.h>
 #include <uniphysics/rigid/box2d/Shape.h>
 #include <uniphysics/rigid/box2d/Joint.h>
+#include <uniphysics/rigid/box2d/config.h>
 #include <geoshape/Line2D.h>
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
@@ -80,6 +81,11 @@ void w_World_remove_joint()
     auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
     auto joint = ((tt::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
     world->RemoveJoint(joint);
+}
+
+void w_World_get_scale_factor()
+{
+    ves_set_number(0, up::rigid::box2d::SCALE_FACTOR);
 }
 
 void w_Body_allocate()
@@ -280,6 +286,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.remove_body(_)") == 0) return w_World_remove_body;
     if (strcmp(signature, "World.add_joint(_)") == 0) return w_World_add_joint;
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
+    if (strcmp(signature, "static World.get_scale_factor()") == 0) return w_World_get_scale_factor;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.set_gravity_scale(_)") == 0) return w_Body_set_gravity_scale;

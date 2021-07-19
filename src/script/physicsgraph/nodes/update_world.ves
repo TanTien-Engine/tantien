@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_WORLD
+ import "physics" for World
+
+class UpdateWorld is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "world", VAR_TYPE_WORLD),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run() 
+	{
+		var v_world = Blueprint.calc_input_value(this, 1)
+		if (!v_world or v_world.type != VAR_TYPE_WORLD) {
+			return
+		}
+
+		var w = v_world.value
+		var s = World.get_scale_factor()
+		for (var b in w.bodies)
+		{
+			if (b.value.geo) 
+			{
+				var src = b.value.body.get_pos()
+				var dst = b.value.geo.value.pos
+				dst[0] = src[0] * s
+				dst[1] = src[1] * s
+			}
+		}
+	}
+}

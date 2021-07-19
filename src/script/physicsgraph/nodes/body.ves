@@ -42,8 +42,9 @@ class Body is Node
 			if (!this.body.body) 
 			{
 				var v_geos = Blueprint.calc_input_value(this, 0)
-				this.body.body = this.build_body(v_geos)
+				this.body.body   = this.build_body(v_geos)
 				this.body.bodies = nil
+				this.body.geo    = v_geos
 			}
 			return Variant(VAR_TYPE_BODY, this.body)
 		}

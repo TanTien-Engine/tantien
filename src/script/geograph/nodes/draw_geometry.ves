@@ -106,11 +106,22 @@ class DrawGeometry is Node
 		if (shape is Line)
 		{
 			var line = shape.get()
+			if (geo.pos) {
+				line[0] = line[0] + geo.pos[0]
+				line[1] = line[1] + geo.pos[1]
+				line[2] = line[2] + geo.pos[0]
+				line[3] = line[3] + geo.pos[1]
+			}
+
 			pt.add_line(line, col_array, 2)			
 		}
 		else if (shape is Rect)
 		{
 			var rect = shape.get()
+			if (geo.pos) {
+				rect[0] = rect[0] + geo.pos[0]
+				rect[1] = rect[1] + geo.pos[1]
+			}
 
 			var fill = geo.render_style["fill"]
 			if (fill) {
@@ -122,6 +133,10 @@ class DrawGeometry is Node
 		else if (shape is Circle)
 		{
 			var c = shape.get()
+			if (geo.pos) {
+				c[0] = c[0] + geo.pos[0]
+				c[1] = c[1] + geo.pos[1]
+			}
 
 			var fill = geo.render_style["fill"]
 			if (fill) {
@@ -133,6 +148,12 @@ class DrawGeometry is Node
 		else if (shape is Polyline)
 		{
 			var verts = shape.get_vertices()
+			if (geo.pos) {
+				for (var i = 0; i < verts.count; i = i + 2) {
+					verts[i] = verts[i] + geo.pos[0]
+					verts[i + 1] = verts[i + 1] + geo.pos[1]
+				}
+			}
 
 			pt.add_polyline(verts, col_array, 2.0)
 		}

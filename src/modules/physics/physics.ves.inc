@@ -19,6 +19,8 @@ foreign class World
 
 	foreign add_joint(joint)
 	foreign remove_joint(joint)
+
+	foreign static get_scale_factor()
 }
 
 foreign class Body
