@@ -34,6 +34,7 @@
 #include <sstream>
 #include <chrono>
 #include <filesystem>
+#include <string>
 
 #include <assert.h>
 
@@ -326,6 +327,13 @@ void call_keypressed(const char* str)
     ves_call(1, 0);
 }
 
+void call_keyreleased(const char* str)
+{
+    ves_pushstring(str);
+    ves_pushstring("keyreleased(_)");
+    ves_call(1, 0);
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     const bool ctrl_pressed =
@@ -355,6 +363,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (key == GLFW_KEY_PRINT_SCREEN && action == GLFW_PRESS) {
         ves_pushstring("print_screen()");
         ves_call(0, 0);
+    } else if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z && action == GLFW_RELEASE) {
+        std::string str;
+        str.push_back('a' + (key - GLFW_KEY_A));
+        call_keyreleased(str.c_str());
     }
 }
 

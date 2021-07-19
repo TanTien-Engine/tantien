@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.node_param" for NodeParam
+import "editorgraph.variant" for VAR_TYPE_EVENT
+
+class KeyReleased is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "event", VAR_TYPE_EVENT),
+		]
+
+		this.params.add(NodeParam("key", "none", { "combo" : [ "none", "a", "s", "d", "w" ] }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		import "editorgraph.event_types" for EVENT_KEY_RELEASED
+		var key = EVENT_KEY_RELEASED + "_" + this.query_param("key").value
+		return Variant(VAR_TYPE_EVENT, key)
+	}
+}
