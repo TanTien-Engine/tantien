@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_BODY
+
+class ApplyAngularImpulse is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",    VAR_TYPE_PORT),
+			Pin(this, "body",    VAR_TYPE_BODY),
+			Pin(this, "impulse", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run()
+	{
+		var v_body = Blueprint.calc_input_value(this, 1)
+		var v_impulse = Blueprint.calc_input_value(this, 2)
+		if (v_body and v_impulse) {
+			v_body.value.body.apply_angular_impulse(v_impulse.value)
+		}
+	}
+}

@@ -1,0 +1,34 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_BODY
+
+class ApplyForce is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "body",  VAR_TYPE_BODY),
+			Pin(this, "force", VAR_TYPE_NUMBER2),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run()
+	{
+		var v_body = Blueprint.calc_input_value(this, 1)
+		var v_force = Blueprint.calc_input_value(this, 2)
+		if (v_body and v_force) {
+			var v = v_force.value
+			v_body.value.body.apply_force([v.x, v.y])
+		}
+	}
+}

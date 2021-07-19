@@ -190,6 +190,34 @@ void w_Body_set_friction()
     body->SetFriction(friction);
 }
 
+void w_Body_apply_force()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto force = tt::list_to_vec2(1);
+    body->ApplyForce(force);
+}
+
+void w_Body_apply_torque()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float torque = (float)ves_tonumber(1);
+    body->ApplyTorque(torque);
+}
+
+void w_Body_apply_linear_impulse()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto impulse = tt::list_to_vec2(1);
+    body->ApplyLinearImpulse(impulse);
+}
+
+void w_Body_apply_angular_impulse()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float impulse = (float)ves_tonumber(1);
+    body->ApplyAngularImpulse(impulse);
+}
+
 void w_Body_get_pos()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
@@ -299,6 +327,10 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.set_density(_)") == 0) return w_Body_set_density;
     if (strcmp(signature, "Body.set_restitution(_)") == 0) return w_Body_set_restitution;
     if (strcmp(signature, "Body.set_friction(_)") == 0) return w_Body_set_friction;
+    if (strcmp(signature, "Body.apply_force(_)") == 0) return w_Body_apply_force;
+    if (strcmp(signature, "Body.apply_torque(_)") == 0) return w_Body_apply_torque;
+    if (strcmp(signature, "Body.apply_linear_impulse(_)") == 0) return w_Body_apply_linear_impulse;
+    if (strcmp(signature, "Body.apply_angular_impulse(_)") == 0) return w_Body_apply_angular_impulse;
     if (strcmp(signature, "Body.set_transform(_,_)") == 0) return w_Body_set_transform;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
     if (strcmp(signature, "Body.get_type()") == 0) return w_Body_get_type;

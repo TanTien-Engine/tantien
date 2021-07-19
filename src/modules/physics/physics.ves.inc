@@ -35,6 +35,11 @@ foreign class Body
 	foreign set_restitution(restitution)
 	foreign set_friction(friction)
 
+	foreign apply_force(force)
+	foreign apply_torque(torque)
+	foreign apply_linear_impulse(impulse)
+	foreign apply_angular_impulse(impulse)
+
 	foreign set_transform(pos, angle)
 
 	foreign get_pos()
