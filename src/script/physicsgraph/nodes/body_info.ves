@@ -40,11 +40,11 @@ class BodyInfo is Node
 
 		if (idx == 0) 
 		{
-			return Variant(VAR_TYPE_INTEGER, v_body.body.get_flag())
+			return Variant(VAR_TYPE_INTEGER, v_body.value.body.get_flag())
 		} 
 		else if (idx == 1) 
 		{
-			var v = v_body.body.get_linear_velocity()
+			var v = v_body.value.body.get_linear_velocity()
 			return Variant(Vector2(v[0], v[1]))
 		}
 

@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "editorgraph.variant" for VAR_TYPE_EVENT
-import "physicsgraph.variant" for VAR_TYPE_BODY
+import "physicsgraph.variant" for VAR_TYPE_BODY, VarBody
 
 class EndContact is Node
 {
@@ -28,9 +28,13 @@ class EndContact is Node
 			import "physicsgraph.event_types" for EVENT_END_CONTACT
 			return Variant(VAR_TYPE_EVENT, EVENT_END_CONTACT)
 		} else if (idx == 1) {
-			return this.a
+			var v_body = VarBody()
+			v_body.body = this.a
+			return Variant(VAR_TYPE_BODY, v_body)
 		} else if (idx == 2) {
-			return this.b
+			var v_body = VarBody()
+			v_body.body = this.b
+			return Variant(VAR_TYPE_BODY, v_body)
 		}
 		return nil
 	}

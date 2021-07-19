@@ -27,7 +27,7 @@ class RemoveBody is Node
 		var v_world = Blueprint.calc_input_value(this, 1)
 		var v_body  = Blueprint.calc_input_value(this, 2)
 		if (v_world and v_body) {
-			v_world.value.world.remove_body(v_body.value)
+			v_world.value.world.remove_body(v_body.value.body)
 		}
 	}
 }
