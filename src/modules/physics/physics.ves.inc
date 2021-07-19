@@ -27,6 +27,12 @@ foreign class Body
 
 	foreign add_shape(shape, filled)
 
+	foreign set_gravity_scale(density)
+
+	foreign set_density(density)
+	foreign set_restitution(restitution)
+	foreign set_friction(friction)
+
 	foreign set_transform(pos, angle)
 
 	foreign get_pos()

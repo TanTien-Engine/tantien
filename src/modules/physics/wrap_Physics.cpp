@@ -156,6 +156,34 @@ void w_Body_add_shape()
     body->AddShape(phy_shape);
 }
 
+void w_Body_set_gravity_scale()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float gravity = (float)ves_tonumber(1);
+    body->SetGravityScale(gravity);
+}
+
+void w_Body_set_density()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float density = (float)ves_tonumber(1);
+    body->SetDensity(density);
+}
+
+void w_Body_set_restitution()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float restitution = (float)ves_tonumber(1);
+    body->SetRestitution(restitution);
+}
+
+void w_Body_set_friction()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    float friction = (float)ves_tonumber(1);
+    body->SetFriction(friction);
+}
+
 void w_Body_get_pos()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
@@ -254,6 +282,10 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
+    if (strcmp(signature, "Body.set_gravity_scale(_)") == 0) return w_Body_set_gravity_scale;
+    if (strcmp(signature, "Body.set_density(_)") == 0) return w_Body_set_density;
+    if (strcmp(signature, "Body.set_restitution(_)") == 0) return w_Body_set_restitution;
+    if (strcmp(signature, "Body.set_friction(_)") == 0) return w_Body_set_friction;
     if (strcmp(signature, "Body.set_transform(_,_)") == 0) return w_Body_set_transform;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
     if (strcmp(signature, "Body.get_type()") == 0) return w_Body_get_type;

@@ -24,6 +24,12 @@ class Body is Node
 
 		this.params.add(NodeParam("type", "static", { "combo" : [ "static", "kinematic", "dynamic" ] }))
 
+		this.params.add(NodeParam("gravity",     1.0, { "min" : 0.0, "max" : 2.0 }))
+		// todo: need fixture?
+		this.params.add(NodeParam("density",     0.0, { "min" : 0.0, "max" : 2.0 }))
+		this.params.add(NodeParam("restitution", 0.0, { "min" : 0.0, "max" : 2.0 }))
+		this.params.add(NodeParam("friction",    0.2, { "min" : 0.0, "max" : 1.0 }))
+
 		this.layout()
 
 		this.body = VarBody()
@@ -110,6 +116,11 @@ class Body is Node
 
 			body.add_shape(v_geos.value.shape, filled)
 		}
+
+		body.set_gravity_scale(this.query_param("gravity").value)
+		body.set_density(this.query_param("density").value)
+		body.set_restitution(this.query_param("restitution").value)
+		body.set_friction(this.query_param("friction").value)
 
 		return body
 	}
