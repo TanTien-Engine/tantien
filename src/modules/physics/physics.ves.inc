@@ -27,6 +27,8 @@ foreign class Body
 
 	foreign add_shape(shape, filled)
 
+	foreign set_transform(pos, angle)
+
 	foreign get_pos()
 	foreign get_type()
 	foreign get_flag()

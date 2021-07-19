@@ -1,0 +1,49 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_BODY
+
+class SetTransform is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "body",  VAR_TYPE_BODY),
+			Pin(this, "pos",   VAR_TYPE_NUMBER2),
+			Pin(this, "angle", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run()
+	{
+		var v_body  = Blueprint.calc_input_value(this, 1)
+		if (!v_body) {
+			return
+		}
+
+		var pos = [0, 0]
+		var angle = 0		
+
+		var v_pos   = Blueprint.calc_input_value(this, 2)
+		if (v_pos) {
+			pos[0] = v_pos.value.x
+			pos[1] = v_pos.value.y			
+		}
+
+		var v_angle = Blueprint.calc_input_value(this, 3)
+		if (v_angle) {
+			angle = v_angle.value
+		}
+
+		v_body.value.body.set_transform(pos, angle)
+	}
+}
