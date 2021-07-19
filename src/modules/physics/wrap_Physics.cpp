@@ -85,7 +85,7 @@ void w_World_remove_joint()
 void w_Body_allocate()
 {
     const char* type = ves_tostring(1);
-    int flag = ves_optnumber(2, -1);
+    int flag = (int)ves_optnumber(2, -1);
     auto body = std::make_shared<up::rigid::box2d::Body>(type, flag);
 
     auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
