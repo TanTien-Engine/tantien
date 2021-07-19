@@ -1,8 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_INTEGER
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER2
 import "blueprint.blueprint" for Blueprint
 import "physicsgraph.variant" for VAR_TYPE_BODY
+import "maths.vector" for Vector2
 
 class BodyInfo is Node
 {
@@ -14,7 +15,8 @@ class BodyInfo is Node
 			Pin(this, "body", VAR_TYPE_BODY),
 		]
 		this.exports = [
-			Pin(this, "flag", VAR_TYPE_INTEGER),
+			Pin(this, "flag",            VAR_TYPE_INTEGER),
+			Pin(this, "linear_velocity", VAR_TYPE_NUMBER2),
 		]
 
 		this.layout()
@@ -36,8 +38,14 @@ class BodyInfo is Node
 			return nil
 		}
 
-		if (idx == 0) {
+		if (idx == 0) 
+		{
 			return Variant(VAR_TYPE_INTEGER, v_body.body.get_flag())
+		} 
+		else if (idx == 1) 
+		{
+			var v = v_body.body.get_linear_velocity()
+			return Variant(Vector2(v[0], v[1]))
 		}
 
 		return nil
