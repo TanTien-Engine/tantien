@@ -1,9 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX4
 import "maths" for Matrix44, Float3
-import "maths.vector" for Vector3
+import "maths.vector" for Vector4, Vector3, Vector2
 
 class Multiply is Node
 {
@@ -30,18 +30,36 @@ class Multiply is Node
 			return nil
 		}
 
-		if (a.type == VAR_TYPE_NUMBER) {
-			return Variant(VAR_TYPE_NUMBER, a.value * b.value)
-		} else if (a.type == VAR_TYPE_MATRIX4) {
+		if ((a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_NUMBER2 or a.type == VAR_TYPE_NUMBER3 or a.type == VAR_TYPE_NUMBER4) and (b.type == VAR_TYPE_NUMBER or b.type == VAR_TYPE_NUMBER2 or b.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER4))
+		{
+			var ret = [1, 1, 1, 1]
+			Multiply.mul_to(a, ret)
+			Multiply.mul_to(b, ret)
+			if (a.type == VAR_TYPE_NUMBER4 or b.type == VAR_TYPE_NUMBER4) {
+				return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
+			} else if (a.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER3) {
+				return Variant(VAR_TYPE_NUMBER3, Vector3(ret[0], ret[1], ret[2]))
+			} else if (a.type == VAR_TYPE_NUMBER2 or b.type == VAR_TYPE_NUMBER2) {
+				return Variant(VAR_TYPE_NUMBER2, Vector2(ret[0], ret[1]))
+			} else {
+				return Variant(VAR_TYPE_NUMBER, ret[0])
+			}
+		} 
+		else if (a.type == VAR_TYPE_MATRIX4) 
+		{
 			var mt = Matrix44.init()
 			mt.transform_mat4(b.value)
 			mt.transform_mat4(a.value)
 			return Variant(VAR_TYPE_MATRIX4, mt)
-		} else if (a.type == VAR_TYPE_NUMBER3 and b.type == VAR_TYPE_MATRIX4) {
+		} 
+		else if (a.type == VAR_TYPE_NUMBER3 and b.type == VAR_TYPE_MATRIX4) 
+		{
 			var p = Float3.init(a.value.x, a.value.y, a.value.z)
 			p.transform(b.value)
 			return Variant(VAR_TYPE_NUMBER3, Vector3(p.x(), p.y(), p.z()))	
-		} else {
+		} 
+		else 
+		{
 			return Variant(VAR_TYPE_UNKNOWN, nil)
 		}
 
@@ -64,6 +82,27 @@ class Multiply is Node
 		} else {
 			var bb = node.find_value("bb")
 			return bb.mul(a, b)
+		}
+	}
+
+	static mul_to(v, ret)
+	{
+		if (v.type == VAR_TYPE_NUMBER) {
+			for (var i in 0..4) {
+				ret[i] = ret[i] * v.value			
+			}
+		} else if (v.type == VAR_TYPE_NUMBER2) {
+			ret[0] = ret[0] * v.value.x
+			ret[1] = ret[1] * v.value.y			
+		} else if (v.type == VAR_TYPE_NUMBER3) {
+			ret[0] = ret[0] * v.value.x
+			ret[1] = ret[1] * v.value.y
+			ret[2] = ret[2] * v.value.z
+		} else if (v.type == VAR_TYPE_NUMBER4) {
+			ret[0] = ret[0] * v.value.x
+			ret[1] = ret[1] * v.value.y
+			ret[2] = ret[2] * v.value.z
+			ret[3] = ret[3] * v.value.w
 		}
 	}
 }
