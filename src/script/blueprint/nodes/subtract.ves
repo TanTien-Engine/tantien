@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.add" for Add
 import "maths.vector" for Vector2, Vector3, Vector4
@@ -60,7 +60,7 @@ class Subtract is Node
 		
 	static sub_from(v, ret)
 	{
-		if (v.type == VAR_TYPE_NUMBER) {
+		if (v.type == VAR_TYPE_NUMBER or v.type == VAR_TYPE_INTEGER) {
 			ret[0] = ret[0] - v.value
 		} else if (v.type == VAR_TYPE_NUMBER2) {
 			ret[0] = ret[0] - v.value.x
