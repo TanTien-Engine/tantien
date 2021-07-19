@@ -25,11 +25,6 @@ class World is Node
 		this.world = VarWorld()
 	}
 
-	on_pin_dirty(pin)
-	{
-		this.world.world = nil
-	}
-
 	calc_value(idx)
 	{
 		if (!this.world.world) {
@@ -75,7 +70,18 @@ class World is Node
 	{
 		if (v_body.type == VAR_TYPE_BODY) 
 		{
-			world.world.add_body(v_body.value.body)
+			if (v_body.value.bodies) {
+				for (var b in v_body.value.bodies) {
+					if (b.value.body) {
+						world.world.add_body(b.value.body)					
+					}
+				}
+			} else {
+				if (v_body.value.body) {
+					world.world.add_body(v_body.value.body)				
+				}
+			}
+
 			world.bodies.add(v_body)
 		} 
 		else if (v_body.type == VAR_TYPE_GEO) 

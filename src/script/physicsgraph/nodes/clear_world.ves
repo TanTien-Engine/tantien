@@ -30,12 +30,17 @@ class ClearWorld is Node
 
 		var w = v_world.value
 
+		// clear cache
 		w.world = nil
 		for (var b in w.bodies) {
 			b.value.body = nil
+			b.value.bodies = nil
 		}
 		for (var j in w.joints) {
 			j.value.joint = nil
 		}
+
+		// rebuild
+		Blueprint.calc_input_value(this, 1)
 	}
 }

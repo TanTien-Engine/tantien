@@ -33,19 +33,6 @@ class Body is Node
 		this.layout()
 
 		this.body = VarBody()
-		this.bodies = nil
-	}
-
-	on_pin_dirty(pin)
-	{
-		this.body.body = nil
-		this.bodies = nil
-	}
-
-	on_node_dirty()
-	{
-		this.body.body = nil
-		this.bodies = nil
 	}
 
 	calc_value(idx)
@@ -56,34 +43,47 @@ class Body is Node
 			{
 				var v_geos = Blueprint.calc_input_value(this, 0)
 				this.body.body = this.build_body(v_geos)
+				this.body.bodies = nil
 			}
 			return Variant(VAR_TYPE_BODY, this.body)
 		}
 		else if (idx == 1)
 		{
-			if (!this.bodies) 
+			if (!this.body.bodies) 
 			{
-				this.bodies = []
+				var bodies = []
 
 				var v_geos = Blueprint.calc_input_value(this, 0)
 				if (v_geos.type == VAR_TYPE_ARRAY)
-				{
+				{				
 					for (var v_geo in v_geos.value)
 					{
-						var v_body = VarBody()
-						v_body.body = this.build_body(v_geo)
-						this.bodies.add(Variant(VAR_TYPE_BODY, v_body))
+						var body = this.build_body(v_geo)
+						if (body) {
+							var v_body = VarBody()
+							v_body.body = body
+							bodies.add(Variant(VAR_TYPE_BODY, v_body))
+						}
 					}
 				}
 				else
 				{
-					var v_body = VarBody()
-					v_body.body = this.build_body(v_geos)
-					this.bodies.add(Variant(VAR_TYPE_BODY, v_body))
+					var body = this.build_body(v_geos)
+					if (body) {
+						var v_body = VarBody()
+						v_body.body = bdoy
+						bodies.add(Variant(VAR_TYPE_BODY, v_body))
+					}
+				}
+
+				this.body.body = nil
+				this.body.bodies = nil
+				if (!bodies.isEmpty) {
+					this.body.bodies = bodies
 				}
 			}
 
-			return Variant(this.bodies)
+			return Variant(VAR_TYPE_BODY, this.body)
 		}
 
 		return nil
@@ -108,6 +108,10 @@ class Body is Node
 		}
 		else
 		{
+			if (!v_geos.value.shape) {
+				return nil
+			}
+
 			var filled = false
 			var v_fill = v_geos.value.render_style["fill"]
 			if (v_fill) {
