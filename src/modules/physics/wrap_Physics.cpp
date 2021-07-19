@@ -254,6 +254,12 @@ void w_Body_get_linear_velocity()
     ves_pop(1);
 }
 
+void w_Body_is_valid()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, body->GetImpl() != nullptr);
+}
+
 void w_PrismaticJoint_allocate()
 {
     auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
@@ -299,6 +305,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.get_flag()") == 0) return w_Body_get_flag;
     if (strcmp(signature, "Body.set_linear_velocity(_,_)") == 0) return w_Body_set_linear_velocity;
     if (strcmp(signature, "Body.get_linear_velocity()") == 0) return w_Body_get_linear_velocity;
+    if (strcmp(signature, "Body.is_valid()") == 0) return w_Body_is_valid;
 
 	return nullptr;
 }

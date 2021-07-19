@@ -43,6 +43,8 @@ foreign class Body
 
 	foreign set_linear_velocity(x, y)
 	foreign get_linear_velocity()
+
+	foreign is_valid()
 }
 
 foreign class PrismaticJoint

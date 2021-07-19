@@ -45,6 +45,7 @@ class Body is Node
 				this.body.body   = this.build_body(v_geos)
 				this.body.bodies = nil
 				this.body.geo    = v_geos
+				this.body.geos   = nil
 			}
 			return Variant(VAR_TYPE_BODY, this.body)
 		}
@@ -82,6 +83,8 @@ class Body is Node
 				if (!bodies.isEmpty) {
 					this.body.bodies = bodies
 				}
+				this.body.geo  = nil
+				this.body.geos = v_geos
 			}
 
 			return Variant(VAR_TYPE_BODY, this.body)
