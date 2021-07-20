@@ -57,9 +57,8 @@ class UpdateWorld is Node
 	set_geo_transform(geo, body)
 	{
 		var pos = body.get_pos()
-		var s = World.get_scale_factor()
-		geo.pos[0] = pos[0] * s
-		geo.pos[1] = pos[1] * s
+		geo.pos[0] = pos[0]
+		geo.pos[1] = pos[1]
 
 		geo.angle = body.get_angle()
 	}

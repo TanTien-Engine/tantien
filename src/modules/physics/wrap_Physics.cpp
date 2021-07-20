@@ -104,11 +104,6 @@ void w_World_query_by_pos()
     }
 }
 
-void w_World_get_scale_factor()
-{
-    ves_set_number(0, up::rigid::box2d::SCALE_FACTOR);
-}
-
 void w_Body_allocate()
 {
     const char* type = ves_tostring(1);
@@ -247,11 +242,11 @@ void w_Body_get_pos()
     ves_pop(1);
     ves_newlist(2);
 
-    ves_pushnumber(pos.x);
+    ves_pushnumber(pos.x * up::rigid::box2d::SCALE_FACTOR);
     ves_seti(-2, 0);
     ves_pop(1);
 
-    ves_pushnumber(pos.y);
+    ves_pushnumber(pos.y * up::rigid::box2d::SCALE_FACTOR);
     ves_seti(-2, 1);
     ves_pop(1);
 }
@@ -382,7 +377,6 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.add_joint(_)") == 0) return w_World_add_joint;
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
     if (strcmp(signature, "World.query_by_pos(_)") == 0) return w_World_query_by_pos;
-    if (strcmp(signature, "static World.get_scale_factor()") == 0) return w_World_get_scale_factor;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.set_gravity_scale(_)") == 0) return w_Body_set_gravity_scale;

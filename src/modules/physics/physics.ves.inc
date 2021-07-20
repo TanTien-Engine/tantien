@@ -21,8 +21,6 @@ foreign class World
 	foreign remove_joint(joint)
 
 	foreign query_by_pos(pos)	
-
-	foreign static get_scale_factor()
 }
 
 foreign class Body
