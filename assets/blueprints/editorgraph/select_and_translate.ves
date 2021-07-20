@@ -1,0 +1,136 @@
+var node0 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node0.query_param("skip").value = false
+
+_editor.add_node(node0, -168.25912310049, -170.87741771216)
+
+var node1 = ::blueprint::nodes::number3::Number3()
+
+node1.value.set(0, 0, 0.93263077735901)
+
+_editor.add_node(node1, -303.96794518845, -245.12365228431)
+
+var node2 = ::blueprint::nodes::number2::Number2()
+
+node2.value.set(-81.040270596503, -281.34042515352)
+
+_editor.add_node(node2, -453.79655029856, 159.09949532223)
+
+var node3 = ::blueprint::nodes::store::Store()
+
+node3.var_name = "selected"
+
+_editor.add_node(node3, -297.11277019511, 59.790001028531)
+
+var node4 = ::blueprint::nodes::load::Load()
+
+node4.var_name = "selected"
+
+_editor.add_node(node4, -304.2984919717, -171.12540739835)
+
+var node5 = ::blueprint::nodes::load::Load()
+
+node5.var_name = "selected"
+
+_editor.add_node(node5, -45.97138579779, 9.0277995202306)
+
+var node6 = ::blueprint::nodes::store::Store()
+
+node6.var_name = "last_pos"
+
+_editor.add_node(node6, -291.30590876266, 171.8633034659)
+
+var node7 = ::blueprint::nodes::load::Load()
+
+node7.var_name = "last_pos"
+
+_editor.add_node(node7, -45.3277332683, -37.529871607419)
+
+var node8 = ::blueprint::nodes::store::Store()
+
+node8.var_name = "all_geos"
+
+_editor.add_node(node8, -297.00185552133, -16.810953338194)
+
+var node9 = ::blueprint::nodes::commentary::Commentary()
+
+node9.set_size(400, 292.4020690918)
+node9.title = "Variates"
+
+_editor.add_node(node9, -377.03651195886, 244.54478080644)
+
+var node10 = ::blueprint::nodes::commentary::Commentary()
+
+node10.set_size(581.68157912711, 294.13650224632)
+node10.title = "Draw"
+
+_editor.add_node(node10, -374.47209454954, -87.903823898688)
+
+var node11 = ::blueprint::nodes::input::Input()
+
+node11.var_name = "geos"
+node11.var_type = "array"
+
+_editor.add_node(node11, -449.96774451981, -17.596563548099)
+
+var node12 = ::blueprint::nodes::subgraph::Subgraph()
+node12.load_from_file(_editor, "left_down_select.ves")
+
+_editor.add_node(node12, 166.48408848733, 129.32054750043)
+
+var node13 = ::blueprint::nodes::load::Load()
+
+node13.var_name = "selected"
+
+_editor.add_node(node13, -53.960468467172, 102.40127334254)
+
+var node14 = ::blueprint::nodes::load::Load()
+
+node14.var_name = "all_geos"
+
+_editor.add_node(node14, -54.314575767012, 153.92281773903)
+
+var node15 = ::blueprint::nodes::subgraph::Subgraph()
+node15.load_from_file(_editor, "translate_selected.ves")
+
+_editor.add_node(node15, 154.78500554688, -12.864381756229)
+
+var node16 = ::blueprint::nodes::array::Array()
+node16.query_param("serialize").value = false
+
+_editor.add_node(node16, -453.35737853519, 63.393677387678)
+
+var node17 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node17.query_param("skip").value = false
+
+_editor.add_node(node17, -432.55256313389, -158.12541860421)
+
+var node18 = ::blueprint::nodes::load::Load()
+
+node18.var_name = "all_geos"
+
+_editor.add_node(node18, -571.88731573853, -142.41613181733)
+
+var node19 = ::blueprint::nodes::number3::Number3()
+
+node19.value.set(0.7861396074295, 0.48802354931831, 0)
+
+_editor.add_node(node19, -573.07524660229, -229.41434281091)
+
+Blueprint.connect(node16, "all", node3, "var")
+Blueprint.connect(node3, "var", node13, "var")
+Blueprint.connect(node3, "var", node5, "var")
+Blueprint.connect(node3, "var", node4, "var")
+Blueprint.connect(node11, "var", node8, "var")
+Blueprint.connect(node8, "var", node18, "var")
+Blueprint.connect(node18, "var", node17, "geos")
+Blueprint.connect(node19, "v3", node17, "color")
+Blueprint.connect(node8, "var", node14, "var")
+Blueprint.connect(node14, "var", node12, "geos")
+Blueprint.connect(node13, "var", node12, "selected")
+Blueprint.connect(node2, "v2", node6, "var")
+Blueprint.connect(node6, "var", node7, "var")
+Blueprint.connect(node5, "var", node15, "selected")
+Blueprint.connect(node7, "var", node15, "last_pos")
+Blueprint.connect(node17, "next", node0, "prev")
+Blueprint.connect(node4, "var", node0, "geos")
+Blueprint.connect(node1, "v3", node0, "color")

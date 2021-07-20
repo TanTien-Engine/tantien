@@ -60,7 +60,7 @@ foreign class Body
 
 foreign class PrismaticJoint
 {
-	init(body_a, body_b, anchor, axis) {}
+	init(body_a, body_b, anchor, axis, lower, upper) {}
 }
 
 foreign class MouseJoint

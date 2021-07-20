@@ -325,10 +325,12 @@ void w_PrismaticJoint_allocate()
 {
     auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
     auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto anchor = tt::list_to_vec2(3);
-    auto axis = tt::list_to_vec2(4);
+    auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto axis   = tt::list_to_vec2(4);
+    auto lower  = (float)ves_tonumber(5);
+    auto upper  = (float)ves_tonumber(6);
 
-    auto joint = std::make_shared<up::rigid::box2d::PrismaticJoint>(body_a, body_b, anchor, axis);
+    auto joint = std::make_shared<up::rigid::box2d::PrismaticJoint>(body_a, body_b, anchor, axis, lower, upper);
     auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>));
     proxy->obj = joint;
 }
