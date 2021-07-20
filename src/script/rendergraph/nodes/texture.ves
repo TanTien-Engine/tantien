@@ -170,7 +170,7 @@ class Texture is Node
 			var scale = this.style.width / tex.get_width()
 			var x = this.pos.x
 			var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT - tex.get_height() * scale * 0.5 - DEFAULT_HEIGHT
-			Graphics.draw_texture(tex, [x, y], 0, [scale, scale])
+			Graphics.draw_texture(tex, [x, y], 0, [scale, scale], [0, 0])
 		}
 	}
 

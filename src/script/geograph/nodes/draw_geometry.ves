@@ -125,17 +125,13 @@ class DrawGeometry is Node
 			var img = geo.render_style["image"]
 			if (img)
 			{
-				var min = Vector2(rect[0], rect[1])
-				var max = Vector2(rect[0] + rect[2], rect[1] + rect[3])
-				min.rotate(geo.angle)
-				max.rotate(geo.angle)
-				var x = (min.x + max.x) * 0.5 + geo.pos[0]
-				var y = (min.y + max.y) * 0.5 + geo.pos[1]
-
 				var sx = rect[2] / img.get_width()
 				var sy = rect[3] / img.get_height()
-
-				Graphics.draw_texture(img, [x, y], geo.angle, [sx, sy])
+				var ox = - rect[0] - rect[2] * 0.5
+				var oy = - rect[1] - rect[3] * 0.5
+				var x = geo.pos[0] - ox
+				var y = geo.pos[1] - oy
+				Graphics.draw_texture(img, [x, y], geo.angle, [sx, sy], [ox, oy])
 			}
 			else
 			{

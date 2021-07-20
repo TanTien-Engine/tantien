@@ -323,12 +323,14 @@ void w_Graphics_draw_texture()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
 
-    auto pos = tt::list_to_vec2(2);
-    float angle = (float)ves_tonumber(3);
-    auto scale = tt::list_to_vec2(4);
+    auto  pos    = tt::list_to_vec2(2);
+    float angle  = (float)ves_tonumber(3);
+    auto  scale  = tt::list_to_vec2(4);
+    auto  offset = tt::list_to_vec2(5);
 
     sm::Matrix2D mt;
-    mt.SetTransformation(pos.x, pos.y, angle, scale.x, scale.y, 0, 0, 0, 0);
+    auto center = pos + sm::rotate_vector(-offset, angle) + offset;
+    mt.SetTransformation(center.x, center.y, angle, scale.x, scale.y, 0, 0, 0, 0);
 
     float w = static_cast<float>(tex->GetWidth());
     float h = static_cast<float>(tex->GetHeight());
@@ -411,7 +413,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.on_cam_update(_,_,_)") == 0) return w_Graphics_on_cam_update;
     if (strcmp(signature, "static Graphics.draw_painter(_)") == 0) return w_Graphics_draw_painter;
     if (strcmp(signature, "static Graphics.draw_text(_,_,_,_,_)") == 0) return w_Graphics_draw_text;
-    if (strcmp(signature, "static Graphics.draw_texture(_,_,_,_)") == 0) return w_Graphics_draw_texture;
+    if (strcmp(signature, "static Graphics.draw_texture(_,_,_,_,_)") == 0) return w_Graphics_draw_texture;
     if (strcmp(signature, "static Graphics.flush()") == 0) return w_Graphics_flush;
     if (strcmp(signature, "static Graphics.dtex_debug_draw()") == 0) return w_Graphics_dtex_debug_draw;
     if (strcmp(signature, "static Graphics.get_width()") == 0) return w_Graphics_get_width;
