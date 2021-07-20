@@ -83,6 +83,27 @@ void w_World_remove_joint()
     world->RemoveJoint(joint);
 }
 
+void w_World_query_by_pos()
+{
+    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto pos = tt::list_to_vec2(1);
+    auto body = world->QueryByPos(pos);
+    if (body) 
+    {
+        ves_pop(ves_argnum());
+
+        ves_pushnil();
+        ves_import_class("physics", "Body");
+        auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+        proxy->obj = body;
+        ves_pop(1);
+    } 
+    else 
+    {
+        ves_set_nil(0);
+    }
+}
+
 void w_World_get_scale_factor()
 {
     ves_set_number(0, up::rigid::box2d::SCALE_FACTOR);
@@ -288,6 +309,12 @@ void w_Body_is_valid()
     ves_set_boolean(0, body->GetImpl() != nullptr);
 }
 
+void w_Body_get_mass()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    ves_set_number(0, body->GetMass());
+}
+
 void w_PrismaticJoint_allocate()
 {
     auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
@@ -307,6 +334,32 @@ int w_PrismaticJoint_finalize(void* data)
     return sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>);
 }
 
+void w_MouseJoint_allocate()
+{
+    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto target = tt::list_to_vec2(3);
+    auto max_force = (float)ves_tonumber(4);
+
+    auto joint = std::make_shared<up::rigid::box2d::MouseJoint>(body_a, body_b, target, max_force);
+    auto proxy = (tt::Proxy<up::rigid::box2d::MouseJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::MouseJoint>));
+    proxy->obj = joint;
+}
+
+int w_MouseJoint_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<up::rigid::box2d::MouseJoint>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<up::rigid::box2d::MouseJoint>);
+}
+
+void w_MouseJoint_set_target()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::MouseJoint>*)ves_toforeign(0))->obj;
+    auto target = tt::list_to_vec2(1);
+    joint->SetTarget(target);
+}
+
 }
 
 namespace tt
@@ -320,6 +373,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.remove_body(_)") == 0) return w_World_remove_body;
     if (strcmp(signature, "World.add_joint(_)") == 0) return w_World_add_joint;
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
+    if (strcmp(signature, "World.query_by_pos(_)") == 0) return w_World_query_by_pos;
     if (strcmp(signature, "static World.get_scale_factor()") == 0) return w_World_get_scale_factor;
 
     if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
@@ -338,6 +392,9 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.set_linear_velocity(_,_)") == 0) return w_Body_set_linear_velocity;
     if (strcmp(signature, "Body.get_linear_velocity()") == 0) return w_Body_get_linear_velocity;
     if (strcmp(signature, "Body.is_valid()") == 0) return w_Body_is_valid;
+    if (strcmp(signature, "Body.get_mass()") == 0) return w_Body_get_mass;
+
+    if (strcmp(signature, "MouseJoint.set_target(_)") == 0) return w_MouseJoint_set_target;
 
 	return nullptr;
 }
@@ -362,6 +419,13 @@ void PhysicsBindClass(const char* class_name, VesselForeignClassMethods* methods
     {
         methods->allocate = w_PrismaticJoint_allocate;
         methods->finalize = w_PrismaticJoint_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "MouseJoint") == 0)
+    {
+        methods->allocate = w_MouseJoint_allocate;
+        methods->finalize = w_MouseJoint_finalize;
         return;
     }
 }

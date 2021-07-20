@@ -1,0 +1,69 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_WORLD, VAR_TYPE_BODY, VAR_TYPE_JOINT, VarJoint
+import "physics" for MouseJoint as tt_MouseJoint
+import "maths.vector" for Vector2
+
+class MouseJoint is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "world",  VAR_TYPE_WORLD),
+			Pin(this, "ground", VAR_TYPE_BODY),			
+		]
+		this.exports = [
+			Pin(this, "joint", VAR_TYPE_JOINT),
+		]
+
+		this.layout()
+
+		this.joint = VarJoint()
+	}
+
+	calc_value(idx)
+	{
+		return Variant(VAR_TYPE_JOINT, this.joint)
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		var v_world = Blueprint.calc_input_value(this, 0)
+		var v_ground = Blueprint.calc_input_value(this, 1)
+		if (!v_world or !v_ground) {
+			return
+		}
+
+		import "blueprint.blackboard" for BLACKBOARD
+		var pos = BLACKBOARD.editor_cam.screen2world(Vector2(x, y))
+		var body = v_world.value.world.query_by_pos([pos.x, pos.y])
+		if (!body) {
+			return
+		}
+
+		this.joint = tt_MouseJoint.init(v_ground.value.body, body, [pos.x, pos.y], 1000 * body.get_mass())
+		v_world.value.world.add_joint(this.joint)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		if (this.joint) {
+			var v_world = Blueprint.calc_input_value(this, 0)
+			v_world.value.world.remove_joint(this.joint)
+			this.joint = nil
+		}
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		if (this.joint) 
+		{
+			import "blueprint.blackboard" for BLACKBOARD
+			var pos = BLACKBOARD.editor_cam.screen2world(Vector2(x, y))		
+			this.joint.set_target([pos.x, pos.y])
+		}
+	}
+}

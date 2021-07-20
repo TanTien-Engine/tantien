@@ -20,6 +20,8 @@ foreign class World
 	foreign add_joint(joint)
 	foreign remove_joint(joint)
 
+	foreign query_by_pos(pos)	
+
 	foreign static get_scale_factor()
 }
 
@@ -50,11 +52,20 @@ foreign class Body
 	foreign get_linear_velocity()
 
 	foreign is_valid()
+
+	foreign get_mass()
 }
 
 foreign class PrismaticJoint
 {
 	init(body_a, body_b, anchor, axis) {}
+}
+
+foreign class MouseJoint
+{
+	init(body_a, body_b, target, max_force) {}
+
+	foreign set_target(target)
 }
 
 );
