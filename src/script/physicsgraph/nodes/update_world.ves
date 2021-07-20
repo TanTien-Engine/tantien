@@ -30,15 +30,11 @@ class UpdateWorld is Node
 		}
 
 		var w = v_world.value
-		var s = World.get_scale_factor()
 		for (var b in w.bodies)
 		{
 			if (b.value.geo) 
 			{
-				var src = b.value.body.get_pos()
-				var dst = b.value.geo.value.pos
-				dst[0] = src[0] * s
-				dst[1] = src[1] * s
+				this.set_geo_transform(b.value.geo.value, b.value.body)
 			}
 			else if (b.value.geos)
 			{
@@ -51,9 +47,20 @@ class UpdateWorld is Node
 				{
 					for (var i in 0 .. b.value.geos.value.count) {
 						b.value.geos.value[i].value.show = b.value.bodies.value[i].value.body.is_valid()
+						this.set_geo_transform(b.value.geos.value[i].value, b.value.bodies.value[i].value.body)
 					}
 				}
 			}
 		}
+	}
+
+	set_geo_transform(geo, body)
+	{
+		var pos = body.get_pos()
+		var s = World.get_scale_factor()
+		geo.pos[0] = pos[0] * s
+		geo.pos[1] = pos[1] * s
+
+		geo.angle = body.get_angle()
 	}
 }

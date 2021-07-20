@@ -45,6 +45,8 @@ foreign class Body
 	foreign set_transform(pos, angle)
 
 	foreign get_pos()
+	foreign get_angle()
+
 	foreign get_type()
 	foreign get_flag()
 

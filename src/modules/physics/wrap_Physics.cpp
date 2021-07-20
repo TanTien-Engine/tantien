@@ -256,6 +256,12 @@ void w_Body_get_pos()
     ves_pop(1);
 }
 
+void w_Body_get_angle()
+{
+    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    ves_set_number(0, body->GetAngle());
+}
+
 void w_Body_set_transform()
 {
     auto body  = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
@@ -387,6 +393,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.apply_angular_impulse(_)") == 0) return w_Body_apply_angular_impulse;
     if (strcmp(signature, "Body.set_transform(_,_)") == 0) return w_Body_set_transform;
     if (strcmp(signature, "Body.get_pos()") == 0) return w_Body_get_pos;
+    if (strcmp(signature, "Body.get_angle()") == 0) return w_Body_get_angle;
     if (strcmp(signature, "Body.get_type()") == 0) return w_Body_get_type;
     if (strcmp(signature, "Body.get_flag()") == 0) return w_Body_get_flag;
     if (strcmp(signature, "Body.set_linear_velocity(_,_)") == 0) return w_Body_set_linear_velocity;
