@@ -15,6 +15,7 @@ foreign class Painter
 
 	// vertices: list [x0, y0, x1, y1 ...]
 	foreign add_polygon(vertices, color, line_width)
+	foreign add_polygon_filled(vertices, color)
 	foreign add_polyline(vertices, color, line_width)
 
 	foreign add_circle(x, y, radius, color, line_width, num_segments)

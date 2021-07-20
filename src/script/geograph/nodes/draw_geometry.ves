@@ -122,16 +122,50 @@ class DrawGeometry is Node
 		else if (shape is Rect)
 		{
 			var rect = shape.get()
-			if (geo.pos) {
-				rect[0] = rect[0] + geo.pos[0]
-				rect[1] = rect[1] + geo.pos[1]
-			}
 
 			var fill = geo.render_style["fill"]
-			if (fill) {
-				pt.add_rect_filled(rect, col_array)
-			} else {
-				pt.add_rect(rect, col_array, 2)	
+			if (geo.angle == 0)
+			{
+				if (geo.pos) {
+					rect[0] = rect[0] + geo.pos[0]
+					rect[1] = rect[1] + geo.pos[1]
+				}
+				if (fill) {
+					pt.add_rect_filled(rect, col_array)
+				} else {
+					pt.add_rect(rect, col_array, 2)	
+				}
+			}
+			else
+			{
+				var quad = [
+					Vector2(rect[0], rect[1]),
+					Vector2(rect[0], rect[1] + rect[3]),
+					Vector2(rect[0] + rect[2], rect[1] + rect[3]),
+					Vector2(rect[0] + rect[2], rect[1]),
+				]
+				// rotate
+				for (var v in quad) {
+					v.rotate(geo.angle)
+				}
+				// translate
+				if (geo.pos) {
+					for (var v in quad) {
+						v.x = v.x + geo.pos[0]
+						v.y = v.y + geo.pos[1]
+					}
+				}
+
+				var vertices = []
+				for (var v in quad) {
+					vertices.add(v.x)
+					vertices.add(v.y)
+				}
+				if (fill) {
+					pt.add_polygon_filled(vertices, col_array)
+				} else {
+					pt.add_polygon(vertices, col_array, 2)
+				}
 			}
 		}
 		else if (shape is Circle)
