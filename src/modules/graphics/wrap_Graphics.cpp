@@ -13,6 +13,7 @@
 #include <unirender/Device.h>
 #include <unirender/Factory.h>
 #include <guard/check.h>
+#include <SM_Calc.h>
 
 namespace
 {
@@ -322,17 +323,16 @@ void w_Graphics_draw_texture()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
 
-    const float x = (float)ves_tonumber(2);
-    const float y = (float)ves_tonumber(3);
-    const float scale = (float)ves_tonumber(4);
+    auto pos = tt::list_to_vec2(2);
+    float angle = (float)ves_tonumber(3);
+    auto scale = tt::list_to_vec2(4);
 
     sm::Matrix2D mt;
-    mt.Scale(scale, scale);
-    mt.Translate(x, y);
+    mt.SetTransformation(pos.x, pos.y, angle, scale.x, scale.y, 0, 0, 0, 0);
 
-	float vertices[8];
     float w = static_cast<float>(tex->GetWidth());
     float h = static_cast<float>(tex->GetHeight());
+    float vertices[8];
     calc_vertices(sm::rect(w, h), mt, vertices);
 
 	auto draw_without_dtex = [&](std::shared_ptr<tt::SpriteRenderer>& rd, const float* vertices, const ur::TexturePtr& tex)
