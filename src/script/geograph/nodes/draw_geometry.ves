@@ -6,7 +6,7 @@ import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline
+import "geometry" for Line, Rect, Circle, Polyline, Polygon
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -107,106 +107,149 @@ class DrawGeometry is Node
 		var col_array = [255 * color.x, 255 * color.y, 255 * color.z, 255]
 
 		var shape = geo.shape
-		if (shape is Line)
-		{
-			var line = shape.get()
-			if (geo.pos) {
-				line[0] = line[0] + geo.pos[0]
-				line[1] = line[1] + geo.pos[1]
-				line[2] = line[2] + geo.pos[0]
-				line[3] = line[3] + geo.pos[1]
-			}
-
-			pt.add_line(line, col_array, 2)			
+		if (shape is Line) {
+			this.draw_line(pt, geo, col_array)
+		} else if (shape is Rect) {
+			this.draw_rect(pt, geo, col_array)
+		} else if (shape is Circle) {
+			this.draw_circle(pt, geo, col_array)
+		} else if (shape is Polyline) {
+			this.draw_polyline(pt, geo, col_array)
+		} else if (shape is Polygon) {
+			this.draw_polygon(pt, geo, col_array)
 		}
-		else if (shape is Rect)
+	}
+
+	draw_line(pt, geo, col)
+	{
+		var line = geo.shape.get()
+		if (geo.pos) {
+			line[0] = line[0] + geo.pos[0]
+			line[1] = line[1] + geo.pos[1]
+			line[2] = line[2] + geo.pos[0]
+			line[3] = line[3] + geo.pos[1]
+		}
+
+		pt.add_line(line, col, 2)
+	}
+
+	draw_rect(pt, geo, col)
+	{
+		var rect = geo.shape.get()
+		var img = geo.render_style["image"]
+		if (img)
 		{
-			var rect = shape.get()
-			var img = geo.render_style["image"]
-			if (img)
+			var sx = rect[2] / img.get_width()
+			var sy = rect[3] / img.get_height()
+			var ox = - rect[0] - rect[2] * 0.5
+			var oy = - rect[1] - rect[3] * 0.5
+			var x = geo.pos[0] - ox
+			var y = geo.pos[1] - oy
+			Graphics.draw_texture(img, [x, y], geo.angle, [sx, sy], [ox, oy])
+		}
+		else
+		{
+			var fill = geo.render_style["fill"]
+			if (geo.angle == 0)
 			{
-				var sx = rect[2] / img.get_width()
-				var sy = rect[3] / img.get_height()
-				var ox = - rect[0] - rect[2] * 0.5
-				var oy = - rect[1] - rect[3] * 0.5
-				var x = geo.pos[0] - ox
-				var y = geo.pos[1] - oy
-				Graphics.draw_texture(img, [x, y], geo.angle, [sx, sy], [ox, oy])
+				if (geo.pos) {
+					rect[0] = rect[0] + geo.pos[0]
+					rect[1] = rect[1] + geo.pos[1]
+				}
+				if (fill) {
+					pt.add_rect_filled(rect, col)
+				} else {
+					pt.add_rect(rect, col, 2)	
+				}
 			}
 			else
 			{
-				var fill = geo.render_style["fill"]
-				if (geo.angle == 0)
+				var quad = [
+					Vector2(rect[0], rect[1]),
+					Vector2(rect[0], rect[1] + rect[3]),
+					Vector2(rect[0] + rect[2], rect[1] + rect[3]),
+					Vector2(rect[0] + rect[2], rect[1]),
+				]
+				// rotate
+				for (var v in quad) {
+					v.rotate(geo.angle)
+				}
+				// translate
+				if (geo.pos) 
 				{
-					if (geo.pos) {
-						rect[0] = rect[0] + geo.pos[0]
-						rect[1] = rect[1] + geo.pos[1]
-					}
-					if (fill) {
-						pt.add_rect_filled(rect, col_array)
-					} else {
-						pt.add_rect(rect, col_array, 2)	
-					}
-				}
-				else
-				{
-					var quad = [
-						Vector2(rect[0], rect[1]),
-						Vector2(rect[0], rect[1] + rect[3]),
-						Vector2(rect[0] + rect[2], rect[1] + rect[3]),
-						Vector2(rect[0] + rect[2], rect[1]),
-					]
-					// rotate
 					for (var v in quad) {
-						v.rotate(geo.angle)
+						v.x = v.x + geo.pos[0]
+						v.y = v.y + geo.pos[1]
 					}
-					// translate
-					if (geo.pos) {
-						for (var v in quad) {
-							v.x = v.x + geo.pos[0]
-							v.y = v.y + geo.pos[1]
-						}
-					}
+				}
 
-					var vertices = []
-					for (var v in quad) {
-						vertices.add(v.x)
-						vertices.add(v.y)
-					}
-					if (fill) {
-						pt.add_polygon_filled(vertices, col_array)
-					} else {
-						pt.add_polygon(vertices, col_array, 2)
-					}
+				var vertices = []
+				for (var v in quad) {
+					vertices.add(v.x)
+					vertices.add(v.y)
+				}
+				if (fill) {
+					pt.add_polygon_filled(vertices, col)
+				} else {
+					pt.add_polygon(vertices, col, 2)
 				}
 			}
 		}
-		else if (shape is Circle)
-		{
-			var c = shape.get()
-			if (geo.pos) {
-				c[0] = c[0] + geo.pos[0]
-				c[1] = c[1] + geo.pos[1]
-			}
+	}
 
-			var fill = geo.render_style["fill"]
-			if (fill) {
-				pt.add_circle_filled(c[0], c[1], c[2], col_array, 24)
-			} else {
-				pt.add_circle(c[0], c[1], c[2], col_array, 2.0, 24)
+	draw_circle(pt, geo, col)
+	{
+		var c = geo.shape.get()
+		if (geo.pos) {
+			c[0] = c[0] + geo.pos[0]
+			c[1] = c[1] + geo.pos[1]
+		}
+
+		var fill = geo.render_style["fill"]
+		if (fill) {
+			pt.add_circle_filled(c[0], c[1], c[2], col, 24)
+		} else {
+			pt.add_circle(c[0], c[1], c[2], col, 2.0, 24)
+		}
+	}
+
+	draw_polyline(pt, geo, col)
+	{
+		var verts = geo.shape.get_vertices()
+		if (geo.pos) {
+			for (var i = 0; i < verts.count; i = i + 2) {
+				verts[i] = verts[i] + geo.pos[0]
+				verts[i + 1] = verts[i + 1] + geo.pos[1]
 			}
 		}
-		else if (shape is Polyline)
-		{
-			var verts = shape.get_vertices()
-			if (geo.pos) {
-				for (var i = 0; i < verts.count; i = i + 2) {
-					verts[i] = verts[i] + geo.pos[0]
-					verts[i + 1] = verts[i + 1] + geo.pos[1]
-				}
-			}
 
-			pt.add_polyline(verts, col_array, 2.0)
+		pt.add_polyline(verts, col, 2.0)
+	}
+
+	draw_polygon(pt, geo, col)
+	{
+		var verts = geo.shape.get_vertices()
+
+		// rotate
+		if (geo.angle != 0)
+		{
+			for (var i = 0; i < verts.count; i = i + 2) {
+				var p = Vector2(verts[i], verts[i + 1])
+				p.rotate(geo.angle)
+				verts[i] = p.x
+				verts[i + 1] = p.y
+			}
 		}
+
+		// translate
+		if (geo.pos) 
+		{
+			for (var i = 0; i < verts.count; i = i + 2) {
+				verts[i] = verts[i] + geo.pos[0]
+				verts[i + 1] = verts[i + 1] + geo.pos[1]
+			}
+		}
+
+		pt.add_polygon_filled(verts, col)
 	}
 }

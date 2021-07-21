@@ -80,6 +80,22 @@ foreign class Polyline is Shape2D
 	foreign get_closed()
 }
 
+foreign class Polygon is Shape2D
+{
+	init() {}
+	init(vertices) { this.set_vertices(vertices) }
+
+	toString() {
+		var vertices = this.get_vertices()
+		return "::geometry::Polygon.init(%(vertices))"
+	}
+
+	foreign clone()
+
+	foreign get_vertices()
+	foreign set_vertices(vertices)
+}
+
 foreign class Bezier is Shape2D
 {
 	init() {}

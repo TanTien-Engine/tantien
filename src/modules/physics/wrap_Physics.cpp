@@ -14,6 +14,7 @@
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
 #include <geoshape/Polyline2D.h>
+#include <geoshape/Polygon2D.h>
 
 #include <string>
 
@@ -169,6 +170,14 @@ void w_Body_add_shape()
         } else if (vertices.size() > 2) {
             phy_shape->InitChainShape(vertices, polyline->GetClosed());
         }
+    }
+        break;
+    case gs::ShapeType2D::Polygon:
+    {
+        auto polygon = std::dynamic_pointer_cast<gs::Polygon2D>(shape);
+
+        auto& vertices = polygon->GetVertices();
+        phy_shape->InitPolygonShape(vertices);
     }
         break;
     default:

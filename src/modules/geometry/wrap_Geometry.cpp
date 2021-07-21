@@ -7,6 +7,7 @@
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
 #include <geoshape/Polyline2D.h>
+#include <geoshape/Polygon2D.h>
 #include <geoshape/Bezier.h>
 #include <guard/check.h>
 #include <constraints2/Scene.h>
@@ -287,6 +288,55 @@ void w_Polyline_set_closed()
     polyline->SetClosed(is_closed);
 }
 
+void w_Polygon_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
+    proxy->obj = std::make_shared<gs::Polygon2D>();
+}
+
+int w_Polygon_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Polygon2D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Polygon2D>);
+}
+
+void w_Polygon_clone()
+{
+    auto src = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Polygon2D>(src->GetVertices());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
+    proxy->obj = dst;
+}
+
+void w_Polygon_get_vertices()
+{
+    auto pl = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto& vertices = pl->GetVertices();
+
+    ves_pop(1);
+    ves_newlist(vertices.size() * 2);
+    for (int i = 0, n = vertices.size(); i < n; ++i)
+    {
+        ves_pushnumber(vertices[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
+void w_Polygon_set_vertices()
+{
+    auto polyline = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto vertices = tt::list_to_vec2_array(1);
+    polyline->SetVertices(vertices);
+}
+
 void w_Bezier_allocate()
 {
     auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
@@ -420,6 +470,10 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polyline.get_closed()") == 0) return w_Polyline_get_closed;
     if (strcmp(signature, "Polyline.set_closed(_)") == 0) return w_Polyline_set_closed;
 
+    if (strcmp(signature, "Polygon.clone()") == 0) return w_Polygon_clone;
+    if (strcmp(signature, "Polygon.get_vertices()") == 0) return w_Polygon_get_vertices;
+    if (strcmp(signature, "Polygon.set_vertices(_)") == 0) return w_Polygon_set_vertices;
+
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
@@ -460,6 +514,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Polyline_allocate;
         methods->finalize = w_Polyline_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Polygon") == 0)
+    {
+        methods->allocate = w_Polygon_allocate;
+        methods->finalize = w_Polygon_finalize;
         return;
     }
 
