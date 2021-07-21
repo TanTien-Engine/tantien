@@ -2,8 +2,12 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.node_editor" for NodeEditor
+import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "maths.vector" for Vector2
+
+var EDITOR = nil
 
 class Number2 is Node
 {
@@ -44,7 +48,7 @@ class Number2 is Node
 		var x = this.pos.x - this.style.width * 0.5
 		var y = this.pos.y + this.style.height * 0.5 - this.calc_panel_height() - DEFAULT_HEIGHT
 
-		var REGION = 10
+		var REGION = 1024
 		
 		var vx = GUI.slider(ctx, "x", this.value.x, x, y, this.style.width - 20, REGION, false)
 		if (vx != this.value.x) {
@@ -61,5 +65,42 @@ class Number2 is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/select_and_translate.ves")
+		}
+
+		Blueprint.connect(this.exports[0], EDITOR.editor_node.imports[1])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }

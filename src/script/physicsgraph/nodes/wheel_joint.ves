@@ -7,8 +7,6 @@ import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT, VarJoint
 import "maths.vector" for Vector2
 import "physics" for WheelJoint as tt_WheelJoint
 
-var EDITOR = nil
-
 class WheelJoint is Node
 {
 	init()
@@ -18,7 +16,7 @@ class WheelJoint is Node
 		this.imports = [
 			Pin(this, "body_a",    VAR_TYPE_BODY),
 			Pin(this, "body_b",    VAR_TYPE_BODY),
-			Pin(this, "anchor",    VAR_TYPE_NUMBER2),			
+			Pin(this, "anchor",    VAR_TYPE_NUMBER2),
 			Pin(this, "stiffness", VAR_TYPE_NUMBER),
 			Pin(this, "damping",   VAR_TYPE_NUMBER),			
 		]
