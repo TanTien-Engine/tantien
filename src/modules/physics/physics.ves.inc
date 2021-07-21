@@ -68,4 +68,15 @@ foreign class MouseJoint
 	foreign set_target(target)
 }
 
+foreign class WheelJoint
+{
+	init(body_a, body_b, anchor, axis) {}
+
+	foreign set_translate_limit(enable_limit, lower, upper)
+	foreign set_motor(enable_motor, max_torque, speed)
+	foreign set_suspension(stiffness, damping)
+
+	foreign set_motor_speed(speed)
+}
+
 );

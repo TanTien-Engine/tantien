@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "physicsgraph.variant" for VAR_TYPE_JOINT
+
+class SetMotorSpeed is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev",  VAR_TYPE_PORT),
+			Pin(this, "joint", VAR_TYPE_JOINT),
+			Pin(this, "speed", VAR_TYPE_NUMBER),			
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run()
+	{
+		var v_joint = Blueprint.calc_input_value(this, 1)
+		var v_speed = Blueprint.calc_input_value(this, 2)
+		if (v_joint and v_speed) {
+			v_joint.value.joint.set_motor_speed(v_speed.value)
+		}
+	}
+}
