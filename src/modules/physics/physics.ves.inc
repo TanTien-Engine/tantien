@@ -56,6 +56,14 @@ foreign class Body
 	foreign get_mass()
 }
 
+foreign class RevoluteJoint
+{
+	init(body_a, body_b, anchor) {}
+
+	foreign set_angle_limit(enable_limit, lower, upper)
+	foreign set_motor(enable_motor, max_torque, speed)
+}
+
 foreign class PrismaticJoint
 {
 	init(body_a, body_b, anchor, axis, lower, upper) {}

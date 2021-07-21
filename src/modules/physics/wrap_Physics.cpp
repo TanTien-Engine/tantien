@@ -325,6 +325,42 @@ void w_Body_get_mass()
     ves_set_number(0, body->GetMass());
 }
 
+void w_RevoluteJoint_allocate()
+{
+    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+
+    auto joint = std::make_shared<up::rigid::box2d::RevoluteJoint>(body_a, body_b, anchor);
+    auto proxy = (tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::RevoluteJoint>));
+    proxy->obj = joint;
+}
+
+int w_RevoluteJoint_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<up::rigid::box2d::RevoluteJoint>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<up::rigid::box2d::RevoluteJoint>);
+}
+
+void w_RevoluteJoint_set_angle_limit()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
+    auto enable_limit = ves_toboolean(1);
+    auto lower = (float)ves_tonumber(2);
+    auto upper = (float)ves_tonumber(3);
+    joint->SetAngleLimit(enable_limit, lower, upper);
+}
+
+void w_RevoluteJoint_set_motor()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
+    auto enable_motor = ves_toboolean(1);
+    auto max_torque = (float)ves_tonumber(2);
+    auto speed = (float)ves_tonumber(3);
+    joint->SetMotor(enable_motor, max_torque, speed);
+}
+
 void w_PrismaticJoint_allocate()
 {
     auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
@@ -459,6 +495,8 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "Body.is_valid()") == 0) return w_Body_is_valid;
     if (strcmp(signature, "Body.get_mass()") == 0) return w_Body_get_mass;
 
+    if (strcmp(signature, "RevoluteJoint.set_angle_limit(_,_,_)") == 0) return w_RevoluteJoint_set_angle_limit;
+    if (strcmp(signature, "RevoluteJoint.set_motor(_,_,_)") == 0) return w_RevoluteJoint_set_motor;
     if (strcmp(signature, "MouseJoint.set_target(_)") == 0) return w_MouseJoint_set_target;
     if (strcmp(signature, "WheelJoint.set_translate_limit(_,_,_)") == 0) return w_WheelJoint_set_translate_limit;
     if (strcmp(signature, "WheelJoint.set_motor(_,_,_)") == 0) return w_WheelJoint_set_motor;
@@ -481,6 +519,13 @@ void PhysicsBindClass(const char* class_name, VesselForeignClassMethods* methods
     {
         methods->allocate = w_Body_allocate;
         methods->finalize = w_Body_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "RevoluteJoint") == 0)
+    {
+        methods->allocate = w_RevoluteJoint_allocate;
+        methods->finalize = w_RevoluteJoint_finalize;
         return;
     }
 
