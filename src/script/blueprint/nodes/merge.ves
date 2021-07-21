@@ -12,14 +12,6 @@ class Merge is Node
 		this.imports = [
 			Pin(this, "in0", VAR_TYPE_ANY),
 			Pin(this, "in1", VAR_TYPE_ANY),
-			Pin(this, "in2", VAR_TYPE_ANY),
-			Pin(this, "in3", VAR_TYPE_ANY),
-			Pin(this, "in4", VAR_TYPE_ANY),
-			Pin(this, "in5", VAR_TYPE_ANY),
-			Pin(this, "in6", VAR_TYPE_ANY),
-			Pin(this, "in7", VAR_TYPE_ANY),
-			Pin(this, "in8", VAR_TYPE_ANY),
-			Pin(this, "in9", VAR_TYPE_ANY),		
 		]
 		this.exports = [
 			Pin(this, "list", VAR_TYPE_ARRAY),
@@ -49,5 +41,32 @@ class Merge is Node
 			}
 		}
 		return Variant(VAR_TYPE_ARRAY, ret)
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	update_imports()
+	{
+		while (this.imports.count > 2 and this.imports.back().conns.isEmpty) {
+			this.imports.pop_back()
+		}
+
+		if (!this.imports.back().conns.isEmpty) {
+			this.imports.add(Pin(this, "in%(this.imports.count)", VAR_TYPE_ANY))
+		}
+
+		this.layout()
 	}
 }
