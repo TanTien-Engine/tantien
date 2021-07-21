@@ -7,7 +7,7 @@ import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Circle as tt_Circle
-import "maths.vector" for Vector3
+import "maths.vector" for Vector2, Vector3
 import "maths.calc" for Calc
 
 var EDITOR = nil
@@ -21,9 +21,10 @@ class Circle is Node
 		this.imports = [
 			Pin(this, "center", VAR_TYPE_NUMBER2),
 			Pin(this, "raduis", VAR_TYPE_NUMBER),
+			Pin(this, "pos",    VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo",     VAR_TYPE_GEO),
 			Pin(this, "new_geo", VAR_TYPE_GEO),
 		]
 
@@ -101,17 +102,38 @@ class Circle is Node
 
 	update_geo(geo)
 	{
-		var x = 0
-		var y = 0
-		var v_center = Blueprint.calc_input_value(this, 0)
-		if (v_center) {
-			x = v_center.value.x
-			y = v_center.value.y
-		} else {
-			x = this.query_param("x").value
-			y = this.query_param("y").value
+		var c = this.get_center()
+		var r = this.get_radius()
+		geo.shape.set(c.x, c.y, r)
+
+		geo.render_style["fill"] = this.query_param("fill").value
+		geo.render_style["color"] = this.query_param("color").value.clone()
+
+		var v_pos = Blueprint.calc_input_value(this, 2)
+		if (v_pos) {
+			geo.pos[0] = v_pos.value.x
+			geo.pos[1] = v_pos.value.y			
 		}
 
+		this.geo_dirty = false
+	}
+
+	get_center()
+	{
+		var center = Vector2(0, 0)
+		var v_center = Blueprint.calc_input_value(this, 0)
+		if (v_center) {
+			center.x = v_center.value.x
+			center.y = v_center.value.y
+		} else {
+			center.x = this.query_param("x").value
+			center.y = this.query_param("y").value
+		}
+		return center
+	}
+
+	get_radius()
+	{
 		var r = 0
 		var v_radius = Blueprint.calc_input_value(this, 1)
 		if (v_radius) {
@@ -119,13 +141,7 @@ class Circle is Node
 		} else {
 			r = this.query_param("r").value
 		}
-		
-		geo.shape.set(x, y, r)
-
-		geo.render_style["fill"] = this.query_param("fill").value
-		geo.render_style["color"] = this.query_param("color").value.clone()
-
-		this.geo_dirty = false
+		return r
 	}
 
 	bind_editor()

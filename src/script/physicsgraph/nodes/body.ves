@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER2
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
@@ -16,6 +16,7 @@ class Body is Node
 		this.imports = [
 			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "flag",   VAR_TYPE_INTEGER),
+			Pin(this, "pos",    VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
 			Pin(this, "body",   VAR_TYPE_BODY),
@@ -129,6 +130,11 @@ class Body is Node
 		body.set_density(this.query_param("density").value)
 		body.set_restitution(this.query_param("restitution").value)
 		body.set_friction(this.query_param("friction").value)
+
+		var v_pos = Blueprint.calc_input_value(this, 2)
+		if (v_pos) {
+			body.set_transform([v_pos.value.x, v_pos.value.y], 0)
+		}
 
 		return body
 	}
