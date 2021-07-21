@@ -269,7 +269,7 @@ void w_Body_get_angle()
 void w_Body_set_transform()
 {
     auto body  = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
-    auto pos   = tt::list_to_vec2(1);
+    auto pos   = tt::list_to_vec2(1) / up::rigid::box2d::SCALE_FACTOR;
     auto angle = (float)ves_tonumber(2);
 
     body->SetTransform(pos, angle);
