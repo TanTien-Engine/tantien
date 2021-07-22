@@ -69,6 +69,13 @@ foreign class PrismaticJoint
 	init(body_a, body_b, anchor, axis, lower, upper) {}
 }
 
+foreign class DistanceJoint
+{
+	init(body_a, body_b, anchor_a, anchor_b) {}
+
+	foreign set_length(min, max)
+}
+
 foreign class MouseJoint
 {
 	init(body_a, body_b, target, max_force) {}

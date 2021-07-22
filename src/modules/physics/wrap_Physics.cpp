@@ -383,6 +383,33 @@ int w_PrismaticJoint_finalize(void* data)
     return sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>);
 }
 
+void w_DistanceJoint_allocate()
+{
+    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor_a = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto anchor_b = tt::list_to_vec2(4) / up::rigid::box2d::SCALE_FACTOR;
+
+    auto joint = std::make_shared<up::rigid::box2d::DistanceJoint>(body_a, body_b, anchor_a, anchor_b);
+    auto proxy = (tt::Proxy<up::rigid::box2d::DistanceJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::DistanceJoint>));
+    proxy->obj = joint;
+}
+
+int w_DistanceJoint_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<up::rigid::box2d::DistanceJoint>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<up::rigid::box2d::DistanceJoint>);
+}
+
+void w_DistanceJoint_set_length()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::DistanceJoint>*)ves_toforeign(0))->obj;
+    auto min = (float)ves_tonumber(1) / up::rigid::box2d::SCALE_FACTOR;
+    auto max = (float)ves_tonumber(2) / up::rigid::box2d::SCALE_FACTOR;
+    joint->SetLength(min, max);
+}
+
 void w_MouseJoint_allocate()
 {
     auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
@@ -497,6 +524,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
 
     if (strcmp(signature, "RevoluteJoint.set_angle_limit(_,_,_)") == 0) return w_RevoluteJoint_set_angle_limit;
     if (strcmp(signature, "RevoluteJoint.set_motor(_,_,_)") == 0) return w_RevoluteJoint_set_motor;
+    if (strcmp(signature, "DistanceJoint.set_length(_,_)") == 0) return w_DistanceJoint_set_length;
     if (strcmp(signature, "MouseJoint.set_target(_)") == 0) return w_MouseJoint_set_target;
     if (strcmp(signature, "WheelJoint.set_translate_limit(_,_,_)") == 0) return w_WheelJoint_set_translate_limit;
     if (strcmp(signature, "WheelJoint.set_motor(_,_,_)") == 0) return w_WheelJoint_set_motor;
@@ -533,6 +561,13 @@ void PhysicsBindClass(const char* class_name, VesselForeignClassMethods* methods
     {
         methods->allocate = w_PrismaticJoint_allocate;
         methods->finalize = w_PrismaticJoint_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "DistanceJoint") == 0)
+    {
+        methods->allocate = w_DistanceJoint_allocate;
+        methods->finalize = w_DistanceJoint_finalize;
         return;
     }
 
