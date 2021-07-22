@@ -7,6 +7,7 @@ import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
+import "maths.vector" for Vector3
 import "geometry" for Polygon as tt_Polygon, Circle
 
 var EDITOR = nil
@@ -25,6 +26,9 @@ class Polygon is Node
 		]
 
 		this.params.add(NodeParam("vertices", []))
+
+		// draw
+		this.params.add(NodeParam("color", Vector3(1.0, 0.0, 0.0)))
 
 		this.layout()
 
@@ -113,6 +117,8 @@ class Polygon is Node
 			var vertices = this.query_param("vertices").value
 			geo.shape.set_vertices(vertices)
 		}
+
+		geo.render_style["color"] = this.query_param("color").value.clone()
 
 		this.geo_dirty = false
 	}
