@@ -25,8 +25,14 @@ class PrismaticJoint is Node
 		]
 
 		this.params.add(NodeParam("axis",   Vector2(1, 0)))
+		// translate_limit
+		this.params.add(NodeParam("limit", true))
 		this.params.add(NodeParam("lower", -10.0))
 		this.params.add(NodeParam("upper", 10.0))
+		// motor
+		this.params.add(NodeParam("motor", false))		
+		this.params.add(NodeParam("force", 10.0, { "region" : 100 }))
+		this.params.add(NodeParam("speed", 0.0))
 
 		this.layout()
 
@@ -56,11 +62,19 @@ class PrismaticJoint is Node
 		} else {
 			anchor = Vector2(0, 0)
 		}
-		var axis   = this.query_param("axis").value
-		var lower  = this.query_param("lower").value
-		var upper  = this.query_param("upper").value
+		var axis  = this.query_param("axis").value
+		var joint = tt_PrismaticJoint.init(v_a.value.body, v_b.value.body, [anchor.x, anchor.y], [axis.x, axis.y])
 
-		var joint = tt_PrismaticJoint.init(v_a.value.body, v_b.value.body, [anchor.x, anchor.y], [axis.x, axis.y], lower, upper)
+		var limit = this.query_param("limit").value
+		var lower = this.query_param("lower").value
+		var upper = this.query_param("upper").value
+		joint.set_translate_limit(limit, lower, upper)
+
+		var motor = this.query_param("motor").value
+		var force = this.query_param("force").value
+		var speed = this.query_param("speed").value	
+		joint.set_motor(motor, force, speed)
+
 		return joint
 	}
 }

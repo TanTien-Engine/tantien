@@ -367,11 +367,8 @@ void w_PrismaticJoint_allocate()
     auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
     auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
     auto axis   = tt::list_to_vec2(4);
-    auto lower  = (float)ves_tonumber(5);
-    auto upper  = (float)ves_tonumber(6);
 
     auto joint = std::make_shared<up::rigid::box2d::PrismaticJoint>(body_a, body_b, anchor, axis);
-    joint->SetTranslateRegion(lower, upper);
     auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>));
     proxy->obj = joint;
 }
@@ -381,6 +378,24 @@ int w_PrismaticJoint_finalize(void* data)
     auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>);
+}
+
+void w_PrismaticJoint_set_translate_limit()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
+    auto enable_limit = ves_toboolean(1);
+    auto lower = (float)ves_tonumber(2);
+    auto upper = (float)ves_tonumber(3);
+    joint->SetTranslateLimit(enable_limit, lower, upper);
+}
+
+void w_PrismaticJoint_set_motor()
+{
+    auto joint = ((tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
+    auto enable_motor = ves_toboolean(1);
+    auto max_torque = (float)ves_tonumber(2);
+    auto speed = (float)ves_tonumber(3);
+    joint->SetMotor(enable_motor, max_torque, speed);
 }
 
 void w_DistanceJoint_allocate()
@@ -524,6 +539,8 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
 
     if (strcmp(signature, "RevoluteJoint.set_angle_limit(_,_,_)") == 0) return w_RevoluteJoint_set_angle_limit;
     if (strcmp(signature, "RevoluteJoint.set_motor(_,_,_)") == 0) return w_RevoluteJoint_set_motor;
+    if (strcmp(signature, "PrismaticJoint.set_translate_limit(_,_,_)") == 0) return w_PrismaticJoint_set_translate_limit;
+    if (strcmp(signature, "PrismaticJoint.set_motor(_,_,_)") == 0) return w_PrismaticJoint_set_motor;
     if (strcmp(signature, "DistanceJoint.set_length(_,_)") == 0) return w_DistanceJoint_set_length;
     if (strcmp(signature, "MouseJoint.set_target(_)") == 0) return w_MouseJoint_set_target;
     if (strcmp(signature, "WheelJoint.set_translate_limit(_,_,_)") == 0) return w_WheelJoint_set_translate_limit;

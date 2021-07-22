@@ -66,7 +66,10 @@ foreign class RevoluteJoint
 
 foreign class PrismaticJoint
 {
-	init(body_a, body_b, anchor, axis, lower, upper) {}
+	init(body_a, body_b, anchor, axis) {}
+
+	foreign set_translate_limit(enable_limit, lower, upper)
+	foreign set_motor(enable_motor, max_torque, speed)
 }
 
 foreign class DistanceJoint

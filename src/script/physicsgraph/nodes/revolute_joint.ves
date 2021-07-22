@@ -68,6 +68,11 @@ class RevoluteJoint is Node
 		var upper = this.query_param("upper").value
 		joint.set_angle_limit(limit, lower, upper)
 
+		var motor = this.query_param("motor").value
+		var torque = this.query_param("torque").value
+		var speed = this.query_param("speed").value
+		joint.set_motor(motor, torque, speed)
+
 		return joint
 	}
 }
