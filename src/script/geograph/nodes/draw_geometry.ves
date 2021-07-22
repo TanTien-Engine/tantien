@@ -199,17 +199,22 @@ class DrawGeometry is Node
 
 	draw_circle(pt, geo, col)
 	{
-		var c = geo.shape.get()
+		var circle = geo.shape.get()
+
+		var center = Vector2(circle[0], circle[1])
+		center.rotate(geo.angle)
 		if (geo.pos) {
-			c[0] = c[0] + geo.pos[0]
-			c[1] = c[1] + geo.pos[1]
+			center.x = center.x + geo.pos[0]
+			center.y = center.y + geo.pos[1]
 		}
+
+		var radius = circle[2]
 
 		var fill = geo.render_style["fill"]
 		if (fill) {
-			pt.add_circle_filled(c[0], c[1], c[2], col, 24)
+			pt.add_circle_filled(center.x, center.y, radius, col, 24)
 		} else {
-			pt.add_circle(c[0], c[1], c[2], col, 2.0, 24)
+			pt.add_circle(center.x, center.y, radius, col, 2.0, 24)
 		}
 	}
 
