@@ -23,6 +23,8 @@ class Chain is Node
 
 		this.params.add(NodeParam("density",  1.0, { "min" : 0.0, "max" : 2.0 }))
 		this.params.add(NodeParam("friction", 0.2, { "min" : 0.0, "max" : 1.0 }))
+		this.params.add(NodeParam("fix_begin", true))
+		this.params.add(NodeParam("fix_end", true))
 
 		this.layout()
 
@@ -77,8 +79,11 @@ class Chain is Node
 
 		var v_ground = Blueprint.calc_input_value(this, 0)
 
+		var fix_begin = this.query_param("fix_begin").value
+		var fix_end = this.query_param("fix_end").value
+
 		var prev_body = nil
-		if (v_ground) {
+		if (fix_begin and v_ground) {
 			prev_body = v_ground.value.body
 		}
 
@@ -100,7 +105,7 @@ class Chain is Node
 			prev_body = this.bodies[i].value.body
 		}
 
-		if (prev_body and v_ground.value.body) 
+		if (fix_end and prev_body and v_ground.value.body) 
 		{
 			var rect = v_geos.value.back().value.shape.get()
 			var anchor = [ rect[0] + rect[2], rect[1] + rect[3] ]
