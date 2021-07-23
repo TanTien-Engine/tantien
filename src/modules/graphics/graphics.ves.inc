@@ -49,6 +49,7 @@ foreign class Graphics
 	foreign static draw_painter(pt)
 	foreign static draw_text(text, x, y, scale, textbox)
 	foreign static draw_texture(texture, pos, angle, scale, offset)
+	foreign static draw_texture2(texture, mat)
 	foreign static flush()
 	foreign static dtex_debug_draw()
 	foreign static get_width()

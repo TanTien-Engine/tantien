@@ -319,23 +319,12 @@ bool calc_vertices(const sm::rect& pos, const sm::Matrix2D& mat, float* vertices
     return true;
 }
 
-void w_Graphics_draw_texture()
+void draw_texture(const ur::TexturePtr& tex, const sm::Matrix2D& mat)
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
-
-    auto  pos    = tt::list_to_vec2(2);
-    float angle  = (float)ves_tonumber(3);
-    auto  scale  = tt::list_to_vec2(4);
-    auto  offset = tt::list_to_vec2(5);
-
-    sm::Matrix2D mt;
-    auto center = pos + sm::rotate_vector(-offset, angle) + offset;
-    mt.SetTransformation(center.x, center.y, angle, scale.x, scale.y, 0, 0, 0, 0);
-
     float w = static_cast<float>(tex->GetWidth());
     float h = static_cast<float>(tex->GetHeight());
     float vertices[8];
-    calc_vertices(sm::rect(w, h), mt, vertices);
+    calc_vertices(sm::rect(w, h), mat, vertices);
 
 	auto draw_without_dtex = [&](std::shared_ptr<tt::SpriteRenderer>& rd, const float* vertices, const ur::TexturePtr& tex)
 	{
@@ -370,6 +359,30 @@ void w_Graphics_draw_texture()
 	{
 		draw_without_dtex(rd, vertices, tex);
 	}
+}
+
+void w_Graphics_draw_texture()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+
+    auto  pos    = tt::list_to_vec2(2);
+    float angle  = (float)ves_tonumber(3);
+    auto  scale  = tt::list_to_vec2(4);
+    auto  offset = tt::list_to_vec2(5);
+
+    sm::Matrix2D mat;
+    auto center = pos + sm::rotate_vector(-offset, angle) + offset;
+    mat.SetTransformation(center.x, center.y, angle, scale.x, scale.y, 0, 0, 0, 0);
+
+    draw_texture(tex, mat);
+}
+
+void w_Graphics_draw_texture2()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    sm::Matrix2D* mat = (sm::Matrix2D*)ves_toforeign(2);
+
+    draw_texture(tex, *mat);
 }
 
 void w_Graphics_flush()
@@ -414,6 +427,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.draw_painter(_)") == 0) return w_Graphics_draw_painter;
     if (strcmp(signature, "static Graphics.draw_text(_,_,_,_,_)") == 0) return w_Graphics_draw_text;
     if (strcmp(signature, "static Graphics.draw_texture(_,_,_,_,_)") == 0) return w_Graphics_draw_texture;
+    if (strcmp(signature, "static Graphics.draw_texture2(_,_)") == 0) return w_Graphics_draw_texture2;
     if (strcmp(signature, "static Graphics.flush()") == 0) return w_Graphics_flush;
     if (strcmp(signature, "static Graphics.dtex_debug_draw()") == 0) return w_Graphics_dtex_debug_draw;
     if (strcmp(signature, "static Graphics.get_width()") == 0) return w_Graphics_get_width;
