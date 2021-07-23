@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ARRAY
 import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
 import "maths" for Matrix2D
@@ -14,7 +15,7 @@ class DrawScene is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "root", VAR_TYPE_SPRITE),
+			Pin(this, "obj",  [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
 		]
 
 		this.layout()
@@ -22,13 +23,26 @@ class DrawScene is Node
 
 	render_run() 
 	{
-		var v_spr = Blueprint.calc_input_value(this, 0)
-		if (v_spr) 
-		{
-			var mat = v_spr.value.transform
-			this.draw_spr(v_spr.value, mat)
+		var v_obj = Blueprint.calc_input_value(this, 1)
+		if (v_obj) {
+			this.draw_impl(v_obj)
 		}
 	}
+
+	draw_impl(v_obj)
+	{
+		if (v_obj.type == VAR_TYPE_ARRAY)
+		{
+			for (var v in v_obj.value) {
+				this.draw_impl(v)
+			}
+		}
+		else if (v_obj.type == VAR_TYPE_SPRITE)
+		{
+			var mat = v_obj.value.transform
+			this.draw_spr(v_obj.value, mat)
+		}
+	}	
 
 	draw_spr(spr, mat)
 	{
