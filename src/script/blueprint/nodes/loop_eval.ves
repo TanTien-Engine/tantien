@@ -1,0 +1,80 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class LoopEval is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "items", VAR_TYPE_ARRAY),
+			Pin(this, "eval",  VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "result",    VAR_TYPE_ARRAY),
+			Pin(this, "curr_item", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.exports[1].stop_port_pass = true
+
+		this.curr_item = nil
+		this.cache = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+
+		this.cache = nil
+	}
+
+	on_node_dirty() 
+	{
+		this.cache = nil
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 0) 
+		{
+			if (!this.cache) {
+				this.cache = this.calc_result()
+			}
+			return this.cache
+		} 
+		else if (idx == 1) 
+		{
+			return this.curr_item
+		}
+		return nil
+	}
+
+	calc_result()
+	{
+		var v_items = Blueprint.calc_input_value(this, 0)
+		if (!v_items.value is List and !v_items.value is Map) {
+			return nil
+		}
+
+		var result = []
+
+		this.curr_item = nil
+		for (var entry in v_items.value) 
+		{
+			this.curr_item = Variant(entry)
+
+			var v_eval = Blueprint.calc_input_value(this, 1)
+			result.add(v_eval)
+		}
+		this.curr_item = nil
+
+		return Variant(result)
+	}
+}
