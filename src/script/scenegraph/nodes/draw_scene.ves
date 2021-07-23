@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_ARRAY
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
 import "maths" for Matrix2D
@@ -15,7 +15,11 @@ class DrawScene is Node
 		super.init()
 
 		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
 			Pin(this, "obj",  [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
 		this.layout()
