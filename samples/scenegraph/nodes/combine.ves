@@ -1,0 +1,146 @@
+var node0 = ::rendergraph::nodes::texture::Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/awesomeface.png")
+
+_editor.add_node(node0, -383.84854046234, 191.90433750799)
+
+var node1 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node1, -195.00854046234, 227.27979205344)
+
+var node2 = ::scenegraph::nodes::draw_scene::DrawScene()
+
+_editor.add_node(node2, 1161.1920017406, 180.68829988817)
+
+var node3 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node3, -15.172644379728, -73.760740076125)
+
+var node4 = ::blueprint::nodes::number2::Number2()
+
+node4.value.set(0.25, 0.25)
+
+_editor.add_node(node4, -146.79909090909, -115.98909090909)
+
+var node5 = ::scenegraph::nodes::combine::Combine()
+
+_editor.add_node(node5, 729.22008289453, 162.49445368442)
+
+var node6 = ::blueprint::nodes::number2::Number2()
+
+node6.value.set(300, 0)
+
+_editor.add_node(node6, 193.72284540067, 169.19705507401)
+
+var node7 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node7, 330.09561945254, 146.65422455419)
+
+var node8 = ::blueprint::nodes::number::Number()
+
+node8.value = 13.426836013794
+
+_editor.add_node(node8, 200.91584780698, -78.330199521794)
+
+var node9 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node9, 338.36363636364, -23.772727272727)
+
+var node10 = ::blueprint::nodes::number2::Number2()
+
+node10.value.set(0, 300)
+
+_editor.add_node(node10, 201.63636363636, -0.86363636363635)
+
+var node11 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node11, 339.70042557628, -189.66328794006)
+
+var node12 = ::blueprint::nodes::number2::Number2()
+
+node12.value.set(0.5, 0)
+
+_editor.add_node(node12, 204.24588705755, -250.57237191334)
+
+var node13 = ::blueprint::nodes::number2::Number2()
+
+node13.value.set(-300, 0)
+
+_editor.add_node(node13, 205.15497103083, -166.9360110513)
+
+var node14 = ::blueprint::nodes::number2::Number2()
+
+node14.value.set(1, 2)
+
+_editor.add_node(node14, 195.07985327438, 85.535117440712)
+
+var node15 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node15, 346.53056012993, -362.46569214742)
+
+var node16 = ::blueprint::nodes::number2::Number2()
+
+node16.value.set(0, 1)
+
+_editor.add_node(node16, 211.0760216112, -423.3747761207)
+
+var node17 = ::blueprint::nodes::number2::Number2()
+
+node17.value.set(0, -300)
+
+_editor.add_node(node17, 211.98510558448, -339.73841525866)
+
+var node18 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node18, 887.51625650277, 35.95369943354)
+
+var node19 = ::blueprint::nodes::number2::Number2()
+
+node19.value.set(0.5, 0.5)
+
+_editor.add_node(node19, 730.31045373679, -109.04863273041)
+
+var node20 = ::scenegraph::nodes::combine::Combine()
+
+_editor.add_node(node20, 1014.0051106421, 157.34453385478)
+
+var node21 = ::blueprint::nodes::number2::Number2()
+
+node21.value.set(294.1875, 282.80972290039)
+
+_editor.add_node(node21, 733.14367682133, 44.226665995597)
+
+var node22 = ::blueprint::nodes::number::Number()
+
+node22.value = 2.6721868515015
+
+_editor.add_node(node22, 732.42631402689, -30.585072277461)
+
+Blueprint.connect(node0, "tex", node1, "symbol")
+Blueprint.connect(node1, "spr", node3, "spr")
+Blueprint.connect(node4, "v2", node3, "scale")
+Blueprint.connect(node3, "spr", node15, "spr")
+Blueprint.connect(node17, "v2", node15, "translate")
+Blueprint.connect(node16, "v2", node15, "shear")
+Blueprint.connect(node3, "spr", node11, "spr")
+Blueprint.connect(node13, "v2", node11, "translate")
+Blueprint.connect(node12, "v2", node11, "shear")
+Blueprint.connect(node3, "spr", node9, "spr")
+Blueprint.connect(node10, "v2", node9, "translate")
+Blueprint.connect(node8, "v", node9, "rotate")
+Blueprint.connect(node3, "spr", node7, "spr")
+Blueprint.connect(node6, "v2", node7, "translate")
+Blueprint.connect(node14, "v2", node7, "scale")
+Blueprint.connect(node1, "spr", node5, "child0")
+Blueprint.connect(node7, "spr", node5, "child1")
+Blueprint.connect(node9, "spr", node5, "child2")
+Blueprint.connect(node11, "spr", node5, "child3")
+Blueprint.connect(node15, "spr", node5, "child4")
+Blueprint.connect(node5, "parent", node18, "spr")
+Blueprint.connect(node21, "v2", node18, "translate")
+Blueprint.connect(node22, "v", node18, "rotate")
+Blueprint.connect(node19, "v2", node18, "scale")
+Blueprint.connect(node5, "parent", node20, "child0")
+Blueprint.connect(node18, "spr", node20, "child1")
+Blueprint.connect(node20, "parent", node2, "root")

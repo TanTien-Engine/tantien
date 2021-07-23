@@ -1,0 +1,43 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant
+import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "geograph.variant" for VAR_TYPE_GEO
+
+class Sprite is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "symbol", [ VAR_TYPE_TEXTURE, VAR_TYPE_GEO ]),
+		]
+		this.exports = [
+			Pin(this, "spr", VAR_TYPE_SPRITE),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin == this.imports[0]) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var spr = VarSprite()
+
+		var v_sym = Blueprint.calc_input_value(this, 0)
+		if (v_sym) {
+			spr.symbol = v_sym.value
+		}
+
+		return Variant(VAR_TYPE_SPRITE, spr)
+	}
+}

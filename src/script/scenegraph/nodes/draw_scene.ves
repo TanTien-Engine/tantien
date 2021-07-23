@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "scenegraph.variant" for VAR_TYPE_SPRITE
+import "rendergraph.variant" for VarTexture
+import "maths" for Matrix2D
+import "render" for Texture2D
+import "graphics" for Graphics
+
+class DrawScene is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "root", VAR_TYPE_SPRITE),
+		]
+
+		this.layout()
+	}
+
+	render_run() 
+	{
+		var v_spr = Blueprint.calc_input_value(this, 0)
+		if (v_spr) 
+		{
+			var mat = v_spr.value.transform
+			this.draw_spr(v_spr.value, mat)
+		}
+	}
+
+	draw_spr(spr, mat)
+	{
+		if (spr.symbol)
+		{
+			if (spr.symbol is VarTexture) 
+			{
+				var tex = spr.symbol.tex
+				if (tex) {
+					Graphics.draw_texture2(tex, mat)				
+				}
+			}
+		}
+		else
+		{
+			for (var child in spr.children) 
+			{
+				var c_mat = Matrix2D.init()
+				c_mat.transform_mat(child.transform)
+				c_mat.transform_mat(mat)				
+				this.draw_spr(child, c_mat)
+			}
+		}
+	}
+}

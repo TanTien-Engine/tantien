@@ -1,0 +1,70 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
+
+class Combine is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "child0", VAR_TYPE_SPRITE),
+			Pin(this, "child1", VAR_TYPE_SPRITE),
+		]
+		this.exports = [
+			Pin(this, "parent", VAR_TYPE_SPRITE),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var spr = VarSprite()
+
+		for (var i in 0..this.imports.count) {
+			var v_child = Blueprint.calc_input_value(this, i)
+			if (v_child) {
+				spr.children.add(v_child.value)
+			}
+		}
+		return Variant(VAR_TYPE_SPRITE, spr)
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	update_imports()
+	{
+		while (this.imports.count > 2 and this.imports.back().conns.isEmpty) {
+			this.imports.pop_back()
+		}
+
+		if (!this.imports.back().conns.isEmpty) {
+			this.imports.add(Pin(this, "child%(this.imports.count)", VAR_TYPE_SPRITE))
+		}
+
+		this.layout()
+	}
+}

@@ -1,0 +1,17 @@
+var node0 = ::rendergraph::nodes::texture::Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/awesomeface.png")
+
+_editor.add_node(node0, -127, 2)
+
+var node1 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node1, 53, 40.5)
+
+var node2 = ::scenegraph::nodes::draw_scene::DrawScene()
+
+_editor.add_node(node2, 194, 41.5)
+
+Blueprint.connect(node0, "tex", node1, "symbol")
+Blueprint.connect(node1, "spr", node2, "root")

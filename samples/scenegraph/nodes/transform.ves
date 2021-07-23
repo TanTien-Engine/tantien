@@ -1,0 +1,50 @@
+var node0 = ::rendergraph::nodes::texture::Texture()
+node0.query_param("unif_name").value = "u_tex"
+node0.gamma_correction = false
+node0.init_texture("../../rendergraph/learnopengl/resources/textures/awesomeface.png")
+
+_editor.add_node(node0, -125.79, 33.46)
+
+var node1 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node1, 59.05, 73.835454545455)
+
+var node2 = ::scenegraph::nodes::draw_scene::DrawScene()
+
+_editor.add_node(node2, 364.95, -1.08)
+
+var node3 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node3, 222.31363636364, -41.540909090909)
+
+var node4 = ::blueprint::nodes::number2::Number2()
+
+node4.value.set(0.5, 0.5)
+
+_editor.add_node(node4, 57.746363636364, -163.44363636364)
+
+var node5 = ::blueprint::nodes::number::Number()
+
+node5.value = 0.50504899024963
+
+_editor.add_node(node5, 60.313635670055, -82.534557939009)
+
+var node6 = ::blueprint::nodes::number2::Number2()
+
+node6.value.set(217.21215820313, 169.63229370117)
+
+_editor.add_node(node6, 63.3609094377, 1.0890904756026)
+
+var node7 = ::blueprint::nodes::number2::Number2()
+
+node7.value.set(1, 0)
+
+_editor.add_node(node7, 58, -253.5)
+
+Blueprint.connect(node0, "tex", node1, "symbol")
+Blueprint.connect(node1, "spr", node3, "spr")
+Blueprint.connect(node6, "v2", node3, "translate")
+Blueprint.connect(node5, "v", node3, "rotate")
+Blueprint.connect(node4, "v2", node3, "scale")
+Blueprint.connect(node7, "v2", node3, "shear")
+Blueprint.connect(node3, "spr", node2, "root")
