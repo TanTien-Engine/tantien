@@ -84,6 +84,7 @@ foreign class Matrix2D
 	init() {}
 
 	foreign transform(x, y, angle, sx, sy, ox, oy, kx, ky)
+	foreign transform_mat(mat)
 }
 
 foreign class Matrix44

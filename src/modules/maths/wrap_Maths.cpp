@@ -209,6 +209,13 @@ void w_Matrix2D_transform()
     mt->SetTransformation(x, y, angle, sx, sy, ox, oy, kx, ky);
 }
 
+void w_Matrix2D_transform_mat()
+{
+    sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
+    sm::Matrix2D* trans = (sm::Matrix2D*)ves_toforeign(1);
+    *mt = *mt * *trans;
+}
+
 void w_Matrix44_clone()
 {
     sm::mat4* src = (sm::mat4*)ves_toforeign(0);
@@ -428,6 +435,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Float4.w()") == 0) return w_Float4_get_w;
 
     if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
+    if (strcmp(signature, "Matrix2D.transform_mat(_)") == 0) return w_Matrix2D_transform_mat;
 
     if (strcmp(signature, "Matrix44.clone()") == 0) return w_Matrix44_clone;
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
