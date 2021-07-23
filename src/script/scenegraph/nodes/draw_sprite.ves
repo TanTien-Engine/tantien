@@ -8,7 +8,7 @@ import "maths" for Matrix2D
 import "render" for Texture2D
 import "graphics" for Graphics
 
-class DrawScene is Node
+class DrawSprite is Node
 {
 	init()
 	{
@@ -16,7 +16,7 @@ class DrawScene is Node
 
 		this.imports = [
 			Pin(this, "prev", VAR_TYPE_PORT),
-			Pin(this, "obj",  [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
+			Pin(this, "spr",  [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)

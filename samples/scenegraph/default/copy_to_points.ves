@@ -24,7 +24,7 @@ node4.value.set(0, 0)
 
 _editor.add_node(node4, -484, -81.5)
 
-var node5 = ::scenegraph::nodes::draw_scene::DrawScene()
+var node5 = ::scenegraph::nodes::draw_sprite::DrawSprite()
 
 _editor.add_node(node5, 73, 51.5)
 
@@ -51,4 +51,4 @@ Blueprint.connect(node1, "spr", node7, "spr")
 Blueprint.connect(node8, "v2", node7, "scale")
 Blueprint.connect(node7, "spr", node0, "spr")
 Blueprint.connect(node3, "list", node0, "points")
-Blueprint.connect(node0, "result", node5, "obj")
+Blueprint.connect(node0, "result", node5, "spr")

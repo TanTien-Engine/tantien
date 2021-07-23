@@ -9,9 +9,9 @@ var node1 = ::scenegraph::nodes::sprite::Sprite()
 
 _editor.add_node(node1, 53, 40.5)
 
-var node2 = ::scenegraph::nodes::draw_scene::DrawScene()
+var node2 = ::scenegraph::nodes::draw_sprite::DrawSprite()
 
 _editor.add_node(node2, 194, 41.5)
 
 Blueprint.connect(node0, "tex", node1, "symbol")
-Blueprint.connect(node1, "spr", node2, "obj")
+Blueprint.connect(node1, "spr", node2, "spr")

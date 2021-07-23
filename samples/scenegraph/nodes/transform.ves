@@ -9,7 +9,7 @@ var node1 = ::scenegraph::nodes::sprite::Sprite()
 
 _editor.add_node(node1, 59.05, 73.835454545455)
 
-var node2 = ::scenegraph::nodes::draw_scene::DrawScene()
+var node2 = ::scenegraph::nodes::draw_sprite::DrawSprite()
 
 _editor.add_node(node2, 364.95, -1.08)
 
@@ -47,4 +47,4 @@ Blueprint.connect(node6, "v2", node3, "translate")
 Blueprint.connect(node5, "v", node3, "rotate")
 Blueprint.connect(node4, "v2", node3, "scale")
 Blueprint.connect(node7, "v2", node3, "shear")
-Blueprint.connect(node3, "spr", node2, "obj")
+Blueprint.connect(node3, "spr", node2, "spr")
