@@ -1,0 +1,124 @@
+var node0 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node0, -343.35974397156, 184.27527004151)
+
+var node1 = ::scenegraph::nodes::draw_sprite::DrawSprite()
+
+_editor.add_node(node1, 116.62998131591, 188.605341566)
+
+var node2 = ::geograph::nodes::rect::Rect()
+node2.query_param("x").value = 0
+node2.query_param("y").value = 0
+node2.query_param("w").value = 100
+node2.query_param("h").value = 100
+node2.query_param("fill").value = true
+node2.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node2, -491.72727272727, 84.5)
+
+var node3 = ::geograph::nodes::line::Line()
+node3.query_param("x0").value = 0
+node3.query_param("y0").value = 0
+node3.query_param("x1").value = 258.54559326172
+node3.query_param("y1").value = 100
+
+_editor.add_node(node3, -496.26909013228, 314.62372935902)
+
+var node4 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node4, -205.01454467773, 143.51555308949)
+
+var node5 = ::blueprint::nodes::number::Number()
+
+node5.value = 18.435363769531
+
+_editor.add_node(node5, -343.5918347168, 127.31658325195)
+
+var node6 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node6, -356.90185546875, 363.87153808594)
+
+var node7 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node7, -214.12182739258, 322.73156982422)
+
+var node8 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node8, 21.545194654228, 64.363667678202)
+
+var node9 = ::blueprint::nodes::number2::Number2()
+
+node9.value.set(0, 131.20660400391)
+
+_editor.add_node(node9, -360.53181518555, 297.32158325195)
+
+var node10 = ::geograph::nodes::circle::Circle()
+node10.query_param("x").value = 0
+node10.query_param("y").value = 0
+node10.query_param("r").value = 77.777778625488
+node10.query_param("fill").value = false
+node10.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node10, -499, -167.5)
+
+var node11 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node11, -355, -76.5)
+
+var node12 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node12, -211, -111.5)
+
+var node13 = ::blueprint::nodes::number2::Number2()
+
+node13.value.set(227.55555725098, 22.755556106567)
+
+_editor.add_node(node13, -353, -150.5)
+
+var node14 = ::geograph::nodes::polyline::Polyline()
+node14.query_param("vertices").value = [ 74.374000549316, -118.93105316162, -402.36605834961, -224.20098876953, -462.86599731445, -112.88105773926, -214.81594848633, 35.948917388916, -558.45599365234, 117.01894378662 ]
+node14.query_param("closed").value = true
+
+_editor.add_node(node14, -499, -322.5)
+
+var node15 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node15, -362, -308.5)
+
+var node16 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node16, -205, -343.5)
+
+var node17 = ::geograph::nodes::polygon::Polygon()
+node17.query_param("vertices").value = [ -189.34083557129, -575.6064453125, 15.633140563965, -506.79400634766, 107.87145996094, -370.63269042969, -136.63325500488, -246.18417358398, -316.71759033203, -360.38397216797 ]
+node17.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node17, -501.59327871773, -488.53163187221)
+
+var node18 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node18, -371.24265555848, -458.44852761054)
+
+var node19 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node19, -217.22309403738, -497.51688745557)
+
+Blueprint.connect(node17, "geo", node18, "symbol")
+Blueprint.connect(node18, "spr", node19, "spr")
+Blueprint.connect(node14, "geo", node15, "symbol")
+Blueprint.connect(node15, "spr", node16, "spr")
+Blueprint.connect(node10, "geo", node11, "symbol")
+Blueprint.connect(node11, "spr", node12, "spr")
+Blueprint.connect(node13, "v2", node12, "translate")
+Blueprint.connect(node3, "geo", node6, "symbol")
+Blueprint.connect(node6, "spr", node7, "spr")
+Blueprint.connect(node9, "v2", node7, "translate")
+Blueprint.connect(node2, "geo", node0, "symbol")
+Blueprint.connect(node0, "spr", node4, "spr")
+Blueprint.connect(node5, "v", node4, "rotate")
+Blueprint.connect(node7, "spr", node8, "in0")
+Blueprint.connect(node4, "spr", node8, "in1")
+Blueprint.connect(node12, "spr", node8, "in2")
+Blueprint.connect(node16, "spr", node8, "in3")
+Blueprint.connect(node19, "spr", node8, "in4")
+Blueprint.connect(node8, "list", node1, "spr")

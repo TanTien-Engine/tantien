@@ -4,9 +4,14 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
-import "maths" for Matrix2D
+import "geograph.variant" for VarGeo
+import "geograph.nodes.draw_geometry" for DrawGeometry
+import "maths" for Matrix2D, Float2
 import "render" for Texture2D
-import "graphics" for Graphics
+import "graphics" for Painter, Graphics
+import "maths.vector" for Vector2, Vector3
+import "geometry" for Line, Rect, Circle, Polyline, Polygon
+import "maths.calc" for Calc
 
 class DrawSprite is Node
 {
@@ -28,47 +33,204 @@ class DrawSprite is Node
 	render_run() 
 	{
 		var v_obj = Blueprint.calc_input_value(this, 1)
-		if (v_obj) {
-			this.draw_impl(v_obj)
+		if (!v_obj) {
+			return
 		}
+
+		var pt = Painter.init()
+
+		this.draw_impl(v_obj, pt)
+
+		import "blueprint.blackboard" for BLACKBOARD
+		var cam = BLACKBOARD.editor_cam
+		Graphics.on_cam_update(cam.pos.x, cam.pos.y, cam.scale)
+		Graphics.draw_painter(pt)	
 	}
 
-	draw_impl(v_obj)
+	draw_impl(v_obj, pt)
 	{
 		if (v_obj.type == VAR_TYPE_ARRAY)
 		{
 			for (var v in v_obj.value) {
-				this.draw_impl(v)
+				this.draw_impl(v, pt)
 			}
 		}
 		else if (v_obj.type == VAR_TYPE_SPRITE)
 		{
 			var mat = v_obj.value.transform
-			this.draw_spr(v_obj.value, mat)
-		}
-	}	
+			this.draw_spr(v_obj.value, mat, pt)
+		}	
+	}
 
-	draw_spr(spr, mat)
+	draw_spr(spr, mat, pt)
 	{
 		if (spr.symbol)
 		{
-			if (spr.symbol is VarTexture) 
-			{
-				var tex = spr.symbol.tex
-				if (tex) {
-					Graphics.draw_texture2(tex, mat)				
-				}
+			if (spr.symbol is VarTexture) {
+				this.draw_tex(spr.symbol, mat)
+			} else if (spr.symbol is VarGeo) {
+				this.draw_geo(spr.symbol, mat, pt)
 			}
 		}
 		else
 		{
 			for (var child in spr.children) 
 			{
-				var c_mat = Matrix2D.init()
-				c_mat.transform_mat(child.transform)
-				c_mat.transform_mat(mat)				
-				this.draw_spr(child, c_mat)
+				if (child.transform or mat)
+				{
+					var c_mat = Matrix2D.init()
+					if (child.transform) {
+						c_mat.transform_mat(child.transform)
+					}
+					if (mat) {
+						c_mat.transform_mat(mat)
+					}
+					this.draw_spr(child, c_mat, pt)
+				}
+				else
+				{
+					this.draw_spr(child, nil, pt)
+				}
 			}
 		}
 	}
+
+	draw_tex(v_tex, mat)
+	{
+		var tex = v_tex.tex
+		if (tex) {
+			Graphics.draw_texture2(tex, mat)
+		}
+	}
+
+	draw_geo(v_geo, mat, pt)
+	{
+		var col = [255, 255, 255, 255]
+
+		var shape = v_geo.shape
+		if (shape is Line) {
+			this.draw_line(v_geo, mat, pt, col)
+		} else if (shape is Rect) {
+			this.draw_rect(v_geo, mat, pt, col)
+		} else if (shape is Circle) {
+			this.draw_circle(v_geo, mat, pt, col)
+		} else if (shape is Polyline) {
+			this.draw_polyline(v_geo, mat, pt, col)
+		} else if (shape is Polygon) {
+			this.draw_polygon(v_geo, mat, pt, col)
+		}
+	}
+
+	draw_line(v_geo, mat, pt, col)
+	{
+		var line = v_geo.shape.get()
+		if (mat)
+		{
+			var b = Float2.init(line[0], line[1])
+			var e = Float2.init(line[2], line[3])
+			b.transform(mat)
+			e.transform(mat)
+			pt.add_line([ b.x(), b.y(), e.x(), e.y() ], col, 2)
+		}
+		else
+		{
+			pt.add_line(line, col, 2)
+		}
+	}
+
+	draw_rect(v_geo, mat, pt, col)
+	{
+		var rect = v_geo.shape.get()
+		var fill = v_geo.render_style["fill"]
+		if (mat)
+		{
+			var quad = [
+				Float2.init(rect[0], rect[1]),
+				Float2.init(rect[0], rect[1] + rect[3]),
+				Float2.init(rect[0] + rect[2], rect[1] + rect[3]),
+				Float2.init(rect[0] + rect[2], rect[1]),
+			]
+			for (var p in quad) {
+				p.transform(mat)
+			}
+
+			var vertices = []
+			for (var p in quad) {
+				vertices.add(p.x())
+				vertices.add(p.y())
+			}
+			if (fill) {
+				pt.add_polygon_filled(vertices, col)
+			} else {
+				pt.add_polygon(vertices, col, 2)
+			}
+		}
+		else
+		{
+			if (fill) {
+				pt.add_rect_filled(rect, col)
+			} else {
+				pt.add_rect(rect, col, 2)
+			}
+		}
+	}
+
+	draw_circle(v_geo, mat, pt, col)
+	{
+		var circle = v_geo.shape.get()
+		var fill = v_geo.render_style["fill"]
+		if (mat)
+		{
+			var p0 = Float2.init(circle[0], circle[1])
+			var p1 = Float2.init(circle[0] + circle[2], circle[1])
+			p0.transform(mat)
+			p1.transform(mat)
+			var r = Calc.dis_pos_to_pos(Vector2(p0.x(), p0.y()), Vector2(p1.x(), p1.y()))
+			if (fill) {
+				pt.add_circle_filled(p0.x(), p0.y(), r, col, 24)
+			} else {
+				pt.add_circle(p0.x(), p0.y(), r, col, 2.0, 24)
+			}
+		}
+		else
+		{
+			if (fill) {
+				pt.add_circle_filled(circle[0], circle[1], circle[2], col, 24)
+			} else {
+				pt.add_circle(circle[0], circle[1], circle[2], col, 2.0, 24)
+			}
+		}
+	}
+
+	draw_polyline(v_geo, mat, pt, col)
+	{
+		var verts = v_geo.shape.get_vertices()
+		if (mat)
+		{
+			for (var i = 0; i < verts.count; i = i + 2) 
+			{
+				var p = Float2.init(verts[i], verts[i + 1])
+				p.transform(mat)
+				verts[i] = p.x()
+				verts[i + 1] = p.y()
+			}
+		}
+		pt.add_polyline(verts, col, 2.0)
+	}
+
+	draw_polygon(v_geo, mat, pt, col)
+	{
+		var verts = v_geo.shape.get_vertices()
+		if (mat)
+		{
+			for (var i = 0; i < verts.count; i = i + 2) 
+			{
+				var p = Float2.init(verts[i], verts[i + 1])
+				p.transform(mat)
+				verts[i] = p.x()
+				verts[i + 1] = p.y()
+			}
+		}
+		pt.add_polygon_filled(verts, col)
+	}	
 }
