@@ -381,8 +381,11 @@ void w_Graphics_draw_texture2()
 {
     auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
     sm::Matrix2D* mat = (sm::Matrix2D*)ves_toforeign(2);
-
-    draw_texture(tex, *mat);
+    if (mat) {
+        draw_texture(tex, *mat);
+    } else {
+        draw_texture(tex, sm::Matrix2D());
+    }
 }
 
 void w_Graphics_flush()

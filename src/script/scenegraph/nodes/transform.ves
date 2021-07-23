@@ -76,9 +76,14 @@ class Transform is Node
 		var src_spr = v_spr.value
 
 		var spr = VarSprite()
+
 		spr.children = src_spr.children
 		spr.symbol   = src_spr.symbol
-		spr.transform.transform_mat(src_spr.transform)
+
+		spr.transform = Matrix2D.init()
+		if (src_spr.transform) {
+			spr.transform.transform_mat(src_spr.transform)		
+		}
 		spr.transform.transform_mat(trans_mat)
 
 		return Variant(VAR_TYPE_SPRITE, spr)
