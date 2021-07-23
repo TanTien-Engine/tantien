@@ -1,0 +1,54 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../../assets/blueprints/scenegraph/copy_to_points.ves")
+
+_editor.add_node(node0, -129, 29)
+
+var node1 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node1, -495, 91.5)
+
+var node2 = ::rendergraph::nodes::texture::Texture()
+node2.query_param("unif_name").value = "u_tex"
+node2.gamma_correction = false
+node2.init_texture("../../rendergraph/learnopengl/resources/textures/awesomeface.png")
+
+_editor.add_node(node2, -677, 52.5)
+
+var node3 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node3, -346, -122.5)
+
+var node4 = ::blueprint::nodes::number2::Number2()
+
+node4.value.set(0, 0)
+
+_editor.add_node(node4, -484, -81.5)
+
+var node5 = ::scenegraph::nodes::draw_scene::DrawScene()
+
+_editor.add_node(node5, 73, 51.5)
+
+var node6 = ::blueprint::nodes::number2::Number2()
+
+node6.value.set(113.77777862549, 102.40000152588)
+
+_editor.add_node(node6, -482, -174.5)
+
+var node7 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node7, -358, 52.5)
+
+var node8 = ::blueprint::nodes::number2::Number2()
+
+node8.value.set(0.25, 0.25)
+
+_editor.add_node(node8, -496, 19.5)
+
+Blueprint.connect(node4, "v2", node3, "in0")
+Blueprint.connect(node6, "v2", node3, "in1")
+Blueprint.connect(node2, "tex", node1, "symbol")
+Blueprint.connect(node1, "spr", node7, "spr")
+Blueprint.connect(node8, "v2", node7, "scale")
+Blueprint.connect(node7, "spr", node0, "spr")
+Blueprint.connect(node3, "list", node0, "points")
+Blueprint.connect(node0, "result", node5, "obj")

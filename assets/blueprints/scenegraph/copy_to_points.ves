@@ -1,0 +1,34 @@
+var node0 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node0, -59, 64.161838909301)
+
+var node1 = ::blueprint::nodes::loop_eval::LoopEval()
+
+_editor.add_node(node1, 112.69432338565, 141.10273615629)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "spr"
+node2.var_type = "sprite"
+
+_editor.add_node(node2, -209.79188580015, 45.11232156273)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "points"
+node3.var_type = "array"
+
+_editor.add_node(node3, -61.239303671296, 166.53752363151)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "result"
+node4.var_type = "array"
+
+_editor.add_node(node4, 249.34288624231, 152.76776588946)
+
+Blueprint.connect(node2, "var", node0, "spr")
+Blueprint.connect(node1, "curr_item", node0, "translate")
+Blueprint.connect(node3, "var", node1, "items")
+Blueprint.connect(node0, "spr", node1, "eval")
+Blueprint.connect(node1, "result", node4, "var")
