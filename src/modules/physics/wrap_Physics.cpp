@@ -15,6 +15,7 @@
 #include <geoshape/Circle.h>
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
+#include <sm/SM_Calc.h>
 
 #include <string>
 
@@ -127,6 +128,7 @@ void w_Body_add_shape()
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto filled = ves_optboolean(2, false);
+    auto& mt = *(sm::Matrix2D*)ves_toforeign(3);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -135,21 +137,26 @@ void w_Body_add_shape()
     case gs::ShapeType2D::Line:
     {
         auto line = std::static_pointer_cast<gs::Line2D>(shape);
-        phy_shape->InitEdgeShape(line->GetStart(), line->GetEnd());
+        phy_shape->InitEdgeShape(mt * line->GetStart(), mt * line->GetEnd());
     }
         break;
     case gs::ShapeType2D::Rect:
     {
         auto rect = std::static_pointer_cast<gs::Rect>(shape);
+
+        std::vector<sm::vec2> vertices;
+        auto& r = rect->GetRect();
+        vertices.push_back({ r.xmin, r.ymin });
+        vertices.push_back({ r.xmin, r.ymax });
+        vertices.push_back({ r.xmax, r.ymax });
+        vertices.push_back({ r.xmax, r.ymin });
+        for (auto& v : vertices) {
+            v = mt * v;
+        }
+
         if (filled) {
-            phy_shape->InitRectShape(rect->GetRect());
+            phy_shape->InitPolygonShape(vertices);
         } else {
-            std::vector<sm::vec2> vertices;
-            auto& r = rect->GetRect();
-            vertices.push_back({ r.xmin, r.ymin });
-            vertices.push_back({ r.xmin, r.ymax });
-            vertices.push_back({ r.xmax, r.ymax });
-            vertices.push_back({ r.xmax, r.ymin });
             phy_shape->InitChainShape(vertices, true);
         }
     }
@@ -157,14 +164,22 @@ void w_Body_add_shape()
     case gs::ShapeType2D::Circle:
     {
         auto circle = std::static_pointer_cast<gs::Circle>(shape);
-        phy_shape->InitCircleShape(circle->GetCenter(), circle->GetRadius());
+
+        auto p0 = mt * circle->GetCenter();
+        auto p1 = mt * sm::vec2(circle->GetCenter().x + circle->GetRadius(), circle->GetCenter().y);
+
+        phy_shape->InitCircleShape(p0, sm::dis_pos_to_pos(p0, p1));
     }
         break;
     case gs::ShapeType2D::Polyline:
     {
         auto polyline = std::dynamic_pointer_cast<gs::Polyline2D>(shape);
 
-        auto& vertices = polyline->GetVertices();
+        auto vertices = polyline->GetVertices();
+        for (auto& v : vertices) {
+            v = mt * v;
+        }
+
         if (vertices.size() == 2) {
             phy_shape->InitEdgeShape(vertices[0], vertices[1]);
         } else if (vertices.size() > 2) {
@@ -176,7 +191,11 @@ void w_Body_add_shape()
     {
         auto polygon = std::dynamic_pointer_cast<gs::Polygon2D>(shape);
 
-        auto& vertices = polygon->GetVertices();
+        auto vertices = polygon->GetVertices();
+        for (auto& v : vertices) {
+            v = mt * v;
+        }
+
         phy_shape->InitPolygonShape(vertices);
     }
         break;
@@ -518,7 +537,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
     if (strcmp(signature, "World.query_by_pos(_)") == 0) return w_World_query_by_pos;
 
-    if (strcmp(signature, "Body.add_shape(_,_)") == 0) return w_Body_add_shape;
+    if (strcmp(signature, "Body.add_shape(_,_,_)") == 0) return w_Body_add_shape;
     if (strcmp(signature, "Body.set_gravity_scale(_)") == 0) return w_Body_set_gravity_scale;
     if (strcmp(signature, "Body.set_density(_)") == 0) return w_Body_set_density;
     if (strcmp(signature, "Body.set_restitution(_)") == 0) return w_Body_set_restitution;

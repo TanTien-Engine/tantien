@@ -3,9 +3,11 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER2
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.variant" for VarGeo, VAR_TYPE_GEO
 import "physicsgraph.variant" for VAR_TYPE_BODY, VarBody
+import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "physics" for Body as tt_Body
+import "maths" for Matrix2D
 
 class Body is Node
 {
@@ -45,8 +47,12 @@ class Body is Node
 				var v_geos = Blueprint.calc_input_value(this, 0)
 				this.body.body   = this.build_body(v_geos)
 				this.body.bodies = nil
-				this.body.geo    = v_geos
 				this.body.geos   = nil
+				if (v_geos and v_geos.type == VAR_TYPE_SPRITE) {
+					this.body.spr = v_geos.value
+				} else {
+					this.body.geo = v_geos
+				}
 			}
 			return Variant(VAR_TYPE_BODY, this.body)
 		}
@@ -104,27 +110,9 @@ class Body is Node
 
 		var type = this.query_param("type").value
 		var body = tt_Body.init(type, flag)
-		
-		if (v_geos.type == VAR_TYPE_ARRAY)
-		{
-			for (var geo in v_geos.value) {
-				body.add_shape(geo.value.shape, geo.value.render_style["fill"].value)
-			}
-		}
-		else
-		{
-			if (!v_geos.value.shape) {
-				return nil
-			}
 
-			var filled = false
-			var v_fill = v_geos.value.render_style["fill"]
-			if (v_fill) {
-				filled = v_fill.value
-			}
-
-			body.add_shape(v_geos.value.shape, filled)
-		}
+		var mat = Matrix2D.init()
+		this.build_body(v_geos, body, mat)
 
 		body.set_gravity_scale(this.query_param("gravity").value)
 		body.set_density(this.query_param("density").value)
@@ -137,5 +125,49 @@ class Body is Node
 		}
 
 		return body
+	}
+
+	build_body(v_geo, body, mat)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			for (var geo in v_geo.value) {
+				this.build_body(geo, body, mat)
+			}
+		}
+		else if (v_geo.type == VAR_TYPE_GEO)
+		{
+			if (v_geo.value.shape) {
+				var fill = v_geo.value.render_style["fill"]
+				body.add_shape(v_geo.value.shape, fill, mat)
+			}
+		}
+		else if (v_geo.type == VAR_TYPE_SPRITE)
+		{
+			var spr = v_geo.value
+			if (spr.symbol) {
+				if (spr.symbol is VarGeo) {
+					var fill = spr.symbol.render_style["fill"]
+					body.add_shape(spr.symbol.shape, fill, mat)
+				}
+			} else {
+				for (var child in spr.children) {
+					var c_mat = this.calc_mat(child, mat)
+					this.build_body(Variant(VAR_TYPE_SPRITE, child), body, c_mat)
+				}
+			}
+		}
+	}
+
+	calc_mat(spr, mat)
+	{
+		var ret = Matrix2D.init()
+		if (spr.transform) {
+			ret.transform_mat(spr.transform)
+		}
+		if (mat) {
+			ret.transform_mat(mat)
+		}
+		return ret
 	}
 }

@@ -27,7 +27,7 @@ foreign class Body
 {
 	init(type, flag) {}
 
-	foreign add_shape(shape, filled)
+	foreign add_shape(shape, filled, mat)
 
 	foreign set_gravity_scale(density)
 

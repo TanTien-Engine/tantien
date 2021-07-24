@@ -4,6 +4,7 @@ import "blueprint.variant" for VAR_TYPE_PORT
 import "blueprint.blueprint" for Blueprint
 import "physicsgraph.variant" for VAR_TYPE_WORLD
  import "physics" for World
+import "maths" for Matrix2D
 
 class UpdateWorld is Node
 {
@@ -50,6 +51,16 @@ class UpdateWorld is Node
 						this.set_geo_transform(b.value.geos.value[i].value, b.value.bodies.value[i].value.body)
 					}
 				}
+			}
+			else if (b.value.spr)
+			{
+				var pos = b.value.body.get_pos()
+				var angle = b.value.body.get_angle()
+
+				var trans_mat = Matrix2D.init()
+				trans_mat.transform(pos[0], pos[1], angle, 1, 1, 0, 0, 0, 0)
+
+				b.value.spr.transform = trans_mat
 			}
 		}
 	}
