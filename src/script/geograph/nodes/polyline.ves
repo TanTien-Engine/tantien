@@ -37,6 +37,9 @@ class Polyline is Node
 
 	on_pin_dirty(pin)
 	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
 		this.geo_dirty = true
 	}
 
