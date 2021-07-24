@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX4
 import "maths" for Matrix44, Float3
 import "maths.vector" for Vector4, Vector3, Vector2
 
@@ -30,7 +30,7 @@ class Multiply is Node
 			return nil
 		}
 
-		if ((a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_NUMBER2 or a.type == VAR_TYPE_NUMBER3 or a.type == VAR_TYPE_NUMBER4) and (b.type == VAR_TYPE_NUMBER or b.type == VAR_TYPE_NUMBER2 or b.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER4))
+		if ((a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_INTEGER or a.type == VAR_TYPE_NUMBER2 or a.type == VAR_TYPE_NUMBER3 or a.type == VAR_TYPE_NUMBER4) and (b.type == VAR_TYPE_NUMBER or b.type == VAR_TYPE_INTEGER or b.type == VAR_TYPE_NUMBER2 or b.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER4))
 		{
 			var ret = [1, 1, 1, 1]
 			Multiply.mul_to(a, ret)
@@ -87,7 +87,7 @@ class Multiply is Node
 
 	static mul_to(v, ret)
 	{
-		if (v.type == VAR_TYPE_NUMBER) {
+		if (v.type == VAR_TYPE_NUMBER or v.type == VAR_TYPE_INTEGER) {
 			for (var i in 0..4) {
 				ret[i] = ret[i] * v.value			
 			}
