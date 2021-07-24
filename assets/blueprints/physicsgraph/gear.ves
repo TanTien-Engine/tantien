@@ -1,0 +1,167 @@
+var node0 = ::geograph::nodes::circle::Circle()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("r").value = 100
+node0.query_param("fill").value = false
+node0.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node0, -2.9593444583215, 62.425654062013)
+
+var node1 = ::geograph::nodes::polygon::Polygon()
+node1.query_param("vertices").value = [ 0, 10, 25, 5, 25, -5, 0, -10 ]
+node1.query_param("color").value.set(0, 0, 0)
+
+_editor.add_node(node1, -140.19892667841, -146.17091870724)
+
+var node2 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node2, 161.55146380567, 151.1055687862)
+
+var node3 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node3, 13.241923320033, -116.74568570636)
+
+var node4 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node4, 205.0529484948, -258.1361051881)
+
+var node5 = ::blueprint::nodes::store::Store()
+
+node5.var_name = "radius"
+
+_editor.add_node(node5, -527.54091877582, 121.36550424118)
+
+var node6 = ::blueprint::nodes::sin::Sin()
+
+_editor.add_node(node6, -250.7039637317, -376.41335300821)
+
+var node7 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node7, -123.36225721041, -357.37274876162)
+
+var node8 = ::blueprint::nodes::load::Load()
+
+node8.var_name = "radius"
+
+_editor.add_node(node8, -513.60859572475, -168.07532895044)
+
+var node9 = ::blueprint::nodes::cos::Cos()
+
+_editor.add_node(node9, -251.62294151943, -274.1673249606)
+
+var node10 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node10, -119.74131867731, -251.07522384089)
+
+var node11 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node11, 23.856504798128, -334.16240954838)
+
+var node12 = ::blueprint::nodes::loop_eval::LoopEval()
+
+_editor.add_node(node12, 360.60091636952, -173.70009582318)
+
+var node13 = ::blueprint::nodes::number::Number()
+
+node13.value = 6.2831852
+
+_editor.add_node(node13, -727.05773922447, -289.63319934537)
+
+var node14 = ::blueprint::nodes::divide::Divide()
+
+_editor.add_node(node14, -583.51838894919, -315.44563780475)
+
+var node15 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node15, -439.16211576991, -317.03774683303)
+
+var node16 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node16, -365.3120619776, -186.75047756226)
+
+var node17 = ::blueprint::nodes::number::Number()
+
+node17.value = 2.3375787734985
+
+_editor.add_node(node17, -512.000117389, -224.31623013766)
+
+var node18 = ::scenegraph::nodes::combine::Combine()
+
+_editor.add_node(node18, 501.11465829896, -109.35511514963)
+
+var node19 = ::blueprint::nodes::input::Input()
+
+node19.var_name = "radius"
+node19.var_type = "num"
+
+_editor.add_node(node19, -686.70786354758, 120.68943786621)
+
+var node20 = ::blueprint::nodes::load::Load()
+
+node20.var_name = "radius"
+
+_editor.add_node(node20, -142.35390000724, 132.40551252213)
+
+var node21 = ::blueprint::nodes::input::Input()
+
+node21.var_name = "count"
+node21.var_type = "int"
+
+_editor.add_node(node21, -682.65159148358, 45.26642246494)
+
+var node22 = ::blueprint::nodes::store::Store()
+
+node22.var_name = "count"
+
+_editor.add_node(node22, -529.0385971012, 44.561712779465)
+
+var node23 = ::blueprint::nodes::load::Load()
+
+node23.var_name = "count"
+
+_editor.add_node(node23, -724.01979758523, -349.54797085849)
+
+var node24 = ::blueprint::nodes::load::Load()
+
+node24.var_name = "count"
+
+_editor.add_node(node24, 205.07111150568, -166.82069813121)
+
+var node25 = ::blueprint::nodes::output::Output()
+
+node25.var_name = "spr"
+node25.var_type = "sprite"
+
+_editor.add_node(node25, 638.63170758521, -88.259634831674)
+
+Blueprint.connect(node21, "var", node22, "var")
+Blueprint.connect(node22, "var", node24, "var")
+Blueprint.connect(node22, "var", node23, "var")
+Blueprint.connect(node19, "var", node5, "var")
+Blueprint.connect(node5, "var", node20, "var")
+Blueprint.connect(node20, "var", node0, "raduis")
+Blueprint.connect(node0, "geo", node2, "symbol")
+Blueprint.connect(node5, "var", node8, "var")
+Blueprint.connect(node8, "var", node16, "a")
+Blueprint.connect(node17, "v", node16, "b")
+Blueprint.connect(node13, "v", node14, "a")
+Blueprint.connect(node23, "var", node14, "b")
+Blueprint.connect(node14, "v", node15, "a")
+Blueprint.connect(node12, "curr_item", node15, "b")
+Blueprint.connect(node15, "v", node9, "v")
+Blueprint.connect(node16, "v", node10, "a")
+Blueprint.connect(node9, "v", node10, "b")
+Blueprint.connect(node15, "v", node6, "v")
+Blueprint.connect(node16, "v", node7, "a")
+Blueprint.connect(node6, "v", node7, "b")
+Blueprint.connect(node10, "v", node11, "x")
+Blueprint.connect(node7, "v", node11, "y")
+Blueprint.connect(node1, "geo", node3, "symbol")
+Blueprint.connect(node3, "spr", node4, "spr")
+Blueprint.connect(node11, "xy", node4, "translate")
+Blueprint.connect(node15, "v", node4, "rotate")
+Blueprint.connect(node24, "var", node12, "count")
+Blueprint.connect(node4, "spr", node12, "eval")
+Blueprint.connect(node2, "spr", node18, "child0")
+Blueprint.connect(node12, "result", node18, "child1")
+Blueprint.connect(node18, "parent", node25, "var")
