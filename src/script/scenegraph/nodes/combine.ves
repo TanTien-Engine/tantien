@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 
@@ -19,6 +19,8 @@ class Combine is Node
 		]
 
 		this.layout()
+
+		this.spr = nil
 	}
 
 	on_pin_dirty(pin)
@@ -26,19 +28,36 @@ class Combine is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
+
+		this.spr = nil
 	}
 
 	calc_value(idx)
 	{
-		var spr = VarSprite()
-
-		for (var i in 0..this.imports.count) {
-			var v_child = Blueprint.calc_input_value(this, i)
-			if (v_child) {
-				spr.children.add(v_child.value)
+		if (!this.spr)
+		{
+			this.spr = VarSprite()
+			for (var i in 0..this.imports.count) {
+				var v_child = Blueprint.calc_input_value(this, i)
+				this.add_child(this.spr, v_child)
 			}
 		}
-		return Variant(VAR_TYPE_SPRITE, spr)
+		return Variant(VAR_TYPE_SPRITE, this.spr)
+	}
+
+	add_child(spr, v_child)
+	{
+		if (!v_child) {
+			return
+		}
+
+		if (v_child.type == VAR_TYPE_ARRAY) {
+			for (var v in v_child.value) {
+				this.add_child(spr, v)
+			}
+		} else {
+			spr.children.add(v_child.value)
+		}
 	}
 
 	on_connected(pin)
