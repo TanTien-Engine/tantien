@@ -65,7 +65,7 @@ class Chain is Node
 			var v_body = VarBody()
 
 			var body = Body.init("dynamic", -1)
-			body.add_shape(v_geo.value.shape, v_geo.value.render_style["fill"].value)
+			body.add_shape(v_geo.value.shape, v_geo.value.render_style["fill"].value, nil)
 
 			body.set_density(this.query_param("density").value)
 			body.set_friction(this.query_param("friction").value)

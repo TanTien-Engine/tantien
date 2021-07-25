@@ -128,7 +128,7 @@ void w_Body_add_shape()
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto filled = ves_optboolean(2, false);
-    auto& mt = *(sm::Matrix2D*)ves_toforeign(3);
+    auto mt = (sm::Matrix2D*)ves_toforeign(3);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -137,7 +137,11 @@ void w_Body_add_shape()
     case gs::ShapeType2D::Line:
     {
         auto line = std::static_pointer_cast<gs::Line2D>(shape);
-        phy_shape->InitEdgeShape(mt * line->GetStart(), mt * line->GetEnd());
+        if (mt) {
+            phy_shape->InitEdgeShape(*mt * line->GetStart(), *mt * line->GetEnd());
+        } else {
+            phy_shape->InitEdgeShape(line->GetStart(), line->GetEnd());
+        }
     }
         break;
     case gs::ShapeType2D::Rect:
@@ -150,8 +154,10 @@ void w_Body_add_shape()
         vertices.push_back({ r.xmin, r.ymax });
         vertices.push_back({ r.xmax, r.ymax });
         vertices.push_back({ r.xmax, r.ymin });
-        for (auto& v : vertices) {
-            v = mt * v;
+        if (mt) {
+            for (auto& v : vertices) {
+                v = *mt * v;
+            }
         }
 
         if (filled) {
@@ -164,20 +170,24 @@ void w_Body_add_shape()
     case gs::ShapeType2D::Circle:
     {
         auto circle = std::static_pointer_cast<gs::Circle>(shape);
-
-        auto p0 = mt * circle->GetCenter();
-        auto p1 = mt * sm::vec2(circle->GetCenter().x + circle->GetRadius(), circle->GetCenter().y);
-
-        phy_shape->InitCircleShape(p0, sm::dis_pos_to_pos(p0, p1));
+        if (mt) {
+            auto p0 = *mt * circle->GetCenter();
+            auto p1 = *mt * sm::vec2(circle->GetCenter().x + circle->GetRadius(), circle->GetCenter().y);
+            phy_shape->InitCircleShape(p0, sm::dis_pos_to_pos(p0, p1));
+        } else {
+            phy_shape->InitCircleShape(circle->GetCenter(), circle->GetRadius());
+        }
     }
         break;
-    case gs::ShapeType2D::Polyline:
+    case gs::ShapeType2D::Polyline: 
     {
         auto polyline = std::dynamic_pointer_cast<gs::Polyline2D>(shape);
 
         auto vertices = polyline->GetVertices();
-        for (auto& v : vertices) {
-            v = mt * v;
+        if (mt) {
+            for (auto& v : vertices) {
+                v = *mt * v;
+            }
         }
 
         if (vertices.size() == 2) {
@@ -192,8 +202,10 @@ void w_Body_add_shape()
         auto polygon = std::dynamic_pointer_cast<gs::Polygon2D>(shape);
 
         auto vertices = polygon->GetVertices();
-        for (auto& v : vertices) {
-            v = mt * v;
+        if (mt) {
+            for (auto& v : vertices) {
+                v = *mt * v;
+            }
         }
 
         phy_shape->InitPolygonShape(vertices);
