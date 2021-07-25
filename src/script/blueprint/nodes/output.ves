@@ -21,7 +21,15 @@ class Output is Node
 		this.var_name = "out"
 		this.var_type = VAR_TYPE_ANY
 
+		this.parent_node = nil
+		this.parent_pin_idx = -1
+
 		this.value = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		Blueprint.send_pin_dirty(this.parent_node.exports[this.parent_pin_idx])
 	}
 
 	to_string(name) 

@@ -367,6 +367,9 @@ class Subgraph is Node
 		} 
 		else if (node is Output) 
 		{
+			node.parent_node = this
+			node.parent_pin_idx = this.exports.count
+
 			this.out_nodes.add(node)
 			this.exports.add(Pin(this, node.var_name, node.var_type))
 			dirty = true
