@@ -19,8 +19,6 @@ class Combine is Node
 		]
 
 		this.layout()
-
-		this.spr = nil
 	}
 
 	on_pin_dirty(pin)
@@ -28,21 +26,16 @@ class Combine is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-
-		this.spr = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.spr)
-		{
-			this.spr = VarSprite()
-			for (var i in 0..this.imports.count) {
-				var v_child = Blueprint.calc_input_value(this, i)
-				this.add_child(this.spr, v_child)
-			}
+		var spr = VarSprite()
+		for (var i in 0..this.imports.count) {
+			var v_child = Blueprint.calc_input_value(this, i)
+			this.add_child(spr, v_child)
 		}
-		return Variant(VAR_TYPE_SPRITE, this.spr)
+		return Variant(VAR_TYPE_SPRITE, spr)
 	}
 
 	add_child(spr, v_child)

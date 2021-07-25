@@ -24,7 +24,6 @@ class LoopEval is Node
 		this.exports[1].stop_port_pass = true
 
 		this.curr_item = nil
-		this.cache = nil
 	}
 
 	on_pin_dirty(pin)
@@ -32,26 +31,13 @@ class LoopEval is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-
-		this.cache = nil
-	}
-
-	on_node_dirty() 
-	{
-		this.cache = nil
 	}
 
 	calc_value(idx) 
 	{
-		if (idx == 0) 
-		{
-			if (!this.cache) {
-				this.cache = this.calc_result()
-			}
-			return this.cache
-		} 
-		else if (idx == 1) 
-		{
+		if (idx == 0) {
+			return this.calc_result()
+		} else if (idx == 1) {
 			return this.curr_item
 		}
 		return nil

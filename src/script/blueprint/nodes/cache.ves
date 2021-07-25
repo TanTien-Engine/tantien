@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class Cache is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.val = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+
+		this.val = nil
+	}
+	
+	calc_value(idx)
+	{
+		if (!this.val) {
+			this.val = Blueprint.calc_input_value(this, 0)
+		}
+
+		return this.val
+	}
+
+	on_connected(pin)
+	{
+		this.clear_cache()
+	}
+
+	on_disconnected(pin)
+	{
+		this.clear_cache()
+	}
+
+	clear_cache()
+	{
+		this.val = nil
+	}
+
+
+}
