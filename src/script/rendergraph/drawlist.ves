@@ -61,6 +61,7 @@ class Drawlist
 				for (var node in list) {
 					if (node.has_method("render_run()")) {
 						node.render_run()
+						node.render_times = node.render_times + 1
 					}
 				}
 			}

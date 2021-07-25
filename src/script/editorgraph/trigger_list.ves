@@ -62,7 +62,7 @@ class TriggerList
 		}
 		else if (node.has_method("set_event_params(_)")) 
 		{
-			var v_event = node.calc_value(0)
+			var v_event = Blueprint.calc_input_value(node, 0)
 			if (v_event) {
 				this.add_to_map_list(this.events, v_event.value, node)
 			}

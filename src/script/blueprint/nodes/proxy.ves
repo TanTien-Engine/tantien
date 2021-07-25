@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 
 class Proxy is Node
 {
@@ -16,7 +17,7 @@ class Proxy is Node
 	calc_value(idx)
 	{
 		if (this.real_node and this.real_node.has_method("calc_value(_)")) {
-			return this.real_node.calc_value(idx)
+			return Blueprint.calc_input_value(this.real_node, idx)
 		}
 
 		return nil

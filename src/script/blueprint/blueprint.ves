@@ -195,6 +195,7 @@ class Blueprint
 			var f_pin = pin.conns.front().from
 			var f_node = f_pin.node
 			if (f_node.has_method("calc_value(_)")) {
+				f_node.calc_times = f_node.calc_times + 1
 				return f_node.calc_value(f_pin.slot_idx)			
 			} else {
 				return nil
