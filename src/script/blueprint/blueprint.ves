@@ -127,6 +127,9 @@ class Blueprint
 
 		from.node.on_connected(from)
 		to.node.on_connected(to)
+
+		Blueprint.send_pin_dirty_root(from)
+		Blueprint.send_pin_dirty_root(to)
 	}
 
 	static query_pin(pins, slot)
@@ -165,6 +168,9 @@ class Blueprint
 
 		conn.from.node.on_disconnected(conn.from)
 		conn.to.node.on_disconnected(conn.to)
+
+		Blueprint.send_pin_dirty_root(conn.from)
+		Blueprint.send_pin_dirty_root(conn.to)
 	}
 
 	static get_input_pin(curr_node, input_slot)
