@@ -136,63 +136,49 @@ class DrawGeometry is Node
 	draw_rect(pt, geo, col)
 	{
 		var rect = geo.shape.get()
-		var img = geo.render_style["image"]
-		if (img)
+		var fill = geo.render_style["fill"]
+		if (geo.angle == 0)
 		{
-			var sx = rect[2] / img.get_width()
-			var sy = rect[3] / img.get_height()
-			var ox = - rect[0] - rect[2] * 0.5
-			var oy = - rect[1] - rect[3] * 0.5
-			var x = geo.pos[0] - ox
-			var y = geo.pos[1] - oy
-			Graphics.draw_texture(img, [x, y], geo.angle, [sx, sy], [ox, oy])
+			if (geo.pos) {
+				rect[0] = rect[0] + geo.pos[0]
+				rect[1] = rect[1] + geo.pos[1]
+			}
+			if (fill) {
+				pt.add_rect_filled(rect, col)
+			} else {
+				pt.add_rect(rect, col, 2)	
+			}
 		}
 		else
 		{
-			var fill = geo.render_style["fill"]
-			if (geo.angle == 0)
+			var quad = [
+				Vector2(rect[0], rect[1]),
+				Vector2(rect[0], rect[1] + rect[3]),
+				Vector2(rect[0] + rect[2], rect[1] + rect[3]),
+				Vector2(rect[0] + rect[2], rect[1]),
+			]
+			// rotate
+			for (var v in quad) {
+				v.rotate(geo.angle)
+			}
+			// translate
+			if (geo.pos) 
 			{
-				if (geo.pos) {
-					rect[0] = rect[0] + geo.pos[0]
-					rect[1] = rect[1] + geo.pos[1]
-				}
-				if (fill) {
-					pt.add_rect_filled(rect, col)
-				} else {
-					pt.add_rect(rect, col, 2)	
+				for (var v in quad) {
+					v.x = v.x + geo.pos[0]
+					v.y = v.y + geo.pos[1]
 				}
 			}
-			else
-			{
-				var quad = [
-					Vector2(rect[0], rect[1]),
-					Vector2(rect[0], rect[1] + rect[3]),
-					Vector2(rect[0] + rect[2], rect[1] + rect[3]),
-					Vector2(rect[0] + rect[2], rect[1]),
-				]
-				// rotate
-				for (var v in quad) {
-					v.rotate(geo.angle)
-				}
-				// translate
-				if (geo.pos) 
-				{
-					for (var v in quad) {
-						v.x = v.x + geo.pos[0]
-						v.y = v.y + geo.pos[1]
-					}
-				}
 
-				var vertices = []
-				for (var v in quad) {
-					vertices.add(v.x)
-					vertices.add(v.y)
-				}
-				if (fill) {
-					pt.add_polygon_filled(vertices, col)
-				} else {
-					pt.add_polygon(vertices, col, 2)
-				}
+			var vertices = []
+			for (var v in quad) {
+				vertices.add(v.x)
+				vertices.add(v.y)
+			}
+			if (fill) {
+				pt.add_polygon_filled(vertices, col)
+			} else {
+				pt.add_polygon(vertices, col, 2)
 			}
 		}
 	}

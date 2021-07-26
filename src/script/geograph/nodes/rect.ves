@@ -6,7 +6,6 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "rendergraph.variant" for VAR_TYPE_TEXTURE
 import "geometry" for Rect as tt_Rect
 import "maths.vector" for Vector3
 
@@ -19,9 +18,8 @@ class Rect is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "pos",   VAR_TYPE_NUMBER2),
-			Pin(this, "size",  VAR_TYPE_NUMBER2),
-			Pin(this, "image", VAR_TYPE_TEXTURE),
+			Pin(this, "pos",  VAR_TYPE_NUMBER2),
+			Pin(this, "size", VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -103,13 +101,6 @@ class Rect is Node
 
 		geo.render_style["fill"] = this.query_param("fill").value
 		geo.render_style["color"] = this.query_param("color").value
-
-		var v_tex = Blueprint.calc_input_value(this, 2)
-		if (v_tex) {
-			geo.render_style["image"] = v_tex.value.tex
-		} else {
-			geo.render_style["image"] = nil
-		}	
 	}
 
 	bind_editor()
