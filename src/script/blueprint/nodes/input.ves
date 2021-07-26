@@ -28,7 +28,10 @@ class Input is Node
 
 	on_pin_dirty(pin)
 	{
-		Blueprint.send_pin_dirty(this.parent_node.imports[this.parent_pin_idx])
+		var p = Blueprint.query_pin(this.parent_node.imports, this.parent_pin_idx)
+		if (p) {
+			Blueprint.send_pin_dirty(p)
+		}
 	}
 
 	shader_gen(node, idx)

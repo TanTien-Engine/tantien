@@ -29,7 +29,10 @@ class Output is Node
 
 	on_pin_dirty(pin)
 	{
-		Blueprint.send_pin_dirty(this.parent_node.exports[this.parent_pin_idx])
+		var p = Blueprint.query_pin(this.parent_node.exports, this.parent_pin_idx)
+		if (p) {
+			Blueprint.send_pin_dirty(p)
+		}
 	}
 
 	to_string(name) 
