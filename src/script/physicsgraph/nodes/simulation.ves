@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_BOOLEAN
 import "blueprint.node_param" for NodeParam
 import "physicsgraph.variant" for VAR_TYPE_WORLD
 
@@ -14,6 +14,7 @@ class Simulation is Node
 		this.imports = [
 			Pin(this, "prev",  VAR_TYPE_PORT),
 			Pin(this, "world", VAR_TYPE_WORLD),
+			Pin(this, "draw",  VAR_TYPE_BOOLEAN),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -34,7 +35,13 @@ class Simulation is Node
 			return
 		}
 
-		var debug_draw = this.query_param("debug_draw").value
+		var debug_draw = nil
+		var v_draw = Blueprint.calc_input_value(this, 2)
+		if (v_draw) {
+			debug_draw = v_draw.value
+		} else {
+			debug_draw = this.query_param("debug_draw").value
+		}
 		if (debug_draw) {
 			v_world.value.world.debug_draw()
 		}
