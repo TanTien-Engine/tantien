@@ -153,12 +153,25 @@ class Body is Node
 		else if (v_geo.type == VAR_TYPE_SPRITE)
 		{
 			var spr = v_geo.value
-			if (spr.symbol) {
-				if (spr.symbol is VarGeo) {
+			if (spr.symbol) 
+			{
+				if (spr.symbol is VarGeo) 
+				{
 					var fill = spr.symbol.render_style["fill"]
 					body.add_shape(spr.symbol.shape, fill, mat)
+				} 
+				else if (spr.size) 
+				{
+					var w = spr.size.x
+					var h = spr.size.y
+
+					var rect = Rect.init()
+					rect.set(-w * 0.5, -h * 0.5, w, h)
+					body.add_shape(rect, true, mat)
 				}
-			} else {
+			} 
+			else 
+			{
 				for (var child in spr.children) {
 					var c_mat = this.calc_mat(child, mat)
 					this.build_body(Variant(VAR_TYPE_SPRITE, child), body, c_mat)

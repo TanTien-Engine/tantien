@@ -1,10 +1,12 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
 import "geograph.variant" for VAR_TYPE_GEO
+import "maths" for Matrix2D
+import "maths.vector" for Vector2
 
 class Sprite is Node
 {
@@ -14,6 +16,7 @@ class Sprite is Node
 
 		this.imports = [
 			Pin(this, "symbol", [ VAR_TYPE_TEXTURE, VAR_TYPE_GEO ]),
+			Pin(this, "size", VAR_TYPE_NUMBER2),			
 		]
 		this.exports = [
 			Pin(this, "spr", VAR_TYPE_SPRITE),
@@ -24,7 +27,7 @@ class Sprite is Node
 
 	on_pin_dirty(pin)
 	{
-		if (pin == this.imports[0]) {
+		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
 	}
@@ -36,6 +39,35 @@ class Sprite is Node
 		var v_sym = Blueprint.calc_input_value(this, 0)
 		if (v_sym) {
 			spr.symbol = v_sym.value
+		}
+
+		var v_size = Blueprint.calc_input_value(this, 1)
+		if (v_size) 
+		{
+			if (v_sym and v_sym.type == VAR_TYPE_TEXTURE) 
+			{
+				var tex = v_sym.value.tex
+				var w = tex.get_width()
+				var h = tex.get_height()
+
+				var sx = v_size.value.x / w
+				var sy = v_size.value.y / h
+				spr.transform = Matrix2D.init()
+				spr.transform.transform(0, 0, 0, sx, sy, 0, 0, 0, 0)
+			}
+		}
+
+		// size
+		if (v_size) 
+		{
+			spr.size = v_size.value
+		} 
+		else if (v_sym and v_sym.type == VAR_TYPE_TEXTURE) 
+		{
+			var tex = v_sym.value.tex
+			var w = tex.get_width()
+			var h = tex.get_height()
+			spr.size = Vector2(w, h)
 		}
 
 		return Variant(VAR_TYPE_SPRITE, spr)
