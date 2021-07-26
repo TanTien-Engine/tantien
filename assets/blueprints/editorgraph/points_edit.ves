@@ -11,6 +11,7 @@ var node2 = ::editorgraph::nodes::coord_trans::CoordTrans()
 _editor.add_node(node2, -292.59387040054, -208.43882940278)
 
 var node3 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node3.query_param("skip").value = false
 
 _editor.add_node(node3, -744.97670757378, -888.11636361049)
 
@@ -30,7 +31,7 @@ _editor.add_node(node6, 128.44053010938, -222.36998523462)
 
 var node7 = ::blueprint::nodes::number2::Number2()
 
-node7.value.set(-81.040270596503, -281.34042515352)
+node7.value.set(12.049763816764, -829.70875911507)
 
 _editor.add_node(node7, -897.32651097566, -556.77342366537)
 
@@ -121,7 +122,7 @@ var node21 = ::blueprint::nodes::load::Load()
 
 node21.var_name = "all_points"
 
-_editor.add_node(node21, -10.963496342561, -299.9402037783)
+_editor.add_node(node21, -10.963496342561, -295.2751299762)
 
 var node22 = ::blueprint::nodes::input::Input()
 
@@ -208,7 +209,7 @@ Blueprint.connect(node4, "v3", node3, "color")
 Blueprint.connect(node0, "pos", node2, "screen")
 Blueprint.connect(node2, "world", node19, "center")
 Blueprint.connect(node21, "var", node18, "list")
-Blueprint.connect(node19, "new_geo", node18, "add")
+Blueprint.connect(node19, "geo", node18, "add")
 Blueprint.connect(node2, "world", node6, "src")
 Blueprint.connect(node13, "var", node6, "dst")
 Blueprint.connect(node6, "next", node5, "prev")

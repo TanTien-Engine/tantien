@@ -7,6 +7,7 @@ var node1 = ::aigraph::nodes::sequence::Sequence()
 _editor.add_node(node1, 145.21225574507, 57.189179204103)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node2.query_param("skip").value = false
 
 _editor.add_node(node2, 477.21583000416, 76.017746794495)
 
@@ -59,4 +60,4 @@ Blueprint.connect(node9, "all", node2, "geos")
 Blueprint.connect(node7, "event", node6, "event")
 Blueprint.connect(node8, "next", node6, "action")
 Blueprint.connect(node9, "all", node8, "list")
-Blueprint.connect(node3, "new_geo", node8, "add")
+Blueprint.connect(node3, "geo", node8, "add")

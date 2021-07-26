@@ -24,8 +24,7 @@ class Circle is Node
 			Pin(this, "pos",    VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
-			Pin(this, "geo",     VAR_TYPE_GEO),
-			Pin(this, "new_geo", VAR_TYPE_GEO),
+			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
 		// shape
@@ -39,9 +38,6 @@ class Circle is Node
 
 		this.layout()
 
-		this.geo = nil
-		this.geo_dirty = false
-
 		this.editor_center = Number2()
 		this.editor_outer = Number2()
 	}
@@ -51,56 +47,22 @@ class Circle is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}	
-		this.geo_dirty = true
-	}
-
-	on_node_dirty()
-	{
-		this.geo_dirty = true
 	}
 
 	calc_value(idx)
 	{
-		if (idx == 0)
-		{
-			var geo = this.get_geo()
-			return Variant(VAR_TYPE_GEO, geo)
-		}
-		else if (idx == 1)
-		{
-			var geo = VarGeo()
-			geo.shape = tt_Circle.init()
-			this.update_geo(geo)
-			return Variant(VAR_TYPE_GEO, geo)
-		}
-		return nil
-	}
-
-	on_gui_dirty() 
-	{
-		this.geo_dirty = true
+		var geo = VarGeo()
+		geo.shape = tt_Circle.init()
+		this.update_geo(geo)
+		return Variant(VAR_TYPE_GEO, geo)
 	}
 
 	geo_solver_gen(scene)
 	{
-		var geo = this.get_geo()
+		var geo = VarGeo()
+		geo.shape = tt_Circle.init()
+		this.update_geo(geo)
 		geo.geo_id = scene.add_geo(geo.shape)
-	}
-
-	get_geo()
-	{
-		if (!this.geo) 
-		{
-			this.geo = VarGeo()
-			this.geo.shape = tt_Circle.init()
-			this.update_geo(this.geo)
-		}
-		else if (this.geo_dirty)
-		{
-			this.update_geo(this.geo)
-		}
-
-		return this.geo
 	}
 
 	update_geo(geo)
@@ -117,8 +79,6 @@ class Circle is Node
 			geo.pos[0] = v_pos.value.x
 			geo.pos[1] = v_pos.value.y			
 		}
-
-		this.geo_dirty = false
 	}
 
 	get_center()
@@ -192,7 +152,6 @@ class Circle is Node
 		this.params[1].value = this.editor_center.value.y
 		this.params[2].value = Calc.dis_pos_to_pos(this.editor_center.value, this.editor_outer.value)
 
-		this.geo_dirty = true
 		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }

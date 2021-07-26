@@ -7,10 +7,12 @@ var node1 = ::blueprint::nodes::for_each::ForEach()
 _editor.add_node(node1, 715.24740479816, 141.25249812422)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node2.query_param("skip").value = false
 
 _editor.add_node(node2, 296.53865027132, -329.6577799885)
 
 var node3 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node3.query_param("skip").value = false
 
 _editor.add_node(node3, -22.406567190215, -91.30025811772)
 
@@ -19,6 +21,7 @@ var node4 = ::blueprint::nodes::branch::Branch()
 _editor.add_node(node4, 482.32913624157, -231.36967329546)
 
 var node5 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node5.query_param("skip").value = false
 
 _editor.add_node(node5, 300.61256850979, -580.10027385821)
 
@@ -92,13 +95,6 @@ var node16 = ::blueprint::nodes::combine::Combine()
 
 _editor.add_node(node16, -119.57642156428, -644.40353368334)
 
-Blueprint.connect(node10, "v4", node0, "in0")
-Blueprint.connect(node11, "v4", node0, "in1")
-Blueprint.connect(node12, "v4", node0, "in2")
-Blueprint.connect(node13, "v4", node0, "in3")
-Blueprint.connect(node6, "geo", node3, "geos")
-Blueprint.connect(node0, "list", node1, "in")
-Blueprint.connect(node4, "next", node1, "do")
 Blueprint.connect(node1, "out", node14, "xyzw")
 Blueprint.connect(node14, "z", node16, "x")
 Blueprint.connect(node14, "w", node16, "y")
@@ -106,12 +102,19 @@ Blueprint.connect(node14, "x", node15, "x")
 Blueprint.connect(node14, "y", node15, "y")
 Blueprint.connect(node15, "xy", node8, "pos")
 Blueprint.connect(node16, "xy", node8, "size")
-Blueprint.connect(node8, "new_geo", node5, "geos")
+Blueprint.connect(node8, "geo", node5, "geos")
 Blueprint.connect(node15, "xy", node7, "pos")
 Blueprint.connect(node16, "xy", node7, "size")
-Blueprint.connect(node7, "new_geo", node2, "geos")
+Blueprint.connect(node7, "geo", node2, "geos")
+Blueprint.connect(node10, "v4", node0, "in0")
+Blueprint.connect(node11, "v4", node0, "in1")
+Blueprint.connect(node12, "v4", node0, "in2")
+Blueprint.connect(node13, "v4", node0, "in3")
 Blueprint.connect(node6, "geo", node9, "geo")
 Blueprint.connect(node1, "out", node9, "rect")
 Blueprint.connect(node9, "out", node4, "cond")
 Blueprint.connect(node2, "next", node4, "true")
 Blueprint.connect(node5, "next", node4, "false")
+Blueprint.connect(node6, "geo", node3, "geos")
+Blueprint.connect(node0, "list", node1, "in")
+Blueprint.connect(node4, "next", node1, "do")

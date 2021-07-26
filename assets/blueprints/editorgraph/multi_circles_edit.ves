@@ -1,4 +1,5 @@
 var node0 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node0.query_param("skip").value = false
 
 _editor.add_node(node0, -1039.5145148851, -248.27488139779)
 
@@ -64,6 +65,7 @@ node14.query_param("unique").value = false
 _editor.add_node(node14, -196.61764179788, -555.70659726002)
 
 var node15 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node15.query_param("skip").value = false
 
 _editor.add_node(node15, -988.05475208642, -391.77334975441)
 
@@ -147,7 +149,7 @@ var node29 = ::blueprint::nodes::load::Load()
 
 node29.var_name = "circles"
 
-_editor.add_node(node29, -346.00758517222, -512.25565674459)
+_editor.add_node(node29, -343.00232596861, -505.49382353648)
 
 var node30 = ::blueprint::nodes::commentary::Commentary()
 
@@ -228,6 +230,7 @@ node42.query_param("serialize").value = false
 _editor.add_node(node42, -848.90251131974, 85.146297550974)
 
 var node43 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node43.query_param("skip").value = false
 
 _editor.add_node(node43, -694.34141133436, -334.54805156567)
 
@@ -277,8 +280,8 @@ node51.var_type = "array"
 _editor.add_node(node51, -1150.2210407921, 92.080128010295)
 
 var node52 = ::geograph::nodes::circle::Circle()
-node52.query_param("x").value = 0
-node52.query_param("y").value = 0
+node52.query_param("x").value = -165.88253
+node52.query_param("y").value = -83.74652
 node52.query_param("r").value = 72.942436218262
 node52.query_param("fill").value = true
 node52.query_param("color").value.set(0.75072020292282, 0.39516466856003, 0)
@@ -391,7 +394,7 @@ var node71 = ::blueprint::nodes::load::Load()
 
 node71.var_name = "is_draw_mode"
 
-_editor.add_node(node71, -1034.7799532702, -315.49383696652)
+_editor.add_node(node71, -1040.0391568765, -319.25041097103)
 
 var node72 = ::blueprint::nodes::load::Load()
 
@@ -448,7 +451,7 @@ Blueprint.connect(node54, "var", node59, "var")
 Blueprint.connect(node22, "var", node52, "center")
 Blueprint.connect(node59, "var", node52, "raduis")
 Blueprint.connect(node29, "var", node14, "list")
-Blueprint.connect(node52, "new_geo", node14, "add")
+Blueprint.connect(node52, "geo", node14, "add")
 Blueprint.connect(node54, "var", node57, "var")
 Blueprint.connect(node57, "var", node50, "a")
 Blueprint.connect(node58, "v", node50, "b")

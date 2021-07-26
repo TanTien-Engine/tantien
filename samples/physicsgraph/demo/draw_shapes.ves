@@ -1,6 +1,6 @@
 var node0 = ::physicsgraph::nodes::world::World()
 
-_editor.add_node(node0, 76.617580766341, 47.296769346357)
+_editor.add_node(node0, 80.253944402705, 5.4785875281752)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../../../assets/blueprints/editorgraph/multi_rects_edit.ves")
@@ -67,8 +67,12 @@ _editor.add_node(node12, -888.06745154816, 87.923227453731)
 
 var node13 = ::physicsgraph::nodes::body::Body()
 node13.query_param("type").value = "dynamic"
+node13.query_param("gravity").value = 1
+node13.query_param("density").value = 1.0140340328217
+node13.query_param("restitution").value = 0
+node13.query_param("friction").value = 0.2
 
-_editor.add_node(node13, -737.72241269167, 167.888160183)
+_editor.add_node(node13, -738.63150360076, 167.888160183)
 
 var node14 = ::blueprint::nodes::merge::Merge()
 
@@ -81,10 +85,14 @@ node15.query_param("r").value = 26.628668186876
 node15.query_param("fill").value = true
 node15.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node15, -740.04282494365, 26.128099173551)
+_editor.add_node(node15, -747.31555221638, -58.417355371904)
 
 var node16 = ::physicsgraph::nodes::body::Body()
 node16.query_param("type").value = "dynamic"
+node16.query_param("gravity").value = 1
+node16.query_param("density").value = 1.0234822034836
+node16.query_param("restitution").value = 0
+node16.query_param("friction").value = 0.2
 
 _editor.add_node(node16, -598.05672484068, 95.809755527371)
 
@@ -96,23 +104,31 @@ node17.query_param("h").value = 50.39
 node17.query_param("fill").value = true
 node17.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node17, -592.10473588424, -63.299767844463)
+_editor.add_node(node17, -599.37746315697, -117.84522238992)
 
 var node18 = ::physicsgraph::nodes::body::Body()
 node18.query_param("type").value = "dynamic"
+node18.query_param("gravity").value = 1
+node18.query_param("density").value = 1.0800814628601
+node18.query_param("restitution").value = 0
+node18.query_param("friction").value = 0.2
 
-_editor.add_node(node18, -455.3309321733, 16.975072853777)
+_editor.add_node(node18, -422.60365944603, -23.024927146223)
 
 var node19 = ::geograph::nodes::polyline::Polyline()
 node19.query_param("vertices").value = [ -182.16249084473, -67.727104187012, -89.955673217773, -174.96022033691, 48.696060180664, -207.06184387207, 188.03080749512, -210.47691345215, 364.93127441406, -171.54515075684, 491.2887878418, -108.70790863037 ]
 node19.query_param("closed").value = false
 
-_editor.add_node(node19, -589.46202503551, -231.45351895419)
+_editor.add_node(node19, -595.82566139915, -273.27170077237)
 
 var node20 = ::physicsgraph::nodes::body::Body()
 node20.query_param("type").value = "static"
+node20.query_param("gravity").value = 1
+node20.query_param("density").value = 1.030469417572
+node20.query_param("restitution").value = 0
+node20.query_param("friction").value = 0.2
 
-_editor.add_node(node20, -439.00748235529, -241.72623235529)
+_editor.add_node(node20, -425.37111871893, -213.54441417347)
 
 var node21 = ::geograph::nodes::line::Line()
 node21.query_param("x0").value = -177.04958677686
@@ -120,20 +136,18 @@ node21.query_param("y0").value = -131.18181818182
 node21.query_param("x1").value = 396.69421487603
 node21.query_param("y1").value = -223.96694214876
 
-_editor.add_node(node21, -593.4199440696, -375.17754572088)
+_editor.add_node(node21, -595.23812588778, -396.99572753906)
 
 var node22 = ::physicsgraph::nodes::body::Body()
 node22.query_param("type").value = "static"
+node22.query_param("gravity").value = 1
+node22.query_param("density").value = 0
+node22.query_param("restitution").value = 0
+node22.query_param("friction").value = 0.2
 
-_editor.add_node(node22, -443.4477107781, -334.70962637909)
-
-var node23 = ::geograph::nodes::draw_geometry::DrawGeometry()
-node23.query_param("skip").value = false
-
-_editor.add_node(node23, -373, 198.5)
+_editor.add_node(node22, -426.17498350537, -407.43689910636)
 
 Blueprint.connect(node21, "geo", node22, "geos")
-Blueprint.connect(node19, "geo", node23, "geos")
 Blueprint.connect(node19, "geo", node20, "geos")
 Blueprint.connect(node17, "geo", node18, "geos")
 Blueprint.connect(node15, "geo", node16, "geos")
@@ -144,12 +158,12 @@ Blueprint.connect(node18, "body", node14, "in3")
 Blueprint.connect(node20, "body", node14, "in4")
 Blueprint.connect(node22, "body", node14, "in5")
 Blueprint.connect(node14, "list", node0, "bodies")
-Blueprint.connect(node0, "world", node11, "obj")
+Blueprint.connect(node0, "world", node11, "world")
 Blueprint.connect(node0, "world", node4, "world")
-Blueprint.connect(node4, "next", node6, "prev")
 Blueprint.connect(node10, "event", node9, "event")
 Blueprint.connect(node11, "next", node9, "action")
 Blueprint.connect(node8, "event", node5, "event")
 Blueprint.connect(node4, "next", node5, "action")
+Blueprint.connect(node4, "next", node6, "do")
 Blueprint.connect(node2, "all", node3, "circles")
 Blueprint.connect(node2, "all", node1, "rects")

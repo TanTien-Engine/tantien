@@ -3,10 +3,12 @@ var node0 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
 _editor.add_node(node0, -557.45430555523, 156.71160198109)
 
 var node1 = ::blueprint::nodes::list_add::ListAdd()
+node1.query_param("unique").value = false
 
 _editor.add_node(node1, -175, 74.5)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node2.query_param("skip").value = false
 
 _editor.add_node(node2, 16.461794428755, 25.624092819835)
 
@@ -38,6 +40,6 @@ Blueprint.connect(node4, "all", node2, "geos")
 Blueprint.connect(node0, "pos", node6, "screen")
 Blueprint.connect(node6, "world", node3, "center")
 Blueprint.connect(node4, "all", node1, "list")
-Blueprint.connect(node3, "new_geo", node1, "add")
+Blueprint.connect(node3, "geo", node1, "add")
 Blueprint.connect(node0, "event", node5, "event")
 Blueprint.connect(node1, "next", node5, "action")

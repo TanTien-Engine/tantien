@@ -3,10 +3,12 @@ var node0 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
 _editor.add_node(node0, -731.36339646432, 137.83556892324)
 
 var node1 = ::blueprint::nodes::list_add::ListAdd()
+node1.query_param("unique").value = false
 
 _editor.add_node(node1, -175, 74.5)
 
 var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node2.query_param("skip").value = false
 
 _editor.add_node(node2, -757.09192457951, 308.26872091901)
 
@@ -63,20 +65,20 @@ var node13 = ::blueprint::nodes::branch::Branch()
 _editor.add_node(node13, -135.36156982422, -366.68587463379)
 
 Blueprint.connect(node11, "pos", node12, "screen")
-Blueprint.connect(node11, "event", node10, "event")
-Blueprint.connect(node8, "next", node10, "action")
-Blueprint.connect(node4, "all", node8, "in")
-Blueprint.connect(node13, "next", node8, "do")
 Blueprint.connect(node8, "out", node9, "geo")
 Blueprint.connect(node12, "world", node9, "pos")
 Blueprint.connect(node9, "out", node13, "cond")
 Blueprint.connect(node7, "next", node13, "true")
+Blueprint.connect(node11, "event", node10, "event")
+Blueprint.connect(node8, "next", node10, "action")
+Blueprint.connect(node4, "all", node8, "in")
+Blueprint.connect(node13, "next", node8, "do")
 Blueprint.connect(node4, "all", node7, "list")
 Blueprint.connect(node8, "curr_idx", node7, "index")
 Blueprint.connect(node4, "all", node2, "geos")
 Blueprint.connect(node0, "pos", node6, "screen")
 Blueprint.connect(node6, "world", node3, "center")
 Blueprint.connect(node4, "all", node1, "list")
-Blueprint.connect(node3, "new_geo", node1, "add")
+Blueprint.connect(node3, "geo", node1, "add")
 Blueprint.connect(node0, "event", node5, "event")
 Blueprint.connect(node1, "next", node5, "action")

@@ -86,7 +86,7 @@ node16.query_param("h").value = 0
 node16.query_param("fill").value = true
 node16.query_param("color").value.set(0.70243871212006, 0.19132758677006, 0.19132758677006)
 
-_editor.add_node(node16, -113.9171623983, -71.135610171965)
+_editor.add_node(node16, -114.60017585367, -58.158354520029)
 
 var node17 = ::blueprint::nodes::list_clear::ListClear()
 
@@ -102,7 +102,7 @@ var node19 = ::blueprint::nodes::load::Load()
 
 node19.var_name = "boxes"
 
-_editor.add_node(node19, -223.6373013232, 528.83457861555)
+_editor.add_node(node19, -223.6373013232, 516.83457861555)
 
 var node20 = ::blueprint::nodes::multiply::Multiply()
 
@@ -245,7 +245,7 @@ node44.query_param("density").value = 1.0777316093445
 node44.query_param("restitution").value = 0.52217608690262
 node44.query_param("friction").value = 0.2
 
-_editor.add_node(node44, -92.1733179926, 471.90956717362)
+_editor.add_node(node44, -91.1733179926, 448.90956717362)
 
 var node45 = ::blueprint::nodes::load::Load()
 
@@ -323,12 +323,16 @@ node57.init_texture("../../rendergraph/learnopengl/resources/textures/container2
 
 _editor.add_node(node57, -607.93377925074, -31.088186540534)
 
+Blueprint.connect(node50, "v", node26, "a")
+Blueprint.connect(node21, "index", node26, "b")
 Blueprint.connect(node29, "v", node30, "var")
 Blueprint.connect(node27, "v", node31, "a")
 Blueprint.connect(node29, "v", node31, "b")
 Blueprint.connect(node31, "v", node32, "var")
 Blueprint.connect(node32, "var", node35, "var")
 Blueprint.connect(node32, "var", node34, "var")
+Blueprint.connect(node34, "var", node20, "a")
+Blueprint.connect(node21, "index", node20, "b")
 Blueprint.connect(node32, "var", node33, "var")
 Blueprint.connect(node27, "v", node28, "var")
 Blueprint.connect(node28, "var", node37, "var")
@@ -336,6 +340,16 @@ Blueprint.connect(node37, "var", node36, "x")
 Blueprint.connect(node37, "var", node36, "y")
 Blueprint.connect(node33, "var", node24, "a")
 Blueprint.connect(node25, "v", node24, "b")
+Blueprint.connect(node24, "v", node23, "a")
+Blueprint.connect(node21, "index", node23, "b")
+Blueprint.connect(node23, "v", node22, "x")
+Blueprint.connect(node20, "v", node22, "y")
+Blueprint.connect(node22, "xy", node16, "pos")
+Blueprint.connect(node36, "xy", node16, "size")
+Blueprint.connect(node57, "tex", node16, "image")
+Blueprint.connect(node16, "geo", node15, "geo")
+Blueprint.connect(node35, "var", node15, "dx")
+Blueprint.connect(node26, "v", node15, "tot_num")
 Blueprint.connect(node11, "all", node13, "var")
 Blueprint.connect(node13, "var", node45, "var")
 Blueprint.connect(node13, "var", node19, "var")
@@ -344,20 +358,6 @@ Blueprint.connect(node13, "var", node18, "var")
 Blueprint.connect(node18, "var", node17, "list")
 Blueprint.connect(node17, "next", node21, "prev")
 Blueprint.connect(node12, "next", node21, "do")
-Blueprint.connect(node50, "v", node26, "a")
-Blueprint.connect(node21, "index", node26, "b")
-Blueprint.connect(node24, "v", node23, "a")
-Blueprint.connect(node21, "index", node23, "b")
-Blueprint.connect(node34, "var", node20, "a")
-Blueprint.connect(node21, "index", node20, "b")
-Blueprint.connect(node23, "v", node22, "x")
-Blueprint.connect(node20, "v", node22, "y")
-Blueprint.connect(node22, "xy", node16, "pos")
-Blueprint.connect(node36, "xy", node16, "size")
-Blueprint.connect(node57, "tex", node16, "image")
-Blueprint.connect(node16, "new_geo", node15, "geo")
-Blueprint.connect(node35, "var", node15, "dx")
-Blueprint.connect(node26, "v", node15, "tot_num")
 Blueprint.connect(node13, "var", node14, "var")
 Blueprint.connect(node15, "next", node12, "prev")
 Blueprint.connect(node14, "var", node12, "list")

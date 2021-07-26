@@ -9,6 +9,7 @@ node0.query_param("color").value.set(0.6748480796814, 0, 0)
 _editor.add_node(node0, -1185.2222902399, -518.37482505212)
 
 var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node1.query_param("skip").value = false
 
 _editor.add_node(node1, -1037.7976305876, -329.20797606345)
 
@@ -26,7 +27,7 @@ _editor.add_node(node4, -181.58054888355, 126.34391677634)
 
 var node5 = ::blueprint::nodes::number2::Number2()
 
-node5.value.set(56, 9)
+node5.value.set(-352.89180218324, -470.08187611507)
 
 _editor.add_node(node5, -1232.8323712423, 262.28944576382)
 
@@ -52,7 +53,7 @@ _editor.add_node(node10, -184.29313509451, -267.49056093024)
 
 var node11 = ::blueprint::nodes::number2::Number2()
 
-node11.value.set(56, 9)
+node11.value.set(-352.89180218324, -470.08187611507)
 
 _editor.add_node(node11, -881.37839291795, 262.13177002109)
 
@@ -84,6 +85,7 @@ node16.query_param("color").value.set(0.60412019491196, 0.60412019491196, 0)
 _editor.add_node(node16, -344.46634067674, -638.70588129126)
 
 var node17 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node17.query_param("skip").value = false
 
 _editor.add_node(node17, -1031.0870701744, -463.88861924678)
 
@@ -266,6 +268,7 @@ node47.query_param("serialize").value = false
 _editor.add_node(node47, -894.51706364755, 72.639512036162)
 
 var node48 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node48.query_param("skip").value = false
 
 _editor.add_node(node48, -688.13917767545, -401.82675103974)
 
@@ -469,7 +472,7 @@ Blueprint.connect(node29, "var", node31, "var")
 Blueprint.connect(node24, "var", node16, "pos")
 Blueprint.connect(node31, "var", node16, "size")
 Blueprint.connect(node34, "var", node15, "list")
-Blueprint.connect(node16, "new_geo", node15, "add")
+Blueprint.connect(node16, "geo", node15, "add")
 Blueprint.connect(node29, "var", node30, "var")
 Blueprint.connect(node23, "var", node0, "pos")
 Blueprint.connect(node30, "var", node0, "size")
