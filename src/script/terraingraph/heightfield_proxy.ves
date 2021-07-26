@@ -27,7 +27,12 @@ class HeightfieldProxy is Node
 			return
 		}
 
-		var hf = Blueprint.calc_input_value(this.pin.node, this.pin.slot_idx)
+		var hf = nil
+		if (this.pin.is_input) {
+			hf = Blueprint.calc_input_value(this.pin.node, this.pin.slot_idx)
+		} else {
+			hf = Blueprint.calc_output_value(this.pin.node, this.pin.slot_idx)
+		}
 		if (!hf or !hf.value or !hf.value.tex) {
 			return
 		}
