@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
 
 class Cache is Node
 {
@@ -15,6 +16,8 @@ class Cache is Node
 		this.exports = [
 			Pin(this, "var", VAR_TYPE_ANY),
 		]
+
+		this.params.add(NodeParam("disable", false))
 
 		this.layout()
 
@@ -32,7 +35,7 @@ class Cache is Node
 	
 	calc_value(idx)
 	{
-		if (!this.val) {
+		if (!this.val or this.query_param("disable").value) {
 			this.val = Blueprint.calc_input_value(this, 0)
 		}
 
