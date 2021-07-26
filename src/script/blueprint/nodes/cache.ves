@@ -27,10 +27,9 @@ class Cache is Node
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
+			this.clear_cache()
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-
-		this.val = nil
 	}
 	
 	calc_value(idx)
