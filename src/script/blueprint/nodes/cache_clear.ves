@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.blackboard" for BLACKBOARD
+import "blueprint.nodes.subgraph" for Subgraph
+import "blueprint.nodes.cache" for Cache
+
+class CacheClear is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	execute_run()
+	{
+		for (var node in BLACKBOARD.scene.nodes) {
+			var bp_node = node.components["bp"]
+			this.clear_cache_node(bp_node)
+		}
+	}
+
+	clear_cache_node(node)
+	{
+		if (node is Subgraph) {
+			for (var item in node.all_items) {
+				this.clear_cache_node(item[0])
+			}
+		} else if (node is Cache) {
+			node.clear_cache()
+		}
+	}
+}

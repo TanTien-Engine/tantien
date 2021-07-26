@@ -41,6 +41,7 @@ class Editor
 		this.camera = tt_Camera2D()
 
 		BLACKBOARD.editor_cam = this.camera
+		BLACKBOARD.scene = this.scene_stack.top()
 
 		this.nodes_op = BlueprintEditOP(this.camera, this.scene_stack, this.popup_cb)
 		this.preview_op = NodeOP(this.scene_stack)
