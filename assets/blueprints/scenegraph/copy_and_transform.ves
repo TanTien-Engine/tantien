@@ -1,0 +1,47 @@
+var node0 = ::scenegraph::nodes::transform::Transform()
+
+_editor.add_node(node0, -104.72238833436, -11.477667717905)
+
+var node1 = ::blueprint::nodes::loop_eval::LoopEval()
+
+_editor.add_node(node1, 112.69432338565, 141.10273615629)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "spr"
+node2.var_type = "sprite"
+
+_editor.add_node(node2, -399.45512629822, 67.126804834827)
+
+var node3 = ::blueprint::nodes::output::Output()
+
+node3.var_name = "result"
+node3.var_type = "array"
+
+_editor.add_node(node3, 245.95604266199, 162.36382270037)
+
+var node4 = ::blueprint::nodes::input::Input()
+
+node4.var_name = "count"
+node4.var_type = "int"
+
+_editor.add_node(node4, -397.01042656435, 137.03256960204)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "translate"
+node5.var_type = "num2"
+
+_editor.add_node(node5, -395.88144457154, -3.5214290326274)
+
+var node6 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node6, -258.59889648315, -3.4353175994983)
+
+Blueprint.connect(node5, "var", node6, "a")
+Blueprint.connect(node1, "curr_item", node6, "b")
+Blueprint.connect(node2, "var", node0, "spr")
+Blueprint.connect(node6, "v", node0, "translate")
+Blueprint.connect(node4, "var", node1, "count")
+Blueprint.connect(node0, "spr", node1, "eval")
+Blueprint.connect(node1, "result", node3, "var")

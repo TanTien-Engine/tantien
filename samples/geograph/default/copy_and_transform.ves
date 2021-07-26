@@ -1,53 +1,104 @@
-var node0 = ::blueprint::nodes::subgraph::Subgraph()
-node0.load_from_file(_editor, "../../../assets/blueprints/geograph/copy_and_transform.ves")
+var node0 = ::geograph::nodes::circle::Circle()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("r").value = 10
+node0.query_param("fill").value = true
+node0.query_param("color").value.set(1, 1, 0)
 
-_editor.add_node(node0, -52, 28)
+_editor.add_node(node0, -411.08486019887, -307.81598538163)
 
-var node1 = ::geograph::nodes::circle::Circle()
-node1.query_param("x").value = 0
-node1.query_param("y").value = 0
-node1.query_param("r").value = 10
-node1.query_param("fill").value = true
-node1.query_param("color").value.set(1, 1, 0)
+var node1 = ::blueprint::nodes::number::Number()
 
-_editor.add_node(node1, -353.99395110796, 27.547650982009)
+node1.value = 30.213996887207
 
-var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+_editor.add_node(node1, -393.95142945375, 9.5804632476437)
 
-_editor.add_node(node2, 505.55769506467, 20.089098974631)
+var node2 = ::scenegraph::nodes::sprite::Sprite()
 
-var node3 = ::blueprint::nodes::number::Number()
+_editor.add_node(node2, -259.26606061917, -215.22334970964)
 
-node3.value = 30
+var node3 = ::blueprint::nodes::combine::Combine()
 
-_editor.add_node(node3, -356.33606086074, -108.50685635354)
+_editor.add_node(node3, -248.289118754, -393.84822244718)
 
-var node4 = ::blueprint::nodes::subgraph::Subgraph()
-node4.load_from_file(_editor, "../../../assets/blueprints/geograph/copy_and_transform.ves")
+var node4 = ::scenegraph::nodes::draw_sprite::DrawSprite()
 
-_editor.add_node(node4, 240.03370479124, 23.58912660431)
+_editor.add_node(node4, 642.81383608404, -229.55186765395)
 
-var node5 = ::blueprint::nodes::number::Number()
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/scenegraph/copy_and_transform.ves")
 
-node5.value = 6
+_editor.add_node(node5, -48.690458302034, -258.20247933884)
 
-_editor.add_node(node5, -354.50840454407, -181.83610093327)
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/scenegraph/copy_and_transform.ves")
 
-var node6 = ::editorgraph::nodes::trigger::Trigger()
+_editor.add_node(node6, 321.55918089811, -258.11872126625)
 
-_editor.add_node(node6, 484.83417151551, 185.27685435119)
+var node7 = ::blueprint::nodes::combine::Combine()
 
-var node7 = ::editorgraph::nodes::blueprint_changed::BlueprintChanged()
+_editor.add_node(node7, 129.95280461189, -383.63785430292)
 
-_editor.add_node(node7, 343.15123121216, 194.30843314452)
+var node8 = ::blueprint::nodes::cache::Cache()
 
-Blueprint.connect(node7, "event", node6, "event")
-Blueprint.connect(node4, "next", node6, "action")
-Blueprint.connect(node1, "geo", node0, "geo")
-Blueprint.connect(node3, "v", node0, "dx")
-Blueprint.connect(node5, "v", node0, "tot_num")
-Blueprint.connect(node0, "next", node4, "prev")
-Blueprint.connect(node0, "geos", node4, "geo")
-Blueprint.connect(node3, "v", node4, "dy")
-Blueprint.connect(node5, "v", node4, "tot_num")
-Blueprint.connect(node4, "geos", node2, "geos")
+_editor.add_node(node8, 506.22877433942, -238.47168104625)
+
+var node9 = ::blueprint::nodes::integer::Integer()
+
+node9.value = 6
+
+_editor.add_node(node9, -397.18941477793, -73.84335363104)
+
+var node10 = ::blueprint::nodes::store::Store()
+
+node10.var_name = "count"
+
+_editor.add_node(node10, -247.06324079071, -74.18112870466)
+
+var node11 = ::blueprint::nodes::load::Load()
+
+node11.var_name = "count"
+
+_editor.add_node(node11, -253.2691011608, -278.96699646592)
+
+var node12 = ::blueprint::nodes::load::Load()
+
+node12.var_name = "count"
+
+_editor.add_node(node12, 126.58062311942, -272.67099353839)
+
+var node13 = ::blueprint::nodes::store::Store()
+
+node13.var_name = "offset"
+
+_editor.add_node(node13, -242.55536977766, 5.458237938197)
+
+var node14 = ::blueprint::nodes::load::Load()
+
+node14.var_name = "offset"
+
+_editor.add_node(node14, -403.52455597726, -451.56656071228)
+
+var node15 = ::blueprint::nodes::load::Load()
+
+node15.var_name = "offset"
+
+_editor.add_node(node15, -1.1428880584031, -343.29458475436)
+
+Blueprint.connect(node9, "v", node10, "var")
+Blueprint.connect(node10, "var", node12, "var")
+Blueprint.connect(node10, "var", node11, "var")
+Blueprint.connect(node1, "v", node13, "var")
+Blueprint.connect(node13, "var", node15, "var")
+Blueprint.connect(node15, "var", node7, "y")
+Blueprint.connect(node13, "var", node14, "var")
+Blueprint.connect(node14, "var", node3, "x")
+Blueprint.connect(node0, "geo", node2, "symbol")
+Blueprint.connect(node2, "spr", node5, "spr")
+Blueprint.connect(node11, "var", node5, "count")
+Blueprint.connect(node3, "xy", node5, "translate")
+Blueprint.connect(node5, "result", node6, "spr")
+Blueprint.connect(node12, "var", node6, "count")
+Blueprint.connect(node7, "xy", node6, "translate")
+Blueprint.connect(node6, "result", node8, "var")
+Blueprint.connect(node8, "var", node4, "spr")

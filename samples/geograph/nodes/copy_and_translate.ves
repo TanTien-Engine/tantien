@@ -1,26 +1,36 @@
-var node0 = ::geograph::nodes::copy_and_translate::CopyAndTranslate()
+var node0 = ::geograph::nodes::circle::Circle()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("r").value = 55.555557250977
+node0.query_param("fill").value = false
+node0.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node0, -31.181818181818, 151.59090909091)
+_editor.add_node(node0, -197.18181818182, 248.59090909091)
 
-var node1 = ::geograph::nodes::circle::Circle()
-node1.query_param("x").value = 0
-node1.query_param("y").value = 0
-node1.query_param("r").value = 55.555557250977
-node1.query_param("fill").value = false
-node1.query_param("color").value.set(1, 0, 0)
+var node1 = ::blueprint::nodes::number::Number()
 
-_editor.add_node(node1, -218.18181818182, 240.59090909091)
+node1.value = 16.868692398071
 
-var node2 = ::geograph::nodes::draw_geometry::DrawGeometry()
+_editor.add_node(node1, -201.18181818182, 98.590909090909)
 
-_editor.add_node(node2, 150.81818181818, 177.59090909091)
+var node2 = ::scenegraph::nodes::transform::Transform()
 
-var node3 = ::blueprint::nodes::number::Number()
+_editor.add_node(node2, 119.11569588191, 298.64583150572)
 
-node3.value = 10
+var node3 = ::scenegraph::nodes::sprite::Sprite()
 
-_editor.add_node(node3, -201.18181818182, 98.590909090909)
+_editor.add_node(node3, -58.929179460779, 338.70502578422)
 
-Blueprint.connect(node1, "geo", node0, "geo")
-Blueprint.connect(node3, "v", node0, "dx")
-Blueprint.connect(node0, "geo", node2, "geos")
+var node4 = ::scenegraph::nodes::draw_sprite::DrawSprite()
+
+_editor.add_node(node4, 266.14937083071, 349.05765046509)
+
+var node5 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node5, -46.569188974607, 48.757507151455)
+
+Blueprint.connect(node1, "v", node5, "x")
+Blueprint.connect(node0, "geo", node3, "symbol")
+Blueprint.connect(node3, "spr", node2, "spr")
+Blueprint.connect(node5, "xy", node2, "translate")
+Blueprint.connect(node2, "spr", node4, "spr")
