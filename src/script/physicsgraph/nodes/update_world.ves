@@ -57,8 +57,8 @@ class UpdateWorld is Node
 				var pos = b.value.body.get_pos()
 				var angle = b.value.body.get_angle()
 
-				var trans_mat = Matrix2D.init()
-				trans_mat.transform(pos[0], pos[1], angle, 1, 1, 0, 0, 0, 0)
+			var trans_mat = Matrix2D.init()
+			trans_mat.transform(pos[0], pos[1], angle, b.value.scale[0], b.value.scale[1], 0, 0, 0, 0)
 
 				b.value.spr.transform = trans_mat
 			}

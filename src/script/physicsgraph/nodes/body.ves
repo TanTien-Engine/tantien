@@ -119,6 +119,7 @@ class Body is Node
 		if (v_geos.type == VAR_TYPE_SPRITE and v_geos.value.transform) 
 		{
 			var srt = v_geos.value.transform.decompose()
+			v_body.scale = [srt[0], srt[1]]
 			body.set_transform([srt[3], srt[4]], srt[2])
 		}
 
