@@ -114,6 +114,14 @@ class Body is Node
 		var mat = Matrix2D.init()
 		this.build_body(v_geos, body, mat)
 
+		var v_body = VarBody()
+
+		if (v_geos.type == VAR_TYPE_SPRITE and v_geos.value.transform) 
+		{
+			var srt = v_geos.value.transform.decompose()
+			body.set_transform([srt[3], srt[4]], srt[2])
+		}
+
 		body.set_gravity_scale(this.query_param("gravity").value)
 		body.set_density(this.query_param("density").value)
 		body.set_restitution(this.query_param("restitution").value)

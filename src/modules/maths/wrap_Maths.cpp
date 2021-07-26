@@ -216,6 +216,36 @@ void w_Matrix2D_transform_mat()
     *mt = *mt * *trans;
 }
 
+void w_Matrix2D_decompose()
+{
+    sm::Matrix2D* mt = (sm::Matrix2D*)ves_toforeign(0);
+
+    sm::vec2 s, t;
+    float r = 0.0f;
+    mt->Decompose(s, r, t);
+
+    ves_pop(1);
+    ves_newlist(5);
+
+    ves_pushnumber(s.x);
+    ves_seti(-2, 0);
+    ves_pop(1);
+    ves_pushnumber(s.y);
+    ves_seti(-2, 1);
+    ves_pop(1);
+    ves_pushnumber(r);
+    ves_seti(-2, 2);
+    ves_pop(1);
+    ves_pushnumber(t.x);
+    ves_seti(-2, 3);
+    ves_pop(1);
+    ves_pushnumber(t.y);
+    ves_seti(-2, 4);
+    ves_pop(1);
+
+
+}
+
 void w_Matrix44_clone()
 {
     sm::mat4* src = (sm::mat4*)ves_toforeign(0);
@@ -436,6 +466,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
 
     if (strcmp(signature, "Matrix2D.transform(_,_,_,_,_,_,_,_,_)") == 0) return w_Matrix2D_transform;
     if (strcmp(signature, "Matrix2D.transform_mat(_)") == 0) return w_Matrix2D_transform_mat;
+    if (strcmp(signature, "Matrix2D.decompose()") == 0) return w_Matrix2D_decompose;
 
     if (strcmp(signature, "Matrix44.clone()") == 0) return w_Matrix44_clone;
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
