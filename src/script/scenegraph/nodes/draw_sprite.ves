@@ -5,7 +5,7 @@ import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "blueprint.node_param" for NodeParam
 import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
-import "geograph.variant" for VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.nodes.draw_geometry" for DrawGeometry
 import "maths" for Matrix2D, Float2
 import "render" for Texture2D
@@ -66,7 +66,11 @@ class DrawSprite is Node
 		{
 			var mat = v_obj.value.transform
 			this.draw_spr(v_obj.value, mat, pt)
-		}	
+		}
+		else if (v_obj.type == VAR_TYPE_GEO)
+		{
+			this.draw_geo(v_obj.value, nil, pt)
+		}
 	}
 
 	draw_spr(spr, mat, pt)
