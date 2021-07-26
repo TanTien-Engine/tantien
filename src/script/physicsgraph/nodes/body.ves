@@ -5,9 +5,10 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VarGeo, VAR_TYPE_GEO
 import "physicsgraph.variant" for VAR_TYPE_BODY, VarBody
-import "scenegraph.variant" for VAR_TYPE_SPRITE
+import "scenegraph.variant" for VarSprite, VAR_TYPE_SPRITE
 import "physics" for Body as tt_Body
 import "maths" for Matrix2D
+import "geometry" for Rect
 
 class Body is Node
 {
@@ -17,8 +18,7 @@ class Body is Node
 
 		this.imports = [
 			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "flag",   VAR_TYPE_INTEGER),
-			Pin(this, "pos",    VAR_TYPE_NUMBER2),
+			Pin(this, "flag", VAR_TYPE_INTEGER),
 		]
 		this.exports = [
 			Pin(this, "body",   VAR_TYPE_BODY),
@@ -34,70 +34,36 @@ class Body is Node
 		this.params.add(NodeParam("friction",    0.2, { "min" : 0.0, "max" : 1.0 }))
 
 		this.layout()
-
-		this.body = VarBody()
 	}
 
 	calc_value(idx)
 	{
 		if (idx == 0)
 		{
-			if (!this.body.body) 
-			{
-				var v_geos = Blueprint.calc_input_value(this, 0)
-				this.body.body   = this.build_body(v_geos)
-				this.body.bodies = nil
-				this.body.geos   = nil
-				if (v_geos and v_geos.type == VAR_TYPE_SPRITE) {
-					this.body.spr = v_geos.value
-				} else {
-					this.body.geo = v_geos
-				}
-			}
-			return Variant(VAR_TYPE_BODY, this.body)
+			var v_geos = Blueprint.calc_input_value(this, 0)
+			return Variant(VAR_TYPE_BODY, this.build_body(v_geos))
 		}
 		else if (idx == 1)
 		{
-			if (!this.body.bodies) 
-			{
-				var bodies = []
+			var bodies = []
+			var v_geos = Blueprint.calc_input_value(this, 0)
+			this.build_body_single(v_geos, bodies)
 
-				var v_geos = Blueprint.calc_input_value(this, 0)
-				if (v_geos.type == VAR_TYPE_ARRAY)
-				{				
-					for (var v_geo in v_geos.value)
-					{
-						var body = this.build_body(v_geo)
-						if (body) {
-							var v_body = VarBody()
-							v_body.body = body
-							bodies.add(Variant(VAR_TYPE_BODY, v_body))
-						}
-					}
-				}
-				else
-				{
-					var body = this.build_body(v_geos)
-					if (body) {
-						var v_body = VarBody()
-						v_body.body = body
-						bodies.add(Variant(VAR_TYPE_BODY, v_body))
-					}
-				}
-
-				this.body.body = nil
-				this.body.bodies = nil
-				if (!bodies.isEmpty) {
-					this.body.bodies = bodies
-				}
-				this.body.geo  = nil
-				this.body.geos = v_geos
-			}
-
-			return Variant(VAR_TYPE_BODY, this.body)
+			return Variant(bodies)
 		}
 
 		return nil
+	}
+
+	build_body_single(v_geos, bodies)
+	{
+		if (v_geos.type == VAR_TYPE_ARRAY) {
+			for (var v_geo in v_geos.value) {
+				this.build_body_single(v_geo, bodies)
+			}
+		} else {
+			bodies.add(Variant(VAR_TYPE_BODY, this.build_body(v_geos)))
+		}
 	}
 
 	build_body(v_geos)
@@ -128,12 +94,14 @@ class Body is Node
 		body.set_restitution(this.query_param("restitution").value)
 		body.set_friction(this.query_param("friction").value)
 
-		var v_pos = Blueprint.calc_input_value(this, 2)
-		if (v_pos) {
-			body.set_transform([v_pos.value.x, v_pos.value.y], 0)
+		v_body.body = body
+		if (v_geos and v_geos.type == VAR_TYPE_SPRITE) {
+			v_body.spr = v_geos.value
+		} else {
+			v_body.geo = v_geos
 		}
 
-		return body
+		return v_body
 	}
 
 	build_body(v_geo, body, mat)

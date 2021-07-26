@@ -21,38 +21,37 @@ class World is Node
 		]
 
 		this.layout()
-
-		this.world = VarWorld()
 	}
 
 	calc_value(idx)
 	{
-		if (!this.world.world) {
-			this.build_world()
-		}
-		return Variant(VAR_TYPE_WORLD, this.world)
+		return Variant(VAR_TYPE_WORLD, this.build_world())
 	}
 
 	build_world()
 	{
-		this.world.world = nil
-		this.world.bodies.clear()
-		this.world.joints.clear()		
+		var world = VarWorld()
+
+		world.world = nil
+		world.bodies.clear()
+		world.joints.clear()		
 
 		import "logger.logger" for Logger
 		Logger.info("build physics world")
 
-		this.world.world = tt_World.init()
+		world.world = tt_World.init()
 
 		var v_bodies = Blueprint.calc_input_value(this, 0)
 		if (v_bodies) {
-			this.add_multi_bodies(this.world, v_bodies)		
+			this.add_multi_bodies(world, v_bodies)		
 		}
 
 		var v_joints = Blueprint.calc_input_value(this, 1)
 		if (v_joints) {
-			this.add_joint(this.world, v_joints)		
+			this.add_joint(world, v_joints)		
 		}
+
+		return world
 	}
 
 	add_multi_bodies(world, v_bodies)
@@ -70,18 +69,9 @@ class World is Node
 	{
 		if (v_body.type == VAR_TYPE_BODY) 
 		{
-			if (v_body.value.bodies) {
-				for (var b in v_body.value.bodies) {
-					if (b.value.body) {
-						world.world.add_body(b.value.body)					
-					}
-				}
-			} else {
-				if (v_body.value.body) {
-					world.world.add_body(v_body.value.body)				
-				}
+			if (v_body.value.body) {
+				world.world.add_body(v_body.value.body)
 			}
-
 			world.bodies.add(v_body)
 		} 
 		else if (v_body.type == VAR_TYPE_GEO) 

@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "physicsgraph.variant" for VAR_TYPE_WORLD
  import "physics" for World
@@ -30,47 +30,28 @@ class UpdateWorld is Node
 			return
 		}
 
-		var w = v_world.value
-		for (var b in w.bodies)
-		{
-			if (b.value.geo) 
-			{
-				this.set_geo_transform(b.value.geo.value, b.value.body)
-			}
-			else if (b.value.geos)
-			{
-				if (b.value.geos.value.count != b.value.bodies.value.count) {
-					import "logger.logger" for Logger
-					Logger.error("Bodies and geos number not equal.")
-				}
+		for (var b in v_world.value.bodies) {
+			this.update_body(b)
+		}
+	}
 
-				if (b.value.geos.value.count == b.value.bodies.value.count) 
-				{
-					for (var i in 0 .. b.value.geos.value.count) {
-						b.value.geos.value[i].value.show = b.value.bodies.value[i].value.body.is_valid()
-						this.set_geo_transform(b.value.geos.value[i].value, b.value.bodies.value[i].value.body)
-					}
-				}
+	update_body(b)
+	{
+		if (b.type == VAR_TYPE_ARRAY)
+		{
+			for (var cb in b.value) {
+				this.update_body(cb)
 			}
-			else if (b.value.spr)
-			{
-				var pos = b.value.body.get_pos()
-				var angle = b.value.body.get_angle()
+		}
+		else if (b.value.spr)
+		{
+			var pos = b.value.body.get_pos()
+			var angle = b.value.body.get_angle()
 
 			var trans_mat = Matrix2D.init()
 			trans_mat.transform(pos[0], pos[1], angle, b.value.scale[0], b.value.scale[1], 0, 0, 0, 0)
 
-				b.value.spr.transform = trans_mat
-			}
+			b.value.spr.transform = trans_mat
 		}
-	}
-
-	set_geo_transform(geo, body)
-	{
-		var pos = body.get_pos()
-		geo.pos[0] = pos[0]
-		geo.pos[1] = pos[1]
-
-		geo.angle = body.get_angle()
-	}
+	}	
 }
