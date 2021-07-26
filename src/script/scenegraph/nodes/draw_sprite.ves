@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
+import "blueprint.node_param" for NodeParam
 import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
 import "geograph.variant" for VarGeo
@@ -27,11 +28,17 @@ class DrawSprite is Node
 			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
+		this.params.add(NodeParam("skip", false))
+
 		this.layout()
 	}
 
 	render_run() 
 	{
+		if (this.query_param("skip").value) {
+			return
+		}
+
 		var v_obj = Blueprint.calc_input_value(this, 1)
 		if (!v_obj) {
 			return
