@@ -28,7 +28,7 @@ class BodySelector is Node
 	{
 		var v_a = Blueprint.calc_input_value(this, 0)
 		var v_b = Blueprint.calc_input_value(this, 1)
-		if (!v_a and !v_b) {
+		if ((!v_a and !v_b) or (!v_a.value.body and !v_b.value.body)) {
 			return nil
 		}
 
@@ -44,18 +44,18 @@ class BodySelector is Node
 			other = v_other.value
 		}
 
-		if (!v_a) 
+		if (!v_a or !v_a.value.body) 
 		{
-			var flag_b = v_b.body.get_flag()
+			var flag_b = v_b.value.body.get_flag()
 			if (flag_b == select) {
 				return v_b
 			} else {
 				return nil
 			}
 		} 
-		else if (!v_b) 
+		else if (!v_b or !v_b.value.body) 
 		{
-			var flag_a = v_b.body.get_flag()
+			var flag_a = v_a.value.body.get_flag()
 			if (flag_a == select) {
 				return v_a
 			} else {

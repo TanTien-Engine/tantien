@@ -31,7 +31,7 @@ class Simulation is Node
 	render_run() 
 	{
 		var v_world = Blueprint.calc_input_value(this, 1)
-		if (!v_world) {
+		if (!v_world or !v_world.value.world) {
 			return
 		}
 
@@ -50,7 +50,7 @@ class Simulation is Node
 	execute_run() 
 	{
 		var v_world = Blueprint.calc_input_value(this, 1)
-		if (!v_world) {
+		if (!v_world or !v_world.value.world) {
 			return
 		}
 
