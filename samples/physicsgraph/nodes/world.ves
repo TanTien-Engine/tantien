@@ -1,7 +1,11 @@
 var node0 = ::physicsgraph::nodes::body::Body()
 node0.query_param("type").value = "dynamic"
+node0.query_param("gravity").value = 1
+node0.query_param("density").value = 1
+node0.query_param("restitution").value = 0
+node0.query_param("friction").value = 0.2
 
-_editor.add_node(node0, -153.60469664889, 286.0055851873)
+_editor.add_node(node0, -22.124606491114, 204.86358668993)
 
 var node1 = ::geograph::nodes::rect::Rect()
 node1.query_param("x").value = 0
@@ -11,62 +15,40 @@ node1.query_param("h").value = 50
 node1.query_param("fill").value = false
 node1.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node1, -322.63625187052, 238.49243717829)
+_editor.add_node(node1, -321.88493706962, 249.01084439091)
 
-var node2 = ::physicsgraph::nodes::world::World()
+var node2 = ::geograph::nodes::polyline::Polyline()
+node2.query_param("vertices").value = [ -300, -200, 300, -200 ]
+node2.query_param("closed").value = true
 
-_editor.add_node(node2, 193.03327798648, 46.066555221638)
+_editor.add_node(node2, -11.378668868876, 84.157375613936)
 
-var node3 = ::geograph::nodes::polyline::Polyline()
-node3.query_param("vertices").value = [ -300, -200, 300, -200 ]
-node3.query_param("closed").value = true
+var node3 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node3, -308.148015225, -147.24758306375)
+_editor.add_node(node3, 166.70773854245, 145.3946998272)
 
-var node4 = ::physicsgraph::nodes::body::Body()
-node4.query_param("type").value = "static"
+var node4 = ::geograph::nodes::circle::Circle()
+node4.query_param("x").value = 0
+node4.query_param("y").value = 0
+node4.query_param("r").value = 46.531169891357
+node4.query_param("fill").value = false
+node4.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node4, -158.77599526912, -146.28248904862)
+_editor.add_node(node4, -320.18781425539, 17.663103592297)
 
 var node5 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node5, 48, -43.93663)
+_editor.add_node(node5, -161.5110804259, 243.87997388374)
 
-var node6 = ::geograph::nodes::circle::Circle()
-node6.query_param("x").value = 0
-node6.query_param("y").value = 0
-node6.query_param("r").value = 46.531169891357
-node6.query_param("fill").value = false
-node6.query_param("color").value.set(1, 0, 0)
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/physicsgraph/world_sim.ves")
+node6.set_prop_value("draw", true)
 
-_editor.add_node(node6, -320.18781425539, 17.663103592297)
+_editor.add_node(node6, 422.26053138464, 158.98139681913)
 
-var node7 = ::physicsgraph::nodes::body::Body()
-node7.query_param("type").value = "dynamic"
-
-_editor.add_node(node7, -168.91315050362, 48.074596562661)
-
-var node8 = ::physicsgraph::nodes::simulation::Simulation()
-node8.query_param("pause").value = false
-node8.query_param("debug_draw").value = true
-
-_editor.add_node(node8, 371.07061020115, 35.324943146967)
-
-var node9 = ::editorgraph::nodes::trigger::Trigger()
-
-_editor.add_node(node9, 565, 106.5)
-
-var node10 = ::editorgraph::nodes::ticker::Ticker()
-
-_editor.add_node(node10, 363.7898340226, 135.59884277384)
-
-Blueprint.connect(node10, "event", node9, "event")
-Blueprint.connect(node8, "next", node9, "action")
-Blueprint.connect(node6, "geo", node7, "geos")
-Blueprint.connect(node3, "geo", node4, "geos")
-Blueprint.connect(node1, "geo", node0, "geos")
-Blueprint.connect(node0, "body", node5, "in0")
-Blueprint.connect(node7, "body", node5, "in1")
-Blueprint.connect(node4, "body", node5, "in2")
-Blueprint.connect(node5, "list", node2, "bodies")
-Blueprint.connect(node2, "world", node8, "world")
+Blueprint.connect(node1, "geo", node5, "in0")
+Blueprint.connect(node4, "geo", node5, "in1")
+Blueprint.connect(node5, "list", node0, "geos")
+Blueprint.connect(node0, "body", node3, "in0")
+Blueprint.connect(node2, "geo", node3, "in1")
+Blueprint.connect(node3, "list", node6, "bodies")
