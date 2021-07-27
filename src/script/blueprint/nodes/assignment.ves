@@ -45,23 +45,27 @@ class Assignment is Node
 			return false
 		}
 
+		var dirty = false
 		if (v_src.type == VAR_TYPE_NUMBER2)
 		{
 			v_dst.value.x = v_src.value.x
 			v_dst.value.y = v_src.value.y
+			dirty = true
 		}
 		else if (v_src.type == VAR_TYPE_NUMBER3)
 		{
 			v_dst.value.x = v_src.value.x
 			v_dst.value.y = v_src.value.y
 			v_dst.value.z = v_src.value.z
+			dirty = true
 		}
 		else if (v_src.type == VAR_TYPE_NUMBER4)
 		{
 			v_dst.value.x = v_src.value.x
 			v_dst.value.y = v_src.value.y
 			v_dst.value.z = v_src.value.z
-			v_dst.value.w = v_src.value.w			
+			v_dst.value.w = v_src.value.w
+			dirty = true
 		}
 		else
 		{
@@ -70,17 +74,18 @@ class Assignment is Node
 			{
 				if (n_dst is Boolean) {
 					n_dst.value = v_src.value
+					dirty = true
 				} else if (n_dst is Integer) {
 					n_dst.value = v_src.value
+					dirty = true
 				} else if (n_dst is Number) {
 					n_dst.value = v_src.value
+					dirty = true
 				} 
 			}
-
-			return false
 		}
 
-		return true
+		return dirty
 	}
 
 	get_dst_node(dst)
