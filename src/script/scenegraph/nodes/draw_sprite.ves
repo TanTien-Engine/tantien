@@ -122,6 +122,13 @@ class DrawSprite is Node
 	{
 		var col = [255, 255, 255, 255]
 
+		var geo_col = v_geo.render_style["color"]
+		if (geo_col) {
+			col[0] = col[0] * geo_col.x
+			col[1] = col[1] * geo_col.y
+			col[2] = col[2] * geo_col.z
+		}
+
 		var shape = v_geo.shape
 		if (shape is Line) {
 			this.draw_line(v_geo, mat, pt, col)
