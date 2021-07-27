@@ -32,16 +32,8 @@ class Assignment is Node
 	{
 		var dirty = this.assign()
 
-		if (dirty) 
-		{
-			var n_dst = this.get_dst_node()
-			if (n_dst) 
-			{
-				var nodes = Blueprint.get_successor_nodes(n_dst)
-				for (var node in nodes) {
-					node.on_gui_dirty()
-				}
-			}
+		if (dirty) {
+			Blueprint.send_pin_dirty_root(this.imports[2])
 		}
 	}
 
