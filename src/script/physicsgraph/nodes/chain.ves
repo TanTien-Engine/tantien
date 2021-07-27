@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT, VarBody, VarJoint
 import "physics" for Body, RevoluteJoint
+import "maths" for Float2
 
 class Chain is Node
 {
@@ -71,14 +72,18 @@ class Chain is Node
 			var v_body = VarBody()
 
 			var body = Body.init("dynamic", -1)
-			body.add_shape(v_geo.value.shape, v_geo.value.render_style["fill"].value, nil)
+			var geo = v_geo.value.symbol
+			body.add_shape(geo.shape, geo.render_style["fill"].value, nil)
 
 			body.set_density(this.query_param("density").value)
 			body.set_friction(this.query_param("friction").value)
 
+			var srt = v_geo.value.transform.decompose()
+			body.set_transform([srt[3], srt[4]], srt[2])
+
 			v_body.body = body
 
-			v_body.geo = v_geo
+			v_body.spr = v_geo.value
 
 			this.bodies.add(Variant(VAR_TYPE_BODY, v_body))
 		}
@@ -97,8 +102,12 @@ class Chain is Node
 		{
 			if (prev_body)
 			{
-				var rect = v_geos.value[i].value.shape.get()
-				var anchor = [ rect[0], rect[1] + rect[3] * 0.5 ]
+				var spr = v_geos.value[i].value
+
+				var rect = spr.symbol.shape.get()
+				var pos = Float2.init(rect[0], rect[1] + rect[3] * 0.5)
+				pos.transform(spr.transform)
+				var anchor = [pos.x(), pos.y()]
 
 				var joint = RevoluteJoint.init(prev_body, this.bodies[i].value.body, anchor)
 
@@ -113,8 +122,12 @@ class Chain is Node
 
 		if (fix_end and prev_body and v_ground.value.body) 
 		{
-			var rect = v_geos.value.back().value.shape.get()
-			var anchor = [ rect[0] + rect[2], rect[1] + rect[3] * 0.5 ]
+			var spr = v_geos.value.back().value
+			var rect = spr.symbol.shape.get()
+
+			var pos = Float2.init(rect[0] + rect[2], rect[1] + rect[3] * 0.5)
+			pos.transform(spr.transform)
+			var anchor = [pos.x(), pos.y()]
 
 			var joint = RevoluteJoint.init(prev_body, v_ground.value.body, anchor)
 
