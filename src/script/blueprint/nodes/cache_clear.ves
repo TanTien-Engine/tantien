@@ -3,8 +3,6 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT
 import "blueprint.blackboard" for BLACKBOARD
 import "blueprint.nodes.subgraph" for Subgraph
-import "blueprint.nodes.cache" for Cache
-import "blueprint.nodes.store" for Store
 
 class CacheClear is Node
 {
@@ -36,8 +34,8 @@ class CacheClear is Node
 			for (var item in node.all_items) {
 				this.clear_cache_node(item[0])
 			}
-		} else if (node is Cache or node is Store) {
-			node.clear_cache()
+		} else if (node.has_method("clear_cache()")) {
+			node.clear_cache()			
 		}
 	}
 }
