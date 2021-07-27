@@ -24,6 +24,8 @@ class Store is Node
 		this.exports[0].hide = true
 
 		this.var_name = "store"
+
+		this.val = nil
 	}
 
 	on_pin_dirty(pin)
@@ -33,11 +35,17 @@ class Store is Node
 		} else {
 			Blueprint.send_pin_dirty(this.imports[0])		
 		}
+
+		this.clear_cache()
 	}
 	
 	calc_value(idx)
 	{
-		return Blueprint.calc_input_value(this, 0)
+		if (!this.val) {
+			this.val = Blueprint.calc_input_value(this, 0)
+		}
+
+		return this.val
 	}
 
  	shader_gen(node, idx)
@@ -81,5 +89,10 @@ class Store is Node
 		} else {
 			return "%(this.var_name)(S)"
 		}
+	}
+
+	clear_cache()
+	{
+		this.val = nil
 	}
 }
