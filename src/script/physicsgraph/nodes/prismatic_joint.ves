@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT, VarJoint
+import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT
 import "maths.vector" for Vector2
 import "physics" for PrismaticJoint as tt_PrismaticJoint
 
@@ -35,16 +35,11 @@ class PrismaticJoint is Node
 		this.params.add(NodeParam("speed", 0.0))
 
 		this.layout()
-
-		this.joint = VarJoint()
 	}
 	
 	calc_value(idx)
 	{
-		if (!this.joint.joint) {
-			this.joint.joint = this.build_joint()
-		}
-		return Variant(VAR_TYPE_JOINT, this.joint)
+		return Variant(VAR_TYPE_JOINT, this.build_joint())
 	}
 
 	build_joint()
