@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
 import "geograph.variant" for VAR_TYPE_GEO
@@ -15,11 +15,11 @@ class Sprite is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "symbol", [ VAR_TYPE_TEXTURE, VAR_TYPE_GEO ]),
+			Pin(this, "symbol", [ VAR_TYPE_TEXTURE, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "size", VAR_TYPE_NUMBER2),			
 		]
 		this.exports = [
-			Pin(this, "spr", VAR_TYPE_SPRITE),
+			Pin(this, "spr", [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
 		]
 
 		this.layout()
@@ -34,14 +34,34 @@ class Sprite is Node
 
 	calc_value(idx)
 	{
+		var v_sym = Blueprint.calc_input_value(this, 0)
+		var v_size = Blueprint.calc_input_value(this, 1)
+		if (!v_sym) {
+			return nil
+		}
+
+		if (v_sym.type == VAR_TYPE_ARRAY) 
+		{
+			var ret = []
+			for (var v in v_sym.value) {
+				ret.add(this.build_sprite(v, v_size))
+			}
+			return Variant(ret)
+		}
+		else
+		{
+			return this.build_sprite(v_sym, v_size)
+		}
+	}
+
+	build_sprite(v_sym, v_size)
+	{
 		var spr = VarSprite()
 
-		var v_sym = Blueprint.calc_input_value(this, 0)
 		if (v_sym) {
 			spr.symbol = v_sym.value
 		}
 
-		var v_size = Blueprint.calc_input_value(this, 1)
 		if (v_size) 
 		{
 			if (v_sym and v_sym.type == VAR_TYPE_TEXTURE) 
