@@ -30,7 +30,7 @@ import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
 import "editorgraph.trigger_list" for TriggerList
 import "blueprint.blackboard" for BLACKBOARD
-import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_MOUSE_MOVE, EVENT_KEY_PRESSED, EVENT_KEY_RELEASED, EVENT_TICKER, EVENT_BLUEPRINT_CHANGED, EVENT_ENTER_EDITOR_MODE, EVENT_LEAVE_EDITOR_MODE
+import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_MOUSE_MOVE, EVENT_KEY_PRESSED, EVENT_KEY_RELEASED, EVENT_TICKER, EVENT_BLUEPRINT_CHANGED, EVENT_LEAVE_RUNTIME_MODE, EVENT_ENTER_RUNTIME_MODE
 
 class Editor
 {
@@ -181,7 +181,7 @@ class Editor
 			this.editor_mode = !this.editor_mode
 			if (this.editor_mode) 
 			{
-				this.trigger_list.run(EVENT_ENTER_EDITOR_MODE)
+				this.trigger_list.run(EVENT_ENTER_RUNTIME_MODE)
 
 				this.editop = this.preview_op
 
@@ -192,8 +192,8 @@ class Editor
 			} 
 			else 
 			{
-				this.trigger_list.run(EVENT_LEAVE_EDITOR_MODE)
-
+				this.trigger_list.run(EVENT_LEAVE_RUNTIME_MODE)
+			
 				this.editop = this.nodes_op
 				this.node_editor_mode = false
 			}
