@@ -110,19 +110,19 @@ _editor.add_node(node19, -526.87759700003, 593.45579939961)
 
 var node20 = ::blueprint::nodes::commentary::Commentary()
 
-node20.set_size(562.146, 330.146)
+node20.set_size(773.76583471074, 507.1418677686)
 node20.title = "Update & Draw"
 
-_editor.add_node(node20, -34.372966287694, 592.4200882135)
+_editor.add_node(node20, 83.529350500108, 760.8055034903)
 
 var node21 = ::physicsgraph::nodes::body::Body()
 node21.query_param("type").value = "dynamic"
-node21.query_param("gravity").value = 1
+node21.query_param("gravity").value = 1.0188438892365
 node21.query_param("density").value = 1.0777316093445
 node21.query_param("restitution").value = 0.52217608690262
 node21.query_param("friction").value = 0.2
 
-_editor.add_node(node21, -90.382089251394, 442.94039225387)
+_editor.add_node(node21, -105.89756260404, 445.57004395211)
 
 var node22 = ::blueprint::nodes::store::Store()
 
@@ -134,17 +134,17 @@ var node23 = ::blueprint::nodes::load::Load()
 
 node23.var_name = "ground"
 
-_editor.add_node(node23, -92.373669783072, 552.82487002375)
+_editor.add_node(node23, -236.8473907557, 720.74145455005)
 
 var node24 = ::blueprint::nodes::load::Load()
 
 node24.var_name = "ground"
 
-_editor.add_node(node24, -248.64183724237, 326.625735069)
+_editor.add_node(node24, -220.82216508267, 326.41610902349)
 
 var node25 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node25, -103.48727672366, 315.11025607444)
+_editor.add_node(node25, -73.188265720982, 303.33038209504)
 
 var node26 = ::blueprint::nodes::integer::Integer()
 
@@ -181,7 +181,7 @@ _editor.add_node(node31, 203.34648526042, 82.370064256606)
 var node32 = ::scenegraph::nodes::draw_sprite::DrawSprite()
 node32.query_param("skip").value = false
 
-_editor.add_node(node32, 169.71552953643, 323.31762587788)
+_editor.add_node(node32, 200.01454053911, 311.53775189848)
 
 var node33 = ::scenegraph::nodes::sprite::Sprite()
 
@@ -190,7 +190,7 @@ _editor.add_node(node33, -184.5807868527, 176.80078360611)
 var node34 = ::blueprint::nodes::cache::Cache()
 node34.query_param("disable").value = false
 
-_editor.add_node(node34, 32.724292988682, 310.07386913715)
+_editor.add_node(node34, 63.02330399136, 298.29399515775)
 
 var node35 = ::scenegraph::nodes::transform::Transform()
 
@@ -211,23 +211,70 @@ var node38 = ::blueprint::nodes::load::Load()
 
 node38.var_name = "boxes"
 
-_editor.add_node(node38, -247.1898413086, 282.47914648437)
+_editor.add_node(node38, -216.89083030592, 270.69927250497)
 
 var node39 = ::blueprint::nodes::load::Load()
 
 node39.var_name = "boxes"
 
-_editor.add_node(node39, -224.05361256739, 500.29597156462)
+_editor.add_node(node39, -230.11823792835, 503.39213064307)
 
 var node40 = ::blueprint::nodes::subgraph::Subgraph()
 node40.load_from_file(_editor, "../../../assets/blueprints/physicsgraph/world_sim.ves")
 node40.set_prop_value("draw", false)
 
-_editor.add_node(node40, 106.89753656056, 510.12887573242)
+_editor.add_node(node40, 226.23307375064, 517.00242945143)
 
 var node41 = ::blueprint::nodes::add::Add()
 
 _editor.add_node(node41, -385.28093771625, -257.65433106258)
+
+var node42 = ::physicsgraph::nodes::mouse_joint::MouseJoint()
+
+_editor.add_node(node42, 357.55094202397, 704.20542924503)
+
+var node43 = ::physicsgraph::nodes::body::Body()
+node43.query_param("type").value = "static"
+node43.query_param("gravity").value = 1
+node43.query_param("density").value = 1
+node43.query_param("restitution").value = 0
+node43.query_param("friction").value = 0.2
+
+_editor.add_node(node43, -106.49274092745, 663.73278909478)
+
+var node44 = ::blueprint::nodes::store::Store()
+
+node44.var_name = "world"
+
+_editor.add_node(node44, 404.65581677129, 517.10907194112)
+
+var node45 = ::blueprint::nodes::load::Load()
+
+node45.var_name = "world"
+
+_editor.add_node(node45, 222.99045216641, 720.51386447279)
+
+var node46 = ::blueprint::nodes::store::Store()
+
+node46.var_name = "ground_body"
+
+_editor.add_node(node46, 36.813378330746, 714.71558983714)
+
+var node47 = ::blueprint::nodes::load::Load()
+
+node47.var_name = "ground_body"
+
+_editor.add_node(node47, 223.29099379266, 676.18624531712)
+
+var node48 = ::blueprint::nodes::load::Load()
+
+node48.var_name = "ground_body"
+
+_editor.add_node(node48, -110.41953261274, 557.30843935189)
+
+var node49 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node49, 31.785118549901, 508.24618167659)
 
 Blueprint.connect(node26, "v", node6, "a")
 Blueprint.connect(node30, "curr_item", node6, "b")
@@ -274,5 +321,14 @@ Blueprint.connect(node38, "var", node25, "in1")
 Blueprint.connect(node25, "list", node34, "var")
 Blueprint.connect(node34, "var", node32, "spr")
 Blueprint.connect(node22, "var", node23, "var")
-Blueprint.connect(node23, "var", node40, "ground")
-Blueprint.connect(node21, "bodies", node40, "bodies")
+Blueprint.connect(node23, "var", node43, "geos")
+Blueprint.connect(node43, "body", node46, "var")
+Blueprint.connect(node46, "var", node48, "var")
+Blueprint.connect(node48, "var", node49, "in0")
+Blueprint.connect(node21, "bodies", node49, "in1")
+Blueprint.connect(node49, "list", node40, "bodies")
+Blueprint.connect(node40, "world", node44, "var")
+Blueprint.connect(node44, "var", node45, "var")
+Blueprint.connect(node46, "var", node47, "var")
+Blueprint.connect(node45, "var", node42, "world")
+Blueprint.connect(node47, "var", node42, "ground")

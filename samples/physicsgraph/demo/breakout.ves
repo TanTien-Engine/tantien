@@ -66,7 +66,7 @@ _editor.add_node(node9, -461.30764908825, 410.05299678824)
 
 var node10 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node10, -217.84153861884, -220.25655366757)
+_editor.add_node(node10, -218.59285341974, -214.99735006126)
 
 var node11 = ::blueprint::nodes::load::Load()
 
@@ -316,13 +316,13 @@ var node50 = ::blueprint::nodes::load::Load()
 
 node50.var_name = "ground_body"
 
-_editor.add_node(node50, -354.61934292159, -311.2637292259)
+_editor.add_node(node50, -355.71934292159, -337.6637292259)
 
 var node51 = ::blueprint::nodes::load::Load()
 
 node51.var_name = "paddle_body"
 
-_editor.add_node(node51, -354.23880091623, -354.44484482612)
+_editor.add_node(node51, -355.33880091623, -380.84484482612)
 
 var node52 = ::editorgraph::nodes::trigger::Trigger()
 
@@ -626,7 +626,7 @@ _editor.add_node(node108, -458.86558127044, 9.9098786272306)
 
 var node109 = ::blueprint::nodes::boolean::Boolean()
 
-node109.value = true
+node109.value = false
 
 _editor.add_node(node109, -813.54008601155, 240.2734459846)
 
@@ -700,7 +700,7 @@ var node123 = ::blueprint::nodes::number2::Number2()
 
 node123.value.set(18.493325195309, -403.293)
 
-_editor.add_node(node123, -355.05329595863, -419.03209454934)
+_editor.add_node(node123, -356.15329595863, -445.43209454934)
 
 var node124 = ::blueprint::nodes::subgraph::Subgraph()
 node124.load_from_file(_editor, "../../../assets/blueprints/scenegraph/copy_and_transform.ves")
@@ -745,7 +745,7 @@ var node132 = ::blueprint::nodes::subgraph::Subgraph()
 node132.load_from_file(_editor, "../../../assets/blueprints/physicsgraph/world_sim.ves")
 node132.set_prop_value("draw", false)
 
-_editor.add_node(node132, -23.382719126712, -226.35045639337)
+_editor.add_node(node132, -25.582719126712, -224.15045639337)
 
 var node133 = ::physicsgraph::nodes::body::Body()
 node133.query_param("type").value = "static"
@@ -793,19 +793,19 @@ var node141 = ::blueprint::nodes::load::Load()
 
 node141.var_name = "ball_body"
 
-_editor.add_node(node141, -360.85860676624, -179.47220769737)
+_editor.add_node(node141, -359.11518077075, -165.57093046221)
 
 var node142 = ::blueprint::nodes::load::Load()
 
 node142.var_name = "paddle_body"
 
-_editor.add_node(node142, -359.82345375344, -220.5497503532)
+_editor.add_node(node142, -358.08002775795, -206.64847311804)
 
 var node143 = ::blueprint::nodes::load::Load()
 
 node143.var_name = "ground_body"
 
-_editor.add_node(node143, -220.92994280744, -133.52566547488)
+_editor.add_node(node143, -353.67186617333, -289.42153324348)
 
 var node144 = ::blueprint::nodes::store::Store()
 
@@ -823,13 +823,13 @@ var node146 = ::blueprint::nodes::load::Load()
 
 node146.var_name = "bricks_body"
 
-_editor.add_node(node146, -361.09556748234, -136.24999371581)
+_editor.add_node(node146, -359.35214148685, -122.34871648065)
 
 var node147 = ::blueprint::nodes::load::Load()
 
 node147.var_name = "bottom_body"
 
-_editor.add_node(node147, -357.70871974052, -263.36218469892)
+_editor.add_node(node147, -355.96529374503, -249.46090746376)
 
 var node148 = ::blueprint::nodes::number2::Number2()
 
@@ -969,10 +969,6 @@ Blueprint.connect(node11, "var", node19, "geos")
 Blueprint.connect(node27, "var", node19, "flag")
 Blueprint.connect(node19, "bodies", node144, "var")
 Blueprint.connect(node144, "var", node146, "var")
-Blueprint.connect(node146, "var", node10, "in0")
-Blueprint.connect(node141, "var", node10, "in1")
-Blueprint.connect(node142, "var", node10, "in2")
-Blueprint.connect(node147, "var", node10, "in3")
 Blueprint.connect(node1, "var", node2, "var")
 Blueprint.connect(node0, "geo", node136, "symbol")
 Blueprint.connect(node136, "spr", node6, "var")
@@ -980,11 +976,15 @@ Blueprint.connect(node6, "var", node9, "var")
 Blueprint.connect(node9, "var", node133, "geos")
 Blueprint.connect(node133, "body", node45, "var")
 Blueprint.connect(node45, "var", node143, "var")
+Blueprint.connect(node146, "var", node10, "in0")
+Blueprint.connect(node141, "var", node10, "in1")
+Blueprint.connect(node142, "var", node10, "in2")
+Blueprint.connect(node147, "var", node10, "in3")
+Blueprint.connect(node143, "var", node10, "in4")
 Blueprint.connect(node45, "var", node50, "var")
 Blueprint.connect(node50, "var", node49, "body_a")
 Blueprint.connect(node51, "var", node49, "body_b")
 Blueprint.connect(node123, "v2", node49, "anchor")
-Blueprint.connect(node143, "var", node132, "ground")
 Blueprint.connect(node10, "list", node132, "bodies")
 Blueprint.connect(node49, "joint", node132, "joints")
 Blueprint.connect(node132, "world", node139, "var")
