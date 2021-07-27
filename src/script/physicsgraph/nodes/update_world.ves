@@ -52,6 +52,10 @@ class UpdateWorld is Node
 			trans_mat.transform(pos[0], pos[1], angle, b.value.scale[0], b.value.scale[1], 0, 0, 0, 0)
 
 			b.value.spr.transform = trans_mat
+
+			if (!b.value.body.is_valid()) {
+				b.value.spr.hide = true
+			}
 		}
-	}	
+	}
 }

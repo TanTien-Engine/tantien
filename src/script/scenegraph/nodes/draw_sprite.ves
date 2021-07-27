@@ -75,6 +75,10 @@ class DrawSprite is Node
 
 	draw_spr(spr, mat, pt)
 	{
+		if (spr.hide) {
+			return
+		}
+
 		if (spr.symbol)
 		{
 			if (spr.symbol is VarTexture) {
