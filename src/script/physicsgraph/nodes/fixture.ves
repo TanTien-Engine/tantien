@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VarGeo, VAR_TYPE_GEO
+import "physicsgraph.variant" for VarFixture, VAR_TYPE_FIXTURE
+import "scenegraph.variant" for VAR_TYPE_SPRITE
+
+class Fixture is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "shape",       [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
+			Pin(this, "category",      VAR_TYPE_INTEGER),
+			Pin(this, "not_collide", [ VAR_TYPE_INTEGER ]),			
+		]
+		this.exports = [
+			Pin(this, "fixture", VAR_TYPE_FIXTURE),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_shape = Blueprint.calc_input_value(this, 0)
+		if (!v_shape) {
+			return nil
+		}
+
+		var fixture = VarFixture()
+
+		fixture.shape = v_shape
+
+		var v_category = Blueprint.calc_input_value(this, 1)
+		if (v_category) {
+			fixture.category = v_category.value
+		}
+
+		var v_not_collide = Blueprint.calc_input_value(this, 2)
+		if (v_not_collide) 
+		{
+			fixture.not_collide = []
+			if (v_not_collide.type == VAR_TYPE_ARRAY) {
+				for (var id in v_not_collide.value) {
+					fixture.not_collide.add(id)
+				}
+			} else {
+				fixture.not_collide.add(v_not_collide.value)
+			}
+		}				
+
+		return Variant(VAR_TYPE_FIXTURE, fixture)
+	}
+}

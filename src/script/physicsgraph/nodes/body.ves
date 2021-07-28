@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER, VAR_TY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VarGeo, VAR_TYPE_GEO
-import "physicsgraph.variant" for VAR_TYPE_BODY, VarBody
+import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_FIXTURE, VarBody
 import "scenegraph.variant" for VarSprite, VAR_TYPE_SPRITE
 import "physics" for Body as tt_Body
 import "maths" for Matrix2D
@@ -17,7 +17,7 @@ class Body is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "geos", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_FIXTURE, VAR_TYPE_ARRAY ]),
 			Pin(this, "flag", VAR_TYPE_INTEGER),
 		]
 		this.exports = [
@@ -78,7 +78,7 @@ class Body is Node
 		var body = tt_Body.init(type, flag)
 
 		var mat = Matrix2D.init()
-		this.build_body(v_geos, body, mat)
+		this.build_body(v_geos, body, mat, [])
 
 		var v_body = VarBody()
 
@@ -95,8 +95,12 @@ class Body is Node
 		body.set_friction(this.query_param("friction").value)
 
 		v_body.body = body
-		if (v_geos and v_geos.type == VAR_TYPE_SPRITE) {
-			v_body.spr = v_geos.value
+		if (v_geos) {
+			if (v_geos.type == VAR_TYPE_SPRITE) {
+				v_body.spr = v_geos.value			
+			} else if (v_geos.type == VAR_TYPE_FIXTURE) {
+				v_body.spr = v_geos.value.shape.value
+			}
 		} else {
 			v_body.geo = v_geos
 		}
@@ -104,19 +108,19 @@ class Body is Node
 		return v_body
 	}
 
-	build_body(v_geo, body, mat)
+	build_body(v_geo, body, mat, filter)
 	{
 		if (v_geo.type == VAR_TYPE_ARRAY)
 		{
 			for (var geo in v_geo.value) {
-				this.build_body(geo, body, mat)
+				this.build_body(geo, body, mat, filter)
 			}
 		}
 		else if (v_geo.type == VAR_TYPE_GEO)
 		{
 			if (v_geo.value.shape) {
 				var fill = v_geo.value.render_style["fill"]
-				body.add_shape(v_geo.value.shape, fill, mat)
+				body.add_fixture(v_geo.value.shape, fill, mat, filter)
 			}
 		}
 		else if (v_geo.type == VAR_TYPE_SPRITE)
@@ -127,7 +131,7 @@ class Body is Node
 				if (spr.symbol is VarGeo) 
 				{
 					var fill = spr.symbol.render_style["fill"]
-					body.add_shape(spr.symbol.shape, fill, mat)
+					body.add_fixture(spr.symbol.shape, fill, mat, filter)
 				} 
 				else if (spr.size) 
 				{
@@ -136,16 +140,32 @@ class Body is Node
 
 					var rect = Rect.init()
 					rect.set(-w * 0.5, -h * 0.5, w, h)
-					body.add_shape(rect, true, mat)
+					body.add_fixture(rect, true, mat, filter)
 				}
 			} 
 			else 
 			{
 				for (var child in spr.children) {
 					var c_mat = this.calc_mat(child, mat)
-					this.build_body(Variant(VAR_TYPE_SPRITE, child), body, c_mat)
+					this.build_body(Variant(VAR_TYPE_SPRITE, child), body, c_mat, filter)
 				}
 			}
+		}
+		else if (v_geo.type == VAR_TYPE_FIXTURE)
+		{
+			var fixture = v_geo.value
+
+			var filter = []
+			if (fixture.category) {
+				filter.add(fixture.category)
+				if (fixture.not_collide) {
+					for (var id in fixture.not_collide) {
+						filter.add(id)
+					}
+				}
+			}
+
+			this.build_body(fixture.shape, body, mat, filter)
 		}
 	}
 

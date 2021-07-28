@@ -1,7 +1,8 @@
 
-var VAR_TYPE_WORLD = "world"
-var VAR_TYPE_BODY  = "body"
-var VAR_TYPE_JOINT = "joint"
+var VAR_TYPE_WORLD   = "world"
+var VAR_TYPE_BODY    = "body"
+var VAR_TYPE_JOINT   = "joint"
+var VAR_TYPE_FIXTURE = "fixture"
 
 class VarWorld
 {
@@ -31,5 +32,17 @@ class VarJoint
 	init()
 	{
 		this.joint = nil
+	}
+}
+
+class VarFixture
+{
+	init()
+	{
+		this.shape = nil
+
+		// filter
+		this.category = nil
+		this.not_collide = nil
 	}
 }

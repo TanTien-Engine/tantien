@@ -123,12 +123,13 @@ int w_Body_finalize(void* data)
     return sizeof(tt::Proxy<up::rigid::box2d::Body>);
 }
 
-void w_Body_add_shape()
+void w_Body_add_fixture()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto filled = ves_optboolean(2, false);
     auto mt = (sm::Matrix2D*)ves_toforeign(3);
+    auto filter = tt::list_to_int_array(4);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -215,7 +216,16 @@ void w_Body_add_shape()
         assert(0);
     }
 
-    body->AddShape(phy_shape);
+    int category = 0;
+    std::vector<int> not_collide;
+    if (!filter.empty())
+    {
+        category = filter[0];
+        for (size_t i = 1, n = filter.size(); i < n; ++i) {
+            not_collide.push_back(filter[i]);
+        }
+    }
+    body->AddFixture(phy_shape, category, not_collide);
 }
 
 void w_Body_set_gravity_scale()
@@ -549,7 +559,7 @@ VesselForeignMethodFn PhysicsBindMethod(const char* signature)
     if (strcmp(signature, "World.remove_joint(_)") == 0) return w_World_remove_joint;
     if (strcmp(signature, "World.query_by_pos(_)") == 0) return w_World_query_by_pos;
 
-    if (strcmp(signature, "Body.add_shape(_,_,_)") == 0) return w_Body_add_shape;
+    if (strcmp(signature, "Body.add_fixture(_,_,_,_)") == 0) return w_Body_add_fixture;
     if (strcmp(signature, "Body.set_gravity_scale(_)") == 0) return w_Body_set_gravity_scale;
     if (strcmp(signature, "Body.set_density(_)") == 0) return w_Body_set_density;
     if (strcmp(signature, "Body.set_restitution(_)") == 0) return w_Body_set_restitution;

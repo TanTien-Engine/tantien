@@ -27,7 +27,8 @@ foreign class Body
 {
 	init(type, flag) {}
 
-	foreign add_shape(shape, filled, mat)
+	// filter : [ category, no_collide_0, no_collide_1, ... ]
+	foreign add_fixture(shape, filled, mat, filter)
 
 	foreign set_gravity_scale(density)
 

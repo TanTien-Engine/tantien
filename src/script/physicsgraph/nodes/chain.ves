@@ -73,7 +73,7 @@ class Chain is Node
 
 			var body = Body.init("dynamic", -1)
 			var geo = v_geo.value.symbol
-			body.add_shape(geo.shape, geo.render_style["fill"].value, nil)
+			body.add_fixture(geo.shape, geo.render_style["fill"].value, nil, [])
 
 			body.set_density(this.query_param("density").value)
 			body.set_friction(this.query_param("friction").value)

@@ -30,6 +30,25 @@ std::vector<sm::vec2> list_to_vec2_array(int index)
 	return ret;
 }
 
+std::vector<int> list_to_int_array(int index)
+{
+    std::vector<int> ret;
+    if (ves_type(index) != VES_TYPE_LIST) {
+        return ret;
+    }
+
+    const int num = ves_len(index);
+    ret.reserve(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_geti(index, i);
+        ret.push_back((int)ves_tonumber(-1));
+        ves_pop(1);        
+    }
+
+    return ret;
+}
+
 uint32_t list_to_abgr(int index)
 {
     if (ves_type(index) != VES_TYPE_LIST) {
