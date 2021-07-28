@@ -238,18 +238,32 @@ node38.var_type = "body"
 
 _editor.add_node(node38, 414.91472956648, 69.502305683898)
 
+var node39 = ::blueprint::nodes::boolean::Boolean()
+
+node39.value = true
+
+_editor.add_node(node39, -298.15933519977, 469.27322083913)
+
+var node40 = ::blueprint::nodes::boolean::Boolean()
+
+node40.value = true
+
+_editor.add_node(node40, 248.28997802734, 496.21276855469)
+
 Blueprint.connect(node37, "var", node7, "var")
 Blueprint.connect(node7, "var", node8, "var")
 Blueprint.connect(node33, "var", node6, "radius")
 Blueprint.connect(node34, "var", node6, "count")
 Blueprint.connect(node35, "var", node6, "teeth")
 Blueprint.connect(node36, "var", node6, "color")
+Blueprint.connect(node39, "v", node6, "slope")
 Blueprint.connect(node6, "spr", node20, "var")
 Blueprint.connect(node20, "var", node22, "var")
 Blueprint.connect(node29, "var", node0, "radius")
 Blueprint.connect(node30, "var", node0, "count")
 Blueprint.connect(node31, "var", node0, "teeth")
 Blueprint.connect(node32, "var", node0, "color")
+Blueprint.connect(node40, "v", node0, "slope")
 Blueprint.connect(node0, "spr", node21, "var")
 Blueprint.connect(node21, "var", node23, "var")
 Blueprint.connect(node23, "var", node25, "shape")

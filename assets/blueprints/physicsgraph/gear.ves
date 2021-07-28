@@ -116,19 +116,26 @@ var node17 = ::blueprint::nodes::input::Input()
 node17.var_name = "pos"
 node17.var_type = "num2"
 
-_editor.add_node(node17, 108.67702893975, 351.93207083458)
+_editor.add_node(node17, 114.1315743943, 346.47752538003)
 
 var node18 = ::blueprint::nodes::input::Input()
 
 node18.var_name = "ground_body"
 node18.var_type = "body"
 
-_editor.add_node(node18, 91.263636363632, 41.672727272722)
+_editor.add_node(node18, 92.172727272723, 45.309090909086)
+
+var node19 = ::blueprint::nodes::boolean::Boolean()
+
+node19.value = true
+
+_editor.add_node(node19, -118.23882233052, 279.32883538872)
 
 Blueprint.connect(node2, "var", node1, "radius")
 Blueprint.connect(node3, "var", node1, "count")
 Blueprint.connect(node15, "var", node1, "teeth")
 Blueprint.connect(node16, "var", node1, "color")
+Blueprint.connect(node19, "v", node1, "slope")
 Blueprint.connect(node1, "spr", node4, "spr")
 Blueprint.connect(node17, "var", node4, "translate")
 Blueprint.connect(node4, "spr", node0, "var")
