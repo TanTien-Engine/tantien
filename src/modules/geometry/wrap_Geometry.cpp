@@ -278,7 +278,7 @@ void w_Polyline_set_vertices()
 void w_Polyline_get_closed()
 {
     auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
-    ves_pushboolean(polyline->GetClosed());
+    ves_set_boolean(0, polyline->GetClosed());
 }
 
 void w_Polyline_set_closed()
