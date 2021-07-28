@@ -7,6 +7,7 @@ import "scenegraph.variant" for VAR_TYPE_SPRITE
 import "rendergraph.variant" for VarTexture
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.nodes.draw_geometry" for DrawGeometry
+import "physicsgraph.variant" for VarFixture
 import "maths" for Matrix2D, Float2
 import "render" for Texture2D
 import "graphics" for Painter, Graphics
@@ -85,6 +86,8 @@ class DrawSprite is Node
 				this.draw_tex(spr.symbol, mat)
 			} else if (spr.symbol is VarGeo) {
 				this.draw_geo(spr.symbol, mat, pt, spr.color)
+			} else if (spr.symbol is VarFixture) {
+				this.draw_spr(spr.symbol.shape.value, mat, pt)
 			}
 		}
 		else

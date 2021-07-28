@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER, VAR_TY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VarGeo, VAR_TYPE_GEO
-import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_FIXTURE, VarBody
+import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_FIXTURE, VarBody, VarFixture
 import "scenegraph.variant" for VarSprite, VAR_TYPE_SPRITE
 import "physics" for Body as tt_Body
 import "maths" for Matrix2D
@@ -133,6 +133,11 @@ class Body is Node
 					var fill = spr.symbol.render_style["fill"]
 					body.add_fixture(spr.symbol.shape, fill, mat, filter)
 				} 
+				else if (spr.symbol is VarFixture) 
+				{
+					var c_filter = this.calc_filter(spr.symbol)
+					this.build_body(spr.symbol.shape, body, mat, c_filter)
+				}
 				else if (spr.size) 
 				{
 					var w = spr.size.x
@@ -154,19 +159,23 @@ class Body is Node
 		else if (v_geo.type == VAR_TYPE_FIXTURE)
 		{
 			var fixture = v_geo.value
-
-			var filter = []
-			if (fixture.category) {
-				filter.add(fixture.category)
-				if (fixture.not_collide) {
-					for (var id in fixture.not_collide) {
-						filter.add(id)
-					}
-				}
-			}
-
+			var filter = this.calc_filter(fixture)
 			this.build_body(fixture.shape, body, mat, filter)
 		}
+	}
+
+	calc_filter(fixture)
+	{
+		var filter = []
+		if (fixture.category) {
+			filter.add(fixture.category)
+			if (fixture.not_collide) {
+				for (var id in fixture.not_collide) {
+					filter.add(id)
+				}
+			}
+		}
+		return filter
 	}
 
 	calc_mat(spr, mat)
