@@ -207,6 +207,10 @@ class DrawGeometry is Node
 	draw_polyline(pt, geo, col)
 	{
 		var verts = geo.shape.get_vertices()
+		if (verts.count < 2) {
+			return
+		}
+
 		if (geo.pos) {
 			for (var i = 0; i < verts.count; i = i + 2) {
 				verts[i] = verts[i] + geo.pos[0]
@@ -214,6 +218,11 @@ class DrawGeometry is Node
 			}
 		}
 
+		if (geo.shape.get_closed()) {
+			verts.add(verts[0])
+			verts.add(verts[1])
+		}
+		
 		pt.add_polyline(verts, col, 2.0)
 	}
 
