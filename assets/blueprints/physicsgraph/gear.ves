@@ -1,167 +1,129 @@
-var node0 = ::geograph::nodes::circle::Circle()
-node0.query_param("x").value = 0
-node0.query_param("y").value = 0
-node0.query_param("r").value = 100
-node0.query_param("fill").value = false
-node0.query_param("color").value.set(1, 0, 0)
+var node0 = ::blueprint::nodes::store::Store()
 
-_editor.add_node(node0, -2.9593444583215, 62.425654062013)
+node0.var_name = "gear"
 
-var node1 = ::geograph::nodes::polygon::Polygon()
-node1.query_param("vertices").value = [ 0, 10, 25, 5, 25, -5, 0, -10 ]
-node1.query_param("color").value.set(0, 0, 0)
+_editor.add_node(node0, 384.10943760422, 420.34462957146)
 
-_editor.add_node(node1, -140.19892667841, -146.17091870724)
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../geograph/gear.ves")
 
-var node2 = ::scenegraph::nodes::sprite::Sprite()
+_editor.add_node(node1, 74.305150869641, 421.62692215662)
 
-_editor.add_node(node2, 161.55146380567, 151.1055687862)
+var node2 = ::blueprint::nodes::input::Input()
 
-var node3 = ::scenegraph::nodes::sprite::Sprite()
+node2.var_name = "radius"
+node2.var_type = "num"
 
-_editor.add_node(node3, 13.241923320033, -116.74568570636)
+_editor.add_node(node2, -105.76203512285, 462.60774193751)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "count"
+node3.var_type = "int"
+
+_editor.add_node(node3, -107.62477802366, 391.20177177959)
 
 var node4 = ::scenegraph::nodes::transform::Transform()
 
-_editor.add_node(node4, 205.0529484948, -258.1361051881)
+_editor.add_node(node4, 254.13156190982, 390.11386335389)
 
-var node5 = ::blueprint::nodes::store::Store()
+var node5 = ::blueprint::nodes::input::Input()
 
-node5.var_name = "radius"
+node5.var_name = "pos"
+node5.var_type = "num2"
 
-_editor.add_node(node5, -527.54091877582, 121.36550424118)
+_editor.add_node(node5, 111.40430166702, 329.20479810731)
 
-var node6 = ::blueprint::nodes::sin::Sin()
+var node6 = ::blueprint::nodes::input::Input()
 
-_editor.add_node(node6, -250.7039637317, -376.41335300821)
+node6.var_name = "ground_body"
+node6.var_type = "body"
 
-var node7 = ::blueprint::nodes::multiply::Multiply()
+_editor.add_node(node6, 94.899999999996, 44.399999999994)
 
-_editor.add_node(node7, -123.36225721041, -357.37274876162)
+var node7 = ::blueprint::nodes::load::Load()
 
-var node8 = ::blueprint::nodes::load::Load()
+node7.var_name = "gear"
 
-node8.var_name = "radius"
+_editor.add_node(node7, 763.57993552881, 308.84615047647)
 
-_editor.add_node(node8, -513.60859572475, -168.07532895044)
+var node8 = ::blueprint::nodes::output::Output()
 
-var node9 = ::blueprint::nodes::cos::Cos()
+node8.var_name = "gear"
+node8.var_type = "sprite"
 
-_editor.add_node(node9, -251.62294151943, -274.1673249606)
+_editor.add_node(node8, 897.47258508511, 311.09035078478)
 
-var node10 = ::blueprint::nodes::multiply::Multiply()
+var node9 = ::physicsgraph::nodes::body::Body()
+node9.query_param("type").value = "dynamic"
+node9.query_param("gravity").value = 1
+node9.query_param("density").value = 1.0230346918106
+node9.query_param("restitution").value = 0.71192353963852
+node9.query_param("friction").value = 0.2
 
-_editor.add_node(node10, -119.74131867731, -251.07522384089)
+_editor.add_node(node9, 233.30738708651, 174.7206299623)
 
-var node11 = ::blueprint::nodes::combine::Combine()
+var node10 = ::physicsgraph::nodes::revolute_joint::RevoluteJoint()
+node10.query_param("limit").value = false
+node10.query_param("lower").value = -0.1
+node10.query_param("upper").value = 0.1
+node10.query_param("motor").value = false
+node10.query_param("torque").value = 10
+node10.query_param("speed").value = 0
 
-_editor.add_node(node11, 23.856504798128, -334.16240954838)
+_editor.add_node(node10, 226.03527005118, -48.790720559557)
 
-var node12 = ::blueprint::nodes::loop_eval::LoopEval()
+var node11 = ::blueprint::nodes::output::Output()
 
-_editor.add_node(node12, 360.60091636952, -173.70009582318)
+node11.var_name = "body"
+node11.var_type = "body"
 
-var node13 = ::blueprint::nodes::number::Number()
+_editor.add_node(node11, 900.42393921724, 254.27318273027)
 
-node13.value = 6.2831852
+var node12 = ::blueprint::nodes::output::Output()
 
-_editor.add_node(node13, -727.05773922447, -289.63319934537)
+node12.var_name = "joint"
+node12.var_type = "joint"
 
-var node14 = ::blueprint::nodes::divide::Divide()
+_editor.add_node(node12, 362.63605348758, 29.564169835916)
 
-_editor.add_node(node14, -583.51838894919, -315.44563780475)
+var node13 = ::blueprint::nodes::store::Store()
 
-var node15 = ::blueprint::nodes::multiply::Multiply()
+node13.var_name = "body"
 
-_editor.add_node(node15, -439.16211576991, -317.03774683303)
+_editor.add_node(node13, 372.26973726085, 224.27459939201)
 
-var node16 = ::blueprint::nodes::subtract::Subtract()
+var node14 = ::blueprint::nodes::load::Load()
 
-_editor.add_node(node16, -365.3120619776, -186.75047756226)
+node14.var_name = "body"
 
-var node17 = ::blueprint::nodes::number::Number()
+_editor.add_node(node14, 767.45897284665, 255.52906479283)
 
-node17.value = 2.3375787734985
+var node15 = ::blueprint::nodes::load::Load()
 
-_editor.add_node(node17, -512.000117389, -224.31623013766)
+node15.var_name = "body"
 
-var node18 = ::scenegraph::nodes::combine::Combine()
+_editor.add_node(node15, 91.305984662782, -12.331504157378)
 
-_editor.add_node(node18, 501.11465829896, -109.35511514963)
+var node16 = ::blueprint::nodes::load::Load()
 
-var node19 = ::blueprint::nodes::input::Input()
+node16.var_name = "gear"
 
-node19.var_name = "radius"
-node19.var_type = "num"
+_editor.add_node(node16, 100.6224223996, 230.78243640238)
 
-_editor.add_node(node19, -686.70786354758, 120.68943786621)
-
-var node20 = ::blueprint::nodes::load::Load()
-
-node20.var_name = "radius"
-
-_editor.add_node(node20, -142.35390000724, 132.40551252213)
-
-var node21 = ::blueprint::nodes::input::Input()
-
-node21.var_name = "count"
-node21.var_type = "int"
-
-_editor.add_node(node21, -682.65159148358, 45.26642246494)
-
-var node22 = ::blueprint::nodes::store::Store()
-
-node22.var_name = "count"
-
-_editor.add_node(node22, -529.0385971012, 44.561712779465)
-
-var node23 = ::blueprint::nodes::load::Load()
-
-node23.var_name = "count"
-
-_editor.add_node(node23, -724.01979758523, -349.54797085849)
-
-var node24 = ::blueprint::nodes::load::Load()
-
-node24.var_name = "count"
-
-_editor.add_node(node24, 205.07111150568, -166.82069813121)
-
-var node25 = ::blueprint::nodes::output::Output()
-
-node25.var_name = "spr"
-node25.var_type = "sprite"
-
-_editor.add_node(node25, 638.63170758521, -88.259634831674)
-
-Blueprint.connect(node21, "var", node22, "var")
-Blueprint.connect(node22, "var", node24, "var")
-Blueprint.connect(node22, "var", node23, "var")
-Blueprint.connect(node19, "var", node5, "var")
-Blueprint.connect(node5, "var", node20, "var")
-Blueprint.connect(node20, "var", node0, "raduis")
-Blueprint.connect(node0, "geo", node2, "symbol")
-Blueprint.connect(node5, "var", node8, "var")
-Blueprint.connect(node8, "var", node16, "a")
-Blueprint.connect(node17, "v", node16, "b")
-Blueprint.connect(node13, "v", node14, "a")
-Blueprint.connect(node23, "var", node14, "b")
-Blueprint.connect(node14, "v", node15, "a")
-Blueprint.connect(node12, "curr_item", node15, "b")
-Blueprint.connect(node15, "v", node9, "v")
-Blueprint.connect(node16, "v", node10, "a")
-Blueprint.connect(node9, "v", node10, "b")
-Blueprint.connect(node15, "v", node6, "v")
-Blueprint.connect(node16, "v", node7, "a")
-Blueprint.connect(node6, "v", node7, "b")
-Blueprint.connect(node10, "v", node11, "x")
-Blueprint.connect(node7, "v", node11, "y")
-Blueprint.connect(node1, "geo", node3, "symbol")
-Blueprint.connect(node3, "spr", node4, "spr")
-Blueprint.connect(node11, "xy", node4, "translate")
-Blueprint.connect(node15, "v", node4, "rotate")
-Blueprint.connect(node24, "var", node12, "count")
-Blueprint.connect(node4, "spr", node12, "eval")
-Blueprint.connect(node2, "spr", node18, "child0")
-Blueprint.connect(node12, "result", node18, "child1")
-Blueprint.connect(node18, "parent", node25, "var")
+Blueprint.connect(node2, "var", node1, "radius")
+Blueprint.connect(node3, "var", node1, "count")
+Blueprint.connect(node1, "spr", node4, "spr")
+Blueprint.connect(node5, "var", node4, "translate")
+Blueprint.connect(node4, "spr", node0, "var")
+Blueprint.connect(node0, "var", node16, "var")
+Blueprint.connect(node16, "var", node9, "geos")
+Blueprint.connect(node9, "body", node13, "var")
+Blueprint.connect(node13, "var", node15, "var")
+Blueprint.connect(node6, "var", node10, "body_a")
+Blueprint.connect(node15, "var", node10, "body_b")
+Blueprint.connect(node10, "joint", node12, "var")
+Blueprint.connect(node13, "var", node14, "var")
+Blueprint.connect(node14, "var", node11, "var")
+Blueprint.connect(node0, "var", node7, "var")
+Blueprint.connect(node7, "var", node8, "var")
