@@ -1,0 +1,40 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_BOOLEAN
+
+class BranchEval is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "cond",  VAR_TYPE_BOOLEAN),
+			Pin(this, "true",  VAR_TYPE_ANY),			
+			Pin(this, "false", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "result", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx) 
+	{
+		var v_cond = Blueprint.calc_input_value(this, 0)
+		if (v_cond and v_cond.value) {
+			return Blueprint.calc_input_value(this, 1)
+		} else {
+			return Blueprint.calc_input_value(this, 2)
+		}
+	}
+}
