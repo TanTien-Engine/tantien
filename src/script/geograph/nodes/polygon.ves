@@ -32,9 +32,6 @@ class Polygon is Node
 
 		this.layout()
 
-		this.geo = nil
-		this.geo_dirty = false
-
 		this.editor_polyline = Array()
 	}
 
@@ -43,40 +40,22 @@ class Polygon is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}	
-		this.geo_dirty = true
-	}
-
-	on_node_dirty()
-	{
-		this.geo_dirty = true
 	}
 	
 	calc_value(idx)
 	{
-		var geo = this.get_geo()
+		var geo = VarGeo()
+		geo.shape = tt_Polygon.init()
+		this.update_geo(geo)
 		return Variant(VAR_TYPE_GEO, geo)
 	}
 
 	geo_solver_gen(scene)
 	{
-		var geo = this.get_geo()
+		var geo = VarGeo()
+		geo.shape = tt_Polygon.init()
+		this.update_geo(geo)
 		geo.geo_id = scene.add_geo(geo.shape)
-	}
-
-	get_geo()
-	{
-		if (!this.geo) 
-		{
-			this.geo = VarGeo()
-			this.geo.shape = tt_Polygon.init()
-			this.update_geo(this.geo)
-		}
-		else if (this.geo_dirty)
-		{
-			this.update_geo(this.geo)
-		}
-
-		return this.geo
 	}
 
 	update_geo(geo)
@@ -117,8 +96,6 @@ class Polygon is Node
 		}
 
 		geo.render_style["color"] = this.query_param("color").value.clone()
-
-		this.geo_dirty = false
 	}
 
 	bind_editor()
@@ -190,7 +167,6 @@ class Polygon is Node
 			this.params[0].value.add(c[1])
 		}
 
-		this.geo_dirty = true
 		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }
