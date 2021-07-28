@@ -69,7 +69,7 @@ class DrawSprite is Node
 		}
 		else if (v_obj.type == VAR_TYPE_GEO)
 		{
-			this.draw_geo(v_obj.value, nil, pt)
+			this.draw_geo(v_obj.value, nil, pt, nil)
 		}
 	}
 
@@ -84,7 +84,7 @@ class DrawSprite is Node
 			if (spr.symbol is VarTexture) {
 				this.draw_tex(spr.symbol, mat)
 			} else if (spr.symbol is VarGeo) {
-				this.draw_geo(spr.symbol, mat, pt)
+				this.draw_geo(spr.symbol, mat, pt, spr.color)
 			}
 		}
 		else
@@ -118,15 +118,24 @@ class DrawSprite is Node
 		}
 	}
 
-	draw_geo(v_geo, mat, pt)
+	draw_geo(v_geo, mat, pt, color)
 	{
 		var col = [255, 255, 255, 255]
 
-		var geo_col = v_geo.render_style["color"]
-		if (geo_col) {
-			col[0] = col[0] * geo_col.x
-			col[1] = col[1] * geo_col.y
-			col[2] = col[2] * geo_col.z
+		if (color)
+		{
+			col[0] = col[0] * color.x
+			col[1] = col[1] * color.y
+			col[2] = col[2] * color.z
+		}
+		else
+		{
+			var geo_col = v_geo.render_style["color"]
+			if (geo_col) {
+				col[0] = col[0] * geo_col.x
+				col[1] = col[1] * geo_col.y
+				col[2] = col[2] * geo_col.z
+			}
 		}
 
 		var shape = v_geo.shape

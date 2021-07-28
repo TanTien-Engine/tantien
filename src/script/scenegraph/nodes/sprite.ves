@@ -1,12 +1,12 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 import "rendergraph.variant" for VAR_TYPE_TEXTURE
 import "geograph.variant" for VAR_TYPE_GEO
 import "maths" for Matrix2D
-import "maths.vector" for Vector2
+import "maths.vector" for Vector2, Vector3
 
 class Sprite is Node
 {
@@ -16,7 +16,8 @@ class Sprite is Node
 
 		this.imports = [
 			Pin(this, "symbol", [ VAR_TYPE_TEXTURE, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "size", VAR_TYPE_NUMBER2),			
+			Pin(this, "size",  VAR_TYPE_NUMBER2),
+			Pin(this, "color", VAR_TYPE_NUMBER3),			
 		]
 		this.exports = [
 			Pin(this, "spr", [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
@@ -88,6 +89,12 @@ class Sprite is Node
 			var w = tex.get_width()
 			var h = tex.get_height()
 			spr.size = Vector2(w, h)
+		}
+
+		// color
+		var v_col = Blueprint.calc_input_value(this, 2)
+		if (v_col) {
+			spr.color = Vector3(v_col.value)
 		}
 
 		return Variant(VAR_TYPE_SPRITE, spr)
