@@ -288,6 +288,26 @@ void w_Polyline_set_closed()
     polyline->SetClosed(is_closed);
 }
 
+void w_Polyline_resample()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    float length = (float)ves_tonumber(1);
+    auto pts = polyline->Resample(length);
+
+    ves_pop(2);
+    ves_newlist(pts.size() * 2);
+    for (int i = 0, n = pts.size(); i < n; ++i)
+    {
+        ves_pushnumber(pts[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(pts[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
 void w_Polygon_allocate()
 {
     auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
@@ -469,6 +489,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
     if (strcmp(signature, "Polyline.get_closed()") == 0) return w_Polyline_get_closed;
     if (strcmp(signature, "Polyline.set_closed(_)") == 0) return w_Polyline_set_closed;
+    if (strcmp(signature, "Polyline.resample(_)") == 0) return w_Polyline_resample;
 
     if (strcmp(signature, "Polygon.clone()") == 0) return w_Polygon_clone;
     if (strcmp(signature, "Polygon.get_vertices()") == 0) return w_Polygon_get_vertices;

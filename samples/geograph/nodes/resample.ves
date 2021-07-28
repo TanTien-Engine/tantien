@@ -1,0 +1,24 @@
+var node0 = ::geograph::nodes::polyline::Polyline()
+node0.query_param("vertices").value = [ -565, 15.5, -253, 219.5, 243, 302.5, 472, 32.5, 450, -326.5 ]
+node0.query_param("closed").value = false
+
+_editor.add_node(node0, -318, 46.5)
+
+var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node1.query_param("skip").value = false
+
+_editor.add_node(node1, 118, 72.5)
+
+var node2 = ::geograph::nodes::resample::Resample()
+node2.query_param("length").value = 129.82838439941
+
+_editor.add_node(node2, -176.68455332864, 1.380317488235)
+
+var node3 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node3, -32.393539428711, 60.213165283203)
+
+Blueprint.connect(node0, "geo", node2, "polyline")
+Blueprint.connect(node0, "geo", node3, "in0")
+Blueprint.connect(node2, "points", node3, "in1")
+Blueprint.connect(node3, "list", node1, "geos")

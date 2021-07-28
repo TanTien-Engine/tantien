@@ -1,0 +1,51 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_GEO
+import "maths.vector" for Vector2
+import "geometry" for Polyline
+
+class Resample is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "polyline", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "points", VAR_TYPE_ARRAY),
+		]
+
+		this.params.add(NodeParam("length", 100.0, { "region" : 1000 }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_polyline = Blueprint.calc_input_value(this, 0)
+		if (!v_polyline or !(v_polyline.value.shape is Polyline)) {
+			return nil
+		}
+
+		var len = this.query_param("length").value
+		var pts = v_polyline.value.shape.resample(len)
+
+		var ret = []
+		for (var i = 0; i < pts.count; i = i + 2) {
+			ret.add(Vector2(pts[i], pts[i + 1]))
+		}
+		return Variant(ret)
+	}
+}
