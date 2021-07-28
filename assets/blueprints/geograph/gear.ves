@@ -94,7 +94,7 @@ var node19 = ::blueprint::nodes::input::Input()
 node19.var_name = "radius"
 node19.var_type = "num"
 
-_editor.add_node(node19, -696.95306537806, 217.67734852805)
+_editor.add_node(node19, -683.95306537806, 218.67734852805)
 
 var node20 = ::blueprint::nodes::load::Load()
 
@@ -107,7 +107,7 @@ var node21 = ::blueprint::nodes::input::Input()
 node21.var_name = "count"
 node21.var_type = "int"
 
-_editor.add_node(node21, -692.89679331406, 142.25433312678)
+_editor.add_node(node21, -685.89679331406, 141.25433312678)
 
 var node22 = ::blueprint::nodes::store::Store()
 
@@ -134,67 +134,100 @@ node25.var_type = "sprite"
 
 _editor.add_node(node25, 638.63170758521, -88.259634831674)
 
-var node26 = ::blueprint::nodes::input::Input()
+var node26 = ::blueprint::nodes::store::Store()
 
 node26.var_name = "color"
-node26.var_type = "num3"
 
-_editor.add_node(node26, -691.98311686954, 69.039393816136)
+_editor.add_node(node26, -538.3205341959, -0.2204314912498)
 
-var node27 = ::blueprint::nodes::store::Store()
+var node27 = ::blueprint::nodes::load::Load()
 
 node27.var_name = "color"
 
-_editor.add_node(node27, -545.08236740401, 69.651844992597)
+_editor.add_node(node27, 136.85195503264, 100.537709759)
 
 var node28 = ::blueprint::nodes::load::Load()
 
 node28.var_name = "color"
 
-_editor.add_node(node28, 136.85195503264, 100.537709759)
+_editor.add_node(node28, -109.4290367029, -113.51187701786)
 
-var node29 = ::blueprint::nodes::load::Load()
+var node29 = ::blueprint::nodes::combine::Combine()
 
-node29.var_name = "color"
+_editor.add_node(node29, 22.795033432978, -513.47645491203)
 
-_editor.add_node(node29, -109.4290367029, -113.51187701786)
+var node30 = ::blueprint::nodes::load::Load()
 
-var node30 = ::blueprint::nodes::combine::Combine()
+node30.var_name = "radius"
 
-_editor.add_node(node30, 22.795033432978, -513.47645491203)
+_editor.add_node(node30, -287.50236325141, -458.1910244974)
 
-var node31 = ::blueprint::nodes::load::Load()
+var node31 = ::blueprint::nodes::divide::Divide()
 
-node31.var_name = "radius"
+_editor.add_node(node31, -153.61806863118, -477.19930283184)
 
-_editor.add_node(node31, -254.14708556641, -455.62523390625)
+var node32 = ::blueprint::nodes::number::Number()
 
-var node32 = ::blueprint::nodes::divide::Divide()
+node32.value = 48.859455108643
 
-_editor.add_node(node32, -120.26279094618, -474.63351224069)
+_editor.add_node(node32, -288.32878910327, -513.56292381058)
 
-var node33 = ::blueprint::nodes::number::Number()
+var node33 = ::blueprint::nodes::input::Input()
 
-node33.value = 48.859455108643
+node33.var_name = "teeth"
+node33.var_type = "num"
 
-_editor.add_node(node33, -254.97351141827, -510.99713321943)
+_editor.add_node(node33, -687.3909220133, 70.250574170692)
 
+var node34 = ::blueprint::nodes::store::Store()
+
+node34.var_name = "teeth"
+
+_editor.add_node(node34, -541.17394753563, 71.432140370403)
+
+var node35 = ::blueprint::nodes::input::Input()
+
+node35.var_name = "color"
+node35.var_type = "num3"
+
+_editor.add_node(node35, -685.22128366143, -0.83288266771081)
+
+var node36 = ::blueprint::nodes::load::Load()
+
+node36.var_name = "teeth"
+
+_editor.add_node(node36, -286.31090336559, -570.99749521641)
+
+var node37 = ::blueprint::nodes::divide::Divide()
+
+_editor.add_node(node37, -154.93207649647, -595.66468772642)
+
+var node38 = ::blueprint::nodes::number::Number()
+
+node38.value = 25
+
+_editor.add_node(node38, -285.78738800324, -628.50679507892)
+
+Blueprint.connect(node35, "var", node26, "var")
+Blueprint.connect(node26, "var", node28, "var")
 Blueprint.connect(node26, "var", node27, "var")
-Blueprint.connect(node27, "var", node29, "var")
-Blueprint.connect(node27, "var", node28, "var")
+Blueprint.connect(node33, "var", node34, "var")
+Blueprint.connect(node34, "var", node36, "var")
+Blueprint.connect(node36, "var", node37, "a")
+Blueprint.connect(node38, "v", node37, "b")
+Blueprint.connect(node37, "v", node29, "x")
+Blueprint.connect(node37, "v", node29, "y")
 Blueprint.connect(node21, "var", node22, "var")
 Blueprint.connect(node22, "var", node24, "var")
 Blueprint.connect(node22, "var", node23, "var")
 Blueprint.connect(node19, "var", node5, "var")
-Blueprint.connect(node5, "var", node31, "var")
-Blueprint.connect(node31, "var", node32, "a")
-Blueprint.connect(node33, "v", node32, "b")
-Blueprint.connect(node32, "v", node30, "x")
-Blueprint.connect(node32, "v", node30, "y")
+Blueprint.connect(node5, "var", node30, "var")
+Blueprint.connect(node30, "var", node31, "a")
+Blueprint.connect(node32, "v", node31, "b")
 Blueprint.connect(node5, "var", node20, "var")
 Blueprint.connect(node20, "var", node0, "raduis")
 Blueprint.connect(node0, "geo", node2, "symbol")
-Blueprint.connect(node28, "var", node2, "color")
+Blueprint.connect(node27, "var", node2, "color")
 Blueprint.connect(node5, "var", node8, "var")
 Blueprint.connect(node8, "var", node16, "a")
 Blueprint.connect(node17, "v", node16, "b")
@@ -211,11 +244,11 @@ Blueprint.connect(node6, "v", node7, "b")
 Blueprint.connect(node10, "v", node11, "x")
 Blueprint.connect(node7, "v", node11, "y")
 Blueprint.connect(node1, "geo", node3, "symbol")
-Blueprint.connect(node29, "var", node3, "color")
+Blueprint.connect(node28, "var", node3, "color")
 Blueprint.connect(node3, "spr", node4, "spr")
 Blueprint.connect(node11, "xy", node4, "translate")
 Blueprint.connect(node15, "v", node4, "rotate")
-Blueprint.connect(node30, "xy", node4, "scale")
+Blueprint.connect(node29, "xy", node4, "scale")
 Blueprint.connect(node24, "var", node12, "count")
 Blueprint.connect(node4, "spr", node12, "eval")
 Blueprint.connect(node2, "spr", node18, "child0")
