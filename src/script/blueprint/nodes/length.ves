@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_ARRAY, VAR_TYPE_TABLE
 import "blueprint.blueprint" for Blueprint
 import "math" for Math
 
@@ -20,9 +20,20 @@ class Length is Node
 		this.layout()
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
 	calc_value(idx)
 	{
 		var v = Blueprint.calc_input_value(this, 0)
+		if (!v) {
+			return nil
+		}
+
 		if (v.type == VAR_TYPE_NUMBER2) {
 			var len = Math.sqrt(Math.pow(v.value.x, 2.0) + Math.pow(v.value.y, 2.0))
 			return Variant(VAR_TYPE_NUMBER, len)
@@ -32,6 +43,8 @@ class Length is Node
 		} else if (v.type == VAR_TYPE_NUMBER4) {
 			var len = Math.sqrt(Math.pow(v.value.x, 2.0) + Math.pow(v.value.y, 2.0) + Math.pow(v.value.z, 2.0) + Math.pow(v.value.w, 2.0))
 			return Variant(VAR_TYPE_NUMBER, len)
+		} else if (v.type == VAR_TYPE_ARRAY or v.type == VAR_TYPE_TABLE) {
+			return Variant(VAR_TYPE_INTEGER, v.value.count)
 		} else {
 			return nil
 		}

@@ -26,6 +26,15 @@ class Fetch is Node
 		this.index = nil
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
+		}
+	}
+
 	calc_value(idx)
 	{
 		if (idx == 0)

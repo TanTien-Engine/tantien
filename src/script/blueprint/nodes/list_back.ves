@@ -1,0 +1,42 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class ListBack is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY)
+		]
+		this.exports = [
+			Pin(this, "back", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+	
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+
+		if (!v_list.value.isEmpty) {
+			return Variant(v_list.value[v_list.value.count - 1])
+		} else {
+			return nil
+		}
+	}
+}
