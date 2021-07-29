@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_BOOLEAN
 import "blueprint.blueprint" for Blueprint
 
-class IsEmpty is Node
+class IsNull is Node
 {
 	init()
 	{
@@ -19,6 +19,13 @@ class IsEmpty is Node
 		this.layout()
 	}
 
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+	
 	calc_value(idx)
 	{
 		var v_in = Blueprint.calc_input_value(this, 0)
