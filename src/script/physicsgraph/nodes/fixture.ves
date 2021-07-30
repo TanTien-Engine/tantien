@@ -38,27 +38,49 @@ class Fixture is Node
 			return nil
 		}
 
-		var fixture = VarFixture()
-
-		fixture.shape = v_shape
+		var category = nil
+		var not_collide = nil
 
 		var v_category = Blueprint.calc_input_value(this, 1)
 		if (v_category) {
-			fixture.category = v_category.value
+			category = v_category.value
 		}
 
 		var v_not_collide = Blueprint.calc_input_value(this, 2)
 		if (v_not_collide) 
 		{
-			fixture.not_collide = []
+			not_collide = []
 			if (v_not_collide.type == VAR_TYPE_ARRAY) {
 				for (var id in v_not_collide.value) {
-					fixture.not_collide.add(id.value)
+					not_collide.add(id.value)
 				}
 			} else {
-				fixture.not_collide.add(v_not_collide.value)
+				not_collide.add(v_not_collide.value)
 			}
 		}
+
+		if (v_shape.type == VAR_TYPE_ARRAY)
+		{
+			var ret = []
+			for (var v in v_shape.value) {
+				ret.add(this.build_fixture(v, category, not_collide))
+			}
+			return Variant(ret)
+		}
+		else
+		{
+			return this.build_fixture(v_shape, category, not_collide)
+		}
+	}
+
+	build_fixture(v_shape, category, not_collide)
+	{
+		var fixture = VarFixture()
+
+		fixture.shape = v_shape
+
+		fixture.category = category
+		fixture.not_collide = not_collide
 
 		return Variant(VAR_TYPE_FIXTURE, fixture)
 	}
