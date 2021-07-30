@@ -2,7 +2,7 @@ var node0 = ::blueprint::nodes::store::Store()
 
 node0.var_name = "gear"
 
-_editor.add_node(node0, 384.10943760422, 420.34462957146)
+_editor.add_node(node0, 1051.8780326456, 531.08843122435)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../geograph/gear.ves")
@@ -25,7 +25,7 @@ _editor.add_node(node3, -123.7091243391, 496.09339296164)
 
 var node4 = ::scenegraph::nodes::transform::Transform()
 
-_editor.add_node(node4, 254.13156190982, 390.11386335389)
+_editor.add_node(node4, 911.98280157925, 502.51055756877)
 
 var node5 = ::blueprint::nodes::load::Load()
 
@@ -123,7 +123,7 @@ var node18 = ::blueprint::nodes::input::Input()
 node18.var_name = "pos"
 node18.var_type = "num2"
 
-_editor.add_node(node18, 117.97946729779, 342.89969599679)
+_editor.add_node(node18, 777.48359952921, 442.89969599679)
 
 var node19 = ::blueprint::nodes::input::Input()
 
@@ -132,12 +132,50 @@ node19.var_type = "body"
 
 _editor.add_node(node19, 91.948835462055, 45.788839560138)
 
+var node20 = ::blueprint::nodes::store::Store()
+
+node20.var_name = "shape"
+
+_editor.add_node(node20, 250.57342920224, 493.74925395871)
+
+var node21 = ::blueprint::nodes::load::Load()
+
+node21.var_name = "shape"
+
+_editor.add_node(node21, 505.98775998404, 580.52395069671)
+
+var node22 = ::physicsgraph::nodes::fixture::Fixture()
+
+_editor.add_node(node22, 640.11573829336, 524.92627255778)
+
+var node23 = ::blueprint::nodes::integer::Integer()
+
+node23.value = 1
+
+_editor.add_node(node23, 505.15163693313, 456.38778913311)
+
+var node24 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node24, 777.30587592007, 523.27335981889)
+
+var node25 = ::blueprint::nodes::integer::Integer()
+
+node25.value = 3
+
+_editor.add_node(node25, 505.80120934606, 523.5549492485)
+
 Blueprint.connect(node2, "var", node1, "radius")
 Blueprint.connect(node3, "var", node1, "count")
 Blueprint.connect(node15, "var", node1, "teeth_type")
 Blueprint.connect(node16, "var", node1, "teeth_size")
 Blueprint.connect(node17, "var", node1, "color")
-Blueprint.connect(node1, "spr", node4, "spr")
+Blueprint.connect(node1, "spr", node20, "var")
+Blueprint.connect(node20, "var", node21, "var")
+Blueprint.connect(node21, "var", node22, "shape")
+Blueprint.connect(node25, "v", node22, "category")
+Blueprint.connect(node23, "v", node22, "not_collide")
+Blueprint.connect(node22, "fixture", node24, "symbol")
+Blueprint.connect(node24, "spr", node4, "spr")
 Blueprint.connect(node18, "var", node4, "translate")
 Blueprint.connect(node4, "spr", node0, "var")
 Blueprint.connect(node0, "var", node14, "var")
