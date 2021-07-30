@@ -188,9 +188,9 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 
 ### physicsgraph
 
-![](./doc/geograph/physicsgraph/pyramid.gif)
+![](./doc/physicsgraph/screenshots/pyramid.gif)
 
-![](./doc/geograph/physicsgraph/clock.gif)
+![](./doc/physicsgraph/screenshots/clock.gif)
 
 #### Nodes
 * objects : World, Body, Fixture, BodyInfo, Chain,
