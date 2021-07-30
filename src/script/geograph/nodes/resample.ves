@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "maths.vector" for Vector2
@@ -15,6 +15,7 @@ class Resample is Node
 
 		this.imports = [
 			Pin(this, "polyline", VAR_TYPE_GEO),
+			Pin(this, "length",   VAR_TYPE_NUMBER),			
 		]
 		this.exports = [
 			Pin(this, "points", VAR_TYPE_ARRAY),
@@ -39,7 +40,14 @@ class Resample is Node
 			return nil
 		}
 
-		var len = this.query_param("length").value
+		var len = nil
+		var v_length = Blueprint.calc_input_value(this, 1)
+		if (v_length) {
+			len = v_length.value
+		} else {
+			len = this.query_param("length").value
+		}
+
 		var pts = v_polyline.value.shape.resample(len)
 
 		var ret = []
