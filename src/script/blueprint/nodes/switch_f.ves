@@ -1,0 +1,73 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_INTEGER
+
+class SwitchF is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "type",  VAR_TYPE_INTEGER),
+			Pin(this, "case0", VAR_TYPE_ANY),
+			Pin(this, "case1", VAR_TYPE_ANY),			
+		]
+		this.exports = [
+			Pin(this, "result", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx) 
+	{
+		var v_type = Blueprint.calc_input_value(this, 0)
+		if (!v_type) {
+			return Blueprint.calc_input_value(this, 1)
+		}
+
+		for (var i = 1; i < this.imports.count; i = i + 1) {
+			if (v_type.value == i - 1) {
+				return Blueprint.calc_input_value(this, i)
+			}
+		}
+
+		return nil
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input) {
+			this.update_imports()
+		}
+	}
+
+	update_imports()
+	{
+		while (this.imports.count > 3 and this.imports.back().conns.isEmpty) {
+			this.imports.pop_back()
+		}
+
+		if (!this.imports.back().conns.isEmpty) {
+			this.imports.add(Pin(this, "case%(this.imports.count - 1)", VAR_TYPE_ANY))
+		}
+
+		this.layout()
+	}	
+}
