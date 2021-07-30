@@ -93,7 +93,11 @@ class DrawSprite is Node
 			} else if (spr.symbol is VarGeo) {
 				this.draw_geo(spr.symbol, mat, pt, spr.color)
 			} else if (spr.symbol is VarFixture) {
-				this.draw_spr(spr.symbol.shape.value, mat, pt)
+				if (spr.symbol.shape.value.transform and !mat) {
+					this.draw_spr(spr.symbol.shape.value, spr.symbol.shape.value.transform, pt)
+				} else {
+					this.draw_spr(spr.symbol.shape.value, mat, pt)
+				}
 			}
 		}
 		else
