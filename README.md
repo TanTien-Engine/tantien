@@ -1,21 +1,20 @@
 # tantien
 
-Game engine.
+Data-driven game engine.
 
 ## Features
 
 ### Visual programming
-Nodes for everyone: shader, render pipeline, material, vfx, gui ...
+
+Nodes for everything: shader, render pipeline, material, vfx, gui, ai, geometric edit, postprocessing, physical modeling, image processing, trigger event, scene modeling...
+
+### Declarative programming
+
+Constraint-based, rule-based and functional programming.
 
 ### Procedural generation
-Procedural content generation
 
-### Data driven
-Use editors to generate each component
-
-### Fast iteration
-* Light c&cpp parts, more heavy on scripts
-* Edit assets at runtime directly
+Procedural content generation.
 
 ## Editors
 
@@ -28,13 +27,15 @@ Based for each editors
 * ...
 
 #### Nodes
-* math : Number, Number2, Number3, Number4, Matrix, Add, Subtract, Multiply, Divide, Radians, Sin, Cos, Clamp,
+* math : Boolean, Integer, Number, Number2, Number3, Number4, Matrix, Add, Subtract, Multiply, Divide, Radians, Sin, Cos, Clamp, Reciprocal, Negate, Abs, Length, Rect, Floor, Ceil,
+* logic : AND, OR, NOT,
 * camera : Camera2d, Camera3d, OrbitCamera, Lookat, Orthographic, Perspective,
 * transform : Scale, Rotate, Translate,
 * constant : Time, Viewport,
-* data : Array, Combine, Fetch, Merge, Split,
-* control : For,
-* tools : Commentary, Custom, Print, Proxy, Expand, Store, Load,
+* data : Array, Combine, Fetch, Merge, Split, ListClear, ListAdd, ListAddF, ListRemove, ListShift, ListPopBack, ListBack, IsEmpty,
+* control : flow
+Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
+* tools : Commentary, Custom, Print, Proxy, Expand, Store, Load, Variable, Swap, Assignment, Debug, IsNull, Cache, ClearCache,
 * subgraph : Input, Output, Property, Subgraph,
 
 ### rendergraph
@@ -62,6 +63,7 @@ Based for each editors
 * resource : Shader, Texture, Cubemap, RenderTarget, RenderBuffer, 
 * operate : Clear, Compute, Draw,
 * control : Pass,
+* tools : ShaderCode,
 
 ### terraingraph
 
@@ -78,14 +80,12 @@ Based for each editors
 * multiple brushes
 
 #### Nodes
-* generator : Constant, Gradient, Perlin, Worley,
+* generator : Gradient, Worley,
 * combiner : Combiner,
-* filter : Clamp, Gaussian, Incline, Inverter, ScaleBias, Step, Transform,
+* filter : Gaussian, Incline, ScaleBias, Step, Transform,
 * natural : Erosion, ThermalWeathering,
 * selector : SelectHeight, SelectSlope,
 * edit : Brush,
-* draw : Viewer,
-* tools : Shadergraph, 
 
 ### shadergraph
 
@@ -95,8 +95,9 @@ Based for each editors
 #### Nodes
 * input-geometry : Normal, TexCoord, WorldPos, 
 * utility-shader : FragColor, Uniform,
-* math : Cross, Dot, Negate, Normalize, Max, Min, Mix, Reflect, RotateX, RotateY, RotateZ, Pow, Sqrt,
-* tools : Parameter, SampleTexture, TBN,
+* math : Cross, Dot, Normalize, Max, Min, Mix, Reflect, RotateX, RotateY, RotateZ, Pow, Sqrt,
+* control : Kill, Return,
+* tools : Parameter, SampleTexture, TBN, ShaderGen, 
 
 ### sdfgraph
 
@@ -109,7 +110,7 @@ Based for each editors
 * primitive : Sphere, Box, RoundBox, BoxFrame, Torus, CappedTorus, Link, InfiniteCylinder, Cone, InfiniteCone, Plane, HexagonalPrism, TriangularPrism, Capsule, VerticalCapsule, VertCappedCylinder, CappedCylinder, RoundedCylinder, VertCappedCone, CappedCone, SolidAngle, VertRoundCone, RoundCone, Ellipsoid, Rhombus, Octahedron, Pyramid, Triangle, Quad,
 * operation-alterations : Elongate, Rounding, Onion,
 * operation-combinations : Union, Subtraction, Intersection, SmoothUnion, SmoothSubtraction, SmoothIntersection,
-* operation-positioning : Symmetry, InfiniteRepetition, FiniteRepetition,
+* operation-positioning : Translate, Scale, Rotate, Symmetry, InfiniteRepetition, FiniteRepetition,
 * operation-deformations and distortions : Displace, Twist, Bend,
 
 ### noisegraph
@@ -120,6 +121,7 @@ Based for each editors
 * noise : PerlinNoise, BillowedNoise, RidgedNoise,
 * turbulence : Turbulence, IqTurbulence, SwissTurbulence, JordanTurbulence, Erosion1Turbulence, Erosion2Turbulence, DistortTurbulence,
 * deriv : PerlinNoisePseudoDeriv, PerlinNoiseDeriv, NoiseDeriv,
+* tools : Dither,
 
 ### pbrgraph
 
@@ -151,7 +153,53 @@ Based for each editors
 * artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
 * uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
 * procedural-shapes : Checkerboard, Ellipse, Polygon, Rectangle, RoundedPolygon, RoundedRectangle,
-* tools : Shadergraph,
+
+### aigraph
+
+#### Nodes
+* behavior tree : Sequence, Selector, Parallel, Condition, Repeat,  
+* tools : BehaviorTree,
+
+### editorgraph
+
+#### Nodes
+* event : MouseLeftDown, MouseLeftUp, MouseRightDown, MouseRightUp, MouseLeftDrag, MouseMove, KeyPressed, KeyReleased, BlueprintChanged, LeaveRuntimeMode, EnterRuntimeMode,
+* tools : Trigger, CoordTrans, IsKeyPressed, Ticker, Dirty,
+
+### geograph
+
+#### Nodes
+* shapes : Line, Rect, Circle, Polyline, Polygon,
+* constraints : Distance,
+* operations : CopyAndTranslate, 
+* actions : Translate,
+* test : IsContain, IsIntersect,
+* tools : DrawGeometry, ConstraintSolver, AABB, Resample,
+
+### physicsgraph
+
+#### Nodes
+* objects : World, Body, Fixture, BodyInfo, Chain,
+* joints : RevoluteJoint, PrismaticJoint, DistanceJoint, MouseJoint, WheelJoint,
+* force : ApplyForce, ApplyTorque, ApplyLinearImpulse, ApplyAngularImpulse,
+* setter : SetLinearVelocity, SetTransform, SetMotorSpeed,
+* operate : Simulation, UpdateWorld, RemoveBody,
+* events : BeginContact, EndContact, PreSolve, PostSolve,
+* tools : BodySelector,
+
+### ppgraph
+
+#### Nodes
+* SweetFX : Ascii, Border, CAS, CRT, Cartoon, ChromaticAberration, Cineon, ColorMatrix, Curves, FakeHDR, FilmGrain, LUT, Levels, LiftGammaGain, LumaSharpen, Monochrome, Nostalgia, Splitscreen, Technicolor, Technicolor2, Tint, Tonemap, Vibrance, Vignette,
+* prod80 : ColorGamut, ColorSpaceCurves, CurvedLevels, ShadowsMidtonesHighlights, BlackAndWhite, ColorBalance, ColorIsolation, ColorTemperature, SaturationLimiter, SelectiveColor, SelectiveColor2, Technicolor3, LumaSharpen2,
+* components : GaussianHori, GaussianVert,
+
+### scenegraph
+
+#### Nodes
+* dataset : Sprite, Combine,
+* operations : Transform,
+* tools : DrawSprite,
 
 ## Building
 First clone the project & submodules:
