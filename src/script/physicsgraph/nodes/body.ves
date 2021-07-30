@@ -169,12 +169,16 @@ class Body is Node
 		var filter = []
 		if (fixture.category) {
 			filter.add(fixture.category)
-			if (fixture.not_collide) {
-				for (var id in fixture.not_collide) {
-					filter.add(id)
-				}
+		} else {
+			filter.add(0)		
+		}
+
+		if (fixture.not_collide) {
+			for (var id in fixture.not_collide) {
+				filter.add(id)
 			}
 		}
+
 		return filter
 	}
 
