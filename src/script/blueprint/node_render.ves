@@ -22,7 +22,8 @@ class NodeRender
 
 		Graphics.draw_painter(pt)
 
-		Graphics.draw_text(node.get_title() + "[%(node.calc_times)]", node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+//		Graphics.draw_text(node.get_title() + "[%(node.calc_times)]", node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+		Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
 	}
 
 	static draw_node_pins(node)
