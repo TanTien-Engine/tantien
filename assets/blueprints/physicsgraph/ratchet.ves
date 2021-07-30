@@ -24,7 +24,7 @@ node3.query_param("motor").value = true
 node3.query_param("torque").value = 1000
 node3.query_param("speed").value = 1
 
-_editor.add_node(node3, 545.47527005118, -26.16372055956)
+_editor.add_node(node3, 547.16869184134, -22.776876979237)
 
 var node4 = ::blueprint::nodes::load::Load()
 
@@ -102,7 +102,7 @@ var node16 = ::blueprint::nodes::output::Output()
 node16.var_name = "joint"
 node16.var_type = "joint"
 
-_editor.add_node(node16, 685.37605348758, 55.49116983592)
+_editor.add_node(node16, 827.62348386113, -59.097037964997)
 
 var node17 = ::physicsgraph::nodes::fixture::Fixture()
 
@@ -172,88 +172,106 @@ _editor.add_node(node28, 249.09355394284, 667.50570267587)
 
 var node29 = ::blueprint::nodes::input::Input()
 
-node29.var_name = "inner_teeth_type"
-node29.var_type = "int"
+node29.var_name = "inner_teeth_size"
+node29.var_type = "num"
 
-_editor.add_node(node29, 250.64099498958, 600.82745742963)
+_editor.add_node(node29, 253.64320465072, 590.23700479928)
 
 var node30 = ::blueprint::nodes::input::Input()
 
-node30.var_name = "inner_teeth_size"
-node30.var_type = "num"
+node30.var_name = "inner_color"
+node30.var_type = "num3"
 
-_editor.add_node(node30, 252.96019119535, 527.39976690569)
+_editor.add_node(node30, 254.31448680054, 525.51644304873)
 
 var node31 = ::blueprint::nodes::input::Input()
 
-node31.var_name = "inner_color"
-node31.var_type = "num3"
+node31.var_name = "outer_radius"
+node31.var_type = "num"
 
-_editor.add_node(node31, 253.63147334517, 462.67920515514)
+_editor.add_node(node31, -327.83864423553, 748.01511429502)
 
 var node32 = ::blueprint::nodes::input::Input()
 
-node32.var_name = "outer_radius"
-node32.var_type = "num"
+node32.var_name = "outer_count"
+node32.var_type = "int"
 
-_editor.add_node(node32, -327.83864423553, 748.01511429502)
+_editor.add_node(node32, -325.97585919799, 681.57651472161)
 
 var node33 = ::blueprint::nodes::input::Input()
 
-node33.var_name = "outer_count"
-node33.var_type = "int"
+node33.var_name = "outer_teeth_size"
+node33.var_type = "num"
 
-_editor.add_node(node33, -325.97585919799, 681.57651472161)
+_editor.add_node(node33, -327.28771986163, 554.68080912075)
 
 var node34 = ::blueprint::nodes::input::Input()
 
-node34.var_name = "outer_teeth_type"
-node34.var_type = "int"
+node34.var_name = "outer_color"
+node34.var_type = "num3"
 
-_editor.add_node(node34, -327.51475529118, 618.74369709083)
+_editor.add_node(node34, -327.43212382063, 487.91123063344)
 
 var node35 = ::blueprint::nodes::input::Input()
 
-node35.var_name = "outer_teeth_size"
-node35.var_type = "num"
+node35.var_name = "pos"
+node35.var_type = "num2"
 
-_editor.add_node(node35, -327.28771986163, 554.68080912075)
+_editor.add_node(node35, -43.404826747701, 827.20862702543)
 
 var node36 = ::blueprint::nodes::input::Input()
 
-node36.var_name = "outer_color"
-node36.var_type = "num3"
+node36.var_name = "ground_body"
+node36.var_type = "body"
 
-_editor.add_node(node36, -327.43212382063, 487.91123063344)
+_editor.add_node(node36, 413.46386098201, 65.543833099426)
 
-var node37 = ::blueprint::nodes::input::Input()
+var node37 = ::blueprint::nodes::integer::Integer()
 
-node37.var_name = "pos"
-node37.var_type = "num2"
+node37.value = 2
 
-_editor.add_node(node37, -43.404826747701, 827.20862702543)
+_editor.add_node(node37, -327.46152505249, 618.75538502999)
 
-var node38 = ::blueprint::nodes::input::Input()
+var node38 = ::blueprint::nodes::branch_f::BranchF()
 
-node38.var_name = "ground_body"
-node38.var_type = "body"
+_editor.add_node(node38, 727.76005871709, -191.40958934082)
 
-_editor.add_node(node38, 413.46386098201, 65.543833099426)
+var node39 = ::blueprint::nodes::input::Input()
 
-Blueprint.connect(node37, "var", node7, "var")
+node39.var_name = "motor"
+node39.var_type = "bool"
+
+_editor.add_node(node39, 225.99325614012, -157.07640522795)
+
+var node40 = ::physicsgraph::nodes::revolute_joint::RevoluteJoint()
+node40.query_param("limit").value = false
+node40.query_param("lower").value = -0.1
+node40.query_param("upper").value = 0.1
+node40.query_param("motor").value = false
+node40.query_param("torque").value = 0
+node40.query_param("speed").value = 0
+
+_editor.add_node(node40, 564.10290974295, -323.07700776785)
+
+var node41 = ::blueprint::nodes::load::Load()
+
+node41.var_name = "body"
+
+_editor.add_node(node41, 416.5716378579, -282.66647385529)
+
+Blueprint.connect(node35, "var", node7, "var")
 Blueprint.connect(node7, "var", node8, "var")
-Blueprint.connect(node32, "var", node6, "radius")
-Blueprint.connect(node33, "var", node6, "count")
-Blueprint.connect(node34, "var", node6, "teeth_type")
-Blueprint.connect(node35, "var", node6, "teeth_size")
-Blueprint.connect(node36, "var", node6, "color")
+Blueprint.connect(node31, "var", node6, "radius")
+Blueprint.connect(node32, "var", node6, "count")
+Blueprint.connect(node37, "v", node6, "teeth_type")
+Blueprint.connect(node33, "var", node6, "teeth_size")
+Blueprint.connect(node34, "var", node6, "color")
 Blueprint.connect(node6, "spr", node18, "var")
 Blueprint.connect(node18, "var", node20, "var")
 Blueprint.connect(node27, "var", node0, "radius")
 Blueprint.connect(node28, "var", node0, "count")
-Blueprint.connect(node29, "var", node0, "teeth_type")
-Blueprint.connect(node30, "var", node0, "teeth_size")
-Blueprint.connect(node31, "var", node0, "color")
+Blueprint.connect(node29, "var", node0, "teeth_size")
+Blueprint.connect(node30, "var", node0, "color")
 Blueprint.connect(node0, "spr", node19, "var")
 Blueprint.connect(node19, "var", node21, "var")
 Blueprint.connect(node21, "var", node23, "shape")
@@ -274,9 +292,15 @@ Blueprint.connect(node13, "var", node14, "var")
 Blueprint.connect(node11, "var", node12, "var")
 Blueprint.connect(node12, "var", node2, "geos")
 Blueprint.connect(node2, "body", node9, "var")
+Blueprint.connect(node9, "var", node41, "var")
+Blueprint.connect(node36, "var", node40, "body_a")
+Blueprint.connect(node41, "var", node40, "body_b")
 Blueprint.connect(node9, "var", node5, "var")
-Blueprint.connect(node38, "var", node3, "body_a")
+Blueprint.connect(node36, "var", node3, "body_a")
 Blueprint.connect(node5, "var", node3, "body_b")
-Blueprint.connect(node3, "joint", node16, "var")
+Blueprint.connect(node39, "var", node38, "cond")
+Blueprint.connect(node3, "joint", node38, "true")
+Blueprint.connect(node40, "joint", node38, "false")
+Blueprint.connect(node38, "result", node16, "var")
 Blueprint.connect(node9, "var", node4, "var")
 Blueprint.connect(node4, "var", node15, "var")
