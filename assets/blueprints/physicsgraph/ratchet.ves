@@ -14,15 +14,15 @@ node2.query_param("density").value = 1.0230346918106
 node2.query_param("restitution").value = 0
 node2.query_param("friction").value = 0
 
-_editor.add_node(node2, 94.35277551626, -17.42314689721)
+_editor.add_node(node2, 94.35277551626, -18.249593178202)
 
 var node3 = ::physicsgraph::nodes::revolute_joint::RevoluteJoint()
 node3.query_param("limit").value = false
 node3.query_param("lower").value = -0.1
 node3.query_param("upper").value = 0.1
-node3.query_param("motor").value = false
-node3.query_param("torque").value = 10
-node3.query_param("speed").value = 0
+node3.query_param("motor").value = true
+node3.query_param("torque").value = 1000
+node3.query_param("speed").value = 1
 
 _editor.add_node(node3, 545.47527005118, -26.16372055956)
 

@@ -11,7 +11,7 @@ var node1 = ::geograph::nodes::polygon::Polygon()
 node1.query_param("vertices").value = [ 0, 10, 25, 5, 25, -5, 0, -10 ]
 node1.query_param("color").value.set(0.25941535830498, 0.25776588916779, 0)
 
-_editor.add_node(node1, -288.93566224665, 28.189998021005)
+_editor.add_node(node1, -336.26849470345, 125.10960733731)
 
 var node2 = ::scenegraph::nodes::sprite::Sprite()
 
@@ -19,7 +19,7 @@ _editor.add_node(node2, 270.15060320872, 141.54338041109)
 
 var node3 = ::scenegraph::nodes::sprite::Sprite()
 
-_editor.add_node(node3, 21.50638612995, -91.952297276608)
+_editor.add_node(node3, 3.4748309083121, -91.952297276608)
 
 var node4 = ::scenegraph::nodes::transform::Transform()
 
@@ -150,7 +150,7 @@ var node28 = ::blueprint::nodes::load::Load()
 
 node28.var_name = "color"
 
-_editor.add_node(node28, -109.4290367029, -113.51187701786)
+_editor.add_node(node28, -137.97899913716, -112.76056221696)
 
 var node29 = ::blueprint::nodes::combine::Combine()
 
@@ -172,82 +172,74 @@ node32.value = 48.859455108643
 
 _editor.add_node(node32, -288.32878910327, -513.56292381058)
 
-var node33 = ::blueprint::nodes::input::Input()
+var node33 = ::blueprint::nodes::store::Store()
 
-node33.var_name = "teeth"
-node33.var_type = "num"
+node33.var_name = "teeth_size"
 
-_editor.add_node(node33, -687.3909220133, 70.250574170692)
+_editor.add_node(node33, -541.17394753563, 71.432140370403)
 
-var node34 = ::blueprint::nodes::store::Store()
+var node34 = ::blueprint::nodes::load::Load()
 
-node34.var_name = "teeth"
+node34.var_name = "teeth_size"
 
-_editor.add_node(node34, -541.17394753563, 71.432140370403)
+_editor.add_node(node34, -286.31090336559, -570.99749521641)
 
-var node35 = ::blueprint::nodes::input::Input()
+var node35 = ::blueprint::nodes::divide::Divide()
 
-node35.var_name = "color"
-node35.var_type = "num3"
+_editor.add_node(node35, -154.93207649647, -595.66468772642)
 
-_editor.add_node(node35, -685.22128366143, -0.83288266771081)
+var node36 = ::blueprint::nodes::number::Number()
 
-var node36 = ::blueprint::nodes::load::Load()
+node36.value = 25
 
-node36.var_name = "teeth"
+_editor.add_node(node36, -285.78738800324, -628.50679507892)
 
-_editor.add_node(node36, -286.31090336559, -570.99749521641)
+var node37 = ::geograph::nodes::polygon::Polygon()
+node37.query_param("vertices").value = [ 0, 10, 20, 10, 20, -10, 0, -10 ]
+node37.query_param("color").value.set(0.25941535830498, 0.25776588916779, 0.71882021427155)
 
-var node37 = ::blueprint::nodes::divide::Divide()
+_editor.add_node(node37, -335.02665205733, 22.036667709489)
 
-_editor.add_node(node37, -154.93207649647, -595.66468772642)
+var node38 = ::blueprint::nodes::switch_f::SwitchF()
 
-var node38 = ::blueprint::nodes::number::Number()
+_editor.add_node(node38, -138.79690736023, -29.798656382702)
 
-node38.value = 25
+var node39 = ::blueprint::nodes::input::Input()
 
-_editor.add_node(node38, -285.78738800324, -628.50679507892)
+node39.var_name = "teeth_type"
+node39.var_type = "int"
 
-var node39 = ::geograph::nodes::polygon::Polygon()
-node39.query_param("vertices").value = [ 0, 10, 20, 10, 20, -10, 0, -10 ]
-node39.query_param("color").value.set(0.25941535830498, 0.25776588916779, 0.71882021427155)
+_editor.add_node(node39, -337.46473678898, 210.09751392558)
 
-_editor.add_node(node39, -287.69381960053, -74.882941606815)
+var node40 = ::blueprint::nodes::input::Input()
 
-var node40 = ::blueprint::nodes::branch_f::BranchF()
+node40.var_name = "teeth_size"
+node40.var_type = "num"
 
-_editor.add_node(node40, -148.71435606826, -8.6017675807971)
+_editor.add_node(node40, -684.31197330392, 70.250574170692)
 
 var node41 = ::blueprint::nodes::input::Input()
 
-node41.var_name = "slope"
-node41.var_type = "bool"
+node41.var_name = "color"
+node41.var_type = "num3"
 
-_editor.add_node(node41, -685.02048224952, -72.590400318006)
+_editor.add_node(node41, -682.14233495205, -0.83288266771081)
 
-var node42 = ::blueprint::nodes::store::Store()
+var node42 = ::geograph::nodes::polygon::Polygon()
+node42.query_param("vertices").value = [ 0, -5, 20, 5, 0, 5 ]
+node42.query_param("color").value.set(0.25941535830498, 0.25776588916779, 0.71882021427155)
 
-node42.var_name = "slope"
+_editor.add_node(node42, -335.02665205733, -83.147404416732)
 
-_editor.add_node(node42, -541.95133413655, -71.393453915503)
-
-var node43 = ::blueprint::nodes::load::Load()
-
-node43.var_name = "slope"
-
-_editor.add_node(node43, -291.34192887327, 107.82827685418)
-
-Blueprint.connect(node41, "var", node42, "var")
-Blueprint.connect(node42, "var", node43, "var")
-Blueprint.connect(node35, "var", node26, "var")
+Blueprint.connect(node41, "var", node26, "var")
 Blueprint.connect(node26, "var", node28, "var")
 Blueprint.connect(node26, "var", node27, "var")
+Blueprint.connect(node40, "var", node33, "var")
 Blueprint.connect(node33, "var", node34, "var")
-Blueprint.connect(node34, "var", node36, "var")
-Blueprint.connect(node36, "var", node37, "a")
-Blueprint.connect(node38, "v", node37, "b")
-Blueprint.connect(node37, "v", node29, "x")
-Blueprint.connect(node37, "v", node29, "y")
+Blueprint.connect(node34, "var", node35, "a")
+Blueprint.connect(node36, "v", node35, "b")
+Blueprint.connect(node35, "v", node29, "x")
+Blueprint.connect(node35, "v", node29, "y")
 Blueprint.connect(node21, "var", node22, "var")
 Blueprint.connect(node22, "var", node24, "var")
 Blueprint.connect(node22, "var", node23, "var")
@@ -274,10 +266,11 @@ Blueprint.connect(node16, "v", node7, "a")
 Blueprint.connect(node6, "v", node7, "b")
 Blueprint.connect(node10, "v", node11, "x")
 Blueprint.connect(node7, "v", node11, "y")
-Blueprint.connect(node43, "var", node40, "cond")
-Blueprint.connect(node1, "geo", node40, "true")
-Blueprint.connect(node39, "geo", node40, "false")
-Blueprint.connect(node40, "result", node3, "symbol")
+Blueprint.connect(node39, "var", node38, "type")
+Blueprint.connect(node1, "geo", node38, "case0")
+Blueprint.connect(node37, "geo", node38, "case1")
+Blueprint.connect(node42, "geo", node38, "case2")
+Blueprint.connect(node38, "result", node3, "symbol")
 Blueprint.connect(node28, "var", node3, "color")
 Blueprint.connect(node3, "spr", node4, "spr")
 Blueprint.connect(node11, "xy", node4, "translate")

@@ -7,21 +7,21 @@ _editor.add_node(node0, 384.10943760422, 420.34462957146)
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../geograph/gear.ves")
 
-_editor.add_node(node1, 65.305150869641, 463.62692215662)
+_editor.add_node(node1, 66.807780471444, 461.37297775392)
 
 var node2 = ::blueprint::nodes::input::Input()
 
 node2.var_name = "radius"
 node2.var_type = "num"
 
-_editor.add_node(node2, -123.76203512285, 542.60774193751)
+_editor.add_node(node2, -126.84638143829, 561.49936311956)
 
 var node3 = ::blueprint::nodes::input::Input()
 
 node3.var_name = "count"
 node3.var_type = "int"
 
-_editor.add_node(node3, -120.62477802366, 477.20177177959)
+_editor.add_node(node3, -123.7091243391, 496.09339296164)
 
 var node4 = ::scenegraph::nodes::transform::Transform()
 
@@ -44,8 +44,8 @@ var node7 = ::physicsgraph::nodes::body::Body()
 node7.query_param("type").value = "dynamic"
 node7.query_param("gravity").value = 1
 node7.query_param("density").value = 1.0230346918106
-node7.query_param("restitution").value = 0.71192353963852
-node7.query_param("friction").value = 0.2
+node7.query_param("restitution").value = 0
+node7.query_param("friction").value = 0
 
 _editor.add_node(node7, 233.30738708651, 174.7206299623)
 
@@ -99,51 +99,52 @@ _editor.add_node(node14, 100.6224223996, 230.78243640238)
 
 var node15 = ::blueprint::nodes::input::Input()
 
-node15.var_name = "teeth"
-node15.var_type = "num"
+node15.var_name = "teeth_type"
+node15.var_type = "int"
 
-_editor.add_node(node15, -120.11194125089, 411.79436095687)
+_editor.add_node(node15, -122.60314571091, 431.14754252058)
 
 var node16 = ::blueprint::nodes::input::Input()
 
-node16.var_name = "color"
-node16.var_type = "num3"
+node16.var_name = "teeth_size"
+node16.var_type = "num"
 
-_editor.add_node(node16, -120.1119193085, 344.02577070756)
+_editor.add_node(node16, -121.44652357904, 365.60517882528)
 
 var node17 = ::blueprint::nodes::input::Input()
 
-node17.var_name = "pos"
-node17.var_type = "num2"
+node17.var_name = "color"
+node17.var_type = "num3"
 
-_editor.add_node(node17, 114.1315743943, 346.47752538003)
+_editor.add_node(node17, -119.83364182066, 295.00883063776)
 
 var node18 = ::blueprint::nodes::input::Input()
 
-node18.var_name = "ground_body"
-node18.var_type = "body"
+node18.var_name = "pos"
+node18.var_type = "num2"
 
-_editor.add_node(node18, 92.172727272723, 45.309090909086)
+_editor.add_node(node18, 117.97946729779, 342.89969599679)
 
-var node19 = ::blueprint::nodes::boolean::Boolean()
+var node19 = ::blueprint::nodes::input::Input()
 
-node19.value = true
+node19.var_name = "ground_body"
+node19.var_type = "body"
 
-_editor.add_node(node19, -118.23882233052, 279.32883538872)
+_editor.add_node(node19, 91.948835462055, 45.788839560138)
 
 Blueprint.connect(node2, "var", node1, "radius")
 Blueprint.connect(node3, "var", node1, "count")
-Blueprint.connect(node15, "var", node1, "teeth")
-Blueprint.connect(node16, "var", node1, "color")
-Blueprint.connect(node19, "v", node1, "slope")
+Blueprint.connect(node15, "var", node1, "teeth_type")
+Blueprint.connect(node16, "var", node1, "teeth_size")
+Blueprint.connect(node17, "var", node1, "color")
 Blueprint.connect(node1, "spr", node4, "spr")
-Blueprint.connect(node17, "var", node4, "translate")
+Blueprint.connect(node18, "var", node4, "translate")
 Blueprint.connect(node4, "spr", node0, "var")
 Blueprint.connect(node0, "var", node14, "var")
 Blueprint.connect(node14, "var", node7, "geos")
 Blueprint.connect(node7, "body", node11, "var")
 Blueprint.connect(node11, "var", node13, "var")
-Blueprint.connect(node18, "var", node8, "body_a")
+Blueprint.connect(node19, "var", node8, "body_a")
 Blueprint.connect(node13, "var", node8, "body_b")
 Blueprint.connect(node8, "joint", node10, "var")
 Blueprint.connect(node11, "var", node12, "var")
