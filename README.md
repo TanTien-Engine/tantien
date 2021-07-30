@@ -176,6 +176,8 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 
 ### geograph
 
+![](./doc/geograph/screenshots/breakout.gif)
+
 #### Nodes
 * shapes : Line, Rect, Circle, Polyline, Polygon,
 * constraints : Distance,
@@ -185,6 +187,10 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 * tools : DrawGeometry, ConstraintSolver, AABB, Resample,
 
 ### physicsgraph
+
+![](./doc/geograph/physicsgraph/pyramid.gif)
+
+![](./doc/geograph/physicsgraph/clock.gif)
 
 #### Nodes
 * objects : World, Body, Fixture, BodyInfo, Chain,
