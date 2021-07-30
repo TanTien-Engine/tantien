@@ -1,0 +1,49 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+
+class ListAddF is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+			Pin(this, "add",  VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+
+		var ret = []
+		for (var v in v_list.value) {
+			ret.add(v)
+		}
+
+		var v_add = Blueprint.calc_input_value(this, 1)
+		if (v_add) {
+			ret.add(v_add)
+		}
+
+		return Variant(ret)
+	}
+}

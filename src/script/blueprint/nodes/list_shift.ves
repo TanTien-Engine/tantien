@@ -1,0 +1,79 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+
+class ListShift is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list",   VAR_TYPE_ARRAY),
+			Pin(this, "offset", VAR_TYPE_INTEGER)
+		]
+		this.exports = [
+			Pin(this, "list", VAR_TYPE_ARRAY)
+		]
+
+		this.params.add(NodeParam("wrap", false))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+	
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+		if (v_list.value.isEmpty) {
+			return Variant([])
+		}
+
+		var v_offset = Blueprint.calc_input_value(this, 1)
+		if (!v_offset) {
+			return nil
+		}
+
+		var ret = []
+
+		var src = v_list.value
+		var wrap = this.query_param("wrap").value
+		if (wrap)
+		{
+			for (var i in 0 .. src.count) 
+			{
+				var ori_i = i + v_offset.value
+				if (ori_i > src.count) {
+					ori_i = ori_i - src.count
+				}
+				if (ori_i < 0) {
+					ori_i = ori_i + src.count
+				}
+				ret.add(src[ori_i])
+			}
+		}
+		else
+		{
+			for (var i in 0 .. src.count) 
+			{
+				var ori_i = i + v_offset.value
+				if (ori_i >= 0 and ori_i < src.count) {
+					ret.add(src[ori_i])
+				}
+			}
+		}
+
+		return Variant(ret)
+	}
+}
