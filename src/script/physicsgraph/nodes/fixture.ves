@@ -53,12 +53,12 @@ class Fixture is Node
 			fixture.not_collide = []
 			if (v_not_collide.type == VAR_TYPE_ARRAY) {
 				for (var id in v_not_collide.value) {
-					fixture.not_collide.add(id)
+					fixture.not_collide.add(id.value)
 				}
 			} else {
 				fixture.not_collide.add(v_not_collide.value)
 			}
-		}				
+		}
 
 		return Variant(VAR_TYPE_FIXTURE, fixture)
 	}
