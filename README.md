@@ -117,6 +117,8 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 
 ![](./doc/noisegraph/screenshots/ridged_turbulence.jpg)
 
+![](./doc/noisegraph/screenshots/terrain.jpg)
+
 #### Nodes
 * noise : PerlinNoise, BillowedNoise, RidgedNoise,
 * turbulence : Turbulence, IqTurbulence, SwissTurbulence, JordanTurbulence, Erosion1Turbulence, Erosion2Turbulence, DistortTurbulence,
@@ -149,6 +151,8 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 
 ### pixelgraph
 
+![](./doc/pixelgraph/screenshots/twirl.jpg)
+
 #### Nodes
 * artistic-adjustment : ChannelMixer, Contrast, Hue, InvertColors, ReplaceColor, Saturation, WhiteBalance,
 * uv : Flipbook, PolarCoordinates, RadialShear, Rotate, Spherize, TilingAndOffset, Twirl,
@@ -161,6 +165,10 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 * tools : BehaviorTree,
 
 ### editorgraph
+
+![](./doc/editorgraph/screenshots/multi_circles_edit.jpg)
+
+![](./doc/editorgraph/screenshots/polyline.gif)
 
 #### Nodes
 * event : MouseLeftDown, MouseLeftUp, MouseRightDown, MouseRightUp, MouseLeftDrag, MouseMove, KeyPressed, KeyReleased, BlueprintChanged, LeaveRuntimeMode, EnterRuntimeMode,
@@ -189,12 +197,16 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 
 ### ppgraph
 
+![](./doc/ppgraph/screenshots/splitscreen.jpg)
+
 #### Nodes
 * SweetFX : Ascii, Border, CAS, CRT, Cartoon, ChromaticAberration, Cineon, ColorMatrix, Curves, FakeHDR, FilmGrain, LUT, Levels, LiftGammaGain, LumaSharpen, Monochrome, Nostalgia, Splitscreen, Technicolor, Technicolor2, Tint, Tonemap, Vibrance, Vignette,
 * prod80 : ColorGamut, ColorSpaceCurves, CurvedLevels, ShadowsMidtonesHighlights, BlackAndWhite, ColorBalance, ColorIsolation, ColorTemperature, SaturationLimiter, SelectiveColor, SelectiveColor2, Technicolor3, LumaSharpen2,
 * components : GaussianHori, GaussianVert,
 
 ### scenegraph
+
+![](./doc/scenegraph/screenshots/combine.jpg)
 
 #### Nodes
 * dataset : Sprite, Combine,
