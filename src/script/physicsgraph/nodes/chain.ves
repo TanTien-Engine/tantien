@@ -3,8 +3,10 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ARRAY, Variant
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
-import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT, VarBody, VarJoint
-import "physics" for Body, RevoluteJoint
+import "geograph.variant" for VarGeo
+import "physicsgraph.variant" for VAR_TYPE_BODY, VAR_TYPE_JOINT, VAR_TYPE_FIXTURE, VarBody, VarJoint, VarFixture
+import "scenegraph.variant" for VAR_TYPE_SPRITE
+import "physics" for Body, RevoluteJoint, DistanceJoint
 import "maths" for Float2
 
 class Chain is Node
@@ -63,6 +65,7 @@ class Chain is Node
 		if (!v_geos) {
 			return
 		}
+
 		if (v_geos.value.isEmpty or !v_geos.value[0].value) {
 			return
 		}
@@ -71,14 +74,29 @@ class Chain is Node
 		{
 			var v_body = VarBody()
 
+			var srt = nil
+
 			var body = Body.init("dynamic", -1)
 			var geo = v_geo.value.symbol
-			body.add_fixture(geo.shape, geo.render_style["fill"].value, nil, [])
+			if (geo is VarGeo)
+			{
+				srt = v_geo.value.transform.decompose()
+
+				body.add_fixture(geo.shape, geo.render_style["fill"].value, nil, [])			
+			}
+			else if (geo is VarFixture) 
+			{
+				srt = geo.shape.value.transform.decompose()
+
+				var filter = this.calc_filter(geo)
+				var _geo = geo.shape.value.symbol
+				var fill = _geo.render_style["fill"]
+				body.add_fixture(_geo.shape, fill, nil, filter)
+			}
 
 			body.set_density(this.query_param("density").value)
 			body.set_friction(this.query_param("friction").value)
 
-			var srt = v_geo.value.transform.decompose()
 			body.set_transform([srt[3], srt[4]], srt[2])
 
 			v_body.body = body
@@ -102,9 +120,12 @@ class Chain is Node
 		{
 			if (prev_body)
 			{
-				var spr = v_geos.value[i].value
+				var spr = this.get_spr(v_geos.value[i])
 
-				var rect = spr.symbol.shape.get()
+				var shape = this.get_shape(v_geos.value[i])
+
+				var rect = shape.get()
+
 				var pos = Float2.init(rect[0], rect[1] + rect[3] * 0.5)
 				pos.transform(spr.transform)
 				var anchor = [pos.x(), pos.y()]
@@ -122,8 +143,9 @@ class Chain is Node
 
 		if (fix_end and prev_body and v_ground.value.body) 
 		{
-			var spr = v_geos.value.back().value
-			var rect = spr.symbol.shape.get()
+			var spr = this.get_spr(v_geos.value.back())
+			var shape = this.get_shape(v_geos.value.back())
+			var rect = shape.get()
 
 			var pos = Float2.init(rect[0] + rect[2], rect[1] + rect[3] * 0.5)
 			pos.transform(spr.transform)
@@ -137,4 +159,50 @@ class Chain is Node
 			this.joints.add(Variant(VAR_TYPE_JOINT, v_joint))
 		}
 	}
+
+	calc_filter(fixture)
+	{
+		var filter = []
+		if (fixture.category) {
+			filter.add(fixture.category)
+		} else {
+			filter.add(0)
+		}
+
+		if (fixture.not_collide) {
+			for (var id in fixture.not_collide) {
+				filter.add(id)
+			}
+		}
+
+		return filter
+	}
+
+	get_spr(v_geo)
+	{
+		if (v_geo.type == VAR_TYPE_SPRITE) 
+		{
+			if (v_geo.value.symbol is VarGeo) {
+				return v_geo.value
+			} else if (v_geo.value.symbol is VarFixture) {
+				return v_geo.value.symbol.shape.value
+			}
+		}
+
+		return nil
+	}
+
+	get_shape(v_geo)
+	{
+		if (v_geo.type == VAR_TYPE_SPRITE) 
+		{
+			if (v_geo.value.symbol is VarGeo) {
+				return v_geo.value.symbol.shape
+			} else if (v_geo.value.symbol is VarFixture) {
+				return v_geo.value.symbol.shape.value.symbol.shape
+			}
+		}
+
+		return nil
+	}	
 }
