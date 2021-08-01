@@ -2,7 +2,7 @@ var node0 = ::blueprint::nodes::store::Store()
 
 node0.var_name = "gear"
 
-_editor.add_node(node0, 1051.8780326456, 531.08843122435)
+_editor.add_node(node0, 1156.3780326456, 516.78843122435)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "../geograph/gear.ves")
@@ -25,7 +25,7 @@ _editor.add_node(node3, -123.7091243391, 496.09339296164)
 
 var node4 = ::scenegraph::nodes::transform::Transform()
 
-_editor.add_node(node4, 911.98280157925, 502.51055756877)
+_editor.add_node(node4, 1016.4828015793, 488.21055756877)
 
 var node5 = ::blueprint::nodes::load::Load()
 
@@ -95,7 +95,7 @@ var node14 = ::blueprint::nodes::load::Load()
 
 node14.var_name = "gear"
 
-_editor.add_node(node14, 100.6224223996, 230.78243640238)
+_editor.add_node(node14, 25.490942309441, 260.83502843844)
 
 var node15 = ::blueprint::nodes::input::Input()
 
@@ -123,7 +123,7 @@ var node18 = ::blueprint::nodes::input::Input()
 node18.var_name = "pos"
 node18.var_type = "num2"
 
-_editor.add_node(node18, 777.48359952921, 442.89969599679)
+_editor.add_node(node18, 880.88359952921, 461.27602958056)
 
 var node19 = ::blueprint::nodes::input::Input()
 
@@ -136,33 +136,46 @@ var node20 = ::blueprint::nodes::store::Store()
 
 node20.var_name = "shape"
 
-_editor.add_node(node20, 250.57342920224, 493.74925395871)
+_editor.add_node(node20, 251.1943505253, 493.74925395871)
 
 var node21 = ::blueprint::nodes::load::Load()
 
 node21.var_name = "shape"
 
-_editor.add_node(node21, 505.98775998404, 580.52395069671)
+_editor.add_node(node21, 466.4284390236, 630.52783331774)
 
 var node22 = ::physicsgraph::nodes::fixture::Fixture()
 
-_editor.add_node(node22, 640.11573829336, 524.92627255778)
+_editor.add_node(node22, 600.55641733292, 584.49234355392)
 
-var node23 = ::blueprint::nodes::integer::Integer()
+var node23 = ::scenegraph::nodes::sprite::Sprite()
 
-node23.value = 1
+_editor.add_node(node23, 732.15826305209, 585.94403743033)
 
-_editor.add_node(node23, 505.15163693313, 456.38778913311)
+var node24 = ::blueprint::nodes::input::Input()
 
-var node24 = ::scenegraph::nodes::sprite::Sprite()
+node24.var_name = "category"
+node24.var_type = "int"
 
-_editor.add_node(node24, 777.30587592007, 523.27335981889)
+_editor.add_node(node24, 468.40268182002, 576.20522851771)
 
-var node25 = ::blueprint::nodes::integer::Integer()
+var node25 = ::blueprint::nodes::input::Input()
 
-node25.value = 3
+node25.var_name = "not_collide"
+node25.var_type = [ "int" ]
 
-_editor.add_node(node25, 505.80120934606, 523.5549492485)
+_editor.add_node(node25, 472.15925114716, 509.33823178123)
+
+var node26 = ::blueprint::nodes::input::Input()
+
+node26.var_name = "attach"
+node26.var_type = "sprite"
+
+_editor.add_node(node26, 733.76775260288, 504.50039063516)
+
+var node27 = ::scenegraph::nodes::combine::Combine()
+
+_editor.add_node(node27, 877.51452475471, 541.8593739124)
 
 Blueprint.connect(node2, "var", node1, "radius")
 Blueprint.connect(node3, "var", node1, "count")
@@ -172,10 +185,12 @@ Blueprint.connect(node17, "var", node1, "color")
 Blueprint.connect(node1, "spr", node20, "var")
 Blueprint.connect(node20, "var", node21, "var")
 Blueprint.connect(node21, "var", node22, "shape")
-Blueprint.connect(node25, "v", node22, "category")
-Blueprint.connect(node23, "v", node22, "not_collide")
-Blueprint.connect(node22, "fixture", node24, "symbol")
-Blueprint.connect(node24, "spr", node4, "spr")
+Blueprint.connect(node24, "var", node22, "category")
+Blueprint.connect(node25, "var", node22, "not_collide")
+Blueprint.connect(node22, "fixture", node23, "symbol")
+Blueprint.connect(node23, "spr", node27, "child0")
+Blueprint.connect(node26, "var", node27, "child1")
+Blueprint.connect(node27, "parent", node4, "spr")
 Blueprint.connect(node18, "var", node4, "translate")
 Blueprint.connect(node4, "spr", node0, "var")
 Blueprint.connect(node0, "var", node14, "var")
