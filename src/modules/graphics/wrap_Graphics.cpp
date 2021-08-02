@@ -3,6 +3,7 @@
 #include "modules/graphics/GTxt.h"
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/SpriteRenderer.h"
+#include "modules/graphics/Viewport.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
@@ -17,6 +18,29 @@
 
 namespace
 {
+
+void w_Viewport_allocate()
+{
+    auto proxy = (tt::Proxy<tt::Viewport>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Viewport>));
+    proxy->obj = std::make_shared<tt::Viewport>();
+}
+
+int w_Viewport_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<tt::Viewport>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<tt::Viewport>);
+}
+
+void w_Viewport_set_size()
+{
+    auto vp = ((tt::Proxy<tt::Viewport>*)ves_toforeign(0))->obj;
+
+    float w = (float)ves_tonumber(1);
+    float h = (float)ves_tonumber(2);
+
+    vp->SetSize(w, h);
+}
 
 void w_Painter_allocate()
 {
@@ -415,6 +439,8 @@ namespace tt
 
 VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
+    if (strcmp(signature, "Viewport.set_size(_,_)") == 0) return w_Viewport_set_size;
+
     if (strcmp(signature, "Painter.add_line(_,_,_)") == 0) return w_Painter_add_line;
     if (strcmp(signature, "Painter.add_rect(_,_,_)") == 0) return w_Painter_add_rect;
     if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
@@ -441,6 +467,13 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 
 void GraphicsBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
+    if (strcmp(class_name, "Viewport") == 0)
+    {
+        methods->allocate = w_Viewport_allocate;
+        methods->finalize = w_Viewport_finalize;
+        return;
+    }
+
     if (strcmp(class_name, "Painter") == 0)
     {
         methods->allocate = w_Painter_allocate;

@@ -1,6 +1,13 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* graphicsModuleSource = QUOTE(
 
+foreign class Viewport
+{
+	init() {}
+
+	foreign set_size(width, height)
+}
+
 // color: list [r, g, b, a]
 foreign class Painter
 {

@@ -14,6 +14,7 @@ namespace tess { class Painter; }
 namespace tt
 {
 
+class Viewport;
 class SpriteRenderer;
 
 class Graphics
@@ -29,6 +30,8 @@ public:
 
 	void Flush();
 
+	auto GetViewport() const { return m_viewport; }
+
 	auto GetSpriteRenderer() { return m_spr_rd; }
 
 	auto GetWidth() const { return m_width; }
@@ -41,6 +44,8 @@ private:
 
 private:
 	float m_width = 0, m_height = 0;
+
+	std::shared_ptr<Viewport> m_viewport = nullptr;
 
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
 

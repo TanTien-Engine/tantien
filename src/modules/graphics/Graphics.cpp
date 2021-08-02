@@ -3,6 +3,7 @@
 #include "modules/graphics/GTxt.h"
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/LoadingList.h"
+#include "modules/graphics/Viewport.h"
 #include "modules/render/Render.h"
 
 #include <unirender/Context.h>
@@ -27,6 +28,8 @@ Graphics::Graphics()
     auto filtpath = "assets\\fonts\\default2.ttf";
     GTxt::Instance()->LoadFonts({ { "default", filtpath } }, { {} });
 
+    m_viewport = std::make_shared<tt::Viewport>();
+
     m_spr_rd = std::make_shared<tt::SpriteRenderer>();
 }
 
@@ -38,6 +41,8 @@ void Graphics::OnSize(float width, float height)
 {
     m_width = width;
     m_height = height;
+
+    m_viewport->SetSize(width, height);
 
     auto ctx = tt::Render::Instance()->Context();
     ctx->SetViewport(0, 0, (int)width, (int)height);
