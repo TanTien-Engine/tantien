@@ -1,12 +1,12 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_RECT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_RECT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline, Polygon
+import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -20,6 +20,7 @@ class DrawGeometry is Node
 			Pin(this, "prev",   VAR_TYPE_PORT),
 			Pin(this, "geos", [ VAR_TYPE_NUMBER2, VAR_TYPE_RECT, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "color",  VAR_TYPE_NUMBER3),
+			Pin(this, "mat",    VAR_TYPE_MATRIX4),			
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -117,6 +118,14 @@ class DrawGeometry is Node
 			this.draw_polyline(pt, geo, col_array)
 		} else if (shape is Polygon) {
 			this.draw_polygon(pt, geo, col_array)
+		} else if (shape is Box) {
+			this.draw_box(pt, geo, col_array)
+		} else if (shape is Line3D) {
+			this.draw_line3d(pt, geo, col_array)
+		} else if (shape is Polyline3D) {
+			this.draw_polyline3d(pt, geo, col_array)
+		} else if (shape is Polygon3D) {
+			this.draw_polygon3d(pt, geo, col_array)
 		}
 	}
 
@@ -251,5 +260,71 @@ class DrawGeometry is Node
 		}
 
 		pt.add_polygon_filled(verts, col)
+	}
+
+	draw_box(pt, geo, col)
+	{
+		var min = geo.shape.get_min()
+		var max = geo.shape.get_max()
+
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
+		pt.add_cube(mat, min, max, col, 2.0)
+	}
+
+	draw_line3d(pt, geo, col)
+	{
+		var p0 = geo.shape.get_p0()
+		var p1 = geo.shape.get_p1()
+
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
+		pt.add_line3d(mat, p0, p1, col, 2.0)
+	}
+
+	draw_polyline3d(pt, geo, col)
+	{
+		var verts = geo.shape.get_vertices()
+		if (verts.count < 3) {
+			return
+		}
+
+		if (geo.shape.get_closed()) {
+			verts.add(verts[0])
+			verts.add(verts[1])
+			verts.add(verts[2])
+		}
+		
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
+		pt.add_polyline3d(mat, verts, col, 2.0)
+	}
+
+	draw_polygon3d(pt, geo, col)
+	{
+		var verts = geo.shape.get_vertices()
+		if (verts.count < 3) {
+			return
+		}
+		
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
+		pt.add_polygon3d_filled(mat, verts, col)
 	}
 }

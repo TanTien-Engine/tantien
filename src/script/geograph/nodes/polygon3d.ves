@@ -1,0 +1,72 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.nodes.array" for Array
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.config" for POINT_RADIUS
+import "geometry" for Polygon3D as tt_Polygon3D
+
+class Polygon3d is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "vertices", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("vertices", []))
+		this.params.add(NodeParam("closed", false))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
+	calc_value(idx)
+	{
+		var geo = VarGeo()
+		geo.shape = tt_Polygon3D.init()
+		this.update_geo(geo)
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	update_geo(geo)
+	{
+		var v_verts = Blueprint.calc_input_value(this, 0)
+		if (v_verts)
+		{
+			if (v_verts.type != VAR_TYPE_ARRAY or v_verts.value.isEmpty) {
+				return
+			}
+
+			var type = v_verts.value[0].type
+			if (type == VAR_TYPE_NUMBER3)
+			{
+				var vertices = []
+				for (var vert in v_verts.value) {
+					vertices.add(vert.value.x)
+					vertices.add(vert.value.y)
+					vertices.add(vert.value.z)
+				}
+				geo.shape.set_vertices(vertices)
+			}
+		}
+		else
+		{
+			var vertices = this.query_param("vertices").value
+			geo.shape.set_vertices(vertices)
+		}
+	}
+}

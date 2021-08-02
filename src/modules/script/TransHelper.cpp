@@ -30,6 +30,35 @@ std::vector<sm::vec2> list_to_vec2_array(int index)
 	return ret;
 }
 
+std::vector<sm::vec3> list_to_vec3_array(int index)
+{
+    std::vector<sm::vec3> ret;
+    if (ves_type(index) != VES_TYPE_LIST) {
+        return ret;
+    }
+
+    const int num = ves_len(index);
+    ret.reserve(num / 3);
+    for (int i = 0; i < num;)
+    {
+        ves_geti(index, i++);
+        float x = (float)ves_tonumber(-1);
+        ves_pop(1);
+
+        ves_geti(index, i++);
+        float y = (float)ves_tonumber(-1);
+        ves_pop(1);
+
+        ves_geti(index, i++);
+        float z = (float)ves_tonumber(-1);
+        ves_pop(1);
+
+        ret.emplace_back(x, y, z);
+    }
+
+    return ret;
+}
+
 std::vector<int> list_to_int_array(int index)
 {
     std::vector<int> ret;

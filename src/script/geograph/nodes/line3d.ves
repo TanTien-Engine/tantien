@@ -1,0 +1,70 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Line3D as tt_Line3D
+import "maths.vector" for Vector3
+
+class Line3d is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "p0", VAR_TYPE_NUMBER3),
+			Pin(this, "p1", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		// shape
+		this.params.add(NodeParam("p0", Vector3(0, 0, 0), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("p1", Vector3(1, 1, 1), { "min" : -1000, "max" : 1000 }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
+	calc_value(idx)
+	{
+		var geo = VarGeo()
+		geo.shape = tt_Line3D.init()
+		this.update_geo(geo)
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	update_geo(geo)
+	{
+		var p0 = nil
+		var v_p0 = Blueprint.calc_input_value(this, 0)
+		if (v_p0) {
+			p0 = v_p0.value
+		} else {
+			p0 = this.query_param("p0").value
+		}
+
+		var p1 = nil
+		var v_p1 = Blueprint.calc_input_value(this, 0)
+		if (v_p1) {
+			p1 = v_p1.value
+		} else {
+			p1 = this.query_param("p1").value
+		}
+
+		geo.shape.set_p0([p0.x, p0.y, p0.z])
+		geo.shape.set_p1([p1.x, p1.y, p1.z])
+		
+//		geo.render_style["fill"] = this.query_param("fill").value
+//		geo.render_style["color"] = this.query_param("color").value
+	}	
+}

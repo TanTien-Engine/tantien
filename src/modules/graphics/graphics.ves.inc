@@ -29,6 +29,14 @@ foreign class Painter
 	foreign add_circle_filled(x, y, radius, color, num_segments)
 
 	foreign add_bezier(bezier, color, line_width)
+
+	foreign add_line3d(mat, p0, p1, color, line_width)
+
+	foreign add_cube(mat, min, max, color, line_width)
+
+	foreign add_polyline3d(mat, vertices, color, line_width)
+
+	foreign add_polygon3d_filled(mat, vertices, color)
 }
 
 class Textbox

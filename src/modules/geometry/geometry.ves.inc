@@ -108,6 +108,74 @@ foreign class Bezier is Shape2D
 	foreign set_ctrl_pos(vertices)
 }
 
+foreign class Shape3D
+{
+	init() {}
+}
+
+foreign class Line3D is Shape3D
+{
+	init() {}
+	init(p0, p1) { 
+		this.set_p0(p0)
+		this.set_p1(p1)
+	}
+
+	toString() {
+		return "::geometry::Box.init(%(this.get_p0()), %(this.get_p1()))"
+	}
+
+	foreign get_p0()
+	foreign set_p0(p)
+	foreign get_p1()
+	foreign set_p1(p)
+}
+
+foreign class Box is Shape3D
+{
+	init() {}
+	init(min, max) { this.set_size(min, max) }
+
+	toString() {
+		return "::geometry::Box.init(%(this.get_min()), %(this.get_max()))"
+	}
+
+	foreign get_min()
+	foreign get_max()
+	foreign set_size(min, max)
+}
+
+foreign class Polyline3D is Shape3D
+{
+	init() {}
+	init(vertices) { this.set_vertices(vertices) }
+
+	toString() {
+		var vertices = this.get_vertices()
+		return "::geometry::Polyline3D.init(%(vertices))"
+	}
+
+	foreign get_vertices()
+	foreign set_vertices(vertices)
+
+	foreign set_closed(is_closed)
+	foreign get_closed()
+}
+
+foreign class Polygon3D is Shape3D
+{
+	init() {}
+	init(vertices) { this.set_vertices(vertices) }
+
+	toString() {
+		var vertices = this.get_vertices()
+		return "::geometry::Polygon3D.init(%(vertices))"
+	}
+
+	foreign get_vertices()
+	foreign set_vertices(vertices)
+}
+
 foreign class Constraint
 {
 	init(type, geo0, geo1, value) {}

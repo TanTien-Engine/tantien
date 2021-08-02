@@ -210,6 +210,69 @@ void w_Painter_add_bezier()
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
+sm::mat4* CAM_MAT = nullptr;
+
+auto trans3d = [&](const sm::vec3& pos3)->sm::vec2 
+{
+    auto vp = tt::Graphics::Instance()->GetViewport();
+    if (CAM_MAT) {
+        return vp->TransPosProj3ToProj2(pos3, *CAM_MAT);
+    } else {
+        return vp->TransPosProj3ToProj2(pos3, sm::mat4());
+    }
+};
+
+void w_Painter_add_line3d()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    CAM_MAT = (sm::mat4*)ves_toforeign(1);
+
+    auto p0 = tt::list_to_vec3(2);
+    auto p1 = tt::list_to_vec3(3);
+
+    uint32_t col = tt::list_to_abgr(4);
+    const float width = (float)ves_tonumber(5);
+
+    pt->AddLine3D(p0, p1, trans3d, col, width);
+}
+
+void w_Painter_add_cube()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    CAM_MAT = (sm::mat4*)ves_toforeign(1);
+
+    auto min = tt::list_to_vec3(2);
+    auto max = tt::list_to_vec3(3);
+
+    uint32_t col = tt::list_to_abgr(4);
+    const float width = (float)ves_tonumber(5);
+
+    pt->AddCube(sm::cube(min, max), trans3d, col, width);
+}
+
+void w_Painter_add_polyline3d()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    CAM_MAT = (sm::mat4*)ves_toforeign(1);
+
+    auto vertices = tt::list_to_vec3_array(2);
+    uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
+
+    pt->AddPolyline3D(vertices.data(), vertices.size(), trans3d, col, width);
+}
+
+void w_Painter_add_polygon3d_filled()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    CAM_MAT = (sm::mat4*)ves_toforeign(1);
+
+    auto vertices = tt::list_to_vec3_array(2);
+    uint32_t col = tt::list_to_abgr(3);
+
+    pt->AddPolygonFilled3D(vertices.data(), vertices.size(), trans3d, col);
+}
+
 void w_Graphics_on_size()
 {
     float w = (float)ves_tonumber(1);
@@ -441,6 +504,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
 {
     if (strcmp(signature, "Viewport.set_size(_,_)") == 0) return w_Viewport_set_size;
 
+    // 2D
     if (strcmp(signature, "Painter.add_line(_,_,_)") == 0) return w_Painter_add_line;
     if (strcmp(signature, "Painter.add_rect(_,_,_)") == 0) return w_Painter_add_rect;
     if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
@@ -450,6 +514,11 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
     if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
     if (strcmp(signature, "Painter.add_bezier(_,_,_)") == 0) return w_Painter_add_bezier;
+    // 3D
+    if (strcmp(signature, "Painter.add_line3d(_,_,_,_,_)") == 0) return w_Painter_add_line3d;
+    if (strcmp(signature, "Painter.add_cube(_,_,_,_,_)") == 0) return w_Painter_add_cube;
+    if (strcmp(signature, "Painter.add_polyline3d(_,_,_,_)") == 0) return w_Painter_add_polyline3d;
+    if (strcmp(signature, "Painter.add_polygon3d_filled(_,_,_)") == 0) return w_Painter_add_polygon3d_filled;
 
     if (strcmp(signature, "static Graphics.on_size(_,_)") == 0) return w_Graphics_on_size;
     if (strcmp(signature, "static Graphics.on_cam_update(_,_,_)") == 0) return w_Graphics_on_cam_update;

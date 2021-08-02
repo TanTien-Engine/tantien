@@ -1,0 +1,69 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Box as tt_Box
+import "maths.vector" for Vector3
+
+class Box is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "min", VAR_TYPE_NUMBER3),
+			Pin(this, "max", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		// shape
+		this.params.add(NodeParam("min", Vector3(0, 0, 0), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("max", Vector3(1, 1, 1), { "min" : -1000, "max" : 1000 }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
+	calc_value(idx)
+	{
+		var geo = VarGeo()
+		geo.shape = tt_Box.init()
+		this.update_geo(geo)
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	update_geo(geo)
+	{
+		var min = nil
+		var v_min = Blueprint.calc_input_value(this, 0)
+		if (v_min) {
+			min = v_min.value
+		} else {
+			min = this.query_param("min").value
+		}
+
+		var max = nil
+		var v_max = Blueprint.calc_input_value(this, 0)
+		if (v_max) {
+			max = v_max.value
+		} else {
+			max = this.query_param("max").value
+		}
+		
+		geo.shape.set_size([min.x, min.y, min.z], [max.x, max.y, max.z])
+
+//		geo.render_style["fill"] = this.query_param("fill").value
+//		geo.render_style["color"] = this.query_param("color").value
+	}	
+}

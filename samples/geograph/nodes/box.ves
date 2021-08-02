@@ -1,0 +1,40 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("min").value.set(0, 0, 0)
+node0.query_param("max").value.set(1, 1, 1)
+
+_editor.add_node(node0, -275, 242.5)
+
+var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node1.query_param("skip").value = false
+
+_editor.add_node(node1, -88.285499624343, 237.06198347107)
+
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
+
+node2.cam.position.set(-4.305995687092, 2.7197095827782, 2.0773765951185)
+node2.cam.yaw = -19.5
+node2.cam.pitch = -26.3
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.28129097819328
+
+_editor.add_node(node2, -493.72788257442, 133.35635497497)
+
+var node3 = ::blueprint::nodes::perspective::Perspective()
+
+node3.fovy = 45
+node3.aspect = 0
+node3.znear = 0.1
+node3.zfar = 100
+
+_editor.add_node(node3, -493, -20.5)
+
+var node4 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node4, -269.21734619141, 111.00201416016)
+
+Blueprint.connect(node2, "zoom", node3, "fovy")
+Blueprint.connect(node3, "mat", node4, "a")
+Blueprint.connect(node2, "mat", node4, "b")
+Blueprint.connect(node0, "geo", node1, "geos")
+Blueprint.connect(node4, "v", node1, "mat")

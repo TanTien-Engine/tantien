@@ -9,6 +9,10 @@
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
 #include <geoshape/Bezier.h>
+#include <geoshape/Box.h>
+#include <geoshape/Line3D.h>
+#include <geoshape/Polyline3D.h>
+#include <geoshape/Polygon3D.h>
 #include <guard/check.h>
 #include <constraints2/Scene.h>
 #include <constraints2/Constraint.h>
@@ -255,8 +259,8 @@ void w_Polyline_get_vertices()
     auto& vertices = pl->GetVertices();
 
     ves_pop(1);
-    ves_newlist(vertices.size() * 2);
-    for (int i = 0, n = vertices.size(); i < n; ++i)
+    ves_newlist(int(vertices.size() * 2));
+    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
     {
         ves_pushnumber(vertices[i].x);
         ves_seti(-2, i * 2);
@@ -295,8 +299,8 @@ void w_Polyline_resample()
     auto pts = polyline->Resample(length);
 
     ves_pop(2);
-    ves_newlist(pts.size() * 2);
-    for (int i = 0, n = pts.size(); i < n; ++i)
+    ves_newlist((int)(pts.size()) * 2);
+    for (int i = 0, n = int(pts.size()); i < n; ++i)
     {
         ves_pushnumber(pts[i].x);
         ves_seti(-2, i * 2);
@@ -337,8 +341,8 @@ void w_Polygon_get_vertices()
     auto& vertices = pl->GetVertices();
 
     ves_pop(1);
-    ves_newlist(vertices.size() * 2);
-    for (int i = 0, n = vertices.size(); i < n; ++i)
+    ves_newlist(int(vertices.size()) * 2);
+    for (int i = 0, n = int(vertices.size()); i < n; ++i)
     {
         ves_pushnumber(vertices[i].x);
         ves_seti(-2, i * 2);
@@ -386,6 +390,220 @@ void w_Bezier_set_ctrl_pos()
     auto vertices = tt::list_to_vec2_array(1);
     GD_ASSERT(vertices.size() == 4, "error number");
     b->SetCtrlPos({ vertices[0], vertices[1], vertices[2], vertices[3] });
+}
+
+void w_Line3D_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Line3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line3D>));
+    proxy->obj = std::make_shared<gs::Line3D>();
+}
+
+int w_Line3D_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Line3D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Line3D>);
+}
+
+void w_Line3D_get_p0()
+{
+    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+
+    auto p0 = l->GetStart();
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    for (int i = 0; i < 3; ++i) {
+        ves_pushnumber(p0.xyz[i]);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_Line3D_set_p0()
+{
+    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto p0 = tt::list_to_vec3(1);
+
+    l->SetStart(p0);
+}
+
+void w_Line3D_get_p1()
+{
+    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+
+    auto p1 = l->GetEnd();
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    for (int i = 0; i < 3; ++i) {
+        ves_pushnumber(p1.xyz[i]);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_Line3D_set_p1()
+{
+    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto p1 = tt::list_to_vec3(1);
+
+    l->SetEnd(p1);
+}
+
+void w_Box_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Box>));
+    proxy->obj = std::make_shared<gs::Box>();
+}
+
+int w_Box_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Box>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Box>);
+}
+
+void w_Box_get_min()
+{
+    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+
+    auto min = b->GetCube().Min();
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    for (int i = 0; i < 3; ++i) {
+        ves_pushnumber(min[i]);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_Box_get_max()
+{
+    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+
+    auto max = b->GetCube().Max();
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    for (int i = 0; i < 3; ++i) {
+        ves_pushnumber(max[i]);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_Box_set_size()
+{
+    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+    auto min = tt::list_to_vec3(1);
+    auto max = tt::list_to_vec3(2);
+
+    b->SetCube(sm::cube(min, max));
+}
+
+void w_Polyline3D_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Polyline3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline3D>));
+    proxy->obj = std::make_shared<gs::Polyline3D>();
+}
+
+int w_Polyline3D_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Polyline3D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Polyline3D>);
+}
+
+void w_Polyline3D_get_vertices()
+{
+    auto pl = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto& vertices = pl->GetVertices();
+
+    ves_pop(1);
+    ves_newlist(int(vertices.size() * 3));
+    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
+    {
+        ves_pushnumber(vertices[i].x);
+        ves_seti(-2, i * 3);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].y);
+        ves_seti(-2, i * 3 + 1);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].z);
+        ves_seti(-2, i * 3 + 2);
+        ves_pop(1);
+    }
+}
+
+void w_Polyline3D_set_vertices()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto vertices = tt::list_to_vec3_array(1);
+    polyline->SetVertices(vertices);
+}
+
+void w_Polyline3D_get_closed()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, polyline->GetClosed());
+}
+
+void w_Polyline3D_set_closed()
+{
+    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    bool is_closed = ves_toboolean(1);
+    polyline->SetClosed(is_closed);
+}
+
+void w_Polygon3D_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Polygon3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon3D>));
+    proxy->obj = std::make_shared<gs::Polygon3D>();
+}
+
+int w_Polygon3D_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Polygon3D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Polygon3D>);
+}
+
+void w_Polygon3D_get_vertices()
+{
+    auto pl = ((tt::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
+    auto& vertices = pl->GetVertices();
+
+    ves_pop(1);
+    ves_newlist(int(vertices.size() * 3));
+    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
+    {
+        ves_pushnumber(vertices[i].x);
+        ves_seti(-2, i * 3);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].y);
+        ves_seti(-2, i * 3 + 1);
+        ves_pop(1);
+
+        ves_pushnumber(vertices[i].z);
+        ves_seti(-2, i * 3 + 2);
+        ves_pop(1);
+    }
+}
+
+void w_Polygon3D_set_vertices()
+{
+    auto polyline = ((tt::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
+    auto vertices = tt::list_to_vec3_array(1);
+    polyline->SetVertices(vertices);
 }
 
 void w_Constraint_allocate()
@@ -498,6 +716,23 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
+    if (strcmp(signature, "Line3D.get_p0()") == 0) return w_Line3D_get_p0;
+    if (strcmp(signature, "Line3D.set_p0(_)") == 0) return w_Line3D_set_p0;
+    if (strcmp(signature, "Line3D.get_p1()") == 0) return w_Line3D_get_p1;
+    if (strcmp(signature, "Line3D.set_p1(_)") == 0) return w_Line3D_set_p1;
+
+    if (strcmp(signature, "Box.get_min()") == 0) return w_Box_get_min;
+    if (strcmp(signature, "Box.get_max()") == 0) return w_Box_get_max;
+    if (strcmp(signature, "Box.set_size(_,_)") == 0) return w_Box_set_size;
+
+    if (strcmp(signature, "Polyline3D.get_vertices()") == 0) return w_Polyline3D_get_vertices;
+    if (strcmp(signature, "Polyline3D.set_vertices(_)") == 0) return w_Polyline3D_set_vertices;
+    if (strcmp(signature, "Polyline3D.get_closed()") == 0) return w_Polyline3D_get_closed;
+    if (strcmp(signature, "Polyline3D.set_closed(_)") == 0) return w_Polyline3D_set_closed;
+
+    if (strcmp(signature, "Polygon3D.get_vertices()") == 0) return w_Polygon3D_get_vertices;
+    if (strcmp(signature, "Polygon3D.set_vertices(_)") == 0) return w_Polygon3D_set_vertices;
+
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 
     if (strcmp(signature, "ConstraintSolver.add_geo(_)") == 0) return w_ConstraintSolver_add_geo;
@@ -556,6 +791,34 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Bezier_allocate;
         methods->finalize = w_Bezier_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Line3D") == 0)
+    {
+        methods->allocate = w_Line3D_allocate;
+        methods->finalize = w_Line3D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Box") == 0)
+    {
+        methods->allocate = w_Box_allocate;
+        methods->finalize = w_Box_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Polyline3D") == 0)
+    {
+        methods->allocate = w_Polyline3D_allocate;
+        methods->finalize = w_Polyline3D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Polygon3D") == 0)
+    {
+        methods->allocate = w_Polygon3D_allocate;
+        methods->finalize = w_Polygon3D_finalize;
         return;
     }
 

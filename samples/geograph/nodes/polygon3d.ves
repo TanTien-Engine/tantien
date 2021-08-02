@@ -1,0 +1,40 @@
+var node0 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node0.query_param("skip").value = false
+
+_editor.add_node(node0, -83.504405436788, 182.42090704186)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(1.2962015849778, 0.40914003071558, 5.2395942787019)
+node1.cam.yaw = 270.8
+node1.cam.pitch = -2.9
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.28129097819328
+
+_editor.add_node(node1, -493.72788257442, 133.35635497497)
+
+var node2 = ::blueprint::nodes::perspective::Perspective()
+
+node2.fovy = 45
+node2.aspect = 0
+node2.znear = 0.1
+node2.zfar = 100
+
+_editor.add_node(node2, -493, -20.5)
+
+var node3 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node3, -269.21734619141, 111.00201416016)
+
+var node4 = ::geograph::nodes::polygon3d::Polygon3d()
+node4.query_param("vertices").value = [ 0, 0, 0, 1, 1, 1, 0, 2, 0, -1, 2, 0 ]
+node4.query_param("closed").value = false
+
+_editor.add_node(node4, -263.68684220338, 215.03016664847)
+
+Blueprint.connect(node1, "zoom", node2, "fovy")
+Blueprint.connect(node2, "mat", node3, "a")
+Blueprint.connect(node1, "mat", node3, "b")
+Blueprint.connect(node4, "geo", node0, "geos")
+Blueprint.connect(node3, "v", node0, "mat")
