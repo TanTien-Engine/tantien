@@ -35,6 +35,10 @@ class Gltf is Node
 
 	init_model(filepath)
 	{
+		if (filepath == "") {
+			return
+		}
+
 		this.model_filepath = filepath
 		this.model = glTF.init(filepath)
 		this.model_desc = this.model.get_desc()

@@ -176,6 +176,16 @@ foreign class Polygon3D is Shape3D
 	foreign set_vertices(vertices)
 }
 
+foreign class PolyFace
+{
+	init(plane) {}
+}
+
+foreign class Polytope
+{
+	init(faces) {}
+}
+
 foreign class Constraint
 {
 	init(type, geo0, geo1, value) {}

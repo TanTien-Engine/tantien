@@ -120,4 +120,9 @@ foreign class Maths
 	foreign static is_convex_intersect_convex(conv0, conv1)
 }
 
+foreign class Plane
+{
+	init(p0, p1, p2) {}
+}
+
 );

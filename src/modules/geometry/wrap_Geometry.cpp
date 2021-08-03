@@ -13,6 +13,7 @@
 #include <geoshape/Line3D.h>
 #include <geoshape/Polyline3D.h>
 #include <geoshape/Polygon3D.h>
+#include <polymesh3/Polytope.h>
 #include <guard/check.h>
 #include <constraints2/Scene.h>
 #include <constraints2/Constraint.h>
@@ -606,6 +607,50 @@ void w_Polygon3D_set_vertices()
     polyline->SetVertices(vertices);
 }
 
+void w_PolyFace_allocate()
+{
+    auto face = std::make_shared<pm3::Polytope::Face>();
+    face->plane = *(sm::Plane*)ves_toforeign(1);
+
+    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Face>));
+    proxy->obj = face;
+}
+
+int w_PolyFace_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<pm3::Polytope::Face>);
+}
+
+void w_Polytope_allocate()
+{
+    auto poly = std::make_shared<pm3::Polytope>();
+
+    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    proxy->obj = poly;
+
+    std::vector<pm3::Polytope::FacePtr> faces;
+    const int num = ves_len(1);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_geti(1, i);
+
+        auto face = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(-1))->obj;
+        faces.push_back(face);
+
+        ves_pop(1);
+    }
+    poly->SetFaces(faces);
+}
+
+int w_Polytope_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<pm3::Polytope>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<pm3::Polytope>);
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -819,6 +864,20 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Polygon3D_allocate;
         methods->finalize = w_Polygon3D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "PolyFace") == 0)
+    {
+        methods->allocate = w_PolyFace_allocate;
+        methods->finalize = w_PolyFace_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Polytope") == 0)
+    {
+        methods->allocate = w_Polytope_allocate;
+        methods->finalize = w_Polytope_finalize;
         return;
     }
 

@@ -7,7 +7,10 @@
 #include <model/Model.h>
 #include <model/gltf/Model.h>
 #include <model/GltfLoader.h>
+#include <model/BrushModel.h>
+#include <model/BrushBuilder.h>
 #include <unirender/VertexArray.h>
+#include <polymesh3/Polytope.h>
 
 #include <memory>
 #include <array>
@@ -41,6 +44,27 @@ int w_Model_finalize(void* data)
     auto proxy = (tt::Proxy<model::Model>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<model::Model>);
+}
+
+void w_Model_create_from_polytope()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    
+    model::BrushModel::Brush brush;
+
+    brush.desc.mesh_begin = 0;
+    brush.desc.mesh_end = 1;
+    brush.desc.meshes.push_back({ 0, 0, 0, (int)(poly->Faces().size()) });
+    brush.impl = poly;
+
+    auto brush_model = std::make_shared<model::BrushModel>();
+    brush_model->SetBrushes({ brush });
+
+    auto dev = tt::Render::Instance()->Device();
+    std::shared_ptr<model::Model> model = model::BrushBuilder::PolymeshFromBrushPN(*dev, *brush_model);
+
+    auto proxy = (tt::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Model>));
+    proxy->obj = model;
 }
 
 void w_glTF_allocate()
@@ -194,76 +218,91 @@ void w_glTF_get_desc()
             ves_pop(1);
             // emissive
             auto& emissive = material->emissive;
-            ves_newmap();
-            // factor
+            if (emissive)
             {
-                ves_pushnil();
-                ves_import_class("maths", "Float3");
-                sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
-                memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
-                ves_pop(1);
-                ves_setfield(-2, "factor");
+                ves_newmap();
+                // factor
+                {
+                    ves_pushnil();
+                    ves_import_class("maths", "Float3");
+                    sm::vec3* factor = (sm::vec3*)ves_set_newforeign(3, 4, sizeof(sm::vec3));
+                    memcpy(factor->xyz, emissive->factor.xyz, sizeof(float) * 3);
+                    ves_pop(1);
+                    ves_setfield(-2, "factor");
+                    ves_pop(1);
+                }
+                if (emissive->texture) {
+                    load_texture(*emissive->texture, 3, emissive->tex_coord);
+                }
+                ves_setfield(-2, "emissive");
                 ves_pop(1);
             }
-            if (emissive->texture) {
-                load_texture(*emissive->texture, 3, emissive->tex_coord);
-            }
-            ves_setfield(-2, "emissive");
-            ves_pop(1);
             // normal
             auto& normal = material->normal;
-            ves_newmap();
-            if (normal->texture) {
-                load_texture(*normal->texture, 3, normal->tex_coord);
+            if (normal)
+            {
+                ves_newmap();
+                if (normal->texture) {
+                    load_texture(*normal->texture, 3, normal->tex_coord);
+                }
+                ves_setfield(-2, "normal");
+                ves_pop(1);
             }
-            ves_setfield(-2, "normal");
-            ves_pop(1);
             // occlusion
             auto& occlusion = material->occlusion;
-            ves_newmap();
-            if (occlusion->texture) {
-                load_texture(*occlusion->texture, 3, occlusion->tex_coord);
+            if (occlusion)
+            {
+                ves_newmap();
+                if (occlusion->texture) {
+                    load_texture(*occlusion->texture, 3, occlusion->tex_coord);
+                }
+                ves_setfield(-2, "occlusion");
+                ves_pop(1);
             }
-            ves_setfield(-2, "occlusion");
-            ves_pop(1);
             // metallic_roughness
             auto& metallic_roughness = material->metallic_roughness;
-            ves_newmap();
-            // metallic_factor
+            if (metallic_roughness)
             {
-                ves_pushnumber(metallic_roughness->metallic_factor);
-                ves_setfield(-2, "metallic_factor");
+                ves_newmap();
+                // metallic_factor
+                {
+                    ves_pushnumber(metallic_roughness->metallic_factor);
+                    ves_setfield(-2, "metallic_factor");
+                    ves_pop(1);
+                }
+                // roughness_factor
+                {
+                    ves_pushnumber(metallic_roughness->roughness_factor);
+                    ves_setfield(-2, "roughness_factor");
+                    ves_pop(1);
+                }
+                if (metallic_roughness->texture) {
+                    load_texture(*metallic_roughness->texture, 3, metallic_roughness->tex_coord);
+                }
+                ves_setfield(-2, "metallic_roughness");
                 ves_pop(1);
             }
-            // roughness_factor
-            {
-                ves_pushnumber(metallic_roughness->roughness_factor);
-                ves_setfield(-2, "roughness_factor");
-                ves_pop(1);
-            }
-            if (metallic_roughness->texture) {
-                load_texture(*metallic_roughness->texture, 3, metallic_roughness->tex_coord);
-            }
-            ves_setfield(-2, "metallic_roughness");
-            ves_pop(1);
             // base_color
             auto& base_color = material->base_color;
-            ves_newmap();
-            // factor
+            if (base_color)
             {
-                ves_pushnil();
-                ves_import_class("maths", "Float4");
-                sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
-                memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
-                ves_pop(1);
-                ves_setfield(-2, "factor");
+                ves_newmap();
+                // factor
+                {
+                    ves_pushnil();
+                    ves_import_class("maths", "Float4");
+                    sm::vec4* factor = (sm::vec4*)ves_set_newforeign(3, 4, sizeof(sm::vec4));
+                    memcpy(factor->xyzw, base_color->factor.xyzw, sizeof(float) * 4);
+                    ves_pop(1);
+                    ves_setfield(-2, "factor");
+                    ves_pop(1);
+                }
+                if (base_color->texture) {
+                    load_texture(*base_color->texture, 3, base_color->tex_coord);
+                }
+                ves_setfield(-2, "base_color");
                 ves_pop(1);
             }
-            if (base_color->texture) {
-                load_texture(*base_color->texture, 3, base_color->tex_coord);
-            }
-            ves_setfield(-2, "base_color");
-            ves_pop(1);
             // sheen
             if (material->sheen)
             {
@@ -366,6 +405,18 @@ void w_glTF_get_desc()
     }
 }
 
+void w_glTF_create_from_polytope()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+
+    auto dev = tt::Render::Instance()->Device();
+    auto model = std::make_shared<model::gltf::Model>();
+    model::BrushBuilder::PolymeshFromBrush(*dev, { poly }, *model);
+
+    auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
+    proxy->obj = model;
+}
+
 }
 
 namespace tt
@@ -373,7 +424,10 @@ namespace tt
 
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
+    if (strcmp(signature, "static Model.create_from_polytope(_)") == 0) return w_Model_create_from_polytope;
+
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
+    if (strcmp(signature, "static glTF.create_from_polytope(_)") == 0) return w_glTF_create_from_polytope;
 
     return NULL;
 }

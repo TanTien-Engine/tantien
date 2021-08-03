@@ -1,0 +1,53 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_TABLE
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+
+class Geometry is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "gltf", VAR_TYPE_TABLE)
+		]
+
+		this.layout()
+
+		this.gltf_desc = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+
+		this.gltf_desc = nil
+	}
+
+	calc_value(idx)
+	{
+		if (this.gltf_desc) {
+			return Variant(this.gltf_desc)
+		}
+
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var gltf = v_geo.value.model
+		if (!gltf) {
+			return nil
+		}
+
+		this.gltf_desc = gltf.get_desc()
+		return Variant(this.gltf_desc)
+	}	
+}

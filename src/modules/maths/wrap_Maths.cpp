@@ -5,6 +5,7 @@
 #include <SM_Matrix2D.h>
 #include <SM_Test.h>
 #include <SM_Matrix.h>
+#include <SM_Plane.h>
 
 #include <string.h>
 
@@ -432,6 +433,22 @@ void w_Maths_is_convex_intersect_convex()
     ves_set_boolean(0, ret);
 }
 
+void w_Plane_allocate()
+{
+    sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
+
+    auto p0 = tt::list_to_vec3(1);
+    auto p1 = tt::list_to_vec3(2);
+    auto p2 = tt::list_to_vec3(3);
+
+    plane->Build(p0, p1, p2);
+}
+
+int w_Plane_finalize(void* data)
+{
+    return sizeof(sm::Plane);
+}
+
 }
 
 namespace tt
@@ -521,6 +538,13 @@ void MathsBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Matrix44_allocate;
         methods->finalize = w_Matrix44_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Plane") == 0)
+    {
+        methods->allocate = w_Plane_allocate;
+        methods->finalize = w_Plane_finalize;
         return;
     }
 }

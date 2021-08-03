@@ -1,40 +1,40 @@
 var node0 = ::geograph::nodes::box::Box()
-node0.query_param("min").value.set(0, 0, 0)
-node0.query_param("max").value.set(1, 1, 1)
+node0.query_param("size").value.set(2.0685052871704, 1.1796163320541, 1)
 
-_editor.add_node(node0, -275, 242.5)
+_editor.add_node(node0, -328.61655624616, 83.835974318694)
 
-var node1 = ::geograph::nodes::draw_geometry::DrawGeometry()
-node1.query_param("skip").value = false
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-_editor.add_node(node1, -88.285499624343, 237.06198347107)
+node1.cam.position.set(5.6338135098773, 2.2888963580073, -0.89055157421585)
+node1.cam.yaw = -181.8
+node1.cam.pitch = -23.8
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.19565641880035
 
-var node2 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node1, 73.60809909558, 271.13826771207)
 
-node2.cam.position.set(-4.305995687092, 2.7197095827782, 2.0773765951185)
-node2.cam.yaw = -19.5
-node2.cam.pitch = -26.3
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.28129097819328
+var node2 = ::geograph::nodes::geometry::Geometry()
 
-_editor.add_node(node2, -493.72788257442, 133.35635497497)
+_editor.add_node(node2, -193.37947155786, 112.1007496081)
 
-var node3 = ::blueprint::nodes::perspective::Perspective()
+var node3 = ::blueprint::nodes::fetch::Fetch()
+node3.index = "node0"
 
-node3.fovy = 45
-node3.aspect = 0
-node3.znear = 0.1
-node3.zfar = 100
+_editor.add_node(node3, -28.235165201211, 83.313050921388)
 
-_editor.add_node(node3, -493, -20.5)
+var node4 = ::blueprint::nodes::fetch::Fetch()
+node4.index = "va"
 
-var node4 = ::blueprint::nodes::multiply::Multiply()
+_editor.add_node(node4, 176.87377684355, 84.81564516774)
 
-_editor.add_node(node4, -269.21734619141, 111.00201416016)
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_gltf_gray.ves")
 
-Blueprint.connect(node2, "zoom", node3, "fovy")
-Blueprint.connect(node3, "mat", node4, "a")
-Blueprint.connect(node2, "mat", node4, "b")
-Blueprint.connect(node0, "geo", node1, "geos")
-Blueprint.connect(node4, "v", node1, "mat")
+_editor.add_node(node5, 410.19616146438, 226.72389181067)
+
+Blueprint.connect(node0, "geo", node2, "geo")
+Blueprint.connect(node2, "gltf", node3, "items")
+Blueprint.connect(node3, "item", node4, "items")
+Blueprint.connect(node1, "this", node5, "view_cam")
+Blueprint.connect(node4, "item", node5, "va")

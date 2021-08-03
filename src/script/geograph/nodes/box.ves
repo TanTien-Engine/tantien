@@ -4,8 +4,10 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Box as tt_Box
+import "geometry" for PolyFace, Polytope
 import "maths.vector" for Vector3
+import "maths" for Plane
+import "model" for glTF
 
 class Box is Node
 {
@@ -14,56 +16,81 @@ class Box is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "min", VAR_TYPE_NUMBER3),
-			Pin(this, "max", VAR_TYPE_NUMBER3),
+			Pin(this, "size", VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
-		// shape
-		this.params.add(NodeParam("min", Vector3(0, 0, 0), { "min" : -1000, "max" : 1000 }))
-		this.params.add(NodeParam("max", Vector3(1, 1, 1), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 10 }))
 
 		this.layout()
+
+		this.geo = nil
 	}
 
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
-		}	
+		}
+
+		this.geo = nil
 	}
 
 	calc_value(idx)
 	{
-		var geo = VarGeo()
-		geo.shape = tt_Box.init()
-		this.update_geo(geo)
-		return Variant(VAR_TYPE_GEO, geo)
+		if (this.geo) {
+			return Variant(VAR_TYPE_GEO, this.geo)
+		}
+
+		var size = nil
+		var v_size = Blueprint.calc_input_value(this, 0)
+		if (v_size) {
+			size = v_size.value
+		} else {
+			size = this.query_param("size").value
+		}
+
+		var xmin = 0
+		var xmax = size.x
+		var ymin = 0
+		var ymax = size.y
+		var zmin = 0
+		var zmax = size.z
+
+    	var top_left_front  = [ xmin, ymax, zmin ]
+    	var top_left_back   = [ xmin, ymax, zmax ]
+    	var top_right_front = [ xmax, ymax, zmin ]
+    	var top_right_back  = [ xmax, ymax, zmax ]
+    	var btm_left_front  = [ xmin, ymin, zmin ]
+    	var btm_left_back   = [ xmin, ymin, zmax ]
+    	var btm_right_front = [ xmax, ymin, zmin ]
+    	var btm_right_back  = [ xmax, ymin, zmax ]
+
+    	var faces = []
+
+	    var top = Plane.init(top_left_front, top_left_back, top_right_back)
+	    faces.add(PolyFace.init(top))
+
+	    var bottom = Plane.init(btm_left_front, btm_right_front, btm_right_back)
+	    faces.add(PolyFace.init(bottom))
+
+	    var left = Plane.init(top_left_back, top_left_front, btm_left_front)
+	    faces.add(PolyFace.init(left))
+
+	    var right = Plane.init(top_right_front, top_right_back, btm_right_back)
+	    faces.add(PolyFace.init(right))
+
+	    var front = Plane.init(top_left_front, top_right_front, btm_right_front)
+	    faces.add(PolyFace.init(front))
+
+	    var back = Plane.init(top_right_back, top_left_back, btm_left_back)
+	    faces.add(PolyFace.init(back))
+
+		this.geo = VarGeo()
+		this.geo.shape = Polytope.init(faces)
+		this.geo.model = glTF.create_from_polytope(this.geo.shape)
+		return Variant(VAR_TYPE_GEO, this.geo)
 	}
-
-	update_geo(geo)
-	{
-		var min = nil
-		var v_min = Blueprint.calc_input_value(this, 0)
-		if (v_min) {
-			min = v_min.value
-		} else {
-			min = this.query_param("min").value
-		}
-
-		var max = nil
-		var v_max = Blueprint.calc_input_value(this, 0)
-		if (v_max) {
-			max = v_max.value
-		} else {
-			max = this.query_param("max").value
-		}
-		
-		geo.shape.set_size([min.x, min.y, min.z], [max.x, max.y, max.z])
-
-//		geo.render_style["fill"] = this.query_param("fill").value
-//		geo.render_style["color"] = this.query_param("color").value
-	}	
 }
