@@ -179,6 +179,9 @@ class NodeParam
 		if (this.integer) {
 			value = Math.floor(value)
 		}
+		if (this.min and value < this.min) {
+			value = this.min
+		}
 		pos.y = pos.y - DEFAULT_HEIGHT
 
 		return value
