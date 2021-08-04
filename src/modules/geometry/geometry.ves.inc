@@ -184,6 +184,10 @@ foreign class PolyFace
 foreign class Polytope
 {
 	init(faces) {}
+
+	foreign clone()
+
+	foreign extrude(dist)
 }
 
 foreign class Constraint

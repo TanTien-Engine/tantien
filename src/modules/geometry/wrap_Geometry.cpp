@@ -651,6 +651,49 @@ int w_Polytope_finalize(void* data)
     return sizeof(tt::Proxy<pm3::Polytope>);
 }
 
+void w_Polytope_clone()
+{
+    auto src = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<pm3::Polytope>();
+    *dst = *src;
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    proxy->obj = dst;
+}
+
+void w_Polytope_extrude()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto dist = (float)ves_tonumber(1);
+
+    auto topo_poly = poly->GetTopoPoly();
+    if (!topo_poly) {
+        return;
+    }
+
+    bool create_face[he::Polyhedron::ExtrudeMaxCount];
+    create_face[he::Polyhedron::ExtrudeFront] = true;
+    create_face[he::Polyhedron::ExtrudeBack] = true;
+    create_face[he::Polyhedron::ExtrudeSide] = true;
+
+    std::vector<he::TopoID> face_ids;
+    auto& faces = topo_poly->GetLoops();
+    face_ids.reserve(faces.Size());
+    auto first_f = faces.Head();
+    auto curr_f = first_f;
+    do {
+        face_ids.push_back(curr_f->ids);
+        curr_f = curr_f->linked_next;
+    } while (curr_f != first_f);
+
+    if (!topo_poly->Extrude(dist, face_ids, create_face)) {
+        return;
+    }
+
+    poly->BuildFromTopo();
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -777,6 +820,9 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
     if (strcmp(signature, "Polygon3D.get_vertices()") == 0) return w_Polygon3D_get_vertices;
     if (strcmp(signature, "Polygon3D.set_vertices(_)") == 0) return w_Polygon3D_set_vertices;
+
+    if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
+    if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 

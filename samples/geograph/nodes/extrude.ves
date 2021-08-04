@@ -1,0 +1,63 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(0.99195694923401, 1, 1)
+
+_editor.add_node(node0, -529.92760057373, 169.90434396558)
+
+var node1 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node1.query_param("distance").value = 0.2306552529335
+
+_editor.add_node(node1, -345.0758871742, 101.1401325458)
+
+var node2 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node2, -345.8346862793, 300.67352294922)
+
+var node3 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node3, -201.20661169635, 265.96278293074)
+
+var node4 = ::blueprint::nodes::number3::Number3()
+
+node4.value.set(0.94682145118713, 1.0579324960709, 0.63878375291824)
+
+_editor.add_node(node4, -345.52140036568, 204.62695227665)
+
+var node5 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node5, -28.185574755823, 210.68256949662)
+
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
+node6.load_from_file(_editor, "../../../assets/blueprints/scenegraph/draw_sprites.ves")
+
+_editor.add_node(node6, 294.40545541473, 181.87157794735)
+
+var node7 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node7, -172.30389152085, 103.35636460486)
+
+var node8 = ::blueprint::nodes::camera3d::Camera3d()
+
+node8.cam.position.set(-1.8282619535152, 3.4482588099269, 3.4347216445407)
+node8.cam.yaw = -45.3
+node8.cam.pitch = -38.2
+node8.cam.zoom = 45
+node8.cam.update_vectors()
+node8.speed = 0.23501041531563
+
+_editor.add_node(node8, 112.24153346745, 98.374607982967)
+
+var node9 = ::blueprint::nodes::cache::Cache()
+node9.query_param("disable").value = false
+
+_editor.add_node(node9, 112, 220.5)
+
+Blueprint.connect(node0, "geo", node2, "symbol")
+Blueprint.connect(node2, "spr", node3, "spr")
+Blueprint.connect(node4, "v3", node3, "translate")
+Blueprint.connect(node0, "geo", node1, "geo")
+Blueprint.connect(node1, "geo", node7, "symbol")
+Blueprint.connect(node3, "spr", node5, "in0")
+Blueprint.connect(node7, "spr", node5, "in1")
+Blueprint.connect(node5, "list", node9, "var")
+Blueprint.connect(node9, "var", node6, "sprites")
+Blueprint.connect(node8, "this", node6, "view_cam")
