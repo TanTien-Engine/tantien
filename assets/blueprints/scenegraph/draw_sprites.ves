@@ -1,0 +1,150 @@
+var node0 = ::geograph::nodes::geometry::Geometry()
+
+_editor.add_node(node0, -317.17884255786, 196.7696786081)
+
+var node1 = ::blueprint::nodes::fetch::Fetch()
+node1.index = "node0"
+
+_editor.add_node(node1, -152.03453620121, 167.98197992139)
+
+var node2 = ::blueprint::nodes::fetch::Fetch()
+node2.index = "va"
+
+_editor.add_node(node2, 53.07440584355, 169.48457416774)
+
+var node3 = ::scenegraph::nodes::sprite_info::SpriteInfo()
+
+_editor.add_node(node3, -493.29523277857, 190.18546044773)
+
+var node4 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node4, 775.5359833873, 156.92503352447)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "sprites"
+node5.var_type = "array"
+
+_editor.add_node(node5, 630.77977772603, 133.3720983892)
+
+var node6 = ::rendergraph::nodes::draw::Draw()
+
+node6.set_prim_type("triangles")
+node6.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node6.skip = false
+
+_editor.add_node(node6, 492.54079623207, -130.83645767526)
+
+var node7 = ::rendergraph::nodes::shader::Shader()
+
+node7.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out VS_OUT {
+	vec3 Normal;
+    vec3 frag_pos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+};
+
+void main()
+{
+	vs_out.Normal = aNormal;
+	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node7.tcs = ""
+node7.tes = ""
+node7.gs = ""
+node7.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+	vec3 Normal;
+    vec3 frag_pos;
+} fs_in;
+
+uniform UBO
+{
+	vec3 light_pos;
+	vec3 cam_pos;
+};
+
+void main()
+{
+	// ambient
+	vec3 ambient = vec3(0.25);
+
+	// diffuse
+	const vec3 LIGHT_POS = vec3(-5.0, -5.0, 10);
+	vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
+    float diff = max(dot(fs_in.Normal, light_dir), 0.0);
+    vec3 diffuse = diff * vec3(1.0);
+
+    // specular
+    vec3 view_dir = normalize(cam_pos - fs_in.frag_pos);
+    vec3 halfway_dir = normalize(light_dir + view_dir);  
+    float spec = pow(max(dot(fs_in.Normal, halfway_dir), 0.0), 32.0);
+    vec3 specular = spec * vec3(1.0);
+
+    FragColor = vec4(ambient + diffuse + specular, 1.0); 
+}
+"
+node7.cs = ""
+node7.render_gen()
+
+_editor.add_node(node7, 318.28819556786, -198.53696236558)
+
+var node8 = ::rendergraph::nodes::clear::Clear()
+
+node8.masks = [ "color", "depth" ]
+node8.values = { "color" : [ 0.5, 0.50339967012405, 0.5, 1 ] }
+
+_editor.add_node(node8, 470.25832302797, 127.96065563351)
+
+var node9 = ::blueprint::nodes::perspective::Perspective()
+
+node9.fovy = 45
+node9.aspect = 0
+node9.znear = 0.1
+node9.zfar = 100
+
+_editor.add_node(node9, 109.42281830549, -156.36387359383)
+
+var node10 = ::blueprint::nodes::proxy::Proxy()
+
+node10.real_name = "view_cam"
+node10.init_real_node(_editor.popup_nodes, "Camera3d")
+
+_editor.add_node(node10, 105.58496368305, -8.2482041119699)
+
+var node11 = ::blueprint::nodes::number3::Number3()
+
+node11.value.set(5.9766573905945, 5.6433238983154, 5.3099908828735)
+
+_editor.add_node(node11, 108.3289070327, -279.46080434344)
+
+Blueprint.connect(node10, "zoom", node9, "fovy")
+Blueprint.connect(node8, "next", node4, "prev")
+Blueprint.connect(node5, "var", node4, "in")
+Blueprint.connect(node6, "next", node4, "do")
+Blueprint.connect(node4, "out", node3, "spr")
+Blueprint.connect(node3, "transform", node7, "model")
+Blueprint.connect(node10, "mat", node7, "view")
+Blueprint.connect(node9, "mat", node7, "projection")
+Blueprint.connect(node11, "v3", node7, "light_pos")
+Blueprint.connect(node10, "pos", node7, "cam_pos")
+Blueprint.connect(node3, "symbol", node0, "geo")
+Blueprint.connect(node0, "gltf", node1, "items")
+Blueprint.connect(node1, "item", node2, "items")
+Blueprint.connect(node7, "out", node6, "shader")
+Blueprint.connect(node2, "item", node6, "va")
