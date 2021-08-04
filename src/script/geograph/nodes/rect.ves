@@ -63,7 +63,7 @@ class Rect is Node
 		}
 		else if (idx == 1)
 		{
-			this.geo = VarGeo()
+			var geo = VarGeo()
 
 			var params = this.calc_rect_params()			
 
@@ -75,9 +75,9 @@ class Rect is Node
 
 			var face = PolyFace.init([ 0, 1, 2, 3 ], [])
 
-			this.geo.shape = Polytope.init(points, [ face ])
-			this.geo.model = glTF.create_from_polytope(this.geo.shape)
-			return Variant(VAR_TYPE_GEO, this.geo)
+			geo.shape = Polytope.init(points, [ face ])
+			geo.model = glTF.create_from_polytope(geo.shape)
+			return Variant(VAR_TYPE_GEO, geo)
 		}
 		return nil
 	}

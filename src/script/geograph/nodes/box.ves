@@ -25,8 +25,6 @@ class Box is Node
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 10 }))
 
 		this.layout()
-
-		this.geo = nil
 	}
 
 	on_pin_dirty(pin)
@@ -34,16 +32,10 @@ class Box is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-
-		this.geo = nil
 	}
 
 	calc_value(idx)
 	{
-		if (this.geo) {
-			return Variant(VAR_TYPE_GEO, this.geo)
-		}
-
 		var size = nil
 		var v_size = Blueprint.calc_input_value(this, 0)
 		if (v_size) {
@@ -88,9 +80,9 @@ class Box is Node
 	    var back = Plane.init(top_right_back, top_left_back, btm_left_back)
 	    faces.add(PolyFace.init(back))
 
-		this.geo = VarGeo()
-		this.geo.shape = Polytope.init(faces)
-		this.geo.model = glTF.create_from_polytope(this.geo.shape)
-		return Variant(VAR_TYPE_GEO, this.geo)
+		var geo = VarGeo()
+		geo.shape = Polytope.init(faces)
+		geo.model = glTF.create_from_polytope(geo.shape)
+		return Variant(VAR_TYPE_GEO, geo)
 	}
 }
