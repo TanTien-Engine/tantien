@@ -195,6 +195,7 @@ foreign class Polytope
 	foreign clone()
 
 	foreign extrude(dist)
+	foreign offset(selector, dist)
 }
 
 foreign class Constraint

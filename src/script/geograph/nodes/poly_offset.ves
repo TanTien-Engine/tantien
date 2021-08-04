@@ -1,0 +1,59 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "model" for glTF
+
+class PolyOffset is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",      VAR_TYPE_GEO),
+			Pin(this, "distance", VAR_TYPE_NUMBER),			
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("selector", "inside", { "combo" : [ "all", "inside", "border" ] }))
+		this.params.add(NodeParam("distance", 0.0, { "region" : 10 }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo or !v_geo.value.shape) {
+			return nil
+		}
+
+		var distance = nil
+		var v_distance = Blueprint.calc_input_value(this, 1)
+		if (v_distance) {
+			distance = v_distance.value
+		} else {
+			distance = this.query_param("distance").value
+		}
+
+		var selector = this.query_param("selector").value
+		var poly = v_geo.value.shape.offset(selector, distance)
+
+		var geo = VarGeo()
+		geo.shape = poly
+		geo.model = glTF.create_from_polytope(geo.shape)
+		return Variant(VAR_TYPE_GEO, geo)		
+	}
+}

@@ -1,4 +1,5 @@
 #include "modules/geometry/wrap_Geometry.h"
+#include "modules/geometry/TopoPolyAdapter.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 
@@ -17,6 +18,7 @@
 #include <guard/check.h>
 #include <constraints2/Scene.h>
 #include <constraints2/Constraint.h>
+#include <halfedge/Polygon.h>
 
 #include <string>
 #include <iterator>
@@ -729,6 +731,44 @@ void w_Polytope_extrude()
     poly->BuildFromTopo();
 }
 
+void w_Polytope_offset()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto selector = ves_tostring(1);
+    auto dist = (float)ves_tonumber(2);
+
+    std::vector<pm3::Polytope::PointPtr> dst_pts;
+    std::vector<pm3::Polytope::FacePtr>  dst_faces;
+
+    auto& src_points = poly->Points();
+    auto& src_faces = poly->Faces();
+    for (auto& src_f : src_faces)
+    {
+        std::vector<sm::vec3> src_poly;
+        src_poly.reserve(src_f->border.size());
+        for (auto& p : src_f->border) {
+            src_poly.push_back(src_points[p]->pos);
+        }
+
+        tt::TopoPolyAdapter topo_poly(src_poly);
+
+        he::Polygon::KeepType keep = he::Polygon::KeepType::KeepInside;
+        if (strcmp(selector, "all") == 0) {
+            keep = he::Polygon::KeepType::KeepAll;
+        } else if (strcmp(selector, "inside") == 0) {
+            keep = he::Polygon::KeepType::KeepInside;
+        } else if (strcmp(selector, "border") == 0) {
+            keep = he::Polygon::KeepType::KeepBorder;
+        }
+        topo_poly.GetPoly()->Offset(dist, keep);
+
+        topo_poly.TransToPolymesh(dst_pts, dst_faces);
+    }
+
+    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    proxy->obj = std::make_shared<pm3::Polytope>(dst_pts, dst_faces);
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -858,6 +898,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
     if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
+    if (strcmp(signature, "Polytope.offset(_,_)") == 0) return w_Polytope_offset;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 
