@@ -6,9 +6,11 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Circle as tt_Circle
+import "geometry" for Circle as tt_Circle, PolyPoint, PolyFace, Polytope
 import "maths.vector" for Vector2, Vector3
 import "maths.calc" for Calc
+import "model" for glTF
+import "math" for Math
 
 var EDITOR = nil
 
@@ -24,13 +26,14 @@ class Circle is Node
 			Pin(this, "pos",    VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo",      VAR_TYPE_GEO),
+			Pin(this, "polytope", VAR_TYPE_GEO),
 		]
 
 		// shape
 		this.params.add(NodeParam("x", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
-		this.params.add(NodeParam("r", 100, { "region" : 1000 }))
+		this.params.add(NodeParam("r", 100, { "min" : 0.001, "region" : 1000 }))
 
 		// draw
 		this.params.add(NodeParam("fill", false))
@@ -45,16 +48,48 @@ class Circle is Node
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
-		}	
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
+		}
 	}
 
 	calc_value(idx)
 	{
-		var geo = VarGeo()
-		geo.shape = tt_Circle.init()
-		this.update_geo(geo)
-		return Variant(VAR_TYPE_GEO, geo)
+		if (idx == 0)
+		{
+			var geo = VarGeo()
+			geo.shape = tt_Circle.init()
+			this.update_geo(geo)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		else if (idx == 1)
+		{
+			this.geo = VarGeo()
+
+			var c = this.get_center()
+			var r = this.get_radius()
+
+			var points = []
+			var border = []
+			var N = Math.max(16, r * 16)
+			for (var i = 0; i < N; i = i + 1)
+			{
+				var angle = Math.pi() * 2 / N * i
+				var x = r * Math.cos(angle)
+				var y = - r * Math.sin(angle)
+				points.add(PolyPoint.init([ x, 0, y ]))
+
+				border.add(i)
+			}
+
+			var face = PolyFace.init(border, [])
+
+			this.geo.shape = Polytope.init(points, [ face ])
+			this.geo.model = glTF.create_from_polytope(this.geo.shape)
+			return Variant(VAR_TYPE_GEO, this.geo)
+		}
+		return nil
 	}
 
 	geo_solver_gen(scene)
