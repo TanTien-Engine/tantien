@@ -6,8 +6,9 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Rect as tt_Rect
+import "geometry" for Rect as tt_Rect, PolyPoint, PolyFace, Polytope
 import "maths.vector" for Vector3
+import "model" for glTF
 
 var EDITOR = nil
 
@@ -22,14 +23,15 @@ class Rect is Node
 			Pin(this, "size", VAR_TYPE_NUMBER2),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo",      VAR_TYPE_GEO),
+			Pin(this, "polytope", VAR_TYPE_GEO),			
 		]
 
 		// shape
 		this.params.add(NodeParam("x", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
-		this.params.add(NodeParam("w", 100, { "region" : 1000 }))
-		this.params.add(NodeParam("h", 100, { "region" : 1000 }))
+		this.params.add(NodeParam("w", 100, { "min" : 0.001, "region" : 1000 }))
+		this.params.add(NodeParam("h", 100, { "min" : 0.001, "region" : 1000 }))
 
 		// draw
 		this.params.add(NodeParam("fill", false))
@@ -50,10 +52,32 @@ class Rect is Node
 
 	calc_value(idx)
 	{
-		var geo = VarGeo()
-		geo.shape = tt_Rect.init()
-		this.update_geo(geo)
-		return Variant(VAR_TYPE_GEO, geo)
+		if (idx == 0)
+		{
+			var geo = VarGeo()
+			geo.shape = tt_Rect.init()
+			this.update_geo(geo)
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+		else if (idx == 1)
+		{
+			this.geo = VarGeo()
+
+			var params = this.calc_rect_params()			
+
+			var points = []
+			points.add(PolyPoint.init([ params[0],             0, params[1]             ]))
+			points.add(PolyPoint.init([ params[0],             0, params[1] + params[3] ]))
+			points.add(PolyPoint.init([ params[0] + params[2], 0, params[1] + params[3] ]))
+			points.add(PolyPoint.init([ params[0] + params[2], 0, params[1]             ]))
+
+			var face = PolyFace.init([ 0, 1, 2, 3 ], [])
+
+			this.geo.shape = Polytope.init(points, [ face ])
+			this.geo.model = glTF.create_from_polytope(this.geo.shape)
+			return Variant(VAR_TYPE_GEO, this.geo)
+		}
+		return nil
 	}
 
 	geo_solver_gen(scene)
@@ -64,7 +88,8 @@ class Rect is Node
 		geo.geo_id = scene.add_geo(geo.shape)
 	}
 
-	update_geo(geo)
+	// x, y, w, h
+	calc_rect_params()
 	{
 		var x = 0
 		var y = 0
@@ -96,8 +121,14 @@ class Rect is Node
 			y = y + h
 			h = -h
 		}
-		
-		geo.shape.set(x, y, w, h)
+
+		return [ x, y, w, h ]
+	}	
+
+	update_geo(geo)
+	{
+		var params = this.calc_rect_params()
+		geo.shape.set(params[0], params[1], params[2], params[3])
 
 		geo.render_style["fill"] = this.query_param("fill").value
 		geo.render_style["color"] = this.query_param("color").value

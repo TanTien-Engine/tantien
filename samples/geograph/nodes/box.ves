@@ -12,29 +12,12 @@ node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.19565641880035
 
-_editor.add_node(node1, 73.60809909558, 271.13826771207)
+_editor.add_node(node1, -236.68491367677, -76.72048510536)
 
-var node2 = ::geograph::nodes::geometry::Geometry()
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
 
-_editor.add_node(node2, -193.37947155786, 112.1007496081)
-
-var node3 = ::blueprint::nodes::fetch::Fetch()
-node3.index = "node0"
-
-_editor.add_node(node3, -28.235165201211, 83.313050921388)
-
-var node4 = ::blueprint::nodes::fetch::Fetch()
-node4.index = "va"
-
-_editor.add_node(node4, 176.87377684355, 84.81564516774)
-
-var node5 = ::blueprint::nodes::subgraph::Subgraph()
-node5.load_from_file(_editor, "../../../assets/blueprints/rendergraph/draw_gltf_gray.ves")
-
-_editor.add_node(node5, 410.19616146438, 226.72389181067)
+_editor.add_node(node2, -15.669421487603, 66.805033809166)
 
 Blueprint.connect(node0, "geo", node2, "geo")
-Blueprint.connect(node2, "gltf", node3, "items")
-Blueprint.connect(node3, "item", node4, "items")
-Blueprint.connect(node1, "this", node5, "view_cam")
-Blueprint.connect(node4, "item", node5, "va")
+Blueprint.connect(node1, "this", node2, "view_cam")

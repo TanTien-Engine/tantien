@@ -1,0 +1,34 @@
+var node0 = ::geograph::nodes::rect::Rect()
+node0.query_param("x").value = 0
+node0.query_param("y").value = 0
+node0.query_param("w").value = 1
+node0.query_param("h").value = 1
+node0.query_param("fill").value = false
+node0.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node0, -301, 97.5)
+
+var node1 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node1.query_param("distance").value = 0.31561788916588
+
+_editor.add_node(node1, -154.84055970935, 154.68923904547)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+
+_editor.add_node(node2, 61.703981968445, 121.14613072878)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(-1.2284732393762, 1.5936818104705, 3.5123760467734)
+node3.cam.yaw = -50.5
+node3.cam.pitch = -22.1
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.23908986151218
+
+_editor.add_node(node3, -151.47257766322, 19.226521538578)
+
+Blueprint.connect(node0, "polytope", node1, "geo")
+Blueprint.connect(node1, "geo", node2, "geo")
+Blueprint.connect(node3, "this", node2, "view_cam")

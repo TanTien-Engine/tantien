@@ -19,6 +19,7 @@
 #include <constraints2/Constraint.h>
 
 #include <string>
+#include <iterator>
 
 namespace
 {
@@ -607,10 +608,38 @@ void w_Polygon3D_set_vertices()
     polyline->SetVertices(vertices);
 }
 
+void w_PolyPoint_allocate()
+{
+    auto pos = tt::list_to_vec3(1);
+    auto p = std::make_shared<pm3::Polytope::Point>(pos);
+
+    auto proxy = (tt::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Point>));
+    proxy->obj = p;
+}
+
+int w_PolyPoint_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<pm3::Polytope::Point>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<pm3::Polytope::Point>);
+}
+
 void w_PolyFace_allocate()
 {
     auto face = std::make_shared<pm3::Polytope::Face>();
-    face->plane = *(sm::Plane*)ves_toforeign(1);
+
+    auto num = ves_argnum();
+    if (num == 2)
+    {
+        face->plane = *(sm::Plane*)ves_toforeign(1);
+    }
+    else if (num == 3)
+    {
+        auto border = tt::list_to_int_array(1);
+        std::copy(border.begin(), border.end(), std::back_inserter(face->border));
+
+        std::vector<std::vector<size_t>> holes;
+    }
 
     auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Face>));
     proxy->obj = face;
@@ -625,23 +654,29 @@ int w_PolyFace_finalize(void* data)
 
 void w_Polytope_allocate()
 {
-    auto poly = std::make_shared<pm3::Polytope>();
+    std::shared_ptr<pm3::Polytope> poly = nullptr;
+
+    auto argnum = ves_argnum();
+    if (argnum == 2)
+    {
+        std::vector<pm3::Polytope::FacePtr> faces;
+        tt::list_to_foreigns(1, faces);
+
+        poly = std::make_shared<pm3::Polytope>(faces);
+    }
+    else if (argnum == 3)
+    {
+        std::vector<pm3::Polytope::PointPtr> points;
+        tt::list_to_foreigns(1, points);
+
+        std::vector<pm3::Polytope::FacePtr> faces;
+        tt::list_to_foreigns(2, faces);
+
+        poly = std::make_shared<pm3::Polytope>(points, faces);
+    }
 
     auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
     proxy->obj = poly;
-
-    std::vector<pm3::Polytope::FacePtr> faces;
-    const int num = ves_len(1);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_geti(1, i);
-
-        auto face = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(-1))->obj;
-        faces.push_back(face);
-
-        ves_pop(1);
-    }
-    poly->SetFaces(faces);
 }
 
 int w_Polytope_finalize(void* data)
@@ -910,6 +945,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Polygon3D_allocate;
         methods->finalize = w_Polygon3D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "PolyPoint") == 0)
+    {
+        methods->allocate = w_PolyPoint_allocate;
+        methods->finalize = w_PolyPoint_finalize;
         return;
     }
 

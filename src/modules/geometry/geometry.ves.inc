@@ -176,14 +176,21 @@ foreign class Polygon3D is Shape3D
 	foreign set_vertices(vertices)
 }
 
+foreign class PolyPoint
+{
+	init(pos) {}
+}
+
 foreign class PolyFace
 {
 	init(plane) {}
+	init(border, holes) {}
 }
 
 foreign class Polytope
 {
 	init(faces) {}
+	init(points, faces) {}
 
 	foreign clone()
 
