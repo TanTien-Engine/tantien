@@ -18,8 +18,6 @@ class Geometry is Node
 		]
 
 		this.layout()
-
-		this.gltf_desc = nil
 	}
 
 	on_pin_dirty(pin)
@@ -27,16 +25,10 @@ class Geometry is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-
-		this.gltf_desc = nil
 	}
 
 	calc_value(idx)
 	{
-		if (this.gltf_desc) {
-			return Variant(this.gltf_desc)
-		}
-
 		var v_geo = Blueprint.calc_input_value(this, 0)
 		if (!v_geo) {
 			return nil
@@ -47,7 +39,7 @@ class Geometry is Node
 			return nil
 		}
 
-		this.gltf_desc = gltf.get_desc()
-		return Variant(this.gltf_desc)
+		var gltf_desc = gltf.get_desc()
+		return Variant(gltf_desc)
 	}	
 }
