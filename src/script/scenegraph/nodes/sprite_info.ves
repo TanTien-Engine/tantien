@@ -1,0 +1,57 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "scenegraph.variant" for VAR_TYPE_SPRITE
+import "geograph.variant" for VarGeo, VAR_TYPE_GEO
+import "maths" for Matrix44
+
+class SpriteInfo is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "spr", VAR_TYPE_SPRITE),
+		]
+		this.exports = [
+			Pin(this, "symbol",    VAR_TYPE_GEO),
+			Pin(this, "transform", VAR_TYPE_MATRIX4),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_spr = Blueprint.calc_input_value(this, 0)
+		if (!v_spr) {
+			return nil
+		}
+
+		if (idx == 0)
+		{
+			if (v_spr.value.symbol is VarGeo) {
+				return Variant(VAR_TYPE_GEO, v_spr.value.symbol)
+			}
+		}
+		else if (idx == 1)
+		{
+			if (!v_spr.value.transform) {
+				return Variant(Matrix44.init())			
+			} else if (v_spr.value.transform is Matrix44) {
+				return Variant(v_spr.value.transform)
+			}
+		}
+
+		return nil
+	}
+}

@@ -263,6 +263,15 @@ void w_Matrix44_translate()
     mt->Translate(x, y, z);
 }
 
+void w_Matrix44_rotate()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float x = (float)ves_tonumber(1);
+    const float y = (float)ves_tonumber(2);
+    const float z = (float)ves_tonumber(3);
+    *mt = mt->Rotated(x, y, z);
+}
+
 void w_Matrix44_rotate_axis()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
@@ -487,6 +496,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
 
     if (strcmp(signature, "Matrix44.clone()") == 0) return w_Matrix44_clone;
     if (strcmp(signature, "Matrix44.translate(_,_,_)") == 0) return w_Matrix44_translate;
+    if (strcmp(signature, "Matrix44.rotate(_,_,_)") == 0) return w_Matrix44_rotate;
     if (strcmp(signature, "Matrix44.rotate_axis(_,_,_,_)") == 0) return w_Matrix44_rotate_axis;
     if (strcmp(signature, "Matrix44.scale(_,_,_)") == 0) return w_Matrix44_scale;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;

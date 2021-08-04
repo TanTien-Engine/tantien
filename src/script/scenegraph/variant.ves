@@ -16,4 +16,38 @@ class VarSprite
 
 		this.color = nil
 	}
+
+	clone()
+	{
+		var new = VarSprite()
+
+		new.children = this.children
+
+		if (this.transform) 
+		{
+			import "maths" for Matrix2D
+			import "maths" for Matrix44
+
+			if (this.transform is Matrix2D)
+			{
+				new.transform = Matrix2D.init()
+				new.transform.transform_mat(this.transform)
+			}
+			else if (this.transform is Matrix44)
+			{
+				new.transform = Matrix44.init()
+				new.transform.transform_mat4(this.transform)
+			}
+		}
+
+		new.symbol = this.symbol
+
+		// fixme
+		new.size  = this.size
+		new.color = this.color
+
+		new.hide = this.hide
+
+		return new
+	}
 }

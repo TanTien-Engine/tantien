@@ -1,0 +1,83 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(0.99195694923401, 1, 1)
+
+_editor.add_node(node0, -529.92760057373, 169.90434396558)
+
+var node1 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node1, -345.21376495624, 351.58907144007)
+
+var node2 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node2, -200.58569037329, 316.87833142159)
+
+var node3 = ::blueprint::nodes::number3::Number3()
+
+node3.value.set(0.94682145118713, 1.0579324960709, 0.63878375291824)
+
+_editor.add_node(node3, -344.90047904262, 255.5425007675)
+
+var node4 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node4, -28.185574755823, 210.68256949662)
+
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/scenegraph/draw_sprites.ves")
+
+_editor.add_node(node5, 294.40545541473, 181.87157794735)
+
+var node6 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node6, -343.67817668518, 98.388994020387)
+
+var node7 = ::blueprint::nodes::camera3d::Camera3d()
+
+node7.cam.position.set(-1.8282619535152, 3.4482588099269, 3.4347216445407)
+node7.cam.yaw = -45.3
+node7.cam.pitch = -38.2
+node7.cam.zoom = 45
+node7.cam.update_vectors()
+node7.speed = 0.23501041531563
+
+_editor.add_node(node7, 112.24153346745, 98.374607982967)
+
+var node8 = ::blueprint::nodes::cache::Cache()
+node8.query_param("disable").value = false
+
+_editor.add_node(node8, 112, 220.5)
+
+var node9 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node9, -197.6044511751, 49.736034047657)
+
+var node10 = ::blueprint::nodes::number3::Number3()
+
+node10.value.set(0.74208235740662, 0.63097125291824, 0.63097125291824)
+
+_editor.add_node(node10, -346.67872942341, 0.81376804998655)
+
+var node11 = ::blueprint::nodes::number3::Number3()
+
+node11.value.set(0.55555558204651, 0.66666668653488, 0.88888889551163)
+
+_editor.add_node(node11, -350, -108.5)
+
+var node12 = ::blueprint::nodes::number3::Number3()
+
+node12.value.set(0.66666668653488, 1.7777777910233, 0)
+
+_editor.add_node(node12, -476, 1.5)
+
+Blueprint.connect(node0, "geo", node6, "symbol")
+Blueprint.connect(node6, "spr", node9, "spr")
+Blueprint.connect(node12, "v3", node9, "translate")
+Blueprint.connect(node10, "v3", node9, "rotate")
+Blueprint.connect(node11, "v3", node9, "scale")
+Blueprint.connect(node0, "geo", node1, "symbol")
+Blueprint.connect(node1, "spr", node2, "spr")
+Blueprint.connect(node3, "v3", node2, "translate")
+Blueprint.connect(node2, "spr", node4, "in0")
+Blueprint.connect(node9, "spr", node4, "in1")
+Blueprint.connect(node4, "list", node8, "var")
+Blueprint.connect(node8, "var", node5, "sprites")
+Blueprint.connect(node7, "this", node5, "view_cam")
