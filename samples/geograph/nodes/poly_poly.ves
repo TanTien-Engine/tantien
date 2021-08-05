@@ -3,28 +3,33 @@ node0.query_param("distance").value = 0.64895123243332
 
 _editor.add_node(node0, -154.84055970935, 154.68923904547)
 
-var node1 = ::blueprint::nodes::subgraph::Subgraph()
-node1.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-_editor.add_node(node1, 61.703981968445, 121.14613072878)
+node1.cam.position.set(3.2496443412191, 2.7966527935281, 0.51011751116781)
+node1.cam.yaw = -182.6
+node1.cam.pitch = -44.2
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.26051843166351
 
-var node2 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node1, -151.47257766322, 19.226521538578)
 
-node2.cam.position.set(3.2496443412191, 2.7966527935281, 0.51011751116781)
-node2.cam.yaw = -182.6
-node2.cam.pitch = -44.2
-node2.cam.zoom = 45
-node2.cam.update_vectors()
-node2.speed = 0.26051843166351
+var node2 = ::geograph::nodes::polygon::Polygon()
+node2.query_param("vertices").value = [ 0, 0, -1, 1, 0.5, 0.25, 2, 1, 1, 0 ]
+node2.query_param("color").value.set(1, 0, 0)
 
-_editor.add_node(node2, -151.47257766322, 19.226521538578)
+_editor.add_node(node2, -328.58942254881, 152.92104279785)
 
-var node3 = ::geograph::nodes::polygon::Polygon()
-node3.query_param("vertices").value = [ 0, 0, -1, 1, 0.5, 0.25, 2, 1, 1, 0 ]
-node3.query_param("color").value.set(1, 0, 0)
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node3, -328.58942254881, 152.92104279785)
+_editor.add_node(node3, 188.40281693009, 142.27116255327)
 
-Blueprint.connect(node3, "polytope", node0, "geo")
-Blueprint.connect(node0, "geo", node1, "geo")
-Blueprint.connect(node2, "this", node1, "view_cam")
+var node4 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node4, -19.861646951723, 167.0645504786)
+
+Blueprint.connect(node2, "polytope", node0, "geo")
+Blueprint.connect(node0, "geo", node4, "in0")
+Blueprint.connect(node4, "list", node3, "geos")
+Blueprint.connect(node1, "this", node3, "view_cam")

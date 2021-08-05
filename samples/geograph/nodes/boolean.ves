@@ -1,57 +1,80 @@
 var node0 = ::geograph::nodes::box::Box()
-node0.query_param("size").value.set(0.43046399950981, 2, 1.0971306562424)
+node0.query_param("size").value.set(1.6526862382889, 2, 0.76379734277725)
 
 _editor.add_node(node0, -441.87418892152, 87.046547366983)
 
 var node1 = ::geograph::nodes::boolean::Boolean()
 node1.query_param("operator").value = "subtract"
 
-_editor.add_node(node1, -73.217129977461, -59.764462809917)
+_editor.add_node(node1, -125.52241697884, 98.64122881151)
 
 var node2 = ::geograph::nodes::box::Box()
-node2.query_param("size").value.set(2, 0.33333334326744, 1.833624958992)
+node2.query_param("size").value.set(1.963738322258, 0.33333334326744, 1.9447360038757)
 
-_editor.add_node(node2, -265.5026296018, -113.0026296018)
+_editor.add_node(node2, -274.27027329929, 152.30730173713)
 
-var node3 = ::blueprint::nodes::subgraph::Subgraph()
-node3.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+var node3 = ::scenegraph::nodes::transform3d::Transform3d()
 
-_editor.add_node(node3, 117.21187077385, -96.594665664914)
+_editor.add_node(node3, -270.22062079812, 40.106112268099)
 
-var node4 = ::scenegraph::nodes::sprite::Sprite()
+var node4 = ::blueprint::nodes::number3::Number3()
 
-_editor.add_node(node4, -297.09393955875, 96.813211580043)
+node4.value.set(0.46303981542587, 0, 0)
 
-var node5 = ::scenegraph::nodes::transform3d::Transform3d()
+_editor.add_node(node4, -441.16737174638, -23.985961394775)
 
-_editor.add_node(node5, -142.7329213265, 87.934065335273)
+var node5 = ::blueprint::nodes::camera3d::Camera3d()
 
-var node6 = ::blueprint::nodes::number3::Number3()
+node5.cam.position.set(1.5762675143195, 2.8525984174862, 2.5710345982052)
+node5.cam.yaw = -120.9
+node5.cam.pitch = -49
+node5.cam.zoom = 45
+node5.cam.update_vectors()
+node5.speed = 0.29207175970078
 
-node6.value.set(0.5873955488205, 0.51150512695313, 0)
+_editor.add_node(node5, 140.54621431949, -15.22817340057)
 
-_editor.add_node(node6, -277.2865652404, -1.5406972771663)
+var node6 = ::geograph::nodes::circle::Circle()
+node6.query_param("x").value = 0
+node6.query_param("y").value = 0
+node6.query_param("r").value = 0.75
+node6.query_param("fill").value = false
+node6.query_param("color").value.set(1, 0, 0)
 
-var node7 = ::scenegraph::nodes::sprite_info::SpriteInfo()
+_editor.add_node(node6, -591.01904827882, 147.8135991577)
 
-_editor.add_node(node7, -3.3768859145729, 106.53976106719)
+var node7 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node7.query_param("distance").value = 1.3560147285461
 
-var node8 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node7, -437.65151461689, 196.86640545634)
 
-node8.cam.position.set(-4.1445670807366, 3.469079051159, 5.1018984163567)
-node8.cam.yaw = -43.9
-node8.cam.pitch = -27.3
-node8.cam.zoom = 45
-node8.cam.update_vectors()
-node8.speed = 0.29207175970078
+var node8 = ::blueprint::nodes::cache::Cache()
+node8.query_param("disable").value = false
 
-_editor.add_node(node8, -72.107184780874, -200.77486593999)
+_editor.add_node(node8, 138.98224165016, 105.40191926781)
 
-Blueprint.connect(node0, "geo", node4, "symbol")
-Blueprint.connect(node4, "spr", node5, "spr")
-Blueprint.connect(node6, "v3", node5, "translate")
-Blueprint.connect(node5, "spr", node7, "spr")
+var node9 = ::blueprint::nodes::number3::Number3()
+
+node9.value.set(0, 0, 0.69478350877762)
+
+_editor.add_node(node9, -440.25305336905, -132.81643823447)
+
+var node10 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node10, 8, 108.5)
+
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
+node11.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node11, 335, 93.5)
+
+Blueprint.connect(node6, "polytope", node7, "geo")
+Blueprint.connect(node0, "geo", node3, "obj")
+Blueprint.connect(node4, "v3", node3, "translate")
+Blueprint.connect(node9, "v3", node3, "rotate")
 Blueprint.connect(node2, "geo", node1, "a")
-Blueprint.connect(node7, "symbol", node1, "b")
-Blueprint.connect(node1, "geo", node3, "geo")
-Blueprint.connect(node8, "this", node3, "view_cam")
+Blueprint.connect(node3, "obj", node1, "b")
+Blueprint.connect(node1, "geo", node10, "in0")
+Blueprint.connect(node10, "list", node8, "var")
+Blueprint.connect(node8, "var", node11, "geos")
+Blueprint.connect(node5, "this", node11, "view_cam")

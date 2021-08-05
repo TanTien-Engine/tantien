@@ -12,12 +12,17 @@ node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.19565641880035
 
-_editor.add_node(node1, -236.68491367677, -76.72048510536)
+_editor.add_node(node1, -182.49541639161, -39.465205721811)
 
 var node2 = ::blueprint::nodes::subgraph::Subgraph()
-node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node2, -15.669421487603, 66.805033809166)
+_editor.add_node(node2, 21.057931713858, 58.945297813114)
 
-Blueprint.connect(node0, "geo", node2, "geo")
+var node3 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node3, -185.53952403627, 100.15187700865)
+
+Blueprint.connect(node0, "geo", node3, "in0")
+Blueprint.connect(node3, "list", node2, "geos")
 Blueprint.connect(node1, "this", node2, "view_cam")

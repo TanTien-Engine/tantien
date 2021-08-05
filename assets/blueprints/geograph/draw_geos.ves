@@ -14,10 +14,10 @@ _editor.add_node(node2, 589.87377684355, -330.18435483226)
 
 var node3 = ::blueprint::nodes::input::Input()
 
-node3.var_name = "geo"
-node3.var_type = "geo"
+node3.var_name = "geos"
+node3.var_type = "array"
 
-_editor.add_node(node3, 85.8508276248, -315.73090672654)
+_editor.add_node(node3, 775.46840404796, 103.05066453945)
 
 var node4 = ::rendergraph::nodes::draw::Draw()
 
@@ -101,7 +101,7 @@ var node6 = ::rendergraph::nodes::clear::Clear()
 node6.masks = [ "color", "depth" ]
 node6.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
-_editor.add_node(node6, 613.89405766433, 126.99172663351)
+_editor.add_node(node6, 639.38756171001, 156.80421665113)
 
 var node7 = ::blueprint::nodes::perspective::Perspective()
 
@@ -125,14 +125,20 @@ node9.value.set(5.9766573905945, 5.6433238983154, 5.3099908828735)
 
 _editor.add_node(node9, 412.51009621452, -222.35700607071)
 
+var node10 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node10, 914.03505000552, 118.82269788306)
+
 Blueprint.connect(node8, "zoom", node7, "fovy")
 Blueprint.connect(node8, "mat", node5, "view")
 Blueprint.connect(node7, "mat", node5, "projection")
 Blueprint.connect(node9, "v3", node5, "light_pos")
 Blueprint.connect(node8, "pos", node5, "cam_pos")
-Blueprint.connect(node3, "var", node0, "geo")
+Blueprint.connect(node6, "next", node10, "prev")
+Blueprint.connect(node3, "var", node10, "in")
+Blueprint.connect(node4, "next", node10, "do")
+Blueprint.connect(node10, "out", node0, "geo")
 Blueprint.connect(node0, "gltf", node1, "items")
 Blueprint.connect(node1, "item", node2, "items")
-Blueprint.connect(node6, "next", node4, "prev")
 Blueprint.connect(node5, "out", node4, "shader")
 Blueprint.connect(node2, "item", node4, "va")

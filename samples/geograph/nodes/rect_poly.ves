@@ -13,22 +13,27 @@ node1.query_param("distance").value = 0.31561788916588
 
 _editor.add_node(node1, -154.84055970935, 154.68923904547)
 
-var node2 = ::blueprint::nodes::subgraph::Subgraph()
-node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
 
-_editor.add_node(node2, 61.703981968445, 121.14613072878)
+node2.cam.position.set(-1.2284732393762, 1.5936818104705, 3.5123760467734)
+node2.cam.yaw = -50.5
+node2.cam.pitch = -22.1
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.23908986151218
 
-var node3 = ::blueprint::nodes::camera3d::Camera3d()
+_editor.add_node(node2, -151.47257766322, 19.226521538578)
 
-node3.cam.position.set(-1.2284732393762, 1.5936818104705, 3.5123760467734)
-node3.cam.yaw = -50.5
-node3.cam.pitch = -22.1
-node3.cam.zoom = 45
-node3.cam.update_vectors()
-node3.speed = 0.23908986151218
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node3, -151.47257766322, 19.226521538578)
+_editor.add_node(node3, 181.79124661911, 141.44469962632)
+
+var node4 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node4, -13.250075915628, 160.45296585461)
 
 Blueprint.connect(node0, "polytope", node1, "geo")
-Blueprint.connect(node1, "geo", node2, "geo")
-Blueprint.connect(node3, "this", node2, "view_cam")
+Blueprint.connect(node1, "geo", node4, "in0")
+Blueprint.connect(node4, "list", node3, "geos")
+Blueprint.connect(node2, "this", node3, "view_cam")
