@@ -769,6 +769,21 @@ void w_Polytope_offset()
     proxy->obj = std::make_shared<pm3::Polytope>(dst_pts, dst_faces);
 }
 
+void w_Polytope_transform()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
+
+    auto& vertices = poly->GetTopoPoly()->GetVerts();
+    auto vert = vertices.Head();
+    do {
+        vert->position = *mt * vert->position;
+        vert = vert->linked_next;
+    } while (vert != vertices.Head());
+
+    poly->BuildFromTopo();
+}
+
 void w_Polytope_boolean()
 {
     auto op = ves_tostring(1);
@@ -949,6 +964,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
     if (strcmp(signature, "Polytope.offset(_,_)") == 0) return w_Polytope_offset;
+    if (strcmp(signature, "Polytope.transform(_)") == 0) return w_Polytope_transform;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;

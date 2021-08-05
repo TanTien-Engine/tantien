@@ -4,7 +4,9 @@ import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "maths" for Matrix44
+import "geometry" for Brush
 
 class Transform3d is Node
 {
@@ -13,13 +15,13 @@ class Transform3d is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "spr",       [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
+			Pin(this, "obj",     [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
 			Pin(this, "translate", VAR_TYPE_NUMBER3),
 			Pin(this, "rotate",    VAR_TYPE_NUMBER3),
 			Pin(this, "scale",     VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
-			Pin(this, "spr", [ VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ])
+			Pin(this, "obj", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ])
 		]
 
 		this.layout()
@@ -34,13 +36,15 @@ class Transform3d is Node
 
 	calc_value(idx)
 	{
-		var v_spr = Blueprint.calc_input_value(this, 0)
-		if (!v_spr) {
+		var v_obj = Blueprint.calc_input_value(this, 0)
+		if (!v_obj) {
 			return nil
 		}
 
+		var mat = this.calc_mat()
+
 		var result = []
-		this.transform_impl(v_spr, result)
+		this.transform_impl(v_obj, mat, result)
 		if (result.count == 0) {
 			return nil
 		} else if (result.count == 1) {
@@ -50,18 +54,7 @@ class Transform3d is Node
 		}
 	}
 
-	transform_impl(v_src, result)
-	{
-		if (v_src.type == VAR_TYPE_ARRAY) {
-			for (var v in v_src.value) {
-				this.transform_impl(v, result)
-			}
-		} else if (v_src.type == VAR_TYPE_SPRITE) {
-			result.add(this.transform_spr(v_src))
-		}
-	}
-
-	transform_spr(v_spr)
+	calc_mat()
 	{
 		// scale
 		var sx = 1
@@ -105,15 +98,51 @@ class Transform3d is Node
 		var rot_mat = Matrix44.init()
 		rot_mat.rotate(rx, ry, rz)
 
-		// apply to new spr
+		var mat = Matrix44.init()
+
+		mat.transform_mat4(scale_mat)
+		mat.transform_mat4(rot_mat)
+		mat.transform_mat4(trans_mat)
+
+		return mat
+	}
+
+	transform_impl(v_obj, mat, result)
+	{
+		if (v_obj.type == VAR_TYPE_ARRAY) {
+			for (var v in v_obj.value) {
+				this.transform_impl(v, mat, result)
+			}
+		} else if (v_obj.type == VAR_TYPE_GEO) {
+			result.add(this.transform_geo(v_obj, mat))
+		} else if (v_obj.type == VAR_TYPE_SPRITE) {
+			result.add(this.transform_spr(v_obj, mat))
+		}
+	}	
+
+	transform_geo(v_geo, mat)
+	{
+		if (v_geo.value.shape is Brush) 
+		{
+			var brush = v_geo.value.shape.clone()
+			brush.transform(mat)
+
+			var geo = VarGeo()
+			geo.shape = brush
+			return Variant(VAR_TYPE_GEO, geo)
+		}
+
+		return nil
+	}
+
+	transform_spr(v_spr, mat)
+	{
 		var spr = v_spr.value.clone()
 
 		if (!spr.transform) {
 			spr.transform = Matrix44.init()
 		}
-		spr.transform.transform_mat4(scale_mat)
-		spr.transform.transform_mat4(rot_mat)
-		spr.transform.transform_mat4(trans_mat)
+		spr.transform.transform_mat4(mat)
 
 		return Variant(VAR_TYPE_SPRITE, spr)
 	}

@@ -197,6 +197,8 @@ foreign class Polytope
 	foreign extrude(dist)
 	foreign offset(selector, dist)
 
+	foreign transform(mat)
+
 	foreign static boolean(operator, a, b)
 }
 
@@ -214,6 +216,24 @@ class Brush is Shape3D
 
 		import "model" for glTF
 		this.model = glTF.create_from_polytope(polys)
+	}
+
+	clone()
+	{
+		var polys = []
+		for (var poly in this.polys) {
+			polys.add(poly.clone())
+		}
+		return Brush(polys)
+	}
+
+	transform(mat)
+	{
+		for (var poly in this.polys) {
+			poly.transform(mat)
+		}
+		import "model" for glTF
+		this.model = glTF.create_from_polytope(this.polys)
 	}
 }
 
