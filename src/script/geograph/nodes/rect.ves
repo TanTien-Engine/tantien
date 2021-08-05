@@ -6,9 +6,8 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Rect as tt_Rect, PolyPoint, PolyFace, Polytope
+import "geometry" for Rect as tt_Rect, PolyPoint, PolyFace, Polytope, Brush
 import "maths.vector" for Vector3
-import "model" for glTF
 
 var EDITOR = nil
 
@@ -63,8 +62,6 @@ class Rect is Node
 		}
 		else if (idx == 1)
 		{
-			var geo = VarGeo()
-
 			var params = this.calc_rect_params()			
 
 			var points = []
@@ -74,9 +71,10 @@ class Rect is Node
 			points.add(PolyPoint.init([ params[0] + params[2], 0, params[1]             ]))
 
 			var face = PolyFace.init([ 0, 1, 2, 3 ], [])
+			var poly = Polytope.init(points, [ face ])
 
-			geo.shape = Polytope.init(points, [ face ])
-			geo.model = glTF.create_from_polytope(geo.shape)
+			var geo = VarGeo()
+			geo.shape = Brush([ poly ])
 			return Variant(VAR_TYPE_GEO, geo)
 		}
 		return nil

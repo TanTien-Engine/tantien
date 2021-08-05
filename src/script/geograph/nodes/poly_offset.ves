@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "model" for glTF
+import "geometry" for Brush
 
 class PolyOffset is Node
 {
@@ -49,11 +49,15 @@ class PolyOffset is Node
 		}
 
 		var selector = this.query_param("selector").value
-		var poly = v_geo.value.shape.offset(selector, distance)
+
+		var polys = []
+		for (var poly in v_geo.value.shape.polys) {
+			var new_poly = poly.offset(selector, distance)
+			polys.add(new_poly)
+		}
 
 		var geo = VarGeo()
-		geo.shape = poly
-		geo.model = glTF.create_from_polytope(geo.shape)
+		geo.shape = Brush(polys)
 		return Variant(VAR_TYPE_GEO, geo)		
 	}
 }

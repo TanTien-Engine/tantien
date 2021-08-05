@@ -2,6 +2,7 @@
 #include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
 #include "modules/filesystem/Filesystem.h"
+#include "modules/script/TransHelper.h"
 
 #include <model/ParametricEquations.h>
 #include <model/Model.h>
@@ -48,17 +49,24 @@ int w_Model_finalize(void* data)
 
 void w_Model_create_from_polytope()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    std::vector<model::BrushModel::Brush> brushes;
+
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
+    for (auto& poly : polys)
+    {
+        model::BrushModel::Brush brush;
+
+        brush.desc.mesh_begin = 0;
+        brush.desc.mesh_end = 1;
+        brush.desc.meshes.push_back({ 0, 0, 0, (int)(poly->Faces().size()) });
+        brush.impl = poly;
+
+        brushes.push_back(brush);
+    }
     
-    model::BrushModel::Brush brush;
-
-    brush.desc.mesh_begin = 0;
-    brush.desc.mesh_end = 1;
-    brush.desc.meshes.push_back({ 0, 0, 0, (int)(poly->Faces().size()) });
-    brush.impl = poly;
-
     auto brush_model = std::make_shared<model::BrushModel>();
-    brush_model->SetBrushes({ brush });
+    brush_model->SetBrushes(brushes);
 
     auto dev = tt::Render::Instance()->Device();
     std::shared_ptr<model::Model> model = model::BrushBuilder::PolymeshFromBrushPN(*dev, *brush_model);
@@ -407,11 +415,12 @@ void w_glTF_get_desc()
 
 void w_glTF_create_from_polytope()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
 
     auto dev = tt::Render::Instance()->Device();
     auto model = std::make_shared<model::gltf::Model>();
-    model::BrushBuilder::PolymeshFromBrush(*dev, { poly }, *model);
+    model::BrushBuilder::PolymeshFromBrush(*dev, polys, *model);
 
     auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
     proxy->obj = model;

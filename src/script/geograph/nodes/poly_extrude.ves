@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "model" for glTF
+import "geometry" for Brush
 
 class PolyExtrude is Node
 {
@@ -47,12 +47,15 @@ class PolyExtrude is Node
 			distance = this.query_param("distance").value
 		}
 
-		var poly = v_geo.value.shape.clone()
-		poly.extrude(distance)
+		var polys = []
+		for (var poly in v_geo.value.shape.polys) {
+			var new_poly = poly.clone()
+			new_poly.extrude(distance)
+			polys.add(new_poly)
+		}
 
 		var geo = VarGeo()
-		geo.shape = poly
-		geo.model = glTF.create_from_polytope(geo.shape)
+		geo.shape = Brush(polys)
 		return Variant(VAR_TYPE_GEO, geo)		
 	}
 }

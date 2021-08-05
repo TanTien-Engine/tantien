@@ -6,10 +6,9 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for Circle as tt_Circle, PolyPoint, PolyFace, Polytope
+import "geometry" for Circle as tt_Circle, PolyPoint, PolyFace, Polytope, Brush
 import "maths.vector" for Vector2, Vector3
 import "maths.calc" for Calc
-import "model" for glTF
 import "math" for Math
 
 var EDITOR = nil
@@ -65,8 +64,6 @@ class Circle is Node
 		}
 		else if (idx == 1)
 		{
-			var geo = VarGeo()
-
 			var c = this.get_center()
 			var r = this.get_radius()
 
@@ -84,9 +81,10 @@ class Circle is Node
 			}
 
 			var face = PolyFace.init(border, [])
+			var poly = Polytope.init(points, [ face ])
 
-			geo.shape = Polytope.init(points, [ face ])
-			geo.model = glTF.create_from_polytope(geo.shape)
+			var geo = VarGeo()
+			geo.shape = Brush([ poly ])
 			return Variant(VAR_TYPE_GEO, geo)
 		}
 		return nil

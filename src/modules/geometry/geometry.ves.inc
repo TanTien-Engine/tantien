@@ -196,6 +196,25 @@ foreign class Polytope
 
 	foreign extrude(dist)
 	foreign offset(selector, dist)
+
+	foreign static boolean(operator, a, b)
+}
+
+class Brush is Shape3D
+{
+	init() 
+	{
+		this.polys = []
+		this.model = nil
+	}
+
+	init(polys) 
+	{
+		this.polys = polys
+
+		import "model" for glTF
+		this.model = glTF.create_from_polytope(polys)
+	}
 }
 
 foreign class Constraint

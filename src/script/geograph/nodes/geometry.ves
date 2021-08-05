@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_TABLE
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
+import "geometry" for Brush
 
 class Geometry is Node
 {
@@ -34,7 +35,12 @@ class Geometry is Node
 			return nil
 		}
 
-		var gltf = v_geo.value.model
+		var brush = v_geo.value.shape
+		if (!brush is Brush) {
+			return nil
+		}
+
+		var gltf = v_geo.value.shape.model
 		if (!gltf) {
 			return nil
 		}

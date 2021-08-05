@@ -4,10 +4,9 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geometry" for PolyFace, Polytope
+import "geometry" for PolyFace, Polytope, Brush
 import "maths.vector" for Vector3
 import "maths" for Plane
-import "model" for glTF
 
 class Box is Node
 {
@@ -80,9 +79,10 @@ class Box is Node
 	    var back = Plane.init(top_right_back, top_left_back, btm_left_back)
 	    faces.add(PolyFace.init(back))
 
+	    var poly = Polytope.init(faces)
+
 		var geo = VarGeo()
-		geo.shape = Polytope.init(faces)
-		geo.model = glTF.create_from_polytope(geo.shape)
+		geo.shape = Brush([ poly ])
 		return Variant(VAR_TYPE_GEO, geo)
 	}
 }
