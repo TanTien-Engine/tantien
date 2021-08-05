@@ -769,6 +769,56 @@ void w_Polytope_offset()
     proxy->obj = std::make_shared<pm3::Polytope>(dst_pts, dst_faces);
 }
 
+void w_Polytope_boolean()
+{
+    auto op = ves_tostring(1);
+    auto a = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
+    auto b = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(3))->obj;
+
+    auto topo_a = a->GetTopoPoly();
+    auto topo_b = b->GetTopoPoly();
+    if (!topo_a || !topo_b) {
+        ves_set_nil(0);
+        return;
+    }
+
+    std::vector<std::shared_ptr<pm3::Polytope>> polytopes;
+
+    if (strcmp(op, "union") == 0) 
+    {
+    }
+    else if (strcmp(op, "intersect") == 0)
+    {
+        auto poly = topo_a->Intersect(*topo_b);
+        if (poly && poly->GetLoops().Size() > 0) {
+            polytopes.push_back(std::make_shared<pm3::Polytope>(poly));
+        }
+    }
+    else if (strcmp(op, "subtract") == 0)
+    {
+        auto polys = topo_a->Subtract(*topo_b);
+        for (auto& poly : polys) {
+            if (poly->GetLoops().Size() > 0) {
+                polytopes.push_back(std::make_shared<pm3::Polytope>(poly));
+            }
+        }
+    }
+
+    ves_pop(ves_argnum());
+
+    ves_newlist(polytopes.size());
+    for (int i = 0, n = polytopes.size(); i < n; ++i)
+    {
+        ves_pushnil();
+        ves_import_class("geometry", "Polytope");
+        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
+        proxy->obj = polytopes[i];
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -899,6 +949,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
     if (strcmp(signature, "Polytope.offset(_,_)") == 0) return w_Polytope_offset;
+    if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 

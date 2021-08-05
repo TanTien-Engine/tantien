@@ -1,0 +1,57 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(0.43046399950981, 2, 1.0971306562424)
+
+_editor.add_node(node0, -441.87418892152, 87.046547366983)
+
+var node1 = ::geograph::nodes::boolean::Boolean()
+node1.query_param("operator").value = "subtract"
+
+_editor.add_node(node1, -73.217129977461, -59.764462809917)
+
+var node2 = ::geograph::nodes::box::Box()
+node2.query_param("size").value.set(2, 0.33333334326744, 1.833624958992)
+
+_editor.add_node(node2, -265.5026296018, -113.0026296018)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_polytope.ves")
+
+_editor.add_node(node3, 117.21187077385, -96.594665664914)
+
+var node4 = ::scenegraph::nodes::sprite::Sprite()
+
+_editor.add_node(node4, -297.09393955875, 96.813211580043)
+
+var node5 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node5, -142.7329213265, 87.934065335273)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(0.5873955488205, 0.51150512695313, 0)
+
+_editor.add_node(node6, -277.2865652404, -1.5406972771663)
+
+var node7 = ::scenegraph::nodes::sprite_info::SpriteInfo()
+
+_editor.add_node(node7, -3.3768859145729, 106.53976106719)
+
+var node8 = ::blueprint::nodes::camera3d::Camera3d()
+
+node8.cam.position.set(-4.1445670807366, 3.469079051159, 5.1018984163567)
+node8.cam.yaw = -43.9
+node8.cam.pitch = -27.3
+node8.cam.zoom = 45
+node8.cam.update_vectors()
+node8.speed = 0.29207175970078
+
+_editor.add_node(node8, -72.107184780874, -200.77486593999)
+
+Blueprint.connect(node0, "geo", node4, "symbol")
+Blueprint.connect(node4, "spr", node5, "spr")
+Blueprint.connect(node6, "v3", node5, "translate")
+Blueprint.connect(node5, "spr", node7, "spr")
+Blueprint.connect(node2, "geo", node1, "a")
+Blueprint.connect(node7, "symbol", node1, "b")
+Blueprint.connect(node1, "geo", node3, "geo")
+Blueprint.connect(node8, "this", node3, "view_cam")

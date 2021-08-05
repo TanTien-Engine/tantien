@@ -1,0 +1,66 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Polytope, Brush
+
+class Boolean is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_GEO),
+			Pin(this, "b", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("operator", "intersect", { "combo" : [ "union", "intersect", "subtract" ] }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		if (!v_a or !v_a.value.shape) {
+			return nil
+		}
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (!v_b or !v_b.value.shape) {
+			return nil
+		}
+
+		var operator = this.query_param("operator").value
+
+		var polys = []
+		for (var a in v_a.value.shape.polys) {
+			for (var b in v_b.value.shape.polys) {
+				var _polys = Polytope.boolean(operator, a, b)
+				for (var p in _polys) {
+					polys.add(p)
+				}
+			}
+		}
+
+		if (polys.isEmpty) {
+			return nil
+		}
+
+		var geo = VarGeo()
+		geo.shape = Brush(polys)
+		return Variant(VAR_TYPE_GEO, geo)		
+	}
+}
