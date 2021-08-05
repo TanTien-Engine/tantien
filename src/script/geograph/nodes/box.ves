@@ -43,12 +43,16 @@ class Box is Node
 			size = this.query_param("size").value
 		}
 
-		var xmin = 0
-		var xmax = size.x
-		var ymin = 0
-		var ymax = size.y
-		var zmin = 0
-		var zmax = size.z
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+
+		var xmin = -hx
+		var xmax =  hx
+		var ymin = -hy
+		var ymax =  hy
+		var zmin = -hz
+		var zmax =  hz
 
     	var top_left_front  = [ xmin, ymax, zmin ]
     	var top_left_back   = [ xmin, ymax, zmax ]
