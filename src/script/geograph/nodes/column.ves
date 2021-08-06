@@ -1,0 +1,197 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ARRAY
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Rect, Circle, Polygon, PolyPoint, PolyFace, Polytope, Brush
+import "maths.vector" for Vector2
+import "math" for Math
+
+class Column is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "base",       VAR_TYPE_GEO),
+			Pin(this, "height",     VAR_TYPE_NUMBER),
+			//Pin(this, "generatrix", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("height", 1.0, { "region" : 10 }))
+		this.params.add(NodeParam("generatrix", []))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_base = Blueprint.calc_input_value(this, 0)
+		if (!v_base or !v_base.value) {
+			return nil
+		}
+
+		var lead = []
+
+		var cx = 0
+		var cy = 0
+		
+		var shape = v_base.value.shape
+		if (shape is Rect)
+		{
+			var rect = shape.get()
+			lead = [
+				Vector2(rect[0], rect[1]),
+				Vector2(rect[0] + rect[2], rect[1]),				
+				Vector2(rect[0] + rect[2], rect[1] + rect[3]),
+				Vector2(rect[0], rect[1] + rect[3]),
+			]
+
+			cx = rect[0] + rect[2] * 0.5
+			cy = rect[1] + rect[3] * 0.5
+		}
+		else if (shape is Circle) 
+		{
+			var circle = shape.get()
+
+			var c = Vector2(circle[0], circle[1])
+			var r = circle[2]
+
+			var N = Math.max(32, r * 32)
+			for (var i = 0; i < N; i = i + 1)
+			{
+				var angle = Math.pi() * 2 / N * i
+				var x = c.x + r * Math.cos(angle)
+				var y = c.y + r * Math.sin(angle)
+				lead.add(Vector2(x, y))
+			}
+
+			cx = c.x
+			cy = c.y
+		}
+		else if (shape is Polygon) 
+		{
+			var verts = shape.get_vertices()
+			for (var i = 0; i < verts.count; i = i + 2)
+			{
+				var x = verts[i]
+				var y = verts[i + 1]
+				lead.add(Vector2(x, y))
+			}			
+		}
+
+		if (lead.isEmpty) {
+			return nil
+		}
+
+		var height = 0
+		var v_height = Blueprint.calc_input_value(this, 1)
+		if (v_height) {
+			height = v_height.value
+		} else {
+			height = this.query_param("height").value
+		}
+
+		var bus = nil
+		var p_bus = this.query_param("generatrix").value
+		if (!p_bus.isEmpty) 
+		{
+			bus = []
+			for (var i = 0; i < p_bus.count; i = i + 2) 
+			{
+				var h = p_bus[i]
+				var r = p_bus[i + 1]
+				bus.add(Vector2(h, r))
+			}
+		}
+
+		var lead_num = lead.count
+		var bus_num = 2
+
+		var points = []
+
+		if (bus)
+		{
+			bus_num = bus.count
+			for (var p in lead) 
+			{
+				for (var b in bus)
+				{
+					var h = b.x
+					var r = b.y
+
+					var x = p.x * r
+					var z = p.y * r
+					var y = height * h
+
+					points.add(PolyPoint.init([ x, y, z ]))
+				}
+			}
+
+		}
+		else
+		{
+			bus_num = 2
+			for (var p in lead) {
+				points.add(PolyPoint.init([ p.x, 0, p.y ]))
+				points.add(PolyPoint.init([ p.x, height, p.y ]))
+			}
+		}
+
+		var faces = []
+
+		// bottom
+		var bottom = []
+		for (var i in 0..lead_num) {
+			bottom.add(i * bus_num)
+		}
+		faces.add(PolyFace.init(bottom, []))
+
+		// top
+		var top = []
+		for (var i in 0..lead_num) {
+			top.add(i * bus_num + bus_num - 1)
+		}
+		top.reverse()
+		faces.add(PolyFace.init(top, []))
+
+		// sides
+		for (var b in 0..bus_num - 1)
+		{
+			for (var i in 0..lead_num)
+			{
+				var side = []
+
+				var j = i + 1
+				if (j >= lead_num) {
+					j = j - lead_num
+				}
+
+				side.add(b + i * bus_num)
+				side.add(b + i * bus_num + 1)
+				side.add(b + j * bus_num + 1)
+				side.add(b + j * bus_num)
+
+				faces.add(PolyFace.init(side, []))
+			}
+		}
+
+		var poly = Polytope.init(points, faces)	
+
+		var geo = VarGeo()
+		geo.shape = Brush([ poly ])
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}
