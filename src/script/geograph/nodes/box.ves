@@ -16,12 +16,14 @@ class Box is Node
 
 		this.imports = [
 			Pin(this, "size", VAR_TYPE_NUMBER3),
+			Pin(this, "pos",  VAR_TYPE_NUMBER3),			
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
 		]
 
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 10 }))
+		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -100, "max" : 100 }))
 
 		this.layout()
 	}
@@ -47,12 +49,20 @@ class Box is Node
 		var hy = size.y * 0.5
 		var hz = size.z * 0.5
 
-		var xmin = -hx
-		var xmax =  hx
-		var ymin = -hy
-		var ymax =  hy
-		var zmin = -hz
-		var zmax =  hz
+		var pos = nil
+		var v_pos = Blueprint.calc_input_value(this, 1)
+		if (v_pos) {
+			pos = v_pos.value
+		} else {
+			pos = this.query_param("pos").value
+		}		
+
+		var xmin = pos.x - hx
+		var xmax = pos.x + hx
+		var ymin = pos.y - hy
+		var ymax = pos.y + hy
+		var zmin = pos.z - hz
+		var zmax = pos.z + hz
 
     	var top_left_front  = [ xmin, ymax, zmin ]
     	var top_left_back   = [ xmin, ymax, zmax ]
