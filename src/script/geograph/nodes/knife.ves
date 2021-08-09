@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo, VarPlane
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
 import "geometry" for Polytope, Brush
 
 class Knife is Node
@@ -49,7 +49,7 @@ class Knife is Node
 
 		var keep = this.query_param("keep").value
 		var seam = this.query_param("seam").value
-		shape.clip(v_plane.value.plane, keep, seam)
+		shape.clip(v_plane.value, keep, seam)
 
 		var geo = VarGeo()
 		geo.shape = shape

@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo, VarPlane
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
 import "maths.vector" for Vector3
 import "geometry" for PolyPoint, PolyFace, Polytope, Brush
 import "maths" for Plane as tt_Plane, Maths, Matrix44, Float3
@@ -88,10 +88,7 @@ class Plane is Node
 		var ori = this.calc_param_ori()
 		var dir = this.calc_param_dir()
 		var plane = tt_Plane.init([ ori.x, ori.y, ori.z ], [ dir.x, dir.y, dir.z ])
-
-		var ret = VarPlane()
-		ret.plane = plane
-		return Variant(VAR_TYPE_PLANE, ret)
+		return Variant(VAR_TYPE_PLANE, plane)
 	}
 
 	calc_param_ori()
