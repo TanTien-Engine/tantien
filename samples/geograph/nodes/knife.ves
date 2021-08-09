@@ -1,0 +1,43 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+
+_editor.add_node(node0, -480.4207362885, 119.85912847483)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, -132.09861067058, 118.34881008032)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node2, 81.94388869792, 91.372014596712)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(-2.4261985572444, 1.1105131306186, 1.5481817668607)
+node3.cam.yaw = -48.7
+node3.cam.pitch = -26.1
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.22463776171207
+
+_editor.add_node(node3, -121.58086778649, -20.346231479101)
+
+var node4 = ::geograph::nodes::knife::Knife()
+node4.query_param("keep").value = "above"
+node4.query_param("seam").value = false
+
+_editor.add_node(node4, -292.5950471461, 96.230307907918)
+
+var node5 = ::geograph::nodes::plane::Plane()
+node5.query_param("ori").value.set(0, 0, 0)
+node5.query_param("dir").value.set(1, 0.42422553896904, 0)
+
+_editor.add_node(node5, -486.18033355094, -79.826050951103)
+
+Blueprint.connect(node0, "geo", node4, "geo")
+Blueprint.connect(node5, "plane", node4, "plane")
+Blueprint.connect(node4, "geo", node1, "in0")
+Blueprint.connect(node1, "list", node2, "geos")
+Blueprint.connect(node3, "this", node2, "view_cam")

@@ -1,0 +1,29 @@
+var node0 = ::geograph::nodes::plane::Plane()
+node0.query_param("ori").value.set(-0.5, 0, 0.5)
+node0.query_param("dir").value.set(0.13419020175934, 1, 0.20085686445236)
+
+_editor.add_node(node0, -86.181727199769, -135.81992)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, 70.89025, -74.81992)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node2, 265.83628012251, -92.67075858992)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(-3.8162371372287, 1.9761590329158, 3.836965522369)
+node3.cam.yaw = -55.6
+node3.cam.pitch = -17.6
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.2314600199461
+
+_editor.add_node(node3, 73.595595050049, -194.77018929443)
+
+Blueprint.connect(node0, "geo", node1, "in0")
+Blueprint.connect(node1, "list", node2, "geos")
+Blueprint.connect(node3, "this", node2, "view_cam")

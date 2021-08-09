@@ -1,0 +1,120 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo, VarPlane
+import "maths.vector" for Vector3
+import "geometry" for PolyPoint, PolyFace, Polytope, Brush
+import "maths" for Plane as tt_Plane, Maths, Matrix44, Float3
+
+class Plane is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "origin",    VAR_TYPE_NUMBER3),
+			Pin(this, "direction", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "geo",   VAR_TYPE_GEO),
+			Pin(this, "plane", VAR_TYPE_PLANE),
+		]
+
+		this.params.add(NodeParam("ori", Vector3(0, 0, 0), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("dir", Vector3(0, 1, 0), { "min" : -1, "max" : 1 }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
+		}
+	}
+
+	calc_value(idx)
+	{
+		if (idx == 0) {
+			return this.calc_plane_geo()
+		} else if (idx == 1) {
+			return this.calc_plane_prim()
+		}
+		return nil
+	}
+
+	calc_plane_geo()
+	{
+		var ori = this.calc_param_ori()
+		var dir = this.calc_param_dir()
+
+		var size = 1.0
+		var quad = [
+			Float3.init(-size, 0, -size),
+			Float3.init(-size, 0,  size),
+			Float3.init( size, 0,  size),
+			Float3.init( size, 0, -size),
+		]
+
+		var rot_mat = Maths.calc_rot_mat([ 0, 1, 0 ], [ dir.x, dir.y, dir.z ])
+		for (var p in quad) {
+			p.transform(rot_mat)
+		}
+
+		var points = []
+		for (var p in quad) 
+		{
+			var x = ori.x + p.x()
+			var y = ori.y + p.y()
+			var z = ori.z + p.z()
+			points.add(PolyPoint.init([ x, y, z ]))
+		}
+
+		var face = PolyFace.init([ 0, 1, 2, 3 ], [])
+		var poly = Polytope.init(points, [ face ])
+
+		var geo = VarGeo()
+		geo.shape = Brush([ poly ])
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	calc_plane_prim()
+	{
+		var ori = this.calc_param_ori()
+		var dir = this.calc_param_dir()
+		var plane = tt_Plane.init([ ori.x, ori.y, ori.z ], [ dir.x, dir.y, dir.z ])
+
+		var ret = VarPlane()
+		ret.plane = plane
+		return Variant(VAR_TYPE_PLANE, ret)
+	}
+
+	calc_param_ori()
+	{
+		var ori = nil
+		var v_ori = Blueprint.calc_input_value(this, 0)
+		if (v_ori) {
+			ori = v_ori.value
+		} else {
+			ori = this.query_param("ori").value
+		}
+		return ori
+	}
+
+	calc_param_dir()
+	{
+		var dir = nil
+		var v_dir = Blueprint.calc_input_value(this, 1)
+		if (v_dir) {
+			dir = v_dir.value
+		} else {
+			dir = this.query_param("dir").value
+		}
+		return dir
+	}
+}

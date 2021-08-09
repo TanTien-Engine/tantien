@@ -122,11 +122,15 @@ foreign class Maths
 
 	// line0, line1: [x0, y0, x1, y1]
 	foreign static get_line_intersect_line(line0, line1)
+
+	// from, to: [x, y, z]
+	foreign static calc_rot_mat(from, to)
 }
 
 foreign class Plane
 {
 	init(p0, p1, p2) {}
+	init(ori, dir) {}
 }
 
 );

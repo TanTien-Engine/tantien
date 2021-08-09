@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo, VarPlane
+import "geometry" for Polytope, Brush
+
+class Knife is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",   VAR_TYPE_GEO),
+			Pin(this, "plane", VAR_TYPE_PLANE),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("keep", "above", { "combo" : [ "above", "below", "all" ] }))
+		this.params.add(NodeParam("seam", false))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo or !v_geo.value.shape) {
+			return nil
+		}
+
+		var v_plane = Blueprint.calc_input_value(this, 1)
+		if (!v_plane) {
+			return nil
+		}
+
+		var shape = v_geo.value.shape.clone()
+
+		var keep = this.query_param("keep").value
+		var seam = this.query_param("seam").value
+		shape.clip(v_plane.value.plane, keep, seam)
+
+		var geo = VarGeo()
+		geo.shape = shape
+		return Variant(VAR_TYPE_GEO, geo)		
+	}
+}

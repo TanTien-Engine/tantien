@@ -470,15 +470,42 @@ void w_Maths_get_line_intersect_line()
     }
 }
 
+void w_Maths_calc_rot_mat()
+{
+    auto f = tt::list_to_vec3(1);
+    auto t = tt::list_to_vec3(2);
+
+    auto q = sm::Quaternion::CreateFromVectors(f, t);
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("maths", "Matrix44");
+    sm::mat4* mat = (sm::mat4*)ves_set_newforeign(0, 1, sizeof(sm::mat4));
+    *mat = sm::mat4(q);
+    ves_pop(1);
+}
+
 void w_Plane_allocate()
 {
     sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
 
-    auto p0 = tt::list_to_vec3(1);
-    auto p1 = tt::list_to_vec3(2);
-    auto p2 = tt::list_to_vec3(3);
+    int num = ves_argnum();
+    if (num == 4)
+    {
+        auto p0 = tt::list_to_vec3(1);
+        auto p1 = tt::list_to_vec3(2);
+        auto p2 = tt::list_to_vec3(3);
 
-    plane->Build(p0, p1, p2);
+        plane->Build(p0, p1, p2);
+    }
+    else if (num == 3)
+    {
+        auto ori = tt::list_to_vec3(1);
+        auto dir = tt::list_to_vec3(2);
+
+        plane->Build(dir, ori);
+    }
 }
 
 int w_Plane_finalize(void* data)
@@ -539,6 +566,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
 
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
     if (strcmp(signature, "static Maths.get_line_intersect_line(_,_)") == 0) return w_Maths_get_line_intersect_line;
+    if (strcmp(signature, "static Maths.calc_rot_mat(_,_)") == 0) return w_Maths_calc_rot_mat;
 
 	return nullptr;
 }

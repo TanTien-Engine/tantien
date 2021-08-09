@@ -784,6 +784,27 @@ void w_Polytope_transform()
     poly->BuildFromTopo();
 }
 
+void w_Polytope_clip()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+
+    auto keep_str = ves_tostring(2);
+    auto keep = he::Polyhedron::KeepType::KeepAbove;
+    if (strcmp(keep_str, "above") == 0) {
+        keep = he::Polyhedron::KeepType::KeepAbove;
+    } else if (strcmp(keep_str, "below") == 0) {
+        keep = he::Polyhedron::KeepType::KeepBelow;
+    } else if (strcmp(keep_str, "all") == 0) {
+        keep = he::Polyhedron::KeepType::KeepAll;
+    }
+
+    auto seam_face = ves_toboolean(3);
+
+    poly->GetTopoPoly()->Clip(*plane, keep, seam_face);
+    poly->BuildFromTopo();
+}
+
 void w_Polytope_boolean()
 {
     auto op = ves_tostring(1);
@@ -968,6 +989,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
     if (strcmp(signature, "Polytope.offset(_,_)") == 0) return w_Polytope_offset;
     if (strcmp(signature, "Polytope.transform(_)") == 0) return w_Polytope_transform;
+    if (strcmp(signature, "Polytope.clip(_,_,_)") == 0) return w_Polytope_clip;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;

@@ -199,6 +199,8 @@ foreign class Polytope
 
 	foreign transform(mat)
 
+	foreign clip(plane, keep, seam)
+
 	foreign static boolean(operator, a, b)
 }
 
@@ -231,6 +233,15 @@ class Brush is Shape3D
 	{
 		for (var poly in this.polys) {
 			poly.transform(mat)
+		}
+		import "model" for glTF
+		this.model = glTF.create_from_polytope(this.polys)
+	}
+
+	clip(plane, keep, seam)
+	{
+		for (var poly in this.polys) {
+			poly.clip(plane, keep, seam)
 		}
 		import "model" for glTF
 		this.model = glTF.create_from_polytope(this.polys)
