@@ -31,7 +31,7 @@ class Geometry is Node
 	calc_value(idx)
 	{
 		var v_geo = Blueprint.calc_input_value(this, 0)
-		if (!v_geo) {
+		if (!v_geo or v_geo.type != VAR_TYPE_GEO) {
 			return nil
 		}
 
