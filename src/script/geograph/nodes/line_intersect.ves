@@ -1,0 +1,57 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "blueprint.blueprint" for Blueprint
+import "maths.vector" for Vector2
+import "maths" for Maths
+import "geometry" for Line
+
+class LineIntersect is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_GEO),
+			Pin(this, "b", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "pos", VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
+	calc_value(idx)
+	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (!v_a or !v_b or v_a.type != VAR_TYPE_GEO or v_b.type != VAR_TYPE_GEO) {
+			return nil
+		}
+
+		var line_a = v_a.value.shape
+		var line_b = v_b.value.shape
+		if (!(line_a is Line) or !(line_b is Line)) {
+			return nil
+		}
+
+		var intersect = Maths.get_line_intersect_line(line_a.get(), line_b.get())
+
+		if (intersect) {
+			return Variant(Vector2(intersect[0], intersect[1]))
+		} else {
+			return nil
+		}
+	}
+}

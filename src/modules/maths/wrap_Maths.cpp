@@ -6,6 +6,7 @@
 #include <SM_Test.h>
 #include <SM_Matrix.h>
 #include <SM_Plane.h>
+#include <SM_Calc.h>
 
 #include <string.h>
 
@@ -442,6 +443,33 @@ void w_Maths_is_convex_intersect_convex()
     ves_set_boolean(0, ret);
 }
 
+void w_Maths_get_line_intersect_line()
+{
+    auto l0 = tt::list_to_vec2_array(1);
+    auto l1 = tt::list_to_vec2_array(2);
+
+    sm::vec2 cross;
+    bool succ = sm::intersect_segment_segment(l0[0], l0[1], l1[0], l1[1], &cross);
+    if (succ) 
+    {
+        ves_pop(ves_argnum());
+
+        ves_newlist(2);
+
+        ves_pushnumber(cross.x);
+        ves_seti(-2, 0);
+        ves_pop(1);
+
+        ves_pushnumber(cross.y);
+        ves_seti(-2, 1);
+        ves_pop(1);
+    } 
+    else 
+    {
+        ves_set_nil(0);
+    }
+}
+
 void w_Plane_allocate()
 {
     sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
@@ -510,6 +538,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.inverse()") == 0) return w_Matrix44_inverse;
 
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
+    if (strcmp(signature, "static Maths.get_line_intersect_line(_,_)") == 0) return w_Maths_get_line_intersect_line;
 
 	return nullptr;
 }
