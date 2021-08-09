@@ -179,6 +179,8 @@ foreign class Polygon3D is Shape3D
 foreign class PolyPoint
 {
 	init(pos) {}
+
+	foreign get_pos()
 }
 
 foreign class PolyFace

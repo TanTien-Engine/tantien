@@ -6,7 +6,7 @@ import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
+import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D, PolyPoint
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -94,6 +94,15 @@ class DrawGeometry is Node
 		else if (geo is tt_Rect)
 		{
 			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
+		}
+		else if (geo is PolyPoint)
+		{
+			var mat = nil
+			var v_mat = Blueprint.calc_input_value(this, 3)
+			if (v_mat) {
+				mat = v_mat.value
+			}
+			pt.add_point3d(mat, geo.get_pos(), col_array, 5.0)
 		}
 	}
 

@@ -222,6 +222,20 @@ auto trans3d = [&](const sm::vec3& pos3)->sm::vec2
     }
 };
 
+void w_Painter_add_point3d()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    CAM_MAT = (sm::mat4*)ves_toforeign(1);
+
+    auto p = tt::list_to_vec3(2);
+
+    uint32_t col = tt::list_to_abgr(3);
+
+    auto size = ves_tonumber(4);
+
+    pt->AddPoint3D(p, trans3d, col, size);
+}
+
 void w_Painter_add_line3d()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
@@ -515,6 +529,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
     if (strcmp(signature, "Painter.add_bezier(_,_,_)") == 0) return w_Painter_add_bezier;
     // 3D
+    if (strcmp(signature, "Painter.add_point3d(_,_,_,_)") == 0) return w_Painter_add_point3d;
     if (strcmp(signature, "Painter.add_line3d(_,_,_,_,_)") == 0) return w_Painter_add_line3d;
     if (strcmp(signature, "Painter.add_cube(_,_,_,_,_)") == 0) return w_Painter_add_cube;
     if (strcmp(signature, "Painter.add_polyline3d(_,_,_,_)") == 0) return w_Painter_add_polyline3d;

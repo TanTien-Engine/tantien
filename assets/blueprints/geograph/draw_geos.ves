@@ -1,6 +1,6 @@
 var node0 = ::geograph::nodes::geometry::Geometry()
 
-_editor.add_node(node0, 219.62052844214, -302.8992503919)
+_editor.add_node(node0, -20.676023581753, -291.10174525378)
 
 var node1 = ::blueprint::nodes::fetch::Fetch()
 node1.index = "node0"
@@ -17,7 +17,7 @@ var node3 = ::blueprint::nodes::input::Input()
 node3.var_name = "geos"
 node3.var_type = "array"
 
-_editor.add_node(node3, 775.46840404796, 103.05066453945)
+_editor.add_node(node3, 1000.0138585934, 109.41430090309)
 
 var node4 = ::rendergraph::nodes::draw::Draw()
 
@@ -25,7 +25,7 @@ node4.set_prim_type("triangles")
 node4.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
 node4.skip = false
 
-_editor.add_node(node4, 777.94016723207, -52.723568493438)
+_editor.add_node(node4, 784.30380359571, -191.81447758435)
 
 var node5 = ::rendergraph::nodes::shader::Shader()
 
@@ -101,7 +101,7 @@ var node6 = ::rendergraph::nodes::clear::Clear()
 node6.masks = [ "color", "depth" ]
 node6.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
 
-_editor.add_node(node6, 639.38756171001, 156.80421665113)
+_editor.add_node(node6, 996.66028898274, 225.89512574204)
 
 var node7 = ::blueprint::nodes::perspective::Perspective()
 
@@ -127,17 +127,42 @@ _editor.add_node(node9, 412.51009621452, -222.35700607071)
 
 var node10 = ::blueprint::nodes::for_each::ForEach()
 
-_editor.add_node(node10, 914.03505000552, 118.82269788306)
+_editor.add_node(node10, 1164.9441409146, 107.00451606488)
+
+var node11 = ::blueprint::nodes::is_null::IsNull()
+
+_editor.add_node(node11, 408.58502375197, 156.999198382)
+
+var node12 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node12, 1011.9389355872, 20.226619751981)
+
+var node13 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node13.query_param("skip").value = false
+
+_editor.add_node(node13, 783.1307712437, 32.615556424757)
+
+var node14 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node14, 560.9265762203, 75.875717541404)
 
 Blueprint.connect(node8, "zoom", node7, "fovy")
+Blueprint.connect(node7, "mat", node14, "a")
+Blueprint.connect(node8, "mat", node14, "b")
+Blueprint.connect(node10, "out", node13, "geos")
+Blueprint.connect(node14, "v", node13, "mat")
 Blueprint.connect(node8, "mat", node5, "view")
 Blueprint.connect(node7, "mat", node5, "projection")
 Blueprint.connect(node9, "v3", node5, "light_pos")
 Blueprint.connect(node8, "pos", node5, "cam_pos")
 Blueprint.connect(node6, "next", node10, "prev")
 Blueprint.connect(node3, "var", node10, "in")
-Blueprint.connect(node4, "next", node10, "do")
+Blueprint.connect(node12, "next", node10, "do")
 Blueprint.connect(node10, "out", node0, "geo")
+Blueprint.connect(node0, "gltf", node11, "in")
+Blueprint.connect(node11, "out", node12, "cond")
+Blueprint.connect(node13, "next", node12, "true")
+Blueprint.connect(node4, "next", node12, "false")
 Blueprint.connect(node0, "gltf", node1, "items")
 Blueprint.connect(node1, "item", node2, "items")
 Blueprint.connect(node5, "out", node4, "shader")

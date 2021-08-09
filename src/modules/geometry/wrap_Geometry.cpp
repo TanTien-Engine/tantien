@@ -626,6 +626,26 @@ int w_PolyPoint_finalize(void* data)
     return sizeof(tt::Proxy<pm3::Polytope::Point>);
 }
 
+void w_PolyPoint_get_pos()
+{
+    auto p = ((tt::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    ves_pushnumber(p->pos.x);
+    ves_seti(-2, 0);
+    ves_pop(1);
+
+    ves_pushnumber(p->pos.y);
+    ves_seti(-2, 1);
+    ves_pop(1);
+
+    ves_pushnumber(p->pos.z);
+    ves_seti(-2, 2);
+    ves_pop(1);
+}
+
 void w_PolyFace_allocate()
 {
     auto face = std::make_shared<pm3::Polytope::Face>();

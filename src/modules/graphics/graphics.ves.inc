@@ -30,6 +30,8 @@ foreign class Painter
 
 	foreign add_bezier(bezier, color, line_width)
 
+	foreign add_point3d(mat, p, color, size)
+
 	foreign add_line3d(mat, p0, p1, color, line_width)
 
 	foreign add_cube(mat, min, max, color, line_width)
