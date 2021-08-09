@@ -41,9 +41,20 @@ class ListAddF is Node
 
 		var v_add = Blueprint.calc_input_value(this, 1)
 		if (v_add) {
-			ret.add(v_add)
+			this.add_to_list(ret, v_add)
 		}
 
 		return Variant(ret)
+	}
+
+	add_to_list(dst, src)
+	{
+		if (src.type == VAR_TYPE_ARRAY) {
+			for (var v in src.value) {
+				this.add_to_list(dst, v)
+			}
+		} else {
+			dst.add(src)
+		}
 	}
 }
