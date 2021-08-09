@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE
+import "maths.cube" for Cube
+import "maths.vector" for Vector3
+
+class SelPolyPoints is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "brush", VAR_TYPE_GEO),
+			Pin(this, "cube",  VAR_TYPE_CUBE),
+		]
+		this.exports = [
+			Pin(this, "points", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+	
+	calc_value(idx)
+	{
+		var v_brush = Blueprint.calc_input_value(this, 0)
+		if (!v_brush) {
+			return nil
+		}
+
+		var v_cube = Blueprint.calc_input_value(this, 1)
+		if (!v_cube) {
+			return nil
+		}
+
+		var ret = []
+
+		var points = v_brush.value.shape.get_points()
+		for (var p in points) 
+		{
+			var pos = p.get_pos()
+			if (v_cube.value.is_contain_pos(Vector3(pos[0], pos[1], pos[2]))) {
+				ret.add(p)
+			}
+		}
+
+		return Variant(ret)
+	}
+}

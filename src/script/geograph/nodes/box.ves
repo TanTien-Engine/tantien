@@ -3,9 +3,10 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VarGeo
 import "geometry" for PolyFace, Polytope, Brush
 import "maths.vector" for Vector3
+import "maths.cube" for Cube
 import "maths" for Plane
 
 class Box is Node
@@ -19,7 +20,8 @@ class Box is Node
 			Pin(this, "pos",  VAR_TYPE_NUMBER3),			
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo",  VAR_TYPE_GEO),
+			Pin(this, "cube", VAR_TYPE_CUBE),
 		]
 
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 10 }))
@@ -31,11 +33,24 @@ class Box is Node
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
 		}
 	}
 
 	calc_value(idx)
+	{
+		if (idx == 0) {
+			return this.calc_out_geo()
+		} else if (idx == 1) {
+			return this.calc_out_cube()			
+		}
+
+		return nil
+	}
+
+	calc_in_size()
 	{
 		var size = nil
 		var v_size = Blueprint.calc_input_value(this, 0)
@@ -44,18 +59,30 @@ class Box is Node
 		} else {
 			size = this.query_param("size").value
 		}
+		return size
+	}
 
-		var hx = size.x * 0.5
-		var hy = size.y * 0.5
-		var hz = size.z * 0.5
-
+	calc_in_pos()
+	{
 		var pos = nil
 		var v_pos = Blueprint.calc_input_value(this, 1)
 		if (v_pos) {
 			pos = v_pos.value
 		} else {
 			pos = this.query_param("pos").value
-		}		
+		}
+		return pos
+	}
+
+	calc_out_geo()
+	{
+		var size = this.calc_in_size()
+
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+
+		var pos = this.calc_in_pos()
 
 		var xmin = pos.x - hx
 		var xmax = pos.x + hx
@@ -98,5 +125,27 @@ class Box is Node
 		var geo = VarGeo()
 		geo.shape = Brush([ poly ])
 		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	calc_out_cube()
+	{
+		var size = this.calc_in_size()
+
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+
+		var pos = this.calc_in_pos()
+
+		var cube = Cube()
+
+		cube.min.x = pos.x - hx
+		cube.max.x = pos.x + hx
+		cube.min.y = pos.y - hy
+		cube.max.y = pos.y + hy
+		cube.min.z = pos.z - hz
+		cube.max.z = pos.z + hz
+
+		return Variant(VAR_TYPE_CUBE, cube)
 	}
 }

@@ -203,6 +203,8 @@ foreign class Polytope
 
 	foreign clip(plane, keep, seam)
 
+	foreign get_points()
+
 	foreign static boolean(operator, a, b)
 }
 
@@ -247,6 +249,19 @@ class Brush is Shape3D
 		}
 		import "model" for glTF
 		this.model = glTF.create_from_polytope(this.polys)
+	}
+
+	get_points()
+	{
+		var ret = []
+		for (var poly in this.polys) 
+		{
+			var pts = poly.get_points()
+			for (var p in pts) {
+				ret.add(p)
+			}
+		}
+		return ret
 	}
 }
 

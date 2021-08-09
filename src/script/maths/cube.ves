@@ -1,0 +1,67 @@
+import "maths.vector" for Vector3
+import "math" for Math
+
+class Cube
+{
+	init() {
+		this.min = Vector3(0, 0, 0)
+		this.max = Vector3(1, 1, 1)
+	}
+
+	init(p0, p1) 
+	{
+		this.min = Vector3()
+		this.max = Vector3()
+
+		this.min.x = Math.min(p0.x, p1.x)
+		this.min.y = Math.min(p0.y, p1.y)
+		this.min.z = Math.min(p0.z, p1.z)
+
+		this.max.x = Math.max(p0.x, p1.x)
+		this.max.y = Math.max(p0.y, p1.y)
+		this.max.z = Math.max(p0.z, p1.z)
+	}
+
+	is_contain_pos(pos) {
+		return pos.x > this.min.x and pos.x < this.max.x and
+		       pos.y > this.min.y and pos.y < this.max.y and
+		       pos.z > this.min.z and pos.z < this.max.z
+	}
+
+	is_contain_cube(cube) {
+		return cube.min.x > this.min.x and cube.max.x < this.max.x and
+		       cube.min.y > this.min.y and cube.max.y < this.max.y and
+		       cube.min.z > this.min.z and cube.max.z < this.max.z
+	}
+
+	combine_pos(pos) 
+	{
+		if (pos.x < this.min.x) {
+			this.min.x = pos.x
+		}
+		if (pos.x > this.max.x) {
+			this.max.x = pos.x
+		}
+
+		if (pos.y < this.min.y) {
+			this.min.y = pos.y
+		}
+		if (pos.y > this.max.y) {
+			this.max.y = pos.y
+		}
+
+		if (pos.z < this.min.z) {
+			this.min.z = pos.z
+		}
+		if (pos.z > this.max.z) {
+			this.max.z = pos.z
+		}
+	}
+
+	combine_points(pts)
+	{
+		for (var p in pts) {
+			this.combine_pos(p)
+		}
+	}
+}
