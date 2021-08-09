@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+
+class ListReverse is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}	
+	}
+
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+
+		var ret = []
+
+		var src = v_list.value
+		for (var i = src.count - 1; i >= 0; i = i - 1) {
+			ret.add(src[i])
+		}
+
+		return Variant(ret)
+	}
+}
