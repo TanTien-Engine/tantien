@@ -1,13 +1,14 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.nodes.number2" for Number2
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geometry" for Line as tt_Line
 import "math" for Math
+import "maths.vector" for Vector2
 
 var EDITOR = nil
 
@@ -18,12 +19,12 @@ class Line is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "p0", VAR_TYPE_NUMBER2),
-			Pin(this, "p1", VAR_TYPE_NUMBER2),
+			Pin(this, "p0", [ VAR_TYPE_NUMBER2, VAR_TYPE_ARRAY ]),
+			Pin(this, "p1", [ VAR_TYPE_NUMBER2, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
-			Pin(this, "geo",   VAR_TYPE_GEO),
-			Pin(this, "angle", VAR_TYPE_NUMBER),			
+			Pin(this, "geo",   [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "angle", VAR_TYPE_NUMBER),
 		]
 
 		this.params.add(NodeParam("x0", 0.0, { "min" : -1000, "max" : 1000 }))
@@ -50,10 +51,25 @@ class Line is Node
 	{
 		if (idx == 0)
 		{
-			var geo = VarGeo()
-			geo.shape = tt_Line.init()
-			this.update_geo(geo)
-			return Variant(VAR_TYPE_GEO, geo)
+			var v_p0 = Blueprint.calc_input_value(this, 0)
+			var v_p1 = Blueprint.calc_input_value(this, 1)
+
+			if ((v_p0 and v_p0.type == VAR_TYPE_ARRAY) or (v_p1 and v_p1.type == VAR_TYPE_ARRAY))
+			{
+				var lines = this.gen_multi_lines(v_p0, v_p1)
+				if (lines.isEmpty) {
+					return nil
+				} else {
+					return Variant(lines)				
+				}
+			}
+			else
+			{
+				var geo = VarGeo()
+				geo.shape = tt_Line.init()
+				this.update_geo(geo)
+				return Variant(VAR_TYPE_GEO, geo)
+			}
 		}
 		else if (idx == 1)
 		{
@@ -117,6 +133,68 @@ class Line is Node
 		}
 
 		geo.shape.set(x0, y0, x1, y1)
+	}
+
+	get_points(v, list)
+	{
+		if (v is Vector2)
+		{
+			list.add(v)
+		}
+		else if (v.type == VAR_TYPE_ARRAY)
+		{
+			for (var c in v.value) {
+				this.get_points(c, list)
+			}
+		}
+		else if (v.type == VAR_TYPE_NUMBER2)
+		{
+			list.add(v.value)
+		}
+		else if (v.type == VAR_TYPE_GEO)
+		{
+			var c = v.value.shape.get()
+			list.add(Vector2(c[0], c[1]))
+		}
+	}	
+
+	gen_multi_lines(v_p0, v_p1)
+	{
+		var p0s = []
+		var p1s = []
+
+		this.get_points(v_p0, p0s)
+		this.get_points(v_p1, p1s)
+
+		if (p0s.isEmpty or p1s.isEmpty) {
+			return []
+		}
+
+		var ret = []
+
+		for (var i = 0; i < p0s.count or i < p1s.count; i = i + 1)
+		{
+			var p0
+			if (i < p0s.count) {
+				p0 = p0s[i]
+			} else {
+				p0 = p0s.back()
+			}
+
+			var p1
+			if (i < p1s.count) {
+				p1 = p1s[i]
+			} else {
+				p1 = p1s.back()
+			}
+
+			var geo = VarGeo()
+			geo.shape = tt_Line.init()
+			geo.shape.set(p0.x, p0.y, p1.x, p1.y)
+			ret.add(Variant(VAR_TYPE_GEO, geo))
+		}
+
+		return ret
 	}
 
 	bind_editor()
