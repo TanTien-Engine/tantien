@@ -887,8 +887,9 @@ void w_Polytope_boolean()
 
     ves_pop(ves_argnum());
 
-    ves_newlist(polytopes.size());
-    for (int i = 0, n = polytopes.size(); i < n; ++i)
+    const int num = (int)polytopes.size();
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
     {
         ves_pushnil();
         ves_import_class("geometry", "Polytope");
