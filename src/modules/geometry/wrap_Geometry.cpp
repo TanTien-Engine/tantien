@@ -801,6 +801,9 @@ void w_Polytope_boolean()
 
     if (strcmp(op, "union") == 0) 
     {
+        // fixme
+        polytopes.push_back(a);
+        polytopes.push_back(b);
     }
     else if (strcmp(op, "intersect") == 0)
     {
