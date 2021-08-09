@@ -1,0 +1,170 @@
+var node0 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node0, 862.77435199458, -173.4529822029)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "../draw_geos.ves")
+
+_editor.add_node(node1, 1191.7296245689, -176.03748070769)
+
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
+
+node2.cam.position.set(0.50106064374717, 0.26712912408018, 0.20838117677308)
+node2.cam.yaw = -166.3
+node2.cam.pitch = -21.5
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.041642107069492
+
+_editor.add_node(node2, 1004.1701239009, -285.946413349)
+
+var node3 = ::blueprint::nodes::number::Number()
+
+node3.value = 0.15
+
+_editor.add_node(node3, -378.11222282874, 128.28874260977)
+
+var node4 = ::blueprint::nodes::number::Number()
+
+node4.value = 0.16
+
+_editor.add_node(node4, -378.52336546062, 61.31195440882)
+
+var node5 = ::blueprint::nodes::number::Number()
+
+node5.value = 0.09
+
+_editor.add_node(node5, -379.33863049189, -3.8345085488777)
+
+var node6 = ::blueprint::nodes::number::Number()
+
+node6.value = 0.72
+
+_editor.add_node(node6, -378.88615779344, 195.09217133732)
+
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
+node7.load_from_file(_editor, "10_gong.ves")
+
+_editor.add_node(node7, -184.15051220006, 94.530664154213)
+
+var node8 = ::geograph::nodes::boolean::Boolean()
+node8.query_param("operator").value = "subtract"
+
+_editor.add_node(node8, 13.578512396694, 14.417355371901)
+
+var node9 = ::geograph::nodes::box::Box()
+node9.query_param("size").value.set(0.16, 0.2, 1)
+node9.query_param("pos").value.set(0, -0.06, 0)
+
+_editor.add_node(node9, -134.36395924273, -84.17506566243)
+
+var node10 = ::blueprint::nodes::cache::Cache()
+node10.query_param("disable").value = false
+
+_editor.add_node(node10, 998.60956864438, -159.33711289865)
+
+var node11 = ::geograph::nodes::box::Box()
+node11.query_param("size").value.set(0.1, 0.15, 0.62)
+node11.query_param("pos").value.set(0, 0.075, 0)
+
+_editor.add_node(node11, -50.397769116889, -355.86116612504)
+
+var node12 = ::geograph::nodes::box::Box()
+node12.query_param("size").value.set(0.2, 0.1, 0.08)
+node12.query_param("pos").value.set(0, 0.1, 0)
+
+_editor.add_node(node12, -52.536796999736, -545.87078244548)
+
+var node13 = ::geograph::nodes::boolean::Boolean()
+node13.query_param("operator").value = "subtract"
+
+_editor.add_node(node13, 126.08125555095, -376.69555777558)
+
+var node14 = ::geograph::nodes::boolean::Boolean()
+node14.query_param("operator").value = "subtract"
+
+_editor.add_node(node14, 257.07785257685, -66.624669566395)
+
+var node15 = ::geograph::nodes::boolean::Boolean()
+node15.query_param("operator").value = "union"
+
+_editor.add_node(node15, 424.55334472656, -126.87406921387)
+
+var node16 = ::blueprint::nodes::subgraph::Subgraph()
+node16.load_from_file(_editor, "01_jiaohu_dou.ves")
+
+_editor.add_node(node16, 403.7577177052, -639.14818739802)
+
+var node17 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node17, 594.94450663416, -688.01296449772)
+
+var node18 = ::blueprint::nodes::number3::Number3()
+
+node18.value.set(0, 0.15, 0.3)
+
+_editor.add_node(node18, 457.54453715174, -733.01296144596)
+
+var node19 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node19, 569.78917044647, -134.03259050354)
+
+var node20 = ::blueprint::nodes::number3::Number3()
+
+node20.value.set(0, -1.5707963, 0)
+
+_editor.add_node(node20, 424.33463054058, -238.16482985315)
+
+var node21 = ::geograph::nodes::polygon::Polygon()
+node21.query_param("vertices").value = [ 0.24, 0, 0.2384, 0.01, 0.2344, 0.02, 0.228, 0.03, 0.22, 0.04, 0.22, 0.06, -0.22, 0.06, -0.22, 0.04, -0.228, 0.03, -0.2344, 0.02, -0.2384, 0.01, -0.24, 0 ]
+node21.query_param("color").value.set(0, 0, 0)
+
+_editor.add_node(node21, 398.85819978455, 288.80803066657)
+
+var node22 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node22.query_param("distance").value = 0.1
+
+_editor.add_node(node22, 553.37898702435, 291.38648984628)
+
+var node23 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node23, 857.85412067804, 281.74749041955)
+
+var node24 = ::blueprint::nodes::number3::Number3()
+
+node24.value.set(-1.5707963, 0, 1.5707963)
+
+_editor.add_node(node24, 718.51940457318, 135.58261494324)
+
+var node25 = ::blueprint::nodes::number3::Number3()
+
+node25.value.set(-0.05, 0.15, 0)
+
+_editor.add_node(node25, 718.51937359495, 242.13270517051)
+
+Blueprint.connect(node21, "polytope", node22, "geo")
+Blueprint.connect(node22, "geo", node23, "obj")
+Blueprint.connect(node25, "v3", node23, "translate")
+Blueprint.connect(node24, "v3", node23, "rotate")
+Blueprint.connect(node16, "geo", node17, "obj")
+Blueprint.connect(node18, "v3", node17, "translate")
+Blueprint.connect(node11, "geo", node13, "a")
+Blueprint.connect(node12, "geo", node13, "b")
+Blueprint.connect(node6, "v", node7, "width")
+Blueprint.connect(node3, "v", node7, "height")
+Blueprint.connect(node4, "v", node7, "c_width")
+Blueprint.connect(node5, "v", node7, "c_height")
+Blueprint.connect(node7, "geo", node8, "a")
+Blueprint.connect(node9, "geo", node8, "b")
+Blueprint.connect(node8, "geo", node14, "a")
+Blueprint.connect(node11, "geo", node14, "b")
+Blueprint.connect(node14, "geo", node15, "a")
+Blueprint.connect(node12, "geo", node15, "b")
+Blueprint.connect(node15, "geo", node19, "obj")
+Blueprint.connect(node20, "v3", node19, "rotate")
+Blueprint.connect(node19, "obj", node0, "in0")
+Blueprint.connect(node17, "obj", node0, "in1")
+Blueprint.connect(node23, "obj", node0, "in2")
+Blueprint.connect(node0, "list", node10, "var")
+Blueprint.connect(node10, "var", node1, "geos")
+Blueprint.connect(node2, "this", node1, "view_cam")

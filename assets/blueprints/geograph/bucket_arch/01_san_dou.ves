@@ -1,0 +1,73 @@
+var node0 = ::geograph::nodes::rect::Rect()
+node0.query_param("x").value = -0.07
+node0.query_param("y").value = -0.07
+node0.query_param("w").value = 0.14
+node0.query_param("h").value = 0.14
+node0.query_param("fill").value = false
+node0.query_param("color").value.set(1, 0, 0)
+
+_editor.add_node(node0, 201.95792637115, 17.483471074375)
+
+var node1 = ::geograph::nodes::column::Column()
+node1.query_param("height").value = 0.1
+node1.query_param("generatrix").value = [ 0, 0.77777778, 0.4, 1, 1, 1 ]
+
+_editor.add_node(node1, 348.61199764673, 86.222059715955)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../draw_geos.ves")
+
+_editor.add_node(node2, 1074.2156134796, -114.58661002869)
+
+var node3 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node3, 883.82442485699, -85.116038908215)
+
+var node4 = ::blueprint::nodes::camera3d::Camera3d()
+
+node4.cam.position.set(-0.32538123593133, 0.42746404656275, 0.39089303778572)
+node4.cam.yaw = -64.3
+node4.cam.pitch = -33.2
+node4.cam.zoom = 45
+node4.cam.update_vectors()
+node4.speed = 0.17611825466156
+
+_editor.add_node(node4, 892.09067581301, -210.8439066084)
+
+var node5 = ::geograph::nodes::box::Box()
+node5.query_param("size").value.set(1, 0.1, 0.1)
+node5.query_param("pos").value.set(0, 0.11, 0)
+
+_editor.add_node(node5, 363.30795359661, -130.18126551485)
+
+var node6 = ::geograph::nodes::boolean::Boolean()
+node6.query_param("operator").value = "subtract"
+
+_editor.add_node(node6, 523.67401665277, -39.104755085935)
+
+var node7 = ::blueprint::nodes::output::Output()
+
+node7.var_name = "geo"
+node7.var_type = "geo"
+
+_editor.add_node(node7, 880.63537175776, -20.42493579157)
+
+var node8 = ::geograph::nodes::box::Box()
+node8.query_param("size").value.set(0.02, 0.03, 0.02)
+node8.query_param("pos").value.set(0, 0.015, 0)
+
+_editor.add_node(node8, 523.08881087558, -185.16022042633)
+
+var node9 = ::geograph::nodes::boolean::Boolean()
+node9.query_param("operator").value = "subtract"
+
+_editor.add_node(node9, 657.37514167401, -89.922318510525)
+
+Blueprint.connect(node3, "list", node2, "geos")
+Blueprint.connect(node4, "this", node2, "view_cam")
+Blueprint.connect(node0, "geo", node1, "base")
+Blueprint.connect(node1, "geo", node6, "a")
+Blueprint.connect(node5, "geo", node6, "b")
+Blueprint.connect(node6, "geo", node9, "a")
+Blueprint.connect(node8, "geo", node9, "b")
+Blueprint.connect(node9, "geo", node7, "var")
