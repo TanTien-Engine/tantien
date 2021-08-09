@@ -3,10 +3,10 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_RECT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo, VarPolyPoint, VarPolyFace
 import "geograph.config" for POINT_RADIUS
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D, PolyPoint
+import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -95,14 +95,24 @@ class DrawGeometry is Node
 		{
 			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
 		}
-		else if (geo is PolyPoint)
+		else if (geo is VarPolyPoint)
 		{
 			var mat = nil
 			var v_mat = Blueprint.calc_input_value(this, 3)
 			if (v_mat) {
 				mat = v_mat.value
 			}
-			pt.add_point3d(mat, geo.get_pos(), col_array, 5.0)
+			pt.add_point3d(mat, geo.point.get_pos(), col_array, 5.0)
+		}
+		else if (geo is VarPolyFace)
+		{
+			var mat = nil
+			var v_mat = Blueprint.calc_input_value(this, 3)
+			if (v_mat) {
+				mat = v_mat.value
+			}
+			var vertices = geo.get_vertices()
+			pt.add_polygon3d_filled(mat, vertices, col_array)
 		}
 	}
 

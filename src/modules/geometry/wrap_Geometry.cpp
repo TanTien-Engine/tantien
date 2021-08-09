@@ -674,6 +674,49 @@ int w_PolyFace_finalize(void* data)
     return sizeof(tt::Proxy<pm3::Polytope::Face>);
 }
 
+void w_PolyFace_get_normal()
+{
+    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+
+    ves_pop(1);
+    ves_newlist(3);
+
+    ves_pushnumber(f->plane.normal.x);
+    ves_seti(-2, 0);
+    ves_pop(1);
+
+    ves_pushnumber(f->plane.normal.y);
+    ves_seti(-2, 1);
+    ves_pop(1);
+
+    ves_pushnumber(f->plane.normal.z);
+    ves_seti(-2, 2);
+    ves_pop(1);
+}
+
+void w_PolyFace_get_vertices()
+{
+    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    auto& pts = poly->Points();
+
+    ves_pop(ves_argnum());
+
+    const int num = int(f->border.size());
+
+    ves_newlist(num * 3);
+    for (int i = 0; i < num; ++i)
+    {
+        auto& p = pts[f->border[i]];
+        for (int j = 0; j < 3; ++j)
+        {
+            ves_pushnumber(p->pos.xyz[j]);
+            ves_seti(-2, i * 3 + j);
+            ves_pop(1);
+        }
+    }
+}
+
 void w_Polytope_allocate()
 {
     std::shared_ptr<pm3::Polytope> poly = nullptr;
@@ -841,6 +884,28 @@ void w_Polytope_get_points()
         ves_import_class("geometry", "PolyPoint");
         auto proxy = (tt::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope::Point>));
         proxy->obj = points[i];
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void w_Polytope_get_faces()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+
+    auto& faces = poly->Faces();
+    
+    ves_pop(ves_argnum());
+
+    const int num = (int)(faces.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnil();
+        ves_import_class("geometry", "PolyFace");
+        auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope::Face>));
+        proxy->obj = faces[i];
         ves_pop(1);
         ves_seti(-2, i);
         ves_pop(1);
@@ -1029,6 +1094,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polygon3D.set_vertices(_)") == 0) return w_Polygon3D_set_vertices;
 
     if (strcmp(signature, "PolyPoint.get_pos()") == 0) return w_PolyPoint_get_pos;
+    if (strcmp(signature, "PolyFace.get_normal()") == 0) return w_PolyFace_get_normal;
+    if (strcmp(signature, "PolyFace.get_vertices(_)") == 0) return w_PolyFace_get_vertices;
 
     if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
@@ -1036,6 +1103,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.transform(_)") == 0) return w_Polytope_transform;
     if (strcmp(signature, "Polytope.clip(_,_,_)") == 0) return w_Polytope_clip;
     if (strcmp(signature, "Polytope.get_points()") == 0) return w_Polytope_get_points;
+    if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;

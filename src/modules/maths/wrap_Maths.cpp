@@ -486,6 +486,16 @@ void w_Maths_calc_rot_mat()
     ves_pop(1);
 }
 
+void w_Maths_calc_angle()
+{
+    auto c = tt::list_to_vec3(1);
+    auto s = tt::list_to_vec3(2);
+    auto e = tt::list_to_vec3(3);
+    
+    auto angle = sm::get_angle(c, s, e);
+    ves_set_number(0, angle);
+}
+
 void w_Plane_allocate()
 {
     sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
@@ -567,6 +577,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
     if (strcmp(signature, "static Maths.get_line_intersect_line(_,_)") == 0) return w_Maths_get_line_intersect_line;
     if (strcmp(signature, "static Maths.calc_rot_mat(_,_)") == 0) return w_Maths_calc_rot_mat;
+    if (strcmp(signature, "static Maths.calc_angle(_,_,_)") == 0) return w_Maths_calc_angle;
 
 	return nullptr;
 }

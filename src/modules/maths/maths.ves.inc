@@ -125,6 +125,8 @@ foreign class Maths
 
 	// from, to: [x, y, z]
 	foreign static calc_rot_mat(from, to)
+
+	foreign static calc_angle(center, start, end)
 }
 
 foreign class Plane

@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VAR_TYPE_POLY_POINT, VarPolyPoint
 import "maths.cube" for Cube
 import "maths.vector" for Vector3
 
@@ -44,12 +44,19 @@ class SelPolyPoints is Node
 
 		var ret = []
 
-		var points = v_brush.value.shape.get_points()
-		for (var p in points) 
+		for (var poly in v_brush.value.shape.polys)
 		{
-			var pos = p.get_pos()
-			if (v_cube.value.is_contain_pos(Vector3(pos[0], pos[1], pos[2]))) {
-				ret.add(p)
+			var points = poly.get_points()
+			for (var p in points) 
+			{
+				var pos = p.get_pos()
+				if (v_cube.value.is_contain_pos(Vector3(pos[0], pos[1], pos[2]))) 
+				{
+					var pp = VarPolyPoint()
+					pp.poly = poly
+					pp.point = p
+					ret.add(Variant(VAR_TYPE_POLY_POINT, pp))
+				}
 			}
 		}
 
