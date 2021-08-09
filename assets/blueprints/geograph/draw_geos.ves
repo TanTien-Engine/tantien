@@ -1,4 +1,4 @@
-var node0 = ::geograph::nodes::geometry::Geometry()
+var node0 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
 
 _editor.add_node(node0, -20.676023581753, -291.10174525378)
 
@@ -158,7 +158,7 @@ Blueprint.connect(node8, "pos", node5, "cam_pos")
 Blueprint.connect(node6, "next", node10, "prev")
 Blueprint.connect(node3, "var", node10, "in")
 Blueprint.connect(node12, "next", node10, "do")
-Blueprint.connect(node10, "out", node0, "geo")
+Blueprint.connect(node10, "out", node0, "brush")
 Blueprint.connect(node0, "gltf", node11, "in")
 Blueprint.connect(node11, "out", node12, "cond")
 Blueprint.connect(node13, "next", node12, "true")

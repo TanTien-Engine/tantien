@@ -5,14 +5,14 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
 import "geometry" for Brush
 
-class Geometry is Node
+class BrushToGltf is Node
 {
 	init()
 	{
 		super.init()
 
 		this.imports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "brush", VAR_TYPE_GEO),
 		]
 		this.exports = [
 			Pin(this, "gltf", VAR_TYPE_TABLE)
