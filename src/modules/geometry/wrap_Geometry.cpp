@@ -835,16 +835,15 @@ void w_Polytope_offset()
 void w_Polytope_transform()
 {
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+
     sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
 
-    auto& vertices = poly->GetTopoPoly()->GetVerts();
-    auto vert = vertices.Head();
-    do {
-        vert->position = *mt * vert->position;
-        vert = vert->linked_next;
-    } while (vert != vertices.Head());
+    auto& pts = poly->Points();
+    for (auto& p : pts) {
+        p->pos = *mt * p->pos;
+    }
 
-    poly->BuildFromTopo();
+    poly->SetTopoDirty();
 }
 
 void w_Polytope_clip()
@@ -910,6 +909,12 @@ void w_Polytope_get_faces()
         ves_seti(-2, i);
         ves_pop(1);
     }
+}
+
+void w_Polytope_set_topo_dirty()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    poly->SetTopoDirty();
 }
 
 void w_Polytope_boolean()
@@ -1104,6 +1109,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.clip(_,_,_)") == 0) return w_Polytope_clip;
     if (strcmp(signature, "Polytope.get_points()") == 0) return w_Polytope_get_points;
     if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;
+    if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
