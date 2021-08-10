@@ -210,51 +210,9 @@ foreign class Polytope
 	foreign get_points()
 	foreign get_faces()
 
+	foreign set_topo_dirty()
+
 	foreign static boolean(operator, a, b)
-}
-
-class Brush is Shape3D
-{
-	init() 
-	{
-		this.polys = []
-		this.model = nil
-	}
-
-	init(polys) 
-	{
-		this.polys = polys
-
-		import "model" for glTF
-		this.model = glTF.create_from_polytope(polys)
-	}
-
-	clone()
-	{
-		var polys = []
-		for (var poly in this.polys) {
-			polys.add(poly.clone())
-		}
-		return Brush(polys)
-	}
-
-	transform(mat)
-	{
-		for (var poly in this.polys) {
-			poly.transform(mat)
-		}
-		import "model" for glTF
-		this.model = glTF.create_from_polytope(this.polys)
-	}
-
-	clip(plane, keep, seam)
-	{
-		for (var poly in this.polys) {
-			poly.clip(plane, keep, seam)
-		}
-		import "model" for glTF
-		this.model = glTF.create_from_polytope(this.polys)
-	}
 }
 
 foreign class Constraint

@@ -1,0 +1,64 @@
+import "geometry" for Shape3D
+
+class Brush is Shape3D
+{
+	init() 
+	{
+		this.polys = []
+
+		this.model_dirty = true
+		this.model = nil
+	}
+
+	init(polys) 
+	{
+		this.polys = polys
+
+		this.model_dirty = true
+		this.model = nil
+	}
+
+	clone()
+	{
+		var polys = []
+		for (var poly in this.polys) {
+			polys.add(poly.clone())
+		}
+		return Brush(polys)
+	}
+
+	transform(mat)
+	{
+		for (var poly in this.polys) {
+			poly.transform(mat)
+		}
+
+		this.set_model_dirty()
+	}
+
+	clip(plane, keep, seam)
+	{
+		for (var poly in this.polys) {
+			poly.clip(plane, keep, seam)
+		}
+
+		this.set_model_dirty()
+	}
+
+	set_model_dirty() { this.model_dirty = true }
+
+	get_model()
+	{
+		if (this.model_dirty) 
+		{
+		System.print("++ update_model")
+
+			import "model" for glTF
+			this.model = glTF.create_from_polytope(this.polys)
+
+			this.model_dirty = false
+		}
+
+		return this.model
+	}
+}
