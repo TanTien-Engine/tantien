@@ -181,6 +181,7 @@ foreign class PolyPoint
 	init(pos) {}
 
 	foreign get_pos()
+	foreign set_pos(pos)
 }
 
 foreign class PolyFace
@@ -190,7 +191,7 @@ foreign class PolyFace
 
 	foreign get_normal()
 
-	foreign get_vertices(_)
+	foreign get_border()
 }
 
 foreign class Polytope

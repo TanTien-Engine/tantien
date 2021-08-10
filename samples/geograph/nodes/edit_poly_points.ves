@@ -1,0 +1,54 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+
+_editor.add_node(node0, -262.9209, 42.4136)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, 193.89650463548, -90.356880620377)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node2, 375.85596399409, -98.796605112894)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(-0.70700279480129, 1.7641954849577, 1.8850016537446)
+node3.cam.yaw = -66.2
+node3.cam.pitch = -37.4
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.16471187770367
+
+_editor.add_node(node3, 195.05077651178, -221.17847871071)
+
+var node4 = ::geograph::nodes::sel_poly_points::SelPolyPoints()
+
+_editor.add_node(node4, -98.787287244903, -35.373185172687)
+
+var node5 = ::geograph::nodes::box::Box()
+node5.query_param("size").value.set(1, 1, 1)
+node5.query_param("pos").value.set(0.5, 0.5, 0.5)
+
+_editor.add_node(node5, -259.98647933738, -143.31418237626)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(0, 0.19634331762791, 0)
+
+_editor.add_node(node6, -94.563747396125, -135.37913506602)
+
+var node7 = ::geograph::nodes::brush_edit::BrushEdit()
+
+_editor.add_node(node7, 47.870808114547, -101.99048527642)
+
+Blueprint.connect(node0, "geo", node4, "brush")
+Blueprint.connect(node5, "cube", node4, "cube")
+Blueprint.connect(node4, "parts", node7, "parts")
+Blueprint.connect(node6, "v3", node7, "translate")
+Blueprint.connect(node7, "brush", node1, "in0")
+Blueprint.connect(node7, "parts", node1, "in1")
+Blueprint.connect(node1, "list", node2, "geos")
+Blueprint.connect(node3, "this", node2, "view_cam")
