@@ -3,8 +3,9 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_RECT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo, VarPolyPoint, VarPolyFace
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
+import "geograph.brush" for BrushParts
 import "graphics" for Painter, Graphics
 import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
 import "maths.vector" for Vector2, Vector3
@@ -95,25 +96,6 @@ class DrawGeometry is Node
 		{
 			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
 		}
-		else if (geo is VarPolyPoint)
-		{
-			var mat = nil
-			var v_mat = Blueprint.calc_input_value(this, 3)
-			if (v_mat) {
-				mat = v_mat.value
-			}
-			pt.add_point3d(mat, geo.point.get_pos(), col_array, 5.0)
-		}
-		else if (geo is VarPolyFace)
-		{
-			var mat = nil
-			var v_mat = Blueprint.calc_input_value(this, 3)
-			if (v_mat) {
-				mat = v_mat.value
-			}
-			var vertices = geo.get_vertices()
-			pt.add_polygon3d_filled(mat, vertices, col_array)
-		}
 	}
 
 	draw_geo_shape(pt, geo, color)
@@ -145,7 +127,9 @@ class DrawGeometry is Node
 			this.draw_polyline3d(pt, geo, col_array)
 		} else if (shape is Polygon3D) {
 			this.draw_polygon3d(pt, geo, col_array)
-		}
+		} else if (shape is BrushParts) {
+			this.draw_brush_parts(pt, shape, col_array)
+		}		
 	}
 
 	draw_line(pt, geo, col)
@@ -345,5 +329,43 @@ class DrawGeometry is Node
 		}
 
 		pt.add_polygon3d_filled(mat, verts, col)
+	}
+
+	draw_brush_parts(pt, parts, col)
+	{
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
+		// points
+		for (var pair in parts.points)
+		{
+			var poly = parts.brush.polys[pair[0]]
+			var point = poly.get_points()[pair[1]]
+			pt.add_point3d(mat, point.get_pos(), col, 5.0)
+		}
+
+		// faces
+		for (var pair in parts.faces)
+		{
+			var poly = parts.brush.polys[pair[0]]
+			var face = poly.get_faces()[pair[1]]
+
+			var vertices = []
+
+			var border = face.get_border()
+			var pts = poly.get_points()
+			for (var i = 0; i < border.count; i = i + 1)
+			{
+				var pos = pts[border[i]].get_pos()
+				for (var j = 0; j < 3; j = j + 1) {
+					vertices.add(pos[j])
+				}
+			}						
+
+			pt.add_polygon3d_filled(mat, vertices, col)			
+		}
 	}
 }

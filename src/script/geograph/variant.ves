@@ -4,9 +4,6 @@ var VAR_TYPE_CONS = "constraint"
 var VAR_TYPE_CUBE  = "cube"
 var VAR_TYPE_PLANE = "plane"
 
-var VAR_TYPE_POLY_POINT = "p_point"
-var VAR_TYPE_POLY_FACE  = "p_face"
-
 class VarGeo
 {
 	init()
@@ -50,32 +47,5 @@ class VarCons
 	{
 		this.cons = nil
 		this.cons_id = -1
-	}
-}
-
-class VarPolyPoint
-{
-	init()
-	{
-		this.poly  = nil
-		this.point = nil
-	}
-}
-
-class VarPolyFace
-{
-	init()
-	{
-		this.poly = nil
-		this.face = nil
-	}
-
-	get_vertices()
-	{
-		if (this.poly and this.face) {
-			return this.face.get_vertices(this.poly)
-		} else {
-			return nil
-		}
 	}
 }

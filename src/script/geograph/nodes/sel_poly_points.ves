@@ -1,8 +1,9 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VAR_TYPE_POLY_POINT, VarPolyPoint
+import "blueprint.variant" for Variant
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VarGeo
+import "geograph.brush" for BrushParts
 import "maths.cube" for Cube
 import "maths.vector" for Vector3
 
@@ -17,7 +18,7 @@ class SelPolyPoints is Node
 			Pin(this, "cube",  VAR_TYPE_CUBE),
 		]
 		this.exports = [
-			Pin(this, "points", VAR_TYPE_ARRAY),
+			Pin(this, "parts", VAR_TYPE_GEO),
 		]
 
 		this.layout()
@@ -42,24 +43,26 @@ class SelPolyPoints is Node
 			return nil
 		}
 
-		var ret = []
+		var parts = BrushParts()
 
-		for (var poly in v_brush.value.shape.polys)
+		parts.brush = v_brush.value.shape
+
+		var n_poly = v_brush.value.shape.polys.count
+		for (var i_poly = 0; i_poly < n_poly; i_poly = i_poly + 1)
 		{
+			var poly = v_brush.value.shape.polys[i_poly]
 			var points = poly.get_points()
-			for (var p in points) 
+			for (var i_pt = 0; i_pt < points.count; i_pt = i_pt + 1) 
 			{
-				var pos = p.get_pos()
-				if (v_cube.value.is_contain_pos(Vector3(pos[0], pos[1], pos[2]))) 
-				{
-					var pp = VarPolyPoint()
-					pp.poly = poly
-					pp.point = p
-					ret.add(Variant(VAR_TYPE_POLY_POINT, pp))
+				var pos = points[i_pt].get_pos()
+				if (v_cube.value.is_contain_pos(Vector3(pos[0], pos[1], pos[2]))) {
+					parts.points.add([ i_poly, i_pt ])
 				}
 			}
 		}
 
-		return Variant(ret)
+		var geo = VarGeo()
+		geo.shape = parts
+		return Variant(VAR_TYPE_GEO, geo)
 	}
 }

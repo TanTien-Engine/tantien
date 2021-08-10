@@ -2,8 +2,9 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_POLY_FACE, VarPolyFace
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for BrushParts
 import "maths.cube" for Cube
 import "maths.vector" for Vector3
 import "maths" for Maths
@@ -21,7 +22,7 @@ class SelPolyFaces is Node
 			Pin(this, "region", VAR_TYPE_NUMBER),			
 		]
 		this.exports = [
-			Pin(this, "faces", VAR_TYPE_ARRAY),
+			Pin(this, "parts", VAR_TYPE_GEO),
 		]
 
 		this.params.add(NodeParam("normal", Vector3(0, 1, 0), { "min" : -1, "max" : 1 }))
@@ -47,26 +48,28 @@ class SelPolyFaces is Node
 		var v_normal = this.calc_in_normal()
 		var v_region = this.calc_in_region()
 
-		var ret = []
+		var parts = BrushParts()
 
-		for (var poly in v_brush.value.shape.polys)
+		parts.brush = v_brush.value.shape
+
+		var n_poly = v_brush.value.shape.polys.count
+		for (var i_poly = 0; i_poly < n_poly; i_poly = i_poly + 1)
 		{
+			var poly = v_brush.value.shape.polys[i_poly]
 			var faces = poly.get_faces()
-			for (var f in faces) 
+			for (var i_f = 0; i_f < faces.count; i_f = i_f + 1) 
 			{
-				var norm = f.get_normal()
+				var norm = faces[i_f].get_normal()
 				var angle = Maths.calc_angle([0, 0, 0], norm, [ v_normal.x, v_normal.y, v_normal.z ])
-				if (Math.abs(angle) < v_region) 
-				{
-					var pf = VarPolyFace()
-					pf.poly = poly
-					pf.face = f
-					ret.add(Variant(VAR_TYPE_POLY_FACE, pf))
+				if (Math.abs(angle) < v_region) {
+					parts.faces.add([ i_poly, i_f ])
 				}
 			}
 		}
 
-		return Variant(ret)
+		var geo = VarGeo()
+		geo.shape = parts
+		return Variant(VAR_TYPE_GEO, geo)
 	}
 
 	calc_in_normal()

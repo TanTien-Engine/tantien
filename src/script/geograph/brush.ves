@@ -51,8 +51,6 @@ class Brush is Shape3D
 	{
 		if (this.model_dirty) 
 		{
-		System.print("++ update_model")
-
 			import "model" for glTF
 			this.model = glTF.create_from_polytope(this.polys)
 
@@ -60,5 +58,44 @@ class Brush is Shape3D
 		}
 
 		return this.model
+	}
+}
+
+class BrushParts is Shape3D
+{
+	init()
+	{
+		this.brush = nil
+
+		// [ [poly_idx, prim_idx] ...]
+		this.points = []
+		this.faces  = []
+	}
+
+	clone()
+	{
+		var new = BrushParts()
+
+		new.brush = this.brush.clone()
+
+		if (this.points) {
+			new.points = []
+			this.copy_idx_list(new.points, this.points)
+		}
+		if (this.faces) {
+			new.faces = []
+			this.copy_idx_list(new.faces, this.faces)
+		}
+
+		return new
+
+	}
+
+	copy_idx_list(dst, src)
+	{
+		for (var pair in src) {
+			var d_pair = [ pair[0], pair[1] ]
+			dst.add(d_pair)
+		}
 	}
 }
