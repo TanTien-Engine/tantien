@@ -5,8 +5,8 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "maths" for Matrix44
 import "geograph.brush" for Brush
+import "maths" for Matrix44
 
 class Transform3d is Node
 {
@@ -114,36 +114,36 @@ class Transform3d is Node
 				this.transform_impl(v, mat, result)
 			}
 		} else if (v_obj.type == VAR_TYPE_GEO) {
-			result.add(this.transform_geo(v_obj, mat))
+			result.add(this.transform_geo(v_obj.value, mat))
 		} else if (v_obj.type == VAR_TYPE_SPRITE) {
-			result.add(this.transform_spr(v_obj, mat))
-		}
+			result.add(this.transform_spr(v_obj.value, mat))
+		} 
 	}	
 
-	transform_geo(v_geo, mat)
+	transform_geo(geo, mat)
 	{
-		if (v_geo.value.shape is Brush) 
+		if (geo.shape is Brush) 
 		{
-			var brush = v_geo.value.shape.clone()
+			var brush = geo.shape.clone()
 			brush.transform(mat)
 
-			var geo = VarGeo()
-			geo.shape = brush
-			return Variant(VAR_TYPE_GEO, geo)
+			var new_geo = VarGeo()
+			new_geo.shape = brush
+			return Variant(VAR_TYPE_GEO, new_geo)
 		}
 
 		return nil
 	}
 
-	transform_spr(v_spr, mat)
+	transform_spr(spr, mat)
 	{
-		var spr = v_spr.value.clone()
+		var new_spr = spr.clone()
 
-		if (!spr.transform) {
-			spr.transform = Matrix44.init()
+		if (!new_spr.transform) {
+			new_spr.transform = Matrix44.init()
 		}
-		spr.transform.transform_mat4(mat)
+		new_spr.transform.transform_mat4(mat)
 
-		return Variant(VAR_TYPE_SPRITE, spr)
+		return Variant(VAR_TYPE_SPRITE, new_spr)
 	}
 }
