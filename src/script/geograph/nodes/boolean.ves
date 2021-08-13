@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
@@ -14,8 +14,8 @@ class Boolean is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "a", VAR_TYPE_GEO),
-			Pin(this, "b", VAR_TYPE_GEO),
+			Pin(this, "a", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "b", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -31,31 +31,27 @@ class Boolean is Node
 		if (pin.is_input) {
 			Blueprint.send_pin_dirty(this.exports[0])
 		}
-	}
+	}	
 
 	calc_value(idx)
 	{
 		var v_a = Blueprint.calc_input_value(this, 0)
-		if (!v_a or !v_a.value.shape) {
+		if (!v_a) {
 			return nil
 		}
 		var v_b = Blueprint.calc_input_value(this, 1)
-		if (!v_b or !v_b.value.shape) {
+		if (!v_b) {
 			return nil
 		}
 
+		var a = []
+		var b = []
+		this.get_polys(a, v_a)
+		this.get_polys(b, v_b)
+
 		var operator = this.query_param("operator").value
 
-		var polys = []
-		for (var a in v_a.value.shape.polys) {
-			for (var b in v_b.value.shape.polys) {
-				var _polys = Polytope.boolean(operator, a, b)
-				for (var p in _polys) {
-					polys.add(p)
-				}
-			}
-		}
-
+		var polys = Polytope.boolean(operator, a, b)
 		if (polys.isEmpty) {
 			return nil
 		}
@@ -63,5 +59,18 @@ class Boolean is Node
 		var geo = VarGeo()
 		geo.shape = Brush(polys)
 		return Variant(VAR_TYPE_GEO, geo)		
+	}
+
+	get_polys(dst, src)
+	{
+		if (src.type == VAR_TYPE_ARRAY) {
+			for (var v in src.value) {
+				this.get_polys(dst, v)
+			}
+		} else if (src.type == VAR_TYPE_GEO and src.value.shape is Brush) {
+			for (var p in src.value.shape.polys) {
+				dst.add(p)
+			}
+		}
 	}
 }

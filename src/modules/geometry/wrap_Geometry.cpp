@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iterator>
+#include <set>
 
 namespace
 {
@@ -918,41 +919,121 @@ void w_Polytope_set_topo_dirty()
     poly->SetTopoDirty();
 }
 
+static std::vector<pm3::PolytopePtr> 
+intersect_poly_list(const std::vector<pm3::PolytopePtr>& a, const std::vector<pm3::PolytopePtr>& b)
+{
+    std::vector<pm3::PolytopePtr> ret;
+    for (auto& pa : a)
+    {
+        auto topo_a = pa->GetTopoPoly();
+        if (!topo_a) {
+            continue;
+        }
+        for (auto& pb : b)
+        {
+            auto topo_b = pb->GetTopoPoly();
+            if (!topo_b) {
+                continue;
+            }
+
+            auto poly = topo_a->Intersect(*topo_b);
+            if (poly && poly->GetLoops().Size() > 0) {
+                ret.push_back(std::make_shared<pm3::Polytope>(poly));
+            }
+        }
+    }
+    return ret;
+}
+
+static std::vector<pm3::PolytopePtr>
+subtract_poly_list(const std::vector<pm3::PolytopePtr>& a, const std::vector<pm3::PolytopePtr>& b)
+{
+    std::vector<pm3::PolytopePtr> ret = a;
+    for (auto& pa : a)
+    {
+        auto topo_a = pa->GetTopoPoly();
+        if (!topo_a) {
+            continue;
+        }
+        for (auto& pb : b)
+        {
+            auto topo_b = pb->GetTopoPoly();
+            if (!topo_b) {
+                continue;
+            }
+
+            auto intersect = topo_a->Intersect(*topo_b);
+            if (intersect && intersect->GetLoops().Size() > 0)
+            {
+                auto poly = std::make_shared<pm3::Polytope>(intersect);
+
+                auto a_left = a;
+                for (auto itr = a_left.begin(); itr != a_left.end(); ++itr) {
+                    if (*itr == pa) {
+                        a_left.erase(itr);
+                        break;
+                    }
+                }
+                auto a_sub = topo_a->Subtract(*topo_b);
+                for (auto& p : a_sub) {
+                    a_left.push_back(std::make_shared<pm3::Polytope>(p));
+                }
+
+                auto b_left = b;
+                for (auto itr = b_left.begin(); itr != b_left.end(); ++itr) {
+                    if (*itr == pb) {
+                        b_left.erase(itr);
+                        break;
+                    }
+                }
+                auto b_sub = topo_b->Subtract(*topo_b);
+                for (auto& p : b_sub) {
+                    b_left.push_back(std::make_shared<pm3::Polytope>(p));
+                }
+
+                return subtract_poly_list(a_left, b_left);
+            }
+        }
+    }
+    return ret;
+}
+
 void w_Polytope_boolean()
 {
     auto op = ves_tostring(1);
-    auto a = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
-    auto b = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(3))->obj;
 
-    auto topo_a = a->GetTopoPoly();
-    auto topo_b = b->GetTopoPoly();
-    if (!topo_a || !topo_b) {
-        ves_set_nil(0);
-        return;
-    }
-
-    std::vector<std::shared_ptr<pm3::Polytope>> polytopes;
+    std::vector<std::shared_ptr<pm3::Polytope>> a, b, polytopes;
+    tt::list_to_foreigns(2, a);
+    tt::list_to_foreigns(3, b);
 
     if (strcmp(op, "union") == 0) 
     {
-        // fixme
-        polytopes.push_back(a);
-        polytopes.push_back(b);
+        auto intersect = intersect_poly_list(a, b);
+        if (intersect.empty())
+        {
+            std::copy(a.begin(), a.end(), std::back_inserter(polytopes));
+            std::copy(b.begin(), b.end(), std::back_inserter(polytopes));
+        }
+        else
+        {
+            auto a_left = subtract_poly_list(a, intersect);
+            auto b_left = subtract_poly_list(b, intersect);
+            polytopes = intersect;
+            std::copy(a_left.begin(), a_left.end(), std::back_inserter(polytopes));
+            std::copy(b_left.begin(), b_left.end(), std::back_inserter(polytopes));
+        }
     }
     else if (strcmp(op, "intersect") == 0)
     {
-        auto poly = topo_a->Intersect(*topo_b);
-        if (poly && poly->GetLoops().Size() > 0) {
-            polytopes.push_back(std::make_shared<pm3::Polytope>(poly));
-        }
+        polytopes = intersect_poly_list(a, b);
     }
     else if (strcmp(op, "subtract") == 0)
     {
-        auto polys = topo_a->Subtract(*topo_b);
-        for (auto& poly : polys) {
-            if (poly->GetLoops().Size() > 0) {
-                polytopes.push_back(std::make_shared<pm3::Polytope>(poly));
-            }
+        auto intersect = intersect_poly_list(a, b);
+        if (intersect.empty()) {
+            polytopes = a;
+        } else {
+            polytopes = subtract_poly_list(a, intersect);
         }
     }
 

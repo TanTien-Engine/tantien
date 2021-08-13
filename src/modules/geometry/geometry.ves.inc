@@ -213,6 +213,7 @@ foreign class Polytope
 
 	foreign set_topo_dirty()
 
+	// a, b is list
 	foreign static boolean(operator, a, b)
 }
 
