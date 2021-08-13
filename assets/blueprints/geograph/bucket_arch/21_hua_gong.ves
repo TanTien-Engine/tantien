@@ -1,0 +1,211 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "01_jiaohu_dou.ves")
+
+_editor.add_node(node0, -597.63076235951, -236.36038627167)
+
+var node1 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node1, -410.20054743506, -282.97121896866)
+
+var node2 = ::blueprint::nodes::number3::Number3()
+
+node2.value.set(0, 0.27, 0.3)
+
+_editor.add_node(node2, -543.84394291297, -330.22516031961)
+
+var node3 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node3, -407.94660303236, -385.15003189128)
+
+var node4 = ::blueprint::nodes::number3::Number3()
+
+node4.value.set(0, 0.27, -0.3)
+
+_editor.add_node(node4, -541.58999851027, -432.40397324223)
+
+var node5 = ::blueprint::nodes::output::Output()
+
+node5.var_name = "geo"
+node5.var_type = "geo"
+
+_editor.add_node(node5, 52.236240806837, -107.54249391468)
+
+var node6 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node6, -259.14665774848, -317.23099357775)
+
+var node7 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node7, -78.910124824815, -130.89814109195)
+
+var node8 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node8, -307.79650567967, 10.933836160208)
+
+var node9 = ::blueprint::nodes::store::Store()
+
+node9.var_name = "hop_count"
+
+_editor.add_node(node9, -599.40986792712, 241.7028752751)
+
+var node10 = ::blueprint::nodes::input::Input()
+
+node10.var_name = "hop_count"
+node10.var_type = "int"
+
+_editor.add_node(node10, -729.44587500861, 241.27790781527)
+
+var node11 = ::blueprint::nodes::subgraph::Subgraph()
+node11.load_from_file(_editor, "11_hua_gong.ves")
+
+_editor.add_node(node11, -497.08712229588, 47.269405907477)
+
+var node12 = ::blueprint::nodes::load::Load()
+
+node12.var_name = "hop_count"
+
+_editor.add_node(node12, -680.25891924356, 48.51124941966)
+
+var node13 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node13, -446.37241912294, -82.673796214006)
+
+var node14 = ::blueprint::nodes::number::Number()
+
+node14.value = 0.12
+
+_editor.add_node(node14, -722.03665120487, -14.299789670264)
+
+var node15 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node15, -584.75094322057, -58.012651705226)
+
+var node16 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node16, -718.96118915846, -81.846423256924)
+
+var node17 = ::blueprint::nodes::number::Number()
+
+node17.value = 0.21
+
+_editor.add_node(node17, -846.25009074991, -113.51341738234)
+
+var node18 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node18, -803.58845627887, -368.17342055661)
+
+var node19 = ::blueprint::nodes::number::Number()
+
+node19.value = 0.27
+
+_editor.add_node(node19, -1086.7658363698, -288.18818527166)
+
+var node20 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node20, -957.6762898499, -323.02187238687)
+
+var node21 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node21, -1083.6903743234, -355.73481885832)
+
+var node22 = ::blueprint::nodes::number::Number()
+
+node22.value = 0.21
+
+_editor.add_node(node22, -1210.9792759149, -387.40181298373)
+
+var node23 = ::blueprint::nodes::number::Number()
+
+node23.value = 0.3
+
+_editor.add_node(node23, -1073.5539850183, -423.5007731884)
+
+var node24 = ::blueprint::nodes::load::Load()
+
+node24.var_name = "hop_count"
+
+_editor.add_node(node24, -1076.8382636748, -484.03806725643)
+
+var node25 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node25, -941.73233907463, -461.74957298319)
+
+var node26 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node26, -805.45448579971, -542.64718075505)
+
+var node27 = ::blueprint::nodes::negate::Negate()
+
+_editor.add_node(node27, -945.92108540231, -534.88800086209)
+
+var node28 = ::blueprint::nodes::load::Load()
+
+node28.var_name = "hop_count"
+
+_editor.add_node(node28, -729.34144597286, 185.44035838458)
+
+var node29 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node29, -591.50971108636, 166.3559801095)
+
+var node30 = ::blueprint::nodes::integer::Integer()
+
+node30.value = 1
+
+_editor.add_node(node30, -731.46192068281, 131.15586782316)
+
+var node31 = ::blueprint::nodes::store::Store()
+
+node31.var_name = "hop_sub1"
+
+_editor.add_node(node31, -461.73584781638, 166.35596461501)
+
+var node32 = ::blueprint::nodes::load::Load()
+
+node32.var_name = "hop_sub1"
+
+_editor.add_node(node32, -848.08878887225, -53.835516015554)
+
+var node33 = ::blueprint::nodes::load::Load()
+
+node33.var_name = "hop_sub1"
+
+_editor.add_node(node33, -1212.6342434177, -331.10824328828)
+
+Blueprint.connect(node10, "var", node9, "var")
+Blueprint.connect(node9, "var", node28, "var")
+Blueprint.connect(node28, "var", node29, "a")
+Blueprint.connect(node30, "v", node29, "b")
+Blueprint.connect(node29, "v", node31, "var")
+Blueprint.connect(node31, "var", node33, "var")
+Blueprint.connect(node33, "var", node21, "a")
+Blueprint.connect(node22, "v", node21, "b")
+Blueprint.connect(node19, "v", node20, "a")
+Blueprint.connect(node21, "v", node20, "b")
+Blueprint.connect(node31, "var", node32, "var")
+Blueprint.connect(node32, "var", node16, "a")
+Blueprint.connect(node17, "v", node16, "b")
+Blueprint.connect(node14, "v", node15, "a")
+Blueprint.connect(node16, "v", node15, "b")
+Blueprint.connect(node15, "v", node13, "y")
+Blueprint.connect(node9, "var", node24, "var")
+Blueprint.connect(node23, "v", node25, "a")
+Blueprint.connect(node24, "var", node25, "b")
+Blueprint.connect(node25, "v", node27, "v")
+Blueprint.connect(node20, "v", node26, "y")
+Blueprint.connect(node27, "v", node26, "z")
+Blueprint.connect(node20, "v", node18, "y")
+Blueprint.connect(node25, "v", node18, "z")
+Blueprint.connect(node9, "var", node12, "var")
+Blueprint.connect(node12, "var", node11, "hop_count")
+Blueprint.connect(node11, "geo", node8, "obj")
+Blueprint.connect(node13, "xyz", node8, "translate")
+Blueprint.connect(node0, "geo", node3, "obj")
+Blueprint.connect(node26, "xyz", node3, "translate")
+Blueprint.connect(node0, "geo", node1, "obj")
+Blueprint.connect(node18, "xyz", node1, "translate")
+Blueprint.connect(node1, "obj", node6, "in0")
+Blueprint.connect(node3, "obj", node6, "in1")
+Blueprint.connect(node8, "obj", node7, "in0")
+Blueprint.connect(node6, "list", node7, "in1")
+Blueprint.connect(node7, "list", node5, "var")

@@ -1,0 +1,54 @@
+var node0 = ::blueprint::nodes::number::Number()
+
+node0.value = 0.15
+
+_editor.add_node(node0, -378.11222282874, 128.28874260977)
+
+var node1 = ::blueprint::nodes::number::Number()
+
+node1.value = 0.14
+
+_editor.add_node(node1, -378.52336546062, 61.31195440882)
+
+var node2 = ::blueprint::nodes::number::Number()
+
+node2.value = 0.09
+
+_editor.add_node(node2, -379.33863049189, -3.8345085488777)
+
+var node3 = ::blueprint::nodes::number::Number()
+
+node3.value = 0.92
+
+_editor.add_node(node3, -378.88615779344, 195.09217133732)
+
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
+node4.load_from_file(_editor, "10_gong.ves")
+
+_editor.add_node(node4, -184.15051220006, 94.530664154213)
+
+var node5 = ::geograph::nodes::boolean::Boolean()
+node5.query_param("operator").value = "subtract"
+
+_editor.add_node(node5, 23.363636363636, 65.318181818182)
+
+var node6 = ::geograph::nodes::box::Box()
+node6.query_param("size").value.set(0.08, 0.2, 1)
+node6.query_param("pos").value.set(0, 0.15, 0)
+
+_editor.add_node(node6, -131.81818181818, -76.227272727273)
+
+var node7 = ::blueprint::nodes::output::Output()
+
+node7.var_name = "geo"
+node7.var_type = "geo"
+
+_editor.add_node(node7, 156.1008605957, 88.463652645236)
+
+Blueprint.connect(node3, "v", node4, "width")
+Blueprint.connect(node0, "v", node4, "height")
+Blueprint.connect(node1, "v", node4, "c_width")
+Blueprint.connect(node2, "v", node4, "c_height")
+Blueprint.connect(node4, "geo", node5, "a")
+Blueprint.connect(node6, "geo", node5, "b")
+Blueprint.connect(node5, "geo", node7, "var")

@@ -1,0 +1,66 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "12_nidao_gong.ves")
+
+_editor.add_node(node0, -116.41809115048, 37.35429493298)
+
+var node1 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node1, 69.43523084926, -3.3775925588)
+
+var node2 = ::blueprint::nodes::number3::Number3()
+
+node2.value.set(0, 0.12, 0)
+
+_editor.add_node(node2, -69.88884761579, -61.84815513646)
+
+var node3 = ::blueprint::nodes::output::Output()
+
+node3.var_name = "geo"
+node3.var_type = "geo"
+
+_editor.add_node(node3, 584.90088853842, -125.78389764733)
+
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
+node4.load_from_file(_editor, "01_san_dou.ves")
+
+_editor.add_node(node4, -77.12427921438, -190.0899520861)
+
+var node5 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node5, 115.52673104167, -255.1689245309)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(0.25, 0.27, 0)
+
+_editor.add_node(node6, -19.02575534533, -302.4228658819)
+
+var node7 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node7, 119.65896244663, -372.5242964317)
+
+var node8 = ::blueprint::nodes::number3::Number3()
+
+node8.value.set(-0.25, 0.27, 0)
+
+_editor.add_node(node8, -14.89352394037, -419.7782377827)
+
+var node9 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node9, 443.84416019065, -145.5355086645)
+
+var node10 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node10, 269.49061435297, -299.13356631413)
+
+Blueprint.connect(node4, "geo", node7, "obj")
+Blueprint.connect(node8, "v3", node7, "translate")
+Blueprint.connect(node4, "geo", node5, "obj")
+Blueprint.connect(node6, "v3", node5, "translate")
+Blueprint.connect(node5, "obj", node10, "in0")
+Blueprint.connect(node7, "obj", node10, "in1")
+Blueprint.connect(node0, "geo", node1, "obj")
+Blueprint.connect(node2, "v3", node1, "translate")
+Blueprint.connect(node1, "obj", node9, "in0")
+Blueprint.connect(node10, "list", node9, "in1")
+Blueprint.connect(node9, "list", node3, "var")

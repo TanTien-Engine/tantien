@@ -1,0 +1,55 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+
+_editor.add_node(node0, -702, 903.5)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, -18.357773398715, 863.76112366439)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node2, 254, 823.5)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(1.8972994532832, 2.6316803000014, 0.62720066911119)
+node3.cam.yaw = -141.5
+node3.cam.pitch = -53.2
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.23571428656578
+
+_editor.add_node(node3, 35.909090909091, 709.5)
+
+var node4 = ::geograph::nodes::box::Box()
+node4.query_param("size").value.set(1, 2, 0.1)
+node4.query_param("pos").value.set(0.5, 0, 0)
+
+_editor.add_node(node4, -539, 752.5)
+
+var node5 = ::geograph::nodes::boolean::Boolean()
+node5.query_param("operator").value = "subtract"
+
+_editor.add_node(node5, -365.81766024427, 943.9689030183)
+
+var node6 = ::geograph::nodes::box::Box()
+node6.query_param("size").value.set(2, 2, 0.1)
+node6.query_param("pos").value.set(0, 0, 0.25)
+
+_editor.add_node(node6, -345.36363636364, 674.31818181818)
+
+var node7 = ::geograph::nodes::boolean::Boolean()
+node7.query_param("operator").value = "subtract"
+
+_editor.add_node(node7, -183.00695523349, 768.40394176136)
+
+Blueprint.connect(node0, "geo", node5, "a")
+Blueprint.connect(node4, "geo", node5, "b")
+Blueprint.connect(node5, "geo", node7, "a")
+Blueprint.connect(node6, "geo", node7, "b")
+Blueprint.connect(node7, "geo", node1, "in0")
+Blueprint.connect(node1, "list", node2, "geos")
+Blueprint.connect(node3, "this", node2, "view_cam")

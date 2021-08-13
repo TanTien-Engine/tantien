@@ -1,0 +1,54 @@
+var node0 = ::blueprint::nodes::output::Output()
+
+node0.var_name = "geo"
+node0.var_type = "geo"
+
+_editor.add_node(node0, 584.90088853842, -125.78389764733)
+
+var node1 = ::blueprint::nodes::subgraph::Subgraph()
+node1.load_from_file(_editor, "01_san_dou.ves")
+
+_editor.add_node(node1, -77.12427921438, -190.0899520861)
+
+var node2 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node2, 115.52673104167, -255.1689245309)
+
+var node3 = ::blueprint::nodes::number3::Number3()
+
+node3.value.set(0.4, 0.15, 0)
+
+_editor.add_node(node3, -19.02575534533, -302.4228658819)
+
+var node4 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node4, 119.65896244663, -372.5242964317)
+
+var node5 = ::blueprint::nodes::number3::Number3()
+
+node5.value.set(-0.4, 0.15, 0)
+
+_editor.add_node(node5, -14.89352394037, -419.7782377827)
+
+var node6 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node6, 443.84416019065, -145.5355086645)
+
+var node7 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node7, 269.49061435297, -299.13356631413)
+
+var node8 = ::blueprint::nodes::subgraph::Subgraph()
+node8.load_from_file(_editor, "15_bineiman_gong.ves")
+
+_editor.add_node(node8, 191.53420544849, -98.527037501018)
+
+Blueprint.connect(node1, "geo", node4, "obj")
+Blueprint.connect(node5, "v3", node4, "translate")
+Blueprint.connect(node1, "geo", node2, "obj")
+Blueprint.connect(node3, "v3", node2, "translate")
+Blueprint.connect(node2, "obj", node7, "in0")
+Blueprint.connect(node4, "obj", node7, "in1")
+Blueprint.connect(node8, "geo", node6, "in0")
+Blueprint.connect(node7, "list", node6, "in1")
+Blueprint.connect(node6, "list", node0, "var")
