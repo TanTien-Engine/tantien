@@ -177,6 +177,10 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 ### geograph
 
 ![](./doc/geograph/screenshots/breakout.gif)
+    <em>Primitive shapes</em>
+
+![](./doc/geograph/screenshots/bucket_arch.gif)
+    <em>Parametric mesh generation</em>
 
 #### Nodes
 * shapes : Line, Rect, Circle, Polyline, Polygon,
