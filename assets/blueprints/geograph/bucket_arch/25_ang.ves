@@ -218,7 +218,7 @@ _editor.add_node(node40, 408.14780217951, -518.99012062767)
 
 var node41 = ::blueprint::nodes::input::Input()
 
-node41.var_name = "ang"
+node41.var_name = "hua_gong"
 node41.var_type = "bool"
 
 _editor.add_node(node41, 182.69326192683, -460.8083079945)
@@ -245,6 +245,32 @@ node45.var_type = "plane"
 
 _editor.add_node(node45, -23.86071529718, -797.58046302251)
 
+var node46 = ::blueprint::nodes::input::Input()
+
+node46.var_name = "length"
+node46.var_type = "any"
+
+_editor.add_node(node46, -922.77994229139, -705.7191748712)
+
+var node47 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node47, -620.64256891199, -709.09465020707)
+
+var node48 = ::blueprint::nodes::is_null::IsNull()
+
+_editor.add_node(node48, -775.68661752277, -693.38535328588)
+
+var node49 = ::blueprint::nodes::number::Number()
+
+node49.value = 1
+
+_editor.add_node(node49, -759.97729492188, -747.34338378906)
+
+Blueprint.connect(node46, "var", node48, "in")
+Blueprint.connect(node48, "out", node47, "cond")
+Blueprint.connect(node49, "v", node47, "true")
+Blueprint.connect(node46, "var", node47, "false")
+Blueprint.connect(node47, "result", node36, "length")
 Blueprint.connect(node8, "var", node7, "var")
 Blueprint.connect(node7, "var", node26, "var")
 Blueprint.connect(node26, "var", node27, "a")
@@ -287,7 +313,7 @@ Blueprint.connect(node38, "geo", node42, "in0")
 Blueprint.connect(node37, "obj", node42, "in1")
 Blueprint.connect(node41, "var", node40, "cond")
 Blueprint.connect(node42, "list", node40, "true")
-Blueprint.connect(node6, "obj", node40, "false")
+Blueprint.connect(node37, "obj", node40, "false")
 Blueprint.connect(node0, "geo", node2, "obj")
 Blueprint.connect(node24, "xyz", node2, "translate")
 Blueprint.connect(node0, "geo", node1, "obj")

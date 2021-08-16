@@ -12,7 +12,7 @@ var node1 = ::geograph::nodes::column::Column()
 node1.query_param("height").value = 0.1
 node1.query_param("generatrix").value = [ 0, 0.75, 0.1, 0.77, 0.2, 0.82, 0.3, 0.9, 0.4, 1, 1, 1 ]
 
-_editor.add_node(node1, 348.61199764673, 86.222059715955)
+_editor.add_node(node1, 351.09568293897, 129.06563100704)
 
 var node2 = ::geograph::nodes::box::Box()
 node2.query_param("size").value.set(1, 0.1, 0.1)
@@ -43,6 +43,13 @@ node6.query_param("operator").value = "subtract"
 
 _editor.add_node(node6, 657.37514167401, -89.922318510525)
 
+var node7 = ::geograph::nodes::column::Column()
+node7.query_param("height").value = 0.1
+node7.query_param("generatrix").value = [ 0, 0.75, 0.4, 1, 1, 1 ]
+
+_editor.add_node(node7, 352.95844690815, 35.927432548165)
+
+Blueprint.connect(node0, "geo", node7, "base")
 Blueprint.connect(node0, "geo", node1, "base")
 Blueprint.connect(node1, "geo", node3, "a")
 Blueprint.connect(node2, "geo", node3, "b")

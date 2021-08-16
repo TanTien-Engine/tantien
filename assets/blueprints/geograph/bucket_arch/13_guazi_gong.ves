@@ -43,7 +43,18 @@ var node7 = ::blueprint::nodes::output::Output()
 node7.var_name = "geo"
 node7.var_type = "geo"
 
-_editor.add_node(node7, 158.26508109676, 84.357777204371)
+_editor.add_node(node7, 312.87449053849, 172.52860507877)
+
+var node8 = ::blueprint::nodes::input::Input()
+
+node8.var_name = "no_cut"
+node8.var_type = "bool"
+
+_editor.add_node(node8, -5.3601937424037, 224.58424866961)
+
+var node9 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node9, 175.32791658291, 149.45278098594)
 
 Blueprint.connect(node3, "v", node4, "width")
 Blueprint.connect(node0, "v", node4, "height")
@@ -51,4 +62,7 @@ Blueprint.connect(node1, "v", node4, "c_width")
 Blueprint.connect(node2, "v", node4, "c_height")
 Blueprint.connect(node4, "geo", node5, "a")
 Blueprint.connect(node6, "geo", node5, "b")
-Blueprint.connect(node5, "geo", node7, "var")
+Blueprint.connect(node8, "var", node9, "cond")
+Blueprint.connect(node4, "geo", node9, "true")
+Blueprint.connect(node5, "geo", node9, "false")
+Blueprint.connect(node9, "result", node7, "var")

@@ -3,12 +3,12 @@ var node0 = ::blueprint::nodes::output::Output()
 node0.var_name = "geo"
 node0.var_type = "geo"
 
-_editor.add_node(node0, 584.90088853842, -125.78389764733)
+_editor.add_node(node0, 875.92838554015, -425.41620048978)
 
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "01_san_dou.ves")
 
-_editor.add_node(node1, -77.12427921438, -190.0899520861)
+_editor.add_node(node1, -79.603618057355, -189.26350580511)
 
 var node2 = ::scenegraph::nodes::transform3d::Transform3d()
 
@@ -16,17 +16,17 @@ _editor.add_node(node2, 115.52673104167, -255.1689245309)
 
 var node3 = ::blueprint::nodes::number3::Number3()
 
-node3.value.set(0.25, 0.15, 0)
+node3.value.set(0.26, 0.15, 0)
 
 _editor.add_node(node3, -19.02575534533, -302.4228658819)
 
 var node4 = ::scenegraph::nodes::transform3d::Transform3d()
 
-_editor.add_node(node4, 119.65896244663, -372.5242964317)
+_editor.add_node(node4, 119.65896244663, -379.96231296063)
 
 var node5 = ::blueprint::nodes::number3::Number3()
 
-node5.value.set(-0.25, 0.15, 0)
+node5.value.set(-0.26, 0.15, 0)
 
 _editor.add_node(node5, -14.89352394037, -419.7782377827)
 
@@ -41,8 +41,36 @@ _editor.add_node(node7, 269.49061435297, -299.13356631413)
 var node8 = ::blueprint::nodes::subgraph::Subgraph()
 node8.load_from_file(_editor, "13_guazi_gong.ves")
 
-_editor.add_node(node8, 191.53420544849, -98.527037501018)
+_editor.add_node(node8, 188.14736186817, -29.661218034457)
 
+var node9 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node9, 734.49332883525, -445.61210822127)
+
+var node10 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node10, 583.63516936279, -511.16954553932)
+
+var node11 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node11, 389.86106104781, -578.04801252166)
+
+var node12 = ::blueprint::nodes::number3::Number3()
+
+node12.value.set(0, 0.15, 0)
+
+_editor.add_node(node12, 255.30857466081, -625.30195387266)
+
+var node13 = ::blueprint::nodes::input::Input()
+
+node13.var_name = "no_cut"
+node13.var_type = "bool"
+
+_editor.add_node(node13, -10.073511745592, -39.90261280945)
+
+Blueprint.connect(node13, "var", node8, "no_cut")
+Blueprint.connect(node1, "geo", node11, "obj")
+Blueprint.connect(node12, "v3", node11, "translate")
 Blueprint.connect(node1, "geo", node4, "obj")
 Blueprint.connect(node5, "v3", node4, "translate")
 Blueprint.connect(node1, "geo", node2, "obj")
@@ -51,4 +79,9 @@ Blueprint.connect(node2, "obj", node7, "in0")
 Blueprint.connect(node4, "obj", node7, "in1")
 Blueprint.connect(node8, "geo", node6, "in0")
 Blueprint.connect(node7, "list", node6, "in1")
-Blueprint.connect(node6, "list", node0, "var")
+Blueprint.connect(node6, "list", node10, "in0")
+Blueprint.connect(node11, "obj", node10, "in1")
+Blueprint.connect(node13, "var", node9, "cond")
+Blueprint.connect(node10, "list", node9, "true")
+Blueprint.connect(node6, "list", node9, "false")
+Blueprint.connect(node9, "result", node0, "var")
