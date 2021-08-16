@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
@@ -13,11 +13,11 @@ class Knife is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "geo",   VAR_TYPE_GEO),
+			Pin(this, "geo",   [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "plane", VAR_TYPE_PLANE),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 
 		this.params.add(NodeParam("keep", "above", { "combo" : [ "above", "below", "all" ] }))
@@ -36,7 +36,7 @@ class Knife is Node
 	calc_value(idx)
 	{
 		var v_geo = Blueprint.calc_input_value(this, 0)
-		if (!v_geo or !v_geo.value.shape) {
+		if (!v_geo) {
 			return nil
 		}
 
@@ -45,14 +45,34 @@ class Knife is Node
 			return nil
 		}
 
-		var shape = v_geo.value.shape.clone()
-
 		var keep = this.query_param("keep").value
 		var seam = this.query_param("seam").value
-		shape.clip(v_plane.value, keep, seam)
 
-		var geo = VarGeo()
-		geo.shape = shape
-		return Variant(VAR_TYPE_GEO, geo)		
+		var out = []
+		this.calc_clip(v_geo, v_plane.value, keep, seam, out)
+		if (out.count == 1) {
+			return out[0]
+		} else {
+			return Variant(out)
+		}
+	}
+
+	calc_clip(geo, plane, keep, seam, out)
+	{
+		if (geo.type == VAR_TYPE_ARRAY)
+		{
+			for (var v in geo.value) {
+				this.calc_clip(v, plane, keep, seam, out)
+			}
+		}
+		else
+		{
+			var shape = geo.value.shape.clone()
+			shape.clip(plane, keep, seam)
+			
+			var geo = VarGeo()
+			geo.shape = shape
+			out.add(Variant(VAR_TYPE_GEO, geo))
+		}
 	}
 }
