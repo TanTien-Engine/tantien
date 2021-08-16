@@ -133,6 +133,10 @@ foreign class Plane
 {
 	init(p0, p1, p2) {}
 	init(ori, dir) {}
+
+	foreign clone()
+
+	foreign transform(mt)
 }
 
 );

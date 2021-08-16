@@ -4,7 +4,7 @@ import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
 import "geograph.brush" for Brush
 import "maths" for Matrix44
 
@@ -15,13 +15,13 @@ class Transform3d is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "obj",     [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ]),
+			Pin(this, "obj",     [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_PLANE, VAR_TYPE_ARRAY ]),
 			Pin(this, "translate", VAR_TYPE_NUMBER3),
 			Pin(this, "rotate",    VAR_TYPE_NUMBER3),
 			Pin(this, "scale",     VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
-			Pin(this, "obj", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_ARRAY ])
+			Pin(this, "obj", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_PLANE, VAR_TYPE_ARRAY ])
 		]
 
 		this.layout()
@@ -117,8 +117,10 @@ class Transform3d is Node
 			result.add(this.transform_geo(v_obj.value, mat))
 		} else if (v_obj.type == VAR_TYPE_SPRITE) {
 			result.add(this.transform_spr(v_obj.value, mat))
-		} 
-	}	
+		} else if (v_obj.type == VAR_TYPE_PLANE) {
+			result.add(this.transform_plane(v_obj.value, mat))	
+		}
+	}
 
 	transform_geo(geo, mat)
 	{
@@ -145,5 +147,12 @@ class Transform3d is Node
 		new_spr.transform.transform_mat4(mat)
 
 		return Variant(VAR_TYPE_SPRITE, new_spr)
+	}
+
+	transform_plane(plane, mat)
+	{
+		var new_p = plane.clone()
+		new_p.transform(mat)
+		return Variant(VAR_TYPE_PLANE, new_p)
 	}
 }

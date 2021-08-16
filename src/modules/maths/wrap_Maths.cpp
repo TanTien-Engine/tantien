@@ -435,6 +435,73 @@ void w_Matrix44_inverse()
     *mt = mt->Inverted();
 }
 
+void w_Plane_allocate()
+{
+    sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
+
+    int num = ves_argnum();
+    if (num == 4)
+    {
+        auto p0 = tt::list_to_vec3(1);
+        auto p1 = tt::list_to_vec3(2);
+        auto p2 = tt::list_to_vec3(3);
+
+        plane->Build(p0, p1, p2);
+    }
+    else if (num == 3)
+    {
+        auto ori = tt::list_to_vec3(1);
+        auto dir = tt::list_to_vec3(2);
+
+        plane->Build(dir, ori);
+    }
+}
+
+int w_Plane_finalize(void* data)
+{
+    return sizeof(sm::Plane);
+}
+
+void w_Plane_clone()
+{
+    sm::Plane* src = (sm::Plane*)ves_toforeign(0);
+    sm::Plane* dst = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
+    *dst = *src;
+}
+
+void w_Plane_transform()
+{
+    sm::Plane* p = (sm::Plane*)ves_toforeign(0);
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
+
+    sm::vec3 pos;
+    if (p->normal.x != 0)
+    {
+        pos.x = -p->dist / p->normal.x;
+        pos.y = 0;
+        pos.z = 0;
+    }
+    else if (p->normal.y != 0)
+    {
+        pos.x = 0;
+        pos.y = -p->dist / p->normal.y;
+        pos.z = 0;
+    }
+    else if (p->normal.z != 0)
+    {
+        pos.x = 0;
+        pos.y = 0;
+        pos.z = -p->dist / p->normal.z;
+    }
+
+    pos = *mt * pos;
+
+//    auto norm = (*mt * p->normal).Normalized();
+//    p->Build(norm, pos);
+
+    p->Build(p->normal, pos);
+}
+
 void w_Maths_is_convex_intersect_convex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -496,33 +563,6 @@ void w_Maths_calc_angle()
     ves_set_number(0, angle);
 }
 
-void w_Plane_allocate()
-{
-    sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
-
-    int num = ves_argnum();
-    if (num == 4)
-    {
-        auto p0 = tt::list_to_vec3(1);
-        auto p1 = tt::list_to_vec3(2);
-        auto p2 = tt::list_to_vec3(3);
-
-        plane->Build(p0, p1, p2);
-    }
-    else if (num == 3)
-    {
-        auto ori = tt::list_to_vec3(1);
-        auto dir = tt::list_to_vec3(2);
-
-        plane->Build(dir, ori);
-    }
-}
-
-int w_Plane_finalize(void* data)
-{
-    return sizeof(sm::Plane);
-}
-
 }
 
 namespace tt
@@ -573,6 +613,9 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
     if (strcmp(signature, "Matrix44.get_scale()") == 0) return w_Matrix44_get_scale;
     if (strcmp(signature, "Matrix44.inverse()") == 0) return w_Matrix44_inverse;
+
+    if (strcmp(signature, "Plane.clone()") == 0) return w_Plane_clone;
+    if (strcmp(signature, "Plane.transform(_)") == 0) return w_Plane_transform;
 
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
     if (strcmp(signature, "static Maths.get_line_intersect_line(_,_)") == 0) return w_Maths_get_line_intersect_line;
