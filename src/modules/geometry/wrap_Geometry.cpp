@@ -864,9 +864,12 @@ void w_Polytope_clip()
     }
 
     auto seam_face = ves_toboolean(3);
-
-    poly->GetTopoPoly()->Clip(*plane, keep, seam_face);
-    poly->BuildFromTopo();
+    if (poly->GetTopoPoly()->Clip(*plane, keep, seam_face)) {
+        poly->BuildFromTopo();
+        ves_set_boolean(0, true);
+    } else {
+        ves_set_boolean(0, false);
+    }
 }
 
 void w_Polytope_get_points()

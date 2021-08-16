@@ -38,9 +38,13 @@ class Brush is Shape3D
 
 	clip(plane, keep, seam)
 	{
+		var polys = []
 		for (var poly in this.polys) {
-			poly.clip(plane, keep, seam)
+			if (poly.clip(plane, keep, seam)) {
+				polys.add(poly)
+			}
 		}
+		this.polys = polys
 
 		this.set_model_dirty()
 	}
