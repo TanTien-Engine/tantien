@@ -199,6 +199,16 @@ void w_glTF_get_desc()
                 ves_setfield(-2, "va");
                 ves_pop(1);
             }
+            // size
+            {
+                ves_pushnil();
+                ves_import_class("maths", "Float3");
+                sm::vec3* size = (sm::vec3*)ves_set_newforeign(2, 3, sizeof(sm::vec3));
+                memcpy(size->xyz, prim->size.xyz, sizeof(float) * 3);
+                ves_pop(1);
+                ves_setfield(-2, "size");
+                ves_pop(1);
+            }
             // double sided
             ves_pushboolean(material->double_sided);
             ves_setfield(-2, "double_sided");

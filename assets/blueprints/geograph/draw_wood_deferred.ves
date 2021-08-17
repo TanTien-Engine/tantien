@@ -1,0 +1,959 @@
+var node0 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
+
+_editor.add_node(node0, -20.676023581753, -291.10174525378)
+
+var node1 = ::blueprint::nodes::fetch::Fetch()
+node1.index = "node0"
+
+_editor.add_node(node1, 388.89706620375, -379.62083337613)
+
+var node2 = ::blueprint::nodes::fetch::Fetch()
+node2.index = "va"
+
+_editor.add_node(node2, 590.55679029892, -374.58022943099)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "geos"
+node3.var_type = "array"
+
+_editor.add_node(node3, 1000.0138585934, 109.41430090309)
+
+var node4 = ::rendergraph::nodes::draw::Draw()
+
+node4.set_prim_type("triangles")
+node4.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node4.skip = false
+
+_editor.add_node(node4, 784.30380359571, -191.81447758435)
+
+var node5 = ::rendergraph::nodes::shader::Shader()
+
+node5.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+
+out VS_OUT {
+	vec3 Normal;
+    vec3 frag_pos;
+    vec3 view_pos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+};
+
+void main()
+{
+	vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;;
+	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
+	vs_out.view_pos = vec3(view * model * vec4(aPos, 1.0));
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node5.tcs = ""
+node5.tes = ""
+node5.gs = ""
+node5.fs = "
+#version 330 core
+layout (location = 0) out vec3 gMain;
+layout (location = 1) out vec3 gDepth;
+layout (location = 2) out vec3 gNormal;
+layout (location = 3) out vec3 gPos;
+
+in VS_OUT {
+	vec3 Normal;
+    vec3 frag_pos;
+    vec3 view_pos;
+} fs_in;
+
+uniform UBO
+{
+	vec3 light_pos;
+	vec3 cam_pos;
+	vec3 size;
+};
+
+float near = 0.01;
+float far = 100.0; 
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
+float repramp(float x) {
+	return pow(sin(x)*0.5+0.5, 8.0) + cos(x)*0.7 + 0.7;
+}
+
+// Noise generator from https://otaviogood.github.io/noisegen/
+// Params: 3D, Seed 1, Waves 128, Octaves 7, Smooth 1
+float NoiseGen(vec3 p) {
+    // This is a bit faster if we use 2 accumulators instead of 1.
+    // Timed on Linux/Chrome/TitanX Pascal
+    float wave0 = 0.0;
+    float wave1 = 0.0;
+    wave0 += sin(dot(p, vec3(-1.316, 0.918, 1.398))) * 0.0783275458;
+    wave1 += sin(dot(p, vec3(0.295, -0.176, 2.167))) * 0.0739931495;
+    wave0 += sin(dot(p, vec3(-0.926, 1.445, 1.429))) * 0.0716716966;
+    wave1 += sin(dot(p, vec3(-1.878, -0.174, 1.258))) * 0.0697839187;
+    wave0 += sin(dot(p, vec3(-1.995, 0.661, -0.908))) * 0.0685409863;
+    wave1 += sin(dot(p, vec3(-1.770, 1.350, -0.905))) * 0.0630152419;
+    wave0 += sin(dot(p, vec3(2.116, -0.021, 1.161))) * 0.0625361712;
+    wave1 += sin(dot(p, vec3(0.405, -1.712, -1.855))) * 0.0567751048;
+    wave0 += sin(dot(p, vec3(1.346, 0.945, 1.999))) * 0.0556465603;
+    wave1 += sin(dot(p, vec3(-0.397, -0.573, 2.495))) * 0.0555747667;
+    wave0 += sin(dot(p, vec3(0.103, -2.457, -1.144))) * 0.0516322279;
+    wave1 += sin(dot(p, vec3(-0.483, -1.323, 2.330))) * 0.0513093320;
+    wave0 += sin(dot(p, vec3(-1.715, -1.810, -1.164))) * 0.0504567036;
+    wave1 += sin(dot(p, vec3(2.529, 0.479, 1.011))) * 0.0500811899;
+    wave0 += sin(dot(p, vec3(-1.643, -1.814, -1.437))) * 0.0480875812;
+    wave1 += sin(dot(p, vec3(1.495, -1.905, -1.648))) * 0.0458268348;
+    wave0 += sin(dot(p, vec3(-1.874, 1.559, 1.762))) * 0.0440084357;
+    wave1 += sin(dot(p, vec3(1.068, -2.090, 2.081))) * 0.0413624154;
+    wave0 += sin(dot(p, vec3(-0.647, -2.197, -2.237))) * 0.0401592830;
+    wave1 += sin(dot(p, vec3(-2.146, -2.171, -1.135))) * 0.0391682940;
+    wave0 += sin(dot(p, vec3(2.538, -1.854, -1.604))) * 0.0349588163;
+    wave1 += sin(dot(p, vec3(1.687, 2.191, -2.270))) * 0.0342888847;
+    wave0 += sin(dot(p, vec3(0.205, 2.617, -2.481))) * 0.0338465332;
+    wave1 += sin(dot(p, vec3(3.297, -0.440, -2.317))) * 0.0289423448;
+    wave0 += sin(dot(p, vec3(1.068, -1.944, 3.432))) * 0.0286404261;
+    wave1 += sin(dot(p, vec3(-3.681, 1.068, 1.789))) * 0.0273625684;
+    wave0 += sin(dot(p, vec3(3.116, 2.631, -1.658))) * 0.0259772492;
+    wave1 += sin(dot(p, vec3(-1.992, -2.902, -2.954))) * 0.0245830241;
+    wave0 += sin(dot(p, vec3(-2.409, -2.374, 3.116))) * 0.0245592756;
+    wave1 += sin(dot(p, vec3(0.790, 1.768, 4.196))) * 0.0244078334;
+    wave0 += sin(dot(p, vec3(-3.289, 1.007, 3.148))) * 0.0241328015;
+    wave1 += sin(dot(p, vec3(3.421, -2.663, 3.262))) * 0.0199736126;
+    wave0 += sin(dot(p, vec3(3.062, 2.621, 3.649))) * 0.0199230290;
+    wave1 += sin(dot(p, vec3(4.422, -2.206, 2.621))) * 0.0192399437;
+    wave0 += sin(dot(p, vec3(2.714, 3.022, 4.200))) * 0.0182510631;
+    wave1 += sin(dot(p, vec3(-0.451, 4.143, -4.142))) * 0.0181293526;
+    wave0 += sin(dot(p, vec3(-5.838, -0.360, -1.536))) * 0.0175114826;
+    wave1 += sin(dot(p, vec3(-0.278, -4.565, 4.149))) * 0.0170799341;
+    wave0 += sin(dot(p, vec3(-5.893, -0.163, -2.141))) * 0.0167655258;
+    wave1 += sin(dot(p, vec3(4.855, -4.153, 0.606))) * 0.0163155335;
+    wave0 += sin(dot(p, vec3(4.498, 0.987, -4.488))) * 0.0162770287;
+    wave1 += sin(dot(p, vec3(-1.463, 5.321, -3.315))) * 0.0162569125;
+    wave0 += sin(dot(p, vec3(-1.862, 4.386, 4.749))) * 0.0154338176;
+    wave1 += sin(dot(p, vec3(0.563, 3.616, -5.751))) * 0.0151952226;
+    wave0 += sin(dot(p, vec3(-0.126, 2.569, -6.349))) * 0.0151089405;
+    wave1 += sin(dot(p, vec3(-5.094, 4.759, 0.186))) * 0.0147947096;
+    wave0 += sin(dot(p, vec3(1.319, 5.713, 3.845))) * 0.0147035221;
+    wave1 += sin(dot(p, vec3(7.141, -0.327, 1.420))) * 0.0140573910;
+    wave0 += sin(dot(p, vec3(3.888, 6.543, 0.547))) * 0.0133309850;
+    wave1 += sin(dot(p, vec3(-1.898, -3.563, -6.483))) * 0.0133171360;
+    wave0 += sin(dot(p, vec3(1.719, 7.769, 0.340))) * 0.0126913718;
+    wave1 += sin(dot(p, vec3(-2.210, -7.836, 0.102))) * 0.0123746071;
+    wave0 += sin(dot(p, vec3(6.248, -5.451, 1.866))) * 0.0117861898;
+    wave1 += sin(dot(p, vec3(1.627, -7.066, -4.732))) * 0.0115417453;
+    wave0 += sin(dot(p, vec3(4.099, -7.704, 1.474))) * 0.0112591564;
+    wave1 += sin(dot(p, vec3(7.357, 3.788, 3.204))) * 0.0112252325;
+    wave0 += sin(dot(p, vec3(-2.797, 6.208, 6.253))) * 0.0107206906;
+    wave1 += sin(dot(p, vec3(6.130, -5.335, -4.650))) * 0.0105693992;
+    wave0 += sin(dot(p, vec3(5.276, -5.576, -5.438))) * 0.0105139072;
+    wave1 += sin(dot(p, vec3(9.148, 2.530, -0.383))) * 0.0103996383;
+    wave0 += sin(dot(p, vec3(3.894, 2.559, 8.357))) * 0.0103161113;
+    wave1 += sin(dot(p, vec3(-6.604, 8.024, -0.289))) * 0.0094066875;
+    wave0 += sin(dot(p, vec3(-5.925, 6.505, -6.403))) * 0.0089444733;
+    wave1 += sin(dot(p, vec3(9.085, 10.331, -0.451))) * 0.0069245599;
+    wave0 += sin(dot(p, vec3(-8.228, 6.323, -9.900))) * 0.0066251015;
+    wave1 += sin(dot(p, vec3(10.029, -3.802, 12.151))) * 0.0058122824;
+    wave0 += sin(dot(p, vec3(-10.151, -6.513, -11.063))) * 0.0057522358;
+    wave1 += sin(dot(p, vec3(-1.773, -16.284, 2.828))) * 0.0056578101;
+    wave0 += sin(dot(p, vec3(11.081, 8.687, -9.852))) * 0.0054614334;
+    wave1 += sin(dot(p, vec3(-3.941, -4.386, 16.191))) * 0.0054454253;
+    wave0 += sin(dot(p, vec3(-6.742, 2.133, -17.268))) * 0.0050050132;
+    wave1 += sin(dot(p, vec3(-10.743, 5.698, 14.975))) * 0.0048323955;
+    wave0 += sin(dot(p, vec3(-9.603, 12.472, 14.542))) * 0.0043264378;
+    wave1 += sin(dot(p, vec3(13.515, 14.345, 8.481))) * 0.0043208884;
+    wave0 += sin(dot(p, vec3(-10.330, 16.209, -9.742))) * 0.0043013736;
+    wave1 += sin(dot(p, vec3(-8.580, -6.628, 19.191))) * 0.0042005922;
+    wave0 += sin(dot(p, vec3(-17.154, 10.620, 11.828))) * 0.0039482427;
+    wave1 += sin(dot(p, vec3(16.330, 14.123, -10.420))) * 0.0038474789;
+    wave0 += sin(dot(p, vec3(-21.275, 10.768, -3.252))) * 0.0038320501;
+    wave1 += sin(dot(p, vec3(1.744, 7.922, 23.152))) * 0.0037560829;
+    wave0 += sin(dot(p, vec3(-3.895, 21.321, 12.006))) * 0.0037173885;
+    wave1 += sin(dot(p, vec3(-22.705, 2.543, 10.695))) * 0.0036484394;
+    wave0 += sin(dot(p, vec3(-13.053, -16.634, -13.993))) * 0.0036291121;
+    wave1 += sin(dot(p, vec3(22.697, -11.230, 1.417))) * 0.0036280459;
+    wave0 += sin(dot(p, vec3(20.646, 14.602, 3.400))) * 0.0036055008;
+    wave1 += sin(dot(p, vec3(5.824, -8.717, -23.680))) * 0.0035501527;
+    wave0 += sin(dot(p, vec3(6.691, 15.499, 20.079))) * 0.0035029508;
+    wave1 += sin(dot(p, vec3(9.926, -22.778, 9.144))) * 0.0034694278;
+    wave0 += sin(dot(p, vec3(-9.552, -27.491, 2.197))) * 0.0031359281;
+    wave1 += sin(dot(p, vec3(21.071, -17.991, -11.566))) * 0.0030453280;
+    wave0 += sin(dot(p, vec3(9.780, 1.783, 28.536))) * 0.0030251754;
+    wave1 += sin(dot(p, vec3(8.738, -18.373, 22.725))) * 0.0029960272;
+    wave0 += sin(dot(p, vec3(14.105, 25.703, -8.834))) * 0.0029840058;
+    wave1 += sin(dot(p, vec3(-24.926, -17.766, -4.740))) * 0.0029487709;
+    wave0 += sin(dot(p, vec3(1.060, -1.570, 32.535))) * 0.0027980099;
+    wave1 += sin(dot(p, vec3(-24.532, -19.629, -16.759))) * 0.0025538949;
+    wave0 += sin(dot(p, vec3(28.772, -21.183, -9.935))) * 0.0024494819;
+    wave1 += sin(dot(p, vec3(-28.413, 22.959, 8.338))) * 0.0024236674;
+    wave0 += sin(dot(p, vec3(-27.664, 22.197, 13.301))) * 0.0023965996;
+    wave1 += sin(dot(p, vec3(-27.421, 20.643, 18.713))) * 0.0023203498;
+    wave0 += sin(dot(p, vec3(18.961, -7.189, 35.907))) * 0.0021967023;
+    wave1 += sin(dot(p, vec3(-23.949, 4.885, 33.762))) * 0.0021727461;
+    wave0 += sin(dot(p, vec3(35.305, 8.594, 20.564))) * 0.0021689816;
+    wave1 += sin(dot(p, vec3(30.364, -11.608, -27.199))) * 0.0021357139;
+    wave0 += sin(dot(p, vec3(34.268, 26.742, 0.958))) * 0.0020807976;
+    wave1 += sin(dot(p, vec3(-26.376, -17.313, -32.023))) * 0.0020108850;
+    wave0 += sin(dot(p, vec3(31.860, -32.181, -2.834))) * 0.0019919601;
+    wave1 += sin(dot(p, vec3(25.590, 32.340, 21.381))) * 0.0019446179;
+    wave0 += sin(dot(p, vec3(-17.771, -23.941, 37.324))) * 0.0018898258;
+    wave1 += sin(dot(p, vec3(-38.699, 19.953, -22.675))) * 0.0018379538;
+    wave0 += sin(dot(p, vec3(-46.284, 11.672, -15.411))) * 0.0017980056;
+    wave1 += sin(dot(p, vec3(-32.023, -43.976, -7.378))) * 0.0016399251;
+    wave0 += sin(dot(p, vec3(-42.390, -21.165, -31.889))) * 0.0015752176;
+    wave1 += sin(dot(p, vec3(-18.949, -40.461, 39.107))) * 0.0015141244;
+    wave0 += sin(dot(p, vec3(-21.507, -5.939, -58.531))) * 0.0014339601;
+    wave1 += sin(dot(p, vec3(-51.745, -43.821, 9.651))) * 0.0013096306;
+    wave0 += sin(dot(p, vec3(39.239, 25.971, -52.615))) * 0.0012701774;
+    wave1 += sin(dot(p, vec3(-49.669, -35.051, -36.306))) * 0.0012661695;
+    wave0 += sin(dot(p, vec3(-49.996, 35.309, 38.460))) * 0.0012398870;
+    wave1 += sin(dot(p, vec3(27.000, -65.904, -36.267))) * 0.0011199347;
+    wave0 += sin(dot(p, vec3(-52.523, -26.557, 57.693))) * 0.0010856391;
+    wave1 += sin(dot(p, vec3(-42.670, 0.269, -71.125))) * 0.0010786551;
+    wave0 += sin(dot(p, vec3(-9.377, 64.575, -68.151))) * 0.0009468199;
+    wave1 += sin(dot(p, vec3(14.571, -29.160, 106.329))) * 0.0008019719;
+    wave0 += sin(dot(p, vec3(-21.549, 103.887, 36.882))) * 0.0007939609;
+    wave1 += sin(dot(p, vec3(-42.781, 110.966, -9.070))) * 0.0007473261;
+    wave0 += sin(dot(p, vec3(-112.686, 18.296, -37.920))) * 0.0007409259;
+    wave1 += sin(dot(p, vec3(71.493, 33.838, -96.931))) * 0.0007121903;
+    return wave0+wave1;
+}
+
+void main()
+{
+    // Wood shader
+    // https://www.shadertoy.com/view/ldscDM
+    vec3 pos = fs_in.frag_pos.xyz * 5;
+    if (size.x > size.y * 1.5 && size.x > size.z * 1.5) 
+    {
+    	pos = pos.yxz;
+    }
+    else if (size.z > size.x * 1.5 && size.z > size.y * 1.5) 
+    {
+    	pos = pos.xzy;
+    }
+
+    float rand = size.x + size.y + size.z;
+    pos = pos + vec3(rand/3);
+
+    if (size.z > 1.9) 
+    {
+		float radians = -0.349066;
+		float s = sin(radians);
+		float c = cos(radians);
+		mat4 m;
+	    m[1][1] =  c;  m[2][1] = s;
+	    m[1][2] = -s;  m[2][2] = c;
+		pos = (m * vec4(pos, 1.0)).xyz;
+    }
+
+    float rings = repramp(length(pos.xz + vec2(NoiseGen(pos*vec3(8.0, 1.5, 8.0)), NoiseGen(-pos*vec3(8.0, 1.5, 8.0)+4.5678))*0.05)*64.0) / 1.8;
+    rings -= NoiseGen(pos *1.0)*0.75;
+
+    vec3 tex_color;
+    if (size.x < 0.2 && size.y < 0.2 && size.z < 0.2 && size.y >= 0.09 || (size.x == 0.32 && size.z == 0.32)) {
+    	tex_color = mix(vec3(0.216, 0.058, 0.021)*0.95, vec3(0.216, 0.058, 0.021)*0.4, rings)*1.5;
+    } else {
+    	tex_color = mix(vec3(0.3, 0.19, 0.075)*0.95, vec3(1.0, 0.73, 0.326)*0.4, rings)*1.5;
+    }
+
+    tex_color = max(vec3(0.0), tex_color);
+    float rough = (NoiseGen(pos*64.0*vec3(1.0, 0.2, 1.0))*0.1+0.9);
+    tex_color *= rough;
+    tex_color = clamp(tex_color, 0.0, 1.0);
+
+	// ambient
+	vec3 ambient = vec3(0.25);
+
+	// diffuse
+	const vec3 LIGHT_POS = vec3(-5.0, -5.0, 10);
+	vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
+    float diff = max(dot(fs_in.Normal, light_dir), 0.0);
+    vec3 diffuse = diff * vec3(1.0);
+
+    // specular
+    vec3 view_dir = normalize(cam_pos - fs_in.frag_pos);
+    vec3 halfway_dir = normalize(light_dir + view_dir);  
+    float spec = pow(max(dot(fs_in.Normal, halfway_dir), 0.0), 32.0);
+    vec3 specular = spec * vec3(1.0);
+
+    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far to get depth in range [0,1] for visualization purposes
+    gDepth = vec3(depth);
+
+    gMain = sqrt(diffuse * tex_color + specular); 
+    gNormal = fs_in.Normal;
+
+    gPos = fs_in.view_pos;
+}
+"
+node5.cs = ""
+node5.render_gen()
+
+_editor.add_node(node5, 584.94667455228, -116.8877095474)
+
+var node6 = ::rendergraph::nodes::clear::Clear()
+
+node6.masks = [ "color", "depth" ]
+node6.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node6, 996.66028898274, 225.89512574204)
+
+var node7 = ::blueprint::nodes::perspective::Perspective()
+
+node7.fovy = 45
+node7.aspect = 0
+node7.znear = 0.01
+node7.zfar = 100
+
+_editor.add_node(node7, 413.60400748731, -99.260075321102)
+
+var node8 = ::blueprint::nodes::proxy::Proxy()
+
+node8.real_name = "view_cam"
+node8.init_real_node(_editor.popup_nodes, "Camera3d")
+
+_editor.add_node(node8, 409.76615286487, 48.85559416076)
+
+var node9 = ::blueprint::nodes::number3::Number3()
+
+node9.value.set(5.9766573905945, 5.6433238983154, 5.3099908828735)
+
+_editor.add_node(node9, 412.51009621452, -222.35700607071)
+
+var node10 = ::blueprint::nodes::for_each::ForEach()
+
+_editor.add_node(node10, 1164.9441409146, 107.00451606488)
+
+var node11 = ::blueprint::nodes::is_null::IsNull()
+
+_editor.add_node(node11, 408.58502375197, 156.999198382)
+
+var node12 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node12, 1011.9389355872, 20.226619751981)
+
+var node13 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node13.query_param("skip").value = false
+
+_editor.add_node(node13, 783.1307712437, 32.615556424757)
+
+var node14 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node14, 560.9265762203, 75.875717541404)
+
+var node15 = ::rendergraph::nodes::render_target::RenderTarget()
+
+node15.width = 2048
+node15.height = 2048
+
+_editor.add_node(node15, 1006.2254582471, -601.81666748678)
+
+var node16 = ::rendergraph::nodes::texture::Texture()
+node16.query_param("unif_name").value = "u_tex"
+node16.gamma_correction = false
+node16.init_texture(2048, 2048, "rgb")
+
+_editor.add_node(node16, 474.40405076971, -784.61954261786)
+
+var node17 = ::rendergraph::nodes::texture::Texture()
+node17.query_param("unif_name").value = "u_tex"
+node17.gamma_correction = false
+node17.init_texture(2048, 2048, "r16f")
+
+_editor.add_node(node17, 720.05358296636, -779.70827458377)
+
+var node18 = ::rendergraph::nodes::texture::Texture()
+node18.query_param("unif_name").value = "u_tex"
+node18.gamma_correction = false
+node18.init_texture(2048, 2048, "rgb16f")
+
+_editor.add_node(node18, 942.95412422541, -781.75098051994)
+
+var node19 = ::rendergraph::nodes::render_buffer::RenderBuffer()
+
+node19.init_rbo(2048, 2048, "depth_component")
+
+_editor.add_node(node19, 1145.9538811193, -710.3782391784)
+
+var node20 = ::blueprint::nodes::commentary::Commentary()
+
+node20.set_size(934.75103759766, 556.74530029297)
+node20.title = "GBuffer"
+
+_editor.add_node(node20, 797.3810625679, -480.95532357993)
+
+var node21 = ::rendergraph::nodes::pass::Pass()
+
+node21.once = false
+
+_editor.add_node(node21, 1436.8208839844, -147.05825367542)
+
+var node22 = ::rendergraph::nodes::draw::Draw()
+
+node22.set_prim_type("tri_strip")
+node22.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node22.skip = false
+
+_editor.add_node(node22, 1850.7890513854, -817.59943915683)
+
+var node23 = ::rendergraph::nodes::shader::Shader()
+
+node23.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node23.tcs = ""
+node23.tes = ""
+node23.gs = ""
+node23.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoord;
+
+uniform sampler2D main_tex;
+uniform sampler2D ssao_tex;
+
+void main()
+{
+    float ao = texture(ssao_tex, TexCoord).r;
+	vec4 color = texture(main_tex, TexCoord);
+	FragColor = vec4(color.rgb * ao, color.a);
+}
+"
+node23.cs = ""
+node23.render_gen()
+
+_editor.add_node(node23, 1456.0473424022, -843.15563683398)
+
+var node24 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
+
+node24.type = "quad"
+node24.layout = [ "position", "texture" ]
+node24.shape_params = {  }
+
+_editor.add_node(node24, 1639.493374151, -884.79448653931)
+
+var node25 = ::rendergraph::nodes::clear::Clear()
+
+node25.masks = [ "color" ]
+node25.values = { "color" : [ 128, 128, 128, 255 ] }
+
+_editor.add_node(node25, 1620.5813407813, -636.93494254883)
+
+var node26 = ::blueprint::nodes::commentary::Commentary()
+
+node26.set_size(635.08331298828, 464.41665649414)
+node26.title = "Outline"
+
+_editor.add_node(node26, 1629.0608817969, -515.58837882813)
+
+var node27 = ::rendergraph::nodes::pass::Pass()
+
+node27.once = false
+
+_editor.add_node(node27, 2693.9307567941, -583.79069554953)
+
+var node28 = ::rendergraph::nodes::render_target::RenderTarget()
+
+node28.width = 2048
+node28.height = 2048
+
+_editor.add_node(node28, 2632.4692579609, -710.12467915388)
+
+var node29 = ::rendergraph::nodes::texture::Texture()
+node29.query_param("unif_name").value = "u_tex"
+node29.gamma_correction = false
+node29.init_texture(2048, 2048, "rgb")
+
+_editor.add_node(node29, 2269.4225193976, -901.1215192769)
+
+var node30 = ::rendergraph::nodes::draw::Draw()
+
+node30.set_prim_type("tri_strip")
+node30.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node30.skip = false
+
+_editor.add_node(node30, 2759.6742689063, -873.51477384766)
+
+var node31 = ::rendergraph::nodes::shader::Shader()
+
+node31.vs = "
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 TexCoord;
+
+void main()
+{
+	gl_Position = vec4(aPos, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
+}
+"
+node31.tcs = ""
+node31.tes = ""
+node31.gs = ""
+node31.fs = "
+#version 330
+out vec4 FragColor;
+
+uniform sampler2D tex;
+
+in vec2 TexCoord;
+
+void main() 
+{
+	const float FXAA_REDUCE_MIN = 1.0 / 128.0;
+	const float FXAA_REDUCE_MUL = 1.0 / 8.0;
+	const float FXAA_SPAN_MAX = 8.0;
+
+	vec2 screenSizeInv = 1.0 / textureSize(tex, 0);
+	
+	vec2 tcrgbNW = (TexCoord + vec2(-1.0, -1.0) * screenSizeInv);
+	vec2 tcrgbNE = (TexCoord + vec2(1.0, -1.0) * screenSizeInv);
+	vec2 tcrgbSW = (TexCoord + vec2(-1.0, 1.0) * screenSizeInv);
+	vec2 tcrgbSE = (TexCoord + vec2(1.0, 1.0) * screenSizeInv);
+	vec2 tcrgbM = vec2(TexCoord);
+	
+	vec3 rgbNW = textureLod(tex, tcrgbNW, 0.0).rgb;
+	vec3 rgbNE = textureLod(tex, tcrgbNE, 0.0).rgb;
+	vec3 rgbSW = textureLod(tex, tcrgbSW, 0.0).rgb;
+	vec3 rgbSE = textureLod(tex, tcrgbSE, 0.0).rgb;
+	vec4 texColor = textureLod(tex, tcrgbM, 0.0);
+	vec3 rgbM  = texColor.rgb;
+	vec3 luma = vec3(0.299, 0.587, 0.114);
+	float lumaNW = dot(rgbNW, luma);
+	float lumaNE = dot(rgbNE, luma);
+	float lumaSW = dot(rgbSW, luma);
+	float lumaSE = dot(rgbSE, luma);
+	float lumaM  = dot(rgbM,  luma);
+	float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
+	float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
+	
+	vec2 dir;
+	dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
+	dir.y =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+	
+	float dirReduce = max((lumaNW + lumaNE + lumaSW + lumaSE) *
+						  (0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
+	
+	float rcpDirMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + dirReduce);
+	dir = min(vec2(FXAA_SPAN_MAX, FXAA_SPAN_MAX),
+			  max(vec2(-FXAA_SPAN_MAX, -FXAA_SPAN_MAX),
+			  dir * rcpDirMin)) * screenSizeInv;
+			  
+	vec3 rgbA = 0.5 * (
+		textureLod(tex, TexCoord + dir * (1.0 / 3.0 - 0.5), 0.0).rgb +
+		textureLod(tex, TexCoord + dir * (2.0 / 3.0 - 0.5), 0.0).rgb);
+	FragColor.rgb = rgbA * 0.5 + 0.25 * ( // vec3 rgbB
+		textureLod(tex, TexCoord + dir * -0.5, 0.0).rgb +
+		textureLod(tex, TexCoord + dir * 0.5, 0.0).rgb);
+		
+	// float lumaB = dot(rgbB, luma);
+	float lumaB = dot(FragColor.rgb, luma);
+	if ((lumaB < lumaMin) || (lumaB > lumaMax)) FragColor.rgb = rgbA;
+	// else FragColor.rgb = rgbB;
+}
+"
+node31.cs = ""
+node31.render_gen()
+
+_editor.add_node(node31, 2539.4352256368, -808.35119357788)
+
+var node32 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
+
+node32.type = "quad"
+node32.layout = [ "position", "texture" ]
+node32.shape_params = {  }
+
+_editor.add_node(node32, 2604.0110373729, -972.2744231804)
+
+var node33 = ::blueprint::nodes::commentary::Commentary()
+
+node33.set_size(682.41668701172, 682.41668701172)
+node33.title = "FXAA"
+
+_editor.add_node(node33, 2494.693311875, -492.16995939453)
+
+var node34 = ::rendergraph::nodes::texture::Texture()
+node34.query_param("unif_name").value = "u_tex"
+node34.gamma_correction = false
+node34.init_texture(2048, 2048, "rgb16f")
+
+_editor.add_node(node34, 1151.9562415671, -795.41124962724)
+
+var node35 = ::rendergraph::nodes::draw::Draw()
+
+node35.set_prim_type("tri_strip")
+node35.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node35.skip = false
+
+_editor.add_node(node35, 902.2692625434, -1538.5995125517)
+
+var node36 = ::rendergraph::nodes::shader::Shader()
+
+node36.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node36.tcs = ""
+node36.tes = ""
+node36.gs = ""
+node36.fs = "
+#version 330 core
+out float FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D texNoise;
+
+const int KERNEL_SIZE = 64;
+
+uniform UBO
+{
+	vec3 samples[KERNEL_SIZE];
+	mat4 projection;	
+};
+
+// parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
+float radius = 0.5;
+float bias = 0.025;
+
+// tile noise texture over screen based on screen dimensions divided by noise size
+const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0); 
+
+void main()
+{
+    // get input for SSAO algorithm
+    vec3 fragPos = texture(gPosition, TexCoords).xyz;
+    vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
+    vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
+    // create TBN change-of-basis matrix: from tangent-space to view-space
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
+    // iterate over the sample kernel and calculate occlusion factor
+    float occlusion = 0.0;
+    for(int i = 0; i < KERNEL_SIZE; ++i)
+    {
+        // get sample position
+        vec3 samplePos = TBN * samples[i]; // from tangent to view-space
+        samplePos = fragPos + samplePos * radius; 
+        
+        // project sample position (to sample texture) (to get position on screen/texture)
+        vec4 offset = vec4(samplePos, 1.0);
+        offset = projection * offset; // from view to clip-space
+        offset.xyz /= offset.w; // perspective divide
+        offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
+        
+        // get sample depth
+        float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        
+        // range check & accumulate
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+    }
+    occlusion = 1.0 - (occlusion / KERNEL_SIZE);
+    
+    FragColor = occlusion;
+}
+"
+node36.cs = ""
+node36.render_gen()
+
+_editor.add_node(node36, 461.2087241899, -1496.0330013903)
+
+var node37 = ::rendergraph::nodes::render_target::RenderTarget()
+
+node37.width = 2048
+node37.height = 2048
+
+_editor.add_node(node37, 738.7185583766, -1713.4226119915)
+
+var node38 = ::rendergraph::nodes::texture::Texture()
+node38.query_param("unif_name").value = "u_tex"
+node38.gamma_correction = false
+node38.init_texture(2048, 2048, "r16")
+
+_editor.add_node(node38, 498.50797274864, -1779.2589063444)
+
+var node39 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
+
+node39.type = "quad"
+node39.layout = [ "position", "texture" ]
+node39.shape_params = {  }
+
+_editor.add_node(node39, 682.7552363004, -1552.8168796972)
+
+var node40 = ::rendergraph::nodes::clear::Clear()
+
+node40.masks = [ "depth", "color" ]
+node40.values = { "color" : [ 255, 255, 255, 255 ] }
+
+_editor.add_node(node40, 678.0351092601, -1380.6066031997)
+
+var node41 = ::blueprint::nodes::custom::Custom()
+
+node41.code = "
+import \"random\" for Random
+import \"maths.vector\" for Vector3
+var random = Random.init(12345)
+var ssao_kernel = []
+for (var i in 0..64)
+{
+    var sample = Vector3()
+    sample.x = random.float(1) * 2 - 1
+    sample.y = random.float(1) * 2 - 1
+    sample.z = random.float(1)
+    sample.normalize()
+    var r = random.float(1)
+    sample.x = sample.x * r
+    sample.y = sample.y * r
+    sample.z = sample.z * r
+    var s = i / 64.0 
+    s = 0.1 + s * s * (1.0 - 0.1)
+    sample.x = sample.x * s
+    sample.y = sample.y * s
+    sample.z = sample.z * s
+    ssao_kernel.add(sample)
+}
+_editor.script_stack.clear()
+_editor.script_stack.add(ssao_kernel)
+"
+node41.init_ports(0, 1)
+node41.use_cache = true
+
+_editor.add_node(node41, 293.43859725805, -1422.5882046101)
+
+var node42 = ::blueprint::nodes::custom::Custom()
+
+node42.code = "
+import \"random\" for Random
+import \"maths.vector\" for Vector3
+import \"render\" for Texture2D
+import \"rendergraph.variant\" for VarTexture
+var random = Random.init(12345)
+var ssao_noise = []
+for (var i in 0..16)
+{
+    var x = random.float(1) * 2 - 1
+    var y = random.float(1) * 2 - 1
+    var z = 0
+    ssao_noise.add(x)
+    ssao_noise.add(y)
+    ssao_noise.add(z)    
+}
+var tex = Texture2D.init(4, 4, \"rgb16f\")
+tex.upload(ssao_noise, 0, 0, 4, 4)
+var v_tex = VarTexture()
+v_tex.tex = tex
+_editor.script_stack.clear()
+_editor.script_stack.add(v_tex)
+"
+node42.init_ports(0, 1)
+node42.use_cache = true
+
+_editor.add_node(node42, 280.53270552383, -1585.485511004)
+
+var node43 = ::blueprint::nodes::commentary::Commentary()
+
+node43.set_size(931.70104980469, 811.62811279297)
+node43.title = "generate SSAO texture"
+
+_editor.add_node(node43, 659.7272735988, -1239.829664779)
+
+var node44 = ::rendergraph::nodes::pass::Pass()
+
+node44.once = false
+
+_editor.add_node(node44, 1052.3830457682, -1453.6501637288)
+
+var node45 = ::rendergraph::nodes::draw::Draw()
+
+node45.set_prim_type("tri_strip")
+node45.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node45.skip = false
+
+_editor.add_node(node45, 1721.1339301212, -1435.2845260372)
+
+var node46 = ::rendergraph::nodes::shader::Shader()
+
+node46.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
+"
+node46.tcs = ""
+node46.tes = ""
+node46.gs = ""
+node46.fs = "
+#version 330 core
+out float FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D ssaoInput;
+
+void main() 
+{
+    vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
+    float result = 0.0;
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+            vec2 offset = vec2(float(x), float(y)) * texelSize;
+            result += texture(ssaoInput, TexCoords + offset).r;
+        }
+    }
+    FragColor = result / (4.0 * 4.0);
+}  
+"
+node46.cs = ""
+node46.render_gen()
+
+_editor.add_node(node46, 1330.696521231, -1386.4495516071)
+
+var node47 = ::rendergraph::nodes::render_target::RenderTarget()
+
+node47.width = 2048
+node47.height = 2048
+
+_editor.add_node(node47, 1578.4893645815, -1614.1784689544)
+
+var node48 = ::rendergraph::nodes::texture::Texture()
+node48.query_param("unif_name").value = "u_tex"
+node48.gamma_correction = false
+node48.init_texture(2048, 2048, "r16")
+
+_editor.add_node(node48, 1343.6530253592, -1601.5511840201)
+
+var node49 = ::rendergraph::nodes::primitive_shape::PrimitiveShape()
+
+node49.type = "quad"
+node49.layout = [ "position", "texture" ]
+node49.shape_params = {  }
+
+_editor.add_node(node49, 1500.5739264047, -1446.6642598031)
+
+var node50 = ::blueprint::nodes::commentary::Commentary()
+
+node50.set_size(712.78747558594, 583.91668701172)
+node50.title = "blur SSAO texture to remove noise"
+
+_editor.add_node(node50, 1585.4357000667, -1289.087635794)
+
+var node51 = ::rendergraph::nodes::pass::Pass()
+
+node51.once = false
+
+_editor.add_node(node51, 1869.8811252327, -1357.6244555987)
+
+var node52 = ::blueprint::nodes::fetch::Fetch()
+node52.index = "size"
+
+_editor.add_node(node52, 596.34191426586, -485.32403108388)
+
+Blueprint.connect(node48, "tex", node47, "col0")
+Blueprint.connect(node35, "next", node44, "do")
+Blueprint.connect(node37, "fbo", node44, "fbo")
+Blueprint.connect(node44, "next", node51, "prev")
+Blueprint.connect(node45, "next", node51, "do")
+Blueprint.connect(node47, "fbo", node51, "fbo")
+Blueprint.connect(node51, "next", node25, "prev")
+Blueprint.connect(node41, "next", node42, "prev")
+Blueprint.connect(node42, "next", node40, "prev")
+Blueprint.connect(node38, "tex", node46, "ssaoInput")
+Blueprint.connect(node46, "out", node45, "shader")
+Blueprint.connect(node49, "out", node45, "va")
+Blueprint.connect(node38, "tex", node37, "col0")
+Blueprint.connect(node29, "tex", node31, "tex")
+Blueprint.connect(node31, "out", node30, "shader")
+Blueprint.connect(node32, "out", node30, "va")
+Blueprint.connect(node29, "tex", node28, "col0")
+Blueprint.connect(node10, "next", node21, "do")
+Blueprint.connect(node15, "fbo", node21, "fbo")
+Blueprint.connect(node21, "next", node27, "prev")
+Blueprint.connect(node22, "next", node27, "do")
+Blueprint.connect(node28, "fbo", node27, "fbo")
+Blueprint.connect(node48, "tex", node23, "ssao_tex")
+Blueprint.connect(node16, "tex", node23, "main_tex")
+Blueprint.connect(node25, "next", node22, "prev")
+Blueprint.connect(node23, "out", node22, "shader")
+Blueprint.connect(node24, "out", node22, "va")
+Blueprint.connect(node16, "tex", node15, "col0")
+Blueprint.connect(node17, "tex", node15, "col1")
+Blueprint.connect(node18, "tex", node15, "col2")
+Blueprint.connect(node34, "tex", node15, "col3")
+Blueprint.connect(node19, "rbo", node15, "depth")
+Blueprint.connect(node8, "zoom", node7, "fovy")
+Blueprint.connect(node41, "out0", node36, "samples")
+Blueprint.connect(node7, "mat", node36, "projection")
+Blueprint.connect(node34, "tex", node36, "gPosition")
+Blueprint.connect(node18, "tex", node36, "gNormal")
+Blueprint.connect(node42, "out0", node36, "texNoise")
+Blueprint.connect(node40, "next", node35, "prev")
+Blueprint.connect(node36, "out", node35, "shader")
+Blueprint.connect(node39, "out", node35, "va")
+Blueprint.connect(node7, "mat", node14, "a")
+Blueprint.connect(node8, "mat", node14, "b")
+Blueprint.connect(node10, "out", node13, "geos")
+Blueprint.connect(node14, "v", node13, "mat")
+Blueprint.connect(node6, "next", node10, "prev")
+Blueprint.connect(node3, "var", node10, "in")
+Blueprint.connect(node12, "next", node10, "do")
+Blueprint.connect(node10, "out", node0, "brush")
+Blueprint.connect(node0, "gltf", node11, "in")
+Blueprint.connect(node11, "out", node12, "cond")
+Blueprint.connect(node13, "next", node12, "true")
+Blueprint.connect(node4, "next", node12, "false")
+Blueprint.connect(node0, "gltf", node1, "items")
+Blueprint.connect(node1, "item", node52, "items")
+Blueprint.connect(node8, "mat", node5, "view")
+Blueprint.connect(node7, "mat", node5, "projection")
+Blueprint.connect(node9, "v3", node5, "light_pos")
+Blueprint.connect(node8, "pos", node5, "cam_pos")
+Blueprint.connect(node52, "item", node5, "size")
+Blueprint.connect(node1, "item", node2, "items")
+Blueprint.connect(node5, "out", node4, "shader")
+Blueprint.connect(node2, "item", node4, "va")

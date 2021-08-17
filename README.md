@@ -182,6 +182,8 @@ Block, Loop, LoopF, ForEach, Branch, BranchF, SwitchF, Compare, Finish, Group,
 ![](./doc/geograph/screenshots/bucket_arch.gif)
     <em>Parametric mesh generation</em>
 
+![](./doc/geograph/screenshots/bucket_arch.jpg)
+
 #### Nodes
 * shapes : Line, Rect, Circle, Polyline, Polygon,
 * constraints : Distance,
