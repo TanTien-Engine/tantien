@@ -63,7 +63,7 @@ var node10 = ::blueprint::nodes::output::Output()
 node10.var_name = "geo"
 node10.var_type = "geo"
 
-_editor.add_node(node10, 822.88347950003, -208.51442297265)
+_editor.add_node(node10, 960.07356214466, -232.48136512141)
 
 var node11 = ::geograph::nodes::box::Box()
 node11.query_param("size").value.set(0.04, 0.06, 0.04)
@@ -74,8 +74,39 @@ _editor.add_node(node11, 510.31645926025, -328.58621591844)
 var node12 = ::geograph::nodes::boolean::Boolean()
 node12.query_param("operator").value = "subtract"
 
-_editor.add_node(node12, 678.26169313908, -227.4880585556)
+_editor.add_node(node12, 677.43524685809, -225.83516599362)
 
+var node13 = ::blueprint::nodes::number3::Number3()
+
+node13.value.set(0, 0.12, 0)
+
+_editor.add_node(node13, 684.01692151455, -438.55801197898)
+
+var node14 = ::blueprint::nodes::output::Output()
+
+node14.var_name = "pos"
+node14.var_type = "num3"
+
+_editor.add_node(node14, 960.45311906213, -352.32612499817)
+
+var node15 = ::blueprint::nodes::input::Input()
+
+node15.var_name = "pos"
+node15.var_type = "num3"
+
+_editor.add_node(node15, 678.86870026391, -303.54633324994)
+
+var node16 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node16, 821.01175658171, -263.66380574881)
+
+var node17 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node17, 821.01174397114, -361.18444042363)
+
+Blueprint.connect(node15, "var", node17, "a")
+Blueprint.connect(node13, "v3", node17, "b")
+Blueprint.connect(node17, "v", node14, "var")
 Blueprint.connect(node0, "geo", node1, "base")
 Blueprint.connect(node1, "geo", node3, "a")
 Blueprint.connect(node2, "geo", node3, "b")
@@ -87,4 +118,6 @@ Blueprint.connect(node6, "geo", node9, "a")
 Blueprint.connect(node8, "geo", node9, "b")
 Blueprint.connect(node9, "geo", node12, "a")
 Blueprint.connect(node11, "geo", node12, "b")
-Blueprint.connect(node12, "geo", node10, "var")
+Blueprint.connect(node12, "geo", node16, "obj")
+Blueprint.connect(node15, "var", node16, "translate")
+Blueprint.connect(node16, "obj", node10, "var")

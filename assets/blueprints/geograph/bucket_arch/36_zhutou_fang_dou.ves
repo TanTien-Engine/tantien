@@ -1,0 +1,102 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "18_zhutou_fang.ves")
+node0.set_prop_value("cut_down", false)
+
+_editor.add_node(node0, -261.17228611081, 110.61188126375)
+
+var node1 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node1, 320.32620081876, 82.32995181524)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "01_san_dou.ves")
+node2.set_prop_value("no_arc", false)
+
+_editor.add_node(node2, 3.346602909661, 52.15306784158)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "01_san_dou.ves")
+node3.set_prop_value("no_arc", false)
+
+_editor.add_node(node3, 4.382920597851, -56.50816369377)
+
+var node4 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node4, 186.16190250339, -6.1039226090703)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "pos"
+node5.var_type = "num3"
+
+_editor.add_node(node5, -452.94281365356, 111.1880831745)
+
+var node6 = ::blueprint::nodes::output::Output()
+
+node6.var_name = "geo"
+node6.var_type = "geo"
+
+_editor.add_node(node6, 460.79481537301, 99.581969389425)
+
+var node7 = ::blueprint::nodes::output::Output()
+
+node7.var_name = "pos_left"
+node7.var_type = "num3"
+
+_editor.add_node(node7, 183.88240391843, 65.501032944475)
+
+var node8 = ::blueprint::nodes::output::Output()
+
+node8.var_name = "pos_right"
+node8.var_type = "num3"
+
+_editor.add_node(node8, 189.5394856351, -77.516643244565)
+
+var node9 = ::blueprint::nodes::output::Output()
+
+node9.var_name = "pos_middle"
+node9.var_type = "num3"
+
+_editor.add_node(node9, 327.89562937273, -139.05094826134)
+
+var node10 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node10, -305.0670112915, 10.050189461416)
+
+var node11 = ::blueprint::nodes::number3::Number3()
+
+node11.value.set(-0.41, 0.15, 0)
+
+_editor.add_node(node11, -462.09338883112, -29.462967319564)
+
+var node12 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node12, -294.29069080866, -102.33143843111)
+
+var node13 = ::blueprint::nodes::number3::Number3()
+
+node13.value.set(0.41, 0.15, 0)
+
+_editor.add_node(node13, -451.31706834828, -141.84459521209)
+
+var node14 = ::blueprint::nodes::average::Average()
+
+_editor.add_node(node14, 197.76401649268, -156.24270301278)
+
+Blueprint.connect(node5, "var", node12, "a")
+Blueprint.connect(node13, "v3", node12, "b")
+Blueprint.connect(node12, "v", node3, "pos")
+Blueprint.connect(node3, "pos", node8, "var")
+Blueprint.connect(node5, "var", node10, "a")
+Blueprint.connect(node11, "v3", node10, "b")
+Blueprint.connect(node10, "v", node2, "pos")
+Blueprint.connect(node2, "pos", node14, "in0")
+Blueprint.connect(node3, "pos", node14, "in1")
+Blueprint.connect(node14, "avg", node9, "var")
+Blueprint.connect(node2, "pos", node7, "var")
+Blueprint.connect(node2, "geo", node4, "in0")
+Blueprint.connect(node3, "geo", node4, "in1")
+Blueprint.connect(node5, "var", node0, "pos")
+Blueprint.connect(node0, "geo", node1, "in0")
+Blueprint.connect(node4, "list", node1, "in1")
+Blueprint.connect(node1, "list", node6, "var")
