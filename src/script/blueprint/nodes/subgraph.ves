@@ -205,12 +205,14 @@ class Subgraph is Node
 		var REGION = 10
 		for (var prop in this.prop_nodes)
 		{
+			var prop_dirty = false
+
 			if (prop.var_type == VAR_TYPE_BOOLEAN)
 			{
 				var value = GUI.checkbox(ctx, prop.var_name, prop.value, x, y)
 				if (value != prop.value) {
 					prop.value = value
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 			}
@@ -219,7 +221,7 @@ class Subgraph is Node
 				var value = GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, REGION, false)
 				if (value != prop.value) {
 					prop.value = value
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 			}
@@ -228,14 +230,14 @@ class Subgraph is Node
 				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
 				if (vx != prop.value.x) {
 					prop.value.x = vx
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
 				if (vy != prop.value.y) {
 					prop.value.y = vy
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 			}
@@ -244,21 +246,21 @@ class Subgraph is Node
 				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
 				if (vx != prop.value.x) {
 					prop.value.x = vx
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
 				if (vy != prop.value.y) {
 					prop.value.y = vy
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vz = GUI.slider(ctx, "z", prop.value.z, x, y, this.style.width - 20, REGION, false)
 				if (vz != prop.value.z) {
 					prop.value.z = vz
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 			}
@@ -267,30 +269,37 @@ class Subgraph is Node
 				var vx = GUI.slider(ctx, "x", prop.value.x, x, y, this.style.width - 20, REGION, false)
 				if (vx != prop.value.x) {
 					prop.value.x = vx
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vy = GUI.slider(ctx, "y", prop.value.y, x, y, this.style.width - 20, REGION, false)
 				if (vy != prop.value.y) {
 					prop.value.y = vy
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vz = GUI.slider(ctx, "z", prop.value.z, x, y, this.style.width - 20, REGION, false)
 				if (vz != prop.value.z) {
 					prop.value.z = vz
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
 
 				var vw = GUI.slider(ctx, "w", prop.value.w, x, y, this.style.width - 20, REGION, false)
 				if (vw != prop.value.w) {
 					prop.value.w = vw
-					dirty = true
+					prop_dirty = true
 				}
 				y = y - DEFAULT_HEIGHT
+			}
+
+			if (prop_dirty) 
+			{
+				Blueprint.send_pin_dirty_root(prop.exports[0])
+				
+				dirty = true
 			}
 		}
 
