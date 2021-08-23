@@ -1,0 +1,64 @@
+import "blueprint.nodes.commentary" for Commentary
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_FUNCTION
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.func_in" for FuncIn
+import "blueprint.nodes.func_out" for FuncOut
+
+class Function is Commentary
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "func", VAR_TYPE_FUNCTION),
+		]
+
+		this.layout()
+
+		this.exports[0].hide = true
+
+		this.title = "Function"
+	}
+
+	on_pin_dirty(pin)
+	{
+		for (var node in this.children) {
+			if (node is FuncIn)  {
+				Blueprint.send_pin_dirty(node.exports[0])
+			}
+		}
+	}
+
+	func_call(caller, idx)
+	{
+		var export = nil
+
+		var in_idx = 1
+		var out_idx = 0
+		for (var node in this.children)
+		{
+			if (node is FuncIn) 
+			{
+				node.caller_node = caller
+				node.caller_idx = in_idx
+				in_idx = in_idx + 1
+			}
+
+			if (node is FuncOut)
+			{
+				if (out_idx == idx) {
+					export = node
+				}
+				out_idx = out_idx + 1
+			}
+		}
+
+		if (export) {
+			return Blueprint.calc_input_value(export, 0)
+		} else {
+			return nil		
+		}
+	}
+}

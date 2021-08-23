@@ -1,0 +1,57 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
+
+class FuncIn is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.var_name = "in"
+		this.var_type = VAR_TYPE_ANY
+
+		this.caller_node = nil
+		this.caller_idx = 0		
+	}
+
+	calc_value(idx)
+	{
+		if (this.caller_node) {
+			return Blueprint.calc_input_value(this.caller_node, this.caller_idx)
+		} else {
+			return nil
+		}
+	}
+
+	to_string(name) 
+	{
+		if (this.var_name == "in")
+		{
+			var t_pin = Blueprint.get_first_connect_pin(this.exports[0])
+			if (t_pin) {
+				this.var_name = t_pin.name
+				this.var_type = t_pin.type
+			}
+		}
+
+		var type_str = NodeHelper.var_type_to_string(this.var_type)
+		return "
+%(name).var_name = \"%(this.var_name)\"
+%(name).var_type = %(type_str)
+"
+	}
+
+	get_title()
+	{
+		return "%(this.var_name)(FI)"
+	}
+}

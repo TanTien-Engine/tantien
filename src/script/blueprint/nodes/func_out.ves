@@ -1,0 +1,54 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.node_helper" for NodeHelper
+import "blueprint.blueprint" for Blueprint
+
+class FuncOut is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "var", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+
+		this.var_name = "out"
+		this.var_type = VAR_TYPE_ANY
+	}
+
+	calc_value(idx)
+	{
+		return Blueprint.calc_input_value(this, 0)
+	}
+
+	to_string(name) 
+	{
+		if (this.var_name == "out")
+		{
+			var f_pin = Blueprint.get_first_connect_pin(this.imports[0])
+			if (f_pin) {
+				this.var_name = f_pin.name
+				this.var_type = f_pin.type
+			}
+			var v_var = Blueprint.calc_input_value(this, 0)
+			if (v_var) {
+				this.var_type = v_var.type
+			}
+		}
+
+		var type_str = NodeHelper.var_type_to_string(this.var_type)
+		return "
+%(name).var_name = \"%(this.var_name)\"
+%(name).var_type = %(type_str)
+"
+	}
+
+	get_title()
+	{
+		return "%(this.var_name)(FO)"
+	}
+}

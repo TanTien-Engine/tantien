@@ -1,0 +1,112 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_FUNCTION
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.function" for Function
+import "blueprint.nodes.func_in" for FuncIn
+import "blueprint.nodes.func_out" for FuncOut
+
+class FuncCall is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "func", VAR_TYPE_FUNCTION),
+		]
+
+		this.layout()
+
+		this.imports[0].hide = true
+
+		this.func_node = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (this.func_node) {
+			this.func_node.on_pin_dirty(nil)
+		}
+		if (pin.is_input) {
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
+		}
+	}
+
+	calc_value(idx)
+	{
+		if (this.func_node) {
+			return this.func_node.func_call(this, idx)
+		} else {
+			return nil
+		}
+	}
+
+	to_string(name)
+	{
+		var ret = ""
+		for (var i = 1; i < this.imports.count; i = i + 1) {
+			var p = this.imports[i]
+			ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+		}
+		for (var p in this.exports) {
+			ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+		}
+		ret = ret + "%(name).layout()\n"
+		return ret
+	}
+
+	on_connected(pin)
+	{
+		if (pin == this.imports[0]) {
+			this.setup_func()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin == this.imports[0]) {
+			this.setup_func()
+		}
+	}
+
+	setup_func()
+	{
+		this.func_node = Blueprint.get_input_node(this, 0)
+		if (!this.func_node) {
+			return
+		}
+
+		if (this.func_node.children.isEmpty) {
+			return
+		}
+
+		while (this.imports.count > 1) {
+			this.imports.pop_back()
+		}
+		this.exports.clear()
+
+		for (var node in this.func_node.children)
+		{
+			if (node is FuncIn) {
+				this.imports.add(Pin(this, node.var_name, node.var_type))
+			} else if (node is FuncOut) {
+				this.exports.add(Pin(this, node.var_name, node.var_type))
+			}
+		}
+		if (this.imports.count > 1 or this.exports.count > 0) {
+			this.layout()
+		}
+	}
+
+	get_title()
+	{
+		if (this.func_node) {
+			return this.func_node.get_title()
+		} else {
+			return super.get_title()
+		}
+	}
+}
