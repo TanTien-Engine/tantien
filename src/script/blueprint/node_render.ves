@@ -18,7 +18,7 @@ class NodeRender
 
 		var hw = node.style.width * 0.5
 		var hh = node.style.height * 0.5
-		pt.add_rect_filled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], COL_PANEL_BG)
+		pt.add_rect_filled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], node.style.color)
 
 		Graphics.draw_painter(pt)
 
