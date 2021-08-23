@@ -1,0 +1,111 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "maths.vector" for Vector3
+import "math" for Math
+import "maths" for Matrix44, Float3
+
+class RotateY is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
+		]
+
+		this.params.add(NodeParam("angle", "0", { "combo" : [ "0", "45", "90", "135", "180", "225", "270", "315" ] }))
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var mat = this.calc_mat()
+
+		var result = []
+		this.rotate_impl(v_geo, mat, result)
+		if (result.count == 0) {
+			return nil
+		} else if (result.count == 1) {
+			return result[0]
+		} else {
+			return Variant(result)
+		}
+	}
+
+	calc_mat()
+	{
+		var angle = 0
+		var s_angle = this.query_param("angle").value
+		if (s_angle == "45") {
+			angle = Math.pi() * 0.25
+		} else if (s_angle == "90") {
+			angle = Math.pi() * 0.5
+		} else if (s_angle == "135") {
+			angle = Math.pi() * 0.75
+		} else if (s_angle == "180") {
+			angle = Math.pi()
+		} else if (s_angle == "225") {
+			angle = Math.pi() * 1.25
+		} else if (s_angle == "270") {
+			angle = Math.pi() * 1.5
+		} else if (s_angle == "315") {
+			angle = Math.pi() * 1.75
+		}
+
+		var mat = Matrix44.init()
+		mat.rotate(0, angle, 0)
+
+		return mat
+	}
+
+	rotate_impl(v_geo, mat, result)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY) {
+			for (var v in v_geo.value) {
+				this.rotate_impl(v, mat, result)
+			}
+		} else if (v_geo.type == VAR_TYPE_GEO) {
+			result.add(this.rotate_geo(v_geo.value, mat))
+		} else if (v_geo.type == VAR_TYPE_NUMBER3) {
+			result.add(this.rotate_num3(v_geo.value, mat))	
+		}
+	}
+
+	rotate_geo(geo, mat)
+	{
+		var brush = geo.shape.clone()
+		brush.transform(mat)
+
+		var new_geo = VarGeo()
+		new_geo.shape = brush
+		return Variant(VAR_TYPE_GEO, new_geo)
+	}
+
+	rotate_num3(num3, mat)
+	{
+		var p = Float3.init(num3.x, num3.y, num3.z)
+		p.transform(mat)
+		return Variant(Vector3(p.x(), p.y(), p.z()))
+	}
+}
