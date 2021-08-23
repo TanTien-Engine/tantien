@@ -52,9 +52,6 @@ class DrawGeometry is Node
 		var pt = Painter.init()
 		this.draw_geo(pt, v_geos, color)
 
-		import "blueprint.blackboard" for BLACKBOARD
-		var cam = BLACKBOARD.editor_cam
-		Graphics.on_cam_update(0, 0, 1)
 		Graphics.draw_painter(pt)
 	}
 
