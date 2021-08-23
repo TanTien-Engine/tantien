@@ -1032,11 +1032,13 @@ void w_Polytope_boolean()
     }
     else if (strcmp(op, "subtract") == 0)
     {
-        auto intersect = intersect_poly_list(a, b);
-        if (intersect.empty()) {
-            polytopes = a;
-        } else {
-            polytopes = subtract_poly_list(a, intersect);
+        polytopes = a;
+        for (auto& cb : b)
+        {
+            auto intersect = intersect_poly_list(polytopes, { cb });
+            if (!intersect.empty()) {
+                polytopes = subtract_poly_list(polytopes, intersect);
+            }
         }
     }
 
