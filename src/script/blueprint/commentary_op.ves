@@ -1,5 +1,6 @@
 import "editor.message" for MSG_SELECTION_MOVED, MSG_SELECTION_MOVING
 import "blueprint.nodes.commentary" for Commentary
+import "blueprint.nodes.subgraph" for Subgraph
 import "maths.vector" for Vector2
 import "maths.rect" for Rect
 
@@ -31,6 +32,33 @@ class CommentaryOP
 						bp_node.children.add(node2.components["bp"])
 					}
 				}
+			}
+			else if (bp_node is Subgraph)
+			{
+				this.rebuild_sub(bp_node)
+			}
+		}
+	}
+
+	rebuild_sub(node)
+	{
+		for (var item in node.all_items)
+		{
+			var cnode = item[0]
+			if (cnode is Commentary)
+			{
+				var r = cnode.get_comment_region(Vector2(item[1], item[2]))
+
+				cnode.children.clear()
+				for (var citem in node.all_items) {
+					if (r.is_contain_pos(Vector2(citem[1], citem[2]))) {
+						cnode.children.add(citem[0])
+					}
+				}
+			}
+			else if (cnode is Subgraph)
+			{
+				this.rebuild_sub(cnode)
 			}
 		}
 	}
