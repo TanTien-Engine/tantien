@@ -474,32 +474,33 @@ void w_Plane_transform()
     sm::Plane* p = (sm::Plane*)ves_toforeign(0);
     sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
 
-    sm::vec3 pos;
-    if (p->normal.x != 0)
+    auto& norm = p->normal;
+
+    sm::vec3 pos0;
+    if (norm.x != 0)
     {
-        pos.x = -p->dist / p->normal.x;
-        pos.y = 0;
-        pos.z = 0;
+        pos0.x = -p->dist / norm.x;
+        pos0.y = 0;
+        pos0.z = 0;
     }
-    else if (p->normal.y != 0)
+    else if (norm.y != 0)
     {
-        pos.x = 0;
-        pos.y = -p->dist / p->normal.y;
-        pos.z = 0;
+        pos0.x = 0;
+        pos0.y = -p->dist / norm.y;
+        pos0.z = 0;
     }
-    else if (p->normal.z != 0)
+    else if (norm.z != 0)
     {
-        pos.x = 0;
-        pos.y = 0;
-        pos.z = -p->dist / p->normal.z;
+        pos0.x = 0;
+        pos0.y = 0;
+        pos0.z = -p->dist / norm.z;
     }
 
-    pos = *mt * pos;
+    auto pos1 = pos0 + norm;
 
-//    auto norm = (*mt * p->normal).Normalized();
-//    p->Build(norm, pos);
-
-    p->Build(p->normal, pos);
+    pos0 = *mt * pos0;
+    pos1 = *mt * pos1;
+    p->Build(pos1 - pos0, pos0);
 }
 
 void w_Maths_is_convex_intersect_convex()
