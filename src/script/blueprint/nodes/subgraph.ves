@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_NODE, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for VAR_TYPE_NODE, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "io" for IO
 import "filesystem" for Filesystem
 import "blueprint.nodes.input" for Input
@@ -17,6 +17,7 @@ import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
 import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE
 import "gui" for MOUSE_LEFT, MOUSE_RIGHT
+import "math" for Math
 
 class Subgraph is Node
 {
@@ -216,6 +217,15 @@ class Subgraph is Node
 				}
 				y = y - DEFAULT_HEIGHT
 			}
+			else if (prop.var_type == VAR_TYPE_INTEGER)
+			{
+				var value = Math.floor(GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, REGION, false))
+				if (value != prop.value) {
+					prop.value = value
+					prop_dirty = true
+				}
+				y = y - DEFAULT_HEIGHT
+			}			
 			else if (prop.var_type == VAR_TYPE_NUMBER)
 			{
 				var value = GUI.slider(ctx, prop.var_name, prop.value, x, y, this.style.width - 20, REGION, false)
@@ -398,6 +408,8 @@ class Subgraph is Node
 			{
 				if (node.var_type == VAR_TYPE_BOOLEAN) {
 					node.value = false
+				} else if (node.var_type == VAR_TYPE_INTEGER) {
+					node.value = 0
 				} else if (node.var_type == VAR_TYPE_NUMBER) {
 					node.value = 0
 				} else if (node.var_type == VAR_TYPE_NUMBER2) {
