@@ -1,0 +1,64 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+
+class BrushMerge is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "brush", VAR_TYPE_GEO)
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (!v_list) {
+			return nil
+		}
+
+		var polys = []
+		this.add_to_list(polys, v_list)
+
+		var geo = VarGeo()
+		geo.shape = Brush(polys)
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	add_to_list(dst, src)
+	{
+		if (src.type == VAR_TYPE_ARRAY) 
+		{
+			for (var v in src.value) {
+				this.add_to_list(dst, v)
+			}
+		} 
+		else if (src.type == VAR_TYPE_GEO) 
+		{
+			var brush = src.value.shape
+			if (brush is Brush) {
+				for (var p in brush.polys) {
+					dst.add(p)
+				}
+			}
+		}
+	}
+}
