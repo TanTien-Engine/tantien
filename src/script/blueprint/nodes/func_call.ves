@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.function" for Function
 import "blueprint.nodes.func_in" for FuncIn
 import "blueprint.nodes.func_out" for FuncOut
+import "blueprint.nodes.input" for Input
 
 class FuncCall is Node
 {
@@ -37,6 +38,10 @@ class FuncCall is Node
 
 	calc_value(idx)
 	{
+		if (!this.func_node) {
+			this.func_node = this.get_func_node(Blueprint.get_input_node(this, 0))
+		}
+
 		if (this.func_node) {
 			return this.func_node.func_call(this, idx)
 		} else {
@@ -49,10 +54,10 @@ class FuncCall is Node
 		var ret = ""
 		for (var i = 1; i < this.imports.count; i = i + 1) {
 			var p = this.imports[i]
-			ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+			ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
 		}
 		for (var p in this.exports) {
-			ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+			ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
 		}
 		ret = ret + "%(name).layout()\n"
 		return ret
@@ -72,13 +77,27 @@ class FuncCall is Node
 		}
 	}
 
+	get_func_node(node)
+	{
+		if (node is Function) {
+			return node
+		} else if (node is Input) {
+			var prev = Blueprint.get_input_node(node.parent_node, node.parent_pin_idx)
+			return this.get_func_node(prev)
+		} else {
+			return nil
+		}
+	}
+
 	setup_func()
 	{
-		this.func_node = Blueprint.get_input_node(this, 0)
-		if (!this.func_node) {
+		var prev_node = Blueprint.get_input_node(this, 0)
+		var func_node = this.get_func_node(prev_node)
+		if (!func_node) {
 			return
 		}
 
+		this.func_node = func_node
 		if (this.func_node.children.isEmpty) {
 			return
 		}

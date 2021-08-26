@@ -1,6 +1,6 @@
 import "blueprint.nodes.commentary" for Commentary
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_FUNCTION
+import "blueprint.variant" for Variant, VAR_TYPE_FUNCTION
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.func_in" for FuncIn
 import "blueprint.nodes.func_out" for FuncOut
@@ -31,27 +31,45 @@ class Function is Commentary
 		}
 	}
 
+	calc_value(idx)
+	{
+		return Variant(VAR_TYPE_FUNCTION, nil)
+	}
+
+	get_title()
+	{
+		return super.get_title()
+	}
+
+	prepare_func_in(caller, func_in)
+	{
+		func_in.caller_node = nil
+		func_in.caller_idx = 0
+		for (var i = 0; i < caller.imports.count; i = i + 1) {
+			if (caller.imports[i].name == func_in.var_name) {
+				func_in.caller_node = caller
+				func_in.caller_idx = i
+				return
+			}
+		}
+	}	
+
 	func_call(caller, idx)
 	{
 		var export = nil
-
-		var in_idx = 1
-		var out_idx = 0
 		for (var node in this.children)
 		{
-			if (node is FuncIn) 
-			{
-				node.caller_node = caller
-				node.caller_idx = in_idx
-				in_idx = in_idx + 1
+			if (node is FuncIn) {
+				this.prepare_func_in(caller, node)
 			}
 
 			if (node is FuncOut)
 			{
-				if (out_idx == idx) {
-					export = node
+				for (var i = 0; i < caller.exports.count; i = i + 1) {
+					if (caller.exports[i].name == node.var_name and i == idx) {
+						export = node
+					}
 				}
-				out_idx = out_idx + 1
 			}
 		}
 
