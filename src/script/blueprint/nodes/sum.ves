@@ -1,0 +1,56 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER_SET, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.blueprint" for Blueprint
+import "blueprint.nodes.add" for Add
+import "maths.vector" for Vector2, Vector3, Vector4
+
+class Sum is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "list", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "val", VAR_TYPE_NUMBER_SET),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_list = Blueprint.calc_input_value(this, 0)
+		if (v_list.type != VAR_TYPE_ARRAY or v_list.value.isEmpty) {
+			return nil
+		}
+
+		var sum = [0, 0, 0, 0]
+		for (var item in v_list.value) {
+			Add.add_to(item, sum)
+		}
+
+		var i = v_list.value[0]
+		if (i.type == VAR_TYPE_NUMBER4) {
+			return Variant(VAR_TYPE_NUMBER4, Vector4(sum[0], sum[1], sum[2], sum[3]))
+		} else if (i.type == VAR_TYPE_NUMBER3) {
+			return Variant(VAR_TYPE_NUMBER3, Vector3(sum[0], sum[1], sum[2]))
+		} else if (i.type == VAR_TYPE_NUMBER2) {
+			return Variant(VAR_TYPE_NUMBER2, Vector2(sum[0], sum[1]))
+		} else {
+			return Variant(VAR_TYPE_NUMBER, sum[0])
+		}
+
+		return nil
+	}
+}
