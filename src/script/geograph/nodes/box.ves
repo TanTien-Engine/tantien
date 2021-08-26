@@ -27,8 +27,10 @@ class Box is Node
 
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 1 }))
 		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -1, "max" : 1 }))
+
+		this.params.add(NodeParam("offset_x", false))		
 		this.params.add(NodeParam("offset_y", false))
-		this.params.add(NodeParam("offset_x", false))
+		this.params.add(NodeParam("offset_z", false))
 
 		this.layout()
 	}
@@ -94,13 +96,17 @@ class Box is Node
 		var zmin = pos.z - hz
 		var zmax = pos.z + hz
 
+		if (this.query_param("offset_x").value) {
+			xmin = xmin + hx
+			xmax = xmax + hx
+		}
 		if (this.query_param("offset_y").value) {
 			ymin = ymin + hy
 			ymax = ymax + hy
 		}
-		if (this.query_param("offset_x").value) {
-			xmin = xmin + hx
-			xmax = xmax + hx
+		if (this.query_param("offset_z").value) {
+			zmin = zmin + hz
+			zmax = zmax + hz
 		}
 
     	var top_left_front  = [ xmin, ymax, zmin ]
@@ -158,13 +164,17 @@ class Box is Node
 		cube.min.z = pos.z - hz
 		cube.max.z = pos.z + hz
 
+		if (this.query_param("offset_x").value) {
+			cube.min.x = cube.min.x + hx
+			cube.max.x = cube.max.x + hx
+		}
 		if (this.query_param("offset_y").value) {
 			cube.min.y = cube.min.y + hy
 			cube.max.y = cube.max.y + hy
 		}
-		if (this.query_param("offset_x").value) {
-			cube.min.x = cube.min.x + hx
-			cube.max.x = cube.max.x + hx
+		if (this.query_param("offset_z").value) {
+			cube.min.z = cube.min.z + hz
+			cube.max.z = cube.max.z + hz
 		}
 
 		return Variant(VAR_TYPE_CUBE, cube)
