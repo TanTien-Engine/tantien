@@ -16,10 +16,7 @@ class TranslateF is Node
 
 		this.imports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "xyz", VAR_TYPE_NUMBER3),
-			//Pin(this, "x", VAR_TYPE_NUMBER),
-			//Pin(this, "y", VAR_TYPE_NUMBER),
-			//Pin(this, "z", VAR_TYPE_NUMBER),			
+			Pin(this, "xyz", [ VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
@@ -42,10 +39,22 @@ class TranslateF is Node
 			return nil
 		}
 
-		var mat = this.calc_mat()
-
 		var result = []
-		this.translate_impl(v_geo, mat, result)
+
+		var v_xyz = Blueprint.calc_input_value(this, 1)
+		if (v_xyz.type == VAR_TYPE_ARRAY)
+		{
+			for (var p in v_xyz.value) {
+				var mat = this.calc_mat(p.value)
+				this.translate_impl(v_geo, mat, result)
+			}
+		}
+		else
+		{
+			var mat = this.calc_mat(v_xyz.value)
+			this.translate_impl(v_geo, mat, result)
+		}
+		
 		if (result.count == 0) {
 			return nil
 		} else if (result.count == 1) {
@@ -55,17 +64,16 @@ class TranslateF is Node
 		}
 	}
 
-	calc_mat()
+	calc_mat(pos)
 	{
 		var x = 0
 		var y = 0
 		var z = 0
 
-		var v_xyz = Blueprint.calc_input_value(this, 1)
-		if (v_xyz) {
-			x = v_xyz.value.x
-			y = v_xyz.value.y
-			z = v_xyz.value.z
+		if (pos) {
+			x = pos.x
+			y = pos.y
+			z = pos.z
 		}
 
 		var mat = Matrix44.init()
@@ -76,13 +84,20 @@ class TranslateF is Node
 
 	translate_impl(v_geo, mat, result)
 	{
-		if (v_geo.type == VAR_TYPE_ARRAY) {
+		if (v_geo.type == VAR_TYPE_ARRAY) 
+		{
+			var list = []
 			for (var v in v_geo.value) {
-				this.translate_impl(v, mat, result)
+				this.translate_impl(v, mat, list)
 			}
-		} else if (v_geo.type == VAR_TYPE_GEO) {
+			result.add(Variant(list))
+		} 
+		else if (v_geo.type == VAR_TYPE_GEO) 
+		{
 			result.add(this.translate_geo(v_geo.value, mat))
-		} else if (v_geo.type == VAR_TYPE_NUMBER3) {
+		} 
+		else if (v_geo.type == VAR_TYPE_NUMBER3) 
+		{
 			result.add(this.translate_num3(v_geo.value, mat))	
 		}
 	}
