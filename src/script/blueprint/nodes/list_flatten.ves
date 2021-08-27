@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 
 class ListFlatten is Node
@@ -11,6 +11,7 @@ class ListFlatten is Node
 
 		this.imports = [
 			Pin(this, "list", VAR_TYPE_ARRAY),
+			Pin(this, "deep", VAR_TYPE_INTEGER),
 		]
 		this.exports = [
 			Pin(this, "list", VAR_TYPE_ARRAY),
@@ -33,18 +34,32 @@ class ListFlatten is Node
 			return nil
 		}
 
+		var max_deep = -1
+		var v_deep = Blueprint.calc_input_value(this, 1)
+		if (v_deep) {
+			max_deep = v_deep.value
+		}
+
 		var ret = []
-		this.add_to_list(ret, v_list)
+		var curr_deep = 0
+		this.add_to_list(ret, v_list, curr_deep, max_deep)
 		return Variant(ret)
 	}
 
-	add_to_list(dst, src)
+	add_to_list(dst, src, curr_deep, max_deep)
 	{
-		if (src.type == VAR_TYPE_ARRAY) {
-			for (var v in src.value) {
-				this.add_to_list(dst, v)
+		if (src.type == VAR_TYPE_ARRAY) 
+		{
+			if (max_deep > 0 and curr_deep >= max_deep) {
+				dst.add(src)
+			} else {
+				for (var v in src.value) {
+					this.add_to_list(dst, v, curr_deep + 1, max_deep)
+				}
 			}
-		} else {
+		} 
+		else 
+		{
 			dst.add(src)
 		}
 	}
