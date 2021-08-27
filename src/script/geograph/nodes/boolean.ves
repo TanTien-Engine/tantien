@@ -18,7 +18,7 @@ class Boolean is Node
 			Pin(this, "b", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 		this.exports = [
-			Pin(this, "geo", VAR_TYPE_GEO),
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 		]
 
 		this.params.add(NodeParam("operator", "intersect", { "combo" : [ "union", "intersect", "subtract" ] }))
@@ -44,22 +44,22 @@ class Boolean is Node
 			return nil
 		}
 
-		var a = []
 		var b = []
-		this.get_polys(a, v_a)
 		this.get_polys(b, v_b)
 
 		var operator = this.query_param("operator").value
 
-		var polys = Polytope.boolean(operator, a, b)
-		if (polys.isEmpty) {
-			return nil
-		}
+		var brushes = []
+		this.boolean_impl(brushes, v_a, b, operator)
 
-		var geo = VarGeo()
-		geo.shape = Brush(polys)
-		return Variant(VAR_TYPE_GEO, geo)		
-	}
+		if (brushes.isEmpty) {
+			return nil
+		} else if (brushes.count == 1) {
+			return brushes[0]
+		} else {
+			return Variant(brushes)
+		}
+	}	
 
 	get_polys(dst, src)
 	{
@@ -71,6 +71,49 @@ class Boolean is Node
 			for (var p in src.value.shape.polys) {
 				dst.add(p)
 			}
+		}
+	}
+
+	boolean_impl(dst, v_a, b, op)
+	{
+		if (v_a.type == VAR_TYPE_ARRAY)
+		{
+			var list = []
+
+			for (var item in v_a.value) {
+				this.boolean_impl(list, item, b, op)
+			}
+
+			if (!list.isEmpty) 
+			{
+				if (list.count == 1) {
+					dst.add(list[0])
+				} else {
+					dst.add(Variant(list))
+				}
+			}
+		}
+		else
+		{
+			var a = []
+			this.get_polys(a, v_a)
+
+			var d = this.boolean_impl(a, b, op)
+			if (d) {
+				dst.add(d)
+			}			
+		}
+	}
+
+	boolean_impl(a, b, op)
+	{
+		var polys = Polytope.boolean(op, a, b)
+		if (polys.isEmpty) {
+			return nil
+		} else {
+			var geo = VarGeo()
+			geo.shape = Brush(polys)
+			return Variant(VAR_TYPE_GEO, geo)
 		}
 	}
 }
