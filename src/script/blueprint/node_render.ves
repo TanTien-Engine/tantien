@@ -2,6 +2,7 @@ import "graphics" for Painter, Graphics
 import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
 import "blueprint.node_style" for COL_PANEL_BG, TB_TITLE, TB_LEFT, TB_RIGHT
 import "blueprint.node_layout" for NodeLayout, PIN_TEXT_OFFSET
+import "blueprint.variant" for VAR_TYPE_FUNCTION
 
 class NodeRender
 {
@@ -111,6 +112,10 @@ class NodeRender
 		}
 
 		if (conn.from.stop_port_pass) {
+			return false
+		}
+
+		if (conn.from.type == VAR_TYPE_FUNCTION) {
 			return false
 		}
 
