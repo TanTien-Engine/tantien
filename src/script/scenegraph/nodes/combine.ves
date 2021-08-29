@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_helper" for NodeHelper
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
 
 class Combine is Node
@@ -56,27 +57,14 @@ class Combine is Node
 	on_connected(pin)
 	{
 		if (pin.is_input) {
-			this.update_imports()
+			NodeHelper.dynamic_imports_update(this, 0, "child", VAR_TYPE_SPRITE)
 		}
 	}
 
 	on_disconnected(pin)
 	{
 		if (pin.is_input) {
-			this.update_imports()
+			NodeHelper.dynamic_imports_update(this, 0, "child", VAR_TYPE_SPRITE)
 		}
-	}
-
-	update_imports()
-	{
-		while (this.imports.count > 2 and this.imports.back().conns.isEmpty) {
-			this.imports.pop_back()
-		}
-
-		if (!this.imports.back().conns.isEmpty) {
-			this.imports.add(Pin(this, "child%(this.imports.count)", VAR_TYPE_SPRITE))
-		}
-
-		this.layout()
 	}
 }

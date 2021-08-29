@@ -1,5 +1,5 @@
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "render" for Render
 
 class NodeHelper
@@ -96,5 +96,35 @@ class NodeHelper
 		{
 			return ""
 		}
+	}
+
+	static dynamic_imports_update(node, offset, title, type)
+	{
+		var num = 2 + offset
+		while (node.imports.count > num and node.imports.back().conns.isEmpty) {
+			node.imports.pop_back()
+		}
+
+		if (!node.imports.back().conns.isEmpty) {
+			node.imports.add(Pin(node, "%(title)%(node.imports.count - offset)", type))
+		}
+
+		node.layout()
+
+		for (var port in node.imports) {
+			for (var conn in port.conns) {
+				conn.update()
+			}
+		}
+		for (var port in node.exports) {
+			for (var conn in port.conns) {
+				conn.update()
+			}
+		}
+	}
+
+	static dynamic_imports_update(node)
+	{
+		this.dynamic_imports_update(node, 0, "in", VAR_TYPE_ANY)
 	}
 }

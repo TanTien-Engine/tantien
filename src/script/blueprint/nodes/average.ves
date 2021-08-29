@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_helper" for NodeHelper
 import "blueprint.nodes.add" for Add
 import "maths.vector" for Vector2, Vector3, Vector4
 
@@ -80,27 +81,14 @@ class Average is Node
 	on_connected(pin)
 	{
 		if (pin.is_input) {
-			this.update_imports()
+			NodeHelper.dynamic_imports_update(this)
 		}
 	}
 
 	on_disconnected(pin)
 	{
 		if (pin.is_input) {
-			this.update_imports()
+			NodeHelper.dynamic_imports_update(this)
 		}
-	}
-
-	update_imports()
-	{
-		while (this.imports.count > 2 and this.imports.back().conns.isEmpty) {
-			this.imports.pop_back()
-		}
-
-		if (!this.imports.back().conns.isEmpty) {
-			this.imports.add(Pin(this, "in%(this.imports.count)", VAR_TYPE_ANY))
-		}
-
-		this.layout()
 	}
 }
