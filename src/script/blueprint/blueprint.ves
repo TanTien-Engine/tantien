@@ -116,8 +116,17 @@ class Blueprint
 	static connect(from, to)
 	{
 		// input pin only has one conn
-		if (!to.conns.isEmpty) {
-			this.disconnect(to.conns.front())
+		if (!to.conns.isEmpty) 
+		{
+			var conn = to.conns.front()
+
+			conn.from.conns.remove(conn)
+			conn.to.conns.remove(conn)
+			conn.update()
+
+			conn.from.node.on_disconnected(conn.from)
+
+			Blueprint.send_pin_dirty_root(conn.from)
 		}
 
 		var conn = Connecting(from, to)
