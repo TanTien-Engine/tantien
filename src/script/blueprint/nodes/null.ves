@@ -1,0 +1,22 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY
+
+class Null is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "null", VAR_TYPE_ANY)
+		]
+
+		this.layout()
+	}
+	
+	calc_value(idx)
+	{
+		return nil
+	}
+}
