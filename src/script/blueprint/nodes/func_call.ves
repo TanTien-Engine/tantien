@@ -52,12 +52,21 @@ class FuncCall is Node
 	to_string(name)
 	{
 		var ret = ""
-		for (var i = 1; i < this.imports.count; i = i + 1) {
+		for (var i = 1; i < this.imports.count; i = i + 1) 
+		{
 			var p = this.imports[i]
-			ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
+			if (p.type is String) {
+				ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
+			} else {
+				ret = ret + "%(name).imports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+			}
 		}
 		for (var p in this.exports) {
-			ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
+			if (p.type is String) {
+				ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", \"%(p.type)\"))\n"
+			} else {
+				ret = ret + "%(name).exports.add(::blueprint::pin::Pin(%(name), \"%(p.name)\", %(p.type)))\n"
+			}
 		}
 		ret = ret + "%(name).layout()\n"
 		return ret
