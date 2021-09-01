@@ -309,30 +309,27 @@ class Editor
 
 	draw_scene()
 	{
+		var hw = this.camera.size.x * this.camera.scale * 0.5
+		var hh = this.camera.size.y * this.camera.scale * 0.5
+		var region = [ this.camera.pos.x - hw, this.camera.pos.y - hh, this.camera.pos.x + hw, this.camera.pos.y + hh ]
+
 		var cam_mt = Matrix44.init()
 		var s = 1.0 / this.camera.scale
 		cam_mt.translate(-this.camera.pos.x, -this.camera.pos.y, 0)
 		cam_mt.scale(s, s, 1)
 
 		var scene = this.scene_stack.top()
-		scene.draw(cam_mt)
+		for (var node in scene.nodes) {
+			this.draw_node(node, cam_mt, region)
+		}
 
 		// fixme
 		Graphics.flush()
 
 		GUI.begin(this.gui_nodes)
 		var dirty = false
-		for (var node in scene.nodes) 
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node.draw_gui(this.gui_nodes)) 
-			{
-				// todo: only use pin_dirty ?			
-				Blueprint.send_node_dirty_root(bp_node)
-				for (var p in bp_node.exports) {
-					Blueprint.send_pin_dirty_root(p)
-				}
-
+		for (var node in scene.nodes) {
+			if (this.draw_node_gui(node, region)) {
 				dirty = true
 			}
 		}
@@ -341,6 +338,43 @@ class Editor
 		if (dirty) {
 			this.editop.clear()
 		}
+	}
+
+	draw_node(node, cam_mt, region)
+	{
+		var bp_node = node.components["bp"]
+
+		var pos = bp_node.pos
+
+		if (pos.x < region[0] or pos.x > region[2] or pos.y < region[1] or pos.y > region[3]) {
+			return
+		}
+
+		node.draw(cam_mt)
+	}
+
+	draw_node_gui(node, region)
+	{
+		var bp_node = node.components["bp"]
+
+		var pos = bp_node.pos
+
+		if (pos.x < region[0] or pos.x > region[2] or pos.y < region[1] or pos.y > region[3]) {
+			return false
+		}
+
+		if (bp_node.draw_gui(this.gui_nodes)) 
+		{
+			// todo: only use pin_dirty ?
+			Blueprint.send_node_dirty_root(bp_node)
+			for (var p in bp_node.exports) {
+				Blueprint.send_pin_dirty_root(p)
+			}
+
+			return true
+		}
+
+		return false
 	}
 
 	setup_popup_nodes()
