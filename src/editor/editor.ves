@@ -326,14 +326,17 @@ class Editor
 		// fixme
 		Graphics.flush()
 
-		GUI.begin(this.gui_nodes)
 		var dirty = false
-		for (var node in scene.nodes) {
-			if (this.draw_node_gui(node, region)) {
-				dirty = true
+		if (this.camera.scale < 2) 
+		{
+			GUI.begin(this.gui_nodes)
+			for (var node in scene.nodes) {
+				if (this.draw_node_gui(node, region)) {
+					dirty = true
+				}
 			}
+			GUI.end(this.gui_nodes)
 		}
-		GUI.end(this.gui_nodes)
 
 		if (dirty) {
 			this.editop.clear()

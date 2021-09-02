@@ -3,14 +3,18 @@ import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
 import "blueprint.node_style" for COL_PANEL_BG, TB_TITLE, TB_LEFT, TB_RIGHT
 import "blueprint.node_layout" for NodeLayout, PIN_TEXT_OFFSET
 import "blueprint.variant" for VAR_TYPE_FUNCTION
+import "blueprint.blackboard" for BLACKBOARD
 
 class NodeRender
 {
 	static draw_node(node)
 	{
 		this.draw_node_panel(node)
-		this.draw_node_pins(node)
-		this.draw_node_conns(node)
+
+		if (BLACKBOARD.editor_cam.scale < 2) {
+			this.draw_node_pins(node)
+			this.draw_node_conns(node)			
+		}
 	}
 
 	static draw_node_panel(node)
@@ -23,8 +27,10 @@ class NodeRender
 
 		Graphics.draw_painter(pt)
 
-//		Graphics.draw_text(node.get_title() + "[%(node.calc_times)]", node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
-		Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+		if (BLACKBOARD.editor_cam.scale < 2) {
+//			Graphics.draw_text(node.get_title() + "[%(node.calc_times)]", node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+			Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
+		}
 	}
 
 	static draw_node_pins(node)
