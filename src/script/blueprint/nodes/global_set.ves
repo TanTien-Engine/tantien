@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_PORT
+import "blueprint.blueprint" for Blueprint
+import "blueprint.blackboard" for BLACKBOARD
+import "blueprint.node_param" for NodeParam
+
+class GlobalSet is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "val",  VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT),
+		]
+
+		this.params.add(NodeParam("key", "null"))
+
+		this.layout()
+	}
+
+	render_run()
+	{
+		var v_val = Blueprint.calc_input_value(this, 1)
+		if (!v_val) {
+			return
+		}
+
+		var key = this.query_param("key").value
+		BLACKBOARD.global_variants[key] = v_val.value
+	}
+}

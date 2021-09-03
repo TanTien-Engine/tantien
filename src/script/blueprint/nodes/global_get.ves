@@ -1,0 +1,28 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.blackboard" for BLACKBOARD
+import "blueprint.node_param" for NodeParam
+
+class GlobalGet is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "val", VAR_TYPE_ANY),
+		]
+
+		this.params.add(NodeParam("key", "null"))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var key = this.query_param("key").value
+		var val = BLACKBOARD.global_variants[key]
+		return Variant(val)
+	}
+}
