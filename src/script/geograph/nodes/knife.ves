@@ -61,9 +61,11 @@ class Knife is Node
 	{
 		if (geo.type == VAR_TYPE_ARRAY)
 		{
+			var list = []
 			for (var v in geo.value) {
-				this.calc_clip(v, plane, keep, seam, out)
+				this.calc_clip(v, plane, keep, seam, list)
 			}
+			out.add(Variant(list))
 		}
 		else
 		{
