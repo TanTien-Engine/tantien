@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
@@ -18,8 +18,9 @@ class Texture is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "tex", VAR_TYPE_TEXTURE),
-			Pin(this, "col", VAR_TYPE_NUMBER3),			
+			Pin(this, "tex",  VAR_TYPE_TEXTURE),
+			Pin(this, "size", VAR_TYPE_NUMBER2),			
+			Pin(this, "col",  VAR_TYPE_NUMBER3),			
 		]
 		this.exports = [
 			Pin(this, "tex", VAR_TYPE_TEXTURE),
@@ -32,7 +33,7 @@ class Texture is Node
 		this.tex = nil
 		this.sampler = nil
 
-		this.tex_filepath = ""
+		this.tex_filepath = nil
 
 		this.width  = 0
 		this.height = 0
@@ -82,13 +83,13 @@ class Texture is Node
 
 	render_gen()
 	{
-		var v_col = Blueprint.calc_input_value(this, 1)
+		var v_col = Blueprint.calc_input_value(this, 2)
 		if (v_col) 
 		{
 			this.width  = 1
 			this.height = 1
 			this.format = "rgba8"
-			this.tex = Texture2D.init(this.width, this.height, this.format)
+			this.tex = this.create_texture()
 
 			var rgb = v_col.value
 			var r = Math.min(Math.max(rgb.x, 0.0), 1.0) * 255.0
@@ -190,10 +191,10 @@ class Texture is Node
 	{
 		var ret = super.to_string(name)
 		ret = ret + "%(name).gamma_correction = %(this.gamma_correction)\n"
-		if (this.width != 0 and this.height != 0) {
-			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
+		if (this.tex_filepath) {
+			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"		
 		} else {
-			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"
+			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
 		}
 		if (this.sampler) {
 			ret = ret + "%(name).set_sampler(\"%(this.sampler_items[this.sampler_selected])\")\n"
@@ -229,7 +230,7 @@ class Texture is Node
 
 	init_texture(filepath)
 	{
-		if (filepath == "") {
+		if (!filepath or filepath == "") {
 			return
 		}
 
@@ -244,8 +245,6 @@ class Texture is Node
 		this.width  = width
 		this.height = height
 		this.format = format
-
-		this.tex = Texture2D.init(width, height, format)
 	}
 
 	set_sampler(name)
@@ -266,12 +265,35 @@ class Texture is Node
 		}
 	}
 
+	create_texture()
+	{
+		var w = this.width
+		var h = this.height
+
+		if (w == 0 or h == 0) 
+		{
+			var v_size = Blueprint.calc_input_value(this, 1)
+			if (v_size) {
+				w = v_size.value.x
+				h = v_size.value.y
+			} else {
+				w  = 32
+				h = 32
+			}
+		}
+
+		return Texture2D.init(w, h, this.format)
+	}
+
 	get_texture()
 	{
 		var v_tex = Blueprint.calc_input_value(this, 0)
 		if (v_tex and v_tex.value.tex) {
 			return v_tex.value.tex
 		} else {
+			if (!this.tex) {
+				this.tex = this.create_texture()
+			}
 			return this.tex
 		}
 	}
