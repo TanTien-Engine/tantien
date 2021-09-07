@@ -1,0 +1,77 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
+import "blueprint.blueprint" for Blueprint
+
+class LoopF is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "first", VAR_TYPE_ARRAY),
+			Pin(this, "times", VAR_TYPE_INTEGER),			
+			Pin(this, "eval",  VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "final", VAR_TYPE_ANY),		
+			Pin(this, "last",  VAR_TYPE_ANY),
+			Pin(this, "index", VAR_TYPE_INTEGER),			
+		]
+
+		this.layout()
+
+		this.exports[1].stop_port_pass = true
+		this.exports[2].stop_port_pass = true
+
+		this.last_val = nil
+		this.curr_idx = nil		
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 0)
+		{
+			this.loop_run()
+			return this.last_val
+		}
+		else if (idx == 1) 
+		{
+			return this.last_val
+		} 
+		else if (idx == 2) 
+		{
+			return this.curr_idx
+		}
+
+		return nil
+	}
+
+	loop_run()
+	{
+		var v_times = Blueprint.calc_input_value(this, 1)
+		if (!v_times) {
+			return nil
+		}
+
+		this.last_val = Blueprint.calc_input_value(this, 0)
+
+		this.curr_idx = nil
+		for (var i in 0..v_times.value)
+		{
+			this.curr_idx = Variant(i)
+
+			var v_eval = Blueprint.calc_input_value(this, 2)
+			this.last_val = v_eval
+		}
+		this.curr_idx = nil
+	}
+}
