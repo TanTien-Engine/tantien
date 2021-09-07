@@ -1,0 +1,34 @@
+var node0 = ::blueprint::nodes::is_null::IsNull()
+
+_editor.add_node(node0, -37.77072658231, 157.40669249083)
+
+var node1 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node1, 113.24356309589, 115.33301012573)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "val"
+node2.var_type = "any"
+
+_editor.add_node(node2, -183.60498088541, 147.64175134347)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "default"
+node3.var_type = "any"
+
+_editor.add_node(node3, -30.895027406496, 73.629148590763)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "val"
+node4.var_type = "any"
+
+_editor.add_node(node4, 247.35156869749, 136.02875189901)
+
+Blueprint.connect(node2, "var", node0, "in")
+Blueprint.connect(node0, "out", node1, "cond")
+Blueprint.connect(node3, "var", node1, "true")
+Blueprint.connect(node2, "var", node1, "false")
+Blueprint.connect(node1, "result", node4, "var")

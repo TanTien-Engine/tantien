@@ -1,0 +1,27 @@
+var node0 = ::blueprint::nodes::divide::Divide()
+
+_editor.add_node(node0, 205.08608962841, 82.25082926371)
+
+var node1 = ::blueprint::nodes::integer::Integer()
+
+node1.value = 2
+
+_editor.add_node(node1, 69.09811360005, 41.67981745031)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "val"
+node2.var_type = "num"
+
+_editor.add_node(node2, 62, 113.5)
+
+var node3 = ::blueprint::nodes::output::Output()
+
+node3.var_name = "val"
+node3.var_type = "num"
+
+_editor.add_node(node3, 344, 91.5)
+
+Blueprint.connect(node2, "var", node0, "a")
+Blueprint.connect(node1, "v", node0, "b")
+Blueprint.connect(node0, "v", node3, "var")

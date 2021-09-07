@@ -1,0 +1,33 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "geo"
+node0.var_type = "geo"
+
+_editor.add_node(node0, -269, 409.5)
+
+var node1 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node1, -120, 408.5)
+
+var node2 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node2, -266, 290.5)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "offset"
+node3.var_type = "num"
+
+_editor.add_node(node3, -409, 321.5)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "geo"
+node4.var_type = [ "geo", "array" ]
+
+_editor.add_node(node4, 20, 417.5)
+
+Blueprint.connect(node3, "var", node2, "y")
+Blueprint.connect(node0, "var", node1, "geo")
+Blueprint.connect(node2, "xyz", node1, "xyz")
+Blueprint.connect(node1, "geo", node4, "var")
