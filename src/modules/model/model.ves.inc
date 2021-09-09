@@ -6,6 +6,8 @@ foreign class Model
 	init(filepath) {}
 
 	foreign static create_from_polytope(poly)
+
+	foreign static calc_brush_size(poly)
 }
 
 foreign class glTF

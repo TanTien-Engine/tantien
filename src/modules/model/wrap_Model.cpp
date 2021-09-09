@@ -75,6 +75,36 @@ void w_Model_create_from_polytope()
     proxy->obj = model;
 }
 
+void w_Model_calc_brush_size()
+{
+    sm::cube aabb;
+
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
+    for (auto& poly : polys) {
+        for (auto& p : poly->Points()) {
+            aabb.Combine(p->pos);
+        }
+    }
+
+    auto sz = aabb.Size();
+
+    ves_pop(ves_argnum());
+    ves_newlist(3);
+
+    ves_pushnumber(sz.x);
+    ves_seti(-2, 0);
+    ves_pop(1);
+
+    ves_pushnumber(sz.y);
+    ves_seti(-2, 1);
+    ves_pop(1);
+
+    ves_pushnumber(sz.z);
+    ves_seti(-2, 2);
+    ves_pop(1);
+}
+
 void w_glTF_allocate()
 {
     auto dev = tt::Render::Instance()->Device();
@@ -454,6 +484,7 @@ namespace tt
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Model.create_from_polytope(_)") == 0) return w_Model_create_from_polytope;
+    if (strcmp(signature, "static Model.calc_brush_size(_)") == 0) return w_Model_calc_brush_size;
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
     if (strcmp(signature, "static glTF.create_from_polytope(_,_,_)") == 0) return w_glTF_create_from_polytope;
