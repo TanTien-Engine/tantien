@@ -35,29 +35,70 @@ class BrushMerge is Node
 			return nil
 		}
 
-		var polys = []
-		this.add_to_list(polys, v_list)
+		var polys   = []
+		var mats    = []
+		var offsets = []
+		this.add_to_list(polys, mats, offsets, v_list)
+
+		var brush = Brush(polys)
+
+		brush.materials = List.filled(mats.count, 0)
+		for (var i = 0; i < mats.count; i = i + 1) {
+			brush.materials[i] = mats[i]
+		}
+
+		brush.offsets = List.filled(offsets.count, 0)
+		for (var i = 0; i < offsets.count; i = i + 1) {
+			brush.offsets[i] = offsets[i]
+		}
 
 		var geo = VarGeo()
-		geo.shape = Brush(polys)
+		geo.shape = brush
 		return Variant(VAR_TYPE_GEO, geo)
 	}
 
-	add_to_list(dst, src)
+	add_to_list(dst_poly, dst_mat, dst_offset, src)
 	{
 		if (src.type == VAR_TYPE_ARRAY) 
 		{
 			for (var v in src.value) {
-				this.add_to_list(dst, v)
+				this.add_to_list(dst_poly, dst_mat, dst_offset, v)
 			}
 		} 
 		else if (src.type == VAR_TYPE_GEO) 
 		{
 			var brush = src.value.shape
-			if (brush is Brush) {
+			if (brush is Brush) 
+			{
 				for (var p in brush.polys) {
-					dst.add(p)
+					dst_poly.add(p)
 				}
+
+				if (!brush.materials) 
+				{
+					for (var i = 0; i < brush.polys.count; i = i + 1) {
+						dst_mat.add(0)
+					}
+				}
+				else
+				{
+					for (var i in brush.materials) {
+						dst_mat.add(i)
+					}
+				}
+
+				if (!brush.offsets) 
+				{
+					for (var i = 0; i < brush.polys.count; i = i + 1) {
+						dst_offset.add(0)
+					}
+				}
+				else
+				{
+					for (var i in brush.offsets) {
+						dst_offset.add(i)
+					}
+				}				
 			}
 		}
 	}

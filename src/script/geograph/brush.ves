@@ -4,10 +4,7 @@ class Brush is Shape3D
 {
 	init() 
 	{
-		this.polys = []
-
-		this.model_dirty = true
-		this.model = nil
+		this.init([])
 	}
 
 	init(polys) 
@@ -16,6 +13,9 @@ class Brush is Shape3D
 
 		this.model_dirty = true
 		this.model = nil
+
+		this.materials = nil
+		this.offsets   = nil
 	}
 
 	clone()
@@ -24,7 +24,28 @@ class Brush is Shape3D
 		for (var poly in this.polys) {
 			polys.add(poly.clone())
 		}
-		return Brush(polys)
+
+		var new = Brush(polys)
+
+		// clone materials
+		if (this.materials) 
+		{
+			new.materials = List.filled(this.materials.count, 0)
+			for (var i = 0; i < this.materials.count; i = i + 1) {
+				new.materials[i] = this.materials[i]
+			}
+		}
+
+		// clone offset
+		if (this.offsets) 
+		{
+			new.offsets = List.filled(this.offsets.count, 0)
+			for (var i = 0; i < this.offsets.count; i = i + 1) {
+				new.offsets[i] = this.offsets[i]
+			}
+		}
+
+		return new
 	}
 
 	transform(mat)
@@ -56,12 +77,40 @@ class Brush is Shape3D
 		if (this.model_dirty) 
 		{
 			import "model" for glTF
-			this.model = glTF.create_from_polytope(this.polys)
+			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets)
 
 			this.model_dirty = false
 		}
 
 		return this.model
+	}
+
+	set_materials_id(mat_id)
+	{
+		if (!this.materials) {
+			this.materials = List.filled(this.polys.count, 0)
+		}
+		for (var i = 0; i < this.materials.count; i = i + 1) 
+		{
+			if (this.materials[i] != mat_id) {
+				this.materials[i] = mat_id
+				this.model_dirty = true
+			}			
+		}
+	}
+
+	set_offsets(offset)
+	{
+		if (!this.offsets) {
+			this.offsets = List.filled(this.polys.count, 0)
+		}
+		for (var i = 0; i < this.offsets.count; i = i + 1) 
+		{
+			if (this.offsets[i] != offset) {
+				this.offsets[i] = offset
+				this.model_dirty = true
+			}			
+		}
 	}
 }
 

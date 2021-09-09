@@ -428,9 +428,19 @@ void w_glTF_create_from_polytope()
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
     tt::list_to_foreigns(1, polys);
 
+    auto materials = tt::list_to_int_array(2);
+    if (polys.size() != materials.size()) {
+        materials.resize(polys.size(), 0);
+    }
+
+    auto offsets = tt::list_to_float_array(3);
+    if (polys.size() != offsets.size()) {
+        offsets.resize(polys.size(), 0);
+    }
+
     auto dev = tt::Render::Instance()->Device();
     auto model = std::make_shared<model::gltf::Model>();
-    model::BrushBuilder::PolymeshFromBrush(*dev, polys, *model);
+    model::BrushBuilder::PolymeshFromBrush(*dev, polys, materials, offsets, *model);
 
     auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
     proxy->obj = model;
@@ -446,7 +456,7 @@ VesselForeignMethodFn ModelBindMethod(const char* signature)
     if (strcmp(signature, "static Model.create_from_polytope(_)") == 0) return w_Model_create_from_polytope;
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
-    if (strcmp(signature, "static glTF.create_from_polytope(_)") == 0) return w_glTF_create_from_polytope;
+    if (strcmp(signature, "static glTF.create_from_polytope(_,_,_)") == 0) return w_glTF_create_from_polytope;
 
     return NULL;
 }

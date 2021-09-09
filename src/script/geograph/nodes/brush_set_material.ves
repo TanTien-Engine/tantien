@@ -1,0 +1,50 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush
+
+class BrushSetMaterial is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "brush",    VAR_TYPE_GEO),
+			Pin(this, "material", VAR_TYPE_INTEGER),			
+		]
+		this.exports = [
+			Pin(this, "brush", VAR_TYPE_GEO),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo or v_geo.type != VAR_TYPE_GEO) {
+			return nil
+		}
+
+		var mat_id = 0
+
+		var v_mat = Blueprint.calc_input_value(this, 1)
+		if (v_mat) {
+			mat_id = v_mat.value
+		}
+
+		var new_brush = v_geo.value.clone()
+		new_brush.shape.set_materials_id(mat_id)
+		return Variant(VAR_TYPE_GEO, new_brush)
+	}	
+}
