@@ -44,9 +44,9 @@ class Fetch is Node
 				return nil
 			}
 			if (v_items.type == VAR_TYPE_TABLE) {
-				return Variant(this.fetch_table_value(v_items.value))
+				return this.fetch_table_value(v_items.value)
 			} else if (v_items.type == VAR_TYPE_ARRAY) {
-				return Variant(this.fetch_array_value(v_items.value))
+				return this.fetch_array_value(v_items.value)
 			} else {
 				return nil
 			}
@@ -54,7 +54,7 @@ class Fetch is Node
 		else if (idx == 1)
 		{
 			if (this.index is String) {
-				return this.index
+				return Variant(this.index)
 			} else {
 				return nil
 			}
@@ -71,14 +71,14 @@ class Fetch is Node
 		if (v_index)
 		{
 			if (v_index.type == VAR_TYPE_STRING and v_index.value) {
-				return table[v_index.value]
+				return Variant(table[v_index.value])
 			} else {
 				return nil
 			}
 		}
 
 		if (this.index and this.index is String) {
-			return table[this.index]
+			return Variant(table[this.index])
 		} else {
 			return nil
 		}
@@ -86,20 +86,19 @@ class Fetch is Node
 
 	fetch_array_value(array)
 	{
+		var index = -1
+		
 		var v_index = Blueprint.calc_input_value(this, 1)
-		if (v_index)
-		{
-			if ((v_index.type == VAR_TYPE_INTEGER or v_index.type == VAR_TYPE_NUMBER) and v_index.value and 
-			    v_index.value < array.count and v_index.value >= 0) {
-				return array[v_index.value]
-			} else {
-				return nil
+		if (v_index) {
+			if ((v_index.type == VAR_TYPE_INTEGER or v_index.type == VAR_TYPE_NUMBER) and v_index.value) {
+			    index = v_index.value
 			}
+		} else {
+			index = this.query_param("index").value
 		}
 
-		if (this.index and this.index is Num and
-			this.index < array.count and this.index >= 0) {
-			return array[this.index]
+		if (index < array.count and index >= 0) {
+			return Variant(array[index])
 		} else {
 			return nil
 		}
