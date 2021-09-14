@@ -10,6 +10,7 @@
 #include <model/GltfLoader.h>
 #include <model/BrushModel.h>
 #include <model/BrushBuilder.h>
+#include <model/SurfaceLoader.h>
 #include <unirender/VertexArray.h>
 #include <polymesh3/Polytope.h>
 
@@ -476,6 +477,18 @@ void w_glTF_create_from_polytope()
     proxy->obj = model;
 }
 
+void w_glTF_create_from_surface()
+{
+    auto surface = ((tt::Proxy<model::Surface>*)ves_toforeign(1))->obj;
+
+    auto dev = tt::Render::Instance()->Device();
+    auto model = std::make_shared<model::gltf::Model>();
+    model::SurfaceLoader::BuildPolymesh(*dev, *surface, *model);
+
+    auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
+    proxy->obj = model;
+}
+
 }
 
 namespace tt
@@ -488,6 +501,7 @@ VesselForeignMethodFn ModelBindMethod(const char* signature)
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
     if (strcmp(signature, "static glTF.create_from_polytope(_,_,_)") == 0) return w_glTF_create_from_polytope;
+    if (strcmp(signature, "static glTF.create_from_surface(_)") == 0) return w_glTF_create_from_surface;
 
     return NULL;
 }

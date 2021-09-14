@@ -217,6 +217,13 @@ foreign class Polytope
 	foreign static boolean(operator, a, b)
 }
 
+foreign class Sphere
+{
+	init(radius) {}
+
+	foreign clone()	
+}
+
 foreign class Constraint
 {
 	init(type, geo0, geo1, value) {}

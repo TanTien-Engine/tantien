@@ -15,6 +15,7 @@
 #include <geoshape/Polyline3D.h>
 #include <geoshape/Polygon3D.h>
 #include <polymesh3/Polytope.h>
+#include <model/ParametricEquations.h>
 #include <guard/check.h>
 #include <constraints2/Scene.h>
 #include <constraints2/Constraint.h>
@@ -1058,6 +1059,30 @@ void w_Polytope_boolean()
     }
 }
 
+void w_Sphere_allocate()
+{
+    auto radius = ves_tonumber(1);
+    auto proxy = (tt::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Sphere>));
+    proxy->obj = std::make_shared<model::Sphere>((float)radius);
+}
+
+int w_Sphere_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<model::Sphere>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<model::Sphere>);
+}
+
+void w_Sphere_clone()
+{
+    auto src = ((tt::Proxy<model::Sphere>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<model::Sphere>(src->GetRadius());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Sphere>));
+    proxy->obj = dst;
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -1200,6 +1225,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
+    if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;
+
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 
     if (strcmp(signature, "ConstraintSolver.add_geo(_)") == 0) return w_ConstraintSolver_add_geo;
@@ -1307,6 +1334,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Polytope_allocate;
         methods->finalize = w_Polytope_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Sphere") == 0)
+    {
+        methods->allocate = w_Sphere_allocate;
+        methods->finalize = w_Sphere_finalize;
         return;
     }
 

@@ -1,0 +1,36 @@
+import "geometry" for Shape3D
+
+class Surface is Shape3D
+{
+	init()
+	{
+		this.surface = nil
+
+		this.model_dirty = true
+		this.model = nil
+	}
+
+	clone()
+	{
+		var new = Surface()
+
+		if (this.surface) {
+			new.surface = this.surface.clone()
+		}
+
+		return new
+	}
+
+	get_model()
+	{
+		if (this.model_dirty)
+		{
+			import "model" for glTF
+			this.model = glTF.create_from_surface(this.surface)
+
+			this.model_dirty = false
+		}
+
+		return this.model
+	}
+}
