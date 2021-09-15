@@ -11,7 +11,10 @@
 #include <model/BrushModel.h>
 #include <model/BrushBuilder.h>
 #include <model/SurfaceLoader.h>
+#include <unirender/Device.h>
+#include <unirender/VertexBuffer.h>
 #include <unirender/VertexArray.h>
+#include <unirender/VertexInputAttribute.h>
 #include <polymesh3/Polytope.h>
 
 #include <memory>
@@ -454,6 +457,47 @@ void w_glTF_get_desc()
     }
 }
 
+void w_glTF_set_instanced_mats()
+{
+    auto model = ((tt::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
+    if (!model->scene) {
+        ves_set_nil(0);
+        return;
+    }
+
+    std::vector<sm::mat4> mats;
+    tt::list_to_foreigns(1, mats);
+
+    auto dev = tt::Render::Instance()->Device();
+    auto inst_buf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, sizeof(sm::mat4) * mats.size());
+    inst_buf->ReadFromMemory(mats.data(), sizeof(sm::mat4) * mats.size(), 0);
+
+    for (auto& node : model->scene->nodes)
+    {
+        if (!node->mesh) {
+            continue;
+        }
+
+        for (auto& prim : node->mesh->primitives)
+        {
+            auto va = prim->va;
+
+            auto attrs = va->GetVertexBufferAttrs();        
+            for (int i = 0; i < 4; ++i)
+            {
+                auto attr = std::make_shared<ur::VertexInputAttribute>(
+                    attrs.size(), ur::ComponentDataType::Float, 4, 4 * 4 * i, 4 * 4 * 4);
+                attr->SetInstancedDivisor(1);
+                attrs.push_back(attr);
+            }
+        
+            va->SetVertexBufferAttrs(attrs);
+
+            va->SetInstanceBuffer(inst_buf);
+        }
+    }
+}
+
 void w_glTF_create_from_polytope()
 {
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
@@ -500,6 +544,7 @@ VesselForeignMethodFn ModelBindMethod(const char* signature)
     if (strcmp(signature, "static Model.calc_brush_size(_)") == 0) return w_Model_calc_brush_size;
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
+    if (strcmp(signature, "glTF.set_instanced_mats(_)") == 0) return w_glTF_set_instanced_mats;
     if (strcmp(signature, "static glTF.create_from_polytope(_,_,_)") == 0) return w_glTF_create_from_polytope;
     if (strcmp(signature, "static glTF.create_from_surface(_)") == 0) return w_glTF_create_from_surface;
 

@@ -1,0 +1,88 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for BrushInstanced as tt_BrushInstanced
+
+class BrushInstanced is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "brush",      [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "transforms", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "instanced", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_brush = Blueprint.calc_input_value(this, 0)
+		if (!v_brush) {
+			return nil
+		}
+
+		var transforms = []
+		var v_transforms = Blueprint.calc_input_value(this, 1)
+		if (v_transforms) 
+		{
+			var items = v_transforms.value
+			for (var i in items) {
+				transforms.add(i.value)
+			}
+		}
+
+		var ret = []
+		this.add_trans_to_brush(v_brush, transforms, ret)
+
+		if (ret.count == 0) {
+			return nil
+		} else if (ret.count == 1) {
+			return ret[0]		
+		} else {
+			return Variant(ret)
+		}
+	}
+
+	add_trans_to_brush(v_brush, trans, dst)
+	{
+		if (v_brush.type == VAR_TYPE_ARRAY)
+		{
+			var list = []
+
+			for (var item in v_brush.value) {
+				this.add_trans_to_brush(item, trans, list)
+			}
+
+			dst.add(Variant(list))
+		}
+		else if (v_brush.type == VAR_TYPE_GEO)
+		{
+			var instanced = tt_BrushInstanced()
+			instanced.brush = v_brush.value.shape
+
+			for (var t in trans) {
+				instanced.transforms.add(t)
+			}
+
+			var geo = VarGeo()
+			geo.shape = instanced
+
+			dst.add(Variant(VAR_TYPE_GEO, geo))
+		}
+	}
+}

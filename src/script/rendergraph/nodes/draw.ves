@@ -2,7 +2,7 @@ import "render" for Render
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.Blueprint" for Blueprint
-import "blueprint.variant" for VAR_TYPE_PORT
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_MODEL
@@ -18,7 +18,8 @@ class Draw is Node
 			Pin(this, "prev",   VAR_TYPE_PORT),
 			Pin(this, "shader", VAR_TYPE_SHADER),
 			Pin(this, "va",     VAR_TYPE_VERTEX_ARRAY),
-			Pin(this, "model",  VAR_TYPE_MODEL)
+			Pin(this, "model",  VAR_TYPE_MODEL),
+			Pin(this, "inst_mats", VAR_TYPE_ARRAY)			
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -88,6 +89,8 @@ class Draw is Node
 			}	
 		}
 
+		var v_inst_mats = Blueprint.calc_input_value(this, 4)
+
 		for (var i in 0..count) 
 		{
 			v_shader.update_uniforms(i)
@@ -102,17 +105,34 @@ class Draw is Node
 				}
 			}
 
-			Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state)
+			if (v_inst_mats) 
+			{
+				Render.draw_instanced(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state, v_inst_mats.value)
+			} 
+			else 
+			{
+				Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state)
+			}
 		}
 	}
 
 	draw_model(shader, model)
 	{
+		var v_inst_mats = Blueprint.calc_input_value(this, 4)
+
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
 		{
 			shader.update_uniforms(i)
-			Render.draw_model(shader.prog, model, this.render_state)
+
+			if (v_inst_mats) 
+			{
+				Render.draw_model_instanced(shader.prog, model, this.render_state, v_inst_mats.value)
+			} 
+			else 
+			{
+				Render.draw_model(shader.prog, model, this.render_state)			
+			}
 		}
 	}
 

@@ -3,6 +3,7 @@
 #include "modules/script/Proxy.h"
 
 #include <SM_Vector.h>
+#include <SM_Matrix.h>
 #include <vessel.h>
 
 #include <vector>
@@ -30,6 +31,17 @@ void list_to_foreigns(int index, std::vector<std::shared_ptr<T>>& foreigns)
     for (int i = 0; i < num; ++i) {
         ves_geti(index, i);
         foreigns.push_back(((tt::Proxy<T>*)ves_toforeign(-1))->obj);
+        ves_pop(1);
+    }
+}
+
+template<typename T>
+void list_to_foreigns(int index, std::vector<T>& foreigns)
+{
+    const int num = ves_len(index);
+    for (int i = 0; i < num; ++i) {
+        ves_geti(index, i);
+        foreigns.push_back(*(T*)ves_toforeign(-1));
         ves_pop(1);
     }
 }

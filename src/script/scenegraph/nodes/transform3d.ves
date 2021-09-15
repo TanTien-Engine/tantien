@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
+import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant
 import "scenegraph.variant" for VAR_TYPE_SPRITE, VarSprite
@@ -22,7 +22,8 @@ class Transform3d is Node
 			Pin(this, "scale",     VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
-			Pin(this, "obj", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_PLANE, VAR_TYPE_ARRAY ])
+			Pin(this, "obj", [ VAR_TYPE_GEO, VAR_TYPE_SPRITE, VAR_TYPE_PLANE, VAR_TYPE_ARRAY ]),
+			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
 
 		this.layout()
@@ -31,28 +32,40 @@ class Transform3d is Node
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
 		}
 	}
 
 	calc_value(idx)
 	{
-		var v_obj = Blueprint.calc_input_value(this, 0)
-		if (!v_obj) {
-			return nil
+		if (idx == 0)
+		{
+			var v_obj = Blueprint.calc_input_value(this, 0)
+			if (!v_obj) {
+				return nil
+			}
+
+			var mat = this.calc_mat()
+
+			var result = []
+			this.transform_impl(v_obj, mat, result)
+			if (result.count == 0) {
+				return nil
+			} else if (result.count == 1) {
+				return result[0]
+			} else {
+				return Variant(result)
+			}
+		}
+		else if (idx == 1)
+		{
+			var mat = this.calc_mat()
+			return Variant(mat)
 		}
 
-		var mat = this.calc_mat()
-
-		var result = []
-		this.transform_impl(v_obj, mat, result)
-		if (result.count == 0) {
-			return nil
-		} else if (result.count == 1) {
-			return result[0]
-		} else {
-			return Variant(result)
-		}
+		return nil
 	}
 
 	calc_mat()

@@ -96,8 +96,9 @@ foreign class Render
 	//   "blend" : bool
 	// }
 	foreign static draw(prim_type, prog, va, render_state)
+	foreign static draw_instanced(prim_type, prog, va, render_state, instanced_mats)
 	foreign static draw_model(prog, model, render_state)
-
+	
 	foreign static compute(prog, num_groups_x, num_groups_y, num_groups_z)
 
 	// masks: list ["color", "depth", "stencil"]

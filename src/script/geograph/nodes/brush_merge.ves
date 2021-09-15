@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
-import "geograph.brush" for Brush
+import "geograph.brush" for Brush, BrushInstanced
 
 class BrushMerge is Node
 {
@@ -15,7 +15,7 @@ class BrushMerge is Node
 			Pin(this, "list", VAR_TYPE_ARRAY),
 		]
 		this.exports = [
-			Pin(this, "brush", VAR_TYPE_GEO)
+			Pin(this, "brush", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ])
 		]
 
 		this.layout()
@@ -35,10 +35,11 @@ class BrushMerge is Node
 			return nil
 		}
 
+		var instanced = []
 		var polys   = []
 		var mats    = []
 		var offsets = []
-		this.add_to_list(polys, mats, offsets, v_list)
+		this.add_to_list(instanced, polys, mats, offsets, v_list)
 
 		var brush = Brush(polys)
 
@@ -52,17 +53,32 @@ class BrushMerge is Node
 			brush.offsets[i] = offsets[i]
 		}
 
-		var geo = VarGeo()
-		geo.shape = brush
-		return Variant(VAR_TYPE_GEO, geo)
+		var ret = []		
+
+		if (!polys.isEmpty) {
+			var geo = VarGeo()
+			geo.shape = brush
+			ret.add(Variant(VAR_TYPE_GEO, geo))
+		}
+		for (var inst in instanced) {
+			ret.add(inst)
+		}
+
+		if (ret.count == 1) {
+			return ret[0]
+		} else if (ret.count > 1) {
+			return Variant(ret)
+		}
+
+		return nil		
 	}
 
-	add_to_list(dst_poly, dst_mat, dst_offset, src)
+	add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, src)
 	{
 		if (src.type == VAR_TYPE_ARRAY) 
 		{
 			for (var v in src.value) {
-				this.add_to_list(dst_poly, dst_mat, dst_offset, v)
+				this.add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, v)
 			}
 		} 
 		else if (src.type == VAR_TYPE_GEO) 
@@ -98,7 +114,11 @@ class BrushMerge is Node
 					for (var i in brush.offsets) {
 						dst_offset.add(i)
 					}
-				}				
+				}
+			}
+			else if (brush is BrushInstanced)
+			{
+				dst_instanced.add(src)
 			}
 		}
 	}

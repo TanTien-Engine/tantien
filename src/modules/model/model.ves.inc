@@ -16,6 +16,8 @@ foreign class glTF
 
 	foreign get_desc()
 
+	foreign set_instanced_mats(mats)
+
 	foreign static create_from_polytope(poly, material, offset)
 	foreign static create_from_surface(surface)
 }

@@ -1,9 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_TABLE
+import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
-import "geograph.brush" for Brush
+import "geograph.brush" for Brush, BrushInstanced
+import "geograph.surface" for Surface
 
 class BrushToGltf is Node
 {
@@ -15,7 +16,8 @@ class BrushToGltf is Node
 			Pin(this, "brush", VAR_TYPE_GEO),
 		]
 		this.exports = [
-			Pin(this, "gltf", VAR_TYPE_TABLE)
+			Pin(this, "gltf",      VAR_TYPE_TABLE),
+			Pin(this, "inst_mats", VAR_TYPE_ARRAY),
 		]
 
 		this.layout()
@@ -24,7 +26,9 @@ class BrushToGltf is Node
 	on_pin_dirty(pin)
 	{
 		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
 		}
 	}
 
@@ -36,16 +40,51 @@ class BrushToGltf is Node
 		}
 
 		var brush = v_geo.value.shape
-		if (!(brush is Brush)) {
-			return nil
+		if (idx == 0)
+		{
+			if (brush is Brush)
+			{
+				var gltf = brush.get_model()
+				if (gltf) 
+				{
+					if (!brush.inst_inited and !brush.instanced.isEmpty) {
+						gltf.set_instanced_mats(brush.instanced)
+						brush.inst_inited = true
+					}
+
+					var gltf_desc = gltf.get_desc()
+					return Variant(gltf_desc)
+				}
+			}
+			else if (brush is BrushInstanced)
+			{
+				var gltf = brush.brush.get_model()
+				if (gltf) 
+				{
+					if (!brush.brush.instanced_inited) {
+						gltf.set_instanced_mats(brush.transforms)
+						brush.brush.instanced_inited = true
+					}
+					var gltf_desc = gltf.get_desc()
+					return Variant(gltf_desc)
+				}
+			}
+			else if (brush is Surface)
+			{
+				var gltf = brush.get_model()
+				if (gltf) {
+					var gltf_desc = gltf.get_desc()
+					return Variant(gltf_desc)
+				}
+			}
+		}
+		else if (idx == 1)
+		{
+			if (brush is BrushInstanced) {
+				return Variant(brush.transforms)
+			}
 		}
 
-		var gltf = v_geo.value.shape.get_model()
-		if (!gltf) {
-			return nil
-		}
-
-		var gltf_desc = gltf.get_desc()
-		return Variant(gltf_desc)
+		return nil
 	}	
 }

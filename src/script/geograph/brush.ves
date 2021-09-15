@@ -16,6 +16,8 @@ class Brush is Shape3D
 
 		this.materials = nil
 		this.offsets   = nil
+
+		this.instanced_inited = false
 	}
 
 	clone()
@@ -150,5 +152,28 @@ class BrushParts is Shape3D
 			var d_pair = [ pair[0], pair[1] ]
 			dst.add(d_pair)
 		}
+	}
+}
+
+class BrushInstanced is Shape3D
+{
+	init() 
+	{
+		this.brush = nil
+
+		this.transforms = []
+	}
+
+	clone()
+	{
+		var new = BrushInstanced()
+
+		new.brush = this.brush.clone()
+
+		for (var t in this.transforms) {
+			new.transforms.add(t.clone())
+		}
+
+		return new
 	}
 }

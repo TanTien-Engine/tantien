@@ -3,6 +3,7 @@
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
 #include "modules/script/Proxy.h"
+#include "modules/script/TransHelper.h"
 #include "modules/maths/float16.h"
 
 #include <unirender/Device.h>
@@ -1229,6 +1230,37 @@ void w_Render_draw()
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
 
+void w_Render_draw_instanced()
+{
+    ur::DrawState ds;
+
+    ur::PrimitiveType prim_type = ur::PrimitiveType::Triangles;
+
+    const char* prim_type_str = ves_tostring(1);
+    if (strcmp(prim_type_str, "points") == 0) {
+        prim_type = ur::PrimitiveType::Points;
+    } else if (strcmp(prim_type_str, "triangles") == 0) {
+        prim_type = ur::PrimitiveType::Triangles;
+    } else if (strcmp(prim_type_str, "tri_strip") == 0) {
+        prim_type = ur::PrimitiveType::TriangleStrip;
+    } else if (strcmp(prim_type_str, "patches") == 0) {
+        prim_type = ur::PrimitiveType::Patches;
+    } else {
+        GD_REPORT_ASSERT("unknown prim type.");
+    }
+
+    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
+    ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
+
+    std::vector<sm::mat4> mats;
+    tt::list_to_foreigns(5, mats);
+    ds.num_instances = mats.size();
+
+    prepare_render_state(ds.render_state, 4);
+
+    tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
+}
+
 void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model::Mesh& mesh)
 {
     auto ctx = tt::Render::Instance()->Context();
@@ -1650,6 +1682,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "ComputeBuffer.download(_,_)") == 0) return w_ComputeBuffer_download;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
+    if (strcmp(signature, "static Render.draw_instanced(_,_,_,_,_)") == 0) return w_Render_draw_instanced;
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
     if (strcmp(signature, "static Render.compute(_,_,_,_)") == 0) return w_Render_compute;
     if (strcmp(signature, "static Render.clear(_,_)") == 0) return w_Render_clear;
