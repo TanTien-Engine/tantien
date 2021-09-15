@@ -1,0 +1,51 @@
+var node0 = ::geograph::nodes::poly_extrude::PolyExtrude()
+node0.query_param("distance").value = 0
+
+_editor.add_node(node0, -353.39974114733, 484.47638449296)
+
+var node1 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node1, -164.29418945313, 502.97326660156)
+
+var node2 = ::blueprint::nodes::property::Property()
+
+node2.var_name = "distance"
+node2.var_type = "num"
+
+_editor.add_node(node2, -697.58023600933, 401.05285039224)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "geo"
+node3.var_type = "geo"
+
+_editor.add_node(node3, -493.44798039208, 509.31732682157)
+
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
+node4.load_from_file(_editor, "../tools/half.ves")
+
+_editor.add_node(node4, -523.20007727757, 225.84627072673)
+
+var node5 = ::blueprint::nodes::negate::Negate()
+
+_editor.add_node(node5, -322.37362960942, 210.14379479274)
+
+var node6 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node6, -108.32403236578, 220.88757778199)
+
+var node7 = ::blueprint::nodes::output::Output()
+
+node7.var_name = "geo"
+node7.var_type = [ "geo", "array" ]
+
+_editor.add_node(node7, -24.026512965682, 514.27600602079)
+
+Blueprint.connect(node2, "var", node4, "val")
+Blueprint.connect(node4, "val", node5, "v")
+Blueprint.connect(node5, "v", node6, "y")
+Blueprint.connect(node3, "var", node0, "geo")
+Blueprint.connect(node2, "var", node0, "distance")
+Blueprint.connect(node0, "geo", node1, "geo")
+Blueprint.connect(node6, "xyz", node1, "xyz")
+Blueprint.connect(node1, "geo", node7, "var")
