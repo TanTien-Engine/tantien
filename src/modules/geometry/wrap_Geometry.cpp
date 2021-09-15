@@ -714,7 +714,7 @@ void w_PolyFace_get_border()
     ves_newlist(num);
     for (int i = 0; i < num; ++i)
     {
-        ves_pushnumber(f->border[i]);
+        ves_pushnumber((double)(f->border[i]));
         ves_seti(-2, i);
         ves_pop(1);
     }
