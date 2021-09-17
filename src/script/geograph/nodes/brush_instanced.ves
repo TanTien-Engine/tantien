@@ -38,12 +38,8 @@ class BrushInstanced is Node
 
 		var transforms = []
 		var v_transforms = Blueprint.calc_input_value(this, 1)
-		if (v_transforms) 
-		{
-			var items = v_transforms.value
-			for (var i in items) {
-				transforms.add(i.value)
-			}
+		if (v_transforms) {
+			this.get_transforms(transforms, v_transforms)
 		}
 
 		var ret = []
@@ -55,6 +51,17 @@ class BrushInstanced is Node
 			return ret[0]		
 		} else {
 			return Variant(ret)
+		}
+	}
+
+	get_transforms(dst, src)
+	{
+		if (src.type == VAR_TYPE_ARRAY) {
+			for (var c in src.value) {
+				this.get_transforms(dst, c)
+			}
+		} else if (src.type == VAR_TYPE_MATRIX4) {
+			dst.add(src.value)
 		}
 	}
 
