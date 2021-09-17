@@ -45,13 +45,7 @@ class BrushToGltf is Node
 			if (brush is Brush)
 			{
 				var gltf = brush.get_model()
-				if (gltf) 
-				{
-					if (!brush.inst_inited and !brush.instanced.isEmpty) {
-						gltf.set_instanced_mats(brush.instanced)
-						brush.inst_inited = true
-					}
-
+				if (gltf) {
 					var gltf_desc = gltf.get_desc()
 					return Variant(gltf_desc)
 				}
