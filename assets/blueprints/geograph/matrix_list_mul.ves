@@ -1,0 +1,45 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "mats0"
+node0.var_type = "array"
+
+_editor.add_node(node0, -367, 521.5)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "mats1"
+node1.var_type = "array"
+
+_editor.add_node(node1, -483, 340.5)
+
+var node2 = ::blueprint::nodes::for_each_f::ForEachF()
+
+_editor.add_node(node2, -198, 513.5)
+
+var node3 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node3, -182, 348.5)
+
+var node4 = ::blueprint::nodes::for_each_f::ForEachF()
+
+_editor.add_node(node4, -336, 336.5)
+
+var node5 = ::blueprint::nodes::list_flatten::ListFlatten()
+
+_editor.add_node(node5, -54.774130651936, 526.80993963335)
+
+var node6 = ::blueprint::nodes::output::Output()
+
+node6.var_name = "mats"
+node6.var_type = "array"
+
+_editor.add_node(node6, 83.877592438142, 534.32304722184)
+
+Blueprint.connect(node2, "curr_item", node3, "a")
+Blueprint.connect(node4, "curr_item", node3, "b")
+Blueprint.connect(node1, "var", node4, "items")
+Blueprint.connect(node3, "v", node4, "eval")
+Blueprint.connect(node0, "var", node2, "items")
+Blueprint.connect(node4, "result", node2, "eval")
+Blueprint.connect(node2, "result", node5, "list")
+Blueprint.connect(node5, "list", node6, "var")
