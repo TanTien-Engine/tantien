@@ -58,7 +58,7 @@ class Shader
 				{
 					_v = val.value
 				}
-				if (_v and pin["unif"]) {
+				if (_v != nil and pin["unif"]) {
 					this.set_uniform_value(pin.unif, _v)
 				}
 			}
