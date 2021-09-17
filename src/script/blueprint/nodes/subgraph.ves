@@ -12,6 +12,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.execute_list" for ExecuteList
 import "blueprint.blackboard" for BLACKBOARD
+import "rendergraph.nodes.draw" for Draw
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
@@ -96,9 +97,25 @@ class Subgraph is Node
 		return nil
 	}
 
+	static has_draw_node(subgraph)
+	{
+		for (var item in subgraph.all_items) 
+		{
+			var c = item[0]
+			if (c is Subgraph) {
+				if (Subgraph.has_draw_node(c)) {
+					return true
+				}
+			} else if (c is Draw) {
+				return true
+			}
+		}
+		return false
+	}
+
 	render_gen()
 	{
-		if (!this.drawlist) 
+		if (!this.drawlist and Subgraph.has_draw_node(this)) 
 		{
 			var nodes = []
 			for (var item in this.all_items) {
