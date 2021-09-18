@@ -1,7 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX3
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX3, VAR_TYPE_RECT
 import "maths.vector" for Vector3
 
 class Split is Node
@@ -15,6 +15,7 @@ class Split is Node
 			Pin(this, "xyz",  VAR_TYPE_NUMBER3),
 			Pin(this, "xy",   VAR_TYPE_NUMBER2),
 			Pin(this, "mat3", VAR_TYPE_MATRIX3),
+			Pin(this, "rect", VAR_TYPE_RECT),
 		]
 		this.exports = [
 			Pin(this, "x",   [ VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3]),
@@ -42,6 +43,11 @@ class Split is Node
 					var v_xy = Blueprint.calc_input_value(this, 2)
 					if (v_xy) {
 						return Variant(VAR_TYPE_NUMBER, v_xy.value.x)
+					} else {
+						var v_rect = Blueprint.calc_input_value(this, 4)
+						if (v_rect) {
+							return Variant(VAR_TYPE_NUMBER, v_rect.value.x)
+						}
 					}
 				}
 			}
@@ -59,6 +65,11 @@ class Split is Node
 					var v_xy = Blueprint.calc_input_value(this, 2)
 					if (v_xy) {
 						return Variant(VAR_TYPE_NUMBER, v_xy.value.y)
+					} else {
+						var v_rect = Blueprint.calc_input_value(this, 4)
+						if (v_rect) {
+							return Variant(VAR_TYPE_NUMBER, v_rect.value.y)
+						}
 					}
 				}
 			}
@@ -72,6 +83,11 @@ class Split is Node
 				var v_xyz = Blueprint.calc_input_value(this, 1)
 				if (v_xyz) {
 					return Variant(VAR_TYPE_NUMBER, v_xyz.value.z)
+				} else {
+					var v_rect = Blueprint.calc_input_value(this, 4)
+					if (v_rect) {
+						return Variant(VAR_TYPE_NUMBER, v_rect.value.w)
+					}
 				}
 			}
 		}
@@ -80,6 +96,11 @@ class Split is Node
 			var v_xyzw = Blueprint.calc_input_value(this, 0)
 			if (v_xyzw) {
 				return Variant(VAR_TYPE_NUMBER, v_xyzw.value.w)
+			} else {
+				var v_rect = Blueprint.calc_input_value(this, 4)
+				if (v_rect) {
+					return Variant(VAR_TYPE_NUMBER, v_rect.value.h)
+				}
 			}
 		}
 		else if (idx == 4)
