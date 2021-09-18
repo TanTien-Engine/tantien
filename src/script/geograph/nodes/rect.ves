@@ -32,6 +32,7 @@ class Rect is Node
 		this.params.add(NodeParam("y", 0, { "min" : -1000, "max" : 1000 }))
 		this.params.add(NodeParam("w", 100, { "min" : 0.001, "region" : 1000 }))
 		this.params.add(NodeParam("h", 100, { "min" : 0.001, "region" : 1000 }))
+		this.params.add(NodeParam("offset", false))
 
 		// draw
 		this.params.add(NodeParam("fill", false))
@@ -121,6 +122,12 @@ class Rect is Node
 		if (h < 0) {
 			y = y + h
 			h = -h
+		}
+
+		var offset = this.query_param("offset").value
+		if (offset) {
+			x = x - w * 0.5
+			y = y - h * 0.5			
 		}
 
 		return [ x, y, w, h ]
