@@ -16,9 +16,8 @@ class Column is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "base",       VAR_TYPE_GEO),
-			Pin(this, "height",     VAR_TYPE_NUMBER),
-			//Pin(this, "generatrix", VAR_TYPE_ARRAY),
+			Pin(this, "base",   VAR_TYPE_GEO),
+			Pin(this, "height", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -26,6 +25,7 @@ class Column is Node
 
 		this.params.add(NodeParam("height", 1.0, { "region" : 10 }))
 		this.params.add(NodeParam("generatrix", []))
+		this.params.add(NodeParam("offset_z_absolute", false))
 
 		this.layout()
 	}
@@ -125,6 +125,8 @@ class Column is Node
 
 		if (bus)
 		{
+			var dx = this.query_param("offset_z_absolute").value
+
 			bus_num = bus.count
 			for (var p in lead) 
 			{
@@ -133,14 +135,20 @@ class Column is Node
 					var h = b.x
 					var r = b.y
 
-					var x = p.x * r
-					var z = p.y * r
+					var x = p.x
+					var z = p.y
 					var y = height * h
+
+					if (dx) {
+						z = z + r
+					} else {
+						x = x * r
+						z = z * r
+					}
 
 					points.add(PolyPoint.init([ x, y, z ]))
 				}
 			}
-
 		}
 		else
 		{
