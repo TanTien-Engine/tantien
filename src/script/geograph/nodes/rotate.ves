@@ -17,7 +17,8 @@ class Rotate is Node
 		this.imports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
 			Pin(this, "from_dir", VAR_TYPE_NUMBER3),
-			Pin(this, "to_dir",   VAR_TYPE_NUMBER3),			
+			Pin(this, "to_dir",   VAR_TYPE_NUMBER3),
+			Pin(this, "rot_xyz",  VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
@@ -57,13 +58,22 @@ class Rotate is Node
 	{
 		var mat = Matrix44.init()
 
-		var v_f = Blueprint.calc_input_value(this, 1)
-		var v_t = Blueprint.calc_input_value(this, 2)
-		if (v_f and v_t) 
+		var v_xyz = Blueprint.calc_input_value(this, 3)
+		if (v_xyz)
 		{
-			var f = v_f.value
-			var t = v_t.value
-			mat.from_vectors([ f.x, f.y, f.z ], [ t.x, t.y, t.z ])
+			var v = v_xyz.value
+			mat.rotate(v.x, v.y, v.z)
+		}
+		else
+		{
+			var v_f = Blueprint.calc_input_value(this, 1)
+			var v_t = Blueprint.calc_input_value(this, 2)
+			if (v_f and v_t) 
+			{
+				var f = v_f.value
+				var t = v_t.value
+				mat.from_vectors([ f.x, f.y, f.z ], [ t.x, t.y, t.z ])
+			}
 		}
 
 		return mat
