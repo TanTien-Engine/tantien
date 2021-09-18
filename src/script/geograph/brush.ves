@@ -59,6 +59,15 @@ class Brush is Shape3D
 		this.set_model_dirty()
 	}
 
+	mirror(plane)
+	{
+		for (var poly in this.polys) {
+			poly.mirror(plane)
+		}
+
+		this.set_model_dirty()
+	}
+
 	clip(plane, keep, seam)
 	{
 		var polys = []

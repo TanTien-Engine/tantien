@@ -849,6 +849,25 @@ void w_Polytope_transform()
     poly->SetTopoDirty();
 }
 
+void w_Polytope_mirror()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+
+    float len_s = plane->normal.LengthSquared();
+
+    auto& pts = poly->Points();
+    for (auto& p : pts) 
+    {
+        auto v1 = p->pos;
+        float k = (- plane->normal.Dot(v1) - plane->dist) / len_s;
+        auto v2 = plane->normal * k + v1;
+        p->pos = v2 * 2 - v1;
+    }
+
+    poly->SetTopoDirty();
+}
+
 void w_Polytope_clip()
 {
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
@@ -1219,6 +1238,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;
     if (strcmp(signature, "Polytope.offset(_,_)") == 0) return w_Polytope_offset;
     if (strcmp(signature, "Polytope.transform(_)") == 0) return w_Polytope_transform;
+    if (strcmp(signature, "Polytope.mirror(_)") == 0) return w_Polytope_mirror;
     if (strcmp(signature, "Polytope.clip(_,_,_)") == 0) return w_Polytope_clip;
     if (strcmp(signature, "Polytope.get_points()") == 0) return w_Polytope_get_points;
     if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;

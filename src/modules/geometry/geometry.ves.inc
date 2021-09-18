@@ -205,6 +205,7 @@ foreign class Polytope
 	foreign offset(selector, dist)
 
 	foreign transform(mat)
+	foreign mirror(plane)
 
 	foreign clip(plane, keep, seam)
 
@@ -215,6 +216,8 @@ foreign class Polytope
 
 	// a, b is list
 	foreign static boolean(operator, a, b)
+
+	
 }
 
 foreign class Sphere
