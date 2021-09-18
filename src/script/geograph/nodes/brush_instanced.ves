@@ -67,6 +67,10 @@ class BrushInstanced is Node
 
 	add_trans_to_brush(v_brush, trans, dst)
 	{
+		if (trans.isEmpty) {
+			return
+		}
+
 		if (v_brush.type == VAR_TYPE_ARRAY)
 		{
 			var list = []
@@ -75,7 +79,9 @@ class BrushInstanced is Node
 				this.add_trans_to_brush(item, trans, list)
 			}
 
-			dst.add(Variant(list))
+			if (!list.isEmpty) {
+				dst.add(Variant(list))
+			}
 		}
 		else if (v_brush.type == VAR_TYPE_GEO)
 		{
