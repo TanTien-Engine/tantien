@@ -1,0 +1,57 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "x"
+node0.var_type = "num"
+
+_editor.add_node(node0, -850, 337.5)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "mirror"
+node1.var_type = "num"
+
+_editor.add_node(node1, -849, 407.5)
+
+var node2 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node2, -87, 203.5)
+
+var node3 = ::blueprint::nodes::number3::Number3()
+
+node3.value.set(0, 3.1415926, 0)
+
+_editor.add_node(node3, -243, 160.5)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "mat"
+node4.var_type = "mat4"
+
+_editor.add_node(node4, 61, 214.5)
+
+var node5 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node5, -708, 378.5)
+
+var node6 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node6, -562, 365.5)
+
+var node7 = ::blueprint::nodes::integer::Integer()
+
+node7.value = 2
+
+_editor.add_node(node7, -707, 312.5)
+
+var node8 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node8, -410, 352.5)
+
+Blueprint.connect(node1, "var", node5, "a")
+Blueprint.connect(node0, "var", node5, "b")
+Blueprint.connect(node5, "v", node6, "a")
+Blueprint.connect(node7, "v", node6, "b")
+Blueprint.connect(node6, "v", node8, "x")
+Blueprint.connect(node8, "xyz", node2, "translate")
+Blueprint.connect(node3, "v3", node2, "rotate")
+Blueprint.connect(node2, "mat", node4, "var")

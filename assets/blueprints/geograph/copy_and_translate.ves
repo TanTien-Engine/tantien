@@ -40,18 +40,32 @@ _editor.add_node(node6, -110.85973321412, 48.879482579743)
 
 var node7 = ::blueprint::nodes::add::Add()
 
-_editor.add_node(node7, -396.79980225225, -73.317941290298)
+_editor.add_node(node7, -749.69236423572, -83.235296662199)
 
 var node8 = ::blueprint::nodes::integer::Integer()
 
 node8.value = 1
 
-_editor.add_node(node8, -536.78933456548, -116.21795763429)
+_editor.add_node(node8, -889.68189654895, -126.13531300619)
+
+var node9 = ::blueprint::nodes::property::Property()
+
+node9.var_name = "include_ori"
+node9.var_type = "bool"
+
+_editor.add_node(node9, -759.96614314308, -0.47431264829827)
+
+var node10 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node10, -568.23059586454, -28.573488093607)
 
 Blueprint.connect(node0, "curr_item", node7, "a")
 Blueprint.connect(node8, "v", node7, "b")
+Blueprint.connect(node9, "var", node10, "cond")
+Blueprint.connect(node0, "curr_item", node10, "true")
+Blueprint.connect(node7, "v", node10, "false")
 Blueprint.connect(node4, "var", node5, "a")
-Blueprint.connect(node7, "v", node5, "b")
+Blueprint.connect(node10, "result", node5, "b")
 Blueprint.connect(node1, "var", node6, "geo")
 Blueprint.connect(node5, "v", node6, "xyz")
 Blueprint.connect(node3, "var", node0, "count")

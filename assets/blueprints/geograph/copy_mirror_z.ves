@@ -1,0 +1,71 @@
+var node0 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node0, -87, 203.5)
+
+var node1 = ::blueprint::nodes::number3::Number3()
+
+node1.value.set(0, 3.1415926, 0)
+
+_editor.add_node(node1, -243, 160.5)
+
+var node2 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node2, -708, 378.5)
+
+var node3 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node3, -562, 365.5)
+
+var node4 = ::blueprint::nodes::integer::Integer()
+
+node4.value = 2
+
+_editor.add_node(node4, -707, 312.5)
+
+var node5 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node5, -410, 352.5)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "geo"
+node6.var_type = "array"
+
+_editor.add_node(node6, -245.94576084602, 259.59787521876)
+
+var node7 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node7, 66.078256397965, 319.08937193961)
+
+var node8 = ::blueprint::nodes::output::Output()
+
+node8.var_name = "geo"
+node8.var_type = "array"
+
+_editor.add_node(node8, 206.0960052164, 342.31181963372)
+
+var node9 = ::blueprint::nodes::input::Input()
+
+node9.var_name = "z"
+node9.var_type = "num"
+
+_editor.add_node(node9, -850, 337.5)
+
+var node10 = ::blueprint::nodes::input::Input()
+
+node10.var_name = "mirror"
+node10.var_type = "num"
+
+_editor.add_node(node10, -849, 407.5)
+
+Blueprint.connect(node10, "var", node2, "a")
+Blueprint.connect(node9, "var", node2, "b")
+Blueprint.connect(node2, "v", node3, "a")
+Blueprint.connect(node4, "v", node3, "b")
+Blueprint.connect(node3, "v", node5, "z")
+Blueprint.connect(node6, "var", node0, "obj")
+Blueprint.connect(node5, "xyz", node0, "translate")
+Blueprint.connect(node1, "v3", node0, "rotate")
+Blueprint.connect(node6, "var", node7, "in0")
+Blueprint.connect(node0, "obj", node7, "in1")
+Blueprint.connect(node7, "list", node8, "var")

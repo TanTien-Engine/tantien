@@ -3,7 +3,7 @@ var node0 = ::blueprint::nodes::input::Input()
 node0.var_name = "matrixes"
 node0.var_type = "array"
 
-_editor.add_node(node0, -486.63397308927, 284.23205382146)
+_editor.add_node(node0, -534.44491496483, 317.01669967898)
 
 var node1 = ::blueprint::nodes::for_each_f::ForEachF()
 
@@ -31,9 +31,14 @@ node5.var_type = "array"
 
 _editor.add_node(node5, -71.647620530394, 292.20351652343)
 
+var node6 = ::blueprint::nodes::list_flatten::ListFlatten()
+
+_editor.add_node(node6, -390.53263089279, 318.22082416145)
+
 Blueprint.connect(node3, "var", node2, "translate")
 Blueprint.connect(node2, "mat", node4, "a")
 Blueprint.connect(node1, "curr_item", node4, "b")
-Blueprint.connect(node0, "var", node1, "items")
+Blueprint.connect(node0, "var", node6, "list")
+Blueprint.connect(node6, "list", node1, "items")
 Blueprint.connect(node4, "v", node1, "eval")
 Blueprint.connect(node1, "result", node5, "var")

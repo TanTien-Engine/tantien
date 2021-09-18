@@ -1,0 +1,101 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "x"
+node0.var_type = "num"
+
+_editor.add_node(node0, -548.05765651729, 323.30307570474)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "mirror"
+node1.var_type = "num"
+
+_editor.add_node(node1, -547.05765651729, 393.30307570474)
+
+var node2 = ::scenegraph::nodes::transform3d::Transform3d()
+
+_editor.add_node(node2, 221.70417669082, 144.22418765065)
+
+var node3 = ::blueprint::nodes::number3::Number3()
+
+node3.value.set(0, 3.1415926, 0)
+
+_editor.add_node(node3, 65.704176690821, 101.22418765065)
+
+var node4 = ::blueprint::nodes::subtract::Subtract()
+
+_editor.add_node(node4, -406.05765651729, 364.30307570474)
+
+var node5 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node5, -260.05765651729, 351.30307570474)
+
+var node6 = ::blueprint::nodes::integer::Integer()
+
+node6.value = 2
+
+_editor.add_node(node6, -405.05765651729, 298.30307570474)
+
+var node7 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node7, -101.29582330918, 293.22418765065)
+
+var node8 = ::blueprint::nodes::input::Input()
+
+node8.var_name = "matrixes"
+node8.var_type = "array"
+
+_editor.add_node(node8, -36.521887102636, -113.1638049728)
+
+var node9 = ::blueprint::nodes::for_each_f::ForEachF()
+
+_editor.add_node(node9, 123.63100285386, -134.01552471097)
+
+var node10 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node10, -27.875023505926, -183.17204616547)
+
+var node11 = ::blueprint::nodes::store::Store()
+
+node11.var_name = "mat"
+
+_editor.add_node(node11, 358.58773714892, 144.20313385093)
+
+var node12 = ::blueprint::nodes::load::Load()
+
+node12.var_name = "mat"
+
+_editor.add_node(node12, -165.47011409075, -171.61504796725)
+
+var node13 = ::blueprint::nodes::output::Output()
+
+node13.var_name = "matrixes"
+node13.var_type = "array"
+
+_editor.add_node(node13, 701.55176098262, 3.084984645974)
+
+var node14 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node14, 301.69198094804, -25.475959926866)
+
+var node15 = ::blueprint::nodes::list_flatten::ListFlatten()
+
+_editor.add_node(node15, 474.18181818182, 5.590909090909)
+
+Blueprint.connect(node1, "var", node4, "a")
+Blueprint.connect(node0, "var", node4, "b")
+Blueprint.connect(node4, "v", node5, "a")
+Blueprint.connect(node6, "v", node5, "b")
+Blueprint.connect(node5, "v", node7, "x")
+Blueprint.connect(node7, "xyz", node2, "translate")
+Blueprint.connect(node3, "v3", node2, "rotate")
+Blueprint.connect(node2, "mat", node11, "var")
+Blueprint.connect(node11, "var", node12, "var")
+Blueprint.connect(node12, "var", node10, "a")
+Blueprint.connect(node9, "curr_item", node10, "b")
+Blueprint.connect(node8, "var", node9, "items")
+Blueprint.connect(node10, "v", node9, "eval")
+Blueprint.connect(node8, "var", node14, "in0")
+Blueprint.connect(node9, "result", node14, "in1")
+Blueprint.connect(node14, "list", node15, "list")
+Blueprint.connect(node15, "list", node13, "var")
