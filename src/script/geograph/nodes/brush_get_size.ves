@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush, BrushInstanced
 import "maths.vector" for Vector3
 
 class BrushGetSize is Node
@@ -35,8 +36,19 @@ class BrushGetSize is Node
 			return nil
 		}
 
-		import "model" for Model
-		var sz = Model.calc_brush_size(v_geo.value.shape.polys)
-		return Variant(Vector3(sz[0], sz[1], sz[2]))
+		var brush = nil
+		if (v_geo.value.shape is Brush) {
+			brush = v_geo.value.shape
+		} else if (v_geo.value.shape is BrushInstanced) {
+			brush = v_geo.value.shape.brush
+		}
+
+		if (brush) {
+			import "model" for Model
+			var sz = Model.calc_brush_size(brush.polys)
+			return Variant(Vector3(sz[0], sz[1], sz[2]))
+		}
+
+		return nil
 	}
 }

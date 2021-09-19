@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
-import "geograph.brush" for Brush
+import "geograph.brush" for Brush, BrushInstanced
 
 class BrushSetMaterial is Node
 {
@@ -44,7 +44,11 @@ class BrushSetMaterial is Node
 		}
 
 		var new_brush = v_geo.value.clone()
-		new_brush.shape.set_materials_id(mat_id)
+		if (v_geo.value.shape is Brush) {
+			new_brush.shape.set_materials_id(mat_id)
+		} else if (v_geo.value.shape is BrushInstanced) {
+			new_brush.shape.brush.set_materials_id(mat_id)
+		}		
 		return Variant(VAR_TYPE_GEO, new_brush)
 	}	
 }

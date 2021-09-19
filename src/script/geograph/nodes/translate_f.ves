@@ -4,6 +4,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush, BrushInstanced
 import "maths.vector" for Vector3
 import "math" for Math
 import "maths" for Matrix44, Float3
@@ -104,12 +105,13 @@ class TranslateF is Node
 
 	translate_geo(geo, mat)
 	{
-		var brush = geo.shape.clone()
-		brush.transform(mat)
-
-		var new_geo = VarGeo()
-		new_geo.shape = brush
-		return Variant(VAR_TYPE_GEO, new_geo)
+		var new_brush = geo.clone()
+		if (new_brush.shape is Brush) {
+			new_brush.shape.transform(mat)
+		} else if (new_brush.shape is BrushInstanced) {
+			new_brush.shape.brush.transform(mat)
+		}
+		return Variant(VAR_TYPE_GEO, new_brush)
 	}
 
 	translate_num3(num3, mat)
