@@ -18,6 +18,8 @@ class Brush is Shape3D
 		this.offsets   = nil
 
 		this.instanced_inited = false
+
+		this.order = 0
 	}
 
 	clone()
@@ -46,6 +48,8 @@ class Brush is Shape3D
 				new.offsets[i] = this.offsets[i]
 			}
 		}
+
+		new.order = this.order
 
 		return new
 	}

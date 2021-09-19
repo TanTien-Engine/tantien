@@ -1,0 +1,109 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush, BrushInstanced
+
+class BrushSort is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var max = this.calc_max_order(v_geo, 0)
+
+		var map = List.filled(max + 1, nil)
+		this.insert_to_map(v_geo, map)
+
+		var result = []
+		for (var list in map) {
+			if (!list.isEmpty) {
+				result.add(list)
+			}
+		}
+		return Variant(result)
+	}
+
+	insert_to_map(v_geo, map)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			for (var v in v_geo.value) {
+				this.insert_to_map(v, map)
+			}
+		}
+		else if (v_geo.type == VAR_TYPE_GEO) 
+		{
+			var brush = nil
+			if (v_geo.value.shape is Brush) {
+				brush = v_geo.value.shape
+			} else if (v_geo.value.shape is BrushInstanced) {
+				brush = v_geo.value.shape.brush
+			}
+
+			if (brush) {
+				if (!map[brush.order]) {
+					map[brush.order] = []
+				}
+				map[brush.order].add(v_geo)
+			}
+		}
+	}
+
+	calc_max_order(v_geo, order)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			var ret = order
+			for (var v in v_geo.value) {
+				var i = this.calc_max_order(v, order)
+				if (i > ret) {
+					ret = i
+				}
+			}
+			return ret
+		}
+		else if (v_geo.type == VAR_TYPE_GEO) 
+		{
+			var brush = nil
+			if (v_geo.value.shape is Brush) {
+				brush = v_geo.value.shape
+			} else if (v_geo.value.shape is BrushInstanced) {
+				brush = v_geo.value.shape.brush
+			}
+
+			if (brush and brush.order > order) {
+				return brush.order
+			} else {
+				return order
+			}
+		}
+
+		return order
+	}	
+}
