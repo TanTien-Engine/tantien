@@ -35,17 +35,15 @@ class SwitchF is Node
 	calc_value(idx) 
 	{
 		var v_type = Blueprint.calc_input_value(this, 0)
-		if (!v_type) {
+		if (!v_type or !v_type.value) {
 			return Blueprint.calc_input_value(this, 1)
 		}
 
-		for (var i = CASE_IDX_OFFSET; i < this.imports.count; i = i + 1) {
-			if (v_type.value == i - CASE_IDX_OFFSET) {
-				return Blueprint.calc_input_value(this, i)
-			}
+		if (v_type.value >= 0 and (v_type.value < this.imports.count - CASE_IDX_OFFSET - 1)) {
+			return Blueprint.calc_input_value(this, v_type.value + 2)
+		} else {
+			return Blueprint.calc_input_value(this, 1)
 		}
-
-		return Blueprint.calc_input_value(this, 1)
 	}
 
 	on_connected(pin)
