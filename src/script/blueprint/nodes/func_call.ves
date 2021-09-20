@@ -6,6 +6,7 @@ import "blueprint.nodes.function" for Function
 import "blueprint.nodes.func_in" for FuncIn
 import "blueprint.nodes.func_out" for FuncOut
 import "blueprint.nodes.input" for Input
+import "blueprint.nodes.subgraph" for Subgraph
 
 class FuncCall is Node
 {
@@ -93,6 +94,13 @@ class FuncCall is Node
 		} else if (node is Input) {
 			var prev = Blueprint.get_input_node(node.parent_node, node.parent_pin_idx)
 			return this.get_func_node(prev)
+		} else if (node is Subgraph) {
+			for (var c in node.out_nodes) {
+				if (c.var_name == this.imports[0].name) {
+					var prev = Blueprint.get_input_node(c, 0)
+					return this.get_func_node(prev)
+				}
+			}
 		} else {
 			return nil
 		}
