@@ -1,0 +1,139 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush, BrushParts
+import "math" for Math
+import "maths" for Matrix44, Float3
+
+class SkewY is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
+			Pin(this, "skew_x", VAR_TYPE_NUMBER),
+			Pin(this, "skew_z", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var mat = this.calc_mat()
+
+		var result = []
+		this.skew_impl(v_geo, mat, result)
+		if (result.count == 0) {
+			return nil
+		} else if (result.count == 1) {
+			return result[0]
+		} else {
+			return Variant(result)
+		}
+	}
+
+	calc_mat()
+	{
+		var x = 0
+		var z = 0
+
+		var v_x = Blueprint.calc_input_value(this, 1)
+		if (v_x) {
+			x = v_x.value
+		}
+		var v_z = Blueprint.calc_input_value(this, 2)
+		if (v_z) {
+			z = v_z.value
+		}
+
+		var mat = Matrix44.init()
+		mat.skew(x, 0, z)
+
+		return mat
+	}
+
+	skew_impl(v_geo, mat, result)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY) 
+		{
+			var list = []
+			for (var v in v_geo.value) {
+				this.skew_impl(v, mat, list)
+			}
+			result.add(Variant(list))
+		} 
+		else if (v_geo.type == VAR_TYPE_GEO) 
+		{
+			result.add(this.skew_geo(v_geo.value, mat))
+		} 
+		else if (v_geo.type == VAR_TYPE_NUMBER3) 
+		{
+			result.add(this.skew_num3(v_geo.value, mat))	
+		}
+	}
+
+	skew_geo(geo, mat)
+	{
+		if (geo.shape is Brush)
+		{
+			var brush = geo.shape.clone()
+			brush.transform(mat)
+
+			var new_geo = VarGeo()
+			new_geo.shape = brush
+			return Variant(VAR_TYPE_GEO, new_geo)
+		}
+		else if (geo.shape is BrushParts)
+		{
+			var parts = geo.shape.clone()
+			var brush = parts.brush
+	 
+			// points
+			for (var pair in parts.points)
+			{
+				var poly = brush.polys[pair[0]]
+				var point = poly.get_points()[pair[1]]
+
+				var pos = point.get_pos()
+				var p = Float3.init(pos[0], pos[1], pos[2])
+				p.transform(mat)
+				point.set_pos([ p.x(), p.y(), p.z() ])
+
+				poly.set_topo_dirty()
+			}
+
+			brush.set_model_dirty()
+
+			var new_geo = VarGeo()
+			new_geo.shape = brush
+			return Variant(VAR_TYPE_GEO, new_geo)
+		}
+	}
+
+	skew_num3(num3, mat)
+	{
+		var p = Float3.init(num3.x, num3.y, num3.z)
+		p.transform(mat)
+		return Variant(Vector3(p.x(), p.y(), p.z()))
+	}
+}

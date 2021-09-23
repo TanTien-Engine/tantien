@@ -294,6 +294,16 @@ void w_Matrix44_scale()
     mt->Scale(x, y, z);
 }
 
+void w_Matrix44_skew()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    const float x = (float)ves_tonumber(1);
+    const float y = (float)ves_tonumber(2);
+    const float z = (float)ves_tonumber(3);
+
+    *mt = sm::mat4::SkewY(x, z);
+}
+
 void w_Matrix44_perspective()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
@@ -616,6 +626,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.rotate(_,_,_)") == 0) return w_Matrix44_rotate;
     if (strcmp(signature, "Matrix44.rotate_axis(_,_,_,_)") == 0) return w_Matrix44_rotate_axis;
     if (strcmp(signature, "Matrix44.scale(_,_,_)") == 0) return w_Matrix44_scale;
+    if (strcmp(signature, "Matrix44.skew(_,_,_)") == 0) return w_Matrix44_skew;
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;

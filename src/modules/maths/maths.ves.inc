@@ -99,6 +99,7 @@ foreign class Matrix44
 	foreign rotate(x, y, z)
 	foreign rotate_axis(angle, x, y, z)
 	foreign scale(sx, sy, sz)	
+	foreign skew(x, y, z)
 
 	foreign perspective(fovy, aspect, znear, zfar)
 	foreign orthographic(left, right, bottom, top, near, far)
