@@ -326,25 +326,26 @@ void w_Matrix44_perspective()
 void w_Matrix44_orthographic()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
-    const float left   = (float)ves_tonumber(1);
-    const float right  = (float)ves_tonumber(2);
-    const float bottom = (float)ves_tonumber(3);
-    const float top    = (float)ves_tonumber(4);
-    const float near   = (float)ves_tonumber(5);
-    const float far    = (float)ves_tonumber(6);
+    float left   = (float)ves_tonumber(1);
+    float right  = (float)ves_tonumber(2);
+    float bottom = (float)ves_tonumber(3);
+    float top    = (float)ves_tonumber(4);
+    float near   = (float)ves_tonumber(5);
+    float far    = (float)ves_tonumber(6);
 
-    float w = 0, h = 0;
-    if (left == 0 && right == 0 && bottom == 0 && top == 0) {
+    if (left == 0 && right == 0 && bottom == 0 && top == 0) 
+    {
         auto g = tt::Graphics::Instance();
-        w = g->GetWidth();
-        h = g->GetHeight();
-    } else {
-        w = right - left;
-        h = top - bottom;
+        const float hw = g->GetWidth() * 0.5f;
+        const float hh = g->GetHeight() * 0.5f;
+
+        left   = -hw;
+        right  =  hw;
+        bottom = -hh;
+        top    =  hh;
     }
-    const float hw = w * 0.5f;
-    const float hh = h * 0.5f;
-    *mt = sm::mat4::Orthographic(-hw, hw, -hh, hh, near, far);
+
+    *mt = sm::mat4::Orthographic(left, right, bottom, top, near, far);
 }
 
 void w_Matrix44_lookat()
