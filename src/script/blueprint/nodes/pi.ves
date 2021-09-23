@@ -10,6 +10,7 @@ class Pi is Node
 		super.init()
 
 		this.exports = [
+			Pin(this, "pi/6", VAR_TYPE_NUMBER),
 			Pin(this, "pi/4", VAR_TYPE_NUMBER),
 			Pin(this, "pi/2", VAR_TYPE_NUMBER),
 			Pin(this, "pi",   VAR_TYPE_NUMBER),
@@ -22,13 +23,15 @@ class Pi is Node
 	calc_value(idx)
 	{
 		if (idx == 0) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.25)
+			return Variant(VAR_TYPE_NUMBER, Math.pi() / 6)
 		} else if (idx == 1) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.5)			
+			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.25)
 		} else if (idx == 2) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi())
+			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.5)
 		} else if (idx == 3) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi() * 2)			
+			return Variant(VAR_TYPE_NUMBER, Math.pi())
+		} else if (idx == 4) {
+			return Variant(VAR_TYPE_NUMBER, Math.pi() * 2)
 		}
 
 		return nil
