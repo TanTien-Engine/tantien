@@ -1,5 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NODE, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
@@ -13,6 +14,10 @@ class Camera3d is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "eye",    VAR_TYPE_NUMBER3),
+			Pin(this, "center", VAR_TYPE_NUMBER3),
+		]
 		this.exports = [
 			Pin(this, "this", VAR_TYPE_NODE),		
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
@@ -40,7 +45,7 @@ class Camera3d is Node
 		}
 		else if (idx == 1)
 		{
-			return Variant(VAR_TYPE_MATRIX4, this.cam.calc_mat())
+			return Variant(VAR_TYPE_MATRIX4, this.calc_mat())
 		}
 		else if (idx == 2)
 		{
@@ -49,7 +54,7 @@ class Camera3d is Node
 		else if (idx == 3)
 		{
 			var mat = Matrix44.init()
-			mat.from_rotate_mat(this.cam.calc_mat())
+			mat.from_rotate_mat(this.calc_mat())
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 4)
@@ -63,6 +68,28 @@ class Camera3d is Node
 		else
 		{
 			return nil
+		}
+	}
+
+	calc_mat()
+	{
+		var v_eye = Blueprint.calc_input_value(this, 0)
+		if (v_eye)
+		{
+			var mat = Matrix44.init()
+
+			var center = Vector3(0, 0, 0)
+			var v_center = Blueprint.calc_input_value(this, 1)
+			if (v_center) {
+				center = v_center.value
+			}
+			mat.lookat(v_eye.value, center, Vector3(0, 1, 0))
+
+			return mat
+		}
+		else
+		{
+			return this.cam.calc_mat()
 		}
 	}
 

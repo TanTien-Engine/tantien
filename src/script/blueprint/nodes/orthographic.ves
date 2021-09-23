@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_MATRIX4
+import "blueprint.blueprint" for Blueprint
 import "maths" for Matrix44
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
@@ -11,24 +12,59 @@ class Orthographic is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "aspect", VAR_TYPE_NUMBER),
+			Pin(this, "scale",  VAR_TYPE_NUMBER),
+			Pin(this, "offset", VAR_TYPE_NUMBER2),
+		]
 		this.exports = [
 			Pin(this, "mat", VAR_TYPE_MATRIX4),
 		]
 
 		this.layout()
 
-		this.left   = 0
+		this.left   = -1
 		this.right  = 1
-		this.bottom = 0
+		this.bottom = -1
 		this.top    = 1
-		this.near   = 1
-		this.far    = -1
+		this.near   = -1
+		this.far    = 1
 	}
 
 	calc_value(idx) 
 	{
+		var l = this.left
+		var r = this.right
+		var b = this.bottom
+		var t = this.top
+		var n = this.near
+		var f = this.far
+
+		var v_aspect = Blueprint.calc_input_value(this, 0)
+		if (v_aspect)
+		{
+			var s = 1
+			var v_scale = Blueprint.calc_input_value(this, 1)
+			if (v_scale) {
+				s = v_scale.value
+			}
+
+			var dx = 0
+			var dy = 0
+			var v_offset = Blueprint.calc_input_value(this, 2)
+			if (v_offset) {
+				dx = v_offset.value.x
+				dy = v_offset.value.y
+			}
+
+			l = - v_aspect.value * s + dx - 0.5
+			r = v_aspect.value * s + dx - 0.5
+			b = -s + dy
+			t = s + dy
+		}
+
 		var mat = Matrix44.init()
-		mat.orthographic(this.left, this.right, this.bottom, this.top, this.near, this.far)
+		mat.orthographic(l, r, b, t, n, f)
 		return Variant(VAR_TYPE_MATRIX4, mat)
 	}
 
