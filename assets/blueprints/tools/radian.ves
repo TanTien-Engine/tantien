@@ -1,0 +1,37 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "degree"
+node0.var_type = "num"
+
+_editor.add_node(node0, -273, 399.5)
+
+var node1 = ::blueprint::nodes::output::Output()
+
+node1.var_name = "radian"
+node1.var_type = "num"
+
+_editor.add_node(node1, 157, 395.5)
+
+var node2 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node2, -130, 397.5)
+
+var node3 = ::blueprint::nodes::pi::Pi()
+
+_editor.add_node(node3, -272, 293.5)
+
+var node4 = ::blueprint::nodes::divide::Divide()
+
+_editor.add_node(node4, 12, 385.5)
+
+var node5 = ::blueprint::nodes::number::Number()
+
+node5.value = 180
+
+_editor.add_node(node5, -120, 313.5)
+
+Blueprint.connect(node0, "var", node2, "a")
+Blueprint.connect(node3, "pi", node2, "b")
+Blueprint.connect(node2, "v", node4, "a")
+Blueprint.connect(node5, "v", node4, "b")
+Blueprint.connect(node4, "v", node1, "var")
