@@ -20,6 +20,8 @@ class Brush is Shape3D
 		this.instanced_inited = false
 
 		this.order = 0
+
+		this.lock = false
 	}
 
 	clone()
@@ -50,6 +52,8 @@ class Brush is Shape3D
 		}
 
 		new.order = this.order
+
+		new.lock = this.lock
 
 		return new
 	}

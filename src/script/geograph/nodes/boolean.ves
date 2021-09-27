@@ -63,13 +63,19 @@ class Boolean is Node
 
 	get_polys(dst, src)
 	{
-		if (src.type == VAR_TYPE_ARRAY) {
+		if (src.type == VAR_TYPE_ARRAY) 
+		{
 			for (var v in src.value) {
 				this.get_polys(dst, v)
 			}
-		} else if (src.type == VAR_TYPE_GEO and src.value.shape is Brush) {
-			for (var p in src.value.shape.polys) {
-				dst.add(p)
+		} 
+		else if (src.type == VAR_TYPE_GEO and src.value.shape is Brush) 
+		{
+			var brush = src.value.shape
+			if (!brush.lock) {
+				for (var p in src.value.shape.polys) {
+					dst.add(p)
+				}
 			}
 		}
 	}
@@ -93,15 +99,22 @@ class Boolean is Node
 				}
 			}
 		}
-		else
+		else if (v_a.type == VAR_TYPE_GEO and v_a.value.shape is Brush)
 		{
-			var a = []
-			this.get_polys(a, v_a)
-
-			var d = this.boolean_impl(a, b, op)
-			if (d) {
-				dst.add(d)
-			}			
+			var brush = v_a.value.shape
+			if (brush.lock)
+			{
+				var geo = VarGeo()
+				geo.shape = brush.clone()
+				dst.add(Variant(VAR_TYPE_GEO, geo))
+			}
+			else
+			{
+				var d = this.boolean_impl(brush.polys, b, op)
+				if (d) {
+					dst.add(d)
+				}
+			}
 		}
 	}
 

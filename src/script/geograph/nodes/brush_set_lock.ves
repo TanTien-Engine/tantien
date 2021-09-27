@@ -1,0 +1,78 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush, BrushInstanced
+
+class BrushSetLock is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "lock", VAR_TYPE_BOOLEAN),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var lock = 0
+
+		var v_lock = Blueprint.calc_input_value(this, 1)
+		if (v_lock) {
+			lock = v_lock.value
+		}
+
+		var result = []
+		this.set_lock_impl(v_geo, lock, result)
+		if (result.count == 0) {
+			return nil
+		} else if (result.count == 1) {
+			return result[0]
+		} else {
+			return Variant(result)
+		}
+	}
+
+	set_lock_impl(v_geo, lock, result)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			var list = []
+			for (var v in v_geo.value) {
+				this.set_lock_impl(v, lock, list)
+			}
+			result.add(Variant(list))
+		}
+		else if (v_geo.type == VAR_TYPE_GEO) 
+		{
+			var new_brush = v_geo.value.clone()
+			if (new_brush.shape is Brush) {
+				new_brush.shape.lock = lock
+			} else if (new_brush.shape is BrushInstanced) {
+				new_brush.shape.brush.lock = lock
+			}
+			result.add(Variant(VAR_TYPE_GEO, new_brush))
+		}
+	}
+}
