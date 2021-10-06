@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
 import "geograph.brush" for Brush, BrushInstanced
@@ -36,19 +36,68 @@ class BrushGetSize is Node
 			return nil
 		}
 
-		var brush = nil
-		if (v_geo.value.shape is Brush) {
-			brush = v_geo.value.shape
-		} else if (v_geo.value.shape is BrushInstanced) {
-			brush = v_geo.value.shape.brush
-		}
+		var aabb = []
+		this.calc_aabb(v_geo, aabb)
 
-		if (brush) {
-			import "model" for Model
-			var sz = Model.calc_brush_size(brush.polys)
-			return Variant(Vector3(sz[0], sz[1], sz[2]))
+		if (aabb.isEmpty) {
+			return nil
+		} else {
+			var l = aabb[0]
+			var r = aabb[1]
+			return Variant(Vector3(r.x - l.x, r.y - l.y, r.z - l.z))
 		}
+	}
 
-		return nil
+	calc_aabb(v_geo, aabb)
+	{
+		if (v_geo.type == VAR_TYPE_ARRAY)
+		{
+			for (var v in v_geo.value) {
+				this.calc_aabb(v, aabb)
+			}
+		}
+		else
+		{
+			var brush = nil
+			if (v_geo.value.shape is Brush) {
+				brush = v_geo.value.shape
+			} else if (v_geo.value.shape is BrushInstanced) {
+				brush = v_geo.value.shape.brush
+			}
+
+			if (brush) 
+			{
+				import "model" for Model
+				var b = Model.calc_brush_aabb(brush.polys)
+
+				if (aabb.isEmpty) 
+				{
+					aabb.add(Vector3(b[0], b[1], b[2]))
+					aabb.add(Vector3(b[3], b[4], b[5]))
+				} 
+				else 
+				{
+					if (b[0] < aabb[0].x) {
+						aabb[0].x = b[0]
+					}
+					if (b[1] < aabb[0].y) {
+						aabb[0].y = b[1]
+					}
+					if (b[2] < aabb[0].z) {
+						aabb[0].z = b[2]
+					}
+
+					if (b[3] > aabb[1].x) {
+						aabb[1].x = b[3]
+					}
+					if (b[4] > aabb[1].y) {
+						aabb[1].y = b[4]
+					}
+					if (b[5] > aabb[1].z) {
+						aabb[1].z = b[5]
+					}
+				}
+			}
+		}
 	}
 }

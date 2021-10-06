@@ -7,7 +7,7 @@ foreign class Model
 
 	foreign static create_from_polytope(poly)
 
-	foreign static calc_brush_size(poly)
+	foreign static calc_brush_aabb(poly)
 }
 
 foreign class glTF

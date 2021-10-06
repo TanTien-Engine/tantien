@@ -79,7 +79,7 @@ void w_Model_create_from_polytope()
     proxy->obj = model;
 }
 
-void w_Model_calc_brush_size()
+void w_Model_calc_brush_aabb()
 {
     sm::cube aabb;
 
@@ -91,22 +91,24 @@ void w_Model_calc_brush_size()
         }
     }
 
-    auto sz = aabb.Size();
+    auto& min = aabb.min;
+    auto& max = aabb.max;
 
     ves_pop(ves_argnum());
-    ves_newlist(3);
+    ves_newlist(6);
 
-    ves_pushnumber(sz.x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(sz.y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(sz.z);
-    ves_seti(-2, 2);
-    ves_pop(1);
+    for (int i = 0; i < 3; ++i) 
+    {
+        ves_pushnumber(min[i]);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+    for (int i = 0; i < 3; ++i)
+    {
+        ves_pushnumber(max[i]);
+        ves_seti(-2, i + 3);
+        ves_pop(1);
+    }
 }
 
 void w_glTF_allocate()
@@ -541,7 +543,7 @@ namespace tt
 VesselForeignMethodFn ModelBindMethod(const char* signature)
 {
     if (strcmp(signature, "static Model.create_from_polytope(_)") == 0) return w_Model_create_from_polytope;
-    if (strcmp(signature, "static Model.calc_brush_size(_)") == 0) return w_Model_calc_brush_size;
+    if (strcmp(signature, "static Model.calc_brush_aabb(_)") == 0) return w_Model_calc_brush_aabb;
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
     if (strcmp(signature, "glTF.set_instanced_mats(_)") == 0) return w_glTF_set_instanced_mats;
