@@ -201,6 +201,25 @@ class Blueprint
 		return nil
 	}
 
+	static get_output_pin(curr_node, output_slot)
+	{
+		var pin = this.query_pin(curr_node.exports, output_slot)
+		if (!pin or pin.conns.isEmpty) {
+			return nil
+		} else {
+			return pin.conns.front().to
+		}
+	}
+
+	static get_output_node(curr_node, output_slot)
+	{
+		var pin = this.get_output_pin(curr_node, output_slot)
+		if (pin) {
+			return pin.node
+		}
+		return nil
+	}
+
 	static calc_input_value(curr_node, input_slot)
 	{
 		var pin = this.query_pin(curr_node.imports, input_slot)
