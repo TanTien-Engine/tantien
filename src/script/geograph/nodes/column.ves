@@ -17,6 +17,7 @@ class Column is Node
 
 		this.imports = [
 			Pin(this, "base",   VAR_TYPE_GEO),
+			Pin(this, "top",    VAR_TYPE_GEO),			
 			Pin(this, "height", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
@@ -42,6 +43,13 @@ class Column is Node
 		var v_base = Blueprint.calc_input_value(this, 0)
 		if (!v_base or !v_base.value) {
 			return nil
+		}
+
+		var v_top = Blueprint.calc_input_value(this, 1)
+		if (v_top and v_top.value) {
+			if (v_base.value.shape is Rect and v_top.value.shape is Rect) {
+				return this.build_from_2_rect(v_base.value.shape, v_top.value.shape)
+			}
 		}
 
 		var lead = []
@@ -97,13 +105,7 @@ class Column is Node
 			return nil
 		}
 
-		var height = 0
-		var v_height = Blueprint.calc_input_value(this, 1)
-		if (v_height) {
-			height = v_height.value
-		} else {
-			height = this.query_param("height").value
-		}
+		var height = this.calc_height()
 
 		var bus = nil
 		var p_bus = this.query_param("generatrix").value
@@ -159,6 +161,11 @@ class Column is Node
 			}
 		}
 
+		return this.build_poly(points, lead_num, bus_num)
+	}
+
+	build_poly(points, lead_num, bus_num)
+	{
 		var faces = []
 
 		// bottom
@@ -202,5 +209,46 @@ class Column is Node
 		var geo = VarGeo()
 		geo.shape = Brush([ poly ])
 		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	build_from_2_rect(bottom, top)
+	{
+		var b_rect = bottom.get()
+		var b_lead = [
+			Vector2(b_rect[0], b_rect[1]),
+			Vector2(b_rect[0] + b_rect[2], b_rect[1]),
+			Vector2(b_rect[0] + b_rect[2], b_rect[1] + b_rect[3]),
+			Vector2(b_rect[0], b_rect[1] + b_rect[3]),	
+		]
+
+		var t_rect = top.get()
+		var t_lead = [
+			Vector2(t_rect[0], t_rect[1]),
+			Vector2(t_rect[0] + t_rect[2], t_rect[1]),
+			Vector2(t_rect[0] + t_rect[2], t_rect[1] + t_rect[3]),
+			Vector2(t_rect[0], t_rect[1] + t_rect[3]),	
+		]
+
+		var points = []
+
+		var h = this.calc_height()
+		for (var i = 0; i < 4; i = i + 1) {
+			points.add(PolyPoint.init([ b_lead[i].x, 0, b_lead[i].y ]))
+			points.add(PolyPoint.init([ t_lead[i].x, h, t_lead[i].y ]))
+		}
+
+		return this.build_poly(points, 4, 2)
+	}
+
+	calc_height()
+	{
+		var height = 0
+		var v_height = Blueprint.calc_input_value(this, 2)
+		if (v_height) {
+			height = v_height.value
+		} else {
+			height = this.query_param("height").value
+		}
+		return height
 	}
 }
