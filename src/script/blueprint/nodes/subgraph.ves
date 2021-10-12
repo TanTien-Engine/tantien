@@ -565,12 +565,15 @@ class Subgraph is Node
 			this.op_node.on_mouse_pressed(x, y, btn)
 		}
 
-		if (btn == MOUSE_LEFT) {
-			BLACKBOARD.mouse_pos.set(x, y)
-			this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
-		} else if (btn == MOUSE_RIGHT) {
-			BLACKBOARD.mouse_pos.set(x, y)
-			this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
+		if (this.trigger_list)
+		{
+			if (btn == MOUSE_LEFT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_LEFT_DOWN)
+			} else if (btn == MOUSE_RIGHT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_RIGHT_DOWN)
+			}
 		}
 	}
 
@@ -580,13 +583,16 @@ class Subgraph is Node
 			this.op_node.on_mouse_released(x, y, btn)
 		}
 
-		if (btn == MOUSE_LEFT) {
-			BLACKBOARD.mouse_pos.set(x, y)
-			this.trigger_list.run(EVENT_MOUSE_LEFT_UP)
-		} else if (btn == MOUSE_RIGHT) {
-			BLACKBOARD.mouse_pos.set(x, y)
-			this.trigger_list.run(EVENT_MOUSE_RIGHT_UP)
-		}		
+		if (this.trigger_list)
+		{
+			if (btn == MOUSE_LEFT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_LEFT_UP)
+			} else if (btn == MOUSE_RIGHT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_RIGHT_UP)
+			}
+		}
 	}
 
 	on_mouse_moved(x, y, btn) 
@@ -602,10 +608,13 @@ class Subgraph is Node
 			this.op_node.on_mouse_dragged(x, y, btn)
 		}
 
-		if (btn == MOUSE_LEFT) {
-			BLACKBOARD.mouse_pos.set(x, y)
-			this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
-		}		
+		if (this.trigger_list) 
+		{
+			if (btn == MOUSE_LEFT) {
+				BLACKBOARD.mouse_pos.set(x, y)
+				this.trigger_list.run(EVENT_MOUSE_LEFT_DRAG)
+			}
+		}
 	}
 
 	on_mouse_scrolled(x, y, dx, dy) {
