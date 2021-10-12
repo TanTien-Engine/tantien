@@ -95,6 +95,26 @@ class Vector3
 		 return this.x * v.x + this.y * v.y + this.z * v.z
 	}
 
+	add(v)
+	{
+		return Vector3(this.x + v.x, this.y + v.y, this.z + v.z)
+	}
+
+	sub(v)
+	{
+		return Vector3(this.x - v.x, this.y - v.y, this.z - v.z)
+	}
+
+	mul(v)
+	{
+		return Vector3(this.x * v, this.y * v, this.z * v)
+	}
+
+	div(v)
+	{
+		return Vector3(this.x / v, this.y / v, this.z / v)
+	}
+
 	from_list(list) {
 		this.x = list[0]
 		this.y = list[1]
