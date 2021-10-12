@@ -25,29 +25,21 @@ class Proxy is Node
 
 	to_string(name) 
 	{
-		var cls = ""
-		if (this.real_node) {
-			cls = this.real_node.get_class().name
+		if (!this.real_node) {
+			return ""
 		}
+
+		var cls = this.real_node.get_class()
+		var scope = cls.module.replace(".", "::")
 		return "
 %(name).real_name = \"%(this.real_name)\"
-%(name).init_real_node(_editor.popup_nodes, \"%(cls)\")
+%(name).init_real_node(::%(scope)::%(cls.name)())
 "
 	}
 
-	init_real_node(popup_nodes, cls_name)
+	init_real_node(real_node)
 	{
-		var cls = nil
-		for (var n in popup_nodes) {
-			if (n.name == cls_name) {
-				cls = n
-			}
-		}
-		if (!cls) {
-			return
-		}
-
-		this.real_node = cls()
+		this.real_node = real_node
 		for (var i in this.real_node.imports) {
 			this.imports.add(Pin(this, i.name, i.type))
 		}
@@ -55,7 +47,7 @@ class Proxy is Node
 			this.exports.add(Pin(this, o.name, o.type))
 		}
 		this.layout()
-	}
+	}		
 
 	on_key_pressed(key) 
 	{
@@ -91,4 +83,9 @@ class Proxy is Node
 			this.real_node.on_mouse_scrolled(x, y, dx, dy)
 		}
 	}
+
+	get_title()
+	{
+		return this.real_name
+	}	
 }
