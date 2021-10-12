@@ -878,16 +878,16 @@ import \"editor\" for _editor
 				{
 					if (!t_conn.from.node.dummy)
 					{
-						var f_pin
-						var f_name
+						var f_name = nil
 						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
 							var f_bp = scene.nodes[f_idx].components["bp"]
 							if (f_bp == t_conn.from.node) {
 								f_name = "node%(f_idx)"
 							}
 						}
-						//file.write("Blueprint.connect(%(f_name).imports[%(t_conn.from.slof_idx)], %(t_name).exports[%(t_conn.to.slof_idx)])\n")
-						file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")
+						if (f_name) {
+							file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")						
+						}
 					}
 				}
 			}			
