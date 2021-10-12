@@ -1,0 +1,24 @@
+import "blueprint.node" for Node
+import "blueprint.variant" for VAR_TYPE_ANY
+import "blueprint.pin" for Pin
+
+class VariantProxy is Node
+{
+	init(variant)
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_ANY)
+		]		
+
+		this.layout()
+
+		this.variant = variant
+	}
+
+	calc_value(idx)
+	{
+		return this.variant
+	}
+}
