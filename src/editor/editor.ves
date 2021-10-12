@@ -30,6 +30,7 @@ import "rendergraph.drawlist" for Drawlist
 import "rendergraph.rendergraph" for Rendergraph
 import "editorgraph.trigger_list" for TriggerList
 import "blueprint.blackboard" for BLACKBOARD
+import "blueprint.commentary_helper" for CommentaryHelper
 import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_MOUSE_MOVE, EVENT_KEY_PRESSED, EVENT_KEY_RELEASED, EVENT_TICKER, EVENT_BLUEPRINT_CHANGED, EVENT_LEAVE_RUNTIME_MODE, EVENT_ENTER_RUNTIME_MODE
 
 class Editor
@@ -760,7 +761,7 @@ import \"editor\" for _editor
 
 		Basic.loadstring("temp", source)
 
-		this.nodes_op.comm_op.rebuild()
+		CommentaryHelper.rebuild(this.scene_stack.top())
 
 		this.scene_stack.bp_dirty = true
 
@@ -799,7 +800,7 @@ import \"editor\" for _editor
 			this.add_node(item[0], item[1], item[2])
 		}
 
-		this.nodes_op.comm_op.rebuild()
+		CommentaryHelper.rebuild(this.scene_stack.top())
 
 		this.scene_stack.bp_dirty = true
 	}

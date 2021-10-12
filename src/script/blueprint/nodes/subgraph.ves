@@ -395,6 +395,29 @@ class Subgraph is Node
 		if (old_dir != "") {
 			Filesystem.set_asset_base_dir(old_dir)
 		}
+
+		this.rebuild_sub()
+	}
+
+	rebuild_sub()
+	{
+		import "blueprint.nodes.commentary" for Commentary
+
+		for (var item in this.all_items)
+		{
+			var cnode = item[0]
+			if (cnode is Commentary)
+			{
+				var r = cnode.get_comment_region(Vector2(item[1], item[2]))
+
+				cnode.children.clear()
+				for (var citem in this.all_items) {
+					if (r.is_contain_pos(Vector2(citem[1], citem[2]))) {
+						cnode.children.add(citem[0])
+					}
+				}
+			}
+		}
 	}
 
 	add_node(node, x, y)

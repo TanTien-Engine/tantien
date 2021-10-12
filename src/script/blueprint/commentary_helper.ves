@@ -1,0 +1,26 @@
+import "blueprint.nodes.commentary" for Commentary
+import "maths.vector" for Vector2
+
+class CommentaryHelper
+{
+	static rebuild(scene)
+	{
+		for (var node in scene.nodes)
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Commentary) 
+			{
+				bp_node.children.clear()
+
+				var r = bp_node.get_comment_region(node.components["transform"].position)
+				for (var node2 in scene.nodes)
+				{
+					var cr = node2.components["bounding"].get_region_no_rot()
+					if (node2 != node and r.is_contain_rect(cr)) {
+						bp_node.children.add(node2.components["bp"])
+					}
+				}
+			}
+		}
+	}
+}

@@ -14,55 +14,6 @@ class CommentaryOP
 		scene_stack.add_msg_handler(MSG_SELECTION_MOVING, this.on_selection_moving)		
 	}
 
-	rebuild()
-	{
-		var scene = this.scene_stack.top()
-		for (var node in scene.nodes)
-		{
-			var bp_node = node.components["bp"]
-			if (bp_node is Commentary) 
-			{
-				bp_node.children.clear()
-
-				var r = bp_node.get_comment_region(node.components["transform"].position)
-				for (var node2 in scene.nodes)
-				{
-					var cr = node2.components["bounding"].get_region_no_rot()
-					if (node2 != node and r.is_contain_rect(cr)) {
-						bp_node.children.add(node2.components["bp"])
-					}
-				}
-			}
-			else if (bp_node is Subgraph)
-			{
-				this.rebuild_sub(bp_node)
-			}
-		}
-	}
-
-	rebuild_sub(node)
-	{
-		for (var item in node.all_items)
-		{
-			var cnode = item[0]
-			if (cnode is Commentary)
-			{
-				var r = cnode.get_comment_region(Vector2(item[1], item[2]))
-
-				cnode.children.clear()
-				for (var citem in node.all_items) {
-					if (r.is_contain_pos(Vector2(citem[1], citem[2]))) {
-						cnode.children.add(citem[0])
-					}
-				}
-			}
-			else if (cnode is Subgraph)
-			{
-				this.rebuild_sub(cnode)
-			}
-		}
-	}
-
 	on_selection_moved(scene, args)
 	{
 		for (var node in scene.selection)
