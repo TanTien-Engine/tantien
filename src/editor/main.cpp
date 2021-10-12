@@ -43,6 +43,8 @@ namespace
 
 bool error = false;
 
+std::vector<std::string> search_paths;
+
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
     error = true;
     std::cout << "[OpenGL Error](" << type << ") " << message << std::endl;
@@ -138,6 +140,14 @@ VesselLoadModuleResult read_module(const char* module)
         if (!source) {
             source = file_search(module, "src/");
         }
+        if (!source) {
+            for (auto& path : search_paths) {
+                source = file_search(module, path.c_str());
+                if (source) {
+                    break;
+                }
+            }
+        }
     }
 
     VesselLoadModuleResult result;
@@ -174,6 +184,16 @@ VesselExpandModulesResult expand_modules(const char* path)
     std::string absolute;
     if (std::filesystem::is_directory("src/script/" + relative)) {
         absolute = "src/script/" + relative;
+    }
+
+    if (absolute.empty()) 
+    {
+        for (auto& dir : search_paths) {
+            if (std::filesystem::is_directory(dir + relative)) {
+                absolute = dir + relative;
+                break;
+            }
+        }
     }
 
     if (absolute.empty()) {
@@ -645,11 +665,32 @@ int main(int argc, char* argv[])
     cfg.write_fn = write;
     ves_set_config(&cfg);
 
-    char code[255];
-    std::string cls_name = argv[1];
-    cls_name[0] = std::toupper(cls_name[0]);
-    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
-    ves_interpret("editor", code);
+    std::string editor_path = argv[1];
+    if (std::filesystem::is_regular_file(editor_path))
+    {
+        auto filepath = std::filesystem::path(editor_path);
+
+        auto dir = filepath.parent_path();
+        search_paths.push_back(dir.string() + "/");
+
+        auto file = filepath.stem().string();
+        auto cls_name = file;
+        cls_name[0] = std::toupper(cls_name[0]);
+
+        char code[255];
+        sprintf(code, "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
+
+        ves_interpret("editor", code);
+    }
+    else
+    {
+        auto cls_name = editor_path;
+        cls_name[0] = std::toupper(cls_name[0]);
+
+        char code[255];
+        sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
+        ves_interpret("editor", code);
+    }
 
     ves_getglobal("_editor");
     ves_pushstring("load()");
