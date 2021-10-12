@@ -1,0 +1,37 @@
+var node0 = ::blueprint::nodes::input::Input()
+
+node0.var_name = "a"
+node0.var_type = "num"
+
+_editor.add_node(node0, -345.71414055238, 87.35693847656)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "b"
+node1.var_type = "num"
+
+_editor.add_node(node1, -345.03305885241, 17.602244953502)
+
+var node2 = ::blueprint::nodes::output::Output()
+
+node2.var_name = "val"
+node2.var_type = "num"
+
+_editor.add_node(node2, 119.44439654847, 142.89219250454)
+
+var node3 = ::blueprint::nodes::compare::Compare()
+
+node3.cmp = "greater"
+
+_editor.add_node(node3, -158.18579297036, 120.97118383489)
+
+var node4 = ::blueprint::nodes::branch_f::BranchF()
+
+_editor.add_node(node4, -13.221517844281, 122.1278045871)
+
+Blueprint.connect(node0, "var", node3, "a")
+Blueprint.connect(node1, "var", node3, "b")
+Blueprint.connect(node3, "out", node4, "cond")
+Blueprint.connect(node0, "var", node4, "true")
+Blueprint.connect(node1, "var", node4, "false")
+Blueprint.connect(node4, "result", node2, "var")
