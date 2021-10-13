@@ -161,7 +161,14 @@ class Node
 	on_mouse_dragged(x, y, btn) {}
 	on_mouse_scrolled(x, y, dx, dy) {}
 
-	on_pin_dirty(pin) {}
+	on_pin_dirty(pin) 
+	{
+		if (pin.is_input) {
+			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin)
+			}
+		}
+	}
 	on_node_dirty() {}
 
 	calc_panel_height() {

@@ -27,15 +27,6 @@ class BrushEdit is Node
 		this.layout()
 	}
 
-	on_pin_dirty(pin)
-	{
-		if (pin.is_input) {
-			for (var pin in this.exports) {
-				Blueprint.send_pin_dirty(pin)
-			}
-		}
-	}
-
 	calc_value(idx)
 	{
 		var v_parts = Blueprint.calc_input_value(this, 0)

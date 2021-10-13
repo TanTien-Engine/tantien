@@ -27,13 +27,6 @@ class Polygon3d is Node
 		this.layout()
 	}
 
-	on_pin_dirty(pin)
-	{
-		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
-		}	
-	}
-
 	calc_value(idx)
 	{
 		var geo = VarGeo()

@@ -26,13 +26,6 @@ class ForEachF is Node
 		this.curr_item = nil
 	}
 
-	on_pin_dirty(pin)
-	{
-		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
-		}
-	}
-
 	calc_value(idx) 
 	{
 		if (idx == 0) {
@@ -62,6 +55,7 @@ class ForEachF is Node
 				var v_eval = Blueprint.calc_input_value(this, 2)
 				result.add(v_eval)
 			}
+
 			this.curr_item = nil
 
 			return Variant(result)
