@@ -28,12 +28,15 @@ class Subgraph is Node
 	{
 		super.init()
 
-		this.imports = [
-			Pin(this, "prev", VAR_TYPE_PORT)
-		]
-		this.exports = [
-			Pin(this, "next", VAR_TYPE_PORT)
-		]
+		if (BLACKBOARD.subgraph_default_ports)
+		{
+			this.imports = [
+				Pin(this, "prev", VAR_TYPE_PORT)
+			]
+			this.exports = [
+				Pin(this, "next", VAR_TYPE_PORT)
+			]
+		}
 
 		this.layout()
 
@@ -129,7 +132,11 @@ class Subgraph is Node
 		}
 
 		// setup input vars
-		for (var i in 1..this.imports.count) 
+		var i_begin = 0
+		if (BLACKBOARD.subgraph_default_ports) {
+			i_begin = 1
+		}
+		for (var i in i_begin..this.imports.count) 
 		{
 			var name = this.imports[i].name
 			for (var node in this.proxy_nodes) {
