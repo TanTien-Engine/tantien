@@ -13,6 +13,8 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.execute_list" for ExecuteList
 import "blueprint.blackboard" for BLACKBOARD
 import "rendergraph.nodes.draw" for Draw
+import "rendergraph.nodes.compute" for Compute
+import "geograph.nodes.draw_geometry" for DrawGeometry
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3, Vector4
 import "shader" for ShaderGen
@@ -106,7 +108,7 @@ class Subgraph is Node
 				if (Subgraph.has_draw_node(c)) {
 					return true
 				}
-			} else if (c is Draw) {
+			} else if (c is Draw or c is Compute or c is DrawGeometry) {
 				return true
 			}
 		}
