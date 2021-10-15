@@ -96,6 +96,14 @@ class Variant
 			this.type = VAR_TYPE_NUMBER4
 			this.value = Vector4(value.x(), value.y(), value.z(), value.w())
 		}	
+		else if (value is List)
+		{
+			this.type = VAR_TYPE_ARRAY
+			this.value = []
+			for (var i in value) {
+				this.value.add(Variant(i))
+			}
+		}
 		else
 		{
 			this.type = get_value_type(value)
