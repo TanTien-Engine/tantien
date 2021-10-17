@@ -32,7 +32,8 @@ class BrushMerge is Node
 		var polys   = []
 		var mats    = []
 		var offsets = []
-		this.add_to_list(instanced, polys, mats, offsets, v_list)
+		var colors  = []
+		this.add_to_list(instanced, polys, mats, offsets, colors, v_list)
 
 		var brush = Brush(polys)
 
@@ -44,6 +45,11 @@ class BrushMerge is Node
 		brush.offsets = List.filled(offsets.count, 0)
 		for (var i = 0; i < offsets.count; i = i + 1) {
 			brush.offsets[i] = offsets[i]
+		}
+
+		brush.colors = List.filled(colors.count, 0)
+		for (var i = 0; i < colors.count; i = i + 1) {
+			brush.colors[i] = colors[i]
 		}
 
 		var ret = []		
@@ -66,12 +72,12 @@ class BrushMerge is Node
 		return nil		
 	}
 
-	add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, src)
+	add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, dst_color, src)
 	{
 		if (src.type == VAR_TYPE_ARRAY) 
 		{
 			for (var v in src.value) {
-				this.add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, v)
+				this.add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, dst_color, v)
 			}
 		} 
 		else if (src.type == VAR_TYPE_GEO) 
@@ -106,6 +112,20 @@ class BrushMerge is Node
 				{
 					for (var i in brush.offsets) {
 						dst_offset.add(i)
+					}
+				}
+
+				if (!brush.colors) 
+				{
+					var rgb = brush.color.x * 256 * 256 + brush.color.y * 256 + brush.color.z
+					for (var i = 0; i < brush.polys.count; i = i + 1) {
+						dst_color.add(rgb)
+					}
+				}
+				else
+				{
+					for (var i in brush.colors) {
+						dst_color.add(i)
 					}
 				}
 			}

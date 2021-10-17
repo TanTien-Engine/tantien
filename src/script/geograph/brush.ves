@@ -1,4 +1,5 @@
 import "geometry" for Shape3D
+import "maths.vector" for Vector3
 
 class Brush is Shape3D
 {
@@ -16,6 +17,9 @@ class Brush is Shape3D
 
 		this.materials = nil
 		this.offsets   = nil
+		this.colors    = nil
+
+		this.color = Vector3(255, 255, 255)
 
 		this.instanced_inited = false
 
@@ -50,6 +54,17 @@ class Brush is Shape3D
 				new.offsets[i] = this.offsets[i]
 			}
 		}
+
+		// clone colors
+		if (this.colors) 
+		{
+			new.colors = List.filled(this.colors.count, 0)
+			for (var i = 0; i < this.colors.count; i = i + 1) {
+				new.colors[i] = this.colors[i]
+			}
+		}
+
+		new.color = this.color.clone()
 
 		new.order = this.order
 
@@ -96,7 +111,7 @@ class Brush is Shape3D
 		if (this.model_dirty) 
 		{
 			import "model" for glTF
-			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets)
+			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets, this.colors)
 
 			this.model_dirty = false
 		}
