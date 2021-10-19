@@ -214,10 +214,10 @@ foreign class Polytope
 
 	foreign set_topo_dirty()
 
+	foreign is_contain(pos)
+
 	// a, b is list
 	foreign static boolean(operator, a, b)
-
-	
 }
 
 foreign class Sphere

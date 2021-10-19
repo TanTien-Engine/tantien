@@ -942,6 +942,28 @@ void w_Polytope_set_topo_dirty()
     poly->SetTopoDirty();
 }
 
+void w_Polytope_is_contain()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto pos = tt::list_to_vec3(1);
+
+    bool is_contain = true;
+
+    auto& faces = poly->Faces();
+    for (auto& f : faces)
+    {
+        sm::Plane plane;
+        if (poly->CalcFacePlane(*f, plane)) {
+            if (plane.normal.Dot(pos) + plane.dist < SM_LARGE_EPSILON) {
+                is_contain = false;
+                break;
+            }
+        }
+    }
+
+    ves_set_boolean(0, is_contain);
+}
+
 static std::vector<pm3::PolytopePtr> 
 intersect_poly_list(const std::vector<pm3::PolytopePtr>& a, const std::vector<pm3::PolytopePtr>& b)
 {
@@ -1243,6 +1265,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.get_points()") == 0) return w_Polytope_get_points;
     if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
+    if (strcmp(signature, "Polytope.is_contain(_)") == 0) return w_Polytope_is_contain;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;

@@ -73,6 +73,16 @@ class Brush is Shape3D
 		return new
 	}
 
+	is_contain(x, y, z)
+	{
+		for (var p in this.polys) {
+			if (p.is_contain([ x, y, z ])) {
+				return true
+			}
+		}
+		return false
+	}
+
 	transform(mat)
 	{
 		for (var poly in this.polys) {

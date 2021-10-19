@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER2, VAR_TYPE_RECT
+import "blueprint.variant" for Variant, VAR_TYPE_BOOLEAN, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_RECT
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO
 import "geograph.config" for POINT_RADIUS
@@ -14,7 +14,7 @@ class IsContain is Node
 
 		this.imports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_NUMBER2, VAR_TYPE_RECT ]),
-			Pin(this, "pos", VAR_TYPE_NUMBER2),
+			Pin(this, "pos", [ VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3 ]),
 		]
 		this.exports = [
 			Pin(this, "out", VAR_TYPE_BOOLEAN),
@@ -39,8 +39,13 @@ class IsContain is Node
 		{
 			var shape = v_geo.value.shape
 			var pos = v_pos.value
-			var b = shape.is_contain(pos.x, pos.y)
-			return Variant(b)
+			var c = false
+			if (v_pos.type == VAR_TYPE_NUMBER2) {
+				c = shape.is_contain(pos.x, pos.y)
+			} else if (v_pos.type == VAR_TYPE_NUMBER3) {
+				c = shape.is_contain(pos.x, pos.y, pos.z)
+			}
+			return Variant(c)
 		}
 		else if (v_geo.type == VAR_TYPE_NUMBER2)
 		{
