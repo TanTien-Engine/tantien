@@ -954,7 +954,7 @@ void w_Polytope_is_contain()
     {
         sm::Plane plane;
         if (poly->CalcFacePlane(*f, plane)) {
-            if (plane.normal.Dot(pos) + plane.dist < SM_LARGE_EPSILON) {
+            if (plane.normal.Dot(pos) + plane.dist < -SM_LARGE_EPSILON) {
                 is_contain = false;
                 break;
             }
