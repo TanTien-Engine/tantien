@@ -538,8 +538,15 @@ void w_Maths_get_line_intersect_line()
     auto l0 = tt::list_to_vec2_array(1);
     auto l1 = tt::list_to_vec2_array(2);
 
+    bool is_seg = ves_toboolean(3);
+
     sm::vec2 cross;
-    bool succ = sm::intersect_segment_segment(l0[0], l0[1], l1[0], l1[1], &cross);
+    bool succ = false;
+    if (is_seg) {
+        succ = sm::intersect_segment_segment(l0[0], l0[1], l1[0], l1[1], &cross);
+    } else {
+        succ = sm::intersect_line_line(l0[0], l0[1], l1[0], l1[1], &cross);
+    }
     if (succ) 
     {
         ves_pop(ves_argnum());
@@ -643,7 +650,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Plane.transform(_)") == 0) return w_Plane_transform;
 
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
-    if (strcmp(signature, "static Maths.get_line_intersect_line(_,_)") == 0) return w_Maths_get_line_intersect_line;
+    if (strcmp(signature, "static Maths.get_line_intersect_line(_,_,_)") == 0) return w_Maths_get_line_intersect_line;
     if (strcmp(signature, "static Maths.calc_rot_mat(_,_)") == 0) return w_Maths_calc_rot_mat;
     if (strcmp(signature, "static Maths.calc_angle(_,_,_)") == 0) return w_Maths_calc_angle;
 

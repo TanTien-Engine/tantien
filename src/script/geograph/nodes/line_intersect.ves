@@ -39,7 +39,7 @@ class LineIntersect is Node
 			return nil
 		}
 
-		var intersect = Maths.get_line_intersect_line(line_a.get(), line_b.get())
+		var intersect = Maths.get_line_intersect_line(line_a.get(), line_b.get(), true)
 
 		if (intersect) {
 			return Variant(Vector2(intersect[0], intersect[1]))
