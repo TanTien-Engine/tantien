@@ -24,6 +24,11 @@ class Vector2
 		this.y = y	
 	}
 
+	add(v)
+	{
+		return Vector2(this.x + v.x, this.y + v.y)
+	}
+
 	rotate(rad)
 	{
 		var s = Math.sin(rad)
@@ -32,6 +37,13 @@ class Vector2
 		var y = this.x * s + this.y * c
 		this.x = x
 		this.y = y
+	}
+
+	rotated(rad)
+	{
+		var ret = this.clone()
+		ret.rotate(rad)
+		return ret
 	}
 
 	from_list(list) {
