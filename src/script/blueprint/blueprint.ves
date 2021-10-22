@@ -239,8 +239,23 @@ class Blueprint
 
 	static calc_output_value(node, idx)
 	{
-		if (node.has_method("calc_value(_)")) {
-			node.calc_times = node.calc_times + 1
+		if (!node.has_method("calc_value(_)")) {
+			return nil
+		}
+
+		node.calc_times = node.calc_times + 1
+
+		if (idx is String) 
+		{
+			for (var i in 0 .. node.exports.count) {
+				if (node.exports[i].name == idx) {
+					return node.calc_value(i)
+				}
+			}
+			return nil
+		}
+		else
+		{
 			return node.calc_value(idx)
 		}
 	}
