@@ -29,15 +29,15 @@ class Subtract is Node
 		var b = Blueprint.calc_input_value(this, 1)
 		if (!a and !b) {
 			return nil
-		} else if (!a) {
-			return b
-		} else if (!b) {
-			return a
 		}
 
 		var ret = [0, 0, 0, 0]
-		Add.add_to(a, ret)
-		Subtract.sub_from(b, ret)
+		if (a) {
+			Add.add_to(a, ret)
+		}
+		if (b) {
+			Subtract.sub_from(b, ret)
+		}
 		if (a.type == VAR_TYPE_NUMBER4 or b.type == VAR_TYPE_NUMBER4) {
 			return Variant(VAR_TYPE_NUMBER4, Vector4(ret[0], ret[1], ret[2], ret[3]))
 		} else if (a.type == VAR_TYPE_NUMBER3 or b.type == VAR_TYPE_NUMBER3) {
