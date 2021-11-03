@@ -66,10 +66,8 @@ class Boolean is Node
 		else if (src.type == VAR_TYPE_GEO and src.value.shape is Brush) 
 		{
 			var brush = src.value.shape
-			if (!brush.lock) {
-				for (var p in src.value.shape.polys) {
-					dst.add(p)
-				}
+			for (var p in src.value.shape.polys) {
+				dst.add(p)
 			}
 		}
 	}
