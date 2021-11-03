@@ -22,6 +22,10 @@ class NOT is Node
 	calc_value(idx)
 	{
 		var v_in = Blueprint.calc_input_value(this, 0)
-		return Variant(VAR_TYPE_BOOLEAN, v_in and !v_in.value)
+		if (!v_in) {
+			return Variant(VAR_TYPE_BOOLEAN, true)
+		} else {
+			return Variant(VAR_TYPE_BOOLEAN, !v_in.value)
+		}
 	}
 }
