@@ -72,6 +72,10 @@ class Scene
 
 	selection_add(node)
 	{		
+		if (!node) {
+			return
+		}
+
 		this.selection.add(node)
 
 		var bp_node = node.components["bp"]

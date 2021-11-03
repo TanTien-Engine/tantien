@@ -351,14 +351,22 @@ class Subgraph is Node
 			return false
 		}
 
-		var old_func = editor.add_node
-		editor.add_node = this.add_node
+		var old_func = nil
+		if (editor) {
+			old_func = editor.add_node
+			editor.add_node = this.add_node
+		}
 
-		var header = "import \"editor\" for _editor\n" + sub_editor.load_file_imports()
+		var header = "import \"editor\" for _editor\n"
+		if (sub_editor) {
+			header = header + sub_editor.load_file_imports()
+		}
 		var source = header + str
 		Basic.loadstring(module_name, source)
 
-		editor.add_node = old_func
+		if (editor) {
+			editor.add_node = old_func
+		}
 
 		//this.render_gen()
 
