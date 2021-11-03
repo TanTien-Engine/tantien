@@ -37,6 +37,7 @@ class Brush is Shape3D
 
 		var new = Brush(polys)
 
+		new.set_color(this.color.x, this.color.y, this.color.z)
 		// clone materials
 		if (this.materials) 
 		{
@@ -155,6 +156,13 @@ class Brush is Shape3D
 				this.model_dirty = true
 			}			
 		}
+	}
+
+	set_color(r, g, b)
+	{
+		this.color.set(r, g, b)
+		this.colors = nil
+		this.model_dirty = true
 	}
 }
 
