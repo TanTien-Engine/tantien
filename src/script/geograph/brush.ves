@@ -38,34 +38,6 @@ class Brush is Shape3D
 		var new = Brush(polys)
 
 		new.set_color(this.color.x, this.color.y, this.color.z)
-		// clone materials
-		if (this.materials) 
-		{
-			new.materials = List.filled(this.materials.count, 0)
-			for (var i = 0; i < this.materials.count; i = i + 1) {
-				new.materials[i] = this.materials[i]
-			}
-		}
-
-		// clone offset
-		if (this.offsets) 
-		{
-			new.offsets = List.filled(this.offsets.count, 0)
-			for (var i = 0; i < this.offsets.count; i = i + 1) {
-				new.offsets[i] = this.offsets[i]
-			}
-		}
-
-		// clone colors
-		if (this.colors) 
-		{
-			new.colors = List.filled(this.colors.count, 0)
-			for (var i = 0; i < this.colors.count; i = i + 1) {
-				new.colors[i] = this.colors[i]
-			}
-		}
-
-		new.color = this.color.clone()
 
 		new.order = this.order
 
