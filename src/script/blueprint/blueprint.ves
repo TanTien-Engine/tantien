@@ -139,6 +139,8 @@ class Blueprint
 
 		Blueprint.send_pin_dirty_root(from)
 		Blueprint.send_pin_dirty_root(to)
+
+		return conn
 	}
 
 	static query_pin(pins, slot)
@@ -161,11 +163,15 @@ class Blueprint
 	{
 		var f = this.query_pin(f_node.exports, f_pin)
 		var t = this.query_pin(t_node.imports, t_pin)
-		if (f and t) {
-			this.connect(f, t)
-		} else {
+		if (f and t) 
+		{
+			return this.connect(f, t)
+		} 
+		else 
+		{
 			import "logger.logger" for Logger
 			Logger.error("connect fail %(f_pin) -> %(t_pin), %(f) %(t)")
+			return nil
 		}
 	}
 
