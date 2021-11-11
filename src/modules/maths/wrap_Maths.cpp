@@ -593,6 +593,14 @@ void w_Maths_calc_angle()
     ves_set_number(0, angle);
 }
 
+void w_Maths_is_pos_above_plane()
+{
+    auto pos = tt::list_to_vec3(1);
+    auto plane = (sm::Plane*)ves_toforeign(2);
+    bool ret = plane->GetDistance(pos) > 0;
+    ves_set_boolean(0, ret);
+}
+
 }
 
 namespace tt
@@ -653,6 +661,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "static Maths.get_line_intersect_line(_,_,_)") == 0) return w_Maths_get_line_intersect_line;
     if (strcmp(signature, "static Maths.calc_rot_mat(_,_)") == 0) return w_Maths_calc_rot_mat;
     if (strcmp(signature, "static Maths.calc_angle(_,_,_)") == 0) return w_Maths_calc_angle;
+    if (strcmp(signature, "static Maths.is_pos_above_plane(_,_)") == 0) return w_Maths_is_pos_above_plane;
 
 	return nullptr;
 }

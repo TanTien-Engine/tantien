@@ -129,6 +129,8 @@ foreign class Maths
 	foreign static calc_rot_mat(from, to)
 
 	foreign static calc_angle(center, start, end)
+
+	foreign static is_pos_above_plane(pos, plane)
 }
 
 foreign class Plane
