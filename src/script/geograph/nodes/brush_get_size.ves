@@ -17,6 +17,8 @@ class BrushGetSize is Node
 		]
 		this.exports = [
 			Pin(this, "size", VAR_TYPE_NUMBER3),
+			Pin(this, "min",  VAR_TYPE_NUMBER3),
+			Pin(this, "max",  VAR_TYPE_NUMBER3),
 		]
 
 		this.layout()
@@ -34,11 +36,19 @@ class BrushGetSize is Node
 
 		if (aabb.isEmpty) {
 			return nil
-		} else {
-			var l = aabb[0]
-			var r = aabb[1]
+		} 
+
+		var l = aabb[0]
+		var r = aabb[1]
+		if (idx == 0) {
 			return Variant(Vector3(r.x - l.x, r.y - l.y, r.z - l.z))
+		} else if (idx == 1) {
+			return Variant(l)
+		} else if (idx == 2) {
+			return Variant(r)
 		}
+
+		return nil
 	}
 
 	static calc_aabb(v_geo, aabb)
