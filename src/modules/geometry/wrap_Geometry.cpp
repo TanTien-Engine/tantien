@@ -20,6 +20,7 @@
 #include <constraints2/Scene.h>
 #include <constraints2/Constraint.h>
 #include <halfedge/Polygon.h>
+#include <SM_Calc.h>
 
 #include <string>
 #include <iterator>
@@ -856,14 +857,23 @@ void w_Polytope_mirror()
 
     float len_s = plane->normal.LengthSquared();
 
-    auto& pts = poly->Points();
-    for (auto& p : pts) 
-    {
-        auto v1 = p->pos;
-        float k = (- plane->normal.Dot(v1) - plane->dist) / len_s;
-        auto v2 = plane->normal * k + v1;
-        p->pos = v2 * 2 - v1;
+    // mirror points
+    for (auto& p : poly->Points()) {
+        p->pos = sm::calc_plane_mirror(*plane, p->pos);
     }
+
+    // mirror faces
+    for (auto& f : poly->Faces())
+    {
+        auto p0 = poly->Points()[f->border.front()]->pos;
+        auto p1 = p0 + f->plane.normal;
+        p0 = sm::calc_plane_mirror(*plane, p0);
+        p1 = sm::calc_plane_mirror(*plane, p1);
+        f->plane.normal = p1 - p0;
+        f->plane.dist = -p0.Dot(f->plane.normal);
+    }
+
+    poly->SortVertices();
 
     poly->SetTopoDirty();
 }
