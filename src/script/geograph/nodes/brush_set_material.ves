@@ -36,12 +36,12 @@ class BrushSetMaterial is Node
 			mat_id = v_mat.value
 		}
 
-		var new_brush = v_geo.value.clone()
-		if (v_geo.value.shape is Brush) {
-			new_brush.shape.set_materials_id(mat_id)
-		} else if (v_geo.value.shape is BrushInstanced) {
-			new_brush.shape.brush.set_materials_id(mat_id)
+		var brush = v_geo.value
+		if (brush.shape is Brush) {
+			brush.shape.set_materials_id(mat_id)
+		} else if (brush.shape is BrushInstanced) {
+			brush.shape.brush.set_materials_id(mat_id)
 		}		
-		return Variant(VAR_TYPE_GEO, new_brush)
+		return Variant(VAR_TYPE_GEO, brush)
 	}	
 }

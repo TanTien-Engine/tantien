@@ -59,13 +59,13 @@ class BrushSetOffset is Node
 		}
 		else if (v_geo.type == VAR_TYPE_GEO) 
 		{
-			var new_brush = v_geo.value.clone()
-			if (new_brush.shape is Brush) {
-				new_brush.shape.set_offsets(offset)
-			} else if (new_brush.shape is BrushInstanced) {
-				new_brush.shape.brush.set_offsets(offset)
+			var brush = v_geo.value
+			if (brush.shape is Brush) {
+				brush.shape.set_offsets(offset)
+			} else if (brush.shape is BrushInstanced) {
+				brush.shape.brush.set_offsets(offset)
 			}
-			result.add(Variant(VAR_TYPE_GEO, new_brush))
+			result.add(Variant(VAR_TYPE_GEO, brush))
 		}
 	}
 }
