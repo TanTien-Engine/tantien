@@ -133,8 +133,18 @@ class Brush is Shape3D
 	set_color(r, g, b)
 	{
 		this.color.set(r, g, b)
-		this.colors = nil
-		this.model_dirty = true
+		var rgb = r * 256 * 256 + g * 256 + b
+
+		if (!this.colors) {
+			this.colors = List.filled(this.polys.count, 0)
+		}
+		for (var i = 0; i < this.colors.count; i = i + 1) 
+		{
+			if (this.colors[i] != this.color) {
+				this.colors[i] = rgb
+				this.model_dirty = true
+			}			
+		}
 	}
 }
 
