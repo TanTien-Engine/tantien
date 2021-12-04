@@ -89,8 +89,7 @@ class Draw is Node
 			}	
 		}
 
-		var v_inst_mats = Blueprint.calc_input_value(this, 4)
-
+		var mats = this.get_input_inst_mats()
 		for (var i in 0..count) 
 		{
 			v_shader.update_uniforms(i)
@@ -105,9 +104,9 @@ class Draw is Node
 				}
 			}
 
-			if (v_inst_mats) 
+			if (mats) 
 			{
-				Render.draw_instanced(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state, v_inst_mats.value)
+				Render.draw_instanced(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state, mats)
 			} 
 			else 
 			{
@@ -118,16 +117,16 @@ class Draw is Node
 
 	draw_model(shader, model)
 	{
-		var v_inst_mats = Blueprint.calc_input_value(this, 4)
+		var mats = this.get_input_inst_mats()
 
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
 		{
 			shader.update_uniforms(i)
 
-			if (v_inst_mats) 
+			if (mats) 
 			{
-				Render.draw_model_instanced(shader.prog, model, this.render_state, v_inst_mats.value)
+				Render.draw_model_instanced(shader.prog, model, this.render_state, mats)
 			} 
 			else 
 			{
@@ -245,5 +244,25 @@ class Draw is Node
 				// todo break
 			}		
 		}
+	}
+
+	get_input_inst_mats()
+	{
+		var v_inst_mats = Blueprint.calc_input_value(this, 4)
+		if (!v_inst_mats) {
+			return nil
+		}
+
+		var mats = []
+
+		if (v_inst_mats.value is List) {
+			for (var i in v_inst_mats.value) {
+				mats.add(i.value)
+			}
+		} else {
+			mats.add(v_inst_mats.value)
+		}
+
+		return mats
 	}
 }
