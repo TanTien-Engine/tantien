@@ -1,0 +1,22 @@
+import "network.edge" for Edge
+import "network.pin" for Pin
+
+class Network
+{
+	static connect(pin0, pin1)
+	{
+		pin0.vert.pins.add(pin0)
+		pin1.vert.pins.add(pin1)
+
+		var e = Edge(pin0, pin1)
+		pin0.edge = e
+		pin1.edge = e
+		e.update()
+		return e
+	}
+
+	static connect(vert0, pin0, vert1, pin1)
+	{
+		return this.connect(Pin(vert0, pin0), Pin(vert1, pin1))
+	}
+}

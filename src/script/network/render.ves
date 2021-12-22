@@ -1,0 +1,67 @@
+import "graphics" for Painter, Graphics
+import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
+import "blueprint.node_style" for TB_TITLE
+import "network.vertex_style" for VTX_STYLE_CIRCLE
+import "network.vertex_layout" for LAYOUT_CIRCLE_RADIUS
+import "network.vertex_layout" for VertexLayout
+
+class Render
+{
+	static draw_vertex(vert)
+	{
+		this.draw_vert_panel(vert)
+
+		// todo: LOD
+		this.draw_vert_pins(vert)
+		this.draw_vert_edge(vert)
+	}
+
+	static draw_vert_panel(vert)
+	{
+		var pt = Painter.init()
+
+		var hh = 0
+		if (vert.layout == VTX_STYLE_CIRCLE)
+		{
+			pt.add_circle_filled(vert.pos.x, vert.pos.y, LAYOUT_CIRCLE_RADIUS, vert.color, 24)
+		}
+
+		Graphics.draw_painter(pt)
+
+		// todo: LOD
+		Graphics.draw_text(vert.get_title(), vert.pos.x, vert.pos.y + hh, 0.7, TB_TITLE)
+	}
+
+	static draw_vert_pins(vert)
+	{
+		for (var pin in vert.pins)
+		{
+			var p_pos = VertexLayout.calc_pin_pos(pin)
+			this.draw_pin(p_pos.x, p_pos.y, pin)
+		}
+	}	
+
+	static draw_pin(x, y, pin)
+	{
+		var pt = Painter.init()
+		if (pin.edge) {
+			pt.add_circle(x, y, PIN_RADIUS, pin.color, 1.0, 12)		
+		} else {
+			pt.add_circle_filled(x, y, PIN_RADIUS, pin.color, 12)
+		}
+		Graphics.draw_painter(pt)
+	}
+
+	static draw_vert_edge(vert)
+	{
+		var pt = Painter.init()
+		for (var pin in vert.pins)
+		{
+			var edge = pin.edge
+			if (edge) {
+				pt.add_bezier(edge.curve, edge.pin0.color, 2)			
+			}
+		}
+		Graphics.draw_painter(pt)
+	}
+}

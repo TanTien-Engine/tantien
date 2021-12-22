@@ -1,0 +1,67 @@
+import "blueprint.node_style" for COL_PANEL_BG
+import "network.vertex_layout" for LAYOUT_CIRCLE_RADIUS
+import "network.vertex_style" for VTX_STYLE_CIRCLE
+import "network.render" for Render
+import "maths.vector" for Vector2
+import "maths" for Float2
+
+class Vertex
+{
+	init()
+	{
+		this.layout = VTX_STYLE_CIRCLE
+
+		this.pins = []
+
+		this.pos = Vector2()
+
+		this.color = COL_PANEL_BG
+
+		this.selected = false
+	}
+
+	get_size() 
+	{
+		var diam = LAYOUT_CIRCLE_RADIUS * 2
+		return Vector2(diam, diam)
+	}
+
+	update(mt)
+	{
+		var pos = Float2.init()
+		pos.transform(mt)
+		if (this.pos.x == pos.x() and this.pos.y == pos.y()) {
+			return
+		}
+		this.pos.x = pos.x()
+		this.pos.y = pos.y()
+
+		for (var p in this.pins) {
+			if (p.edge) {
+				p.edge.update()
+			}
+		}
+	}
+
+	draw(mt, cam_mt)
+	{
+		Render.draw_vertex(this)
+	}
+
+	draw_gui(ctx) 
+	{
+	}
+
+	to_string(name) 
+	{
+		return ""
+	}
+
+	on_selected() { this.selected = true }
+	on_deselected() { this.selected = false }
+
+	get_title()
+	{
+		return this.get_class().name
+	}
+}

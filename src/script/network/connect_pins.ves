@@ -1,0 +1,115 @@
+import "network.edge" for Edge
+import "network.vertex_layout" for VertexLayout
+import "network.network" for Network
+import "editor.editop" for EditOP
+import "geometry" for Bezier
+import "graphics" for Painter, Graphics
+import "maths.vector" for Vector2
+
+class ConnectPins is EditOP
+{
+	init(cam, scene_stack, popup_cb)
+	{
+		this.camera = cam
+		this.scene_stack = scene_stack
+
+		this.selected_pin = nil
+		this.curve = Bezier.init()
+
+		this.popup_cb = popup_cb
+	}
+
+	on_mouse_press(x, y) 
+	{
+		var pos = this.camera.screen2world(Vector2(x, y))
+		var pin = this.query_pin_by_pos(pos, true)
+		if (pin) {
+			this.selected_pin = pin
+			this.curve = Bezier.init()
+		}
+	}
+
+	on_mouse_release(x, y) 
+	{
+		if (!this.selected_pin) {
+			return
+		}
+
+		var pos = this.camera.screen2world(Vector2(x, y))
+		var pin = this.query_pin_by_pos(pos, false)
+		if (pin)
+		{
+			// add new conn
+			if (pin != this.selected_pin and pin.vert != this.selected_pin.vert)
+			{
+				Network.connect(this.selected_pin, pin)
+				this.scene_stack.bp_dirty = true
+			}
+		}
+
+		this.clear()
+	}
+
+	on_mouse_drag(x, y) 
+	{
+		if (!this.selected_pin) {
+			return
+		}
+
+		// new temp conn
+		if (!this.selected_pin.edge)
+		{
+			var p0 = VertexLayout.calc_pin_pos(this.selected_pin)
+			if (!p0) {
+				p0 = this.selected_pin.vert.pos
+			}
+
+			var p1 = this.camera.screen2world(Vector2(x, y))
+
+			if (p0.x > p1.x) {
+				Edge.build_curve(p1, p0, this.curve)
+			} else {
+				Edge.build_curve(p0, p1, this.curve)
+			}
+		}
+	}
+
+	draw()
+	{
+		if (!this.curve) {
+			return
+		}
+		
+		var pt = Painter.init()
+
+		pt.add_bezier(this.curve, [255,0,0,255], 1)
+
+		Graphics.draw_painter(pt)
+	}
+
+	clear()
+	{
+		this.selected_pin = nil
+		this.curve = nil
+	}
+
+	query_pin_by_pos(pos, only_selection)
+	{
+		var nodes
+		var scene = this.scene_stack.top()
+		if (only_selection) {
+			nodes = scene.selection
+		} else {
+			nodes = scene.nodes
+		}
+		for (var node in nodes) 
+		{
+			var bp_node = node.components["bp"]
+			var pin = VertexLayout.query_pin(bp_node, pos)
+			if (pin) {
+				return pin
+			}
+		}
+		return nil
+	}
+}

@@ -1,0 +1,53 @@
+import "network.vertex_style" for VTX_STYLE_CIRCLE
+import "network.pin" for Pin
+import "maths.calc" for Calc
+import "maths.vector" for Vector2
+import "math" for Math
+
+var LAYOUT_CIRCLE_RADIUS = 30
+var PIN_RADIUS = 5
+
+class VertexLayout
+{
+	static calc_pin_pos(pin)
+	{
+		if (pin.vert.layout == VTX_STYLE_CIRCLE)
+		{
+			var e = pin.edge
+			if (!e or !e.pin0 or !e.pin1) {
+				return nil
+			}
+
+			var p0 = e.pin0.vert.pos
+			var p1 = e.pin1.vert.pos
+			if (pin == e.pin1) {
+				p0 = e.pin1.vert.pos
+				p1 = e.pin0.vert.pos
+			}
+
+			var angle = Math.atan2(p1.y - p0.y, p1.x - p0.x)
+
+			var ret = Vector2()
+
+			ret.x = p0.x + LAYOUT_CIRCLE_RADIUS * Math.cos(angle)
+			ret.y = p0.y + LAYOUT_CIRCLE_RADIUS * Math.sin(angle)
+
+			return ret
+		}
+
+		return nil
+	}
+
+	static query_pin(vert, pos)
+	{
+		if (vert.layout == VTX_STYLE_CIRCLE)
+		{
+			var dist = Calc.dis_pos_to_pos(pos, vert.pos)
+			if (dist < LAYOUT_CIRCLE_RADIUS and dist > LAYOUT_CIRCLE_RADIUS * 0.5) {
+				return Pin(vert, "around")
+			}
+		}
+
+		return nil
+	}
+}

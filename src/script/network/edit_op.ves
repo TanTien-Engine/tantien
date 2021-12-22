@@ -1,0 +1,111 @@
+import "editor.operators.node2d_select" for Node2dSelect
+import "editor.operators.node2d_translate" for Node2dTranslate
+import "editor.operators.cam2d_zoom" for Cam2dZoom
+import "editor.operators.cam2d_translate" for Cam2dTranslate
+import "network.connect_pins" for ConnectPins
+
+class EditOP
+{
+	init(cam, scene_stack, popup_cb)
+	{
+		this.camera = cam
+		this.scene_stack = scene_stack
+
+		this.node_sel_op   = Node2dSelect(cam, scene_stack)
+		this.node_trans_op = Node2dTranslate(cam, scene_stack)
+		this.cam_zoom_op   = Cam2dZoom(cam)
+		this.cam_trans_op  = Cam2dTranslate(cam)
+		this.connect_op    = ConnectPins(cam, scene_stack, popup_cb)
+
+		this.curr_op = this.cam_zoom_op
+	}
+
+	draw()
+	{
+		this.curr_op.draw()
+
+		if (this.curr_op != this.node_sel_op) {
+			this.node_sel_op.draw()		
+		}
+	}
+
+	clear()
+	{
+		this.curr_op = this.cam_zoom_op
+	}
+	
+	on_key_pressed(key)
+	{
+		if (key == "delete")
+		{
+			var scene = this.scene_stack.top()
+			while (!scene.selection.isEmpty)
+			{
+				var node = scene.selection.front()
+				var bp_node = node.components["bp"]
+				bp_node.disconnect()
+				scene.delete(node)
+			}
+			scene.selection_clear()
+		}
+		else if (key == "escape")
+		{
+			this.camera.reset()		
+		}
+	}
+
+	on_key_released(key)
+	{
+	}
+
+	on_mouse_pressed(x, y, btn)
+	{
+		if (btn == 1) {
+			this.curr_op = this.node_sel_op
+		} else if (btn == 2) {
+			this.curr_op = this.cam_trans_op
+		}
+
+		this.curr_op.on_mouse_press(x, y)
+
+		var scene = this.scene_stack.top()
+		if (btn == 1 and !scene.selection.isEmpty) 
+		{
+			this.connect_op.on_mouse_press(x, y)
+			if (this.connect_op.selected_pin) {
+				this.curr_op = this.connect_op
+			} else {
+				this.curr_op = this.node_trans_op
+				this.curr_op.on_mouse_press(x, y)			
+			}
+		}
+	}
+
+	on_mouse_released(x, y, btn)
+	{
+		this.curr_op.on_mouse_release(x, y)
+		this.curr_op.clear()
+
+		this.curr_op = this.cam_zoom_op
+	}
+
+	on_mouse_moved(x, y, btn)
+	{
+		this.curr_op.on_mouse_move(x, y)
+	}
+
+	on_mouse_dragged(x, y, btn)
+	{
+		this.curr_op.on_mouse_drag(x, y)
+	}
+
+	on_mouse_clicked(x, y, btn)
+	{
+		this.curr_op.on_mouse_clicked(x, y)
+	}
+
+	on_mouse_scrolled(x, y, dx, dy)
+	{
+		this.curr_op.on_mouse_scroll(x, y, dx, dy)
+	}
+}

@@ -23,6 +23,8 @@ import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.commentary" for Commentary
 import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.nodes.viewport" for Viewport
+import "blueprint.node" for Node as BP_Node
+import "network.vertex" for Vertex as NW_Vertex
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.shader_code" for ShaderCode
@@ -862,36 +864,75 @@ import \"editor\" for _editor
 
 		// connections
 		var bp_nodes = []
-		for (var f_node in scene.nodes) {
-			bp_nodes.add(f_node.components["bp"])		
-		}
-		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
-		for (var t_node in sorted_nodes)
+		var nw_nodes = []
+		for (var f_node in scene.nodes) 
 		{
-			var t_name = nil
-			var t_idx = this.query_node_idx(scene.nodes, t_node)
-			if (t_idx >= 0) {
-				t_name = "node%(t_idx)"
+			var bp = f_node.components["bp"]
+			if (bp is BP_Node) {
+				bp_nodes.add(bp)
+			} else if (bp is NW_Vertex) {
+				nw_nodes.add(bp)
 			}
-			for (var t_pin in t_node.imports)
+		}
+
+		if (!bp_nodes.isEmpty)
+		{
+			var sorted_nodes = Blueprint.topo_sort(bp_nodes)
+			for (var t_node in sorted_nodes)
 			{
-				for (var t_conn in t_pin.conns)
+				var t_name = nil
+				var t_idx = this.query_node_idx(scene.nodes, t_node)
+				if (t_idx >= 0) {
+					t_name = "node%(t_idx)"
+				}
+				for (var t_pin in t_node.imports)
 				{
-					if (!t_conn.from.node.dummy)
+					for (var t_conn in t_pin.conns)
 					{
-						var f_name = nil
-						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
-							var f_bp = scene.nodes[f_idx].components["bp"]
-							if (f_bp == t_conn.from.node) {
-								f_name = "node%(f_idx)"
+						if (!t_conn.from.node.dummy)
+						{
+							var f_name = nil
+							for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
+								var f_bp = scene.nodes[f_idx].components["bp"]
+								if (f_bp == t_conn.from.node) {
+									f_name = "node%(f_idx)"
+								}
+							}
+							if (f_name) {
+								file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")						
 							}
 						}
-						if (f_name) {
-							file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")						
+					}
+				}			
+			}
+		}
+
+		if (!nw_nodes.isEmpty)		
+		{
+			for (var node in nw_nodes)
+			{
+				var f_name = nil
+				var f_idx = this.query_node_idx(scene.nodes, node)
+				if (f_idx >= 0) {
+					f_name = "node%(f_idx)"
+				}
+				for (var pin in node.pins)
+				{
+					if (pin.edge and pin.edge.pin0 == pin)
+					{
+						var t_name = nil
+						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
+							var f_bp = scene.nodes[f_idx].components["bp"]
+							if (f_bp == pin.edge.pin1.vert) {
+								t_name = "node%(f_idx)"
+							}
+						}
+						if (t_name) {
+							file.write("Network.connect(%(f_name), \"%(pin.edge.pin0.type)\", %(t_name), \"%(pin.edge.pin1.type)\")\n")						
 						}
 					}
 				}
-			}			
+			}
 		}
 
 		if (file is MemFile) 
@@ -1110,19 +1151,22 @@ import \"editor\" for _editor
 
 		var scene = this.scene_stack.root()
 
-		var nodes = []
+		var bp_nodes = []
 		for (var node in scene.nodes) {
-			nodes.add(node.components["bp"])
+			var bp = node.components["bp"]
+			if (bp is BP_Node) {
+				bp_nodes.add(bp)
+			}
 		}
 
 		if (this.scene_stack.bp_dirty or !this.drawlist) {
-			this.drawlist = Drawlist(nodes)
+			this.drawlist = Drawlist(bp_nodes)
 		}
 		if (this.scene_stack.bp_dirty or !this.trigger_list) {
-			this.trigger_list = TriggerList(nodes)
+			this.trigger_list = TriggerList(bp_nodes)
 		}		
 		if (this.scene_stack.bp_dirty or !this.exe_list) {
-			this.exe_list = ExecuteList(nodes)
+			this.exe_list = ExecuteList(bp_nodes)
 			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
 		}
 	}
