@@ -25,6 +25,9 @@ import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.nodes.viewport" for Viewport
 import "blueprint.node" for Node as BP_Node
 import "network.vertex" for Vertex as NW_Vertex
+import "network.pin" for Pin as NW_Pin
+import "network.network" for Network
+import "network.vertex_layout" for VertexLayout
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.shader_code" for ShaderCode
@@ -444,25 +447,38 @@ class Editor
 				this.add_node(new_node, pos[0], pos[1])
 				if (this.prev_pin)
 				{
-					if (this.prev_pin.is_input) 
+					if (new_node is NW_Vertex)
 					{
-						if (!new_node.exports.isEmpty) 
+						var idx = VertexLayout.get_match_pin_idx(this.prev_pin, new_node)
+						if (idx >= 0) 
 						{
-							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.exports)
-							if (idx >= 0) {
-								Blueprint.connect(new_node.exports[idx], this.prev_pin)
-								this.scene_stack.bp_dirty = true
-							}
+							var new_pin = NW_Pin(new_node, idx)
+							Network.connect(this.prev_pin, new_pin)
+							this.scene_stack.bp_dirty = true
 						}
-					} 
-					else 
+					}
+					else
 					{
-						if (!new_node.imports.isEmpty) 
+						if (this.prev_pin.is_input) 
 						{
-							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.imports)
-							if (idx >= 0) {
-								Blueprint.connect(this.prev_pin, new_node.imports[idx])
-								this.scene_stack.bp_dirty = true
+							if (!new_node.exports.isEmpty) 
+							{
+								var idx = this.query_matched_pin_idx(this.prev_pin, new_node.exports)
+								if (idx >= 0) {
+									Blueprint.connect(new_node.exports[idx], this.prev_pin)
+									this.scene_stack.bp_dirty = true
+								}
+							}
+						} 
+						else 
+						{
+							if (!new_node.imports.isEmpty) 
+							{
+								var idx = this.query_matched_pin_idx(this.prev_pin, new_node.imports)
+								if (idx >= 0) {
+									Blueprint.connect(this.prev_pin, new_node.imports[idx])
+									this.scene_stack.bp_dirty = true
+								}
 							}
 						}
 					}
@@ -526,6 +542,20 @@ class Editor
 
 	is_pin_node_type_match(pin, node)
 	{
+		if (node is NW_Vertex) 
+		{
+			var expects = pin.vert.pin_types_t[pin.type]
+			for (var l in expects) {
+				for (var r in node.pin_types_f) {
+					if (l == r) {
+						return true
+					}
+				}
+			}
+
+			return false
+		}
+
 		var types = []
 		if (pin.type is List) {
 			for (var type in pin.type) {
@@ -927,8 +957,11 @@ import \"editor\" for _editor
 								t_name = "node%(f_idx)"
 							}
 						}
-						if (t_name) {
-							file.write("Network.connect(%(f_name), \"%(pin.edge.pin0.type)\", %(t_name), \"%(pin.edge.pin1.type)\")\n")						
+						if (t_name) 
+						{
+							var f_pin = VertexLayout.pin_type_to_name(pin.edge.pin0.vert, pin.edge.pin0.type)
+							var t_pin = VertexLayout.pin_type_to_name(pin.edge.pin1.vert, pin.edge.pin1.type)
+							file.write("Network.connect(%(f_name), \"%(f_pin)\", %(t_name), \"%(t_pin)\")\n")
 						}
 					}
 				}

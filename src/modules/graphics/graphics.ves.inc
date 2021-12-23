@@ -19,6 +19,7 @@ foreign class Painter
 	// rect: list [x, y, width, height]	
 	foreign add_rect(rect, color, line_width)
 	foreign add_rect_filled(rect, color)
+	foreign add_capsule_filled(rect, color, hori)
 
 	// vertices: list [x0, y0, x1, y1 ...]
 	foreign add_polygon(vertices, color, line_width)

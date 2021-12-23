@@ -1,5 +1,6 @@
 import "network.edge" for Edge
 import "network.pin" for Pin
+import "network.vertex_layout" for VertexLayout
 
 class Network
 {
@@ -15,8 +16,24 @@ class Network
 		return e
 	}
 
+	static disconnect(edge)
+	{
+		if (edge.pin0) {
+			edge.pin0.vert.pins.remove(edge.pin0)
+			edge.pin0.edge = nil
+		}
+		if (edge.pin1) {
+			edge.pin1.vert.pins.remove(edge.pin1)
+			edge.pin1.edge = nil
+		}
+
+		edge.clear()
+	}
+
 	static connect(vert0, pin0, vert1, pin1)
 	{
-		return this.connect(Pin(vert0, pin0), Pin(vert1, pin1))
+		var type0 = VertexLayout.pin_name_to_type(vert0, pin0)
+		var type1 = VertexLayout.pin_name_to_type(vert1, pin1)
+		return this.connect(Pin(vert0, type0), Pin(vert1, type1))
 	}
 }

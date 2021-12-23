@@ -1,53 +1,238 @@
-import "network.vertex_style" for VTX_STYLE_CIRCLE
+import "network.vertex_style" for VTX_STYLE_CIRCLE, VTX_STYLE_CAPSULE_H, VTX_STYLE_CAPSULE_V
 import "network.pin" for Pin
 import "maths.calc" for Calc
 import "maths.vector" for Vector2
 import "math" for Math
 
 var LAYOUT_CIRCLE_RADIUS = 30
+
+var LAYOUT_CAPSULE_WIDTH  = 30
+var LAYOUT_CAPSULE_LENGTH = LAYOUT_CAPSULE_WIDTH * 3
+
 var PIN_RADIUS = 5
+
+var PIN_CIRCLE_AROUND_IDX = 0
+
+var PIN_CAPSULE_TOP_IDX    = 0
+var PIN_CAPSULE_BOTTOM_IDX = 1
+var PIN_CAPSULE_LEFT_IDX   = 2
+var PIN_CAPSULE_RIGHT_IDX  = 3
+
+var PIN_CIRCLE_NAMES = [ "around" ]
+var PIN_CAPSULE_NAMES = [ "top", "bottom", "left", "right" ]
 
 class VertexLayout
 {
 	static calc_pin_pos(pin)
 	{
+		var e = pin.edge
+		if (!e or !e.pin0 or !e.pin1) {
+			return nil
+		}
+
+		var p0 = e.pin0.vert.pos
+		var p1 = e.pin1.vert.pos
+		if (pin == e.pin1) {
+			p0 = e.pin1.vert.pos
+			p1 = e.pin0.vert.pos
+		}
+
+		var pos = Vector2()
+
 		if (pin.vert.layout == VTX_STYLE_CIRCLE)
 		{
-			var e = pin.edge
-			if (!e or !e.pin0 or !e.pin1) {
-				return nil
-			}
-
-			var p0 = e.pin0.vert.pos
-			var p1 = e.pin1.vert.pos
-			if (pin == e.pin1) {
-				p0 = e.pin1.vert.pos
-				p1 = e.pin0.vert.pos
-			}
-
 			var angle = Math.atan2(p1.y - p0.y, p1.x - p0.x)
 
-			var ret = Vector2()
+			var r = LAYOUT_CIRCLE_RADIUS + PIN_RADIUS
+			pos.x = p0.x + r * Math.cos(angle)
+			pos.y = p0.y + r * Math.sin(angle)
+		}
+		else if (pin.vert.layout == VTX_STYLE_CAPSULE_H)
+		{
+			if (pin.type == PIN_CAPSULE_TOP_IDX or pin.type == PIN_CAPSULE_BOTTOM_IDX)
+			{
+				var hw = LAYOUT_CAPSULE_LENGTH * 0.5 - LAYOUT_CAPSULE_WIDTH * 0.5
+				var dx = Math.max(Math.min(p1.x - p0.x, hw), -hw)
+				pos.x = p0.x + dx
 
-			ret.x = p0.x + LAYOUT_CIRCLE_RADIUS * Math.cos(angle)
-			ret.y = p0.y + LAYOUT_CIRCLE_RADIUS * Math.sin(angle)
+				if (pin.type == PIN_CAPSULE_TOP_IDX) {
+					pos.y = p0.y + LAYOUT_CAPSULE_WIDTH * 0.5 + PIN_RADIUS
+				} else if (pin.type == PIN_CAPSULE_BOTTOM_IDX) {
+					pos.y = p0.y - LAYOUT_CAPSULE_WIDTH * 0.5 - PIN_RADIUS
+				}
+			}
+			else
+			{
+				pos.y = p0.y			
+				if (pin.type == PIN_CAPSULE_LEFT_IDX) {
+					pos.x = p0.x - LAYOUT_CAPSULE_LENGTH * 0.5 - PIN_RADIUS
+				} else if (pin.type == PIN_CAPSULE_RIGHT_IDX) {
+					pos.x = p0.x + LAYOUT_CAPSULE_LENGTH * 0.5 + PIN_RADIUS
+				}
+			}
+		}
+		else if (pin.vert.layout == VTX_STYLE_CAPSULE_V)
+		{
+			if (pin.type == PIN_CAPSULE_TOP_IDX or pin.type == PIN_CAPSULE_BOTTOM_IDX)
+			{
+				pos.x = p0.x
+				if (pin.type == PIN_CAPSULE_TOP_IDX) {
+					pos.y = p0.y + LAYOUT_CAPSULE_LENGTH * 0.5 + PIN_RADIUS
+				} else if (pin.type == PIN_CAPSULE_BOTTOM_IDX) {
+					pos.y = p0.y - LAYOUT_CAPSULE_LENGTH * 0.5 - PIN_RADIUS
+				} 
+			}
+			else
+			{
+				var hh = LAYOUT_CAPSULE_LENGTH * 0.5 - LAYOUT_CAPSULE_WIDTH * 0.5
+				var dy = Math.max(Math.min(p1.y - p0.y, hh), -hh)
+				pos.y = p0.y + dy
 
-			return ret
+				if (pin.type == PIN_CAPSULE_LEFT_IDX) {
+					pos.x = p0.x - LAYOUT_CAPSULE_WIDTH * 0.5 - PIN_RADIUS
+				} else if (pin.type == PIN_CAPSULE_RIGHT_IDX) {
+					pos.x = p0.x + LAYOUT_CAPSULE_WIDTH * 0.5 + PIN_RADIUS
+				}
+			}			
+		}		
+
+		return pos
+	}
+
+	static query_pin(vert, pos)
+	{
+		var sz = this.calc_aabb(vert.layout)
+		var hw = sz.x * 0.5
+		var hh = sz.y * 0.5
+		if (pos.x < vert.pos.x - hw or
+		    pos.x > vert.pos.x + hw or
+		    pos.y < vert.pos.y - hh or
+		    pos.y > vert.pos.y + hh) {
+		    return nil
+		}
+
+		for (var pin in vert.pins)
+		{
+			var pin_pos = this.calc_pin_pos(pin)
+			var dist = Calc.dis_pos_to_pos(pos, pin_pos)
+			if (dist < PIN_RADIUS * 1.1) {
+				return pin
+			}
+		}
+
+		if (vert.layout == VTX_STYLE_CIRCLE)
+		{
+			var dist = Calc.dis_pos_to_pos(pos, vert.pos)
+			if (dist < LAYOUT_CIRCLE_RADIUS + PIN_RADIUS * 2 and dist > LAYOUT_CIRCLE_RADIUS) {
+				return Pin(vert, PIN_CIRCLE_AROUND_IDX)
+			}
+		}
+		else if (vert.layout == VTX_STYLE_CAPSULE_H)
+		{
+			var hw = LAYOUT_CAPSULE_LENGTH * 0.5 - LAYOUT_CAPSULE_WIDTH * 0.5
+			var hh = LAYOUT_CAPSULE_WIDTH * 0.5
+			if (pos.y > vert.pos.y + hh) {
+				return Pin(vert, PIN_CAPSULE_TOP_IDX)
+			} else if (pos.y < vert.pos.y - hh) {
+				return Pin(vert, PIN_CAPSULE_BOTTOM_IDX)
+			} else if (pos.x < vert.pos.x - hw) {
+				return Pin(vert, PIN_CAPSULE_LEFT_IDX)
+			} else if (pos.x > vert.pos.x + hw) {
+				return Pin(vert, PIN_CAPSULE_RIGHT_IDX)
+			}
+		}
+		else if (vert.layout == VTX_STYLE_CAPSULE_V)
+		{
+			var hw = LAYOUT_CAPSULE_WIDTH * 0.5
+			var hh = LAYOUT_CAPSULE_LENGTH * 0.5 - LAYOUT_CAPSULE_WIDTH * 0.5
+			if (pos.y > vert.pos.y + hh) {
+				return Pin(vert, PIN_CAPSULE_TOP_IDX)
+			} else if (pos.y < vert.pos.y - hh) {
+				return Pin(vert, PIN_CAPSULE_BOTTOM_IDX)
+			} else if (pos.x < vert.pos.x - hw) {
+				return Pin(vert, PIN_CAPSULE_LEFT_IDX)
+			} else if (pos.x > vert.pos.x + hw) {
+				return Pin(vert, PIN_CAPSULE_RIGHT_IDX)
+			}
 		}
 
 		return nil
 	}
 
-	static query_pin(vert, pos)
+	static calc_aabb(layout)
 	{
-		if (vert.layout == VTX_STYLE_CIRCLE)
+		var size = nil
+		if (layout == VTX_STYLE_CIRCLE)
 		{
-			var dist = Calc.dis_pos_to_pos(pos, vert.pos)
-			if (dist < LAYOUT_CIRCLE_RADIUS and dist > LAYOUT_CIRCLE_RADIUS * 0.5) {
-				return Pin(vert, "around")
+			var diam = LAYOUT_CIRCLE_RADIUS * 2
+			size = Vector2(diam, diam)
+		}
+		else if (layout == VTX_STYLE_CAPSULE_H)
+		{
+			size = Vector2(LAYOUT_CAPSULE_LENGTH, LAYOUT_CAPSULE_WIDTH)
+		}
+		else if (layout == VTX_STYLE_CAPSULE_V)
+		{
+			size = Vector2(LAYOUT_CAPSULE_WIDTH, LAYOUT_CAPSULE_LENGTH)
+		}
+
+		if (!size) {
+			return nil
+		}
+
+		size.x = size.x + PIN_RADIUS * 4
+		size.y = size.y + PIN_RADIUS * 4
+
+		return size
+	}
+
+	static get_match_pin_idx(f_pin, t_node)
+	{
+		var expects = f_pin.vert.pin_types_t[f_pin.type]
+		for (var i in 0 .. expects.count) {
+			for (var j in 0 .. t_node.pin_types_f.count) {
+				if (expects[i] == t_node.pin_types_f[j]) {
+					return j
+				}
 			}
 		}
 
-		return nil
+		return -1
+	}
+
+	static get_vert_pin_names(vert)
+	{
+		if (vert.layout == VTX_STYLE_CIRCLE) {
+			return PIN_CIRCLE_NAMES
+		} else if (vert.layout == VTX_STYLE_CAPSULE_H or vert.layout == VTX_STYLE_CAPSULE_V) {
+			return PIN_CAPSULE_NAMES
+		} else {
+			return nil
+		}
+	}
+
+	static pin_type_to_name(vert, type)
+	{
+		var names = this.get_vert_pin_names(vert)
+		if (!names) {
+			return nil
+		} else {
+			return names[type]
+		}
+	}
+
+	static pin_name_to_type(vert, name)
+	{
+		var names = this.get_vert_pin_names(vert)
+		if (!names) {
+			return nil
+		} else {
+			for (var i in 0 .. names.count) {
+				if (names[i] == name) {
+					return i
+				}
+			}
+			return -1
+		}
 	}
 }

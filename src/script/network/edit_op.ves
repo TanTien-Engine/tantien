@@ -3,6 +3,7 @@ import "editor.operators.node2d_translate" for Node2dTranslate
 import "editor.operators.cam2d_zoom" for Cam2dZoom
 import "editor.operators.cam2d_translate" for Cam2dTranslate
 import "network.connect_pins" for ConnectPins
+import "network.network" for Network
 
 class EditOP
 {
@@ -43,7 +44,11 @@ class EditOP
 			{
 				var node = scene.selection.front()
 				var bp_node = node.components["bp"]
-				bp_node.disconnect()
+				for (var pin in bp_node.pins) {
+					if (pin.edge) {
+						Network.disconnect(pin.edge)
+					}
+				}
 				scene.delete(node)
 			}
 			scene.selection_clear()

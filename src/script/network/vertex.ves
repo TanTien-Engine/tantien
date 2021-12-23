@@ -1,5 +1,5 @@
 import "blueprint.node_style" for COL_PANEL_BG
-import "network.vertex_layout" for LAYOUT_CIRCLE_RADIUS
+import "network.vertex_layout" for VertexLayout
 import "network.vertex_style" for VTX_STYLE_CIRCLE
 import "network.render" for Render
 import "maths.vector" for Vector2
@@ -10,6 +10,9 @@ class Vertex
 	init()
 	{
 		this.layout = VTX_STYLE_CIRCLE
+
+		this.pin_types_f = []
+		this.pin_types_t = []
 
 		this.pins = []
 
@@ -22,8 +25,7 @@ class Vertex
 
 	get_size() 
 	{
-		var diam = LAYOUT_CIRCLE_RADIUS * 2
-		return Vector2(diam, diam)
+		return VertexLayout.calc_aabb(this.layout)
 	}
 
 	update(mt)

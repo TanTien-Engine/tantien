@@ -30,6 +30,14 @@ class Edge
 		}
 	}
 
+	clear()
+	{
+		this.pin0 = nil
+		this.pin1 = nil
+
+		this.curve = nil
+	}
+
 	static build_curve(p0, p1, curve)
 	{
 		var d = Math.abs(p1.x - p0.x) * CONNECTING_BEZIER_DIST

@@ -140,6 +140,31 @@ void w_Painter_add_rect_filled()
     pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
 }
 
+void w_Painter_add_capsule_filled()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+
+    auto rect = tt::list_to_float_array(1);
+    GD_ASSERT(rect.size() == 4, "error number");
+    if (rect[2] <= 0 || rect[3] <= 0) {
+        return;
+    }
+
+    const uint32_t col = tt::list_to_abgr(2);
+
+    auto hori = ves_toboolean(3);
+
+    float rounding = (hori ? rect[3] : rect[2]) * 0.49f;
+    uint32_t rounding_corners_flags;
+    if (hori) {
+        rounding_corners_flags = tess::CORNER_FLAGS_LEFT | tess::CORNER_FLAGS_RIGHT;
+    } else {
+        rounding_corners_flags = tess::CORNER_FLAGS_TOP | tess::CORNER_FLAGS_BOT;
+    }
+
+    pt->AddRectFilled(sm::vec2(rect[0], rect[1]), sm::vec2(rect[0] + rect[2], rect[1] + rect[3]), col, rounding, rounding_corners_flags);
+}
+
 void w_Painter_add_polygon()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
@@ -522,6 +547,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_line(_,_,_)") == 0) return w_Painter_add_line;
     if (strcmp(signature, "Painter.add_rect(_,_,_)") == 0) return w_Painter_add_rect;
     if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
+    if (strcmp(signature, "Painter.add_capsule_filled(_,_,_)") == 0) return w_Painter_add_capsule_filled;
     if (strcmp(signature, "Painter.add_polygon(_,_,_)") == 0) return w_Painter_add_polygon;
     if (strcmp(signature, "Painter.add_polygon_filled(_,_)") == 0) return w_Painter_add_polygon_filled;
     if (strcmp(signature, "Painter.add_polyline(_,_,_)") == 0) return w_Painter_add_polyline;

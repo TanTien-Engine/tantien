@@ -1,4 +1,5 @@
 import "network.edge" for Edge
+import "network.vertex" for Vertex
 import "network.vertex_layout" for VertexLayout
 import "network.network" for Network
 import "editor.editop" for EditOP
@@ -44,6 +45,20 @@ class ConnectPins is EditOP
 			{
 				Network.connect(this.selected_pin, pin)
 				this.scene_stack.bp_dirty = true
+			}
+		}
+		else
+		{
+			// remove conns
+			var disconn = false
+			if (this.selected_pin.edge) {
+				Network.disconnect(this.selected_pin.edge)
+				this.scene_stack.bp_dirty = true
+				disconn = true
+			}
+
+			if (this.popup_cb and !disconn) {
+				this.popup_cb(x, y, this.selected_pin)
 			}
 		}
 
@@ -105,9 +120,11 @@ class ConnectPins is EditOP
 		for (var node in nodes) 
 		{
 			var bp_node = node.components["bp"]
-			var pin = VertexLayout.query_pin(bp_node, pos)
-			if (pin) {
-				return pin
+			if (bp_node is Vertex) {
+				var pin = VertexLayout.query_pin(bp_node, pos)
+				if (pin) {
+					return pin
+				}
 			}
 		}
 		return nil
