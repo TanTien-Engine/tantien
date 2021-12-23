@@ -1,6 +1,6 @@
 import "network.edge" for Edge
 import "network.vertex" for Vertex
-import "network.vertex_layout" for VertexLayout
+import "network.vertex_shape" for VertexShape
 import "network.network" for Network
 import "editor.editop" for EditOP
 import "geometry" for Bezier
@@ -74,7 +74,7 @@ class ConnectPins is EditOP
 		// new temp conn
 		if (!this.selected_pin.edge)
 		{
-			var p0 = VertexLayout.calc_pin_pos(this.selected_pin)
+			var p0 = VertexShape.calc_pin_pos(this.selected_pin)
 			if (!p0) {
 				p0 = this.selected_pin.vert.pos
 			}
@@ -121,7 +121,7 @@ class ConnectPins is EditOP
 		{
 			var bp_node = node.components["bp"]
 			if (bp_node is Vertex) {
-				var pin = VertexLayout.query_pin(bp_node, pos)
+				var pin = VertexShape.query_pin(bp_node, pos)
 				if (pin) {
 					return pin
 				}

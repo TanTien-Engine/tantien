@@ -1,5 +1,5 @@
 import "blueprint.node_layout" for CONNECTING_BEZIER_DIST
-import "network.vertex_layout" for VertexLayout
+import "network.vertex_shape" for VertexShape
 import "maths.vector" for Vector2
 import "geometry" for Bezier
 import "math" for Math
@@ -21,8 +21,8 @@ class Edge
 
 	update_curve()
 	{
-		var p0 = VertexLayout.calc_pin_pos(this.pin0)
-		var p1 = VertexLayout.calc_pin_pos(this.pin1)
+		var p0 = VertexShape.calc_pin_pos(this.pin0)
+		var p1 = VertexShape.calc_pin_pos(this.pin1)
 		if (p0.x > p1.x) {
 			Edge.build_curve(p1, p0, this.curve)
 		} else {

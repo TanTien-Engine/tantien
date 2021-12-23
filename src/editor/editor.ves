@@ -27,7 +27,7 @@ import "blueprint.node" for Node as BP_Node
 import "network.vertex" for Vertex as NW_Vertex
 import "network.pin" for Pin as NW_Pin
 import "network.network" for Network
-import "network.vertex_layout" for VertexLayout
+import "network.vertex_shape" for VertexShape
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.shader_code" for ShaderCode
@@ -449,7 +449,7 @@ class Editor
 				{
 					if (new_node is NW_Vertex)
 					{
-						var idx = VertexLayout.get_match_pin_idx(this.prev_pin, new_node)
+						var idx = VertexShape.get_match_pin_idx(this.prev_pin, new_node)
 						if (idx >= 0) 
 						{
 							var new_pin = NW_Pin(new_node, idx)
@@ -959,8 +959,8 @@ import \"editor\" for _editor
 						}
 						if (t_name) 
 						{
-							var f_pin = VertexLayout.pin_type_to_name(pin.edge.pin0.vert, pin.edge.pin0.type)
-							var t_pin = VertexLayout.pin_type_to_name(pin.edge.pin1.vert, pin.edge.pin1.type)
+							var f_pin = VertexShape.pin_type_to_name(pin.edge.pin0.vert, pin.edge.pin0.type)
+							var t_pin = VertexShape.pin_type_to_name(pin.edge.pin1.vert, pin.edge.pin1.type)
 							file.write("Network.connect(%(f_name), \"%(f_pin)\", %(t_name), \"%(t_pin)\")\n")
 						}
 					}

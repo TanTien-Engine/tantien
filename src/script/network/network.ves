@@ -1,6 +1,6 @@
 import "network.edge" for Edge
 import "network.pin" for Pin
-import "network.vertex_layout" for VertexLayout
+import "network.vertex_shape" for VertexShape
 
 class Network
 {
@@ -32,8 +32,8 @@ class Network
 
 	static connect(vert0, pin0, vert1, pin1)
 	{
-		var type0 = VertexLayout.pin_name_to_type(vert0, pin0)
-		var type1 = VertexLayout.pin_name_to_type(vert1, pin1)
+		var type0 = VertexShape.pin_name_to_type(vert0, pin0)
+		var type1 = VertexShape.pin_name_to_type(vert1, pin1)
 		return this.connect(Pin(vert0, type0), Pin(vert1, type1))
 	}
 }

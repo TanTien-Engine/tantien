@@ -1,8 +1,7 @@
 import "graphics" for Painter, Graphics
 import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
 import "blueprint.node_style" for TB_TITLE
-import "network.vertex_style" for VTX_STYLE_CIRCLE, VTX_STYLE_CAPSULE_H, VTX_STYLE_CAPSULE_V
-import "network.vertex_layout" for VertexLayout, LAYOUT_CIRCLE_RADIUS, LAYOUT_CAPSULE_WIDTH, LAYOUT_CAPSULE_LENGTH
+import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE_RADIUS, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH, SHAPE_CIRCLE, SHAPE_CAPSULE_H, SHAPE_CAPSULE_V
 
 class Render
 {
@@ -20,21 +19,21 @@ class Render
 		var pt = Painter.init()
 
 		var hh = 0
-		if (vert.layout == VTX_STYLE_CIRCLE)
+		if (vert.shape == SHAPE_CIRCLE)
 		{
-			pt.add_circle_filled(vert.pos.x, vert.pos.y, LAYOUT_CIRCLE_RADIUS, vert.color, 24)
+			pt.add_circle_filled(vert.pos.x, vert.pos.y, SHAPE_CIRCLE_RADIUS, vert.color, 24)
 		}
-		else if (vert.layout == VTX_STYLE_CAPSULE_H)
+		else if (vert.shape == SHAPE_CAPSULE_H)
 		{
-			var hw = LAYOUT_CAPSULE_LENGTH * 0.5
-			var hh = LAYOUT_CAPSULE_WIDTH * 0.5
-			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, LAYOUT_CAPSULE_LENGTH, LAYOUT_CAPSULE_WIDTH], vert.color, true)
+			var hw = SHAPE_CAPSULE_LENGTH * 0.5
+			var hh = SHAPE_CAPSULE_WIDTH * 0.5
+			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_LENGTH, SHAPE_CAPSULE_WIDTH], vert.color, true)
 		}
-		else if (vert.layout == VTX_STYLE_CAPSULE_V)
+		else if (vert.shape == SHAPE_CAPSULE_V)
 		{
-			var hw = LAYOUT_CAPSULE_WIDTH * 0.5
-			var hh = LAYOUT_CAPSULE_LENGTH * 0.5
-			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, LAYOUT_CAPSULE_WIDTH, LAYOUT_CAPSULE_LENGTH], vert.color, false)
+			var hw = SHAPE_CAPSULE_WIDTH * 0.5
+			var hh = SHAPE_CAPSULE_LENGTH * 0.5
+			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH], vert.color, false)
 		}
 
 		Graphics.draw_painter(pt)
@@ -47,7 +46,7 @@ class Render
 	{
 		for (var pin in vert.pins)
 		{
-			var p_pos = VertexLayout.calc_pin_pos(pin)
+			var p_pos = VertexShape.calc_pin_pos(pin)
 			this.draw_pin(p_pos.x, p_pos.y, pin)
 		}
 	}	
