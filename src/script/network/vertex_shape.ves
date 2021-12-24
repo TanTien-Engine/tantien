@@ -8,7 +8,7 @@ var SHAPE_CAPSULE_H = 1
 var SHAPE_CAPSULE_V = 2
 var SHAPE_ROD       = 3
 
-var SHAPE_CIRCLE_RADIUS = 30
+var SHAPE_CIRCLE_RADIUS = 20
 
 var SHAPE_CAPSULE_WIDTH  = 30
 var SHAPE_CAPSULE_LENGTH = SHAPE_CAPSULE_WIDTH * 3
@@ -55,8 +55,18 @@ class VertexShape
 		{
 			if (pin.type == PIN_CAPSULE_TOP_IDX or pin.type == PIN_CAPSULE_BOTTOM_IDX)
 			{
-				var hw = SHAPE_CAPSULE_LENGTH * 0.5 - SHAPE_CAPSULE_WIDTH * 0.5
-				var dx = Math.max(Math.min(p1.x - p0.x, hw), -hw)
+				var dx = 0
+				var hw = SHAPE_CAPSULE_LENGTH * 0.5 - SHAPE_CAPSULE_WIDTH * 0.5			
+				if (e.pin0.vert.shape == SHAPE_CAPSULE_H and e.pin1.vert.shape == SHAPE_CAPSULE_H)
+				{
+					var angle = Math.atan2(p1.y - p0.y, p1.x - p0.x)
+					dx = Math.cos(angle) * SHAPE_CAPSULE_WIDTH
+					dx = Math.max(Math.min(dx, hw), -hw)
+				}
+				else
+				{
+					dx = Math.max(Math.min(p1.x - p0.x, hw), -hw)
+				}
 				pos.x = p0.x + dx
 
 				if (pin.type == PIN_CAPSULE_TOP_IDX) {

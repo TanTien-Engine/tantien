@@ -4,6 +4,47 @@ import "network.vertex_shape" for VertexShape
 
 class Network
 {
+	static topo_sort(all, root)
+	{
+		var ret = []
+
+		for (var v in all) {
+			v.flag = false
+		}
+
+		var curr = []
+		curr.add(root)
+		ret.add(root)
+		root.flag = true
+
+		while (!curr.isEmpty)
+		{
+			var v = curr[0]
+			for (var p in v.pins)
+			{
+				if (p.edge)
+				{
+					var other = nil
+					if (p.edge.pin0.vert != v) {
+						other = p.edge.pin0.vert
+					} else {
+						other = p.edge.pin1.vert
+					}
+
+					if (!other.flag)
+					{
+						curr.add(other)
+						ret.add(other)
+						other.flag = true
+					}					
+				}
+			}
+			curr.pop_front()
+		}
+
+		return ret
+	}
+
 	static connect(pin0, pin1)
 	{
 		pin0.vert.pins.add(pin0)
@@ -35,5 +76,57 @@ class Network
 		var type0 = VertexShape.pin_name_to_type(vert0, pin0)
 		var type1 = VertexShape.pin_name_to_type(vert1, pin1)
 		return this.connect(Pin(vert0, type0), Pin(vert1, type1))
+	}
+
+	static neighbors(vert)
+	{
+		var ret = []
+
+		for (var pin in vert.pins) 
+		{
+			if (pin.edge)
+			{
+				if (pin.edge.pin0.vert != vert) {
+					ret.add(pin.edge.pin0.vert)
+				} else if (pin.edge.pin1.vert != vert) {
+					ret.add(pin.edge.pin1.vert)
+				}
+			}
+		}
+
+		return ret
+	}
+
+	static neighbors(vert, type)
+	{
+		var ret = []
+
+		for (var pin in vert.pins) 
+		{
+			if (pin.type == type and pin.edge)
+			{
+				if (pin.edge.pin0.vert != vert) {
+					ret.add(pin.edge.pin0.vert)
+				} else if (pin.edge.pin1.vert != vert) {
+					ret.add(pin.edge.pin1.vert)
+				}
+			}
+		}
+
+		return ret
+	}	
+
+	static adjacent(vert0, pin0, vert1, pin1)
+	{
+		var nb0 = this.neighbors(vert0, pin0)
+		var nb1 = this.neighbors(vert1, pin1)
+		for (var i in nb0) {
+			for (var j in nb1) {
+				if (i == vert1 and j == vert0) {
+					return true
+				}
+			}
+		}
+		return false
 	}
 }

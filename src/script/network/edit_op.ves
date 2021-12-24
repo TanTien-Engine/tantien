@@ -44,7 +44,8 @@ class EditOP
 			{
 				var node = scene.selection.front()
 				var bp_node = node.components["bp"]
-				for (var pin in bp_node.pins) {
+				while (!bp_node.pins.isEmpty) {
+					var pin = bp_node.pins.front()
 					if (pin.edge) {
 						Network.disconnect(pin.edge)
 					}

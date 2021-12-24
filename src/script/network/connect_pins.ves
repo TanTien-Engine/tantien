@@ -43,6 +43,10 @@ class ConnectPins is EditOP
 			// add new conn
 			if (pin != this.selected_pin and pin.vert != this.selected_pin.vert)
 			{
+				if (pin.edge) {
+					Network.disconnect(pin.edge)
+				}
+
 				Network.connect(this.selected_pin, pin)
 				this.scene_stack.bp_dirty = true
 			}
