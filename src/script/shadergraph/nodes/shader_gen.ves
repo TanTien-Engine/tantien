@@ -34,6 +34,11 @@ class ShaderGen is Node
 		this.uniforms_insts = nil
 	}
 
+	on_node_dirty()
+	{
+		this.build_shader()
+	}
+
 	calc_value(idx)
 	{
 		return Variant(VAR_TYPE_SHADER, this.shader)
