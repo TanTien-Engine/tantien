@@ -26,6 +26,8 @@ foreign class Painter
 	foreign add_polygon_filled(vertices, color)
 	foreign add_polyline(vertices, color, line_width)
 
+	foreign add_triangles_filled(tris, color)
+
 	foreign add_circle(x, y, radius, color, line_width, num_segments)
 	foreign add_circle_filled(x, y, radius, color, num_segments)
 

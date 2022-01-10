@@ -197,6 +197,26 @@ void w_Painter_add_polyline()
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
 
+void w_Painter_add_triangles_filled()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+
+    pt->SetAntiAliased(false);
+
+    auto vertices = tt::list_to_vec2_array(1);
+    uint32_t col = tt::list_to_abgr(2);
+
+    for (int i = 0, n = vertices.size() / 3; i < n; ++i)
+    {
+        auto& p0 = vertices[i * 3];
+        auto& p1 = vertices[i * 3 + 1];
+        auto& p2 = vertices[i * 3 + 2];
+        pt->AddTriangleFilled(p0, p1, p2, col);
+    }
+
+    pt->SetAntiAliased(true);
+}
+
 void w_Painter_add_circle()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
@@ -551,6 +571,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_polygon(_,_,_)") == 0) return w_Painter_add_polygon;
     if (strcmp(signature, "Painter.add_polygon_filled(_,_)") == 0) return w_Painter_add_polygon_filled;
     if (strcmp(signature, "Painter.add_polyline(_,_,_)") == 0) return w_Painter_add_polyline;
+    if (strcmp(signature, "Painter.add_triangles_filled(_,_)") == 0) return w_Painter_add_triangles_filled;
     if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
     if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
     if (strcmp(signature, "Painter.add_bezier(_,_,_)") == 0) return w_Painter_add_bezier;

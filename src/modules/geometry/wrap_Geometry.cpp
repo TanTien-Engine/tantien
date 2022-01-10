@@ -14,6 +14,7 @@
 #include <geoshape/Line3D.h>
 #include <geoshape/Polyline3D.h>
 #include <geoshape/Polygon3D.h>
+#include <geoshape/Triangles.h>
 #include <polymesh3/Polytope.h>
 #include <model/ParametricEquations.h>
 #include <guard/check.h>
@@ -366,6 +367,74 @@ void w_Polygon_set_vertices()
     auto polyline = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto vertices = tt::list_to_vec2_array(1);
     polyline->SetVertices(vertices);
+}
+
+void w_Triangles_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Triangles>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Triangles>));
+    proxy->obj = std::make_shared<gs::Triangles>();
+}
+
+int w_Triangles_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Triangles>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Triangles>);
+}
+
+void w_Triangles_clone()
+{
+    auto src = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Triangles>(src->GetBorder());
+
+    ves_pop(1);
+    auto proxy = (tt::Proxy<gs::Triangles>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Triangles>));
+    proxy->obj = dst;
+}
+
+void w_Triangles_get_border()
+{
+    auto tris = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
+    auto& border = tris->GetBorder();
+
+    ves_pop(1);
+    ves_newlist(int(border.size()) * 2);
+    for (int i = 0, n = int(border.size()); i < n; ++i)
+    {
+        ves_pushnumber(border[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(border[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
+void w_Triangles_get_tris()
+{
+    auto triangles = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
+    auto& tris = triangles->GetTris();
+
+    ves_pop(1);
+    ves_newlist(int(tris.size()) * 2);
+    for (int i = 0, n = int(tris.size()); i < n; ++i)
+    {
+        ves_pushnumber(tris[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(tris[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
+void w_Triangles_set_border()
+{
+    auto tris = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
+    auto border = tt::list_to_vec2_array(1);
+    tris->SetBorder(border);
 }
 
 void w_Bezier_allocate()
@@ -1241,6 +1310,11 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polygon.get_vertices()") == 0) return w_Polygon_get_vertices;
     if (strcmp(signature, "Polygon.set_vertices(_)") == 0) return w_Polygon_set_vertices;
 
+    if (strcmp(signature, "Triangles.clone()") == 0) return w_Triangles_clone;
+    if (strcmp(signature, "Triangles.get_border()") == 0) return w_Triangles_get_border;
+    if (strcmp(signature, "Triangles.set_border(_)") == 0) return w_Triangles_set_border;
+    if (strcmp(signature, "Triangles.get_tris()") == 0) return w_Triangles_get_tris;
+
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;
 
@@ -1324,6 +1398,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Polygon_allocate;
         methods->finalize = w_Polygon_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Triangles") == 0)
+    {
+        methods->allocate = w_Triangles_allocate;
+        methods->finalize = w_Triangles_finalize;
         return;
     }
 
