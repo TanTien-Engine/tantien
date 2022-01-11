@@ -1,0 +1,10 @@
+^D:\PROJECTS\TANTIEN\THIRDPARTY\CGAL-5.3.1\CMAKELISTS.TXT
+setlocal
+"D:\Program Files\CMake\bin\cmake.exe" -SD:/projects/tantien/thirdparty/CGAL-5.3.1 -BD:/projects/tantien/thirdparty/CGAL-5.3.1/cmake_out --check-stamp-file D:/projects/tantien/thirdparty/CGAL-5.3.1/cmake_out/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
