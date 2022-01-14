@@ -345,8 +345,8 @@ void w_Polygon_clone()
 
 void w_Polygon_get_vertices()
 {
-    auto pl = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
-    auto& vertices = pl->GetVertices();
+    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto& vertices = poly->GetVertices();
 
     ves_pop(1);
     ves_newlist(int(vertices.size()) * 2);
@@ -364,9 +364,9 @@ void w_Polygon_get_vertices()
 
 void w_Polygon_set_vertices()
 {
-    auto polyline = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto vertices = tt::list_to_vec2_array(1);
-    polyline->SetVertices(vertices);
+    poly->SetVertices(vertices);
 }
 
 void w_Triangles_allocate()
@@ -435,6 +435,13 @@ void w_Triangles_set_border()
     auto tris = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
     auto border = tt::list_to_vec2_array(1);
     tris->SetBorder(border);
+}
+
+void w_Triangles_calc_area()
+{
+    auto tris = ((tt::Proxy<gs::Triangles>*)ves_toforeign(0))->obj;
+    auto area = sm::get_polygon_area(tris->GetBorder());
+    ves_set_number(0, area);
 }
 
 void w_Bezier_allocate()
@@ -1314,6 +1321,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Triangles.get_border()") == 0) return w_Triangles_get_border;
     if (strcmp(signature, "Triangles.set_border(_)") == 0) return w_Triangles_set_border;
     if (strcmp(signature, "Triangles.get_tris()") == 0) return w_Triangles_get_tris;
+    if (strcmp(signature, "Triangles.calc_area()") == 0) return w_Triangles_calc_area;
 
     if (strcmp(signature, "Bezier.clone()") == 0) return w_Bezier_clone;
     if (strcmp(signature, "Bezier.set_ctrl_pos(_)") == 0) return w_Bezier_set_ctrl_pos;

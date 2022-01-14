@@ -113,7 +113,10 @@ foreign class Triangles is Shape2D
 	foreign get_border()
 	foreign set_border(border)
 
-	foreign get_tris()	
+	foreign get_tris()
+
+	// fixme: move to math
+	foreign calc_area()
 }
 
 foreign class Bezier is Shape2D
