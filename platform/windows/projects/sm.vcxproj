@@ -28,11 +28,25 @@
     <ClCompile Include="..\..\..\thirdparty\sm\sm_c_vector.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_DouglasPeucker.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Matrix2D.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_Polyline.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_RayIntersect.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Test.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Triangulation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\intrcircle2circle2.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\intrlineseg2circle2.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\intrlineseg2lineseg2.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\mathutils.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\plinesegment.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\polyline.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\polylinecombine.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\polylineintersects.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\polylineoffset.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\polylineoffsetislands.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\staticspatialindex.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\vector.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\vector2.hpp" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\sm_config.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\triangle\triangle.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Calc.h" />
@@ -49,6 +63,7 @@
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix2D.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Plane.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Polyline.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Process.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Quaternion.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Ray.h" />
@@ -172,8 +187,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -188,8 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

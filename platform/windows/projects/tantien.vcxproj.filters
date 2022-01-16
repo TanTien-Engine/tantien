@@ -52,6 +52,18 @@
     <Filter Include="modules\citygen">
       <UniqueIdentifier>{0be9b4cb-4a0d-4fe0-bdcb-c565c6297b8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\citygen\script">
+      <UniqueIdentifier>{ffaf5369-594e-4d2d-a741-50ba27dc8d6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\citygen\tools">
+      <UniqueIdentifier>{968174f7-32a8-45b9-adcc-62a4d950af76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\citygen\comp">
+      <UniqueIdentifier>{4af4d6e0-365d-4863-b9cf-a56f07d696a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\citygen\algorithm">
+      <UniqueIdentifier>{037c6818-cf4c-451a-98b2-ca069a3d7790}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -144,14 +156,29 @@
     <ClCompile Include="..\..\..\src\modules\geometry\TopoPolyAdapter.cpp">
       <Filter>modules\geometry</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\littleworld\citygen\Network.cpp">
-      <Filter>modules\citygen</Filter>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\wrap_CityGen.cpp">
+      <Filter>modules\citygen\script</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\citygen\TensorField.cpp">
-      <Filter>modules\citygen</Filter>
+      <Filter>modules\citygen\tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\littleworld\citygen\wrap_CityGen.cpp">
-      <Filter>modules\citygen</Filter>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Block.cpp">
+      <Filter>modules\citygen\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Streets.cpp">
+      <Filter>modules\citygen\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Graph.cpp">
+      <Filter>modules\citygen\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\RotatingCalipers.cpp">
+      <Filter>modules\citygen\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\KMeans.cpp">
+      <Filter>modules\citygen\algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Parcels.cpp">
+      <Filter>modules\citygen\comp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,14 +284,32 @@
     <ClInclude Include="..\..\..\src\modules\geometry\TopoPolyAdapter.h">
       <Filter>modules\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\littleworld\citygen\Network.h">
-      <Filter>modules\citygen</Filter>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\wrap_CityGen.h">
+      <Filter>modules\citygen\script</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\littleworld\citygen\TensorField.h">
-      <Filter>modules\citygen</Filter>
+      <Filter>modules\citygen\tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\littleworld\citygen\wrap_CityGen.h">
-      <Filter>modules\citygen</Filter>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Block.h">
+      <Filter>modules\citygen\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Streets.h">
+      <Filter>modules\citygen\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Graph.h">
+      <Filter>modules\citygen\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\RotatingCalipers.h">
+      <Filter>modules\citygen\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\KMeans.h">
+      <Filter>modules\citygen\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Random.h">
+      <Filter>modules\citygen\algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Parcels.h">
+      <Filter>modules\citygen\comp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,7 +350,7 @@
       <Filter>modules\io</Filter>
     </None>
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc">
-      <Filter>modules\citygen</Filter>
+      <Filter>modules\citygen\script</Filter>
     </None>
   </ItemGroup>
 </Project>
