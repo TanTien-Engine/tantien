@@ -376,13 +376,16 @@ class Editor
 
 		if (bp_node.draw_gui(this.gui_nodes)) 
 		{
-			// todo: only use pin_dirty ?
-			Blueprint.send_node_dirty_root(bp_node)
-			for (var p in bp_node.exports) {
-				Blueprint.send_pin_dirty_root(p)
-			}
 
-			this.scene_stack.bp_dirty = true
+			bp_node.on_param_dirty()
+
+//			// todo: only use pin_dirty ?
+//			Blueprint.send_node_dirty_root(bp_node)
+//			for (var p in bp_node.exports) {
+//				Blueprint.send_pin_dirty_root(p)
+//			}
+
+//			this.scene_stack.bp_dirty = true
 
 			return true
 		}
