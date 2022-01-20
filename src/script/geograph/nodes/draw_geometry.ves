@@ -7,7 +7,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "geograph.brush" for BrushParts
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline, Polygon, Triangles, Box, Line3D, Polyline3D, Polygon3D
+import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -116,8 +116,6 @@ class DrawGeometry is Node
 			this.draw_polyline(pt, geo, col_array)
 		} else if (shape is Polygon) {
 			this.draw_polygon(pt, geo, col_array)
-		} else if (shape is Triangles) {
-			this.draw_triangles(pt, geo, col_array)			
 		} else if (shape is Box) {
 			this.draw_box(pt, geo, col_array)
 		} else if (shape is Line3D) {
@@ -239,7 +237,7 @@ class DrawGeometry is Node
 
 	draw_polygon(pt, geo, col)
 	{
-		var verts = geo.shape.get_vertices()
+		var verts = geo.shape.get_tris()
 
 		// rotate
 		if (geo.angle != 0)
@@ -261,7 +259,7 @@ class DrawGeometry is Node
 			}
 		}
 
-		pt.add_polygon_filled(verts, col)
+		pt.add_triangles_filled(verts, col)
 	}
 
 	draw_triangles(pt, geo, col)

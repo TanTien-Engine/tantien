@@ -96,27 +96,8 @@ foreign class Polygon is Shape2D
 
 	foreign get_vertices()
 	foreign set_vertices(vertices)
-}
-
-foreign class Triangles is Shape2D
-{
-	init() {}
-	init(border) { this.set_border(border) }
-
-	toString() {
-		var border = this.get_border()
-		return "::geometry::Triangles.init(%(border))"
-	}
-
-	foreign clone()
-
-	foreign get_border()
-	foreign set_border(border)
 
 	foreign get_tris()
-
-	// fixme: move to math
-	foreign calc_area()
 }
 
 foreign class Bezier is Shape2D
