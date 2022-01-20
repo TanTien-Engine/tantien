@@ -97,7 +97,11 @@ foreign class Polygon is Shape2D
 	foreign get_vertices()
 	foreign set_vertices(vertices)
 
+	foreign add_hole(hole)
+
 	foreign get_tris()
+
+	foreign calc_area()
 }
 
 foreign class Bezier is Shape2D
