@@ -49,36 +49,42 @@ class DrawGeometry is Node
 			color = v_color.value
 		}
 
+		var mat = nil
+		var v_mat = Blueprint.calc_input_value(this, 3)
+		if (v_mat) {
+			mat = v_mat.value
+		}
+
 		var pt = Painter.init()
-		this.draw_geo(pt, v_geos, color)
+		this.draw_geo(pt, v_geos, color, mat)
 
 		Graphics.draw_painter(pt)
 	}
 
-	draw_geo(pt, v_geo, color)
+	draw_geo(pt, v_geo, color, mat)
 	{
 		if (v_geo is Vector2)
 		{
-			this.draw_prim_val(pt, v_geo, color)
+			this.draw_prim_val(pt, v_geo, color, mat)
 		}
 		else if (v_geo.type == VAR_TYPE_ARRAY)
 		{
 			for (var v in v_geo.value) {
-				this.draw_geo(pt, v, color)
+				this.draw_geo(pt, v, color, mat)
 			}
 		}
 		else
 		{
 			var geo = v_geo.value
 			if (geo is VarGeo) {
-				this.draw_geo_shape(pt, geo, color)
+				this.draw_geo_shape(pt, geo, color, mat)
 			} else {
-				this.draw_prim_val(pt, geo, color)
+				this.draw_prim_val(pt, geo, color, mat)
 			}
 		}
 	}
 
-	draw_prim_val(pt, geo, color)
+	draw_prim_val(pt, geo, color, mat)
 	{
 		if (!color) {
 			color = Vector3(1.0, 0.0, 0.0)
@@ -87,15 +93,15 @@ class DrawGeometry is Node
 
 		if (geo is Vector2)
 		{
-			pt.add_circle_filled(geo.x, geo.y, POINT_RADIUS, col_array, 24)
+			pt.add_circle_filled(mat, geo.x, geo.y, POINT_RADIUS, col_array, 24)
 		}
 		else if (geo is tt_Rect)
 		{
-			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
+			pt.add_rect(mat, [ geo.x, geo.y, geo.w, geo.h ], col_array, 2)
 		}
 	}
 
-	draw_geo_shape(pt, geo, color)
+	draw_geo_shape(pt, geo, color, mat)
 	{
 		if (!color) {
 			color = geo.render_style["color"]
@@ -107,29 +113,29 @@ class DrawGeometry is Node
 
 		var shape = geo.shape
 		if (shape is Line) {
-			this.draw_line(pt, geo, col_array)
+			this.draw_line(pt, geo, col_array, mat)
 		} else if (shape is Rect) {
-			this.draw_rect(pt, geo, col_array)
+			this.draw_rect(pt, geo, col_array, mat)
 		} else if (shape is Circle) {
-			this.draw_circle(pt, geo, col_array)
+			this.draw_circle(pt, geo, col_array, mat)
 		} else if (shape is Polyline) {
-			this.draw_polyline(pt, geo, col_array)
+			this.draw_polyline(pt, geo, col_array, mat)
 		} else if (shape is Polygon) {
-			this.draw_polygon(pt, geo, col_array)
+			this.draw_polygon(pt, geo, col_array, mat)
 		} else if (shape is Box) {
-			this.draw_box(pt, geo, col_array)
+			this.draw_box(pt, geo, col_array, mat)
 		} else if (shape is Line3D) {
-			this.draw_line3d(pt, geo, col_array)
+			this.draw_line3d(pt, geo, col_array, mat)
 		} else if (shape is Polyline3D) {
-			this.draw_polyline3d(pt, geo, col_array)
+			this.draw_polyline3d(pt, geo, col_array, mat)
 		} else if (shape is Polygon3D) {
-			this.draw_polygon3d(pt, geo, col_array)
+			this.draw_polygon3d(pt, geo, col_array, mat)
 		} else if (shape is BrushParts) {
-			this.draw_brush_parts(pt, shape, col_array)
+			this.draw_brush_parts(pt, shape, col_array, mat)
 		}		
 	}
 
-	draw_line(pt, geo, col)
+	draw_line(pt, geo, col, mat)
 	{
 		var line = geo.shape.get()
 		if (geo.pos) {
@@ -139,10 +145,10 @@ class DrawGeometry is Node
 			line[3] = line[3] + geo.pos[1]
 		}
 
-		pt.add_line(line, col, 2)
+		pt.add_line(mat, line, col, 2)
 	}
 
-	draw_rect(pt, geo, col)
+	draw_rect(pt, geo, col, mat)
 	{
 		var rect = geo.shape.get()
 		var fill = geo.render_style["fill"]
@@ -153,9 +159,9 @@ class DrawGeometry is Node
 				rect[1] = rect[1] + geo.pos[1]
 			}
 			if (fill) {
-				pt.add_rect_filled(rect, col)
+				pt.add_rect_filled(mat, rect, col)
 			} else {
-				pt.add_rect(rect, col, 2)	
+				pt.add_rect(mat, rect, col, 2)	
 			}
 		}
 		else
@@ -185,14 +191,14 @@ class DrawGeometry is Node
 				vertices.add(v.y)
 			}
 			if (fill) {
-				pt.add_polygon_filled(vertices, col)
+				pt.add_polygon_filled(mat, vertices, col)
 			} else {
-				pt.add_polygon(vertices, col, 2)
+				pt.add_polygon(mat, vertices, col, 2)
 			}
 		}
 	}
 
-	draw_circle(pt, geo, col)
+	draw_circle(pt, geo, col, mat)
 	{
 		var circle = geo.shape.get()
 
@@ -207,13 +213,13 @@ class DrawGeometry is Node
 
 		var fill = geo.render_style["fill"]
 		if (fill) {
-			pt.add_circle_filled(center.x, center.y, radius, col, 24)
+			pt.add_circle_filled(mat, center.x, center.y, radius, col, 24)
 		} else {
-			pt.add_circle(center.x, center.y, radius, col, 2.0, 24)
+			pt.add_circle(mat, center.x, center.y, radius, col, 2.0, 24)
 		}
 	}
 
-	draw_polyline(pt, geo, col)
+	draw_polyline(pt, geo, col, mat)
 	{
 		var verts = geo.shape.get_vertices()
 		if (verts.count < 2) {
@@ -231,11 +237,11 @@ class DrawGeometry is Node
 			verts.add(verts[0])
 			verts.add(verts[1])
 		}
-		
-		pt.add_polyline(verts, col, 2.0)
+
+		pt.add_polyline(mat, verts, col, 2.0)
 	}
 
-	draw_polygon(pt, geo, col)
+	draw_polygon(pt, geo, col, mat)
 	{
 		var verts = geo.shape.get_tris()
 
@@ -259,65 +265,24 @@ class DrawGeometry is Node
 			}
 		}
 
-		pt.add_triangles_filled(verts, col)
-	}
-
-	draw_triangles(pt, geo, col)
-	{
-		var tris = geo.shape.get_tris()
-
-		// rotate
-		if (geo.angle != 0)
-		{
-			for (var i = 0; i < tris.count; i = i + 2) {
-				var p = Vector2(tris[i], tris[i + 1])
-				p.rotate(geo.angle)
-				tris[i] = p.x
-				tris[i + 1] = p.y
-			}
-		}
-
-		// translate
-		if (geo.pos) 
-		{
-			for (var i = 0; i < tris.count; i = i + 2) {
-				tris[i] = tris[i] + geo.pos[0]
-				tris[i + 1] = tris[i + 1] + geo.pos[1]
-			}
-		}
-
-		pt.add_triangles_filled(tris, col)
+		pt.add_triangles_filled(mat, verts, col)
 	}	
 
-	draw_box(pt, geo, col)
+	draw_box(pt, geo, col, mat)
 	{
 		var min = geo.shape.get_min()
 		var max = geo.shape.get_max()
-
-		var mat = nil
-		var v_mat = Blueprint.calc_input_value(this, 3)
-		if (v_mat) {
-			mat = v_mat.value
-		}
-
 		pt.add_cube(mat, min, max, col, 2.0)
 	}
 
-	draw_line3d(pt, geo, col)
+	draw_line3d(pt, geo, col, mat)
 	{
 		var p0 = geo.shape.get_p0()
 		var p1 = geo.shape.get_p1()
-
-		var mat = nil
-		var v_mat = Blueprint.calc_input_value(this, 3)
-		if (v_mat) {
-			mat = v_mat.value
-		}
-
 		pt.add_line3d(mat, p0, p1, col, 2.0)
 	}
 
-	draw_polyline3d(pt, geo, col)
+	draw_polyline3d(pt, geo, col, mat)
 	{
 		var verts = geo.shape.get_vertices()
 		if (verts.count < 3) {
@@ -330,39 +295,21 @@ class DrawGeometry is Node
 			verts.add(verts[2])
 		}
 		
-		var mat = nil
-		var v_mat = Blueprint.calc_input_value(this, 3)
-		if (v_mat) {
-			mat = v_mat.value
-		}
-
 		pt.add_polyline3d(mat, verts, col, 2.0)
 	}
 
-	draw_polygon3d(pt, geo, col)
+	draw_polygon3d(pt, geo, col, mat)
 	{
 		var verts = geo.shape.get_vertices()
 		if (verts.count < 3) {
 			return
 		}
-		
-		var mat = nil
-		var v_mat = Blueprint.calc_input_value(this, 3)
-		if (v_mat) {
-			mat = v_mat.value
-		}
 
 		pt.add_polygon3d_filled(mat, verts, col)
 	}
 
-	draw_brush_parts(pt, parts, col)
+	draw_brush_parts(pt, parts, col, mat)
 	{
-		var mat = nil
-		var v_mat = Blueprint.calc_input_value(this, 3)
-		if (v_mat) {
-			mat = v_mat.value
-		}
-
 		// points
 		for (var pair in parts.points)
 		{

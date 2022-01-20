@@ -21,19 +21,19 @@ class Render
 		var hh = 0
 		if (vert.shape == SHAPE_CIRCLE)
 		{
-			pt.add_circle_filled(vert.pos.x, vert.pos.y, SHAPE_CIRCLE_RADIUS, vert.color, 24)
+			pt.add_circle_filled(nil, vert.pos.x, vert.pos.y, SHAPE_CIRCLE_RADIUS, vert.color, 24)
 		}
 		else if (vert.shape == SHAPE_CAPSULE_H)
 		{
 			var hw = SHAPE_CAPSULE_LENGTH * 0.5
 			var hh = SHAPE_CAPSULE_WIDTH * 0.5
-			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_LENGTH, SHAPE_CAPSULE_WIDTH], vert.color, true)
+			pt.add_capsule_filled(nil, [vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_LENGTH, SHAPE_CAPSULE_WIDTH], vert.color, true)
 		}
 		else if (vert.shape == SHAPE_CAPSULE_V)
 		{
 			var hw = SHAPE_CAPSULE_WIDTH * 0.5
 			var hh = SHAPE_CAPSULE_LENGTH * 0.5
-			pt.add_capsule_filled([vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH], vert.color, false)
+			pt.add_capsule_filled(nil, [vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH], vert.color, false)
 		}
 
 		Graphics.draw_painter(pt)
@@ -55,9 +55,9 @@ class Render
 	{
 		var pt = Painter.init()
 		if (pin.edge) {
-			pt.add_circle_filled(x, y, PIN_RADIUS, pin.color, 12)		
+			pt.add_circle_filled(nil, x, y, PIN_RADIUS, pin.color, 12)		
 		} else {
-			pt.add_circle(x, y, PIN_RADIUS, pin.color, 1.0, 12)
+			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)
 		}
 		Graphics.draw_painter(pt)
 	}
@@ -69,7 +69,7 @@ class Render
 		{
 			var edge = pin.edge
 			if (edge and edge.curve) {
-				pt.add_bezier(edge.curve, edge.pin0.color, 2)			
+				pt.add_bezier(nil, edge.curve, edge.pin0.color, 2)			
 			}
 		}
 		Graphics.draw_painter(pt)

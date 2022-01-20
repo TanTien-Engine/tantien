@@ -14,24 +14,24 @@ foreign class Painter
 	init() {}
 
 	// line: list [x0, x1, y0, y1]
-	foreign add_line(line, color, line_width)
+	foreign add_line(mat, line, color, line_width)
 
 	// rect: list [x, y, width, height]	
-	foreign add_rect(rect, color, line_width)
-	foreign add_rect_filled(rect, color)
-	foreign add_capsule_filled(rect, color, hori)
+	foreign add_rect(mat, rect, color, line_width)
+	foreign add_rect_filled(mat, rect, color)
+	foreign add_capsule_filled(mat, rect, color, hori)
 
 	// vertices: list [x0, y0, x1, y1 ...]
-	foreign add_polygon(vertices, color, line_width)
-	foreign add_polygon_filled(vertices, color)
-	foreign add_polyline(vertices, color, line_width)
+	foreign add_polygon(mat, vertices, color, line_width)
+	foreign add_polygon_filled(mat, vertices, color)
+	foreign add_polyline(mat, vertices, color, line_width)
 
-	foreign add_triangles_filled(tris, color)
+	foreign add_triangles_filled(mat, tris, color)
 
-	foreign add_circle(x, y, radius, color, line_width, num_segments)
-	foreign add_circle_filled(x, y, radius, color, num_segments)
+	foreign add_circle(mat, x, y, radius, color, line_width, num_segments)
+	foreign add_circle_filled(mat, x, y, radius, color, num_segments)
 
-	foreign add_bezier(bezier, color, line_width)
+	foreign add_bezier(mat, bezier, color, line_width)
 
 	foreign add_point3d(mat, p, color, size)
 

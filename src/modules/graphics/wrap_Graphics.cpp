@@ -61,96 +61,89 @@ int w_Painter_finalize(void* data)
 void w_Painter_add_line()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    float x0, y0, x1, y1;
-    GD_ASSERT(ves_len(1) == 4, "error number");
-    ves_geti(1, 0);
-    x0 = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 1);
-    y0 = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 2);
-    x1 = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 3);
-    y1 = (float)ves_tonumber(-1);
-    ves_pop(1);
+    auto pos2 = tt::list_to_float_array(2);
+    auto x0 = pos2[0];
+    auto y0 = pos2[1];
+    auto x1 = pos2[2];
+    auto y1 = pos2[3];
 
-    const uint32_t col = tt::list_to_abgr(2);
-    const float width = (float)ves_tonumber(3);
+    const uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
 
-    pt->AddLine(sm::vec2(x0, y0), sm::vec2(x1, y1), col, width);
+    sm::vec2 p0(x0, y0);
+    sm::vec2 p1(x1, y1);
+    if (mat) {
+        p0 = *mat * p0;
+        p1 = *mat * p1;
+    }
+    pt->AddLine(p0, p1, col, width);
 }
 
 void w_Painter_add_rect()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    float x, y, w, h;
-    GD_ASSERT(ves_len(1) == 4, "error number");
-    ves_geti(1, 0);
-    x = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 1);
-    y = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 2);
-    w = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 3);
-    h = (float)ves_tonumber(-1);
-    ves_pop(1);
-
+    auto xywh = tt::list_to_float_array(2);
+    auto x = xywh[0];
+    auto y = xywh[1];
+    auto w = xywh[2];
+    auto h = xywh[3];
     if (w <= 0 || h <= 0) {
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(2);
-    const float width = (float)ves_tonumber(3);
+    const uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
 
-    pt->AddRect(sm::vec2(x, y), sm::vec2(x + w, y + h), col, width);
+    sm::vec2 p0(x, y);
+    sm::vec2 p1(x + w, y + h);
+    if (mat) {
+        p0 = *mat * p0;
+        p1 = *mat * p1;
+    }
+    pt->AddRect(p0, p1, col, width);
 }
 
 void w_Painter_add_rect_filled()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    float x, y, w, h;
-    GD_ASSERT(ves_len(1) == 4, "error number");
-    ves_geti(1, 0);
-    x = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 1);
-    y = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 2);
-    w = (float)ves_tonumber(-1);
-    ves_pop(1);
-    ves_geti(1, 3);
-    h = (float)ves_tonumber(-1);
-    ves_pop(1);
-
+    auto xywh = tt::list_to_float_array(2);
+    auto x = xywh[0];
+    auto y = xywh[1];
+    auto w = xywh[2];
+    auto h = xywh[3];
     if (w <= 0 || h <= 0) {
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(2);
+    const uint32_t col = tt::list_to_abgr(3);
 
-    pt->AddRectFilled(sm::vec2(x, y), sm::vec2(x + w, y + h), col);
+    sm::vec2 p0(x, y);
+    sm::vec2 p1(x + w, y + h);
+    if (mat) {
+        p0 = *mat * p0;
+        p1 = *mat * p1;
+    }
+    pt->AddRectFilled(p0, p1, col);
 }
 
 void w_Painter_add_capsule_filled()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto rect = tt::list_to_float_array(1);
+    auto rect = tt::list_to_float_array(2);
     GD_ASSERT(rect.size() == 4, "error number");
     if (rect[2] <= 0 || rect[3] <= 0) {
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(2);
+    const uint32_t col = tt::list_to_abgr(3);
 
     auto hori = ves_toboolean(3);
 
@@ -162,14 +155,27 @@ void w_Painter_add_capsule_filled()
         rounding_corners_flags = tess::CORNER_FLAGS_TOP | tess::CORNER_FLAGS_BOT;
     }
 
-    pt->AddRectFilled(sm::vec2(rect[0], rect[1]), sm::vec2(rect[0] + rect[2], rect[1] + rect[3]), col, rounding, rounding_corners_flags);
+    sm::vec2 p0(rect[0], rect[1]);
+    sm::vec2 p1(rect[0] + rect[2], rect[1] + rect[3]);
+    if (mat) {
+        p0 = *mat * p0;
+        p1 = *mat * p1;
+    }
+    pt->AddRectFilled(p0, p1, col, rounding, rounding_corners_flags);
 }
 
 void w_Painter_add_polygon()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
     auto vertices = tt::list_to_vec2_array(1);
+    if (mat) {
+        for (auto& v : vertices) {
+            v = *mat * v;
+        }
+    }
+
     uint32_t col = tt::list_to_abgr(2);
     const float width = (float)ves_tonumber(3);
 
@@ -179,9 +185,16 @@ void w_Painter_add_polygon()
 void w_Painter_add_polygon_filled()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(1);
-    uint32_t col = tt::list_to_abgr(2);
+    auto vertices = tt::list_to_vec2_array(2);
+    if (mat) {
+        for (auto& v : vertices) {
+            v = *mat * v;
+        }
+    }
+
+    uint32_t col = tt::list_to_abgr(3);
 
     pt->AddPolygonFilled(vertices.data(), vertices.size(), col);
 }
@@ -189,10 +202,17 @@ void w_Painter_add_polygon_filled()
 void w_Painter_add_polyline()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(1);
-    uint32_t col = tt::list_to_abgr(2);
-    const float width = (float)ves_tonumber(3);
+    auto vertices = tt::list_to_vec2_array(2);
+    if (mat) {
+        for (auto& v : vertices) {
+            v = *mat * v;
+        }
+    }
+
+    uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
 
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
 }
@@ -200,18 +220,32 @@ void w_Painter_add_polyline()
 void w_Painter_add_triangles_filled()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
     pt->SetAntiAliased(false);
 
-    auto vertices = tt::list_to_vec2_array(1);
-    uint32_t col = tt::list_to_abgr(2);
+    auto vertices = tt::list_to_vec2_array(2);
+    uint32_t col = tt::list_to_abgr(3);
 
-    for (int i = 0, n = vertices.size() / 3; i < n; ++i)
+    if (mat)
     {
-        auto& p0 = vertices[i * 3];
-        auto& p1 = vertices[i * 3 + 1];
-        auto& p2 = vertices[i * 3 + 2];
-        pt->AddTriangleFilled(p0, p1, p2, col);
+        for (int i = 0, n = vertices.size() / 3; i < n; ++i)
+        {
+            auto p0 = *mat * vertices[i * 3];
+            auto p1 = *mat * vertices[i * 3 + 1];
+            auto p2 = *mat * vertices[i * 3 + 2];
+            pt->AddTriangleFilled(p0, p1, p2, col);
+        }
+    }
+    else
+    {
+        for (int i = 0, n = vertices.size() / 3; i < n; ++i)
+        {
+            auto& p0 = vertices[i * 3];
+            auto& p1 = vertices[i * 3 + 1];
+            auto& p2 = vertices[i * 3 + 2];
+            pt->AddTriangleFilled(p0, p1, p2, col);
+        }
     }
 
     pt->SetAntiAliased(true);
@@ -220,39 +254,64 @@ void w_Painter_add_triangles_filled()
 void w_Painter_add_circle()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    const float x = (float)ves_tonumber(1);
-    const float y = (float)ves_tonumber(2);
-    const float r = (float)ves_tonumber(3);
-    uint32_t col = tt::list_to_abgr(4);
-    const float width = (float)ves_tonumber(5);
-    const uint32_t seg = (uint32_t)ves_tonumber(6);
+    const float x = (float)ves_tonumber(2);
+    const float y = (float)ves_tonumber(3);
+    const float r = (float)ves_tonumber(4);
+    uint32_t col = tt::list_to_abgr(5);
+    const float width = (float)ves_tonumber(6);
+    const uint32_t seg = (uint32_t)ves_tonumber(7);
 
-    pt->AddCircle(sm::vec2(x, y), r, col, width, seg);
+    sm::vec2 center(x, y);
+    if (mat) {
+        center = *mat * center;
+    }
+
+    pt->AddCircle(center, r, col, width, seg);
 }
 
 void w_Painter_add_circle_filled()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
 
-    const float x = (float)ves_tonumber(1);
-    const float y = (float)ves_tonumber(2);
-    const float r = (float)ves_tonumber(3);
-    uint32_t col = tt::list_to_abgr(4);
-    const uint32_t seg = (uint32_t)ves_tonumber(5);
+    const float x = (float)ves_tonumber(2);
+    const float y = (float)ves_tonumber(3);
+    const float r = (float)ves_tonumber(4);
+    uint32_t col = tt::list_to_abgr(5);
+    const uint32_t seg = (uint32_t)ves_tonumber(6);
 
-    pt->AddCircleFilled(sm::vec2(x, y), r, col, seg);
+    sm::vec2 center(x, y);
+    if (mat) {
+        center = *mat * center;
+    }
+
+    pt->AddCircleFilled(center, r, col, seg);
 }
 
 void w_Painter_add_bezier()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
-    auto bezier = ((tt::Proxy<gs::Bezier>*)ves_toforeign(1))->obj;
-    uint32_t col = tt::list_to_abgr(2);
-    const float width = (float)ves_tonumber(3);
+    auto mat = (sm::mat4*)ves_toforeign(1);
+
+    auto bezier = ((tt::Proxy<gs::Bezier>*)ves_toforeign(2))->obj;
+    uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
 
     auto& vertices = bezier->GetVertices();
-    pt->AddPolyline(vertices.data(), vertices.size(), col, width);
+    if (mat)
+    {
+        auto transed = vertices;
+        for (auto& v : transed) {
+            v = *mat * v;
+        }
+        pt->AddPolyline(transed.data(), transed.size(), col, width);
+    }
+    else
+    {
+        pt->AddPolyline(vertices.data(), vertices.size(), col, width);
+    }
 }
 
 sm::mat4* CAM_MAT = nullptr;
@@ -564,17 +623,17 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Viewport.set_size(_,_)") == 0) return w_Viewport_set_size;
 
     // 2D
-    if (strcmp(signature, "Painter.add_line(_,_,_)") == 0) return w_Painter_add_line;
-    if (strcmp(signature, "Painter.add_rect(_,_,_)") == 0) return w_Painter_add_rect;
-    if (strcmp(signature, "Painter.add_rect_filled(_,_)") == 0) return w_Painter_add_rect_filled;
-    if (strcmp(signature, "Painter.add_capsule_filled(_,_,_)") == 0) return w_Painter_add_capsule_filled;
-    if (strcmp(signature, "Painter.add_polygon(_,_,_)") == 0) return w_Painter_add_polygon;
-    if (strcmp(signature, "Painter.add_polygon_filled(_,_)") == 0) return w_Painter_add_polygon_filled;
-    if (strcmp(signature, "Painter.add_polyline(_,_,_)") == 0) return w_Painter_add_polyline;
-    if (strcmp(signature, "Painter.add_triangles_filled(_,_)") == 0) return w_Painter_add_triangles_filled;
-    if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
-    if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
-    if (strcmp(signature, "Painter.add_bezier(_,_,_)") == 0) return w_Painter_add_bezier;
+    if (strcmp(signature, "Painter.add_line(_,_,_,_)") == 0) return w_Painter_add_line;
+    if (strcmp(signature, "Painter.add_rect(_,_,_,_)") == 0) return w_Painter_add_rect;
+    if (strcmp(signature, "Painter.add_rect_filled(_,_,_)") == 0) return w_Painter_add_rect_filled;
+    if (strcmp(signature, "Painter.add_capsule_filled(_,_,_,_)") == 0) return w_Painter_add_capsule_filled;
+    if (strcmp(signature, "Painter.add_polygon(_,_,_,_)") == 0) return w_Painter_add_polygon;
+    if (strcmp(signature, "Painter.add_polygon_filled(_,_,_)") == 0) return w_Painter_add_polygon_filled;
+    if (strcmp(signature, "Painter.add_polyline(_,_,_,_)") == 0) return w_Painter_add_polyline;
+    if (strcmp(signature, "Painter.add_triangles_filled(_,_,_)") == 0) return w_Painter_add_triangles_filled;
+    if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
+    if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
+    if (strcmp(signature, "Painter.add_bezier(_,_,_,_)") == 0) return w_Painter_add_bezier;
     // 3D
     if (strcmp(signature, "Painter.add_point3d(_,_,_,_)") == 0) return w_Painter_add_point3d;
     if (strcmp(signature, "Painter.add_line3d(_,_,_,_,_)") == 0) return w_Painter_add_line3d;

@@ -9,7 +9,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.nodes.draw_geometry" for DrawGeometry
 import "geograph.config" for POINT_RADIUS
 import "physicsgraph.variant" for VarFixture
-import "maths" for Matrix2D, Float2
+import "maths" for Matrix2D
 import "render" for Texture2D
 import "graphics" for Painter, Graphics
 import "maths.vector" for Vector2, Vector3
@@ -136,11 +136,11 @@ class DrawSprite is Node
 		var col = [255, 255, 255, 255]
 		if (geo is Vector2)
 		{
-			pt.add_circle_filled(geo.x, geo.y, POINT_RADIUS, col, 24)
+			pt.add_circle_filled(nil, geo.x, geo.y, POINT_RADIUS, col, 24)
 		}
 		else if (geo is tt_Rect)
 		{
-			pt.add_rect([ geo.x, geo.y, geo.w, geo.h ], col, 2)
+			pt.add_rect(nil, [ geo.x, geo.y, geo.w, geo.h ], col, 2)
 		}
 	}
 
@@ -181,54 +181,17 @@ class DrawSprite is Node
 	draw_line(v_geo, mat, pt, col)
 	{
 		var line = v_geo.shape.get()
-		if (mat)
-		{
-			var b = Float2.init(line[0], line[1])
-			var e = Float2.init(line[2], line[3])
-			b.transform(mat)
-			e.transform(mat)
-			pt.add_line([ b.x(), b.y(), e.x(), e.y() ], col, 2)
-		}
-		else
-		{
-			pt.add_line(line, col, 2)
-		}
+		pt.add_line(mat, line, col, 2)
 	}
 
 	draw_rect(v_geo, mat, pt, col)
 	{
 		var rect = v_geo.shape.get()
 		var fill = v_geo.render_style["fill"]
-		if (mat)
-		{
-			var quad = [
-				Float2.init(rect[0], rect[1]),
-				Float2.init(rect[0], rect[1] + rect[3]),
-				Float2.init(rect[0] + rect[2], rect[1] + rect[3]),
-				Float2.init(rect[0] + rect[2], rect[1]),
-			]
-			for (var p in quad) {
-				p.transform(mat)
-			}
-
-			var vertices = []
-			for (var p in quad) {
-				vertices.add(p.x())
-				vertices.add(p.y())
-			}
-			if (fill) {
-				pt.add_polygon_filled(vertices, col)
-			} else {
-				pt.add_polygon(vertices, col, 2)
-			}
-		}
-		else
-		{
-			if (fill) {
-				pt.add_rect_filled(rect, col)
-			} else {
-				pt.add_rect(rect, col, 2)
-			}
+		if (fill) {
+			pt.add_rect_filled(mat, rect, col)
+		} else {
+			pt.add_rect(mat, rect, col, 2)
 		}
 	}
 
@@ -236,43 +199,16 @@ class DrawSprite is Node
 	{
 		var circle = v_geo.shape.get()
 		var fill = v_geo.render_style["fill"]
-		if (mat)
-		{
-			var p0 = Float2.init(circle[0], circle[1])
-			var p1 = Float2.init(circle[0] + circle[2], circle[1])
-			p0.transform(mat)
-			p1.transform(mat)
-			var r = Calc.dis_pos_to_pos(Vector2(p0.x(), p0.y()), Vector2(p1.x(), p1.y()))
-			if (fill) {
-				pt.add_circle_filled(p0.x(), p0.y(), r, col, 24)
-			} else {
-				pt.add_circle(p0.x(), p0.y(), r, col, 2.0, 24)
-			}
-		}
-		else
-		{
-			if (fill) {
-				pt.add_circle_filled(circle[0], circle[1], circle[2], col, 24)
-			} else {
-				pt.add_circle(circle[0], circle[1], circle[2], col, 2.0, 24)
-			}
+		if (fill) {
+			pt.add_circle_filled(mat, circle[0], circle[1], circle[2], col, 24)
+		} else {
+			pt.add_circle(mat, circle[0], circle[1], circle[2], col, 2.0, 24)
 		}
 	}
 
 	draw_polyline(v_geo, mat, pt, col)
 	{
 		var verts = v_geo.shape.get_vertices()
-		if (mat)
-		{
-			for (var i = 0; i < verts.count; i = i + 2) 
-			{
-				var p = Float2.init(verts[i], verts[i + 1])
-				p.transform(mat)
-				verts[i] = p.x()
-				verts[i + 1] = p.y()
-			}
-		}
-
 		if (verts.count < 2) {
 			return
 		}
@@ -281,22 +217,12 @@ class DrawSprite is Node
 			verts.add(verts[1])
 		}
 
-		pt.add_polyline(verts, col, 2.0)
+		pt.add_polyline(mat, verts, col, 2.0)
 	}
 
 	draw_polygon(v_geo, mat, pt, col)
 	{
 		var verts = v_geo.shape.get_vertices()
-		if (mat)
-		{
-			for (var i = 0; i < verts.count; i = i + 2) 
-			{
-				var p = Float2.init(verts[i], verts[i + 1])
-				p.transform(mat)
-				verts[i] = p.x()
-				verts[i + 1] = p.y()
-			}
-		}
-		pt.add_polygon_filled(verts, col)
+		pt.add_polygon_filled(mat, verts, col)
 	}	
 }

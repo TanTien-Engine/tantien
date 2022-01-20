@@ -23,7 +23,7 @@ class NodeRender
 
 		var hw = node.style.width * 0.5
 		var hh = node.style.height * 0.5
-		pt.add_rect_filled([node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], node.style.color)
+		pt.add_rect_filled(nil, [node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], node.style.color)
 
 		Graphics.draw_painter(pt)
 
@@ -70,9 +70,9 @@ class NodeRender
 	{
 		var pt = Painter.init()
 		if (pin.conns.isEmpty) {
-			pt.add_circle(x, y, PIN_RADIUS, pin.color, 1.0, 12)		
+			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)		
 		} else {
-			pt.add_circle_filled(x, y, PIN_RADIUS, pin.color, 12)
+			pt.add_circle_filled(nil, x, y, PIN_RADIUS, pin.color, 12)
 		}
 		Graphics.draw_painter(pt)
 
@@ -91,7 +91,7 @@ class NodeRender
 
 	static draw_conn(pt, conn)
 	{
-		pt.add_bezier(conn.curve, conn.from.color, 2)
+		pt.add_bezier(nil, conn.curve, conn.from.color, 2)
 	}
 
 	static is_pin_visible(pin)

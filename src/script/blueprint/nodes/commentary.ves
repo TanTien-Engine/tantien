@@ -41,7 +41,7 @@ class Commentary is Node
 
 		var r = this.get_comment_region(this.pos)
 		var line_width = 1.0 / cam_mt.get_scale()[0] * this.line_width
-		pt.add_rect([r.x, r.y, r.w, r.h], COL_PANEL_BG, line_width)
+		pt.add_rect(nil, [r.x, r.y, r.w, r.h], COL_PANEL_BG, line_width)
 	
 		Graphics.draw_painter(pt)
 	}
