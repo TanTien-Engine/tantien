@@ -169,15 +169,15 @@ void w_Painter_add_polygon()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(1);
+    auto vertices = tt::list_to_vec2_array(2);
     if (mat) {
         for (auto& v : vertices) {
             v = *mat * v;
         }
     }
 
-    uint32_t col = tt::list_to_abgr(2);
-    const float width = (float)ves_tonumber(3);
+    uint32_t col = tt::list_to_abgr(3);
+    const float width = (float)ves_tonumber(4);
 
     pt->AddPolygon(vertices.data(), vertices.size(), col, width);
 }
