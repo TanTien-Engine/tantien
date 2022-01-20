@@ -98,6 +98,7 @@ foreign class Polygon is Shape2D
 	foreign set_vertices(vertices)
 
 	foreign add_hole(hole)
+	foreign get_holes()
 
 	foreign get_tris()
 

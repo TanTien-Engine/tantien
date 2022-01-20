@@ -375,6 +375,13 @@ void w_Polygon_add_hole()
     poly->AddHole(hole);
 }
 
+void w_Polygon_get_holes()
+{
+    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto& holes = poly->GetHoles();
+    tt::return_list(holes);
+}
+
 void w_Polygon_get_tris()
 {
     auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
@@ -1274,6 +1281,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polygon.get_vertices()") == 0) return w_Polygon_get_vertices;
     if (strcmp(signature, "Polygon.set_vertices(_)") == 0) return w_Polygon_set_vertices;
     if (strcmp(signature, "Polygon.add_hole(_)") == 0) return w_Polygon_add_hole;
+    if (strcmp(signature, "Polygon.get_holes()") == 0) return w_Polygon_get_holes;
     if (strcmp(signature, "Polygon.get_tris()") == 0) return w_Polygon_get_tris;
     if (strcmp(signature, "Polygon.calc_area()") == 0) return w_Polygon_calc_area;
 

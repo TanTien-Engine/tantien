@@ -243,29 +243,45 @@ class DrawGeometry is Node
 
 	draw_polygon(pt, geo, col, mat)
 	{
-		var verts = geo.shape.get_tris()
-
-		// rotate
-		if (geo.angle != 0)
+		var fill = geo.render_style["fill"]
+		if (fill)
 		{
-			for (var i = 0; i < verts.count; i = i + 2) {
-				var p = Vector2(verts[i], verts[i + 1])
-				p.rotate(geo.angle)
-				verts[i] = p.x
-				verts[i + 1] = p.y
-			}
-		}
+			var verts = geo.shape.get_tris()
 
-		// translate
-		if (geo.pos) 
+			// rotate
+			if (geo.angle != 0)
+			{
+				for (var i = 0; i < verts.count; i = i + 2) {
+					var p = Vector2(verts[i], verts[i + 1])
+					p.rotate(geo.angle)
+					verts[i] = p.x
+					verts[i + 1] = p.y
+				}
+			}
+
+			// translate
+			if (geo.pos) 
+			{
+				for (var i = 0; i < verts.count; i = i + 2) {
+					verts[i] = verts[i] + geo.pos[0]
+					verts[i + 1] = verts[i + 1] + geo.pos[1]
+				}
+			}
+
+			pt.add_triangles_filled(mat, verts, col)
+		}
+		else
 		{
-			for (var i = 0; i < verts.count; i = i + 2) {
-				verts[i] = verts[i] + geo.pos[0]
-				verts[i + 1] = verts[i + 1] + geo.pos[1]
-			}
-		}
+			 // fixme: rotate and translate
 
-		pt.add_triangles_filled(mat, verts, col)
+			 var verts = geo.shape.get_vertices()
+			 pt.add_polygon(mat, verts, col, 2)
+
+			 var holes = geo.shape.get_holes()
+			 for (var hole in holes) {
+			 	pt.add_polygon(mat, hole, col, 2)			 
+			 }
+		}
 	}	
 
 	draw_box(pt, geo, col, mat)
