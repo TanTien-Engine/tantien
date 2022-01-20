@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\thirdparty\sm\external\clipper\clipper\clipper.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\external\triangle\triangle.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Calc.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_ConvexHull.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="..\..\..\thirdparty\sm\sm_c_vector.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_DouglasPeucker.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Matrix2D.cpp" />
+    <ClCompile Include="..\..\..\thirdparty\sm\SM_Polygon.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Polyline.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_RayIntersect.cpp" />
     <ClCompile Include="..\..\..\thirdparty\sm\SM_Test.cpp" />
@@ -47,6 +49,8 @@
     <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\staticspatialindex.hpp" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\vector.hpp" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\CavalierContours\include\cavc\vector2.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\clipper\clipper\clipper.hpp" />
+    <ClInclude Include="..\..\..\thirdparty\sm\external\clipper\clipper\clipper_export.hpp" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\sm_config.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\external\triangle\triangle.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Calc.h" />
@@ -63,6 +67,7 @@
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Matrix2D.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Plane.h" />
+    <ClInclude Include="..\..\..\thirdparty\sm\SM_Polygon.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Polyline.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Process.h" />
     <ClInclude Include="..\..\..\thirdparty\sm\SM_Quaternion.h" />
@@ -185,9 +190,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;CLIPPER_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/sm/external/clipper;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -200,9 +205,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NO_TIMER;ANSI_DECLARATORS;TRILIBRARY;CLIPPER_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../thirdparty/sm/external/CavalierContours/include;../../../thirdparty/sm/external/clipper;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
