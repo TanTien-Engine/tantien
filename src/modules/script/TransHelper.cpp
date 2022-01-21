@@ -192,4 +192,77 @@ sm::vec4 list_to_vec4(int index)
     return ret;
 }
 
+void return_list(const std::vector<std::vector<sm::vec2>>& polys)
+{
+    ves_pop(ves_argnum());
+
+    ves_newlist(int(polys.size()));
+    for (int i_list = 0; i_list < polys.size(); ++i_list)
+    {
+        ves_newlist(int(polys[i_list].size() * 2));
+
+        for (int i = 0, n = (int)(polys[i_list].size()); i < n; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                ves_pushnumber(polys[i_list][i].xy[j]);
+                ves_seti(-2, i * 2 + j);
+                ves_pop(1);
+            }
+        }
+
+        ves_seti(-2, i_list);
+        ves_pop(1);
+    }
+}
+
+void return_list(const std::vector<sm::vec2>& pts)
+{
+    ves_pop(ves_argnum());
+
+    ves_newlist(int(pts.size()) * 2);
+    for (int i = 0, n = int(pts.size()); i < n; ++i)
+    {
+        ves_pushnumber(pts[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(pts[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
+void return_list(const std::vector<sm::vec3>& pts)
+{
+    ves_pop(ves_argnum());
+
+    ves_newlist(int(pts.size()) * 3);
+    for (int i = 0, n = int(pts.size()); i < n; ++i)
+    {
+        ves_pushnumber(pts[i].x);
+        ves_seti(-2, i * 3);
+        ves_pop(1);
+
+        ves_pushnumber(pts[i].y);
+        ves_seti(-2, i * 3 + 1);
+        ves_pop(1);
+
+        ves_pushnumber(pts[i].z);
+        ves_seti(-2, i * 3 + 2);
+        ves_pop(1);
+    }
+}
+
+void return_list(const std::vector<std::string>& strs)
+{
+    ves_pop(ves_argnum());
+
+    ves_newlist((int)strs.size());
+    for (int i = 0; i < strs.size(); ++i)
+    {
+        ves_pushstring(strs[i].c_str());
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
 }

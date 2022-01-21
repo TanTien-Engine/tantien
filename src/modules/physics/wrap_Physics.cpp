@@ -289,16 +289,10 @@ void w_Body_get_pos()
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto pos = body->GetPosition();
 
-    ves_pop(1);
-    ves_newlist(2);
-
-    ves_pushnumber(pos.x * up::rigid::box2d::SCALE_FACTOR);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(pos.y * up::rigid::box2d::SCALE_FACTOR);
-    ves_seti(-2, 1);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{
+        pos.x * up::rigid::box2d::SCALE_FACTOR,
+        pos.y * up::rigid::box2d::SCALE_FACTOR
+    });
 }
 
 void w_Body_get_angle()
@@ -341,17 +335,7 @@ void w_Body_get_linear_velocity()
 {
     auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto velocity = body->GetLinearVelocity();
-
-    ves_pop(1);
-    ves_newlist(2);
-
-    ves_pushnumber(velocity.x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(velocity.y);
-    ves_seti(-2, 1);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{ velocity.x, velocity.y });
 }
 
 void w_Body_is_valid()

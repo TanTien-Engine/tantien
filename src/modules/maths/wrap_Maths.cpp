@@ -226,26 +226,7 @@ void w_Matrix2D_decompose()
     float r = 0.0f;
     mt->Decompose(s, r, t);
 
-    ves_pop(1);
-    ves_newlist(5);
-
-    ves_pushnumber(s.x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-    ves_pushnumber(s.y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-    ves_pushnumber(r);
-    ves_seti(-2, 2);
-    ves_pop(1);
-    ves_pushnumber(t.x);
-    ves_seti(-2, 3);
-    ves_pop(1);
-    ves_pushnumber(t.y);
-    ves_seti(-2, 4);
-    ves_pop(1);
-
-
+    tt::return_list(std::vector<float>{ s.x, s.y, r, t.x, t.y });
 }
 
 void w_Matrix44_clone()
@@ -436,19 +417,7 @@ void w_Matrix44_transform_mat4()
 void w_Matrix44_get_scale()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    ves_pushnumber(mt->c[0][0]);
-    ves_seti(-2, 0);
-    ves_pop(1);
-    ves_pushnumber(mt->c[1][1]);
-    ves_seti(-2, 1);
-    ves_pop(1);
-    ves_pushnumber(mt->c[2][2]);
-    ves_seti(-2, 2);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{ mt->c[0][0], mt->c[1][1], mt->c[2][2] });
 }
 
 void w_Matrix44_inverse()
@@ -547,22 +516,9 @@ void w_Maths_get_line_intersect_line()
     } else {
         succ = sm::intersect_line_line(l0[0], l0[1], l1[0], l1[1], &cross);
     }
-    if (succ) 
-    {
-        ves_pop(ves_argnum());
-
-        ves_newlist(2);
-
-        ves_pushnumber(cross.x);
-        ves_seti(-2, 0);
-        ves_pop(1);
-
-        ves_pushnumber(cross.y);
-        ves_seti(-2, 1);
-        ves_pop(1);
-    } 
-    else 
-    {
+    if (succ) {
+        tt::return_list(std::vector<float>{ cross.x, cross.y });
+    } else {
         ves_set_nil(0);
     }
 }

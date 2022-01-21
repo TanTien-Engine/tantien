@@ -87,25 +87,12 @@ void w_Line_clone()
 void w_Line_get()
 {
     auto l = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
-
-    ves_pop(1);
-    ves_newlist(4);
-
-    ves_pushnumber(l->GetStart().x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(l->GetStart().y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(l->GetEnd().x);
-    ves_seti(-2, 2);
-    ves_pop(1);
-
-    ves_pushnumber(l->GetEnd().y);
-    ves_seti(-2, 3);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{ 
+        l->GetStart().x, 
+        l->GetStart().y,
+        l->GetEnd().x,
+        l->GetEnd().y
+    });
 }
 
 void w_Line_set()
@@ -148,26 +135,13 @@ void w_Rect_get()
 {
     auto r = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
 
-    ves_pop(1);
-    ves_newlist(4);
-
     auto& rect = r->GetRect();
-
-    ves_pushnumber(rect.xmin);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(rect.ymin);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(rect.xmax - rect.xmin);
-    ves_seti(-2, 2);
-    ves_pop(1);
-
-    ves_pushnumber(rect.ymax - rect.ymin);
-    ves_seti(-2, 3);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{
+        rect.xmin,
+        rect.ymin,
+        rect.Width(),
+        rect.Height()
+    });
 }
 
 void w_Rect_set()
@@ -208,21 +182,11 @@ void w_Circle_clone()
 void w_Circle_get()
 {
     auto c = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    ves_pushnumber(c->GetCenter().x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(c->GetCenter().y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(c->GetRadius());
-    ves_seti(-2, 2);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{
+        c->GetCenter().x,
+        c->GetCenter().y,
+        c->GetRadius()
+    });
 }
 
 void w_Circle_set()
@@ -264,19 +228,7 @@ void w_Polyline_get_vertices()
 {
     auto pl = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-
-    ves_pop(1);
-    ves_newlist(int(vertices.size() * 2));
-    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
-    {
-        ves_pushnumber(vertices[i].x);
-        ves_seti(-2, i * 2);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].y);
-        ves_seti(-2, i * 2 + 1);
-        ves_pop(1);
-    }
+    tt::return_list(vertices);
 }
 
 void w_Polyline_set_vertices()
@@ -304,19 +256,7 @@ void w_Polyline_resample()
     auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     float length = (float)ves_tonumber(1);
     auto pts = polyline->Resample(length);
-
-    ves_pop(2);
-    ves_newlist((int)(pts.size()) * 2);
-    for (int i = 0, n = int(pts.size()); i < n; ++i)
-    {
-        ves_pushnumber(pts[i].x);
-        ves_seti(-2, i * 2);
-        ves_pop(1);
-
-        ves_pushnumber(pts[i].y);
-        ves_seti(-2, i * 2 + 1);
-        ves_pop(1);
-    }
+    tt::return_list(pts);
 }
 
 void w_Polygon_allocate()
@@ -346,19 +286,7 @@ void w_Polygon_get_vertices()
 {
     auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto& vertices = poly->GetVertices();
-
-    ves_pop(1);
-    ves_newlist(int(vertices.size()) * 2);
-    for (int i = 0, n = int(vertices.size()); i < n; ++i)
-    {
-        ves_pushnumber(vertices[i].x);
-        ves_seti(-2, i * 2);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].y);
-        ves_seti(-2, i * 2 + 1);
-        ves_pop(1);
-    }
+    tt::return_list(vertices);
 }
 
 void w_Polygon_set_vertices()
@@ -386,19 +314,7 @@ void w_Polygon_get_tris()
 {
     auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto& tris = poly->GetTris();
-
-    ves_pop(1);
-    ves_newlist(int(tris.size()) * 2);
-    for (int i = 0, n = int(tris.size()); i < n; ++i)
-    {
-        ves_pushnumber(tris[i].x);
-        ves_seti(-2, i * 2);
-        ves_pop(1);
-
-        ves_pushnumber(tris[i].y);
-        ves_seti(-2, i * 2 + 1);
-        ves_pop(1);
-    }
+    tt::return_list(tris);
 }
 
 void w_Polygon_calc_area()
@@ -457,15 +373,7 @@ void w_Line3D_get_p0()
     auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
 
     auto p0 = l->GetStart();
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    for (int i = 0; i < 3; ++i) {
-        ves_pushnumber(p0.xyz[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
 }
 
 void w_Line3D_set_p0()
@@ -481,15 +389,7 @@ void w_Line3D_get_p1()
     auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
 
     auto p1 = l->GetEnd();
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    for (int i = 0; i < 3; ++i) {
-        ves_pushnumber(p1.xyz[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
 }
 
 void w_Line3D_set_p1()
@@ -518,15 +418,7 @@ void w_Box_get_min()
     auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
 
     auto min = b->GetCube().Min();
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    for (int i = 0; i < 3; ++i) {
-        ves_pushnumber(min[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(std::vector<float>{ min[0], min[1], min[2] });
 }
 
 void w_Box_get_max()
@@ -534,15 +426,7 @@ void w_Box_get_max()
     auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
 
     auto max = b->GetCube().Max();
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    for (int i = 0; i < 3; ++i) {
-        ves_pushnumber(max[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(std::vector<float>{ max[0], max[1], max[2] });
 }
 
 void w_Box_set_size()
@@ -571,23 +455,7 @@ void w_Polyline3D_get_vertices()
 {
     auto pl = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-
-    ves_pop(1);
-    ves_newlist(int(vertices.size() * 3));
-    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
-    {
-        ves_pushnumber(vertices[i].x);
-        ves_seti(-2, i * 3);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].y);
-        ves_seti(-2, i * 3 + 1);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].z);
-        ves_seti(-2, i * 3 + 2);
-        ves_pop(1);
-    }
+    tt::return_list(vertices);
 }
 
 void w_Polyline3D_set_vertices()
@@ -627,23 +495,7 @@ void w_Polygon3D_get_vertices()
 {
     auto pl = ((tt::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-
-    ves_pop(1);
-    ves_newlist(int(vertices.size() * 3));
-    for (int i = 0, n = (int)(vertices.size()); i < n; ++i)
-    {
-        ves_pushnumber(vertices[i].x);
-        ves_seti(-2, i * 3);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].y);
-        ves_seti(-2, i * 3 + 1);
-        ves_pop(1);
-
-        ves_pushnumber(vertices[i].z);
-        ves_seti(-2, i * 3 + 2);
-        ves_pop(1);
-    }
+    tt::return_list(vertices);
 }
 
 void w_Polygon3D_set_vertices()
@@ -672,21 +524,7 @@ int w_PolyPoint_finalize(void* data)
 void w_PolyPoint_get_pos()
 {
     auto p = ((tt::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    ves_pushnumber(p->pos.x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(p->pos.y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(p->pos.z);
-    ves_seti(-2, 2);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{ p->pos.x, p->pos.y, p->pos.z });
 }
 
 void w_PolyPoint_set_pos()
@@ -727,38 +565,13 @@ int w_PolyFace_finalize(void* data)
 void w_PolyFace_get_normal()
 {
     auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
-
-    ves_pop(1);
-    ves_newlist(3);
-
-    ves_pushnumber(f->plane.normal.x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(f->plane.normal.y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(f->plane.normal.z);
-    ves_seti(-2, 2);
-    ves_pop(1);
+    tt::return_list(std::vector<float>{ f->plane.normal.x, f->plane.normal.y, f->plane.normal.z });
 }
 
 void w_PolyFace_get_border()
 {
     auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
-
-    ves_pop(ves_argnum());
-
-    const int num = int(f->border.size());
-
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_pushnumber((double)(f->border[i]));
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(f->border);
 }
 
 void w_Polytope_allocate()

@@ -94,21 +94,10 @@ void w_Model_calc_brush_aabb()
     auto& min = aabb.min;
     auto& max = aabb.max;
 
-    ves_pop(ves_argnum());
-    ves_newlist(6);
-
-    for (int i = 0; i < 3; ++i) 
-    {
-        ves_pushnumber(min[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
-    for (int i = 0; i < 3; ++i)
-    {
-        ves_pushnumber(max[i]);
-        ves_seti(-2, i + 3);
-        ves_pop(1);
-    }
+    tt::return_list(std::vector<float>{
+        min[0], min[1], min[2],
+        max[0], max[1], max[2],
+    });
 }
 
 void w_glTF_allocate()

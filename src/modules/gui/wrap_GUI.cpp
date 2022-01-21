@@ -4,6 +4,7 @@
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/SpriteRenderer.h"
 #include "modules/script/Proxy.h"
+#include "modules/script/TransHelper.h"
 
 #include <easygui/Context.h>
 #include <easygui/ImGui.h>
@@ -77,14 +78,8 @@ void w_GUI_trans_scr_pos_to_proj()
 	const float cam_y = (float)ves_tonumber(4);
 	const float cam_scale = (float)ves_tonumber(5);
 	auto proj = tt::GUI::Instance()->TransScreenToProj({ x, y }, { cam_x, cam_y }, cam_scale);
-	ves_pop(6);
-	ves_newlist(2);
-	ves_pushnumber(proj.x);
-	ves_seti(-2, 0);
-	ves_pop(1);
-	ves_pushnumber(proj.y);
-	ves_seti(-2, 1);
-	ves_pop(1);
+
+	tt::return_list(std::vector<float>{ proj.x, proj.y });
 }
 
 enum MouseButton

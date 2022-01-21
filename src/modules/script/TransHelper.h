@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 namespace tt
 {
@@ -42,6 +43,26 @@ void list_to_foreigns(int index, std::vector<T>& foreigns)
     for (int i = 0; i < num; ++i) {
         ves_geti(index, i);
         foreigns.push_back(*(T*)ves_toforeign(-1));
+        ves_pop(1);
+    }
+}
+
+void return_list(const std::vector<std::vector<sm::vec2>>& polys);
+void return_list(const std::vector<sm::vec2>& pts);
+void return_list(const std::vector<sm::vec3>& pts);
+void return_list(const std::vector<std::string>& strs);
+
+template<typename T>
+void return_list(const std::vector<T>& vals)
+{
+    ves_pop(ves_argnum());
+
+    const int num = vals.size();
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnumber(static_cast<double>(vals[i]));
+        ves_seti(-2, i);
         ves_pop(1);
     }
 }

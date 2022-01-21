@@ -1029,29 +1029,13 @@ void w_ComputeBuffer_download()
     {
         std::vector<int> data(size);
         buf->GetComputeBufferData(data.data(), sizeof(data) * size);
-
-        ves_pop(3);
-        ves_newlist(size);
-        for (int i = 0; i < size; ++i) 
-        {
-            ves_pushnumber(data[i]);
-            ves_seti(-2, i);
-            ves_pop(1);
-        }
+        tt::return_list(data);
     }
     else if (strcmp(type, "float") == 0)
     {
         std::vector<float> data(size);
         buf->GetComputeBufferData(data.data(), sizeof(float) * size);
-
-        ves_pop(3);
-        ves_newlist(size);
-        for (int i = 0; i < size; ++i)
-        {
-            ves_pushnumber(data[i]);
-            ves_seti(-2, i);
-            ves_pop(1);
-        }
+        tt::return_list(data);
     }
 }
 
@@ -1431,25 +1415,7 @@ void w_Render_get_viewport()
 {
     int x, y, w, h;
     tt::Render::Instance()->Context()->GetViewport(x, y, w, h);
-
-    ves_pop(1);
-    ves_newlist(4);
-
-    ves_pushnumber(x);
-    ves_seti(-2, 0);
-    ves_pop(1);
-
-    ves_pushnumber(y);
-    ves_seti(-2, 1);
-    ves_pop(1);
-
-    ves_pushnumber(w);
-    ves_seti(-2, 2);
-    ves_pop(1);
-
-    ves_pushnumber(h);
-    ves_seti(-2, 3);
-    ves_pop(1);
+    tt::return_list(std::vector<int>{ x, y, w, h });
 }
 
 void w_Render_set_viewport()

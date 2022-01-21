@@ -1,5 +1,6 @@
 #include "modules/shader/wrap_Shader.h"
 #include "modules/script/Proxy.h"
+#include "modules/script/TransHelper.h"
 
 #include <shadertrans/ShaderStage.h>
 #include <shadertrans/ShaderTrans.h>
@@ -113,15 +114,7 @@ void w_ShaderTools_code2spirv()
         shadertrans::ShaderTrans::HLSL2SpirV(stage, code_str, "main", spirv);
     }
 
-    ves_pop(4);
-
-    ves_newlist((int)spirv.size());
-    for (int i = 0; i < spirv.size(); ++i)
-    {
-        ves_pushnumber(spirv[i]);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(spirv);
 }
 
 void w_ShaderTools_disassemble()
@@ -391,16 +384,7 @@ void w_ShaderFunc_get_args()
 
     std::vector<std::string> names;
     shadertrans::SpirvGenTwo::GetFuncParamNames(func, names);
-
-    ves_pop(1);
-
-    ves_newlist((int)names.size());
-    for (int i = 0; i < names.size(); ++i)
-    {
-        ves_pushstring(names[i].c_str());
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_list(names);
 }
 
 void w_ShaderFunc_call()
