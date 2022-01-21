@@ -199,7 +199,7 @@ void w_glTF_get_desc()
         return;
     }
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     ves_newmap();
     int idx = 0;
     for (auto& node : model->scene->nodes)

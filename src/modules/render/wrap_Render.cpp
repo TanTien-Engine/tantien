@@ -1592,7 +1592,7 @@ void w_Render_get_shader_uniforms()
         get_shader_uniforms(stage, code, inc_dir, entry_point, lang, uniforms);
     }
 
-    ves_pop(6);
+    ves_pop(ves_argnum());
 
     push_variants(uniforms);
 } 
@@ -1618,7 +1618,7 @@ void w_Render_get_shader_func_argus()
         return;
     }
     
-    ves_pop(6);
+    ves_pop(ves_argnum());
 
     auto vars = func.arguments;
     vars.push_back(func.ret_type);

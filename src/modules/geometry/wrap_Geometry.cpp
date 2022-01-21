@@ -79,7 +79,7 @@ void w_Line_clone()
     auto src = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Line2D>(src->GetStart(), src->GetEnd());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
     proxy->obj = dst;
 }
@@ -126,7 +126,7 @@ void w_Rect_clone()
     auto src = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Rect>(src->GetRect());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Rect>));
     proxy->obj = dst;
 }
@@ -174,7 +174,7 @@ void w_Circle_clone()
     auto src = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Circle>(src->GetCenter(), src->GetRadius());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Circle>));
     proxy->obj = dst;
 }
@@ -219,7 +219,7 @@ void w_Polyline_clone()
     auto src = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Polyline2D>(src->GetVertices());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
     proxy->obj = dst;
 }
@@ -277,7 +277,7 @@ void w_Polygon_clone()
     auto src = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Polygon2D>(src->GetVertices());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
     proxy->obj = dst;
 }
@@ -342,7 +342,7 @@ void w_Bezier_clone()
     auto src = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Bezier>(src->GetCtrlPos());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
     proxy->obj = dst;
 }
@@ -614,7 +614,7 @@ void w_Polytope_clone()
     auto dst = std::make_shared<pm3::Polytope>();
     *dst = *src;
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
     proxy->obj = dst;
 }
@@ -982,7 +982,7 @@ void w_Sphere_clone()
     auto src = ((tt::Proxy<model::Sphere>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<model::Sphere>(src->GetRadius());
 
-    ves_pop(1);
+    ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Sphere>));
     proxy->obj = dst;
 }
