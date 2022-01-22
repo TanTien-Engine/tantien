@@ -1,0 +1,51 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "random" for Random as tt_Random
+
+class Random is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "min", VAR_TYPE_NUMBER),
+			Pin(this, "max", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "val", VAR_TYPE_NUMBER),
+		]
+
+		this.params.add(NodeParam("seed", 0.0))
+
+		this.layout()
+
+		this.random = nil
+	}
+
+	calc_value(idx)
+	{
+		var min = 0.0
+		var v_min = Blueprint.calc_input_value(this, 0)
+		if (v_min) {
+			min = v_min.value
+		}
+
+		var max = 1.0
+		var v_max = Blueprint.calc_input_value(this, 1)
+		if (v_max) {
+			max = v_max.value
+		}
+
+		if (!this.random) {
+			var seed = this.query_param("seed").value
+			this.random = tt_Random.init(seed * 65535)
+		}
+
+		var val = this.random.float(min, max)
+		return Variant(val)
+	}
+}
