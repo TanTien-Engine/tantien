@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PIN
+
+class LazyEval is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "val", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "pin", VAR_TYPE_PIN)
+		]
+
+		this.layout()
+	}
+
+	
+	calc_value(idx)
+	{
+		return Variant(VAR_TYPE_PIN, this.exports[0])
+	}
+}
