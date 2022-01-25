@@ -17,7 +17,8 @@ void Viewport::SetSize(float width, float height)
 
 	float hw = m_width * 0.5f;
 	float hh = m_height * 0.5f;
-	m_2d_proj_mat_inv = sm::mat4::Orthographic(-hw, hw, -hh, hh, 1, -1).Inverted();
+	m_ortho_proj_mat_inv = sm::mat4::Orthographic(-hw, hw, -hh, hh, 1, -1).Inverted();
+	m_persp_proj_mat = sm::mat4::Perspective(45.0f, m_width / m_height, 0.01f, 100);
 }
 
 sm::vec2 Viewport::TransPos3ProjectToScreen(const sm::vec3& proj, float fovy, float aspect) const
@@ -52,10 +53,20 @@ sm::vec2 Viewport::TransPos3ProjectToScreen(const sm::vec3& proj, float fovy, fl
 //	return (cam.GetRotateMat().Inverted() * sm::vec3(x, y, z)).Normalized();
 //}
 
-sm::vec2 Viewport::TransPosProj3ToProj2(const sm::vec3& proj, const sm::mat4& cam_mat) const
+sm::vec2 Viewport::TransPosProj3ToProj2(const sm::vec3& proj, const sm::mat4& cam_mat, bool ortho) const
 {
 	auto pos = cam_mat * sm::vec4(proj.x, proj.y, proj.z, 1);
-	return m_2d_proj_mat_inv * (sm::vec2(pos.x, pos.y) / pos.w);
+	if (ortho)
+	{
+		return m_ortho_proj_mat_inv * (sm::vec2(pos.x, pos.y) / pos.w);
+	}
+	else
+	{
+		pos = m_persp_proj_mat * pos;
+		float x = pos.x / pos.z * m_width / 2;
+		float y = pos.y / pos.z * m_height / 2;
+		return sm::vec2(x, y);
+	}
 }
 
 sm::vec3 Viewport::MapToSphere(const sm::vec2& touchpoint) const

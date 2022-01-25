@@ -74,6 +74,9 @@ foreign class Graphics
 	foreign static dtex_debug_draw()
 	foreign static get_width()
 	foreign static get_height()
+
+	// fixme
+	foreign static set_cam_ortho(ortho)
 }
 
 );
