@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_STRING
 import "blueprint.nodes.input" for Input
-import "rendergraph.variant" for VAR_TYPE_SHADER
+import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_TEXTURE
 import "rendergraph.variates.shader" for Shader as var_Shader
 import "rendergraph.components.shader_uniforms" for ShaderUniforms
 import "render" for Shader
@@ -32,6 +32,20 @@ class ShaderGen is Node
 		this.uniforms = []
 		this.uniforms_nodes = nil
 		this.uniforms_insts = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		super.on_pin_dirty(pin)
+
+		// update output texture
+		if (pin.is_input) {
+			for (var pin in this.imports) {
+				if (pin.type == VAR_TYPE_TEXTURE) {
+					Blueprint.send_pin_dirty(pin)
+				}
+			}
+		}
 	}
 
 	on_node_dirty()
