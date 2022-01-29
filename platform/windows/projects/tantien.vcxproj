@@ -19,7 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\littleworld\citygen\Block.cpp" />
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Chaikin.cpp" />
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Extrude.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Graph.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\KMeans.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Math.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="..\..\..\..\littleworld\citygen\ParcelsSS.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Reshape.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\RotatingCalipers.cpp" />
+    <ClCompile Include="..\..\..\..\littleworld\citygen\StraightSkeleton.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Streets.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\TensorField.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\wrap_CityGen.cpp" />
@@ -62,7 +64,8 @@
     <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\littleworld\citygen\Block.h" />
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Chaikin.h" />
+    <ClInclude Include="..\..\..\..\littleworld\citygen\Extrude.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\Graph.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\KMeans.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\Math.h" />
@@ -71,6 +74,7 @@
     <ClInclude Include="..\..\..\..\littleworld\citygen\Random.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\Reshape.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\RotatingCalipers.h" />
+    <ClInclude Include="..\..\..\..\littleworld\citygen\StraightSkeleton.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\Streets.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\TensorField.h" />
     <ClInclude Include="..\..\..\..\littleworld\citygen\wrap_CityGen.h" />
@@ -232,7 +236,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -248,7 +252,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
