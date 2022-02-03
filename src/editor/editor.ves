@@ -819,16 +819,11 @@ import \"editor\" for _editor
 			return
 		}
 
-		var old_dir = Filesystem.get_asset_base_dir()
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 
 		var file = IO.open(this.filepath, "r")
 		this.loadfromstring(file.read())
 		IO.close(file)
-
-		if (old_dir != "") {
-			Filesystem.set_asset_base_dir(old_dir)
-		}
 	}
 
 	load_from_subgraph(subgraph)
