@@ -234,6 +234,14 @@ foreign class Sphere
 	foreign clone()	
 }
 
+foreign class Ellipsoid
+{
+	// [x, y, z]
+	init(radius) {}
+
+	foreign clone()
+}
+
 foreign class Constraint
 {
 	init(type, geo0, geo1, value) {}

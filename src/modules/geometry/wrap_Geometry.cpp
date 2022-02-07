@@ -987,6 +987,30 @@ void w_Sphere_clone()
     proxy->obj = dst;
 }
 
+void w_Ellipsoid_allocate()
+{
+    auto radius = tt::list_to_vec3(1);
+    auto proxy = (tt::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Ellipsoid>));
+    proxy->obj = std::make_shared<model::Ellipsoid>(radius);
+}
+
+int w_Ellipsoid_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<model::Ellipsoid>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<model::Ellipsoid>);
+}
+
+void w_Ellipsoid_clone()
+{
+    auto src = ((tt::Proxy<model::Ellipsoid>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<model::Ellipsoid>(src->GetRadius());
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Ellipsoid>));
+    proxy->obj = dst;
+}
+
 void w_Constraint_allocate()
 {
     const char* type_str = ves_tostring(1);
@@ -1137,6 +1161,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;
 
+    if (strcmp(signature, "Ellipsoid.clone()") == 0) return w_Ellipsoid_clone;
+
     if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
 
     if (strcmp(signature, "ConstraintSolver.add_geo(_)") == 0) return w_ConstraintSolver_add_geo;
@@ -1251,6 +1277,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Sphere_allocate;
         methods->finalize = w_Sphere_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Ellipsoid") == 0)
+    {
+        methods->allocate = w_Ellipsoid_allocate;
+        methods->finalize = w_Ellipsoid_finalize;
         return;
     }
 
