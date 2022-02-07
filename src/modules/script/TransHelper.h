@@ -57,7 +57,7 @@ void return_list(const std::vector<T>& vals)
 {
     ves_pop(ves_argnum());
 
-    const int num = vals.size();
+    const int num = static_cast<int>(vals.size());
     ves_newlist(num);
     for (int i = 0; i < num; ++i)
     {
