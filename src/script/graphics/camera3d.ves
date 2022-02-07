@@ -56,7 +56,19 @@ class Camera3D
 	rotate(yaw, pitch)
 	{
 		this.yaw = this.yaw + yaw
-		this.pitch = this.pitch + pitch		
+		while (this.yaw > 180) {
+			this.yaw = this.yaw - 360
+		}
+		while (this.yaw < -180) {
+			this.yaw = this.yaw + 360
+		}
+
+		this.pitch = this.pitch + pitch
+		if (this.pitch < -90) {
+			this.pitch = -90
+		} else if (this.pitch > 90) {
+			this.pitch = 90
+		}
 	}
 
 	screen2world(screen_pos, fovy) 

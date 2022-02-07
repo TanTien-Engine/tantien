@@ -5,6 +5,7 @@ import "blueprint.node_param" for NodeParam
 import "graphics.camera3d" for Camera3D
 import "maths.vector" for Vector2, Vector3
 import "math" for Math
+import "graphics" for Graphics
 
 class OrbitCamera is Node
 {
@@ -62,11 +63,9 @@ class OrbitCamera is Node
 
 		var speed = this.query_param("speed").value
 
-		var rot_around_x_max = Math.pi() / 2 - 0.01
-        var rot_around_y = dx * speed
-        var rot_around_x = dy * speed
-        rot_around_x = Math.clamp(rot_around_x, -rot_around_x_max, rot_around_x_max)
-        this.cam.rotate(rot_around_y, rot_around_x)
+        var rot_around_x = dx * speed * Graphics.get_width() / Graphics.get_height()
+        var rot_around_y = dy * speed
+        this.cam.rotate(rot_around_x, rot_around_y)
 
 		this.cam.update_vectors()
 	}
