@@ -78,10 +78,11 @@ void w_Shader_allocate()
         if (!vs.empty()) 
         {
 #ifdef SHADER_DEBUG_PRINT
-            std::string vs_glsl, fs_glsl;
+            std::string vs_glsl, gs_glsl, fs_glsl;
             shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::VertexShader, vs, vs_glsl);
+            shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::GeometryShader, gs, gs_glsl);
             shadertrans::ShaderTrans::SpirV2GLSL(shadertrans::ShaderStage::PixelShader, fs, fs_glsl);
-            printf("vs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), fs_glsl.c_str());
+            printf("vs:\n%s\ngs:\n%s\nfs:\n%s\n", vs_glsl.c_str(), gs_glsl.c_str(), fs_glsl.c_str());
 #endif // SHADER_DEBUG_PRINT
             prog = tt::Render::Instance()->Device()->CreateShaderProgram(vs, fs, tcs, tes, gs);
         }
