@@ -129,7 +129,7 @@ foreign class Line3D is Shape3D
 	}
 
 	toString() {
-		return "::geometry::Box.init(%(this.get_p0()), %(this.get_p1()))"
+		return "::geometry::Line3D.init(%(this.get_p0()), %(this.get_p1()))"
 	}
 
 	foreign get_p0()
