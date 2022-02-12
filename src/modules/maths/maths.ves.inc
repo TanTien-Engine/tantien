@@ -104,6 +104,7 @@ foreign class Matrix44
 	foreign perspective(fovy, aspect, znear, zfar)
 	foreign orthographic(left, right, bottom, top, near, far)
 	foreign lookat(eye, center, up)
+	foreign viewport(width, height, near, far)
 
 	foreign from_rotate_mat(mat)
 	foreign from_quaternion(x, y, z, w)

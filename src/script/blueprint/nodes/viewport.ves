@@ -1,8 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_MATRIX4
 import "graphics" for Graphics
 import "maths.vector" for Vector2
+import "maths" for Matrix44
 
 class Viewport is Node
 {
@@ -10,8 +12,14 @@ class Viewport is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "znear", VAR_TYPE_NUMBER),
+			Pin(this, "zfar",  VAR_TYPE_NUMBER),
+		]
 		this.exports = [
-			Pin(this, "size", VAR_TYPE_NUMBER2)
+			Pin(this, "size",  VAR_TYPE_NUMBER2),
+			Pin(this, "trans", VAR_TYPE_MATRIX4),
+			Pin(this, "ortho", VAR_TYPE_MATRIX4),
 		]
 
 		this.layout()
@@ -21,6 +29,52 @@ class Viewport is Node
 	{
 		var w = Graphics.get_width()
 		var h = Graphics.get_height()
-		return Variant(VAR_TYPE_NUMBER2, Vector2(w, h))
+		if (idx == 0) 
+		{
+			return Variant(VAR_TYPE_NUMBER2, Vector2(w, h))		
+		} 
+		else if (idx == 1)
+		{
+			var znear = this.get_znear()
+			var zfar = this.get_zfar()
+
+			var mat = Matrix44.init()
+			mat.viewport(w, h, znear, zfar)	// fixme
+			return Variant(VAR_TYPE_MATRIX4, mat)
+		}
+		else if (idx == 2)
+		{
+			var hw = w * 0.5
+			var hh = h * 0.5
+
+			var znear = this.get_znear()
+			var zfar = this.get_zfar()
+
+			var mat = Matrix44.init()
+			mat.orthographic(-hw, hw, -hh, hh, znear, zfar)
+			return Variant(VAR_TYPE_MATRIX4, mat)
+		}
+
+		return nil
 	}
+
+	get_znear()
+	{
+		var v_znear = Blueprint.calc_input_value(this, 0)
+		if (v_znear) {
+			return v_znear.value
+		} else {
+			return 0.1
+		}
+	}
+
+	get_zfar()
+	{
+		var v_zfar = Blueprint.calc_input_value(this, 1)
+		if (v_zfar) {
+			return v_zfar.value
+		} else {
+			return 100
+		}
+	}	
 }

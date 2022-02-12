@@ -368,6 +368,28 @@ void w_Matrix44_lookat()
     *mt = sm::mat4::LookAt(eye, center, up);
 }
 
+void w_Matrix44_viewport()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+    float width  = (float)ves_tonumber(1);
+    float height = (float)ves_tonumber(2);
+    float near   = (float)ves_tonumber(3);
+    float far    = (float)ves_tonumber(4);
+
+    float hw = width * 0.5f;
+    float hh = height * 0.5f;
+    float hd = (far - near) * 0.5f;
+
+    const float m[] = { 
+        hw,   0.0f, 0.0f, 0.0f,
+        0.0f, hh,   0.0f, 0.0f,
+        0.0f, 0.0f, hd,   0.0f,
+        0.0f, 0.0f, near + hd, 1.0f
+    };
+
+    memcpy(mt->x, m, sizeof(m));
+}
+
 void w_Matrix44_from_rotate_mat()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
@@ -602,6 +624,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.perspective(_,_,_,_)") == 0) return w_Matrix44_perspective;
     if (strcmp(signature, "Matrix44.orthographic(_,_,_,_,_,_)") == 0) return w_Matrix44_orthographic;
     if (strcmp(signature, "Matrix44.lookat(_,_,_)") == 0) return w_Matrix44_lookat;
+    if (strcmp(signature, "Matrix44.viewport(_,_,_,_)") == 0) return w_Matrix44_viewport;
     if (strcmp(signature, "Matrix44.from_rotate_mat(_)") == 0) return w_Matrix44_from_rotate_mat;
     if (strcmp(signature, "Matrix44.from_quaternion(_,_,_,_)") == 0) return w_Matrix44_from_quaternion;
     if (strcmp(signature, "Matrix44.from_vectors(_,_)") == 0) return w_Matrix44_from_vectors;

@@ -16,7 +16,9 @@ class Perspective is Node
 			Pin(this, "fovy", VAR_TYPE_NUMBER),
 		]
 		this.exports = [
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
+			Pin(this, "mat",   VAR_TYPE_MATRIX4),
+			Pin(this, "znear", VAR_TYPE_NUMBER),
+			Pin(this, "zfar",  VAR_TYPE_NUMBER),
 		]
 
 		this.layout()
@@ -29,14 +31,25 @@ class Perspective is Node
 
 	calc_value(idx) 
 	{
-		var fovy = Blueprint.calc_input_value(this, 0)
-		if (fovy) {
-			this.fovy = fovy.value
-		}
+		if (idx == 0)
+		{
+			var fovy = Blueprint.calc_input_value(this, 0)
+			if (fovy) {
+				this.fovy = fovy.value
+			}
 
-		var mat = Matrix44.init()
-		mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
-		return Variant(VAR_TYPE_MATRIX4, mat)
+			var mat = Matrix44.init()
+			mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
+			return Variant(VAR_TYPE_MATRIX4, mat)
+		}
+		else if (idx == 1)
+		{
+			return Variant(this.znear)
+		}
+		else if (idx == 2)
+		{
+			return Variant(this.zfar)
+		}
 	}
 
 	layout() 
