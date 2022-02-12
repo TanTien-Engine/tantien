@@ -1,0 +1,46 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.surface" for Surface
+import "geometry" for Ellipsoid as tt_Ellipsoid
+import "maths.vector" for Vector3
+
+class Ellipsoid is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "radius", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("radius", Vector3(1, 1, 1)))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var radius = nil
+		var v_radius = Blueprint.calc_input_value(this, 0)
+		if (v_radius) {
+			radius = v_radius.value
+		} else {
+			radius = this.query_param("radius").value
+		}
+
+		var surface = Surface()
+		surface.surface = tt_Ellipsoid.init([ radius.x, radius.y, radius.z ])
+
+		var geo = VarGeo()
+		geo.shape = surface
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}
