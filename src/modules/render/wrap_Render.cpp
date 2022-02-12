@@ -1176,6 +1176,12 @@ void prepare_render_state(ur::RenderState& rs, int slot)
         rs.blending.equation = ur::BlendEquation::Add;
     }
     ves_pop(1);
+
+    if (ves_getfield(slot, "prim_restart") == VES_TYPE_BOOL && ves_toboolean(-1)) {
+        rs.prim_restart.enabled = true;
+        rs.prim_restart.index = 0xffff;
+    }
+    ves_pop(1);
 }
 
 void w_Render_draw()
@@ -1189,6 +1195,8 @@ void w_Render_draw()
         prim_type = ur::PrimitiveType::Points;
     } else if (strcmp(prim_type_str, "lines") == 0) {
         prim_type = ur::PrimitiveType::Lines;
+    } else if (strcmp(prim_type_str, "line_strip") == 0) {
+        prim_type = ur::PrimitiveType::LineStrip;
     } else if (strcmp(prim_type_str, "triangles") == 0) {
         prim_type = ur::PrimitiveType::Triangles;
     } else if (strcmp(prim_type_str, "tri_strip") == 0) {

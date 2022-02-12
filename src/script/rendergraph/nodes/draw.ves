@@ -25,7 +25,7 @@ class Draw is Node
 			Pin(this, "next", VAR_TYPE_PORT)
 		]
 
-		this.prim_types = [ "points", "lines", "triangles", "tri_strip", "patches" ]
+		this.prim_types = [ "points", "lines", "line_strip", "triangles", "tri_strip", "patches" ]
 		this.prim_selected = 1
 
 		this.render_state = { 
@@ -39,6 +39,7 @@ class Draw is Node
 			"rasterization" : "fill",
 			"clip_plane" : false,
 			"blend" : false,
+			"prim_restart" : false,
 		}
 
 		// for gui
