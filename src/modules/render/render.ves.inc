@@ -82,7 +82,7 @@ foreign class ComputeBuffer
 
 foreign class Render
 {
-	// prim_type: "points", "triangles", "tri_strip", "patches"
+	// prim_type: "points", "lines", "triangles", "tri_strip", "patches"
 	// render_state: map { 
 	//   "depth_test" : bool,
 	//   "depth_func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">
