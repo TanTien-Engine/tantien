@@ -67,6 +67,15 @@
     <Filter Include="modules\citygen\operation">
       <UniqueIdentifier>{21482b43-df08-4893-912f-303296c93287}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\globegen">
+      <UniqueIdentifier>{a67ca00a-7b79-4faf-bd71-50fcf518a140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\globegen\script">
+      <UniqueIdentifier>{93efb4bd-0bee-4b0a-915c-cf4e124b91ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\globegen\graphics">
+      <UniqueIdentifier>{3d4db48b-1b14-4083-856b-7763777d4441}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -197,6 +206,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\citygen\Extrude.cpp">
       <Filter>modules\citygen\operation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\globegen\ShapeBatching.cpp">
+      <Filter>modules\globegen\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp">
+      <Filter>modules\globegen\script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +359,12 @@
     <ClInclude Include="..\..\..\..\littleworld\citygen\Extrude.h">
       <Filter>modules\citygen\operation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\globegen\ShapeBatching.h">
+      <Filter>modules\globegen\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.h">
+      <Filter>modules\globegen\script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\render\render.ves.inc">
@@ -384,6 +405,9 @@
     </None>
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc">
       <Filter>modules\citygen\script</Filter>
+    </None>
+    <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc">
+      <Filter>modules\globegen\script</Filter>
     </None>
   </ItemGroup>
 </Project>
