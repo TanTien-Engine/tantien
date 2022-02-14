@@ -509,9 +509,11 @@ void w_glTF_create_from_polytope()
         colors.resize(polys.size(), 0);
     }
 
+    auto adjacencies = ves_toboolean(5);
+
     auto dev = tt::Render::Instance()->Device();
     auto model = std::make_shared<model::gltf::Model>();
-    model::BrushBuilder::PolymeshFromBrush(*dev, polys, materials, offsets, colors, *model);
+    model::BrushBuilder::PolymeshFromBrush(*dev, polys, materials, offsets, colors, adjacencies, *model);
 
     auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
     proxy->obj = model;
@@ -541,7 +543,7 @@ VesselForeignMethodFn ModelBindMethod(const char* signature)
 
     if (strcmp(signature, "glTF.get_desc()") == 0) return w_glTF_get_desc;
     if (strcmp(signature, "glTF.set_instanced_mats(_)") == 0) return w_glTF_set_instanced_mats;
-    if (strcmp(signature, "static glTF.create_from_polytope(_,_,_,_)") == 0) return w_glTF_create_from_polytope;
+    if (strcmp(signature, "static glTF.create_from_polytope(_,_,_,_,_)") == 0) return w_glTF_create_from_polytope;
     if (strcmp(signature, "static glTF.create_from_surface(_)") == 0) return w_glTF_create_from_surface;
 
     return NULL;

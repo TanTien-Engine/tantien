@@ -1185,28 +1185,35 @@ void prepare_render_state(ur::RenderState& rs, int slot)
     ves_pop(1);
 }
 
+ur::PrimitiveType get_prim_type(const char* str)
+{
+    ur::PrimitiveType ret;
+    if (strcmp(str, "points") == 0) {
+        ret = ur::PrimitiveType::Points;
+    } else if (strcmp(str, "lines") == 0) {
+        ret = ur::PrimitiveType::Lines;
+    } else if (strcmp(str, "line_strip") == 0) {
+        ret = ur::PrimitiveType::LineStrip;
+    } else if (strcmp(str, "triangles") == 0) {
+        ret = ur::PrimitiveType::Triangles;
+    } else if (strcmp(str, "tri_strip") == 0) {
+        ret = ur::PrimitiveType::TriangleStrip;
+    } else if (strcmp(str, "tri_adjacency") == 0) {
+        ret = ur::PrimitiveType::TrianglesAdjacency;
+    } else if (strcmp(str, "patches") == 0) {
+        ret = ur::PrimitiveType::Patches;
+    } else {
+        GD_REPORT_ASSERT("unknown prim type.");
+    }
+    return ret;
+}
+
 void w_Render_draw()
 {
     ur::DrawState ds;
 
-    ur::PrimitiveType prim_type = ur::PrimitiveType::Triangles;
-
     const char* prim_type_str = ves_tostring(1);
-    if (strcmp(prim_type_str, "points") == 0) {
-        prim_type = ur::PrimitiveType::Points;
-    } else if (strcmp(prim_type_str, "lines") == 0) {
-        prim_type = ur::PrimitiveType::Lines;
-    } else if (strcmp(prim_type_str, "line_strip") == 0) {
-        prim_type = ur::PrimitiveType::LineStrip;
-    } else if (strcmp(prim_type_str, "triangles") == 0) {
-        prim_type = ur::PrimitiveType::Triangles;
-    } else if (strcmp(prim_type_str, "tri_strip") == 0) {
-        prim_type = ur::PrimitiveType::TriangleStrip;
-    } else if (strcmp(prim_type_str, "patches") == 0) {
-        prim_type = ur::PrimitiveType::Patches;
-    } else {
-        GD_REPORT_ASSERT("unknown prim type.");
-    }
+    auto prim_type = get_prim_type(prim_type_str);
 
     ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
     ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
@@ -1220,20 +1227,8 @@ void w_Render_draw_instanced()
 {
     ur::DrawState ds;
 
-    ur::PrimitiveType prim_type = ur::PrimitiveType::Triangles;
-
     const char* prim_type_str = ves_tostring(1);
-    if (strcmp(prim_type_str, "points") == 0) {
-        prim_type = ur::PrimitiveType::Points;
-    } else if (strcmp(prim_type_str, "triangles") == 0) {
-        prim_type = ur::PrimitiveType::Triangles;
-    } else if (strcmp(prim_type_str, "tri_strip") == 0) {
-        prim_type = ur::PrimitiveType::TriangleStrip;
-    } else if (strcmp(prim_type_str, "patches") == 0) {
-        prim_type = ur::PrimitiveType::Patches;
-    } else {
-        GD_REPORT_ASSERT("unknown prim type.");
-    }
+    auto prim_type = get_prim_type(prim_type_str);
 
     ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
     ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;

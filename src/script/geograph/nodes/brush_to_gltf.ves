@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_TABLE, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "geograph.brush" for Brush, BrushInstanced
 import "geograph.surface" for Surface
@@ -20,6 +21,8 @@ class BrushToGltf is Node
 			Pin(this, "inst_mats", VAR_TYPE_ARRAY),
 		]
 
+		this.params.add(NodeParam("adjacencies", false))
+
 		this.layout()
 	}
 
@@ -30,12 +33,14 @@ class BrushToGltf is Node
 			return nil
 		}
 
+		var adjacencies = this.query_param("adjacencies").value
+
 		var brush = v_geo.value.shape
 		if (idx == 0)
 		{
 			if (brush is Brush)
 			{
-				var gltf = brush.get_model()
+				var gltf = brush.get_model(adjacencies)
 				if (gltf) {
 					var gltf_desc = gltf.get_desc()
 					return Variant(gltf_desc)
@@ -43,7 +48,7 @@ class BrushToGltf is Node
 			}
 			else if (brush is BrushInstanced)
 			{
-				var gltf = brush.brush.get_model()
+				var gltf = brush.brush.get_model(adjacencies)
 				if (gltf) 
 				{
 					if (!brush.brush.instanced_inited) {

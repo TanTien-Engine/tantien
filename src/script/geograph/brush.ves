@@ -89,12 +89,13 @@ class Brush is Shape3D
 
 	set_model_dirty() { this.model_dirty = true }
 
-	get_model()
+	get_model(adjacencies)
 	{
 		if (this.model_dirty) 
 		{
 			import "model" for glTF
-			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets, this.colors)
+
+			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets, this.colors, adjacencies)
 
 			this.model_dirty = false
 		}
