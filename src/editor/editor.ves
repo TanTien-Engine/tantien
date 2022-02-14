@@ -163,6 +163,10 @@ class Editor
 
 	sizechanged(w, h)
 	{
+		if (w == 0 or h == 0) {
+			return
+		}
+
 		Graphics.on_size(w, h)
 		GUI.on_size(w, h)
 		this.camera.on_size(w, h)
