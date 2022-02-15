@@ -52,17 +52,10 @@ class Drawlist
 	{
 		for (var list in this.lists) 
 		{
-			var skip = false
-			if (!list.isEmpty and list[list.count - 1] is Draw and list[list.count - 1].skip) {
-				skip = true
-			}
-			if (!skip)
-			{
-				for (var node in list) {
-					if (node.has_method("render_run()")) {
-						node.render_run()
-						node.render_times = node.render_times + 1
-					}
+			for (var node in list) {
+				if (node.has_method("render_run()")) {
+					node.render_run()
+					node.render_times = node.render_times + 1
 				}
 			}
 		}
