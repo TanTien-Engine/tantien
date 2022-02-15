@@ -1,6 +1,6 @@
 var node0 = ::rendergraph::nodes::clear::Clear()
 
-node0.masks = [ "color", "depth", "stencil" ]
+node0.masks = [ "color", "stencil", "depth" ]
 node0.values = { "color" : [ 0.1, 0.1, 0.1, 1 ] }
 
 _editor.add_node(node0, -181.45454545455, 568.59090909091)
@@ -8,7 +8,7 @@ _editor.add_node(node0, -181.45454545455, 568.59090909091)
 var node1 = ::rendergraph::nodes::draw::Draw()
 
 node1.set_prim_type("triangles")
-node1.render_state = { "stencil_test" : true, "stencil_func" : "notequal", "stencil_mask" : 0, "cull" : "disable", "stencil_ref" : 1, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node1.render_state = { "blend" : false, "depth_test" : true, "cull" : "disable", "depth_func" : "less", "clip_plane" : false }
 node1.skip = false
 
 _editor.add_node(node1, 56.80518593489, 434.01631470776)
@@ -58,14 +58,14 @@ _editor.add_node(node2, -164.03965761902, 389.53503742566)
 
 var node3 = ::blueprint::nodes::camera3d::Camera3d()
 
-node3.cam.position.set(2.8401885346808, 3.4074242845055, 6.9675921212326)
-node3.cam.yaw = -102.4
-node3.cam.pitch = -31.7
+node3.cam.position.set(6.1053021275045, 2.7662815450199, 5.4980445795976)
+node3.cam.yaw = -136.7
+node3.cam.pitch = -27.5
 node3.cam.zoom = 45
 node3.cam.update_vectors()
 node3.speed = 0.17553623020649
 
-_editor.add_node(node3, -617.0056622191, 681.89869496855)
+_editor.add_node(node3, -618.7772232191, 681.89869496855)
 
 var node4 = ::blueprint::nodes::perspective::Perspective()
 
@@ -124,7 +124,7 @@ node12.dx = -1
 node12.dy = 0
 node12.dz = -1
 
-_editor.add_node(node12, -664.12981933594, -189.58111755371)
+_editor.add_node(node12, -667.75981933594, -198.05111755371)
 
 var node13 = ::blueprint::nodes::translate::Translate()
 
@@ -136,15 +136,15 @@ _editor.add_node(node13, -662.91981933594, -331.15111755371)
 
 var node14 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node14, 106.55162353516, -486.3390991211)
+_editor.add_node(node14, -12.53928555575, -363.61182639383)
 
 var node15 = ::rendergraph::nodes::draw::Draw()
 
 node15.set_prim_type("triangles")
-node15.render_state = { "stencil_test" : true, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "stencil_ref" : 255, "depth_test" : true, "depth_func" : "less", "clip_plane" : false }
+node15.render_state = { "blend" : false, "depth_test" : true, "cull" : "disable", "depth_func" : "less", "clip_plane" : false }
 node15.skip = false
 
-_editor.add_node(node15, 595.86018593489, 227.71131470776)
+_editor.add_node(node15, 593.60624153219, 226.95999990686)
 
 var node16 = ::rendergraph::nodes::shader::Shader()
 
@@ -196,7 +196,7 @@ _editor.add_node(node17, 109.5292193278, -226.7390991211)
 var node18 = ::rendergraph::nodes::draw::Draw()
 
 node18.set_prim_type("triangles")
-node18.render_state = { "stencil_test" : true, "stencil_func" : "nequal", "stencil_mask" : 0, "cull" : "disable", "stencil_ref" : 1, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node18.render_state = { "rasterization" : "fill", "blend" : false, "depth_test" : false, "cull" : "disable", "depth_func" : "less", "clip_plane" : false }
 node18.skip = false
 
 _editor.add_node(node18, 1169.3089643555, -119.91929931641)
@@ -240,6 +240,56 @@ node19.render_gen()
 
 _editor.add_node(node19, 930.47461853884, -80.261328051351)
 
+var node20 = ::rendergraph::nodes::stencil_test::StencilTest()
+node20.query_param("face").value = "front_and_back"
+node20.query_param("func").value = "always"
+node20.query_param("ref").value = 1
+node20.query_param("fail_op").value = "keep"
+node20.query_param("pass_op").value = "replace"
+
+_editor.add_node(node20, 13.078527832031, 139.49073486328)
+
+var node21 = ::rendergraph::nodes::stencil_test::StencilTest()
+node21.query_param("face").value = "front_and_back"
+node21.query_param("func").value = "notequal"
+node21.query_param("ref").value = 1
+node21.query_param("fail_op").value = "keep"
+node21.query_param("pass_op").value = "keep"
+
+_editor.add_node(node21, 829.444140625, -271.31757949171)
+
+var node22 = ::blueprint::nodes::scale::Scale()
+
+node22.sx = 1.1
+node22.sy = 1.1
+node22.sz = 1.1
+
+_editor.add_node(node22, -645.87191385222, -557.04486901251)
+
+var node23 = ::blueprint::nodes::translate::Translate()
+
+node23.dx = -1
+node23.dy = 0
+node23.dz = -1
+
+_editor.add_node(node23, -460.00509724728, -479.00408975506)
+
+var node24 = ::blueprint::nodes::translate::Translate()
+
+node24.dx = 2
+node24.dy = 0
+node24.dz = 0
+
+_editor.add_node(node24, -471.27019724728, -612.10408975506)
+
+var node25 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node25, -13.232974511422, -517.63970017294)
+
+Blueprint.connect(node22, "mat", node24, "mat")
+Blueprint.connect(node22, "mat", node23, "mat")
+Blueprint.connect(node23, "mat", node25, "in1")
+Blueprint.connect(node24, "mat", node25, "in2")
 Blueprint.connect(node12, "mat", node17, "in0")
 Blueprint.connect(node13, "mat", node17, "in1")
 Blueprint.connect(node11, "mat", node14, "in0")
@@ -250,7 +300,7 @@ Blueprint.connect(node9, "tex", node10, "in1")
 Blueprint.connect(node5, "out", node7, "in0")
 Blueprint.connect(node8, "out", node7, "in1")
 Blueprint.connect(node3, "zoom", node4, "fovy")
-Blueprint.connect(node14, "list", node19, "model")
+Blueprint.connect(node25, "list", node19, "model")
 Blueprint.connect(node3, "mat", node19, "view")
 Blueprint.connect(node4, "mat", node19, "projection")
 Blueprint.connect(node17, "list", node16, "model")
@@ -266,6 +316,8 @@ Blueprint.connect(node5, "out", node1, "va")
 Blueprint.connect(node1, "next", node15, "prev")
 Blueprint.connect(node16, "out", node15, "shader")
 Blueprint.connect(node8, "out", node15, "va")
+Blueprint.connect(node20, "rs", node15, "rs")
 Blueprint.connect(node15, "next", node18, "prev")
 Blueprint.connect(node19, "out", node18, "shader")
-Blueprint.connect(node7, "list", node18, "va")
+Blueprint.connect(node8, "out", node18, "va")
+Blueprint.connect(node21, "rs", node18, "rs")

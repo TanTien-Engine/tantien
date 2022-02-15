@@ -1065,7 +1065,94 @@ int w_RenderBuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::RenderBuffer>);
 }
 
-void prepare_render_state(ur::RenderState& rs, int slot)
+void w_RenderState_allocate()
+{
+    auto rs = std::make_shared<ur::RenderState>();
+    auto proxy = (tt::Proxy<ur::RenderState>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::RenderState>));
+    proxy->obj = rs;
+}
+
+int w_RenderState_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::RenderState>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::RenderState>);
+}
+
+ur::StencilOperation string2stencilop(const std::string& str)
+{
+    ur::StencilOperation op = ur::StencilOperation::Keep;
+    if (str == "zero") {
+        op = ur::StencilOperation::Zero;
+    } else if (str == "invert") {
+        op = ur::StencilOperation::Invert;
+    } else if (str == "keep") {
+        op = ur::StencilOperation::Keep;
+    } else if (str == "replace") {
+        op = ur::StencilOperation::Replace;
+    } else if (str == "increment") {
+        op = ur::StencilOperation::Increment;
+    } else if (str == "decrement") {
+        op = ur::StencilOperation::Decrement;
+    } else if (str == "increment_wrap") {
+        op = ur::StencilOperation::IncrementWrap;
+    } else if (str == "decrement_wrap") {
+        op = ur::StencilOperation::DecrementWrap;
+    } else {
+        GD_REPORT_ASSERT("unknown stencil op.");
+    }
+    return op;
+}
+
+void w_RenderState_stencil_test()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+
+    rs->stencil_test.enabled = true;
+
+    auto func = ur::StencilTestFunction::Always;
+    const char* s_func = ves_tostring(2);
+    if (strcmp(s_func, "never") == 0) {
+        func = ur::StencilTestFunction::Never;
+    } else if (strcmp(s_func, "less") == 0) {
+        func = ur::StencilTestFunction::Less;
+    } else if (strcmp(s_func, "equal") == 0) {
+        func = ur::StencilTestFunction::Equal;
+    } else if (strcmp(s_func, "lequal") == 0) {
+        func = ur::StencilTestFunction::LessThanOrEqual;
+    } else if (strcmp(s_func, "greater") == 0) {
+        func = ur::StencilTestFunction::Greater;
+    } else if (strcmp(s_func, "notequal") == 0) {
+        func = ur::StencilTestFunction::NotEqual;
+    } else if (strcmp(s_func, "gequal") == 0) {
+        func = ur::StencilTestFunction::GreaterThanOrEqual;
+    } else if (strcmp(s_func, "always") == 0) {
+        func = ur::StencilTestFunction::Always;
+    } else {
+        GD_REPORT_ASSERT("unknown stencil func.");
+    }
+
+    int ref_val = static_cast<int>(ves_tonumber(3));
+
+    auto fail_op = string2stencilop(ves_tostring(4));
+    auto pass_op = string2stencilop(ves_tostring(5));
+
+    const char* s_face = ves_tostring(1);
+    if (strcmp(s_face, "front") == 0 || strcmp(s_face, "front_and_back") == 0) {
+        rs->stencil_test.front_face.function = func;
+        rs->stencil_test.front_face.reference_value = ref_val;
+        rs->stencil_test.front_face.depth_fail_stencil_pass_op = fail_op;
+        rs->stencil_test.front_face.depth_pass_stencil_pass_op = pass_op;
+    }
+    if (strcmp(s_face, "back") == 0 || strcmp(s_face, "front_and_back") == 0) {
+        rs->stencil_test.back_face.function = func;
+        rs->stencil_test.back_face.reference_value = ref_val;
+        rs->stencil_test.back_face.depth_fail_stencil_pass_op = fail_op;
+        rs->stencil_test.back_face.depth_pass_stencil_pass_op = pass_op;
+    }
+}
+
+void prepare_render_state_from_list(ur::RenderState& rs, int slot)
 {
     if (ves_getfield(slot, "depth_test") == VES_TYPE_BOOL) {
         rs.depth_test.enabled = ves_toboolean(-1);
@@ -1092,44 +1179,6 @@ void prepare_render_state(ur::RenderState& rs, int slot)
         } else if (strcmp(func, "always") == 0) {
             rs.depth_test.function = ur::DepthTestFunc::Always;
         }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "stencil_test") == VES_TYPE_BOOL) {
-        rs.stencil_test.enabled = ves_toboolean(-1);
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "stencil_func") == VES_TYPE_STRING) 
-    {
-        const char* func = ves_tostring(-1);
-        if (strcmp(func, "never") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::Never;
-        } else if (strcmp(func, "less") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::Less;
-        } else if (strcmp(func, "equal") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::Equal;
-        } else if (strcmp(func, "lequal") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::LessThanOrEqual;
-        } else if (strcmp(func, "greater") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::Greater;
-        } else if (strcmp(func, "notequal") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::NotEqual;
-        } else if (strcmp(func, "gequal") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::GreaterThanOrEqual;
-        } else if (strcmp(func, "always") == 0) {
-            rs.stencil_test.front_face.function = ur::StencilTestFunction::Always;
-        }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "stencil_ref") == VES_TYPE_NUM) {
-        rs.stencil_test.front_face.reference_value = (int)(ves_tonumber(-1));
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "stencil_mask") == VES_TYPE_NUM) {
-        rs.stencil_test.front_face.mask = (int)(ves_tonumber(-1));
     }
     ves_pop(1);
 
@@ -1183,6 +1232,16 @@ void prepare_render_state(ur::RenderState& rs, int slot)
         rs.prim_restart.index = 0xffff;
     }
     ves_pop(1);
+}
+
+void prepare_render_state(ur::RenderState& rs, int slot)
+{
+    auto type = ves_type(slot);
+    if (type == VES_TYPE_MAP) {
+        prepare_render_state_from_list(rs, slot);
+    } else if (type == VES_TYPE_FOREIGN) {
+        rs = *((tt::Proxy<ur::RenderState>*)ves_toforeign(slot))->obj;
+    }
 }
 
 ur::PrimitiveType get_prim_type(const char* str)
@@ -1644,6 +1703,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 
     if (strcmp(signature, "ComputeBuffer.download(_,_)") == 0) return w_ComputeBuffer_download;
 
+    if (strcmp(signature, "RenderState.stencil_test(_,_,_,_,_)") == 0) return w_RenderState_stencil_test;
+
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.draw_instanced(_,_,_,_,_)") == 0) return w_Render_draw_instanced;
     if (strcmp(signature, "static Render.draw_model(_,_,_)") == 0) return w_Render_draw_model;
@@ -1716,6 +1777,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_RenderBuffer_allocate;
         methods->finalize = w_RenderBuffer_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "RenderState") == 0)
+    {
+        methods->allocate = w_RenderState_allocate;
+        methods->finalize = w_RenderState_finalize;
         return;
     }
 }

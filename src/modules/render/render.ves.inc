@@ -65,12 +65,6 @@ foreign class Framebuffer
 	foreign attach_rbo(rbo, attachment)
 }
 
-foreign class RenderBuffer
-{
-	// format: "depth_component", "depth_stencil", "red", "rg", "rgb", "rgba"
-	init(width, height, format) {}
-}
-
 foreign class ComputeBuffer
 {
 	// type: <"int", "float">
@@ -78,6 +72,22 @@ foreign class ComputeBuffer
 	init(type, data, id) {}
 
 	foreign download(type, size)
+}
+
+foreign class RenderBuffer
+{
+	// format: "depth_component", "depth_stencil", "red", "rg", "rgb", "rgba"
+	init(width, height, format) {}
+}
+
+foreign class RenderState
+{
+	init() {}
+
+	// "face" : <"front", "back", "front_and_back">
+	// "func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">
+	// "op" : <"zero", "invert", "keep", "replace", "increment", "decrement", "increment_wrap", "decrement_wrap">
+	foreign stencil_test(face, func, ref, fail_op, pass_op)
 }
 
 foreign class Render

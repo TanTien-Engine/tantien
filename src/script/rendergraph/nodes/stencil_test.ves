@@ -1,0 +1,58 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.Blueprint" for Blueprint
+import "blueprint.variant" for Variant
+import "blueprint.node_param" for NodeParam
+import "rendergraph.variant" for VAR_TYPE_RENDER_STATE
+import "render" for RenderState
+
+class StencilTest is Node
+{
+	init() 
+	{
+		super.init()
+	
+		this.imports = [
+			Pin(this, "rs", VAR_TYPE_RENDER_STATE)
+		]
+		this.exports = [
+			Pin(this, "rs", VAR_TYPE_RENDER_STATE)
+		]
+
+		this.params.add(NodeParam("face", "front_and_back", { "combo" : [ "front", "back", "front_and_back" ] }))
+
+		this.params.add(NodeParam("func", "always", { "combo" : [ "never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always" ] }))
+		this.params.add(NodeParam("ref", 0, { "integer" : true, "region" : 10 }))
+		
+		this.params.add(NodeParam("fail_op", "keep", { "combo" : [ "zero", "invert", "keep", "replace", "increment", "decrement", "increment_wrap", "decrement_wrap" ] }))
+		this.params.add(NodeParam("pass_op", "keep", { "combo" : [ "zero", "invert", "keep", "replace", "increment", "decrement", "increment_wrap", "decrement_wrap" ] }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var rs = nil
+
+		var v_rs = Blueprint.calc_input_value(this, 0)
+		if (v_rs) {
+			rs = v_rs.value
+		}
+
+		if (!rs) {
+			rs = RenderState.init()
+		}
+
+		var face = this.query_param("face").value
+
+		var func = this.query_param("func").value
+		var ref = this.query_param("ref").value
+
+		var fail_op = this.query_param("fail_op").value
+		var pass_op = this.query_param("pass_op").value
+
+		rs.stencil_test(face, func, ref, fail_op, pass_op)
+
+		return Variant(VAR_TYPE_RENDER_STATE, rs)
+	}
+}

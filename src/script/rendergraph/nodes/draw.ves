@@ -5,7 +5,7 @@ import "blueprint.Blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_MODEL
+import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_MODEL, VAR_TYPE_RENDER_STATE
 import "math" for Math
 
 class Draw is Node
@@ -15,11 +15,12 @@ class Draw is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "shader", VAR_TYPE_SHADER),
-			Pin(this, "va",     VAR_TYPE_VERTEX_ARRAY),
-			Pin(this, "model",  VAR_TYPE_MODEL),
-			Pin(this, "inst_mats", VAR_TYPE_ARRAY)			
+			Pin(this, "prev",      VAR_TYPE_PORT),
+			Pin(this, "shader",    VAR_TYPE_SHADER),
+			Pin(this, "va",        VAR_TYPE_VERTEX_ARRAY),
+			Pin(this, "model",     VAR_TYPE_MODEL),
+			Pin(this, "inst_mats", VAR_TYPE_ARRAY),
+			Pin(this, "rs",        VAR_TYPE_RENDER_STATE),				
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)
@@ -31,10 +32,6 @@ class Draw is Node
 		this.render_state = { 
 			"depth_test" : false, 
 			"depth_func" : "less", 
-			"stencil_test" : false, 
-			"stencil_mask" : 255,
-			"stencil_func" : "always",
-			"stencil_ref" : 0,
 			"cull" : "disable",
 			"rasterization" : "fill",
 			"clip_plane" : false,
@@ -90,6 +87,12 @@ class Draw is Node
 			}	
 		}
 
+		var render_state = this.render_state
+		var v_rs = Blueprint.calc_input_value(this, 5)
+		if (v_rs) {
+			render_state = v_rs.value
+		}
+
 		var mats = this.get_input_inst_mats()
 		for (var i in 0..count) 
 		{
@@ -107,11 +110,11 @@ class Draw is Node
 
 			if (mats) 
 			{
-				Render.draw_instanced(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state, mats)
+				Render.draw_instanced(this.prim_types[this.prim_selected], v_shader.prog, _va, render_state, mats)
 			} 
 			else 
 			{
-				Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, this.render_state)
+				Render.draw(this.prim_types[this.prim_selected], v_shader.prog, _va, render_state)
 			}
 		}
 	}
@@ -119,6 +122,12 @@ class Draw is Node
 	draw_model(shader, model)
 	{
 		var mats = this.get_input_inst_mats()
+
+		var render_state = this.render_state
+		var v_rs = Blueprint.calc_input_value(this, 5)
+		if (v_rs) {
+			render_state = v_rs.value
+		}
 
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
