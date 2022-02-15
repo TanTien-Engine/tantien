@@ -88,6 +88,22 @@ foreign class RenderState
 	// "func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">
 	// "op" : <"zero", "invert", "keep", "replace", "increment", "decrement", "increment_wrap", "decrement_wrap">
 	foreign stencil_test(face, func, ref, fail_op, pass_op)
+
+	foreign z_write(enable)
+	// "func" : <"never", "less", "equal", "lequal", "greater", "notequal", "gequal", "always">
+	foreign z_test(enable, func)
+
+	// "type" : <"disable", "front", "back", "front_and_back">
+	foreign face_culling(type)
+
+	// "mode" : <"point", "line", "fill">
+	foreign rasterization_mode(mode)
+
+	foreign clip_plane(enable)
+
+	foreign blending(enable)
+
+	foreign prim_restart(enable)
 }
 
 foreign class Render

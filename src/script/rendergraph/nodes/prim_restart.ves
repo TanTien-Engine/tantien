@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.Blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "rendergraph.variant" for VAR_TYPE_RENDER_STATE
+import "render" for RenderState
+
+class PrimRestart is Node
+{
+	init() 
+	{
+		super.init()
+	
+		this.imports = [
+			Pin(this, "rs", VAR_TYPE_RENDER_STATE)
+		]
+		this.exports = [
+			Pin(this, "rs", VAR_TYPE_RENDER_STATE)
+		]
+
+		this.params.add(NodeParam("enable", false))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var rs = nil
+
+		var v_rs = Blueprint.calc_input_value(this, 0)
+		if (v_rs) {
+			rs = v_rs.value
+		}
+
+		if (!rs) {
+			rs = RenderState.init()
+		}
+
+		var enable = this.query_param("enable").value
+		rs.prim_restart(enable)
+
+		return Variant(VAR_TYPE_RENDER_STATE, rs)
+	}
+}

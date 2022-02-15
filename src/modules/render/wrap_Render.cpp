@@ -1152,95 +1152,101 @@ void w_RenderState_stencil_test()
     }
 }
 
-void prepare_render_state_from_list(ur::RenderState& rs, int slot)
+void w_RenderState_z_write()
 {
-    if (ves_getfield(slot, "depth_test") == VES_TYPE_BOOL) {
-        rs.depth_test.enabled = ves_toboolean(-1);
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "depth_func") == VES_TYPE_STRING) 
-    {
-        const char* func = ves_tostring(-1);
-        if (strcmp(func, "never") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::Never;
-        } else if (strcmp(func, "less") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::Less;
-        } else if (strcmp(func, "equal") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::Equal;
-        } else if (strcmp(func, "lequal") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::LessThanOrEqual;
-        } else if (strcmp(func, "greater") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::Greater;
-        } else if (strcmp(func, "notequal") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::NotEqual;
-        } else if (strcmp(func, "gequal") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::GreaterThanOrEqual;
-        } else if (strcmp(func, "always") == 0) {
-            rs.depth_test.function = ur::DepthTestFunc::Always;
-        }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "cull") == VES_TYPE_STRING) 
-    {
-        const char* mode = ves_tostring(-1);
-        if (strcmp(mode, "disable") == 0) {
-            rs.facet_culling.enabled = false;
-        } else if (strcmp(mode, "front") == 0) {
-            rs.facet_culling.enabled = true;
-            rs.facet_culling.face = ur::CullFace::Front;
-        } else if (strcmp(mode, "back") == 0) {
-            rs.facet_culling.enabled = true;
-            rs.facet_culling.face = ur::CullFace::Back;
-        } else if (strcmp(mode, "front_and_back") == 0) {
-            rs.facet_culling.enabled = true;
-            rs.facet_culling.face = ur::CullFace::FrontAndBack;
-        }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "rasterization") == VES_TYPE_STRING) 
-    {
-        const char* mode = ves_tostring(-1);
-        if (strcmp(mode, "point") == 0) {
-            rs.rasterization_mode = ur::RasterizationMode::Point;
-        } else if (strcmp(mode, "line") == 0) {
-            rs.rasterization_mode = ur::RasterizationMode::Line;
-        } else if (strcmp(mode, "fill") == 0) {
-            rs.rasterization_mode = ur::RasterizationMode::Fill;
-        }
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "clip_plane") == VES_TYPE_BOOL) {
-        rs.clip_plane = ves_toboolean(-1);
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "blend") == VES_TYPE_BOOL && ves_toboolean(-1)) {
-        rs.blending.enabled = true;
-        rs.blending.separately = false;
-        rs.blending.src = ur::BlendingFactor::SrcAlpha;
-        rs.blending.dst = ur::BlendingFactor::OneMinusSrcAlpha;
-        rs.blending.equation = ur::BlendEquation::Add;
-    }
-    ves_pop(1);
-
-    if (ves_getfield(slot, "prim_restart") == VES_TYPE_BOOL && ves_toboolean(-1)) {
-        rs.prim_restart.enabled = true;
-        rs.prim_restart.index = 0xffff;
-    }
-    ves_pop(1);
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->depth_mask = ves_toboolean(1); 
 }
 
-void prepare_render_state(ur::RenderState& rs, int slot)
+void w_RenderState_z_test()
 {
-    auto type = ves_type(slot);
-    if (type == VES_TYPE_MAP) {
-        prepare_render_state_from_list(rs, slot);
-    } else if (type == VES_TYPE_FOREIGN) {
-        rs = *((tt::Proxy<ur::RenderState>*)ves_toforeign(slot))->obj;
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->depth_test.enabled = ves_toboolean(1);
+
+    auto func = ur::DepthTestFunc::Less;
+    const char* s_func = ves_tostring(2);
+    if (strcmp(s_func, "never") == 0) {
+        func = ur::DepthTestFunc::Never;
+    } else if (strcmp(s_func, "less") == 0) {
+        func = ur::DepthTestFunc::Less;
+    } else if (strcmp(s_func, "equal") == 0) {
+        func = ur::DepthTestFunc::Equal;
+    } else if (strcmp(s_func, "lequal") == 0) {
+        func = ur::DepthTestFunc::LessThanOrEqual;
+    } else if (strcmp(s_func, "greater") == 0) {
+        func = ur::DepthTestFunc::Greater;
+    } else if (strcmp(s_func, "notequal") == 0) {
+        func = ur::DepthTestFunc::NotEqual;
+    } else if (strcmp(s_func, "gequal") == 0) {
+        func = ur::DepthTestFunc::GreaterThanOrEqual;
+    } else if (strcmp(s_func, "always") == 0) {
+        func = ur::DepthTestFunc::Always;
+    } else {
+        GD_REPORT_ASSERT("unknown stencil func.");
+    }
+    rs->depth_test.function = func;
+}
+
+void w_RenderState_face_culling()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+
+    const char* s_type = ves_tostring(1);
+    if (strcmp(s_type, "disable") == 0) {
+        rs->facet_culling.enabled = false;
+    } else if (strcmp(s_type, "front") == 0) {
+        rs->facet_culling.enabled = true;
+        rs->facet_culling.face = ur::CullFace::Front;
+    } else if (strcmp(s_type, "back") == 0) {
+        rs->facet_culling.enabled = true;
+        rs->facet_culling.face = ur::CullFace::Back;
+    } else if (strcmp(s_type, "front_and_back") == 0) {
+        rs->facet_culling.enabled = true;
+        rs->facet_culling.face = ur::CullFace::FrontAndBack;
+    }
+}
+
+void w_RenderState_rasterization_mode()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+
+    const char* s_mode = ves_tostring(1);
+    if (strcmp(s_mode, "point") == 0) {
+        rs->rasterization_mode = ur::RasterizationMode::Point;
+    } else if (strcmp(s_mode, "line") == 0) {
+        rs->rasterization_mode = ur::RasterizationMode::Line;
+    } else if (strcmp(s_mode, "fill") == 0) {
+        rs->rasterization_mode = ur::RasterizationMode::Fill;
+    }
+}
+
+void w_RenderState_clip_plane()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->clip_plane = ves_toboolean(1);
+}
+
+void w_RenderState_blending()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->blending.enabled = ves_toboolean(1);
+
+    if (rs->blending.enabled)
+    {
+        rs->blending.enabled = true;
+        rs->blending.separately = false;
+        rs->blending.src = ur::BlendingFactor::SrcAlpha;
+        rs->blending.dst = ur::BlendingFactor::OneMinusSrcAlpha;
+        rs->blending.equation = ur::BlendEquation::Add;
+    }
+}
+
+void w_RenderState_prim_restart()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->prim_restart.enabled = ves_toboolean(1);
+    if (rs->prim_restart.enabled) {
+        rs->prim_restart.index = 0xffff;
     }
 }
 
@@ -1276,8 +1282,7 @@ void w_Render_draw()
 
     ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
     ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
-
-    prepare_render_state(ds.render_state, 4);
+    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1296,7 +1301,7 @@ void w_Render_draw_instanced()
     tt::list_to_foreigns(5, mats);
     ds.num_instances = mats.size();
 
-    prepare_render_state(ds.render_state, 4);
+    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1364,8 +1369,7 @@ void w_Render_draw_model()
 
     ur::DrawState ds;
     ds.program = prog;
-
-    prepare_render_state(ds.render_state, 3);
+    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(3))->obj;
 
     auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
     if (!model->nodes.empty()) 
@@ -1704,6 +1708,13 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "ComputeBuffer.download(_,_)") == 0) return w_ComputeBuffer_download;
 
     if (strcmp(signature, "RenderState.stencil_test(_,_,_,_,_)") == 0) return w_RenderState_stencil_test;
+    if (strcmp(signature, "RenderState.z_write(_)") == 0) return w_RenderState_z_write;
+    if (strcmp(signature, "RenderState.z_test(_,_)") == 0) return w_RenderState_z_test;
+    if (strcmp(signature, "RenderState.face_culling(_)") == 0) return w_RenderState_face_culling;
+    if (strcmp(signature, "RenderState.rasterization_mode(_)") == 0) return w_RenderState_rasterization_mode;
+    if (strcmp(signature, "RenderState.clip_plane(_)") == 0) return w_RenderState_clip_plane;
+    if (strcmp(signature, "RenderState.blending(_)") == 0) return w_RenderState_blending;
+    if (strcmp(signature, "RenderState.prim_restart(_)") == 0) return w_RenderState_prim_restart;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.draw_instanced(_,_,_,_,_)") == 0) return w_Render_draw_instanced;

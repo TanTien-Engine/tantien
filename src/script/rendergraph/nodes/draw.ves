@@ -7,6 +7,7 @@ import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "rendergraph.variant" for VAR_TYPE_SHADER, VAR_TYPE_VERTEX_ARRAY, VAR_TYPE_FRAME_BUFFER, VAR_TYPE_MODEL, VAR_TYPE_RENDER_STATE
 import "math" for Math
+import "render" for RenderState
 
 class Draw is Node
 {
@@ -87,11 +88,7 @@ class Draw is Node
 			}	
 		}
 
-		var render_state = this.render_state
-		var v_rs = Blueprint.calc_input_value(this, 5)
-		if (v_rs) {
-			render_state = v_rs.value
-		}
+		var render_state = this.build_render_state()
 
 		var mats = this.get_input_inst_mats()
 		for (var i in 0..count) 
@@ -123,11 +120,7 @@ class Draw is Node
 	{
 		var mats = this.get_input_inst_mats()
 
-		var render_state = this.render_state
-		var v_rs = Blueprint.calc_input_value(this, 5)
-		if (v_rs) {
-			render_state = v_rs.value
-		}
+		var render_state = this.build_render_state()
 
 		var count = shader.get_frame_count()
 		for (var i in 0..count) 
@@ -136,13 +129,47 @@ class Draw is Node
 
 			if (mats) 
 			{
-				Render.draw_model_instanced(shader.prog, model, this.render_state, mats)
+				Render.draw_model_instanced(shader.prog, model, render_state, mats)
 			} 
 			else 
 			{
-				Render.draw_model(shader.prog, model, this.render_state)			
+				Render.draw_model(shader.prog, model, render_state)			
 			}
 		}
+	}
+
+	build_render_state()
+	{
+		var rs = nil
+		var v_rs = Blueprint.calc_input_value(this, 5)
+		if (v_rs) {
+			rs = v_rs.value
+		}
+		if (!rs) {
+			rs = RenderState.init()
+		}
+
+		for (var entry in this.render_state)
+		{
+			var key = entry.key
+			var val = entry.value
+
+			if (key == "depth_test") {
+				rs.z_test(val, this.render_state["depth_func"])
+			} else if (key == "cull") {
+				rs.face_culling(val)
+			} else if (key == "rasterization") {
+				rs.rasterization_mode(val)
+			} else if (key == "clip_plane") {
+				rs.clip_plane(val)
+			} else if (key == "blend") {
+				rs.blending(val)
+			} else if (key == "prim_restart") {
+				rs.prim_restart(val)
+			} 
+		}
+
+		return rs
 	}
 
 	layout() 
