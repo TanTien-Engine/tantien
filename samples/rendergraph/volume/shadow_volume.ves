@@ -1,0 +1,644 @@
+var node0 = ::rendergraph::nodes::draw::Draw()
+
+node0.set_prim_type("tri_adjacency")
+node0.render_state = { "rasterization" : "fill", "blend" : false, "depth_test" : true, "cull" : "disable", "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, 716.26441468464, 34.438472522033)
+
+var node1 = ::rendergraph::nodes::shader::Shader()
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+out VS_OUT {
+    vec3 pos;
+    mat4 mvp;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    vs_out.pos = position;
+    vs_out.mvp = projection * view * model;
+}
+"
+node1.tcs = ""
+node1.tes = ""
+node1.gs = "
+layout (triangles_adjacency) in;
+layout (triangle_strip, max_vertices = 18) out;
+
+in VS_OUT {
+    vec3 pos;
+    mat4 mvp;
+} gs_in[];
+
+uniform UBO
+{
+    vec3 light_pos;
+};
+
+float EPSILON = 0.0001;
+
+// Emit a quad using a triangle strip
+void EmitQuad(vec3 StartVertex, vec3 EndVertex)
+{    
+    // Vertex #1: the starting vertex (just a tiny bit below the original edge)
+    vec3 LightDir = normalize(StartVertex - light_pos);   
+    gl_Position = gs_in[0].mvp * vec4((StartVertex + LightDir * EPSILON), 1.0);
+    EmitVertex();
+ 
+    // Vertex #2: the starting vertex projected to infinity
+    gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+    EmitVertex();
+    
+    // Vertex #3: the ending vertex (just a tiny bit below the original edge)
+    LightDir = normalize(EndVertex - light_pos);
+    gl_Position = gs_in[0].mvp * vec4((EndVertex + LightDir * EPSILON), 1.0);
+    EmitVertex();
+    
+    // Vertex #4: the ending vertex projected to infinity
+    gl_Position = gs_in[0].mvp * vec4(LightDir , 0.0);
+    EmitVertex();
+
+    EndPrimitive();            
+}
+
+void main()
+{
+    vec3 e1 = gs_in[2].pos - gs_in[0].pos;
+    vec3 e2 = gs_in[4].pos - gs_in[0].pos;
+    vec3 e3 = gs_in[1].pos - gs_in[0].pos;
+    vec3 e4 = gs_in[3].pos - gs_in[2].pos;
+    vec3 e5 = gs_in[4].pos - gs_in[2].pos;
+    vec3 e6 = gs_in[5].pos - gs_in[0].pos;
+
+    vec3 normal = cross(e1,e2);
+    vec3 LightDir = light_pos - gs_in[0].pos;
+
+    // Handle only light facing triangles
+    if (dot(normal, LightDir) > 0) {
+
+        normal = cross(e3,e1);
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[0].pos;
+            vec3 EndVertex = gs_in[2].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        normal = cross(e4,e5);
+        LightDir = light_pos - gs_in[2].pos;
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[2].pos;
+            vec3 EndVertex = gs_in[4].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        normal = cross(e2,e6);
+        LightDir = light_pos - gs_in[4].pos;
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[4].pos;
+            vec3 EndVertex = gs_in[0].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        // render the front cap
+        LightDir = (normalize(gs_in[0].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[0].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        LightDir = (normalize(gs_in[2].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[2].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        LightDir = (normalize(gs_in[4].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[4].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        EndPrimitive();
+ 
+        // render the back cap
+        LightDir = gs_in[0].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = gs_in[4].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = gs_in[2].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        EndPrimitive();        
+    }
+}
+"
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+//    FragColor = vec4(1.0, 1.0, 0.0, 0.5);
+}
+"
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 524.36271259964, 81.514752401425)
+
+var node2 = ::blueprint::nodes::perspective::Perspective()
+
+node2.fovy = 45
+node2.aspect = 0
+node2.znear = 0.1
+node2.zfar = 100
+
+_editor.add_node(node2, -180.67881895334, 131.75000165776)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(4.7826967448497, 1.085088606287, -2.1185370474208)
+node3.cam.yaw = -216.1
+node3.cam.pitch = -29.9
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.41229575872421
+
+_editor.add_node(node3, -387.71440416746, -12.376113505149)
+
+var node4 = ::rendergraph::nodes::texture::Texture()
+node4.query_param("unif_name").value = "u_tex"
+node4.gamma_correction = false
+node4.init_texture("../learnopengl/resources/textures/wood.png")
+node4.set_sampler("linear_repeat")
+
+_editor.add_node(node4, 478.87655926181, -468.96002315533)
+
+var node5 = ::rendergraph::nodes::clear::Clear()
+
+node5.masks = [ "color", "depth", "stencil" ]
+node5.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node5, -59.281562816808, 346.04270758581)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(0, 0.15574544668198, 0)
+
+_editor.add_node(node6, -614.01709960876, -253.19342179016)
+
+var node7 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node7, -468, -304.5)
+
+var node8 = ::blueprint::nodes::integer::Integer()
+
+node8.value = 10
+
+_editor.add_node(node8, -609.90082644628, -357.67355371901)
+
+var node9 = ::geograph::nodes::box::Box()
+node9.query_param("size").value.set(1, 1, 1)
+node9.query_param("pos").value.set(0, 0, 0)
+node9.query_param("offset_x").value = false
+node9.query_param("offset_y").value = false
+node9.query_param("offset_z").value = false
+
+_editor.add_node(node9, -962.94762436523, -641.18286900313)
+
+var node10 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
+node10.query_param("adjacencies").value = true
+
+_editor.add_node(node10, -805.6536371881, -713.65186316562)
+
+var node11 = ::blueprint::nodes::fetch::Fetch()
+node11.index = "node0"
+
+_editor.add_node(node11, -624.38291336121, -722.51885170461)
+
+var node12 = ::blueprint::nodes::fetch::Fetch()
+node12.index = "va"
+
+_editor.add_node(node12, -403.16887131645, -719.55215745826)
+
+var node13 = ::rendergraph::nodes::shader::Shader()
+
+node13.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+out VS_OUT {
+    vec3 world_pos;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    vs_out.world_pos = vec3(model * vec4(position, 1.0));
+    gl_Position = projection * view * model * vec4(position, 1.0);
+}
+"
+node13.tcs = ""
+node13.tes = ""
+node13.gs = ""
+node13.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 world_pos;
+} fs_in;
+
+uniform sampler2D diffuseTexture;
+
+uniform UBO
+{
+    vec3 light_pos;
+    vec3 cam_pos;    
+};
+
+void main()
+{
+    vec3 dFdxPos = dFdx( fs_in.world_pos );
+    vec3 dFdyPos = dFdy( fs_in.world_pos );
+    vec3 normal = normalize( cross(dFdxPos,dFdyPos ));
+
+    vec2 uv = vec2(0);
+    if (abs(normal.x) > 0.5) {
+        uv = fs_in.world_pos.yz;
+    } else if (abs(normal.z) > 0.5) {
+        uv = fs_in.world_pos.xy;    
+    } else {
+        uv = fs_in.world_pos.xz;
+    }
+
+    vec3 color = texture(diffuseTexture, uv).rgb;
+
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(light_pos - fs_in.world_pos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(cam_pos - fs_in.world_pos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    vec3 lighting = (ambient + (diffuse + specular)) * color;    
+    
+    FragColor = vec4(lighting, 1.0);
+}
+"
+node13.cs = ""
+node13.render_gen()
+
+_editor.add_node(node13, 740.6762809752, -450.2719551633)
+
+var node14 = ::rendergraph::nodes::draw::Draw()
+
+node14.set_prim_type("tri_adjacency")
+node14.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "lequal", "cull" : "disable", "clip_plane" : false }
+node14.skip = false
+
+_editor.add_node(node14, 964.20302590831, -384.10928995958)
+
+var node15 = ::geograph::nodes::box::Box()
+node15.query_param("size").value.set(1, 0.12450629472733, 1)
+node15.query_param("pos").value.set(0, 0, 0)
+node15.query_param("offset_x").value = false
+node15.query_param("offset_y").value = false
+node15.query_param("offset_z").value = false
+
+_editor.add_node(node15, -1405.7137213438, -876.36120130664)
+
+var node16 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node16, -938.47932570703, -852.03032620703)
+
+var node17 = ::blueprint::nodes::number3::Number3()
+
+node17.value.set(0, -2, 0)
+
+_editor.add_node(node17, -1087.5782981972, -911.60622354884)
+
+var node18 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
+node18.query_param("adjacencies").value = true
+
+_editor.add_node(node18, -778.5526371881, -849.98986316562)
+
+var node19 = ::blueprint::nodes::fetch::Fetch()
+node19.index = "node0"
+
+_editor.add_node(node19, -597.28191336121, -858.85685170461)
+
+var node20 = ::blueprint::nodes::fetch::Fetch()
+node20.index = "va"
+
+_editor.add_node(node20, -392.17297131645, -857.35425745826)
+
+var node21 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node21, -162.23868720703, -749.32026138594)
+
+var node22 = ::geograph::nodes::scale::Scale()
+
+_editor.add_node(node22, -1088.569514957, -801.146640625)
+
+var node23 = ::blueprint::nodes::number3::Number3()
+
+node23.value.set(10, 1, 10)
+
+_editor.add_node(node23, -1231.5697998047, -881.00666259766)
+
+var node24 = ::rendergraph::nodes::stencil_test::StencilTest()
+node24.query_param("face").value = "front_and_back"
+node24.query_param("func").value = "equal"
+node24.query_param("ref").value = 0
+node24.query_param("fail_op").value = "keep"
+node24.query_param("pass_op").value = "keep"
+
+_editor.add_node(node24, 591.37609067657, -839.9334626942)
+
+var node25 = ::rendergraph::nodes::stencil_test::StencilTest()
+node25.query_param("face").value = "back"
+node25.query_param("func").value = "always"
+node25.query_param("ref").value = 0
+node25.query_param("fail_op").value = "increment_wrap"
+node25.query_param("pass_op").value = "keep"
+
+_editor.add_node(node25, 133.96510774228, -106.72255594916)
+
+var node26 = ::rendergraph::nodes::stencil_test::StencilTest()
+node26.query_param("face").value = "front"
+node26.query_param("func").value = "always"
+node26.query_param("ref").value = 0
+node26.query_param("fail_op").value = "decrement_wrap"
+node26.query_param("pass_op").value = "keep"
+
+_editor.add_node(node26, 288.30502509766, -105.89610966818)
+
+var node27 = ::rendergraph::nodes::z_write::ZWrite()
+node27.query_param("enable").value = false
+
+_editor.add_node(node27, 477.05445928098, -154.63720345207)
+
+var node28 = ::rendergraph::nodes::stencil_test::StencilTest()
+node28.query_param("face").value = "back"
+node28.query_param("func").value = "always"
+node28.query_param("ref").value = 0
+node28.query_param("fail_op").value = "keep"
+node28.query_param("pass_op").value = "decrement_wrap"
+
+_editor.add_node(node28, 132.04049193735, -268.58295482902)
+
+var node29 = ::rendergraph::nodes::stencil_test::StencilTest()
+node29.query_param("face").value = "front"
+node29.query_param("func").value = "always"
+node29.query_param("ref").value = 0
+node29.query_param("fail_op").value = "keep"
+node29.query_param("pass_op").value = "increment_wrap"
+
+_editor.add_node(node29, 286.38040929273, -267.08822154578)
+
+var node30 = ::rendergraph::nodes::shader::Shader()
+
+node30.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(position, 1.0);
+}
+"
+node30.tcs = ""
+node30.tes = ""
+node30.gs = ""
+node30.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+//    FragColor = vec4(1.0, 1.0, 0.0, 0.5);
+}
+"
+node30.cs = ""
+node30.render_gen()
+
+_editor.add_node(node30, 202.61402138485, 358.01950623886)
+
+var node31 = ::rendergraph::nodes::draw::Draw()
+
+node31.set_prim_type("tri_adjacency")
+node31.render_state = { "rasterization" : "fill", "blend" : false, "depth_test" : true, "cull" : "back", "depth_func" : "lequal", "clip_plane" : false }
+node31.skip = false
+
+_editor.add_node(node31, 423.42871846976, 340.96707895635)
+
+var node32 = ::rendergraph::nodes::z_write::ZWrite()
+node32.query_param("enable").value = true
+
+_editor.add_node(node32, 239.62168024237, 243.25388849431)
+
+var node33 = ::rendergraph::nodes::z_write::ZWrite()
+node33.query_param("enable").value = false
+
+_editor.add_node(node33, 728.76005263913, -799.17469410296)
+
+var node34 = ::rendergraph::nodes::texture::Texture()
+node34.query_param("unif_name").value = "u_tex"
+node34.gamma_correction = false
+node34.init_texture("../learnopengl/resources/textures/wood.png")
+node34.set_sampler("linear_repeat")
+
+_editor.add_node(node34, 1076.6196047164, -753.98235951897)
+
+var node35 = ::rendergraph::nodes::shader::Shader()
+
+node35.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+out VS_OUT {
+    vec3 world_pos;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    vs_out.world_pos = vec3(model * vec4(position, 1.0));
+    gl_Position = projection * view * model * vec4(position, 1.0);
+}
+"
+node35.tcs = ""
+node35.tes = ""
+node35.gs = ""
+node35.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 world_pos;
+} fs_in;
+
+uniform sampler2D diffuseTexture;
+
+uniform UBO
+{
+    vec3 light_pos;
+    vec3 cam_pos;    
+};
+
+void main()
+{
+    vec3 dFdxPos = dFdx( fs_in.world_pos );
+    vec3 dFdyPos = dFdy( fs_in.world_pos );
+    vec3 normal = normalize( cross(dFdxPos,dFdyPos ));
+
+    vec2 uv = vec2(0);
+    if (abs(normal.x) > 0.5) {
+        uv = fs_in.world_pos.yz;
+    } else if (abs(normal.z) > 0.5) {
+        uv = fs_in.world_pos.xy;    
+    } else {
+        uv = fs_in.world_pos.xz;
+    }
+
+    vec3 color = texture(diffuseTexture, uv).rgb;
+
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(light_pos - fs_in.world_pos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(cam_pos - fs_in.world_pos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    vec3 lighting = (ambient + (diffuse + specular)) * color;    
+    
+    FragColor = vec4(lighting * 0.5, 1.0);
+}
+"
+node35.cs = ""
+node35.render_gen()
+
+_editor.add_node(node35, 1338.4193264298, -735.29429152694)
+
+var node36 = ::rendergraph::nodes::draw::Draw()
+
+node36.set_prim_type("tri_adjacency")
+node36.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "lequal", "cull" : "disable", "clip_plane" : false }
+node36.skip = false
+
+_editor.add_node(node36, 1561.9460713629, -669.13162632322)
+
+var node37 = ::rendergraph::nodes::stencil_test::StencilTest()
+node37.query_param("face").value = "front_and_back"
+node37.query_param("func").value = "notequal"
+node37.query_param("ref").value = 0
+node37.query_param("fail_op").value = "keep"
+node37.query_param("pass_op").value = "keep"
+
+_editor.add_node(node37, 1174.479545222, -1106.6306626942)
+
+var node38 = ::rendergraph::nodes::z_write::ZWrite()
+node38.query_param("enable").value = false
+
+_editor.add_node(node38, 1311.8635071846, -1065.871894103)
+
+Blueprint.connect(node37, "rs", node38, "rs")
+Blueprint.connect(node28, "rs", node29, "rs")
+Blueprint.connect(node25, "rs", node26, "rs")
+Blueprint.connect(node26, "rs", node27, "rs")
+Blueprint.connect(node24, "rs", node33, "rs")
+Blueprint.connect(node15, "geo", node22, "geo")
+Blueprint.connect(node23, "v3", node22, "xyz")
+Blueprint.connect(node22, "geo", node16, "geo")
+Blueprint.connect(node17, "v3", node16, "xyz")
+Blueprint.connect(node16, "geo", node18, "brush")
+Blueprint.connect(node18, "gltf", node19, "items")
+Blueprint.connect(node19, "item", node20, "items")
+Blueprint.connect(node9, "geo", node10, "brush")
+Blueprint.connect(node10, "gltf", node11, "items")
+Blueprint.connect(node11, "item", node12, "items")
+Blueprint.connect(node12, "item", node21, "in0")
+Blueprint.connect(node20, "item", node21, "in1")
+Blueprint.connect(node6, "v3", node7, "a")
+Blueprint.connect(node8, "v", node7, "b")
+Blueprint.connect(node3, "zoom", node2, "fovy")
+Blueprint.connect(node2, "mat", node35, "projection")
+Blueprint.connect(node3, "mat", node35, "view")
+Blueprint.connect(node7, "v", node35, "light_pos")
+Blueprint.connect(node3, "pos", node35, "cam_pos")
+Blueprint.connect(node34, "tex", node35, "diffuseTexture")
+Blueprint.connect(node2, "mat", node30, "projection")
+Blueprint.connect(node3, "mat", node30, "view")
+Blueprint.connect(node5, "next", node31, "prev")
+Blueprint.connect(node30, "out", node31, "shader")
+Blueprint.connect(node21, "list", node31, "va")
+Blueprint.connect(node32, "rs", node31, "rs")
+Blueprint.connect(node2, "mat", node13, "projection")
+Blueprint.connect(node3, "mat", node13, "view")
+Blueprint.connect(node7, "v", node13, "light_pos")
+Blueprint.connect(node3, "pos", node13, "cam_pos")
+Blueprint.connect(node4, "tex", node13, "diffuseTexture")
+Blueprint.connect(node2, "mat", node1, "projection")
+Blueprint.connect(node3, "mat", node1, "view")
+Blueprint.connect(node7, "v", node1, "light_pos")
+Blueprint.connect(node31, "next", node0, "prev")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node21, "list", node0, "va")
+Blueprint.connect(node27, "rs", node0, "rs")
+Blueprint.connect(node0, "next", node14, "prev")
+Blueprint.connect(node13, "out", node14, "shader")
+Blueprint.connect(node21, "list", node14, "va")
+Blueprint.connect(node33, "rs", node14, "rs")
+Blueprint.connect(node14, "next", node36, "prev")
+Blueprint.connect(node35, "out", node36, "shader")
+Blueprint.connect(node21, "list", node36, "va")
+Blueprint.connect(node38, "rs", node36, "rs")

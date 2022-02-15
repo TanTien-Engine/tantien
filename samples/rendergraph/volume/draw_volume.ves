@@ -1,0 +1,348 @@
+var node0 = ::rendergraph::nodes::draw::Draw()
+
+node0.set_prim_type("tri_adjacency")
+node0.render_state = { "rasterization" : "fill", "cull" : "disable", "blend" : true, "depth_test" : false, "depth_func" : "less", "clip_plane" : false }
+node0.skip = false
+
+_editor.add_node(node0, 875.7593447896, -444.04631779286)
+
+var node1 = ::rendergraph::nodes::shader::Shader()
+
+node1.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+out VS_OUT {
+    vec3 pos;
+    mat4 mvp;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    vs_out.pos = position;
+    vs_out.mvp = projection * view * model;
+}
+"
+node1.tcs = ""
+node1.tes = ""
+node1.gs = "
+layout (triangles_adjacency) in;
+layout (triangle_strip, max_vertices = 18) out;
+
+in VS_OUT {
+    vec3 pos;
+    mat4 mvp;
+} gs_in[];
+
+uniform UBO
+{
+    vec3 light_pos;
+};
+
+float EPSILON = 0.0001;
+
+// Emit a quad using a triangle strip
+void EmitQuad(vec3 StartVertex, vec3 EndVertex)
+{    
+    // Vertex #1: the starting vertex (just a tiny bit below the original edge)
+    vec3 LightDir = normalize(StartVertex - light_pos);   
+    gl_Position = gs_in[0].mvp * vec4((StartVertex + LightDir * EPSILON), 1.0);
+    EmitVertex();
+ 
+    // Vertex #2: the starting vertex projected to infinity
+    gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+    EmitVertex();
+    
+    // Vertex #3: the ending vertex (just a tiny bit below the original edge)
+    LightDir = normalize(EndVertex - light_pos);
+    gl_Position = gs_in[0].mvp * vec4((EndVertex + LightDir * EPSILON), 1.0);
+    EmitVertex();
+    
+    // Vertex #4: the ending vertex projected to infinity
+    gl_Position = gs_in[0].mvp * vec4(LightDir , 0.0);
+    EmitVertex();
+
+    EndPrimitive();            
+}
+
+void main()
+{
+    vec3 e1 = gs_in[2].pos - gs_in[0].pos;
+    vec3 e2 = gs_in[4].pos - gs_in[0].pos;
+    vec3 e3 = gs_in[1].pos - gs_in[0].pos;
+    vec3 e4 = gs_in[3].pos - gs_in[2].pos;
+    vec3 e5 = gs_in[4].pos - gs_in[2].pos;
+    vec3 e6 = gs_in[5].pos - gs_in[0].pos;
+
+    vec3 normal = cross(e1,e2);
+    vec3 LightDir = light_pos - gs_in[0].pos;
+
+    // Handle only light facing triangles
+    if (dot(normal, LightDir) > 0) {
+
+        normal = cross(e3,e1);
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[0].pos;
+            vec3 EndVertex = gs_in[2].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        normal = cross(e4,e5);
+        LightDir = light_pos - gs_in[2].pos;
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[2].pos;
+            vec3 EndVertex = gs_in[4].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        normal = cross(e2,e6);
+        LightDir = light_pos - gs_in[4].pos;
+
+        if (dot(normal, LightDir) <= 0) {
+            vec3 StartVertex = gs_in[4].pos;
+            vec3 EndVertex = gs_in[0].pos;
+            EmitQuad(StartVertex, EndVertex);
+        }
+
+        // render the front cap
+        LightDir = (normalize(gs_in[0].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[0].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        LightDir = (normalize(gs_in[2].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[2].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        LightDir = (normalize(gs_in[4].pos - light_pos));
+        gl_Position = gs_in[0].mvp * vec4((gs_in[4].pos + LightDir * EPSILON), 1.0);
+        EmitVertex();
+
+        EndPrimitive();
+ 
+        // render the back cap
+        LightDir = gs_in[0].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = gs_in[4].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        LightDir = gs_in[2].pos - light_pos;
+        gl_Position = gs_in[0].mvp * vec4(LightDir, 0.0);
+        EmitVertex();
+
+        EndPrimitive();        
+    }
+}
+"
+node1.fs = "
+#version 330 core
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(1.0, 1.0, 0.0, 0.5);
+}
+"
+node1.cs = ""
+node1.render_gen()
+
+_editor.add_node(node1, 607.6376637009, -475.34307753947)
+
+var node2 = ::blueprint::nodes::perspective::Perspective()
+
+node2.fovy = 45
+node2.aspect = 0
+node2.znear = 0.1
+node2.zfar = 100
+
+_editor.add_node(node2, -180.67881895334, 131.75000165776)
+
+var node3 = ::blueprint::nodes::camera3d::Camera3d()
+
+node3.cam.position.set(37.410236940316, 11.676375013149, 39.64888924996)
+node3.cam.yaw = -160.9
+node3.cam.pitch = -4.9
+node3.cam.zoom = 45
+node3.cam.update_vectors()
+node3.speed = 0.41229575872421
+
+_editor.add_node(node3, -383.72139071209, -16.404313505149)
+
+var node4 = ::rendergraph::nodes::texture::Texture()
+node4.query_param("unif_name").value = "u_tex"
+node4.gamma_correction = false
+node4.init_texture("../learnopengl/resources/textures/wood.png")
+node4.set_sampler("linear_repeat")
+
+_editor.add_node(node4, 189.41713413931, -41.441298017729)
+
+var node5 = ::rendergraph::nodes::clear::Clear()
+
+node5.masks = [ "color", "depth" ]
+node5.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node5, 424.7184371832, 266.18270758581)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(0.15555556118488, 0.033333335071802, 0)
+
+_editor.add_node(node6, -627, -251.5)
+
+var node7 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node7, -468, -304.5)
+
+var node8 = ::blueprint::nodes::integer::Integer()
+
+node8.value = 10
+
+_editor.add_node(node8, -609.90082644628, -357.67355371901)
+
+var node9 = ::geograph::nodes::box::Box()
+node9.query_param("size").value.set(1, 1, 1)
+node9.query_param("pos").value.set(0, 0, 0)
+node9.query_param("offset_x").value = false
+node9.query_param("offset_y").value = false
+node9.query_param("offset_z").value = false
+
+_editor.add_node(node9, -714.38928686523, -652.48872070313)
+
+var node10 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
+node10.query_param("adjacencies").value = true
+
+_editor.add_node(node10, -562.0639996881, -571.39551486562)
+
+var node11 = ::blueprint::nodes::fetch::Fetch()
+node11.index = "node0"
+
+_editor.add_node(node11, -380.79327586121, -580.26250340461)
+
+var node12 = ::blueprint::nodes::fetch::Fetch()
+node12.index = "va"
+
+_editor.add_node(node12, -175.68433381645, -578.75990915826)
+
+var node13 = ::rendergraph::nodes::shader::Shader()
+
+node13.vs = "
+#version 330 core
+layout (location = 0) in vec3 position;
+
+out VS_OUT {
+    vec3 world_pos;
+} vs_out;
+
+uniform UBO
+{
+    mat4 projection;
+    mat4 view;
+    mat4 model;
+};
+
+void main()
+{
+    vs_out.world_pos = vec3(model * vec4(position, 1.0));
+    gl_Position = projection * view * model * vec4(position, 1.0);
+}
+"
+node13.tcs = ""
+node13.tes = ""
+node13.gs = ""
+node13.fs = "
+#version 330 core
+out vec4 FragColor;
+
+in VS_OUT {
+    vec3 world_pos;
+} fs_in;
+
+uniform sampler2D diffuseTexture;
+
+uniform UBO
+{
+    vec3 light_pos;
+    vec3 cam_pos;    
+};
+
+void main()
+{
+    vec3 dFdxPos = dFdx( fs_in.world_pos );
+    vec3 dFdyPos = dFdy( fs_in.world_pos );
+    vec3 normal = normalize( cross(dFdxPos,dFdyPos ));
+
+    vec2 uv = vec2(0);
+    if (abs(normal.x) > 0.5) {
+        uv = fs_in.world_pos.yz;
+    } else if (abs(normal.z) > 0.5) {
+        uv = fs_in.world_pos.xy;    
+    } else {
+        uv = fs_in.world_pos.xz;
+    }
+
+    vec3 color = texture(diffuseTexture, uv).rgb;
+
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(light_pos - fs_in.world_pos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(cam_pos - fs_in.world_pos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    vec3 lighting = (ambient + (diffuse + specular)) * color;    
+    
+    FragColor = vec4(lighting, 1.0);
+}
+"
+node13.cs = ""
+node13.render_gen()
+
+_editor.add_node(node13, 420.0071037009, -11.778437539468)
+
+var node14 = ::rendergraph::nodes::draw::Draw()
+
+node14.set_prim_type("tri_adjacency")
+node14.render_state = { "blend" : false, "depth_test" : true, "depth_func" : "less", "cull" : "back", "clip_plane" : false }
+node14.skip = false
+
+_editor.add_node(node14, 628.91750886763, 35.718563687109)
+
+Blueprint.connect(node9, "geo", node10, "brush")
+Blueprint.connect(node10, "gltf", node11, "items")
+Blueprint.connect(node11, "item", node12, "items")
+Blueprint.connect(node6, "v3", node7, "a")
+Blueprint.connect(node8, "v", node7, "b")
+Blueprint.connect(node3, "zoom", node2, "fovy")
+Blueprint.connect(node2, "mat", node13, "projection")
+Blueprint.connect(node3, "mat", node13, "view")
+Blueprint.connect(node7, "v", node13, "light_pos")
+Blueprint.connect(node3, "pos", node13, "cam_pos")
+Blueprint.connect(node4, "tex", node13, "diffuseTexture")
+Blueprint.connect(node5, "next", node14, "prev")
+Blueprint.connect(node13, "out", node14, "shader")
+Blueprint.connect(node12, "item", node14, "va")
+Blueprint.connect(node2, "mat", node1, "projection")
+Blueprint.connect(node3, "mat", node1, "view")
+Blueprint.connect(node7, "v", node1, "light_pos")
+Blueprint.connect(node14, "next", node0, "prev")
+Blueprint.connect(node1, "out", node0, "shader")
+Blueprint.connect(node12, "item", node0, "va")
