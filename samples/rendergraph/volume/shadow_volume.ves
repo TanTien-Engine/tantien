@@ -170,9 +170,9 @@ _editor.add_node(node2, -180.67881895334, 131.75000165776)
 
 var node3 = ::blueprint::nodes::camera3d::Camera3d()
 
-node3.cam.position.set(4.7826967448497, 1.085088606287, -2.1185370474208)
-node3.cam.yaw = -216.1
-node3.cam.pitch = -29.9
+node3.cam.position.set(-2.1761231289881, 2.2750846655665, -5.0145762424938)
+node3.cam.yaw = -301.6
+node3.cam.pitch = -45.6
 node3.cam.zoom = 45
 node3.cam.update_vectors()
 node3.speed = 0.41229575872421
@@ -404,7 +404,7 @@ _editor.add_node(node26, 288.30502509766, -105.89610966818)
 var node27 = ::rendergraph::nodes::z_write::ZWrite()
 node27.query_param("enable").value = false
 
-_editor.add_node(node27, 477.05445928098, -154.63720345207)
+_editor.add_node(node27, 577.05445928098, -179.18265799752)
 
 var node28 = ::rendergraph::nodes::stencil_test::StencilTest()
 node28.query_param("face").value = "back"
@@ -591,10 +591,16 @@ node38.query_param("enable").value = false
 
 _editor.add_node(node38, 1311.8635071846, -1065.871894103)
 
+var node39 = ::rendergraph::nodes::depth_clamp::DepthClamp()
+node39.query_param("enable").value = true
+
+_editor.add_node(node39, 441.84290105646, -183.12916426225)
+
 Blueprint.connect(node37, "rs", node38, "rs")
 Blueprint.connect(node28, "rs", node29, "rs")
 Blueprint.connect(node25, "rs", node26, "rs")
-Blueprint.connect(node26, "rs", node27, "rs")
+Blueprint.connect(node26, "rs", node39, "rs")
+Blueprint.connect(node39, "rs", node27, "rs")
 Blueprint.connect(node24, "rs", node33, "rs")
 Blueprint.connect(node15, "geo", node22, "geo")
 Blueprint.connect(node23, "v3", node22, "xyz")

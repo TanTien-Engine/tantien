@@ -1250,6 +1250,12 @@ void w_RenderState_prim_restart()
     }
 }
 
+void w_RenderState_depth_clamp()
+{
+    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    rs->depth_clamp = ves_toboolean(1);
+}
+
 ur::PrimitiveType get_prim_type(const char* str)
 {
     ur::PrimitiveType ret;
@@ -1715,6 +1721,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "RenderState.clip_plane(_)") == 0) return w_RenderState_clip_plane;
     if (strcmp(signature, "RenderState.blending(_)") == 0) return w_RenderState_blending;
     if (strcmp(signature, "RenderState.prim_restart(_)") == 0) return w_RenderState_prim_restart;
+    if (strcmp(signature, "RenderState.depth_clamp(_)") == 0) return w_RenderState_depth_clamp;
 
     if (strcmp(signature, "static Render.draw(_,_,_,_)") == 0) return w_Render_draw;
     if (strcmp(signature, "static Render.draw_instanced(_,_,_,_,_)") == 0) return w_Render_draw_instanced;

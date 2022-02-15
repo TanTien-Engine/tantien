@@ -104,6 +104,8 @@ foreign class RenderState
 	foreign blending(enable)
 
 	foreign prim_restart(enable)
+
+	foreign depth_clamp(enable)
 }
 
 foreign class Render
