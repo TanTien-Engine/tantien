@@ -1165,24 +1165,27 @@ void w_RenderState_z_test()
 
     auto func = ur::DepthTestFunc::Less;
     const char* s_func = ves_tostring(2);
-    if (strcmp(s_func, "never") == 0) {
-        func = ur::DepthTestFunc::Never;
-    } else if (strcmp(s_func, "less") == 0) {
-        func = ur::DepthTestFunc::Less;
-    } else if (strcmp(s_func, "equal") == 0) {
-        func = ur::DepthTestFunc::Equal;
-    } else if (strcmp(s_func, "lequal") == 0) {
-        func = ur::DepthTestFunc::LessThanOrEqual;
-    } else if (strcmp(s_func, "greater") == 0) {
-        func = ur::DepthTestFunc::Greater;
-    } else if (strcmp(s_func, "notequal") == 0) {
-        func = ur::DepthTestFunc::NotEqual;
-    } else if (strcmp(s_func, "gequal") == 0) {
-        func = ur::DepthTestFunc::GreaterThanOrEqual;
-    } else if (strcmp(s_func, "always") == 0) {
-        func = ur::DepthTestFunc::Always;
-    } else {
-        GD_REPORT_ASSERT("unknown stencil func.");
+    if (s_func)
+    {
+        if (strcmp(s_func, "never") == 0) {
+            func = ur::DepthTestFunc::Never;
+        } else if (strcmp(s_func, "less") == 0) {
+            func = ur::DepthTestFunc::Less;
+        } else if (strcmp(s_func, "equal") == 0) {
+            func = ur::DepthTestFunc::Equal;
+        } else if (strcmp(s_func, "lequal") == 0) {
+            func = ur::DepthTestFunc::LessThanOrEqual;
+        } else if (strcmp(s_func, "greater") == 0) {
+            func = ur::DepthTestFunc::Greater;
+        } else if (strcmp(s_func, "notequal") == 0) {
+            func = ur::DepthTestFunc::NotEqual;
+        } else if (strcmp(s_func, "gequal") == 0) {
+            func = ur::DepthTestFunc::GreaterThanOrEqual;
+        } else if (strcmp(s_func, "always") == 0) {
+            func = ur::DepthTestFunc::Always;
+        } else {
+            GD_REPORT_ASSERT("unknown stencil func.");
+        }
     }
     rs->depth_test.function = func;
 }
