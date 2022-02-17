@@ -1,4 +1,4 @@
-import "maths.vector" for Vector3
+import "maths.vector" for Vector2, Vector3
 import "math" for Math
 import "maths" for Matrix44, Float3
 import "graphics" for Graphics
@@ -69,6 +69,27 @@ class Camera3D
 		} else if (this.pitch > 90) {
 			this.pitch = 90
 		}
+	}
+
+	screen2world(screen_pos) 
+	{
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+
+	    var scale = Math.tan(this.zoom * Math.pi() / 180 * 0.5)
+
+		var d = Vector2(screen_pos.x / w * 2, screen_pos.y / h * 2)
+		d.y = d.y * scale
+		d.x = d.x * w / h * scale
+
+		var ray_dir = this.right.mul(d.x).add(this.up.mul(d.y)).add(this.front)
+		ray_dir.normalize()
+
+		var t = -this.position.y / ray_dir.y
+		var x = this.position.x + t * ray_dir.x
+		var z = this.position.z + t * ray_dir.z
+
+		return Vector3(x, 0, z)
 	}
 
 	screen2world(screen_pos, fovy) 

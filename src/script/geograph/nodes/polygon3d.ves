@@ -1,12 +1,19 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.nodes.array" for Array
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
+import "blueprint.nodes.perspective" for Perspective
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3, VAR_TYPE_NODE
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
+import "blueprint.node_editor" for NodeEditor
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
+import "maths.vector" for Vector2
 import "geometry" for Polygon3D as tt_Polygon3D
+import "maths" for Matrix44, Float3
+import "graphics" for Graphics
+
+var EDITOR = nil
 
 class Polygon3d is Node
 {
@@ -16,6 +23,7 @@ class Polygon3d is Node
 
 		this.imports = [
 			Pin(this, "vertices", VAR_TYPE_ARRAY),
+			Pin(this, "camera",   VAR_TYPE_NODE),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -24,6 +32,9 @@ class Polygon3d is Node
 		this.params.add(NodeParam("vertices", []))
 
 		this.layout()
+
+		this.editor_pts = Array()
+		this.editor_pts.list.add(Variant(Vector2(0, 0)))
 	}
 
 	calc_value(idx)
@@ -60,5 +71,104 @@ class Polygon3d is Node
 			var vertices = this.query_param("vertices").value
 			geo.shape.set_vertices(vertices)
 		}
+	}
+
+	write_to_editor()
+	{
+		var mat = Matrix44.init()
+
+		var v_cam_node = Blueprint.calc_input_value(this, 1)
+		if (v_cam_node) 
+		{
+			var v_mat = Blueprint.calc_output_value(v_cam_node.value, "mat")
+			mat.transform_mat4(v_mat.value)
+		}
+
+		var proj_node = Perspective()
+		var v_proj_mat = Blueprint.calc_output_value(proj_node, "mat")
+		if (v_proj_mat) {
+			mat.transform_mat4(v_proj_mat.value)
+		}
+
+		var vp_mat = Matrix44.init()
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()		
+		vp_mat.viewport(w, h, proj_node.znear, proj_node.zfar)
+		mat.transform_mat4(vp_mat)
+
+		this.editor_pts.list.clear()
+
+		var vertices = this.query_param("vertices").value
+		for (var i = 0; i < vertices.count / 3; i = i + 1)
+		{
+			var x = vertices[i * 3]
+			var y = vertices[i * 3 + 1]
+			var z = vertices[i * 3 + 2]
+
+			var p = Float3.init(x, y, z)
+			p.transform(mat)
+			
+			this.editor_pts.list.add(Variant(Vector2(p.x(), p.y())))
+		}
+	}
+
+	load_from_editor()
+	{
+		var v_cam_node = Blueprint.calc_input_value(this, 1)
+		if (!v_cam_node) {
+			return
+		}
+
+		var cam = v_cam_node.value.cam
+
+		var verts = this.query_param("vertices").value
+		verts.clear()
+		for (var v_p2 in this.editor_pts.list)
+		{
+			var p3 = cam.screen2world(v_p2.value)
+			verts.add(p3.x)
+			verts.add(p3.y)
+			verts.add(p3.z)			
+		}
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/select_and_translate.ves")
+		}
+
+		this.write_to_editor()
+
+		Blueprint.connect(this.editor_pts.exports[0], EDITOR.editor_node.imports[1])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.load_from_editor()
+		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }
