@@ -1,9 +1,17 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.nodes.array" for Array
+import "blueprint.nodes.perspective" for Perspective
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3, VAR_TYPE_NODE
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_editor" for NodeEditor
 import "gui" for GUI
-import "maths.vector" for Vector3
+import "maths.vector" for Vector2, Vector3
+import "maths" for Matrix44, Float3
+import "graphics" for Graphics
+
+var EDITOR = nil
 
 class Number3 is Node
 {
@@ -11,6 +19,9 @@ class Number3 is Node
 	{
 		super.init()
 
+		this.imports = [
+			Pin(this, "camera", VAR_TYPE_NODE),
+		]
 		this.exports = [
 			Pin(this, "v3", VAR_TYPE_NUMBER3),
 		]
@@ -18,6 +29,8 @@ class Number3 is Node
 		this.layout()
 
 		this.value = Vector3()
+
+		this.editor_pts = Array()
 	}
 
 	calc_value(idx) {
@@ -68,5 +81,89 @@ class Number3 is Node
 		y = y - DEFAULT_HEIGHT
 
 		return dirty
+	}
+
+	write_to_editor()
+	{
+		var mat = Matrix44.init()
+
+		var v_cam_node = Blueprint.calc_input_value(this, 0)
+		if (v_cam_node) 
+		{
+			var v_mat = Blueprint.calc_output_value(v_cam_node.value, "mat")
+			mat.transform_mat4(v_mat.value)
+		}
+
+		var proj_node = Perspective()
+		var v_proj_mat = Blueprint.calc_output_value(proj_node, "mat")
+		if (v_proj_mat) {
+			mat.transform_mat4(v_proj_mat.value)
+		}
+
+		var vp_mat = Matrix44.init()
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()		
+		vp_mat.viewport(w, h, proj_node.znear, proj_node.zfar)
+		mat.transform_mat4(vp_mat)
+
+		this.editor_pts.list.clear()
+
+		var p = Float3.init(this.value.x, this.value.y, this.value.z)
+		p.transform(mat)
+			
+		this.editor_pts.list.add(Variant(Vector2(p.x(), p.y())))
+	}
+
+	load_from_editor()
+	{
+		var v_cam_node = Blueprint.calc_input_value(this, 0)
+		if (!v_cam_node) {
+			return
+		}
+
+		var cam = v_cam_node.value.cam
+
+		var p3 = cam.screen2world(this.editor_pts.list[0].value)
+		this.value.set(p3.x, p3.y, p3.z)
+	}
+
+	bind_editor()
+	{
+		if (!EDITOR) {
+			EDITOR = NodeEditor("assets/blueprints/editorgraph/select_and_translate.ves")
+		}
+
+		this.write_to_editor()
+
+		Blueprint.connect(this.editor_pts.exports[0], EDITOR.editor_node.imports[1])
+
+		Blueprint.send_node_dirty_root(EDITOR.editor_node)
+
+		return true
+	}
+
+	draw_editor() 
+	{
+		if (EDITOR) {
+			EDITOR.draw()		
+		}
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		EDITOR.on_mouse_pressed(x, y, btn)
+	}
+
+	on_mouse_released(x, y, btn) 
+	{
+		EDITOR.on_mouse_released(x, y, btn)
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		EDITOR.on_mouse_dragged(x, y, btn)
+
+		this.load_from_editor()
+		Blueprint.send_pin_dirty_root(this.exports[0])
 	}
 }
