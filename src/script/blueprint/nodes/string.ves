@@ -1,0 +1,26 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_STRING
+import "blueprint.node_param" for NodeParam
+
+class String is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "str", VAR_TYPE_STRING),
+		]
+
+		this.params.add(NodeParam("str", ""))
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		var str = this.query_param("str").value
+		return Variant(VAR_TYPE_STRING, str)
+	}
+}
