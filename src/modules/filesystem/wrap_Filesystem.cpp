@@ -45,16 +45,17 @@ void w_Filesystem_get_absolute_path()
 {
     const char* path = ves_tostring(1);
     if (std::filesystem::exists(std::filesystem::path(path))) {
-        auto absolute = std::filesystem::canonical(path).string();
+        auto absolute = std::filesystem::weakly_canonical(path).string();
         ves_set_lstring(0, absolute.c_str(), absolute.size());
     } else {
         auto& base_dir = tt::Filesystem::Instance()->GetAssetBaseDir();
         if (base_dir.empty()) {
-            auto absolute = std::filesystem::canonical(path).string();
+            auto absolute = std::filesystem::weakly_canonical(path).string();
             ves_set_lstring(0, absolute.c_str(), absolute.size());
         } else {
             const auto& dir_path = std::filesystem::path(base_dir);
-            auto absolute = std::filesystem::canonical(std::filesystem::path(dir_path) / path).string();
+            auto full_path = std::filesystem::path(dir_path) / path;
+            auto absolute = std::filesystem::weakly_canonical(full_path).string();
             ves_set_lstring(0, absolute.c_str(), absolute.size());
         }
     }
