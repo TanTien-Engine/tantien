@@ -104,6 +104,13 @@ void w_Filesystem_remove_file()
     ves_set_boolean(0, ret == 0);
 }
 
+void w_Filesystem_is_file_exists()
+{
+    const char* path = ves_tostring(1);
+    auto exists = tt::Filesystem::IsExists(path);
+    ves_set_boolean(0, exists);
+}
+
 }
 
 namespace tt
@@ -120,6 +127,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.get_directory(_)") == 0) return w_Filesystem_get_directory;
     if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
     if (strcmp(signature, "static Filesystem.remove_file(_)") == 0) return w_Filesystem_remove_file;
+    if (strcmp(signature, "static Filesystem.is_file_exists(_)") == 0) return w_Filesystem_is_file_exists;
 
     return NULL;
 }

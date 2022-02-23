@@ -12,6 +12,7 @@ foreign class Filesystem
 	foreign static get_directory(path)	
 	foreign static get_directory_files(path)
 	foreign static remove_file(path)
+	foreign static is_file_exists(path)	
 }
 
 );
