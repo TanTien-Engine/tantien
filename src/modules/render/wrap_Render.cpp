@@ -731,6 +731,7 @@ void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
     pbuf->ReadFromMemory(data.data(), data.size() * sizeof(T), 0);
     pbuf->Bind();
     tex.Upload(reinterpret_cast<void*>(0), x, y, w, h);
+    pbuf->UnBind();
 }
 
 void w_Texture2D_upload()
