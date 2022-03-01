@@ -203,6 +203,13 @@ Model::CreateShape(const ur::Device& dev, ShapeType type, ur::VertexLayoutType l
         va = build_vertex_array(dev, *sphere, layout);
     }
         break;
+    case ShapeType::BigSphere:
+    {
+        auto sphere = std::make_unique<model::Sphere>(1.0f, sm::ivec2(180, 360));
+        prim_type = ur::PrimitiveType::Triangles;
+        va = build_vertex_array(dev, *sphere, layout);
+    }
+        break;
     case ShapeType::Grids:
         prim_type = ur::PrimitiveType::Triangles;
         va = build_grids_va(dev, layout);

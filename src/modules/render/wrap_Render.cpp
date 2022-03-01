@@ -512,6 +512,8 @@ void w_VertexArray_allocate()
             type = tt::ShapeType::Cube;
         } else if (strcmp(s_type, "sphere") == 0) {
             type = tt::ShapeType::Sphere;
+        } else if (strcmp(s_type, "big_sphere") == 0) {
+            type = tt::ShapeType::BigSphere;
         } else if (strcmp(s_type, "grids") == 0) {
             type = tt::ShapeType::Grids;
         } else {

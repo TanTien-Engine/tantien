@@ -17,6 +17,7 @@ enum class ShapeType
 	Quad = 0,
 	Cube,
 	Sphere,
+	BigSphere,
 	Grids,
 };
 
