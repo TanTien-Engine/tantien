@@ -614,6 +614,13 @@ void w_Graphics_get_height()
     ves_set_number(0, (double)tt::Graphics::Instance()->GetHeight());
 }
 
+void w_Graphics_set_intense()
+{
+    float intense = (float)ves_tonumber(1);
+    auto rd = tt::Graphics::Instance()->GetSpriteRenderer();
+    rd->SetIntense(intense);
+}
+
 void w_Graphics_set_cam_ortho()
 {
     CAM_ORTHO = ves_toboolean(1);
@@ -657,6 +664,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.dtex_debug_draw()") == 0) return w_Graphics_dtex_debug_draw;
     if (strcmp(signature, "static Graphics.get_width()") == 0) return w_Graphics_get_width;
     if (strcmp(signature, "static Graphics.get_height()") == 0) return w_Graphics_get_height;
+    if (strcmp(signature, "static Graphics.set_intense(_)") == 0) return w_Graphics_set_intense;
     if (strcmp(signature, "static Graphics.set_cam_ortho(_)") == 0) return w_Graphics_set_cam_ortho;
 
     return nullptr;

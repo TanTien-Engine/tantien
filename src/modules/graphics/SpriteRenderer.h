@@ -48,6 +48,8 @@ public:
     auto GetShader() const { return m_shader; }
     auto GetTexture() const { return m_tex; }
 
+    void SetIntense(float intense);
+
 private:
     void InitShader(const ur::Device& dev);
     void InitRenderer(const ur::Device& dev, const ur::Context& ctx);

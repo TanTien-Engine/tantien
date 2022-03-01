@@ -74,10 +74,15 @@ struct VS_OUTPUT
 	float2 texcoord : TEXCOORD;
 };
 
+cbuffer u_fs
+{
+	float intense;
+}
+
 float4 main(VS_OUTPUT IN) : SV_TARGET
 {
 	float4 color = ColorTexture.Sample(ColorSampler, IN.texcoord);
-	return color * IN.color;
+	return color * IN.color * intense;
 }
 
 )";
@@ -419,6 +424,13 @@ void SpriteRenderer::Flush(ur::Context& ctx)
     ctx.SetFramebuffer(fbo);
 }
 
+void SpriteRenderer::SetIntense(float intense)
+{
+	auto u_intense = m_shader->QueryUniform("u_fs.intense");
+	assert(u_intense);
+	u_intense->SetValue(&intense, 1);
+}
+
 void SpriteRenderer::InitShader(const ur::Device& dev)
 {
     std::vector<std::string> attr_names = {
@@ -447,6 +459,11 @@ void SpriteRenderer::InitShader(const ur::Device& dev)
     shader->AddUniformUpdater(std::make_shared<ModelMatUpdater>(*shader, "u_mvp.model", &ubo_vs.model));
     shader->AddUniformUpdater(std::make_shared<ViewMatUpdater>(*shader, "u_mvp.view", &ubo_vs.view));
     shader->AddUniformUpdater(std::make_shared<ProjectMatUpdater>(*shader, "u_mvp.projection", &ubo_vs.projection));
+
+	auto u_intense = shader->QueryUniform("u_fs.intense");
+	assert(u_intense);
+	float intense = 1.0f;
+	u_intense->SetValue(&intense, 1);
 
 	m_shader = shader;
 }

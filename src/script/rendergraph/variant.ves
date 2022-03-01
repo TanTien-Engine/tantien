@@ -40,7 +40,12 @@ class VarTexture
 		{
 			var scale = width / this.tex.get_width()
 			var h = this.tex.get_height() * scale
+
+			//Graphics.flush()
+			//Graphics.set_intense(50)
 			Graphics.draw_texture(this.tex, [x, y - h * 0.5], 0, [scale, scale], [0, 0])
+			//Graphics.flush()
+			//Graphics.set_intense(1)
 		}
 	}
 }

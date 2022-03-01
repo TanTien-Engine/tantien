@@ -75,6 +75,9 @@ foreign class Graphics
 	foreign static get_width()
 	foreign static get_height()
 
+	// for debug draw
+	foreign static set_intense(intense)
+
 	// fixme
 	foreign static set_cam_ortho(ortho)
 }
