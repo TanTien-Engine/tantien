@@ -186,12 +186,12 @@ class Shader is Node
 		var code = super.to_string(name)
 
 		code = code + "
-%(name).vs = \"%(this.vs)\"
-%(name).tcs = \"%(this.tcs)\"
-%(name).tes = \"%(this.tes)\"
-%(name).gs = \"%(this.gs)\"
-%(name).fs = \"%(this.fs)\"
-%(name).cs = \"%(this.cs)\"
+%(name).vs = \"%(this.vs.replace("\"", "\\\""))\"
+%(name).tcs = \"%(this.tcs.replace("\"", "\\\""))\"
+%(name).tes = \"%(this.tes.replace("\"", "\\\""))\"
+%(name).gs = \"%(this.gs.replace("\"", "\\\""))\"
+%(name).fs = \"%(this.fs.replace("\"", "\\\""))\"
+%(name).cs = \"%(this.cs.replace("\"", "\\\""))\"
 %(name).render_gen()
 "
 		for (var unif in this.uniforms) {
