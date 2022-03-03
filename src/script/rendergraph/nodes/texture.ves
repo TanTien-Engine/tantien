@@ -7,7 +7,7 @@ import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
 import "image" for ImageData
 import "graphics" for Graphics
-import "render" for Texture2D, TextureSampler
+import "render" for Texture2D, Texture3D, TextureSampler
 import "gui" for GUI
 import "math" for Math
 
@@ -37,6 +37,7 @@ class Texture is Node
 
 		this.width  = 0
 		this.height = 0
+		this.depth  = 0
 		this.format = "rgba8"
 
 		this.gamma_correction = false
@@ -194,7 +195,11 @@ class Texture is Node
 		if (this.tex_filepath) {
 			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"		
 		} else {
-			ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"
+			if (this.depth == 0) {
+				ret = ret + "%(name).init_texture(%(this.width), %(this.height), \"%(this.format)\")\n"			
+			} else {
+				ret = ret + "%(name).init_texture(%(this.width), %(this.height), %(this.depth), \"%(this.format)\")\n"			
+			}
 		}
 		if (this.sampler) {
 			ret = ret + "%(name).set_sampler(\"%(this.sampler_items[this.sampler_selected])\")\n"
@@ -247,6 +252,14 @@ class Texture is Node
 		this.format = format
 	}
 
+	init_texture(width, height, depth, format)
+	{
+		this.width  = width
+		this.height = height
+		this.depth  = depth		
+		this.format = format
+	}
+
 	set_sampler(name)
 	{
 		for (var i in 0..this.sampler_items.count) {
@@ -267,22 +280,29 @@ class Texture is Node
 
 	create_texture()
 	{
-		var w = this.width
-		var h = this.height
-
-		if (w == 0 or h == 0) 
+		if (this.depth == 0)
 		{
-			var v_size = Blueprint.calc_input_value(this, 1)
-			if (v_size) {
-				w = v_size.value.x
-				h = v_size.value.y
-			} else {
-				w  = 32
-				h = 32
-			}
-		}
+			var w = this.width
+			var h = this.height
 
-		return Texture2D.init(w, h, this.format)
+			if (w == 0 or h == 0) 
+			{
+				var v_size = Blueprint.calc_input_value(this, 1)
+				if (v_size) {
+					w = v_size.value.x
+					h = v_size.value.y
+				} else {
+					w  = 32
+					h = 32
+				}
+			}
+
+			return Texture2D.init(w, h, this.format)
+		}
+		else
+		{
+			return Texture3D.init(this.width, this.height, this.depth, this.format)
+		}
 	}
 
 	get_texture()

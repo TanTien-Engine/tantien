@@ -38,6 +38,16 @@ foreign class Texture2D
 	foreign download(image)
 }
 
+foreign class Texture3D
+{
+	// format: "rgb", "rgba8", "rgba16f", "rg16f", "r16", "depth"
+	init(width, height, depth, format) {}
+
+	foreign get_width()
+	foreign get_height()
+	foreign get_depth()
+}
+
 foreign class Cubemap
 {
 	// textures [ right, left, top, bottom, front, back ]
@@ -60,7 +70,7 @@ foreign class Framebuffer
 	init() {}
 
 	// attachment: "col0", "col1", ... , "col16", "depth", "stencil"
-	// target: "tex2d", "cubemap0", ... , "cubemap6"
+	// target: "tex2d", "tex3d", "cubemap0", ... , "cubemap6"
 	foreign attach_tex(tex, attachment, target, mipmap_level)
 	foreign attach_rbo(rbo, attachment)
 }

@@ -578,6 +578,31 @@ int w_VertexArray_finalize(void* data)
     return sizeof(tt::Proxy<ur::VertexArray>);
 }
 
+ur::TextureFormat str_to_tex_format(const char* format)
+{
+    ur::TextureFormat tf;
+    if (strcmp(format, "rgb") == 0) {
+        tf = ur::TextureFormat::RGB;
+    } else if (strcmp(format, "rgba8") == 0) {
+        tf = ur::TextureFormat::RGBA8;
+    } else if (strcmp(format, "rgba16f") == 0) {
+        tf = ur::TextureFormat::RGBA16F;
+    } else if (strcmp(format, "rgb16f") == 0) {
+        tf = ur::TextureFormat::RGB16F;
+    } else if (strcmp(format, "rg16f") == 0) {
+        tf = ur::TextureFormat::RG16F;
+    } else if (strcmp(format, "r16") == 0) {
+        tf = ur::TextureFormat::R16;
+    } else if (strcmp(format, "r16f") == 0) {
+        tf = ur::TextureFormat::R16F;
+    } else if (strcmp(format, "depth") == 0) {
+        tf = ur::TextureFormat::DEPTH;
+    } else {
+        GD_REPORT_ASSERT("unknown type.");
+    }
+    return tf;
+}
+
 void w_Texture2D_allocate()
 {
     ur::TexturePtr tex = nullptr;
@@ -660,26 +685,7 @@ void w_Texture2D_allocate()
         int width  = (int)ves_tonumber(1);
         int height = (int)ves_tonumber(2);
         const char* format = ves_tostring(3);
-        ur::TextureFormat tf;
-        if (strcmp(format, "rgb") == 0) {
-            tf = ur::TextureFormat::RGB;
-        } else if (strcmp(format, "rgba8") == 0) {
-            tf = ur::TextureFormat::RGBA8;
-        } else if (strcmp(format, "rgba16f") == 0) {
-            tf = ur::TextureFormat::RGBA16F;
-        } else if (strcmp(format, "rgb16f") == 0) {
-            tf = ur::TextureFormat::RGB16F;
-        } else if (strcmp(format, "rg16f") == 0) {
-            tf = ur::TextureFormat::RG16F;
-        } else if (strcmp(format, "r16") == 0) {
-            tf = ur::TextureFormat::R16;
-        } else if (strcmp(format, "r16f") == 0) {
-            tf = ur::TextureFormat::R16F;
-        } else if (strcmp(format, "depth") == 0) {
-            tf = ur::TextureFormat::DEPTH;
-        } else {
-            GD_REPORT_ASSERT("unknown type.");
-        }
+        ur::TextureFormat tf = str_to_tex_format(format);
 
         size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(width, height, tf, 4);
         tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
@@ -798,6 +804,49 @@ void w_Texture2D_download()
 
     size_t sz = ur::TextureUtility::RequiredSizeInBytes(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), 4);
     img->pixels = (uint8_t*)tex->WriteToMemory(sz);
+}
+
+void w_Texture3D_allocate()
+{
+    ur::TexturePtr tex = nullptr;
+
+    int width  = (int)ves_tonumber(1);
+    int height = (int)ves_tonumber(2);
+    int depth  = (int)ves_tonumber(3);
+
+    const char* format = ves_tostring(4);
+    ur::TextureFormat tf = str_to_tex_format(format);
+
+    size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(width, height, tf, 4);
+    tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
+
+    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    proxy->obj = tex;
+}
+
+int w_Texture3D_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::Texture>);
+}
+
+void w_Texture3D_get_width()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetWidth());
+}
+
+void w_Texture3D_get_height()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetHeight());
+}
+
+void w_Texture3D_get_depth()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    ves_set_number(0, (double)tex->GetDepth());
 }
 
 void w_Cubemap_get_width()
@@ -989,6 +1038,8 @@ void w_Framebuffer_attach_tex()
     ur::TextureTarget tex_target = ur::TextureTarget::Texture2D;
     if (strcmp(target, "tex2d") == 0) {
         tex_target = ur::TextureTarget::Texture2D;
+    } else if (strcmp(target, "tex3d") == 0) {
+        tex_target = ur::TextureTarget::Texture3D;
     } else if (strcmp(target, "cubemap0") == 0) {
         tex_target = ur::TextureTarget::TextureCubeMap0;
     } else if (strcmp(target, "cubemap1") == 0) {
@@ -1711,6 +1762,10 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Texture2D.upload(_,_,_,_,_)") == 0) return w_Texture2D_upload;
     if (strcmp(signature, "Texture2D.download(_)") == 0) return w_Texture2D_download;
 
+    if (strcmp(signature, "Texture3D.get_width()") == 0) return w_Texture3D_get_width;
+    if (strcmp(signature, "Texture3D.get_height()") == 0) return w_Texture3D_get_height;
+    if (strcmp(signature, "Texture3D.get_depth()") == 0) return w_Texture3D_get_depth;
+
     if (strcmp(signature, "Cubemap.get_width()") == 0) return w_Cubemap_get_width;
     if (strcmp(signature, "Cubemap.get_height()") == 0) return w_Cubemap_get_height;
 
@@ -1766,6 +1821,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Texture2D_allocate;
         methods->finalize = w_Texture2D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Texture3D") == 0)
+    {
+        methods->allocate = w_Texture3D_allocate;
+        methods->finalize = w_Texture3D_finalize;
         return;
     }
 

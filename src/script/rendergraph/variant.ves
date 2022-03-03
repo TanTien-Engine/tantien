@@ -1,6 +1,6 @@
 import "render" for Render
 import "graphics" for Graphics
-import "render" for Cubemap as tt_Cubemap, Texture2D, Framebuffer
+import "render" for Texture2D, Texture3D, Cubemap, Framebuffer
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "maths" for Matrix2D
 
@@ -28,15 +28,7 @@ class VarTexture
 			return
 		}
 
-		if (this.tex is tt_Cubemap)
-		{
-			var mt = Matrix2D.init()
-			mt.transform(x, y + 80, 0, 1, 1, 0, 0, 0, 0)
-
-			import "rendergraph.draw_cubemap" for DRAW_CUBEMAP			
-			DRAW_CUBEMAP.draw(this.tex, mt, width, cam_mt)
-		}
-		else if (this.tex is Texture2D)
+		if (this.tex is Texture2D)
 		{
 			var scale = width / this.tex.get_width()
 			var h = this.tex.get_height() * scale
@@ -46,6 +38,25 @@ class VarTexture
 			Graphics.draw_texture(this.tex, [x, y - h * 0.5], 0, [scale, scale], [0, 0])
 			//Graphics.flush()
 			//Graphics.set_intense(1)
+		}
+		else if (this.tex is Texture3D)
+		{
+			var scale = width / this.tex.get_width()
+			var h = this.tex.get_height() * scale
+
+			//Graphics.flush()
+			//Graphics.set_intense(50)
+			Graphics.draw_texture(this.tex, [x, y - h * 0.5], 0, [scale, scale], [0, 0])
+			//Graphics.flush()
+			//Graphics.set_intense(1)
+		}
+		else if (this.tex is Cubemap)
+		{
+			var mt = Matrix2D.init()
+			mt.transform(x, y + 80, 0, 1, 1, 0, 0, 0, 0)
+
+			import "rendergraph.draw_cubemap" for DRAW_CUBEMAP			
+			DRAW_CUBEMAP.draw(this.tex, mt, width, cam_mt)
 		}
 	}
 }
@@ -102,7 +113,7 @@ class VarModel
 
 fun value_to_variant(variant, value)
 {
-	if (value is Texture2D)
+	if (value is Texture2D or value is Texture3D)
 	{
 		variant.type = VAR_TYPE_TEXTURE
 		variant.value = VarTexture()

@@ -6,7 +6,7 @@ import "gui" for GUI
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
-import "render" for Texture2D, Cubemap
+import "render" for Texture2D, Texture3D, Cubemap
 import "math" for Math
 
 class RenderTarget is Node
@@ -61,6 +61,16 @@ class RenderTarget is Node
 				this.fbo.attach_tex(tex, type, "tex2d", mipmap_level)
 				this.attached = true
 			}
+			else if (tex is Texture3D)
+			{
+				if (this.width == 0) {
+					this.width  = tex.get_width()
+					this.height = tex.get_height()
+				}
+
+				this.fbo.attach_tex(tex, type, "tex3d", mipmap_level)
+				this.attached = true
+			}			
 			else if (tex is Cubemap)
 			{
 				if (this.width == 0) {
