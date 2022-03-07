@@ -36,7 +36,6 @@ class Draw is Node
 			"cull" : "disable",
 			"rasterization" : "fill",
 			"clip_plane" : false,
-			"blend" : false,
 			"prim_restart" : false,
 		}
 
@@ -162,8 +161,6 @@ class Draw is Node
 				rs.rasterization_mode(val)
 			} else if (key == "clip_plane") {
 				rs.clip_plane(val)
-			} else if (key == "blend") {
-				rs.blending(val)
 			} else if (key == "prim_restart") {
 				rs.prim_restart(val)
 			} 
@@ -256,16 +253,6 @@ class Draw is Node
 		var clip_plane = GUI.checkbox(ctx, "clip_plane", this.render_state["clip_plane"], x, y)
 		if (clip_plane != this.render_state["clip_plane"]) {
 			this.render_state["clip_plane"] = clip_plane
-			dirty = true
-		}
-		y = y - DEFAULT_HEIGHT
-
-		if (this.render_state["blend"] == nil) {
-			this.render_state["blend"] = false
-		}
-		var blend = GUI.checkbox(ctx, "blend", this.render_state["blend"], x, y)
-		if (blend != this.render_state["blend"]) {
-			this.render_state["blend"] = blend
 			dirty = true
 		}
 		y = y - DEFAULT_HEIGHT

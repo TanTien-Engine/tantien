@@ -20,6 +20,8 @@ class Blending is Node
 		]
 
 		this.params.add(NodeParam("enable", false))
+		this.params.add(NodeParam("src", "src_alpha", { "combo" : [ "zero", "one", "src_alpha", "one_minus_src_alpha" ] }))
+		this.params.add(NodeParam("dst", "one_minus_src_alpha", { "combo" : [ "zero", "one", "src_alpha", "one_minus_src_alpha" ] }))
 
 		this.layout()
 	}
@@ -38,7 +40,9 @@ class Blending is Node
 		}
 
 		var enable = this.query_param("enable").value
-		rs.blending(enable)
+		var src = this.query_param("src").value
+		var dst = this.query_param("dst").value
+		rs.blending(enable, src, dst)
 
 		return Variant(VAR_TYPE_RENDER_STATE, rs)
 	}

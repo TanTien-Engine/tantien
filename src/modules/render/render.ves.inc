@@ -111,7 +111,7 @@ foreign class RenderState
 
 	foreign clip_plane(enable)
 
-	foreign blending(enable)
+	foreign blending(enable, src, dst)
 
 	foreign prim_restart(enable)
 

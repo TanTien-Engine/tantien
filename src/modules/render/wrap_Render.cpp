@@ -817,8 +817,7 @@ void w_Texture3D_allocate()
     const char* format = ves_tostring(4);
     ur::TextureFormat tf = str_to_tex_format(format);
 
-    size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(width, height, tf, 4);
-    tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
+    tex = tt::Render::Instance()->Device()->CreateTexture3D(width, height, depth, tf, nullptr, 0);
 
     auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
     proxy->obj = tex;
@@ -1283,6 +1282,23 @@ void w_RenderState_clip_plane()
     rs->clip_plane = ves_toboolean(1);
 }
 
+ur::BlendingFactor str_to_blending_factor(const char* str)
+{
+    ur::BlendingFactor bf;
+    if (strcmp(str, "zero") == 0) {
+        bf = ur::BlendingFactor::Zero;
+    } else if (strcmp(str, "one") == 0) {
+        bf = ur::BlendingFactor::One;
+    } else if (strcmp(str, "src_alpha") == 0) {
+        bf = ur::BlendingFactor::SrcAlpha;
+    } else if (strcmp(str, "one_minus_src_alpha") == 0) {
+        bf = ur::BlendingFactor::OneMinusSrcAlpha;
+    } else {
+        GD_REPORT_ASSERT("unknown type.");
+    }
+    return bf;
+}
+
 void w_RenderState_blending()
 {
     auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
@@ -1292,8 +1308,8 @@ void w_RenderState_blending()
     {
         rs->blending.enabled = true;
         rs->blending.separately = false;
-        rs->blending.src = ur::BlendingFactor::SrcAlpha;
-        rs->blending.dst = ur::BlendingFactor::OneMinusSrcAlpha;
+        rs->blending.src = str_to_blending_factor(ves_tostring(2));
+        rs->blending.dst = str_to_blending_factor(ves_tostring(3));
         rs->blending.equation = ur::BlendEquation::Add;
     }
 }
@@ -1780,7 +1796,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "RenderState.face_culling(_)") == 0) return w_RenderState_face_culling;
     if (strcmp(signature, "RenderState.rasterization_mode(_)") == 0) return w_RenderState_rasterization_mode;
     if (strcmp(signature, "RenderState.clip_plane(_)") == 0) return w_RenderState_clip_plane;
-    if (strcmp(signature, "RenderState.blending(_)") == 0) return w_RenderState_blending;
+    if (strcmp(signature, "RenderState.blending(_,_,_)") == 0) return w_RenderState_blending;
     if (strcmp(signature, "RenderState.prim_restart(_)") == 0) return w_RenderState_prim_restart;
     if (strcmp(signature, "RenderState.depth_clamp(_)") == 0) return w_RenderState_depth_clamp;
 
