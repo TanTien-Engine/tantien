@@ -8,7 +8,7 @@ _editor.add_node(node0, 319.30050275821, -169.04286659416)
 
 var node1 = ::rendergraph::nodes::clear::Clear()
 
-node1.masks = [ "color" ]
+node1.masks = [ "color", "stencil" ]
 node1.values = { "color" : [ 128, 128, 128, 255 ] }
 
 _editor.add_node(node1, -195.87972269609, -10.621836605118)
@@ -101,6 +101,24 @@ node5.var_type = "num"
 
 _editor.add_node(node5, -145.08751065187, -150.16943958221)
 
+var node6 = ::blueprint::nodes::is_null::IsNull()
+
+_editor.add_node(node6, 64.028979492189, 140.00662841797)
+
+var node7 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node7, 499.62899169922, 11.306591796874)
+
+var node8 = ::rendergraph::nodes::pass::Pass()
+
+node8.once = false
+
+_editor.add_node(node8, 642.62895507813, 12.406634521484)
+
+Blueprint.connect(node4, "var", node6, "in")
+Blueprint.connect(node6, "out", node7, "cond")
+Blueprint.connect(node0, "next", node7, "false")
+Blueprint.connect(node7, "next", node8, "prev")
 Blueprint.connect(node5, "var", node2, "layer")
 Blueprint.connect(node4, "var", node2, "texture1")
 Blueprint.connect(node1, "next", node0, "prev")
