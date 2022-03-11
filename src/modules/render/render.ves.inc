@@ -28,7 +28,7 @@ foreign class VertexArray
 foreign class Texture2D
 {
 	init(img_data, gamma_correction) {}
-	// format: "rgb", "rgba8", "rgba16f", "rg16f", "r16", "depth"
+	// format: "rgb", "rgba8", "rgba16f", "rg16f", "rg32f", "r16", "depth"
 	init(width, height, format) {}
 
 	foreign get_width()
@@ -40,7 +40,7 @@ foreign class Texture2D
 
 foreign class Texture3D
 {
-	// format: "rgb", "rgba8", "rgba16f", "rg16f", "r16", "depth"
+	// format: "rgb", "rgba8", "rgba16f", "rg16f", "rg32f", "r16", "depth"
 	init(width, height, depth, format) {}
 
 	foreign get_width()

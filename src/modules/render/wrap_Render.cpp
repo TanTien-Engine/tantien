@@ -616,14 +616,20 @@ ur::TextureFormat str_to_tex_format(const char* format)
         tf = ur::TextureFormat::RGBA8;
     } else if (strcmp(format, "rgba16f") == 0) {
         tf = ur::TextureFormat::RGBA16F;
+    } else if (strcmp(format, "rgba32f") == 0) {
+        tf = ur::TextureFormat::RGBA32F;
     } else if (strcmp(format, "rgb16f") == 0) {
         tf = ur::TextureFormat::RGB16F;
     } else if (strcmp(format, "rg16f") == 0) {
         tf = ur::TextureFormat::RG16F;
+    } else if (strcmp(format, "rg32f") == 0) {
+        tf = ur::TextureFormat::RG32F;
     } else if (strcmp(format, "r16") == 0) {
         tf = ur::TextureFormat::R16;
     } else if (strcmp(format, "r16f") == 0) {
         tf = ur::TextureFormat::R16F;
+    } else if (strcmp(format, "r32f") == 0) {
+        tf = ur::TextureFormat::R32F;
     } else if (strcmp(format, "depth") == 0) {
         tf = ur::TextureFormat::DEPTH;
     } else {
@@ -799,6 +805,8 @@ void w_Texture2D_upload()
         break;
     case ur::TextureFormat::RGBA32F:
     case ur::TextureFormat::RGB32F:
+    case ur::TextureFormat::RG32F:
+    case ur::TextureFormat::R32F:
     case ur::TextureFormat::RGB32I:
         texture2d_upload<float>(*tex, num, x, y, w, h);
         break;
@@ -932,6 +940,8 @@ void w_Cubemap_allocate()
             tf = ur::TextureFormat::R16;
         } else if (strcmp(format, "r16f") == 0) {
             tf = ur::TextureFormat::R16F;
+        } else if (strcmp(format, "r32f") == 0) {
+            tf = ur::TextureFormat::R32F;
         } else {
             GD_REPORT_ASSERT("unknown type.");
         }
