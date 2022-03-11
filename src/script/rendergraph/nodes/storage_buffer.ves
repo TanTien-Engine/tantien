@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.variant" for VAR_TYPE_STORAGE_BUFFER
+import "render" for StorageBuffer as tt_StorageBuffer
+
+class StorageBuffer is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "data", VAR_TYPE_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "ssbo", VAR_TYPE_STORAGE_BUFFER),
+		]
+
+		this.layout()
+
+		this.ssbo = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			this.ssbo = nil
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{		
+		if (!this.ssbo) {
+			var v_data = Blueprint.calc_input_value(this, 0)
+			if (v_data) {
+				this.ssbo = tt_StorageBuffer.init(v_data.value)
+			}
+		}
+
+		return Variant(VAR_TYPE_STORAGE_BUFFER, this.ssbo)
+	}
+}

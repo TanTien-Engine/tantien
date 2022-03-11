@@ -1,6 +1,7 @@
 import "blueprint.pin" for Pin
 import "blueprint.node_helper" for NodeHelper
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "rendergraph.variant" for VAR_TYPE_STORAGE_BUFFER
 import "maths" for Matrix44
 import "render" for Render
 import "gui" for GUI
@@ -39,6 +40,15 @@ class ShaderUniforms
 		for (var unif in unifs) {
 			uniforms.add(unif)
 		}		
+	}
+
+	static type_var_to_pin(type)
+	{
+		if (type == "ssbo") {
+			return VAR_TYPE_STORAGE_BUFFER
+		} else {
+			return NodeHelper.type_var_to_pin(type)
+		}
 	}
 
 	static add_uniform_to_imports(node, unif)

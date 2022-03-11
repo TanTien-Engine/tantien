@@ -84,6 +84,11 @@ foreign class ComputeBuffer
 	foreign download(type, size)
 }
 
+foreign class StorageBuffer
+{
+	init(data) {}
+}
+
 foreign class RenderBuffer
 {
 	// format: "depth_component", "depth_stencil", "red", "rg", "rgb", "rgba"

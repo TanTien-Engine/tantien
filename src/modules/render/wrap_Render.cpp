@@ -25,6 +25,7 @@
 #include <unirender/RenderBuffer.h>
 #include <unirender/ComputeBuffer.h>
 #include <unirender/WritePixelBuffer.h>
+#include <unirender/StorageBuffer.h>
 #include <shadertrans/ShaderTrans.h>
 #include <shadertrans/ShaderReflection.h>
 #include <shadertrans/ShaderPreprocess.h>
@@ -218,6 +219,9 @@ const char* unif_type_to_string(shadertrans::ShaderReflection::VarType type)
     case shadertrans::ShaderReflection::VarType::Void:
         ret = "void";
         break;
+    case shadertrans::ShaderReflection::VarType::StorageBuffer:
+        ret = "ssbo";
+        break;
     default:
         assert(0);
     }
@@ -261,11 +265,15 @@ shadertrans::ShaderReflection::VarType strint_to_unif_type(const char* type)
         ret = shadertrans::ShaderReflection::VarType::Sampler;
     } else if (strcmp(type, "image") == 0) {
         ret = shadertrans::ShaderReflection::VarType::Image;
+    } else if (strcmp(type, "ssbo") == 0) {
+        ret = shadertrans::ShaderReflection::VarType::StorageBuffer;
+    } else {
+        GD_REPORT_ASSERT("unknown type.");
     }
     return ret;
 }
 
-void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const char* name, shadertrans::ShaderReflection::VarType type)
+void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const char* name, shadertrans::ShaderReflection::VarType type, uint32_t binding)
 {
     GD_ASSERT(ves_type(-1) == VES_TYPE_LIST, "value should be list");
     switch (type)
@@ -287,8 +295,12 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
             ves_pop(1);
             GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
 
+            ves_getfield(-1, "binding");
+            uint32_t binding = (uint32_t)ves_tonumber(-1);
+            ves_pop(1);
+
             ves_getfield(-1, "value");
-            set_uniform_value(prog, name, strint_to_unif_type(type));
+            set_uniform_value(prog, name, strint_to_unif_type(type), binding);
             ves_pop(1);
 
             ves_pop(1);
@@ -367,6 +379,19 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         }
     }
         break;
+    case shadertrans::ShaderReflection::VarType::StorageBuffer:
+    {
+        if (ves_len(-1) > 0)
+        {
+            ves_geti(-1, 0);
+            if (ves_type(-1) != VES_TYPE_NULL) {
+                auto ssbo = ((tt::Proxy<ur::StorageBuffer>*)ves_toforeign(-1))->obj;
+                prog->BindSSBO(name, binding, ssbo);
+            }
+            ves_pop(1);
+        }
+    }
+        break;
     default:
     {
         auto unif = prog->QueryUniform(name);
@@ -424,8 +449,12 @@ void w_Shader_set_uniform_value()
     ves_pop(1);
     GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
 
+    ves_getfield(1, "binding");
+    uint32_t binding = (uint32_t)ves_tonumber(-1);
+    ves_pop(1);
+
     ves_getfield(1, "value");
-    set_uniform_value(prog, name, strint_to_unif_type(type));
+    set_uniform_value(prog, name, strint_to_unif_type(type), binding);
     ves_pop(1);
 }
 
@@ -1009,6 +1038,45 @@ int w_ComputeBuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::ComputeBuffer>);
 }
 
+void w_ComputeBuffer_download()
+{
+    auto buf = ((tt::Proxy<ur::ComputeBuffer>*)ves_toforeign(0))->obj;
+    const char* type = ves_tostring(1);
+    const size_t size = (size_t)ves_tonumber(2);
+    if (strcmp(type, "int") == 0)
+    {
+        std::vector<int> data(size);
+        buf->GetComputeBufferData(data.data(), sizeof(data) * size);
+        tt::return_list(data);
+    }
+    else if (strcmp(type, "float") == 0)
+    {
+        std::vector<float> data(size);
+        buf->GetComputeBufferData(data.data(), sizeof(float) * size);
+        tt::return_list(data);
+    }
+}
+
+void w_StorageBuffer_allocate()
+{
+    // todo: force int here
+    auto data = tt::list_to_int_array(1);
+    auto sbuf_sz = sizeof(int) * data.size();
+    auto dev = tt::Render::Instance()->Device();
+    auto sbuf = dev->CreateStorageBuffer(ur::BufferUsageHint::StreamCopy, static_cast<int>(sbuf_sz));
+    sbuf->ReadFromMemory(data.data(), static_cast<int>(sbuf_sz), 0);
+
+    auto proxy = (tt::Proxy<ur::StorageBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::StorageBuffer>));
+    proxy->obj = sbuf;
+}
+
+int w_StorageBuffer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::StorageBuffer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::StorageBuffer>);
+}
+
 ur::AttachmentType string2attachment(const std::string& str)
 {
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
@@ -1063,25 +1131,6 @@ void w_Framebuffer_attach_rbo()
     auto rbo = ((tt::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
     auto atta_type = string2attachment(ves_tostring(2));
     fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
-}
-
-void w_ComputeBuffer_download()
-{
-    auto buf = ((tt::Proxy<ur::ComputeBuffer>*)ves_toforeign(0))->obj;
-    const char* type = ves_tostring(1);
-    const size_t size = (size_t)ves_tonumber(2);
-    if (strcmp(type, "int") == 0)
-    {
-        std::vector<int> data(size);
-        buf->GetComputeBufferData(data.data(), sizeof(data) * size);
-        tt::return_list(data);
-    }
-    else if (strcmp(type, "float") == 0)
-    {
-        std::vector<float> data(size);
-        buf->GetComputeBufferData(data.data(), sizeof(float) * size);
-        tt::return_list(data);
-    }
 }
 
 void w_RenderBuffer_allocate()
@@ -1665,6 +1714,12 @@ void push_variants(const std::vector<shadertrans::ShaderReflection::Variable>& v
         ves_pushstring(unif_type_to_string(var.type));
         ves_setfield(-2, "type");
         ves_pop(1);
+
+        // binding
+        ves_pushnumber(var.binding);
+        ves_setfield(-2, "binding");
+        ves_pop(1);
+
         if (var.type == shadertrans::ShaderReflection::VarType::Array || 
             var.type == shadertrans::ShaderReflection::VarType::Struct)
         {
@@ -1861,6 +1916,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_ComputeBuffer_allocate;
         methods->finalize = w_ComputeBuffer_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "StorageBuffer") == 0)
+    {
+        methods->allocate = w_StorageBuffer_allocate;
+        methods->finalize = w_StorageBuffer_finalize;
         return;
     }
 
