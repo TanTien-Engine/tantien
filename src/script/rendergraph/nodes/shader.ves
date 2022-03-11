@@ -126,16 +126,16 @@ class Shader is Node
 
 	set_uniform(unif, name, value)
 	{
-		if (unif[1] == "array" or unif[1] == "struct")
+		if (unif["type"] == "array" or unif["type"] == "struct")
 		{
-			for (var u in unif[2]) {
+			for (var u in unif["value"]) {
 				this.set_uniform(u, name, value)
 			}		
 		}
-		else if (unif[0] == name)
+		else if (unif["name"] == name)
 		{
 			for (var i in 0..value.count) {
-				unif[2][i] = value[i]
+				unif["value"][i] = value[i]
 			}
 		}
 	}
@@ -152,29 +152,29 @@ class Shader is Node
 		var ret = ""
 
 		for (var p in this.imports) {
-			if (p.name == unif[0]) {
+			if (p.name == unif["name"]) {
 				if (!p.conns.isEmpty) {
 					return ret
 				}
 			}
 		}
 
-		if (unif[1] == "array" or unif[1] == "struct") 
+		if (unif["type"] == "array" or unif["type"] == "struct") 
 		{
-			for (var u in unif[2]) {
+			for (var u in unif["value"]) {
 				ret = ret + this.uniform_to_string(name, u)
 			}
 		} 
 		else 
 		{
-			if (unif[1] == "float" or unif[1] == "int" or unif[1] == "bool") {
-				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]) ])\n"
-			} else if (unif[1] == "float2" or unif[1] == "int2") {
-				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]), %(unif[2][1]) ])\n"
-			} else if (unif[1] == "float3" or unif[1] == "int3") {
-				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]), %(unif[2][1]), %(unif[2][2]) ])\n"
-			} else if (unif[1] == "float4" or unif[1] == "int4") {
-				ret = "%(name).set_uniform(\"%(unif[0])\", [ %(unif[2][0]), %(unif[2][1]), %(unif[2][2]), %(unif[2][3]) ])\n"
+			if (unif["type"] == "float" or unif["type"] == "int" or unif["type"] == "bool") {
+				ret = "%(name).set_uniform(\"%(unif["name"])\", [ %(unif["value"][0]) ])\n"
+			} else if (unif["type"] == "float2" or unif["type"] == "int2") {
+				ret = "%(name).set_uniform(\"%(unif["name"])\", [ %(unif["value"][0]), %(unif["value"][1]) ])\n"
+			} else if (unif["type"] == "float3" or unif["type"] == "int3") {
+				ret = "%(name).set_uniform(\"%(unif["name"])\", [ %(unif["value"][0]), %(unif["value"][1]), %(unif["value"][2]) ])\n"
+			} else if (unif["type"] == "float4" or unif["type"] == "int4") {
+				ret = "%(name).set_uniform(\"%(unif["name"])\", [ %(unif["value"][0]), %(unif["value"][1]), %(unif["value"][2]), %(unif["value"][3]) ])\n"
 			}
 		}
 

@@ -11,18 +11,18 @@ class ShaderUniforms
 {
 	static init_shader_uniforms(unif)
 	{
-		if (unif[1] == "array" or unif[1] == "struct")
+		if (unif["type"] == "array" or unif["type"] == "struct")
 		{
-			for (var u in unif[2]) {
+			for (var u in unif["value"]) {
 				ShaderUniforms.init_shader_uniforms(u)
 			}		
 		}
 		else
 		{
-			if (unif[1] == "mat4") {
-				unif[2] = [ Matrix44.init() ]
-			} else if (unif[1] == "sampler") {
-				unif[2] = [ nil, nil ]
+			if (unif["type"] == "mat4") {
+				unif["value"] = [ Matrix44.init() ]
+			} else if (unif["type"] == "sampler") {
+				unif["value"] = [ nil, nil ]
 			}
 		}
 	}
@@ -43,13 +43,13 @@ class ShaderUniforms
 
 	static add_uniform_to_imports(node, unif)
 	{
-		if ((!FOLD_ARRAY and unif[1] == "array") or unif[1] == "struct") {
-			for (var u in unif[2]) {
+		if ((!FOLD_ARRAY and unif["type"] == "array") or unif["type"] == "struct") {
+			for (var u in unif["value"]) {
 				ShaderUniforms.add_uniform_to_imports(node, u)
 			}
 		} else {
-			var pin_type = NodeHelper.type_var_to_pin(unif[1])
-			var pin = Pin(node, unif[0], pin_type)
+			var pin_type = this.type_var_to_pin(unif["type"])
+			var pin = Pin(node, unif["name"], pin_type)
 			pin.unif = unif
 			node.imports.add(pin)
 		}
@@ -57,21 +57,21 @@ class ShaderUniforms
 
 	static layout(node, unif)
 	{
-		if ((!FOLD_ARRAY and unif[1] == "array") or unif[1] == "struct")
+		if ((!FOLD_ARRAY and unif["type"] == "array") or unif["type"] == "struct")
 		{
-			for (var u in unif[2]) {
+			for (var u in unif["value"]) {
 				ShaderUniforms.layout(node, u)
 			}
 		}
 		else
 		{
-			if (unif[1] == "float" or unif[1] == "int" or unif[1] == "bool") {
+			if (unif["type"] == "float" or unif["type"] == "int" or unif["type"] == "bool") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT
-			} else if (unif[1] == "float2" or unif[1] == "int2") {
+			} else if (unif["type"] == "float2" or unif["type"] == "int2") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 2
-			} else if (unif[1] == "float3" or unif[1] == "int3") {
+			} else if (unif["type"] == "float3" or unif["type"] == "int3") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 3
-			} else if (unif[1] == "float4" or unif[1] == "int4") {
+			} else if (unif["type"] == "float4" or unif["type"] == "int4") {
 				node.style.height = node.style.height + DEFAULT_HEIGHT + DEFAULT_HEIGHT * 4
 			}
 		}
@@ -81,12 +81,12 @@ class ShaderUniforms
 	{
 		var dirty = false
 
-		if (unif[1] == "array" or unif[1] == "struct")
+		if (unif["type"] == "array" or unif["type"] == "struct")
 		{
-			var skip = unif[1] == "array" and FOLD_ARRAY
+			var skip = unif["type"] == "array" and FOLD_ARRAY
 			if (!skip) 
 			{
-				for (var u in unif[2]) {
+				for (var u in unif["value"]) {
 					var y_d = this.draw_gui(node, ctx, u, x, y)
 					y = y_d[0]
 					if (y_d[1]) {
@@ -97,23 +97,23 @@ class ShaderUniforms
 		}
 		else
 		{			
-			if (unif[1] != "sampler" and unif[1] != "image" and unif[1] != "mat2" and unif[1] != "mat3" and unif[1] != "mat4") {
-		    	GUI.label(ctx, unif[0], x, y)
+			if (unif["type"] != "sampler" and unif["type"] != "image" and unif["type"] != "mat2" and unif["type"] != "mat3" and unif["type"] != "mat4") {
+		    	GUI.label(ctx, unif["name"], x, y)
 				y = y - DEFAULT_HEIGHT
 			}
 
 			var region = 1.0
-			if (unif[1] == "int" or unif[1] == "int2" or unif[1] == "int3" or unif[1] == "int4") {
+			if (unif["type"] == "int" or unif["type"] == "int2" or unif["type"] == "int3" or unif["type"] == "int4") {
 				region = 10
 			}
 
-			if (unif[1] == "bool")
+			if (unif["type"] == "bool")
 			{
 				var unif_dirty = false
 
-				var value = GUI.checkbox(ctx, "b", unif[2][0], x, y)
-				if (value != unif[2][0]) {
-					unif[2][0] = value
+				var value = GUI.checkbox(ctx, "b", unif["value"][0], x, y)
+				if (value != unif["value"][0]) {
+					unif["value"][0] = value
 					unif_dirty = true
 				}
 
@@ -122,14 +122,14 @@ class ShaderUniforms
 			    	dirty = true
 			    }
 			}
-			else if (unif[1] == "float" or unif[1] == "int")
+			else if (unif["type"] == "float" or unif["type"] == "int")
 			{
 				var unif_dirty = false
 
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, node.style.width - 20, region, false)
+			    var r = GUI.slider(ctx, "x", unif["value"][0], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
+			    if (r != unif["value"][0]) {
+			    	unif["value"][0] = r
 			    	unif_dirty = true
 			    }
 
@@ -138,21 +138,21 @@ class ShaderUniforms
 			    	dirty = true
 			    }
 			}
-			else if (unif[1] == "float2" or unif[1] == "int2")
+			else if (unif["type"] == "float2" or unif["type"] == "int2")
 			{
 				var unif_dirty = false
 
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, node.style.width - 20, region, false)
+			    var r = GUI.slider(ctx, "x", unif["value"][0], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
+			    if (r != unif["value"][0]) {
+			    	unif["value"][0] = r
 			    	unif_dirty = true
 			    }
 
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, node.style.width - 20, region, false)
+			    var g = GUI.slider(ctx, "y", unif["value"][1], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
+			    if (g != unif["value"][1]) {
+			    	unif["value"][1] = g
 			    	unif_dirty = true
 			    }
 
@@ -161,28 +161,28 @@ class ShaderUniforms
 			    	dirty = true
 			    }
 			}
-			else if (unif[1] == "float3" or unif[1] == "int3")
+			else if (unif["type"] == "float3" or unif["type"] == "int3")
 			{
 				var unif_dirty = false
 
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, node.style.width - 20, region, false)
+			    var r = GUI.slider(ctx, "x", unif["value"][0], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
+			    if (r != unif["value"][0]) {
+			    	unif["value"][0] = r
 			    	unif_dirty = true
 			    }
 
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, node.style.width - 20, region, false)
+			    var g = GUI.slider(ctx, "y", unif["value"][1], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
+			    if (g != unif["value"][1]) {
+			    	unif["value"][1] = g
 			    	unif_dirty = true
 			    }
 
-			    var b = GUI.slider(ctx, "z", unif[2][2], x, y, node.style.width - 20, region, false)
+			    var b = GUI.slider(ctx, "z", unif["value"][2], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (b != unif[2][2]) {
-			    	unif[2][2] = b
+			    if (b != unif["value"][2]) {
+			    	unif["value"][2] = b
 			    	unif_dirty = true
 			    }
 
@@ -191,35 +191,35 @@ class ShaderUniforms
 			    	dirty = true
 			    }
 			}
-			else if (unif[1] == "float4" or unif[1] == "int4")
+			else if (unif["type"] == "float4" or unif["type"] == "int4")
 			{
 				var unif_dirty = false
 
-			    var r = GUI.slider(ctx, "x", unif[2][0], x, y, node.style.width - 20, region, false)
+			    var r = GUI.slider(ctx, "x", unif["value"][0], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (r != unif[2][0]) {
-			    	unif[2][0] = r
+			    if (r != unif["value"][0]) {
+			    	unif["value"][0] = r
 			    	unif_dirty = true
 			    }
 
-			    var g = GUI.slider(ctx, "y", unif[2][1], x, y, node.style.width - 20, region, false)
+			    var g = GUI.slider(ctx, "y", unif["value"][1], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (g != unif[2][1]) {
-			    	unif[2][1] = g
+			    if (g != unif["value"][1]) {
+			    	unif["value"][1] = g
 			    	unif_dirty = true
 			    }
 
-			    var b = GUI.slider(ctx, "z", unif[2][2], x, y, node.style.width - 20, region, false)
+			    var b = GUI.slider(ctx, "z", unif["value"][2], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (b != unif[2][2]) {
-			    	unif[2][2] = b
+			    if (b != unif["value"][2]) {
+			    	unif["value"][2] = b
 			    	unif_dirty = true
 			    }
 
-			    var a = GUI.slider(ctx, "w", unif[2][3], x, y, node.style.width - 20, region, false)
+			    var a = GUI.slider(ctx, "w", unif["value"][3], x, y, node.style.width - 20, region, false)
 				y = y - DEFAULT_HEIGHT
-			    if (a != unif[2][3]) {
-			    	unif[2][3] = a
+			    if (a != unif["value"][3]) {
+			    	unif["value"][3] = a
 			    	unif_dirty = true
 			    }
 

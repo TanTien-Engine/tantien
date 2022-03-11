@@ -278,16 +278,16 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         {
             ves_geti(-1, i);
 
-            ves_geti(-1, 0);
+            ves_getfield(-1, "name");
             const char* name = ves_tostring(-1);
             ves_pop(1);
 
-            ves_geti(-1, 1);
+            ves_getfield(-1, "type");
             const char* type = ves_tostring(-1);
             ves_pop(1);
             GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
 
-            ves_geti(-1, 2);
+            ves_getfield(-1, "value");
             set_uniform_value(prog, name, strint_to_unif_type(type));
             ves_pop(1);
 
@@ -413,18 +413,18 @@ void w_Shader_set_uniform_value()
         return;
     }
 
-    GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "unknown type");
+    GD_ASSERT(ves_type(1) == VES_TYPE_MAP, "error uniform");
 
-    ves_geti(1, 0);
+    ves_getfield(1, "name");
     const char* name = ves_tostring(-1);
     ves_pop(1);
 
-    ves_geti(1, 1);
+    ves_getfield(1, "type");
     const char* type = ves_tostring(-1);
     ves_pop(1);
     GD_ASSERT(strcmp(type, "unknown") != 0, "unknown type");
 
-    ves_geti(1, 2);
+    ves_getfield(1, "value");
     set_uniform_value(prog, name, strint_to_unif_type(type));
     ves_pop(1);
 }
@@ -1652,41 +1652,30 @@ void push_variants(const std::vector<shadertrans::ShaderReflection::Variable>& v
 
     for (int i = 0, n = variants.size(); i < n; ++i)
     {
-        // name + type + value[]
-        ves_newlist(3);
+        ves_newmap();
 
         auto& var = variants[i];
+
+        // name
+        ves_pushstring(var.name.c_str());
+        ves_setfield(-2, "name");
+        ves_pop(1);
+
+        // type
+        ves_pushstring(unif_type_to_string(var.type));
+        ves_setfield(-2, "type");
+        ves_pop(1);
         if (var.type == shadertrans::ShaderReflection::VarType::Array || 
             var.type == shadertrans::ShaderReflection::VarType::Struct)
         {
-            // name
-            ves_pushstring(var.name.c_str());
-            ves_seti(-2, 0);
-            ves_pop(1);
-
-            // type
-            ves_pushstring(unif_type_to_string(var.type));
-            ves_seti(-2, 1);
-            ves_pop(1);
-
             // value
             push_variants(var.children);
-            ves_seti(-2, 2);
+            ves_setfield(-2, "value");
             ves_pop(1);
         }
         else 
         {
             assert(var.children.empty());
-
-            // name
-            ves_pushstring(var.name.c_str());
-            ves_seti(-2, 0);
-            ves_pop(1);
-
-            // type
-            ves_pushstring(unif_type_to_string(var.type));
-            ves_seti(-2, 1);
-            ves_pop(1);
 
             // value
             if (var.type == shadertrans::ShaderReflection::VarType::Sampler ||
@@ -1710,7 +1699,7 @@ void push_variants(const std::vector<shadertrans::ShaderReflection::Variable>& v
                     ves_pop(1);
                 }
             }
-            ves_seti(-2, 2);
+            ves_setfield(-2, "value");
             ves_pop(1);
         }
         ves_seti(-2, i);

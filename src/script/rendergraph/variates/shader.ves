@@ -16,7 +16,7 @@ class Shader
 		for (var i in 0..this.node.imports.count) 
 		{
 			var pin = this.node.imports[i]
-			if (pin["unif"] and pin.unif[1] != "array") {
+			if (pin["unif"] and pin.unif["type"] != "array") {
 				var v = Blueprint.calc_input_value(this.node, i)
 				if (v.value is List) {
 					count = Math.max(count, v.value.count)
@@ -38,11 +38,11 @@ class Shader
 				var _v = nil
 				if (val.type == VAR_TYPE_ARRAY)
 				{
-					if (pin["unif"] and pin.unif[1] == "array")
+					if (pin["unif"] and pin.unif["type"] == "array")
 					{
-						var n = Math.min(val.value.count, pin.unif[2].count)
+						var n = Math.min(val.value.count, pin.unif["value"].count)
 						for (var i in 0..n) {
-							this.set_uniform_value(pin.unif[2][i], val.value[i].value)
+							this.set_uniform_value(pin.unif["value"][i], val.value[i].value)
 						}
 					}
 					else
@@ -67,31 +67,34 @@ class Shader
 
 	set_uniform_value(dst, src)
 	{
-		if (dst[1] == "float" or dst[1] == "int" or dst[1] == "bool") {
-			dst[2][0] = src
-		} else if (dst[1] == "float2" or dst[1] == "int2") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-		} else if (dst[1] == "float3" or dst[1] == "int3") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-			dst[2][2] = src.z
-		}  else if (dst[1] == "float4" or dst[1] == "int4") {
-			dst[2][0] = src.x
-			dst[2][1] = src.y
-			dst[2][2] = src.z
-			dst[2][3] = src.w
-		} else if (dst[1] == "mat2" or dst[1] == "mat3" or dst[1] == "mat4") {
-			dst[2] = [src]
-		} else if (dst[1] == "sampler" or dst[1] == "image") {
-			dst[2] = [src.tex, src.sampler]
+		var dst_type = dst["type"]
+		if (dst_type == "float" or dst_type == "int" or dst_type == "bool") {
+			dst["value"][0] = src
+		} else if (dst_type == "float2" or dst_type == "int2") {
+			dst["value"][0] = src.x
+			dst["value"][1] = src.y
+		} else if (dst_type == "float3" or dst_type == "int3") {
+			dst["value"][0] = src.x
+			dst["value"][1] = src.y
+			dst["value"][2] = src.z
+		}  else if (dst_type == "float4" or dst_type == "int4") {
+			dst["value"][0] = src.x
+			dst["value"][1] = src.y
+			dst["value"][2] = src.z
+			dst["value"][3] = src.w
+		} else if (dst_type == "mat2" or dst_type == "mat3" or dst_type == "mat4") {
+			dst["value"] = [src]
+		} else if (dst_type == "sampler" or dst_type == "image") {
+			dst["value"] = [src.tex, src.sampler]
+		} else if (dst_type == "ssbo") {
+			dst["value"] = [src]
 		}
 	}
 
 	update_uniforms(frame, unif)
 	{
-		if (unif[1] == "array" or unif[1] == "struct") {
-			for (var u in unif[2]) {
+		if (unif["type"] == "array" or unif["type"] == "struct") {
+			for (var u in unif["value"]) {
 				this.update_uniforms(frame, u)
 			}
 		} else {
