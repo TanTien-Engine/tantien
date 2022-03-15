@@ -721,9 +721,15 @@ void w_Texture2D_allocate()
         int height = (int)ves_tonumber(2);
         const char* format = ves_tostring(3);
         ur::TextureFormat tf = str_to_tex_format(format);
+        bool mipmap = ves_toboolean(4);
 
-        size_t buf_sz = ur::TextureUtility::RequiredSizeInBytes(width, height, tf, 4);
-        tex = tt::Render::Instance()->Device()->CreateTexture(width, height, tf, nullptr, buf_sz);
+        ur::TextureDescription desc;
+        desc.width  = width;
+        desc.height = height;
+        desc.format = tf;
+        desc.gen_mipmaps = mipmap;
+
+        tex = tt::Render::Instance()->Device()->CreateTexture(desc, nullptr);
     }
 
     auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));

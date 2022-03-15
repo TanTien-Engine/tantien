@@ -29,7 +29,7 @@ foreign class Texture2D
 {
 	init(img_data, gamma_correction) {}
 	// format: "rgb", "rgba8", "rgba16f", "rg16f", "rg32f", "r16", "depth"
-	init(width, height, format) {}
+	init(width, height, format, mipmap) {}
 
 	foreign get_width()
 	foreign get_height()

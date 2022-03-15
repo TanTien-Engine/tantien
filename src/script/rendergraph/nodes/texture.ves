@@ -41,6 +41,7 @@ class Texture is Node
 		this.format = "rgba8"
 
 		this.gamma_correction = false
+		this.mipmap = false
 
 		this.params.add(NodeParam("unif_name", "u_tex"))
 
@@ -186,12 +187,15 @@ class Texture is Node
 
 		// gamma_correction
 		this.style.height = this.style.height + DEFAULT_HEIGHT
+		// mipmap
+		this.style.height = this.style.height + DEFAULT_HEIGHT
 	}
 
 	to_string(name) 
 	{
 		var ret = super.to_string(name)
 		ret = ret + "%(name).gamma_correction = %(this.gamma_correction)\n"
+		ret = ret + "%(name).mipmap = %(this.mipmap)\n"		
 		if (this.tex_filepath) {
 			ret = ret + "%(name).init_texture(\"%(this.tex_filepath)\")\n"		
 		} else {
@@ -297,7 +301,7 @@ class Texture is Node
 				}
 			}
 
-			return Texture2D.init(w, h, this.format)
+			return Texture2D.init(w, h, this.format, this.mipmap)
 		}
 		else
 		{
