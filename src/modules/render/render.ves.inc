@@ -61,7 +61,7 @@ foreign class Cubemap
 
 foreign class TextureSampler
 {
-	// "nearest_clamp", "linear_clamp", "linear_clamp_mipmap", "nearest_repeat", "linear_repeat"
+	// "nearest_clamp", "linear_clamp", "linear_clamp_mipmap", "nearest_repeat", "linear_repeat", "linear_repeat_mipmap"
 	init(type) {}
 }
 

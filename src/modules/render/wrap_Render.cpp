@@ -989,6 +989,8 @@ void w_TextureSampler_allocate()
         sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::NearestRepeat);
     } else if (strcmp(type, "linear_repeat") == 0) {
         sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearRepeat);
+    } else if (strcmp(type, "linear_repeat_mipmap") == 0) {
+        sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearRepeatMipmap);
     }
 
     auto proxy = (tt::Proxy<ur::TextureSampler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::TextureSampler>));
