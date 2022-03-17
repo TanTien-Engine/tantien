@@ -20,7 +20,9 @@ class Shader is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "cs", VAR_TYPE_STRING)
+			Pin(this, "vs", VAR_TYPE_STRING),
+			Pin(this, "fs", VAR_TYPE_STRING),
+			Pin(this, "cs", VAR_TYPE_STRING),
 		]
 		this.exports = [
 			Pin(this, "out", VAR_TYPE_SHADER)
@@ -48,20 +50,37 @@ class Shader is Node
 		return Variant(VAR_TYPE_SHADER, this.shader)
 	}
 
-	get_shader_uniforms(cs, inc_dir)
+	get_shader_uniforms(inc_dir)
 	{
 		var uniforms = []
+
 		ShaderUniforms.get_shader_uniforms("vertex",    this.vs,  inc_dir, "glsl", uniforms, "main")
 		ShaderUniforms.get_shader_uniforms("tess_ctrl", this.tcs, inc_dir, "glsl", uniforms, "main")
 		ShaderUniforms.get_shader_uniforms("tess_eval", this.tes, inc_dir, "glsl", uniforms, "main")
 		ShaderUniforms.get_shader_uniforms("geometry",  this.gs,  inc_dir, "glsl", uniforms, "main")
 		ShaderUniforms.get_shader_uniforms("pixel",     this.fs,  inc_dir, "glsl", uniforms, "main")
-		if (cs) {
-			ShaderUniforms.get_shader_uniforms("compute", cs, inc_dir, "glsl", uniforms, "main")
-		} else {
-			ShaderUniforms.get_shader_uniforms("compute", this.cs, inc_dir, "glsl", uniforms, "main")		
-		}
+		ShaderUniforms.get_shader_uniforms("compute",   this.cs,  inc_dir, "glsl", uniforms, "main")
+
 		return uniforms
+	}
+
+	prepare_codes()
+	{
+		for (var p in this.imports)
+		{
+			var v_code = Blueprint.calc_input_value(this, p.name)
+			if (v_code and v_code.type == VAR_TYPE_STRING) 
+			{
+				this[p.name] = v_code.value
+
+				// fixme
+				var n_code = Blueprint.get_input_node(this, p.name)
+				if (n_code and n_code is ShaderCode) {
+					var inc_dir = Filesystem.get_directory(n_code.filepath)
+					this.query_param("inc_dir").value = inc_dir
+				}
+			}
+		}
 	}
 
 	render_gen()
@@ -70,26 +89,13 @@ class Shader is Node
 			return
 		}
 
+		this.prepare_codes()
+
 		var inc_dir = this.query_param("inc_dir").value
 		inc_dir = Filesystem.get_absolute_path(inc_dir)
 
-		var cs = nil
-		var v_cs = Blueprint.calc_input_value(this, 0)
-		if (v_cs and v_cs.type == VAR_TYPE_STRING) 
-		{
-			cs = v_cs.value
-
-			// fixme
-			var n_cs = Blueprint.get_input_node(this, 0)
-			if (n_cs and n_cs is ShaderCode) {
-				inc_dir = Filesystem.get_directory(n_cs.filepath)
-			}
-		}
-
 		this.shader.prog = nil
-		if (cs) {
-			this.shader.prog = tt_Shader.init(cs, inc_dir)
-		} else if (this.cs != "") {
+		if (this.cs != "") {
 			this.shader.prog = tt_Shader.init(this.cs, inc_dir)
 		} else if (this.vs != "" and this.fs != "") {
 			this.shader.prog = tt_Shader.init(this.vs, this.tcs, this.tes, this.gs, this.fs, inc_dir)
@@ -97,7 +103,7 @@ class Shader is Node
 
 		if (this.shader.prog)
 		{
-			this.uniforms = this.get_shader_uniforms(cs, inc_dir)
+			this.uniforms = this.get_shader_uniforms(inc_dir)
 			for (var unif in this.uniforms) {
 				ShaderUniforms.add_uniform_to_imports(this, unif)
 			}
@@ -119,7 +125,7 @@ class Shader is Node
 
 	on_connected(pin)
 	{
-		if (pin.is_input and pin.slot_idx == 0) {
+		if (pin.is_input) {
 			this.render_gen()
 		}
 	}
