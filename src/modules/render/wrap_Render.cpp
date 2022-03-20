@@ -850,6 +850,32 @@ void w_Texture2D_download()
     img->pixels = (uint8_t*)tex->WriteToMemory(sz);
 }
 
+void w_Texture2D_max_pixel_val()
+{
+    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+
+    float max_val = -std::numeric_limits<float>::max();
+
+    int w = tex->GetWidth();
+    int h = tex->GetHeight();
+    size_t sz = ur::TextureUtility::RequiredSizeInBytes(w, h, tex->GetFormat(), 4);
+    unsigned short* pixels = (unsigned short*)tex->WriteToMemory(sz);
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            for (int k = 0; k < 4; ++k) {
+                float v = sm::f16_to_f32(pixels[(y * w + x) * 4 + k]);
+                if (v > max_val) {
+                    max_val = v;
+                }
+            }
+        }
+    }
+
+    ves_set_number(0, max_val);
+
+    delete[] pixels;
+}
+
 void w_Texture3D_allocate()
 {
     ur::TexturePtr tex = nullptr;
@@ -1867,6 +1893,7 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
     if (strcmp(signature, "Texture2D.get_height()") == 0) return w_Texture2D_get_height;
     if (strcmp(signature, "Texture2D.upload(_,_,_,_,_)") == 0) return w_Texture2D_upload;
     if (strcmp(signature, "Texture2D.download(_)") == 0) return w_Texture2D_download;
+    if (strcmp(signature, "Texture2D.max_pixel_val()") == 0) return w_Texture2D_max_pixel_val;
 
     if (strcmp(signature, "Texture3D.get_width()") == 0) return w_Texture3D_get_width;
     if (strcmp(signature, "Texture3D.get_height()") == 0) return w_Texture3D_get_height;

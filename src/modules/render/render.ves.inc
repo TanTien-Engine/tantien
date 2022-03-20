@@ -36,6 +36,9 @@ foreign class Texture2D
 
 	foreign upload(pixels, x, y, w, h)
 	foreign download(image)
+
+	// fixme: move to image
+	foreign max_pixel_val()
 }
 
 foreign class Texture3D
