@@ -79,6 +79,21 @@
     <Filter Include="modules\globegen\vtex">
       <UniqueIdentifier>{3ed651ec-85b5-4cbc-b3d2-b8dda2cb62f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\pathtracer">
+      <UniqueIdentifier>{272b139c-24f1-4bf0-898d-02362575bda9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\pathtracer\script">
+      <UniqueIdentifier>{3daacdbd-b036-45c2-8249-b461b4d22300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\pathtracer\comp">
+      <UniqueIdentifier>{7fd41eee-3406-4efb-a62e-aeaedf9aa92b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\pathtracer\3rd">
+      <UniqueIdentifier>{f8e69793-d973-46a2-90a0-d789c31a5015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\pathtracer\3rd\RadeonRays">
+      <UniqueIdentifier>{dd53c8a2-4def-42e3-8406-d895a70a9b72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -224,6 +239,27 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\globegen\ImageTools.cpp">
       <Filter>modules\globegen\vtex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\wrap_PathTracer.cpp">
+      <Filter>modules\pathtracer\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bbox.cpp">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh.cpp">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh_translator.cpp">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\split_bvh.cpp">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Mesh.cpp">
+      <Filter>modules\pathtracer\comp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Scene.cpp">
+      <Filter>modules\pathtracer\comp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -389,6 +425,33 @@
     <ClInclude Include="..\..\..\..\littleworld\globegen\ImageTools.h">
       <Filter>modules\globegen\vtex</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Material.h">
+      <Filter>modules\pathtracer\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\wrap_PathTracer.h">
+      <Filter>modules\pathtracer\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Light.h">
+      <Filter>modules\pathtracer\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Mesh.h">
+      <Filter>modules\pathtracer\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bbox.h">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh.h">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh_translator.h">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\split_bvh.h">
+      <Filter>modules\pathtracer\3rd\RadeonRays</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Scene.h">
+      <Filter>modules\pathtracer\comp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\render\render.ves.inc">
@@ -435,6 +498,9 @@
     </None>
     <None Include="..\..\..\..\littleworld\globegen\ImageTools.inl">
       <Filter>modules\globegen\vtex</Filter>
+    </None>
+    <None Include="..\..\..\..\tt_sim\pathtracer\src\pathtracer.ves.inc">
+      <Filter>modules\pathtracer\script</Filter>
     </None>
   </ItemGroup>
 </Project>
