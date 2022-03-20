@@ -19,12 +19,14 @@ class Camera3d is Node
 			Pin(this, "center", VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
-			Pin(this, "this", VAR_TYPE_NODE),		
-			Pin(this, "mat", VAR_TYPE_MATRIX4),
-			Pin(this, "zoom", VAR_TYPE_NUMBER),
-			Pin(this, "rot", VAR_TYPE_MATRIX4),
-			Pin(this, "pos", VAR_TYPE_NUMBER3),
+			Pin(this, "this",  VAR_TYPE_NODE),		
+			Pin(this, "mat",   VAR_TYPE_MATRIX4),
+			Pin(this, "zoom",  VAR_TYPE_NUMBER),
+			Pin(this, "rot",   VAR_TYPE_MATRIX4),
+			Pin(this, "pos",   VAR_TYPE_NUMBER3),
 			Pin(this, "front", VAR_TYPE_NUMBER3),
+			Pin(this, "up",    VAR_TYPE_NUMBER3),
+			Pin(this, "right", VAR_TYPE_NUMBER3),			
 		]
 
 		this.layout()
@@ -59,11 +61,19 @@ class Camera3d is Node
 		}
 		else if (idx == 4)
 		{
-			return Variant(VAR_TYPE_NUMBER3, this.cam.position)	
+			return Variant(VAR_TYPE_NUMBER3, this.cam.position)
 		}
 		else if (idx == 5)
 		{
-			return Variant(VAR_TYPE_NUMBER3, this.cam.front)	
+			return Variant(VAR_TYPE_NUMBER3, this.cam.front)
+		}
+		else if (idx == 6)
+		{
+			return Variant(VAR_TYPE_NUMBER3, this.cam.up)
+		}
+		else if (idx == 7)
+		{
+			return Variant(VAR_TYPE_NUMBER3, this.cam.right)
 		}
 		else
 		{
