@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "rendergraph.variant" for VAR_TYPE_TEXTURE
+import "maths.vector" for Vector2
+
+class TexSize is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tex", VAR_TYPE_TEXTURE),
+		]
+		this.exports = [
+			Pin(this, "size", VAR_TYPE_NUMBER2),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var tex = nil
+		var v_tex = Blueprint.calc_input_value(this, 0)
+		if (v_tex) {
+			tex = v_tex.value.tex
+		}
+		if (tex) {
+			return Variant(Vector2(tex.get_width(), tex.get_height()))
+		} else {
+			return nil
+		}
+	}	
+}

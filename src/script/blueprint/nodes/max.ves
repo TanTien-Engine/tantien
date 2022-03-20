@@ -1,0 +1,34 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "math" for Math
+
+class Max is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "a", VAR_TYPE_NUMBER),
+			Pin(this, "b", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "out", VAR_TYPE_NUMBER),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_a = Blueprint.calc_input_value(this, 0)
+		var v_b = Blueprint.calc_input_value(this, 1)
+		if (v_a and v_b) {
+			return Variant(Math.max(v_a.value, v_b.value))
+		} else {
+			return nil
+		}
+	}	
+}
