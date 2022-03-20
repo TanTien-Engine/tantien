@@ -24,6 +24,7 @@
 #include <unirender/TextureDescription.h>
 #include <unirender/RenderBuffer.h>
 #include <unirender/ComputeBuffer.h>
+#include <unirender/TextureBuffer.h>
 #include <unirender/WritePixelBuffer.h>
 #include <unirender/StorageBuffer.h>
 #include <shadertrans/ShaderTrans.h>
@@ -1095,6 +1096,33 @@ int w_StorageBuffer_finalize(void* data)
     return sizeof(tt::Proxy<ur::StorageBuffer>);
 }
 
+void w_TextureBuffer_allocate()
+{
+    auto proxy = (tt::Proxy<ur::TextureBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::TextureBuffer>));
+    proxy->obj = nullptr;
+}
+
+int w_TextureBuffer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<ur::TextureBuffer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<ur::TextureBuffer>);
+}
+
+void w_TextureBuffer_get_texture()
+{
+    auto tbo = ((tt::Proxy<ur::TextureBuffer>*)ves_toforeign(0))->obj;
+    auto tex = tbo->GetTexture();
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("render", "Texture2D");
+    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<ur::Texture>));
+    proxy->obj = tex;
+    ves_pop(1);
+}
+
 ur::AttachmentType string2attachment(const std::string& str)
 {
     ur::AttachmentType atta_type = ur::AttachmentType::Color0;
@@ -1852,6 +1880,8 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 
     if (strcmp(signature, "ComputeBuffer.download(_,_)") == 0) return w_ComputeBuffer_download;
 
+    if (strcmp(signature, "TextureBuffer.get_texture()") == 0) return w_TextureBuffer_get_texture;
+
     if (strcmp(signature, "RenderState.stencil_test(_,_,_,_,_)") == 0) return w_RenderState_stencil_test;
     if (strcmp(signature, "RenderState.z_write(_)") == 0) return w_RenderState_z_write;
     if (strcmp(signature, "RenderState.z_test(_,_)") == 0) return w_RenderState_z_test;
@@ -1941,6 +1971,13 @@ void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_StorageBuffer_allocate;
         methods->finalize = w_StorageBuffer_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "TextureBuffer") == 0)
+    {
+        methods->allocate = w_TextureBuffer_allocate;
+        methods->finalize = w_TextureBuffer_finalize;
         return;
     }
 

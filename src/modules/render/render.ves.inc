@@ -89,6 +89,13 @@ foreign class StorageBuffer
 	init(data) {}
 }
 
+foreign class TextureBuffer
+{
+	init() {}
+
+	foreign get_texture()
+}
+
 foreign class RenderBuffer
 {
 	// format: "depth_component", "depth_stencil", "red", "rg", "rgb", "rgba"
