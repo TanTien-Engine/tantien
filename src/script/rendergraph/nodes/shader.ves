@@ -187,17 +187,33 @@ class Shader is Node
 		return ret
 	}
 
+	calc_store_codes(type)
+	{
+		var v_code = Blueprint.calc_input_value(this, type)
+		if (v_code and v_code.type == VAR_TYPE_STRING) {
+			return ""
+		} else {
+			return this[type].replace("\"", "\\\"")		
+		}
+	}
+
 	to_string(name) 
 	{
 		var code = super.to_string(name)
 
+		var vs = this.calc_store_codes("vs")
+		var tcs = this.calc_store_codes("tcs")
+		var tes = this.calc_store_codes("tes")
+		var gs = this.calc_store_codes("gs")
+		var fs = this.calc_store_codes("fs")
+		var cs = this.calc_store_codes("cs")
 		code = code + "
-%(name).vs = \"%(this.vs.replace("\"", "\\\""))\"
-%(name).tcs = \"%(this.tcs.replace("\"", "\\\""))\"
-%(name).tes = \"%(this.tes.replace("\"", "\\\""))\"
-%(name).gs = \"%(this.gs.replace("\"", "\\\""))\"
-%(name).fs = \"%(this.fs.replace("\"", "\\\""))\"
-%(name).cs = \"%(this.cs.replace("\"", "\\\""))\"
+%(name).vs = \"%(vs)\"
+%(name).tcs = \"%(tcs)\"
+%(name).tes = \"%(tes)\"
+%(name).gs = \"%(gs)\"
+%(name).fs = \"%(fs)\"
+%(name).cs = \"%(cs)\"
 %(name).render_gen()
 "
 		for (var unif in this.uniforms) {
