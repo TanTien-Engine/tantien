@@ -28,10 +28,13 @@ class Swap is Node
 		var n1 = Blueprint.get_input_node(this, 2)
 		if (n0 is Load and n1 is Load)
 		{
-			var p0 = Blueprint.get_input_pin(n0, 0)
-			var p1 = Blueprint.get_input_pin(n1, 0)
-			Blueprint.connect(p1, n0.imports[0])
-			Blueprint.connect(p0, n1.imports[0])
+			var s0 = Blueprint.get_input_node(n0, 0)
+			var s1 = Blueprint.get_input_node(n1, 0)
+
+			var p0 = Blueprint.get_input_pin(s0, 0)
+			var p1 = Blueprint.get_input_pin(s1, 0)
+			Blueprint.connect(p1, s0.imports[0])
+			Blueprint.connect(p0, s1.imports[0])
 		}
 	}
 }
