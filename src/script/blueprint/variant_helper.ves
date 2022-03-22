@@ -1,0 +1,22 @@
+import "blueprint.variant" for VAR_TYPE_ARRAY
+
+class VariantHelper
+{
+	static flatten_values(variant, type, dst)
+	{
+		if (variant.type == VAR_TYPE_ARRAY) {
+			for (var v in variant.value) {
+				this.flatten_values(v, type, dst)
+			}
+		} else if (variant.type == type) {
+			dst.add(variant.value)
+		}
+	}
+
+	static flatten_values(variant, type)
+	{
+		var values = []
+		this.flatten_values(variant, type, values)
+		return values
+	}
+}
