@@ -192,6 +192,63 @@ sm::vec4 list_to_vec4(int index)
     return ret;
 }
 
+sm::vec2 map_to_vec2(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_MAP, "error type");
+
+    sm::vec2 ret;
+
+    ves_getfield(index, "x");
+    ret.x = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "y");
+    ret.y = (float)ves_tonumber(-1);
+    ves_pop(1);
+
+    return ret;
+}
+
+sm::vec3 map_to_vec3(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_MAP, "error type");
+
+    sm::vec3 ret;
+
+    ves_getfield(index, "x");
+    ret.x = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "y");
+    ret.y = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "z");
+    ret.z = (float)ves_tonumber(-1);
+    ves_pop(1);
+
+    return ret;
+}
+
+sm::vec4 map_to_vec4(int index)
+{
+    GD_ASSERT(ves_type(index) == VES_TYPE_MAP, "error type");
+
+    sm::vec4 ret;
+
+    ves_getfield(index, "x");
+    ret.x = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "y");
+    ret.y = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "z");
+    ret.z = (float)ves_tonumber(-1);
+    ves_pop(1);
+    ves_getfield(index, "w");
+    ret.w = (float)ves_tonumber(-1);
+    ves_pop(1);
+
+    return ret;
+}
+
 void return_list(const std::vector<std::vector<sm::vec2>>& polys)
 {
     ves_pop(ves_argnum());
