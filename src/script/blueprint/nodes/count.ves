@@ -1,0 +1,35 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER, VAR_TYPE_ARRAY, VAR_TYPE_TABLE
+import "blueprint.blueprint" for Blueprint
+
+class Count is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "var", VAR_TYPE_ANY)
+		]
+		this.exports = [
+			Pin(this, "num", VAR_TYPE_INTEGER)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v = Blueprint.calc_input_value(this, 0)
+		if (!v) {
+			return Variant(VAR_TYPE_INTEGER, 0)
+		}
+
+		if (v.type == VAR_TYPE_ARRAY or v.type == VAR_TYPE_TABLE) {
+			return Variant(VAR_TYPE_INTEGER, v.value.count)
+		}
+
+		return Variant(VAR_TYPE_INTEGER, 1)
+	}
+}
