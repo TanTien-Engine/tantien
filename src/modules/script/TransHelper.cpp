@@ -210,8 +210,6 @@ sm::vec2 map_to_vec2(int index)
 
 sm::vec3 map_to_vec3(int index)
 {
-    GD_ASSERT(ves_type(index) == VES_TYPE_MAP, "error type");
-
     sm::vec3 ret;
 
     ves_getfield(index, "x");
