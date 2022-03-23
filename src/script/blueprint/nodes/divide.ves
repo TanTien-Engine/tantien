@@ -4,6 +4,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.nodes.add" for Add
 import "maths.vector" for Vector2, Vector3, Vector4
+import "math" for Math
 
 class Divide is Node
 {
@@ -56,7 +57,9 @@ class Divide is Node
 			ret[3] = ret[3] / b.value.w
 		}
 
-		if (a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_INTEGER) {
+		if (a.type == VAR_TYPE_INTEGER and b.type == VAR_TYPE_INTEGER) {
+			return Variant(VAR_TYPE_INTEGER, Math.ceil(ret[0]))
+		} else if (a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_INTEGER) {
 			return Variant(VAR_TYPE_NUMBER, ret[0])
 		} else if (a.type == VAR_TYPE_NUMBER2) {
 			return Variant(VAR_TYPE_NUMBER2, Vector2(ret[0], ret[1]))
