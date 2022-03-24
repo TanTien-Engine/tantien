@@ -251,7 +251,7 @@ void w_Matrix44_rotate()
     const float x = (float)ves_tonumber(1);
     const float y = (float)ves_tonumber(2);
     const float z = (float)ves_tonumber(3);
-    *mt = mt->Rotated(x, y, z);
+    mt->Rotate(x, y, z);
 }
 
 void w_Matrix44_rotate_axis()
