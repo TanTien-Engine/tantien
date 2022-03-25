@@ -1,0 +1,45 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "render" for Render
+
+class SetViewport is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "prev", VAR_TYPE_PORT),
+			Pin(this, "pos",  VAR_TYPE_NUMBER2),
+			Pin(this, "size", VAR_TYPE_NUMBER2),
+		]
+		this.exports = [
+			Pin(this, "next", VAR_TYPE_PORT)
+		]
+
+		this.layout()
+	}
+
+	render_run() 
+	{
+		var v_size = Blueprint.calc_input_value(this, 2)
+		if (!v_size) {
+			return
+		}
+
+		var w = v_size.value.x
+		var h = v_size.value.y
+
+		var x = 0
+		var y = 0
+		var v_pos  = Blueprint.calc_input_value(this, 1)
+		if (v_pos) {
+			x = v_pos.value.x
+			y = v_pos.value.y
+		}
+
+		Render.set_viewport([ x, y, w, h ])
+	}
+}
