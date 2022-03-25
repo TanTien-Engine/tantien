@@ -58,7 +58,7 @@ class Divide is Node
 		}
 
 		if (a.type == VAR_TYPE_INTEGER and b.type == VAR_TYPE_INTEGER) {
-			return Variant(VAR_TYPE_INTEGER, Math.ceil(ret[0]))
+			return Variant(VAR_TYPE_INTEGER, Math.floor(ret[0]))
 		} else if (a.type == VAR_TYPE_NUMBER or a.type == VAR_TYPE_INTEGER) {
 			return Variant(VAR_TYPE_NUMBER, ret[0])
 		} else if (a.type == VAR_TYPE_NUMBER2) {
