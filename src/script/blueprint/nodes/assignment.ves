@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.load" for Load
 import "blueprint.nodes.boolean" for Boolean
@@ -42,11 +42,22 @@ class Assignment is Node
 		}
 	}
 
+	is_type_match(v_dst, v_src)
+	{
+		if (v_dst.type == VAR_TYPE_NUMBER and v_src.type == VAR_TYPE_INTEGER) {
+			return true
+		} else if (v_dst.type == VAR_TYPE_INTEGER and v_src.type == VAR_TYPE_NUMBER) {
+			return true
+		} else {
+			return v_dst.type == v_src.type
+		}
+	}
+
 	assign()
 	{
 		var v_src = Blueprint.calc_input_value(this, 1)
 		var v_dst = Blueprint.calc_input_value(this, 2)
-		if (!v_src or !v_dst or v_src.type != v_dst.type) {
+		if (!v_src or !v_dst or !this.is_type_match(v_dst, v_src)) {
 			return false
 		}
 
