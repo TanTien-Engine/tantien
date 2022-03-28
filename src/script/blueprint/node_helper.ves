@@ -44,11 +44,12 @@ class NodeHelper
 		if (!args) {
 			return
 		}
+
 		for (var i in 0..args.count - 1) 
 		{
 			var v = args[i]
-			var pin_type = this.type_var_to_pin(v[1])
-			node.imports.add(Pin(node, v[0], pin_type))
+			var pin_type = this.type_var_to_pin(v["type"])
+			node.imports.add(Pin(node, v["name"], pin_type))
 		}
 
 		// uniforms
@@ -61,9 +62,9 @@ class NodeHelper
 
 		// func return
 		var v = args[args.count - 1]
-		if (v[1] != "void")
+		if (v["type"] != "void")
 		{
-			var pin_type = this.type_var_to_pin(v[1])
+			var pin_type = this.type_var_to_pin(v["type"])
 			node.exports.add(Pin(node, "ret", pin_type))
 		}
 

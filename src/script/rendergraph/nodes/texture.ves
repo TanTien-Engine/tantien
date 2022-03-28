@@ -159,7 +159,7 @@ class Texture is Node
 		if (unif_pair and unif_pair[1]) {
 			var tex     = this.get_texture()
 			var sampler = this.get_sampler()
-			prog.set_uniform_value([unif_pair[1], "sampler", [tex, sampler]])
+			prog.set_uniform_value({ "name" : unif_pair[1], "type" : "sampler", "value" : [tex, sampler] })
 		}
 	}
 

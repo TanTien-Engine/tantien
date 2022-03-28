@@ -226,7 +226,7 @@ class NodeFunction
 				if (v_tex) {
 					var tex = v_tex.value.tex
 					var smp = v_tex.value.sampler
-					prog.set_uniform_value([this.node.imports[i].name, "sampler", [tex, smp]])
+					prog.set_uniform_value({ "name" : this.node.imports[i].name, "type" : "sampler", "value" : [tex, smp] })
 				}
 			}
 

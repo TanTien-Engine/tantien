@@ -116,7 +116,7 @@ class Cubemap is Node
 	{
 		var unif_pair = uniforms.query(this)
 		if (unif_pair and unif_pair[1]) {
-			prog.set_uniform_value([unif_pair[1], "sampler", [this.tex, this.sampler]])
+			prog.set_uniform_value({ "name" : unif_pair[1], "type" : "sampler", "value" : [this.tex, this.sampler] })
 		}
 	}
 
