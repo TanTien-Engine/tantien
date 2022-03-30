@@ -22,7 +22,7 @@ class IsNull is Node
 	calc_value(idx)
 	{
 		var v_in = Blueprint.calc_input_value(this, 0)
-		if (!v_in) {
+		if (!v_in or !v_in.value) {
 			return Variant(true)
 		} else {
 			return Variant(false)
