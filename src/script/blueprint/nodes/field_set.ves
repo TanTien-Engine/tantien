@@ -1,0 +1,48 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+
+class FieldSet is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "value", VAR_TYPE_ANY),
+			Pin(this, "field", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "value", VAR_TYPE_ANY),
+		]
+
+		this.params.add(NodeParam("name", ""))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_value = Blueprint.calc_input_value(this, 0)
+		if (!v_value) {
+			return nil
+		}
+		if (!v_value.value) {
+			return v_value
+		}
+
+		var v_field = Blueprint.calc_input_value(this, 1)
+		if (!v_field or !v_field.value) {
+			return v_value
+		}
+
+		var name = this.query_param("name").value
+		if (name != "") {
+			v_value.value[name] = v_field.value
+		}
+
+		return v_value
+	}
+}
