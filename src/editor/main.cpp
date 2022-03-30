@@ -27,6 +27,8 @@
 #include "modules/io/keyboard.ves.inc"
 
 // fixme
+#include "archgen/wrap_ArchGen.h"
+#include "archgen/archgen.ves.inc"
 #include "citygen/wrap_CityGen.h"
 #include "citygen/citygen.ves.inc"
 #include "globegen/wrap_GlobeGen.h"
@@ -108,6 +110,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "shader") == 0 &&
         !strcmp(module, "physics") == 0 &&
         !strcmp(module, "keyboard") == 0 &&
+        !strcmp(module, "archgen") == 0 &&
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
         !strcmp(module, "pathtracer") == 0) {
@@ -143,6 +146,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = physicsModuleSource;
     } else if (strcmp(module, "keyboard") == 0) {
         source = keyboardModuleSource;
+    } else if (strcmp(module, "archgen") == 0) {
+        source = archgenModuleSource;
     } else if (strcmp(module, "citygen") == 0) {
         source = citygenModuleSource;
     } else if (strcmp(module, "globegen") == 0) {
@@ -276,6 +281,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::KeyboardBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    archgen::ArchGenBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     citygen::CityGenBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -335,6 +343,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::KeyboardBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = archgen::ArchGenBindMethod(fullName);
     if (method != NULL) return method;
 
     method = citygen::CityGenBindMethod(fullName);
