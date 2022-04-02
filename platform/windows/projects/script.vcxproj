@@ -119,13 +119,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2dd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2dd.lib;tiffd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -146,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2d.lib;tiff.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -167,6 +167,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\halfedge\platform\msvc\projects\halfedge_new.vcxproj">
       <Project>{de81a903-bd00-4bc4-bbc5-f48dae4738f8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\heightfield\platform\msvc\projects\heightfield_new.vcxproj">
+      <Project>{9e60f2da-ccb3-4b66-984d-0bf28a862acf}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\model\platform\msvc\projects\model_new.vcxproj">
       <Project>{248a1e4a-87eb-45cf-a10f-bab452c0098f}</Project>
