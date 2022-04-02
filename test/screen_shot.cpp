@@ -26,6 +26,16 @@
 #include "modules/io/Keyboard.h"
 #include "modules/io/keyboard.ves.inc"
 
+// fixme
+#include "archgen/wrap_ArchGen.h"
+#include "archgen/archgen.ves.inc"
+#include "citygen/wrap_CityGen.h"
+#include "citygen/citygen.ves.inc"
+#include "globegen/wrap_GlobeGen.h"
+#include "globegen/globegen.ves.inc"
+#include "pathtracer/src/wrap_PathTracer.h"
+#include "pathtracer/src/pathtracer.ves.inc"
+
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
@@ -40,6 +50,8 @@ namespace
 {
 
 bool error = false;
+
+std::vector<std::string> search_paths;
 
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
     error = true;
@@ -95,7 +107,11 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "system") == 0 &&
         !strcmp(module, "shader") == 0 &&
         !strcmp(module, "physics") == 0 &&
-        !strcmp(module, "keyboard") == 0) {
+        !strcmp(module, "keyboard") == 0 &&
+        !strcmp(module, "archgen") == 0 &&
+        !strcmp(module, "citygen") == 0 &&
+        !strcmp(module, "globegen") == 0 &&
+        !strcmp(module, "pathtracer") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -128,6 +144,14 @@ VesselLoadModuleResult read_module(const char* module)
         source = physicsModuleSource;
     } else if (strcmp(module, "keyboard") == 0) {
         source = keyboardModuleSource;
+    } else if (strcmp(module, "archgen") == 0) {
+        source = archgenModuleSource;
+    } else if (strcmp(module, "citygen") == 0) {
+        source = citygenModuleSource;
+    } else if (strcmp(module, "globegen") == 0) {
+        source = globegenModuleSource;
+    } else if (strcmp(module, "pathtracer") == 0) {
+        source = pathtracerModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -135,6 +159,14 @@ VesselLoadModuleResult read_module(const char* module)
         }
         if (!source) {
             source = file_search(module, "src/");
+        }
+        if (!source) {
+            for (auto& path : search_paths) {
+                source = file_search(module, path.c_str());
+                if (source) {
+                    break;
+                }
+            }
         }
     }
 
@@ -172,6 +204,16 @@ VesselExpandModulesResult expand_modules(const char* path)
     std::string absolute;
     if (std::filesystem::is_directory("src/script/" + relative)) {
         absolute = "src/script/" + relative;
+    }
+
+    if (absolute.empty())
+    {
+        for (auto& dir : search_paths) {
+            if (std::filesystem::is_directory(dir + relative)) {
+                absolute = dir + relative;
+                break;
+            }
+        }
     }
 
     if (absolute.empty()) {
@@ -237,6 +279,18 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::KeyboardBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    archgen::ArchGenBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    citygen::CityGenBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    globegen::GlobeGenBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    pathtracer::PathTracerBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -289,10 +343,22 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::KeyboardBindMethod(fullName);
     if (method != NULL) return method;
 
+    method = archgen::ArchGenBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = citygen::CityGenBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = globegen::GlobeGenBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = pathtracer::PathTracerBindMethod(fullName);
+    if (method != NULL) return method;
+
     return NULL;
 }
 
-void auto_test(const char* name)
+void auto_test(const char* editor_path, const char* samples_path)
 {
     ves_init_vm();
 
@@ -306,18 +372,42 @@ void auto_test(const char* name)
     cfg.write_fn = write;
     ves_set_config(&cfg);
 
-    char code[255];
-    std::string cls = name;
-    cls[0] = std::toupper(cls[0]);
-    sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", name, cls.c_str(), cls.c_str());
-    ves_interpret("editor", code);
+    if (std::filesystem::is_regular_file(editor_path))
+    {
+        auto filepath = std::filesystem::path(editor_path);
+
+        auto dir = filepath.parent_path();
+        search_paths.push_back(dir.string() + "/");
+
+        auto file = filepath.stem().string();
+        auto cls_name = file;
+        cls_name[0] = std::toupper(cls_name[0]);
+
+        char code[255];
+        sprintf(code, "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
+
+        ves_interpret("editor", code);
+    }
+    else
+    {
+        std::string cls_name = editor_path;
+        cls_name[0] = std::toupper(cls_name[0]);
+
+        char code[255];
+        sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", editor_path, cls_name.c_str(), cls_name.c_str());
+        ves_interpret("editor", code);
+    }
 
     ves_getglobal("_editor");
     ves_pushstring("load()");
     ves_call(0, 0);
 
-//    auto dir_path = "samples/shadergraph";
-    auto dir_path = std::string("samples/") + name;
+    std::string dir_path;
+    if (samples_path) {
+        dir_path = samples_path;
+    } else {
+        dir_path = std::string("samples/") + editor_path;
+    }
     for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) 
     {
         auto filepath = std::filesystem::absolute(p).string();
@@ -383,18 +473,23 @@ int main(int argc, char* argv[])
 
     tt::System::Instance()->SetWindow(window);
 
+    const char* samples_path = nullptr;
+    if (argc > 2) {
+        samples_path = argv[2];
+    }
+
     if (strcmp(argv[1], "all") == 0)
     {
         for (const auto& entry : std::filesystem::directory_iterator("samples/")) {
             const auto name = entry.path().filename().string();
             if (entry.is_directory()) {
-                auto_test(name.c_str());
+                auto_test(name.c_str(), samples_path);
             }
         }
     }
     else
     {
-        auto_test(argv[1]);
+        auto_test(argv[1], samples_path);
     }
 
     glfwDestroyWindow(window);
