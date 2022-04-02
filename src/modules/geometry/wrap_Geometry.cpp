@@ -815,12 +815,17 @@ void w_Polytope_is_contain()
     auto& faces = poly->Faces();
     for (auto& f : faces)
     {
+        sm::vec3 normal;
+        if (!poly->CalcFaceNormal(*f, normal)) {
+            continue;
+        }
+
         sm::Plane plane;
-        if (poly->CalcFacePlane(*f, plane)) {
-            if (plane.normal.Dot(pos) + plane.dist < -SM_LARGE_EPSILON) {
-                is_contain = false;
-                break;
-            }
+        plane.Build(normal, poly->Points()[f->border[0]]->pos);
+
+        if (plane.normal.Dot(pos) + plane.dist < -SM_LARGE_EPSILON) {
+            is_contain = false;
+            break;
         }
     }
 
