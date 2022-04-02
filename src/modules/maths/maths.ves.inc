@@ -118,6 +118,24 @@ foreign class Matrix44
 	foreign inverse()
 }
 
+foreign class Plane
+{
+	init(p0, p1, p2) {}
+	init(ori, dir) {}
+
+	foreign clone()
+
+	foreign transform(mt)
+}
+
+foreign class Cube
+{
+	init() {}
+
+	foreign get_center()
+	foreign get_size()
+}
+
 foreign class Maths
 {
 	// conv0, conv1: float list
@@ -132,16 +150,6 @@ foreign class Maths
 	foreign static calc_angle(center, start, end)
 
 	foreign static is_pos_above_plane(pos, plane)
-}
-
-foreign class Plane
-{
-	init(p0, p1, p2) {}
-	init(ori, dir) {}
-
-	foreign clone()
-
-	foreign transform(mt)
 }
 
 );

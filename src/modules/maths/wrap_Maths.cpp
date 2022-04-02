@@ -7,6 +7,7 @@
 #include <SM_Matrix.h>
 #include <SM_Plane.h>
 #include <SM_Calc.h>
+#include <SM_Cube.h>
 
 #include <string.h>
 
@@ -516,6 +517,30 @@ void w_Plane_transform()
     p->Build(pos1 - pos0, pos0);
 }
 
+void w_Cube_allocate()
+{
+    (sm::cube*)ves_set_newforeign(0, 0, sizeof(sm::cube));
+}
+
+int w_Cube_finalize(void* data)
+{
+    return sizeof(sm::cube);
+}
+
+void w_Cube_get_center()
+{
+    sm::cube* cube = (sm::cube*)ves_toforeign(0);
+    auto p = cube->Center();
+    tt::return_list(std::vector<float>{ p.x, p.y, p.z });
+}
+
+void w_Cube_get_size()
+{
+    sm::cube* cube = (sm::cube*)ves_toforeign(0);
+    auto sz = cube->Size();
+    tt::return_list(std::vector<float>{ sz.x, sz.y, sz.z });
+}
+
 void w_Maths_is_convex_intersect_convex()
 {
     auto c0 = tt::list_to_vec2_array(1);
@@ -636,6 +661,9 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Plane.clone()") == 0) return w_Plane_clone;
     if (strcmp(signature, "Plane.transform(_)") == 0) return w_Plane_transform;
 
+    if (strcmp(signature, "Cube.get_center()") == 0) return w_Cube_get_center;
+    if (strcmp(signature, "Cube.get_size()") == 0) return w_Cube_get_size;
+
     if (strcmp(signature, "static Maths.is_convex_intersect_convex(_,_)") == 0) return w_Maths_is_convex_intersect_convex;
     if (strcmp(signature, "static Maths.get_line_intersect_line(_,_,_)") == 0) return w_Maths_get_line_intersect_line;
     if (strcmp(signature, "static Maths.calc_rot_mat(_,_)") == 0) return w_Maths_calc_rot_mat;
@@ -686,6 +714,13 @@ void MathsBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Plane_allocate;
         methods->finalize = w_Plane_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Cube") == 0)
+    {
+        methods->allocate = w_Cube_allocate;
+        methods->finalize = w_Cube_finalize;
         return;
     }
 }
