@@ -85,9 +85,13 @@ class Vector3
 		this.z = z
 	}
 
+	length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
+	}
+
 	normalize() 
 	{
-		var len = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
+		var len = this.length()
 		if (len == 0) {
 			return
 		}
