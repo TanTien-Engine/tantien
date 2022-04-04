@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER, VAR_TYPE
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
+import "math" for Math
 
 class Fetch is Node
 {
@@ -82,7 +83,7 @@ class Fetch is Node
 		var v_index = Blueprint.calc_input_value(this, 1)
 		if (v_index) {
 			if ((v_index.type == VAR_TYPE_INTEGER or v_index.type == VAR_TYPE_NUMBER) and v_index.value) {
-			    index = v_index.value
+			    index = Math.floor(v_index.value)
 			}
 		} else {
 			index = this.query_param("index").value
