@@ -116,6 +116,8 @@ foreign class Matrix44
 	foreign get_scale()	
 
 	foreign inverse()
+
+	foreign decompose()
 }
 
 foreign class Plane

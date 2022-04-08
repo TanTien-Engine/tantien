@@ -449,6 +449,16 @@ void w_Matrix44_inverse()
     *mt = mt->Inverted();
 }
 
+void w_Matrix44_decompose()
+{
+    sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
+
+    sm::vec3 s, r, t;
+    mt->Decompose(t, r, s);
+
+    tt::return_list(std::vector<float>{ s.x, s.y, s.z, r.x, r.y, r.z, t.x, t.y, t.z });
+}
+
 void w_Plane_allocate()
 {
     sm::Plane* plane = (sm::Plane*)ves_set_newforeign(0, 0, sizeof(sm::Plane));
@@ -657,6 +667,7 @@ VesselForeignMethodFn MathsBindMethod(const char* signature)
     if (strcmp(signature, "Matrix44.transform_mat4(_)") == 0) return w_Matrix44_transform_mat4;
     if (strcmp(signature, "Matrix44.get_scale()") == 0) return w_Matrix44_get_scale;
     if (strcmp(signature, "Matrix44.inverse()") == 0) return w_Matrix44_inverse;
+    if (strcmp(signature, "Matrix44.decompose()") == 0) return w_Matrix44_decompose;
 
     if (strcmp(signature, "Plane.clone()") == 0) return w_Plane_clone;
     if (strcmp(signature, "Plane.transform(_)") == 0) return w_Plane_transform;
