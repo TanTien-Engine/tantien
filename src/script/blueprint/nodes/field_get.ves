@@ -36,4 +36,14 @@ class FieldGet is Node
 			return Variant(v_value.value[name])
 		}
 	}
+
+	get_title()
+	{
+		var name = this.query_param("name").value
+		if (name != "") {
+			return "get_%(name)"
+		} else {
+			return super.get_title()
+		}
+	}
 }

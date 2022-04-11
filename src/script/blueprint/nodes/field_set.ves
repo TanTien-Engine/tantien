@@ -45,4 +45,14 @@ class FieldSet is Node
 
 		return v_value
 	}
+
+	get_title()
+	{
+		var name = this.query_param("name").value
+		if (name != "") {
+			return "set_%(name)"
+		} else {
+			return super.get_title()
+		}
+	}
 }
