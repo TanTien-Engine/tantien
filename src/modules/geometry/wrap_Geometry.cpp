@@ -548,7 +548,7 @@ void w_PolyFace_allocate()
         auto border = tt::list_to_int_array(1);
         std::copy(border.begin(), border.end(), std::back_inserter(face->border));
 
-        std::vector<std::vector<size_t>> holes;
+        face->holes = tt::list_to_array2<size_t>(2);
     }
 
     auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Face>));
