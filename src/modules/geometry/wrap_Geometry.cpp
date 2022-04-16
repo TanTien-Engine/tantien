@@ -545,7 +545,7 @@ void w_PolyFace_allocate()
     }
     else if (num == 3)
     {
-        auto border = tt::list_to_int_array(1);
+        auto border = tt::list_to_array<int>(1);
         std::copy(border.begin(), border.end(), std::back_inserter(face->border));
 
         face->holes = tt::list_to_array2<size_t>(2);

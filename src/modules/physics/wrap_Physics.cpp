@@ -129,7 +129,7 @@ void w_Body_add_fixture()
     auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto filled = ves_optboolean(2, false);
     auto mt = (sm::Matrix2D*)ves_toforeign(3);
-    auto filter = tt::list_to_int_array(4);
+    auto filter = tt::list_to_array<int>(4);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 

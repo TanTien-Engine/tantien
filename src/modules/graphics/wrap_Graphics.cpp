@@ -63,7 +63,7 @@ void w_Painter_add_line()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto pos2 = tt::list_to_float_array(2);
+    auto pos2 = tt::list_to_array<float>(2);
     auto x0 = pos2[0];
     auto y0 = pos2[1];
     auto x1 = pos2[2];
@@ -86,7 +86,7 @@ void w_Painter_add_rect()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto xywh = tt::list_to_float_array(2);
+    auto xywh = tt::list_to_array<float>(2);
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -112,7 +112,7 @@ void w_Painter_add_rect_filled()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto xywh = tt::list_to_float_array(2);
+    auto xywh = tt::list_to_array<float>(2);
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -137,7 +137,7 @@ void w_Painter_add_capsule_filled()
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto rect = tt::list_to_float_array(2);
+    auto rect = tt::list_to_array<float>(2);
     GD_ASSERT(rect.size() == 4, "error number");
     if (rect[2] <= 0 || rect[3] <= 0) {
         return;

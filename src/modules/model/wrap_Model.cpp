@@ -494,17 +494,17 @@ void w_glTF_create_from_polytope()
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
     tt::list_to_foreigns(1, polys);
 
-    auto materials = tt::list_to_int_array(2);
+    auto materials = tt::list_to_array<int>(2);
     if (polys.size() != materials.size()) {
         materials.resize(polys.size(), 0);
     }
 
-    auto offsets = tt::list_to_float_array(3);
+    auto offsets = tt::list_to_array<float>(3);
     if (polys.size() != offsets.size()) {
         offsets.resize(polys.size(), 0);
     }
 
-    auto colors = tt::list_to_int_array(4);
+    auto colors = tt::list_to_array<int>(4);
     if (polys.size() != materials.size()) {
         colors.resize(polys.size(), 0);
     }

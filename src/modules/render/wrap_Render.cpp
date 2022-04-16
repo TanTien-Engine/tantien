@@ -1105,7 +1105,7 @@ void w_ComputeBuffer_download()
 void w_StorageBuffer_allocate()
 {
     // todo: force int here
-    auto data = tt::list_to_int_array(1);
+    auto data = tt::list_to_array<int>(1);
     auto sbuf_sz = sizeof(int) * data.size();
     auto dev = tt::Render::Instance()->Device();
     auto sbuf = dev->CreateStorageBuffer(ur::BufferUsageHint::StreamCopy, static_cast<int>(sbuf_sz));
