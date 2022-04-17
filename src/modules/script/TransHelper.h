@@ -72,6 +72,8 @@ void return_list(const std::vector<T>& vals)
         ves_pop(1);
     }
 }
+template<typename T>
+void return_list2(const std::vector<std::vector<T>>& vals);
 
 }
 

@@ -574,6 +574,12 @@ void w_PolyFace_get_border()
     tt::return_list(f->border);
 }
 
+void w_PolyFace_get_holes()
+{
+    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    tt::return_list2(f->holes);
+}
+
 void w_Polytope_allocate()
 {
     std::shared_ptr<pm3::Polytope> poly = nullptr;
@@ -1151,6 +1157,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "PolyPoint.set_pos(_)") == 0) return w_PolyPoint_set_pos;
     if (strcmp(signature, "PolyFace.get_normal()") == 0) return w_PolyFace_get_normal;
     if (strcmp(signature, "PolyFace.get_border()") == 0) return w_PolyFace_get_border;
+    if (strcmp(signature, "PolyFace.get_holes()") == 0) return w_PolyFace_get_holes;
 
     if (strcmp(signature, "Polytope.clone()") == 0) return w_Polytope_clone;
     if (strcmp(signature, "Polytope.extrude(_)") == 0) return w_Polytope_extrude;

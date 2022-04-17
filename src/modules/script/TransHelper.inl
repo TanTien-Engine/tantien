@@ -56,4 +56,29 @@ std::vector<std::vector<T>> list_to_array2(int index)
     return ret;
 }
 
+
+template<typename T>
+void return_list2(const std::vector<std::vector<T>>& vals)
+{
+    ves_pop(ves_argnum());
+
+    const int num0 = static_cast<int>(vals.size());
+    ves_newlist(num0);
+    for (int i = 0; i < num0; ++i)
+    {
+        const int num1 = vals[i].size();
+        ves_newlist(num1);
+
+        for (int j = 0; j < num1; ++j)
+        {
+            ves_pushnumber(static_cast<double>(vals[i][j]));
+            ves_seti(-2, j);
+            ves_pop(1);
+        }
+
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
 }

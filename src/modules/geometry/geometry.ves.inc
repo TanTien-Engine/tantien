@@ -199,6 +199,7 @@ foreign class PolyFace
 	foreign get_normal()
 
 	foreign get_border()
+	foreign get_holes()
 }
 
 foreign class Polytope
