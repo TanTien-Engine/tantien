@@ -838,6 +838,33 @@ void w_Polytope_is_contain()
     ves_set_boolean(0, is_contain);
 }
 
+void w_Polytope_is_face_inside()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto face = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(1))->obj;
+
+    sm::vec3 normal;
+    if (!poly->CalcFaceNormal(*face, normal)) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& pts = poly->Points();
+
+    sm::Plane plane;
+    plane.Build(normal, pts[face->border[0]]->pos);
+
+    bool is_inside = false;
+    for (auto& p : pts) {
+        if (plane.GetDistance(p->pos) > SM_LARGE_EPSILON) {
+            is_inside = true;
+            break;
+        }
+    }
+
+    ves_set_boolean(0, is_inside);
+}
+
 static std::vector<pm3::PolytopePtr> 
 intersect_poly_list(const std::vector<pm3::PolytopePtr>& a, const std::vector<pm3::PolytopePtr>& b)
 {
@@ -1169,6 +1196,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
     if (strcmp(signature, "Polytope.is_contain(_)") == 0) return w_Polytope_is_contain;
+    if (strcmp(signature, "Polytope.is_face_inside(_)") == 0) return w_Polytope_is_face_inside;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;

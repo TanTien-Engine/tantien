@@ -223,6 +223,7 @@ foreign class Polytope
 	foreign set_topo_dirty()
 
 	foreign is_contain(pos)
+	foreign is_face_inside(face)
 
 	// a, b is list
 	foreign static boolean(operator, a, b)
