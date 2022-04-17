@@ -100,8 +100,14 @@
     <Filter Include="modules\archgen\script">
       <UniqueIdentifier>{3547d074-065f-47fc-9a56-bde429e0f20c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\archgen\roof">
+      <UniqueIdentifier>{e22cc5ca-c396-4a2f-bab4-92c036da60c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\archgen\mesh">
+      <UniqueIdentifier>{9f2a5557-01a0-459f-9fe5-3dcfca142be3}</UniqueIdentifier>
+    </Filter>
     <Filter Include="modules\archgen\tools">
-      <UniqueIdentifier>{c68ac7a8-92bf-4a67-96fe-266c88fb2884}</UniqueIdentifier>
+      <UniqueIdentifier>{22f4899d-876a-49d5-9eea-6ae073ae515a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -273,16 +279,22 @@
     <ClCompile Include="..\..\..\..\littleworld\archgen\wrap_ArchGen.cpp">
       <Filter>modules\archgen\script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\littleworld\archgen\MeshBuilder.cpp">
-      <Filter>modules\archgen\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\littleworld\archgen\RoofExtrude.cpp">
-      <Filter>modules\archgen\tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\citygen\PolyBuilder.cpp">
       <Filter>modules\citygen\tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\archgen\RoofEditor.cpp">
+      <Filter>modules\archgen\roof</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\archgen\RoofSkeleton.cpp">
+      <Filter>modules\archgen\roof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\archgen\MeshBuilder.cpp">
+      <Filter>modules\archgen\mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\archgen\ScopeTools.cpp">
+      <Filter>modules\archgen\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\littleworld\archgen\PolytopeTools.cpp">
       <Filter>modules\archgen\tools</Filter>
     </ClCompile>
   </ItemGroup>
@@ -479,16 +491,22 @@
     <ClInclude Include="..\..\..\..\littleworld\archgen\wrap_ArchGen.h">
       <Filter>modules\archgen\script</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\littleworld\archgen\MeshBuilder.h">
-      <Filter>modules\archgen\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\littleworld\archgen\RoofExtrude.h">
-      <Filter>modules\archgen\tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\littleworld\citygen\PolyBuilder.h">
       <Filter>modules\citygen\tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\archgen\RoofEditor.h">
+      <Filter>modules\archgen\roof</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\littleworld\archgen\RoofSkeleton.h">
+      <Filter>modules\archgen\roof</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\archgen\MeshBuilder.h">
+      <Filter>modules\archgen\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\archgen\ScopeTools.h">
+      <Filter>modules\archgen\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\littleworld\archgen\PolytopeTools.h">
       <Filter>modules\archgen\tools</Filter>
     </ClInclude>
   </ItemGroup>
@@ -543,6 +561,9 @@
     </None>
     <None Include="..\..\..\..\littleworld\archgen\archgen.ves.inc">
       <Filter>modules\archgen\script</Filter>
+    </None>
+    <None Include="..\..\..\src\modules\script\TransHelper.inl">
+      <Filter>modules\script</Filter>
     </None>
   </ItemGroup>
 </Project>
