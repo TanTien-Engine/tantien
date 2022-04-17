@@ -32,26 +32,9 @@ sm::vec3 map_to_vec3(int index);
 sm::vec4 map_to_vec4(int index);
 
 template<typename T>
-void list_to_foreigns(int index, std::vector<std::shared_ptr<T>>& foreigns)
-{
-    const int num = ves_len(index);
-    for (int i = 0; i < num; ++i) {
-        ves_geti(index, i);
-        foreigns.push_back(((tt::Proxy<T>*)ves_toforeign(-1))->obj);
-        ves_pop(1);
-    }
-}
-
+void list_to_foreigns(int index, std::vector<std::shared_ptr<T>>& foreigns);
 template<typename T>
-void list_to_foreigns(int index, std::vector<T>& foreigns)
-{
-    const int num = ves_len(index);
-    for (int i = 0; i < num; ++i) {
-        ves_geti(index, i);
-        foreigns.push_back(*(T*)ves_toforeign(-1));
-        ves_pop(1);
-    }
-}
+void list_to_foreigns(int index, std::vector<T>& foreigns);
 
 void return_list(const std::vector<std::vector<sm::vec2>>& polys);
 void return_list(const std::vector<sm::vec2>& pts);
@@ -59,19 +42,7 @@ void return_list(const std::vector<sm::vec3>& pts);
 void return_list(const std::vector<std::string>& strs);
 
 template<typename T>
-void return_list(const std::vector<T>& vals)
-{
-    ves_pop(ves_argnum());
-
-    const int num = static_cast<int>(vals.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_pushnumber(static_cast<double>(vals[i]));
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
-}
+void return_list(const std::vector<T>& vals);
 template<typename T>
 void return_list2(const std::vector<std::vector<T>>& vals);
 

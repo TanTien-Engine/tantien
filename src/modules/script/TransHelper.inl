@@ -56,6 +56,42 @@ std::vector<std::vector<T>> list_to_array2(int index)
     return ret;
 }
 
+template<typename T>
+void list_to_foreigns(int index, std::vector<std::shared_ptr<T>>& foreigns)
+{
+    const int num = ves_len(index);
+    for (int i = 0; i < num; ++i) {
+        ves_geti(index, i);
+        foreigns.push_back(((tt::Proxy<T>*)ves_toforeign(-1))->obj);
+        ves_pop(1);
+    }
+}
+
+template<typename T>
+void list_to_foreigns(int index, std::vector<T>& foreigns)
+{
+    const int num = ves_len(index);
+    for (int i = 0; i < num; ++i) {
+        ves_geti(index, i);
+        foreigns.push_back(*(T*)ves_toforeign(-1));
+        ves_pop(1);
+    }
+}
+
+template<typename T>
+void return_list(const std::vector<T>& vals)
+{
+    ves_pop(ves_argnum());
+
+    const int num = static_cast<int>(vals.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnumber(static_cast<double>(vals[i]));
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
 
 template<typename T>
 void return_list2(const std::vector<std::vector<T>>& vals)

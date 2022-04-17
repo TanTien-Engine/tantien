@@ -829,7 +829,7 @@ void w_Polytope_is_contain()
         sm::Plane plane;
         plane.Build(normal, poly->Points()[f->border[0]]->pos);
 
-        if (plane.normal.Dot(pos) + plane.dist < -SM_LARGE_EPSILON) {
+        if (plane.GetDistance(pos) < -SM_LARGE_EPSILON) {
             is_contain = false;
             break;
         }
