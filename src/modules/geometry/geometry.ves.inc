@@ -197,6 +197,7 @@ foreign class PolyFace
 	init(border, holes) {}
 
 	foreign get_normal()
+	foreign flip_normal()
 
 	foreign get_border()
 	foreign get_holes()

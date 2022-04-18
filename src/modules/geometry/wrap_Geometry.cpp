@@ -568,6 +568,13 @@ void w_PolyFace_get_normal()
     tt::return_list(std::vector<float>{ f->plane.normal.x, f->plane.normal.y, f->plane.normal.z });
 }
 
+void w_PolyFace_flip_normal()
+{
+    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    std::reverse(f->border.begin(), f->border.end());
+    f->plane.Flip();
+}
+
 void w_PolyFace_get_border()
 {
     auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
@@ -1183,6 +1190,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "PolyPoint.get_pos()") == 0) return w_PolyPoint_get_pos;
     if (strcmp(signature, "PolyPoint.set_pos(_)") == 0) return w_PolyPoint_set_pos;
     if (strcmp(signature, "PolyFace.get_normal()") == 0) return w_PolyFace_get_normal;
+    if (strcmp(signature, "PolyFace.flip_normal()") == 0) return w_PolyFace_flip_normal;
     if (strcmp(signature, "PolyFace.get_border()") == 0) return w_PolyFace_get_border;
     if (strcmp(signature, "PolyFace.get_holes()") == 0) return w_PolyFace_get_holes;
 
