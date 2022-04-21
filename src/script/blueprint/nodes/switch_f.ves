@@ -33,7 +33,7 @@ class SwitchF is Node
 		}
 
 		if (v_type.value >= 0 and (v_type.value < this.imports.count - CASE_IDX_OFFSET - 1)) {
-			return Blueprint.calc_input_value(this, v_type.value + 2)
+			return Blueprint.calc_input_value(this, v_type.value + CASE_IDX_OFFSET)
 		} else {
 			return Blueprint.calc_input_value(this, 1)
 		}
