@@ -1,0 +1,23 @@
+import "filesystem" for Filesystem
+
+class AssetsCache
+{
+	init()
+	{
+		this.path2assets = {}
+	}
+
+	add(filepath, assets)
+	{
+		var absolute = Filesystem.get_absolute_path(filepath)
+		this.path2assets[absolute] = assets
+	}
+
+	query(filepath)
+	{
+		var absolute = Filesystem.get_absolute_path(filepath)
+		return this.path2assets[absolute]
+	}	
+}
+
+var ASSETS_CACHE = AssetsCache()

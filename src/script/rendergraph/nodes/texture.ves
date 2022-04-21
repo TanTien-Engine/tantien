@@ -5,6 +5,7 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "rendergraph.variant" for VarTexture, VAR_TYPE_TEXTURE
+import "editor.assets_cache" for ASSETS_CACHE
 import "image" for ImageData
 import "graphics" for Graphics
 import "render" for Texture2D, Texture3D, TextureSampler
@@ -245,8 +246,17 @@ class Texture is Node
 
 		this.tex_filepath = filepath
 
-		var img = ImageData.init(filepath)
-		this.tex = Texture2D.init(img, this.gamma_correction)
+		var tex = ASSETS_CACHE.query(filepath)
+		if (tex) 
+		{
+			this.tex = tex
+		} 
+		else 
+		{
+			var img = ImageData.init(filepath)
+			this.tex = Texture2D.init(img, this.gamma_correction)
+			ASSETS_CACHE.add(filepath, this.tex)
+		}
 	}
 
 	init_texture(width, height, format)
