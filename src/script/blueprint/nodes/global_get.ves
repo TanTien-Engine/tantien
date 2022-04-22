@@ -25,4 +25,14 @@ class GlobalGet is Node
 		var val = BLACKBOARD.global_variants[key]
 		return Variant(val)
 	}
+
+	get_title()
+	{
+		var name = this.query_param("key").value
+		if (name != "") {
+			return "%(name)(G)"
+		} else {
+			return super.get_title()
+		}
+	}
 }

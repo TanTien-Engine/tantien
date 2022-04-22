@@ -34,4 +34,14 @@ class GlobalSet is Node
 		var key = this.query_param("key").value
 		BLACKBOARD.global_variants[key] = v_val.value
 	}
+
+	get_title()
+	{
+		var name = this.query_param("key").value
+		if (name != "") {
+			return "%(name)(S)"
+		} else {
+			return super.get_title()
+		}
+	}
 }
