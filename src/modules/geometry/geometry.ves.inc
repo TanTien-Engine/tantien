@@ -187,6 +187,8 @@ foreign class PolyPoint
 {
 	init(pos) {}
 
+	foreign clone()
+
 	foreign get_pos()
 	foreign set_pos(pos)
 }
@@ -195,6 +197,8 @@ foreign class PolyFace
 {
 	init(plane) {}
 	init(border, holes) {}
+
+	foreign clone()
 
 	foreign get_normal()
 	foreign flip_normal()
