@@ -19,6 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\cax\gcsgen\Scene.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/gcsgen/</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/gcsgen/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\gcsgen\wrap_GCSGen.cpp" />
+    <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\Constraints.cpp" />
+    <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\GCS.cpp" />
+    <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\Geo.cpp" />
+    <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\qp_eq.cpp" />
+    <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\SubSystem.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\archgen\MeshBuilder.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\archgen\PolytopeTools.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\archgen\RoofEditor.cpp" />
@@ -45,7 +55,10 @@
     <ClCompile Include="..\..\..\..\littleworld\globegen\VTexBuilder.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Mesh.cpp" />
-    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Scene.cpp" />
+    <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Scene.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/pathtracer/</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/pathtracer/</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\wrap_PathTracer.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bbox.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh.cpp" />
@@ -83,6 +96,16 @@
     <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\cax\gcsgen\Constraint.h" />
+    <ClInclude Include="..\..\..\..\cax\gcsgen\Geometry.h" />
+    <ClInclude Include="..\..\..\..\cax\gcsgen\Scene.h" />
+    <ClInclude Include="..\..\..\..\cax\gcsgen\wrap_GCSGen.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Constraints.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\GCS.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Geo.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\qp_eq.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\SubSystem.h" />
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Util.h" />
     <ClInclude Include="..\..\..\..\littleworld\archgen\MeshBuilder.h" />
     <ClInclude Include="..\..\..\..\littleworld\archgen\PolytopeTools.h" />
     <ClInclude Include="..\..\..\..\littleworld\archgen\RoofEditor.h" />
@@ -155,6 +178,7 @@
     <ClInclude Include="..\..\..\src\modules\system\wrap_System.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\cax\gcsgen\gcsgen.ves.inc" />
     <None Include="..\..\..\..\littleworld\archgen\archgen.ves.inc" />
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
@@ -282,7 +306,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -298,7 +322,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
