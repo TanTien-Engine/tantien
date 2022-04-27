@@ -266,22 +266,4 @@ foreign class Ellipsoid
 	foreign clone()
 }
 
-foreign class Constraint
-{
-	init(type, geo0, geo1, value) {}
-
-	foreign set_value(v)
-}
-
-foreign class ConstraintSolver
-{
-	init() {}
-
-	foreign add_geo(shape)
-	foreign add_cons(cons)
-
-	foreign solve()
-	foreign clear()
-}
-
 );

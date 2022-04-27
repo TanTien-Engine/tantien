@@ -75,14 +75,6 @@ class Polygon is Node
 		return nil
 	}
 
-	geo_solver_gen(scene)
-	{
-		var geo = VarGeo()
-		geo.shape = tt_Polygon.init()
-		this.update_geo(geo)
-		geo.geo_id = scene.add_geo(geo.shape)
-	}
-
 	calc_vertices()
 	{
 		var v_verts = Blueprint.calc_input_value(this, 0)

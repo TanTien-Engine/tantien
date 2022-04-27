@@ -17,8 +17,6 @@
 #include <polymesh3/Polytope.h>
 #include <model/ParametricEquations.h>
 #include <guard/check.h>
-#include <constraints2/Scene.h>
-#include <constraints2/Constraint.h>
 #include <halfedge/Polygon.h>
 #include <SM_Calc.h>
 
@@ -1118,79 +1116,6 @@ void w_Ellipsoid_clone()
     proxy->obj = dst;
 }
 
-void w_Constraint_allocate()
-{
-    const char* type_str = ves_tostring(1);
-    int geo0 = (int)ves_optnumber(2, -1);
-    int geo1 = (int)ves_optnumber(3, -1);
-    double value = ves_tonumber(4);
-
-    ct2::ConstraintType type = ct2::ConstraintType::None;
-    if (strcmp(type_str, "distance") == 0) {
-        type = ct2::ConstraintType::Distance;
-    }
-
-    auto proxy = (tt::Proxy<ct2::Constraint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ct2::Constraint>));
-    proxy->obj = std::make_shared<ct2::Constraint>(type, geo0, geo1, value);
-}
-
-int w_Constraint_finalize(void* data)
-{
-    auto proxy = (tt::Proxy<ct2::Constraint>*)(data);
-    proxy->~Proxy();
-    return sizeof(tt::Proxy<ct2::Constraint>);
-}
-
-void w_Constraint_set_value()
-{
-    auto cons = ((tt::Proxy<ct2::Constraint>*)ves_toforeign(0))->obj;
-    double value = ves_tonumber(1);
-    cons->SetValue(value);
-}
-
-void w_ConstraintSolver_allocate()
-{
-    auto proxy = (tt::Proxy<ct2::Scene>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ct2::Scene>));
-    proxy->obj = std::make_shared<ct2::Scene>();
-}
-
-int w_ConstraintSolver_finalize(void* data)
-{
-    auto proxy = (tt::Proxy<ct2::Scene>*)(data);
-    proxy->~Proxy();
-    return sizeof(tt::Proxy<ct2::Scene>);
-}
-
-void w_ConstraintSolver_add_geo()
-{
-    auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
-    auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
-
-    int id = scene->AddGeometry(shape);
-    ves_set_number(0, id);
-}
-
-void w_ConstraintSolver_add_cons()
-{
-    auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
-    auto cons = ((tt::Proxy<ct2::Constraint>*)ves_toforeign(1))->obj;
-
-    int id = scene->AddConstraint(cons);
-    ves_set_number(0, id);
-}
-
-void w_ConstraintSolver_solve()
-{
-    auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
-    scene->Solve();
-}
-
-void w_ConstraintSolver_clear()
-{
-    auto scene = ((tt::Proxy<ct2::Scene>*)ves_toforeign(0))->obj;
-    scene->Clear();
-}
-
 }
 
 namespace tt
@@ -1278,13 +1203,6 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;
 
     if (strcmp(signature, "Ellipsoid.clone()") == 0) return w_Ellipsoid_clone;
-
-    if (strcmp(signature, "Constraint.set_value(_)") == 0) return w_Constraint_set_value;
-
-    if (strcmp(signature, "ConstraintSolver.add_geo(_)") == 0) return w_ConstraintSolver_add_geo;
-    if (strcmp(signature, "ConstraintSolver.add_cons(_)") == 0) return w_ConstraintSolver_add_cons;
-    if (strcmp(signature, "ConstraintSolver.solve()") == 0) return w_ConstraintSolver_solve;
-    if (strcmp(signature, "ConstraintSolver.clear()") == 0) return w_ConstraintSolver_clear;
 
     return nullptr;
 }
@@ -1407,20 +1325,6 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Ellipsoid_allocate;
         methods->finalize = w_Ellipsoid_finalize;
-        return;
-    }
-
-    if (strcmp(class_name, "Constraint") == 0)
-    {
-        methods->allocate = w_Constraint_allocate;
-        methods->finalize = w_Constraint_finalize;
-        return;
-    }
-
-    if (strcmp(class_name, "ConstraintSolver") == 0)
-    {
-        methods->allocate = w_ConstraintSolver_allocate;
-        methods->finalize = w_ConstraintSolver_finalize;
         return;
     }
 }

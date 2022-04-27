@@ -82,14 +82,6 @@ class Circle is Node
 		return nil
 	}
 
-	geo_solver_gen(scene)
-	{
-		var geo = VarGeo()
-		geo.shape = tt_Circle.init()
-		this.update_geo(geo)
-		geo.geo_id = scene.add_geo(geo.shape)
-	}
-
 	update_geo(geo)
 	{
 		var c = this.get_center()

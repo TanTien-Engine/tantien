@@ -73,14 +73,6 @@ class Rect is Node
 		return nil
 	}
 
-	geo_solver_gen(scene)
-	{
-		var geo = VarGeo()
-		geo.shape = tt_Rect.init()
-		this.update_geo(geo)
-		geo.geo_id = scene.add_geo(geo.shape)
-	}
-
 	// x, y, w, h
 	calc_rect_params()
 	{
