@@ -61,6 +61,48 @@ void w_Shape2D_translate()
     l->Translate(dx, dy);
 }
 
+void w_Point_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Point2D>));
+    proxy->obj = std::make_shared<gs::Point2D>();
+}
+
+int w_Point_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Point2D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Point2D>);
+}
+
+void w_Point_clone()
+{
+    auto src = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+    auto dst = std::make_shared<gs::Point2D>(src->GetPos());
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Point2D>));
+    proxy->obj = dst;
+}
+
+void w_Point_get()
+{
+    auto p = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+    tt::return_list(std::vector<float>{ 
+        p->GetPos().x, 
+        p->GetPos().y
+    });
+}
+
+void w_Point_set()
+{
+    auto p = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+
+    float x = (float)ves_tonumber(1);
+    float y = (float)ves_tonumber(2);
+
+    p->SetPos({ x, y });
+}
+
 void w_Line_allocate()
 {
     auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
@@ -1160,6 +1202,10 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Shape2D.is_intersect(_,_,_,_)") == 0) return w_Shape2D_is_intersect;
     if (strcmp(signature, "Shape2D.translate(_,_)") == 0) return w_Shape2D_translate;
 
+    if (strcmp(signature, "Point.clone()") == 0) return w_Point_clone;
+    if (strcmp(signature, "Point.get()") == 0) return w_Point_get;
+    if (strcmp(signature, "Point.set(_,_)") == 0) return w_Point_set;
+
     if (strcmp(signature, "Line.clone()") == 0) return w_Line_clone;
     if (strcmp(signature, "Line.get()") == 0) return w_Line_get;
     if (strcmp(signature, "Line.set(_,_,_,_)") == 0) return w_Line_set;
@@ -1245,6 +1291,13 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
 void GeometryBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
+    if (strcmp(class_name, "Point") == 0)
+    {
+        methods->allocate = w_Point_allocate;
+        methods->finalize = w_Point_finalize;
+        return;
+    }
+
     if (strcmp(class_name, "Line") == 0)
     {
         methods->allocate = w_Line_allocate;

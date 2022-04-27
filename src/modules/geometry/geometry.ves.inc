@@ -9,6 +9,23 @@ foreign class Shape2D
 	foreign translate(dx, dy)
 }
 
+foreign class Point is Shape2D
+{
+	init() {}
+	init(x, y) { this.set(x, y) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Point.init(%(params[0]), %(params[1]))"
+	}
+
+	foreign clone()
+
+	// [x, y]
+	foreign get()
+	foreign set(x, y)
+}
+
 foreign class Line is Shape2D
 {
 	init() {}
