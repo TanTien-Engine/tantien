@@ -145,7 +145,7 @@ void w_Painter_add_capsule_filled()
 
     const uint32_t col = tt::list_to_abgr(3);
 
-    auto hori = ves_toboolean(3);
+    auto hori = ves_toboolean(4);
 
     float rounding = (hori ? rect[3] : rect[2]) * 0.49f;
     uint32_t rounding_corners_flags;
