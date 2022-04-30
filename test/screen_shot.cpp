@@ -35,8 +35,8 @@
 #include "globegen/globegen.ves.inc"
 #include "pathtracer/src/wrap_PathTracer.h"
 #include "pathtracer/src/pathtracer.ves.inc"
-#include "gcsgen/wrap_GcsGen.h"
-#include "gcsgen/gcsgen.ves.inc"
+#include "sketchlib/wrap_SketchLib.h"
+#include "sketchlib/sketchlib.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -114,7 +114,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
         !strcmp(module, "pathtracer") == 0 &&
-        !strcmp(module, "gcsgen") == 0) {
+        !strcmp(module, "sketchlib") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -155,8 +155,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = globegenModuleSource;
     } else if (strcmp(module, "pathtracer") == 0) {
         source = pathtracerModuleSource;
-    } else if (strcmp(module, "gcsgen") == 0) {
-        source = gcsgenModuleSource;
+    } else if (strcmp(module, "sketchlib") == 0) {
+        source = sketchlibModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -296,7 +296,7 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     pathtracer::PathTracerBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    gcsgen::GcsGenBindClass(className, &methods);
+    sketchlib::SketchLibBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     return methods;
@@ -363,7 +363,7 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = pathtracer::PathTracerBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = gcsgen::GcsGenBindMethod(fullName);
+    method = sketchlib::SketchLibBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
