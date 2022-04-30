@@ -63,8 +63,19 @@ class Vertex
 	on_selected() { this.selected = true }
 	on_deselected() { this.selected = false }
 
+	on_key_pressed(key) {}
+	on_key_released(key) {}
+	on_mouse_pressed(x, y, btn) {}
+	on_mouse_released(x, y, btn) {}
+	on_mouse_moved(x, y, btn) {}
+	on_mouse_dragged(x, y, btn) {}
+	on_mouse_scrolled(x, y, dx, dy) {}
+	
 	get_title()
 	{
 		return this.get_class().name
 	}
+
+	bind_editor() { return false }
+	draw_editor() {}	
 }
