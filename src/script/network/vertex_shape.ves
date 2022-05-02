@@ -113,6 +113,16 @@ class VertexShape
 		return pos
 	}
 
+	static create_pin(vert, idx)
+	{
+		var o = vert.pin_types_t[idx]
+		if (!o or o.isEmpty) {
+			return nil
+		} else {
+			return Pin(vert, idx)
+		}
+	}
+
 	static query_pin(vert, pos)
 	{
 		var sz = this.calc_aabb(vert.shape)
@@ -138,7 +148,7 @@ class VertexShape
 		{
 			var dist = Calc.dis_pos_to_pos(pos, vert.pos)
 			if (dist < SHAPE_CIRCLE_RADIUS + PIN_RADIUS * 2 and dist > SHAPE_CIRCLE_RADIUS) {
-				return Pin(vert, PIN_CIRCLE_AROUND_IDX)
+				return this.create_pin(vert, PIN_CIRCLE_AROUND_IDX)
 			}
 		}
 		else if (vert.shape == SHAPE_CAPSULE_H)
@@ -146,13 +156,13 @@ class VertexShape
 			var hw = SHAPE_CAPSULE_LENGTH * 0.5 - SHAPE_CAPSULE_WIDTH * 0.5
 			var hh = SHAPE_CAPSULE_WIDTH * 0.5
 			if (pos.y > vert.pos.y + hh) {
-				return Pin(vert, PIN_CAPSULE_TOP_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_TOP_IDX)
 			} else if (pos.y < vert.pos.y - hh) {
-				return Pin(vert, PIN_CAPSULE_BOTTOM_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_BOTTOM_IDX)
 			} else if (pos.x < vert.pos.x - hw) {
-				return Pin(vert, PIN_CAPSULE_LEFT_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_LEFT_IDX)
 			} else if (pos.x > vert.pos.x + hw) {
-				return Pin(vert, PIN_CAPSULE_RIGHT_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_RIGHT_IDX)
 			}
 		}
 		else if (vert.shape == SHAPE_CAPSULE_V)
@@ -160,13 +170,13 @@ class VertexShape
 			var hw = SHAPE_CAPSULE_WIDTH * 0.5
 			var hh = SHAPE_CAPSULE_LENGTH * 0.5 - SHAPE_CAPSULE_WIDTH * 0.5
 			if (pos.y > vert.pos.y + hh) {
-				return Pin(vert, PIN_CAPSULE_TOP_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_TOP_IDX)
 			} else if (pos.y < vert.pos.y - hh) {
-				return Pin(vert, PIN_CAPSULE_BOTTOM_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_BOTTOM_IDX)
 			} else if (pos.x < vert.pos.x - hw) {
-				return Pin(vert, PIN_CAPSULE_LEFT_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_LEFT_IDX)
 			} else if (pos.x > vert.pos.x + hw) {
-				return Pin(vert, PIN_CAPSULE_RIGHT_IDX)
+				return this.create_pin(vert, PIN_CAPSULE_RIGHT_IDX)
 			}
 		}
 
