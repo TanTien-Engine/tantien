@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cax\gcsgen\Scene.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/gcsgen/</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/gcsgen/</ObjectFileName>
+    <ClCompile Include="..\..\..\..\cax\sketchlib\Scene.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/sketchlib/</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/sketchlib/</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\gcsgen\wrap_GCSGen.cpp" />
+    <ClCompile Include="..\..\..\..\cax\sketchlib\wrap_SketchLib.cpp" />
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\Constraints.cpp" />
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\GCS.cpp" />
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\Geo.cpp" />
@@ -96,10 +96,11 @@
     <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\cax\gcsgen\Constraint.h" />
-    <ClInclude Include="..\..\..\..\cax\gcsgen\Geometry.h" />
-    <ClInclude Include="..\..\..\..\cax\gcsgen\Scene.h" />
-    <ClInclude Include="..\..\..\..\cax\gcsgen\wrap_GCSGen.h" />
+    <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />
+    <ClInclude Include="..\..\..\..\cax\sketchlib\Geometry.h" />
+    <ClInclude Include="..\..\..\..\cax\sketchlib\Scene.h" />
+    <ClInclude Include="..\..\..\..\cax\sketchlib\Util.h" />
+    <ClInclude Include="..\..\..\..\cax\sketchlib\wrap_SketchLib.h" />
     <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Constraints.h" />
     <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\GCS.h" />
     <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Geo.h" />
@@ -178,7 +179,7 @@
     <ClInclude Include="..\..\..\src\modules\system\wrap_System.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\cax\gcsgen\gcsgen.ves.inc" />
+    <None Include="..\..\..\..\cax\sketchlib\sketchlib.ves.inc" />
     <None Include="..\..\..\..\littleworld\archgen\archgen.ves.inc" />
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
