@@ -22,15 +22,23 @@ class Vertex
 		this.selected = false
 
 		this.flag = nil
+
+		// fixme: update aabb
+		this.shape_rod_hori = true
 	}
 
 	get_size() 
 	{
-		return VertexShape.calc_aabb(this.shape)
+		return VertexShape.calc_aabb(this)
 	}
 
 	update(mt)
 	{
+		if (this.shape_rod_hori != VertexShape.is_shape_rod_hori(this)) {
+			this.aabb_dirty = true
+			this.shape_rod_hori = !this.shape_rod_hori
+		}
+
 		var pos = Float2.init()
 		pos.transform(mt)
 		if (this.pos.x == pos.x() and this.pos.y == pos.y()) {

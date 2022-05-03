@@ -1,7 +1,7 @@
 import "graphics" for Painter, Graphics
 import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
-import "blueprint.node_style" for TB_TITLE
-import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE_RADIUS, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH, SHAPE_CIRCLE, SHAPE_CAPSULE_H, SHAPE_CAPSULE_V
+import "blueprint.node_style" for TB_TITLE, TB_TITLE_V
+import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE_RADIUS, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH, SHAPE_ROD_WIDTH, SHAPE_ROD_LENGTH, SHAPE_CIRCLE, SHAPE_CAPSULE_H, SHAPE_CAPSULE_V, SHAPE_ROD, PIN_ROD_START_IDX, PIN_ROD_END_IDX
 
 class Render
 {
@@ -18,7 +18,9 @@ class Render
 	{
 		var pt = Painter.init()
 
-		var hh = 0
+		var vertical = false
+		var dy = 0
+
 		if (vert.shape == SHAPE_CIRCLE)
 		{
 			pt.add_circle_filled(nil, vert.pos.x, vert.pos.y, SHAPE_CIRCLE_RADIUS, vert.color, 24)
@@ -35,11 +37,33 @@ class Render
 			var hh = SHAPE_CAPSULE_LENGTH * 0.5
 			pt.add_capsule_filled(nil, [vert.pos.x - hw, vert.pos.y - hh, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH], vert.color, false)
 		}
+		else if (vert.shape == SHAPE_ROD)
+		{
+			if (VertexShape.is_shape_rod_hori(vert)) 
+			{
+				var hw = SHAPE_ROD_LENGTH * 0.5
+				var hh = SHAPE_ROD_WIDTH * 0.5
+				pt.add_capsule_filled(nil, [vert.pos.x - hw, vert.pos.y - hh, SHAPE_ROD_LENGTH, SHAPE_ROD_WIDTH], vert.color, true)
+			} 
+			else 
+			{				
+				var hw = SHAPE_ROD_WIDTH * 0.5
+				var hh = SHAPE_ROD_LENGTH * 0.5
+				pt.add_capsule_filled(nil, [vert.pos.x - hw, vert.pos.y - hh, SHAPE_ROD_WIDTH, SHAPE_ROD_LENGTH], vert.color, false)
+
+				vertical = true
+				dy = hh * 0.3
+			}
+		}
 
 		Graphics.draw_painter(pt)
 
 		// todo: LOD
-		Graphics.draw_text(vert.get_title(), vert.pos.x, vert.pos.y + hh, 0.7, TB_TITLE)
+		var tb = TB_TITLE
+		if (vertical) {
+			tb = TB_TITLE_V
+		}
+		Graphics.draw_text(vert.get_title(), vert.pos.x, vert.pos.y + dy, 0.7, tb)
 	}
 
 	static draw_vert_pins(vert)

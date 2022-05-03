@@ -13,6 +13,9 @@ var SHAPE_CIRCLE_RADIUS = 20
 var SHAPE_CAPSULE_WIDTH  = 30
 var SHAPE_CAPSULE_LENGTH = SHAPE_CAPSULE_WIDTH * 3
 
+var SHAPE_ROD_WIDTH  = 20
+var SHAPE_ROD_LENGTH = SHAPE_ROD_WIDTH * 5
+
 var PIN_RADIUS = 5
 
 var PIN_CIRCLE_AROUND_IDX = 0
@@ -22,8 +25,12 @@ var PIN_CAPSULE_BOTTOM_IDX = 1
 var PIN_CAPSULE_LEFT_IDX   = 2
 var PIN_CAPSULE_RIGHT_IDX  = 3
 
-var PIN_CIRCLE_NAMES = [ "around" ]
+var PIN_ROD_START_IDX = 0
+var PIN_ROD_END_IDX   = 1
+
+var PIN_CIRCLE_NAMES  = [ "around" ]
 var PIN_CAPSULE_NAMES = [ "top", "bottom", "left", "right" ]
+var PIN_ROD_NAMES     = [ "start", "end" ]
 
 class VertexShape
 {
@@ -107,8 +114,29 @@ class VertexShape
 				} else if (pin.type == PIN_CAPSULE_RIGHT_IDX) {
 					pos.x = p0.x + SHAPE_CAPSULE_WIDTH * 0.5 + PIN_RADIUS
 				}
-			}			
-		}		
+			}
+		}
+		else if (pin.vert.shape == SHAPE_ROD)
+		{
+			pos.x = p0.x
+			pos.y = p0.y
+			if (VertexShape.is_shape_rod_hori(pin.vert)) 
+			{
+				if (pin.type == PIN_ROD_START_IDX) {
+					pos.x = p0.x - SHAPE_ROD_LENGTH * 0.5 - PIN_RADIUS
+				} else if (pin.type == PIN_ROD_END_IDX) {
+					pos.x = p0.x + SHAPE_ROD_LENGTH * 0.5 + PIN_RADIUS
+				}
+			}
+			else
+			{
+				if (pin.type == PIN_ROD_START_IDX) {
+					pos.y = p0.y - SHAPE_ROD_LENGTH * 0.5 - PIN_RADIUS
+				} else if (pin.type == PIN_ROD_END_IDX) {
+					pos.y = p0.y + SHAPE_ROD_LENGTH * 0.5 + PIN_RADIUS
+				}
+			}
+		}				
 
 		return pos
 	}
@@ -125,7 +153,7 @@ class VertexShape
 
 	static query_pin(vert, pos)
 	{
-		var sz = this.calc_aabb(vert.shape)
+		var sz = this.calc_aabb(vert)
 		var hw = sz.x * 0.5
 		var hh = sz.y * 0.5
 		if (pos.x < vert.pos.x - hw or
@@ -179,33 +207,68 @@ class VertexShape
 				return this.create_pin(vert, PIN_CAPSULE_RIGHT_IDX)
 			}
 		}
+		else if (vert.shape == SHAPE_ROD)
+		{
+			var hw = SHAPE_ROD_LENGTH * 0.5 - SHAPE_ROD_WIDTH * 0.5		
+			if (VertexShape.is_shape_rod_hori(vert)) 
+			{
+				if (pos.x < vert.pos.x - hw) {
+					return this.create_pin(vert, PIN_ROD_START_IDX)
+				} else if (pos.x > vert.pos.x + hw) {
+					return this.create_pin(vert, PIN_ROD_END_IDX)
+				}
+			}
+			else
+			{
+				if (pos.y < vert.pos.y - hw) {
+					return this.create_pin(vert, PIN_ROD_START_IDX)
+				} else if (pos.y > vert.pos.y + hw) {
+					return this.create_pin(vert, PIN_ROD_END_IDX)
+				}
+			}
+		}
 
 		return nil
 	}
 
-	static calc_aabb(shape)
+	static calc_aabb(vert)
 	{
+		var expand_sz = true
+
 		var size = nil
-		if (shape == SHAPE_CIRCLE)
+		if (vert.shape == SHAPE_CIRCLE)
 		{
 			var diam = SHAPE_CIRCLE_RADIUS * 2
 			size = Vector2(diam, diam)
 		}
-		else if (shape == SHAPE_CAPSULE_H)
+		else if (vert.shape == SHAPE_CAPSULE_H)
 		{
 			size = Vector2(SHAPE_CAPSULE_LENGTH, SHAPE_CAPSULE_WIDTH)
 		}
-		else if (shape == SHAPE_CAPSULE_V)
+		else if (vert.shape == SHAPE_CAPSULE_V)
 		{
 			size = Vector2(SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH)
+		}
+		else if (vert.shape == SHAPE_ROD)
+		{
+			expand_sz = false
+			if (VertexShape.is_shape_rod_hori(vert)) {
+				size = Vector2(SHAPE_ROD_LENGTH, SHAPE_ROD_WIDTH)			
+				size.x = size.x + PIN_RADIUS * 4
+			} else {
+				size = Vector2(SHAPE_ROD_WIDTH, SHAPE_ROD_LENGTH)			
+				size.y = size.y + PIN_RADIUS * 4
+			}
 		}
 
 		if (!size) {
 			return nil
 		}
 
-		size.x = size.x + PIN_RADIUS * 4
-		size.y = size.y + PIN_RADIUS * 4
+		if (expand_sz) {
+			size.x = size.x + PIN_RADIUS * 4
+			size.y = size.y + PIN_RADIUS * 4
+		}
 
 		return size
 	}
@@ -230,6 +293,8 @@ class VertexShape
 			return PIN_CIRCLE_NAMES
 		} else if (vert.shape == SHAPE_CAPSULE_H or vert.shape == SHAPE_CAPSULE_V) {
 			return PIN_CAPSULE_NAMES
+		} else if (vert.shape == SHAPE_ROD) {
+			return PIN_ROD_NAMES
 		} else {
 			return nil
 		}
@@ -258,5 +323,29 @@ class VertexShape
 			}
 			return -1
 		}
+	}
+
+	static is_shape_rod_hori(vert)
+	{
+		import "network.network" for Network
+
+		var s = nil
+		var e = nil
+
+		var nodes = Network.neighbors(vert, PIN_ROD_START_IDX)
+		if (!nodes.isEmpty) {
+			s = nodes[0]
+		}
+		nodes = Network.neighbors(vert, PIN_ROD_END_IDX)
+		if (!nodes.isEmpty) {
+			e = nodes[0]
+		}
+
+		var hori = true
+		if (s and e and Math.abs(s.pos.y - e.pos.y) > Math.abs(s.pos.x - e.pos.x)) {
+			hori = false
+		}
+
+		return hori
 	}
 }
