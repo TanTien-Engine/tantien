@@ -7,6 +7,8 @@
 #include <geoshape/Line2D.h>
 #include <geoshape/Rect.h>
 #include <geoshape/Circle.h>
+#include <geoshape/Arc.h>
+#include <geoshape/Ellipse.h>
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
 #include <geoshape/Bezier.h>
@@ -239,6 +241,131 @@ void w_Circle_set()
 
     c->SetCenter({ cx, cy });
     c->SetRadius(r);
+}
+
+void w_Arc_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc>));
+    proxy->obj = std::make_shared<gs::Arc>();
+}
+
+int w_Arc_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Arc>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Arc>);
+}
+
+void w_Arc_clone()
+{
+    auto src = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+
+    float start_angle, end_angle;
+    src->GetAngles(start_angle, end_angle);
+
+    auto dst = std::make_shared<gs::Arc>(src->GetCenter(), src->GetRadius(), start_angle, end_angle);
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc>));
+    proxy->obj = dst;
+}
+
+void w_Arc_get()
+{
+    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+
+    float start_angle, end_angle;
+    a->GetAngles(start_angle, end_angle);
+
+    tt::return_list(std::vector<float>{
+        a->GetCenter().x,
+        a->GetCenter().y,
+        a->GetRadius(),
+        start_angle,
+        end_angle
+    });
+}
+
+void w_Arc_set()
+{
+    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+
+    float cx = (float)ves_tonumber(1);
+    float cy = (float)ves_tonumber(2);
+    float r  = (float)ves_tonumber(3);
+    float s  = (float)ves_tonumber(4);
+    float e  = (float)ves_tonumber(5);
+
+    a->SetCenter({ cx, cy });
+    a->SetRadius(r);
+    a->SetAngles(s, e);
+}
+
+void w_Arc_get_vertices()
+{
+    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+    auto& vertices = a->GetVertices();
+    tt::return_list(vertices);
+}
+
+void w_Ellipse_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Ellipse>));
+    proxy->obj = std::make_shared<gs::Ellipse>();
+}
+
+int w_Ellipse_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Ellipse>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Ellipse>);
+}
+
+void w_Ellipse_clone()
+{
+    auto src = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    float rx, ry;
+    src->GetRadius(rx, ry);
+    auto dst = std::make_shared<gs::Ellipse>(src->GetCenter(), rx, ry);
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Ellipse>));
+    proxy->obj = dst;
+}
+
+void w_Ellipse_get()
+{
+    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+
+    float rx, ry;
+    e->GetRadius(rx, ry);
+
+    tt::return_list(std::vector<float>{
+        e->GetCenter().x,
+        e->GetCenter().y,
+        rx,
+        ry
+    });
+}
+
+void w_Ellipse_set()
+{
+    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+
+    float cx = (float)ves_tonumber(1);
+    float cy = (float)ves_tonumber(2);
+    float rx = (float)ves_tonumber(3);
+    float ry = (float)ves_tonumber(4);
+
+    e->SetCenter({ cx, cy });
+    e->SetRadius(rx, ry);
+}
+
+void w_Ellipse_get_vertices()
+{
+    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    auto& vertices = e->GetVertices();
+    tt::return_list(vertices);
 }
 
 void w_Polyline_allocate()
@@ -1143,6 +1270,16 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Circle.get()") == 0) return w_Circle_get;
     if (strcmp(signature, "Circle.set(_,_,_)") == 0) return w_Circle_set;
 
+    if (strcmp(signature, "Arc.clone()") == 0) return w_Arc_clone;
+    if (strcmp(signature, "Arc.get()") == 0) return w_Arc_get;
+    if (strcmp(signature, "Arc.set(_,_,_,_,_)") == 0) return w_Arc_set;
+    if (strcmp(signature, "Arc.get_vertices()") == 0) return w_Arc_get_vertices;
+
+    if (strcmp(signature, "Ellipse.clone()") == 0) return w_Ellipse_clone;
+    if (strcmp(signature, "Ellipse.get()") == 0) return w_Ellipse_get;
+    if (strcmp(signature, "Ellipse.set(_,_,_,_)") == 0) return w_Ellipse_set;
+    if (strcmp(signature, "Ellipse.get_vertices()") == 0) return w_Ellipse_get_vertices;
+
     if (strcmp(signature, "Polyline.clone()") == 0) return w_Polyline_clone;
     if (strcmp(signature, "Polyline.get_vertices()") == 0) return w_Polyline_get_vertices;
     if (strcmp(signature, "Polyline.set_vertices(_)") == 0) return w_Polyline_set_vertices;
@@ -1234,6 +1371,20 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Circle_allocate;
         methods->finalize = w_Circle_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Arc") == 0)
+    {
+        methods->allocate = w_Arc_allocate;
+        methods->finalize = w_Arc_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Ellipse") == 0)
+    {
+        methods->allocate = w_Ellipse_allocate;
+        methods->finalize = w_Ellipse_finalize;
         return;
     }
 

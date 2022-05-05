@@ -77,6 +77,44 @@ foreign class Circle is Shape2D
 	foreign set(x, y, radius)
 }
 
+foreign class Arc is Shape2D
+{
+	init() {}
+	init(x, y, radius, start_angle, end_angle) { this.set(x, y, radius, start_angle, end_angle) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Arc.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]), %(params[4]))"
+	}
+
+	foreign clone()
+
+	// [x, y, radius, start_angle, end_angle]
+	foreign get()
+	foreign set(x, y, radius, start_angle, end_angle)
+
+	foreign get_vertices()
+}
+
+foreign class Ellipse is Shape2D
+{
+	init() {}
+	init(x, y, rx, ry) { this.set(x, y, rx, ry) }
+
+	toString() {
+		var params = this.get()
+		return "::geometry::Ellipse.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]))"
+	}
+
+	foreign clone()
+
+	// [x, y, rx, ry]
+	foreign get()
+	foreign set(x, y, rx, ry)
+
+	foreign get_vertices()
+}
+
 foreign class Polyline is Shape2D
 {
 	init() {}
