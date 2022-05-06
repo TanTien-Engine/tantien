@@ -50,6 +50,9 @@ class Network
 		pin0.vert.pins.add(pin0)
 		pin1.vert.pins.add(pin1)
 
+		pin0.vert.on_connection_changed()
+		pin1.vert.on_connection_changed()
+
 		var e = Edge(pin0, pin1)
 		pin0.edge = e
 		pin1.edge = e
@@ -59,13 +62,20 @@ class Network
 
 	static disconnect(edge)
 	{
-		if (edge.pin0) {
+		if (edge.pin0) 
+		{
 			edge.pin0.vert.pins.remove(edge.pin0)
 			edge.pin0.edge = nil
+
+			edge.pin0.vert.on_connection_changed()
 		}
-		if (edge.pin1) {
+
+		if (edge.pin1) 
+		{
 			edge.pin1.vert.pins.remove(edge.pin1)
 			edge.pin1.edge = nil
+
+			edge.pin1.vert.on_connection_changed()
 		}
 
 		edge.clear()
