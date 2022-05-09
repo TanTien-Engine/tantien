@@ -13,10 +13,19 @@ class Expand is Node
 			Pin(this, "data", [ VAR_TYPE_TABLE, VAR_TYPE_ARRAY ]),
 		]
 
+		this.layout()
+
 		this.export_values = []
 		this.uniforms = []
 
-		this.layout()
+		this.data_dirty = false
+	}
+
+	on_pin_dirty(pin)
+	{
+		super.on_pin_dirty(pin)
+
+		this.data_dirty = true
 	}
 
 	layout()
@@ -28,6 +37,10 @@ class Expand is Node
 
 	calc_value(idx)
 	{
+		if (this.data_dirty) {
+			this.update_data()
+			this.data_dirty = false
+		}
 		return this.export_values[idx]
 	}
 
@@ -94,5 +107,31 @@ class Expand is Node
 		this.layout()
 
 		this.uniforms = List.filled(this.exports.count, nil)
+	}
+
+	update_data()
+	{
+		var data = Blueprint.calc_input_value(this, 0)
+		if (!data) {
+			return
+		}
+
+		var idx = 0
+		if (data.type == VAR_TYPE_TABLE)
+		{
+			for (var entry in data.value) {
+				var v = Variant(entry.value)
+				this.export_values[idx] = v
+				idx = idx + 1
+			}
+		}
+		else if (data.type == VAR_TYPE_ARRAY)
+		{
+			for (var i in 0..data.value.count) {
+				var v = Variant(data.value[i])
+				this.export_values[idx] = v
+				idx = idx + 1
+			}
+		}		
 	}
 }
