@@ -57,15 +57,12 @@ class Render
 		}
 		else if (vert.shape == SHAPE_PANEL)
 		{
-			var hw = SHAPE_PANEL_WIDTH * 0.5
-			var h_title = TITLE_HEIGHT * 0.5
-			dy = SHAPE_PANEL_HEIGHT * 0.5 - h_title
+			var x = vert.pos.x - SHAPE_PANEL_WIDTH * 0.5
+			var y = vert.pos.y - SHAPE_PANEL_HEIGHT * 0.5
 
-			var x = vert.pos.x - hw
-			var y = vert.pos.y - h_title + dy
+			pt.add_rect_filled(nil, [x, y, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT], vert.color)
 
-			pt.add_rect_filled(nil, [x, y, SHAPE_PANEL_WIDTH, TITLE_HEIGHT], vert.color)
-			pt.add_rect(nil, [x, y - SHAPE_PANEL_HEIGHT + TITLE_HEIGHT, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT], vert.color, 2)
+			dy = (SHAPE_PANEL_HEIGHT - TITLE_HEIGHT) * 0.5
 		}
 
 		Graphics.draw_painter(pt)
