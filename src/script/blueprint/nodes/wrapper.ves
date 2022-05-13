@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+
+class Wrapper is Node
+{
+	init(node)
+	{
+		super.init()
+
+		this.impl = node
+
+		// init pins
+		for (var pin in node.imports) {
+			this.imports.add(Pin(this, pin.name, pin.type))
+		}
+		for (var pin in node.exports) {
+			this.exports.add(Pin(this, pin.name, pin.type))
+		}
+
+		// connect pins
+		for (var i in 0 .. this.imports.count) {
+			for (var c in node.imports[i].conns) {
+				Blueprint.connect(c.from, this.imports[i])
+			}
+		}
+		for (var i in 0 .. this.exports.count) {
+			for (var c in node.exports[i].conns) {
+				Blueprint.connect(this.exports[i], c.to)
+			}
+		}
+	}
+
+	calc_value(idx)
+	{
+		return Blueprint.calc_output_value(this.impl, idx)
+	}
+}
