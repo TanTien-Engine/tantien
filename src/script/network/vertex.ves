@@ -48,6 +48,11 @@ class Vertex
 		this.pos.x = pos.x()
 		this.pos.y = pos.y()
 
+		this.update_pin_conns()
+	}
+
+	update_pin_conns()
+	{
 		for (var p in this.pins) {
 			if (p.edge) {
 				p.edge.update()
