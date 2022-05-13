@@ -1,7 +1,7 @@
 import "graphics" for Painter, Graphics
 import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
 import "blueprint.node_style" for TB_TITLE, TB_TITLE_V
-import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE_RADIUS, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH, SHAPE_ROD_WIDTH, SHAPE_ROD_LENGTH, SHAPE_CIRCLE, SHAPE_CAPSULE_H, SHAPE_CAPSULE_V, SHAPE_ROD, PIN_ROD_START_IDX, PIN_ROD_END_IDX
+import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE_RADIUS, SHAPE_CAPSULE_WIDTH, SHAPE_CAPSULE_LENGTH, SHAPE_ROD_WIDTH, SHAPE_ROD_LENGTH, SHAPE_CIRCLE, SHAPE_CAPSULE_H, SHAPE_CAPSULE_V, SHAPE_ROD, SHAPE_PANEL, PIN_ROD_START_IDX, PIN_ROD_END_IDX, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT
 
 class Render
 {
@@ -55,6 +55,18 @@ class Render
 				dy = hh * 0.3
 			}
 		}
+		else if (vert.shape == SHAPE_PANEL)
+		{
+			var hw = SHAPE_PANEL_WIDTH * 0.5
+			var h_title = TITLE_HEIGHT * 0.5
+			dy = SHAPE_PANEL_HEIGHT * 0.5 - h_title
+
+			var x = vert.pos.x - hw
+			var y = vert.pos.y - h_title + dy
+
+			pt.add_rect_filled(nil, [x, y, SHAPE_PANEL_WIDTH, TITLE_HEIGHT], vert.color)
+			pt.add_rect(nil, [x, y - SHAPE_PANEL_HEIGHT + TITLE_HEIGHT, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT], vert.color, 2)
+		}
 
 		Graphics.draw_painter(pt)
 
@@ -71,9 +83,11 @@ class Render
 		for (var pin in vert.pins)
 		{
 			var p_pos = VertexShape.calc_pin_pos(pin)
-			this.draw_pin(p_pos.x, p_pos.y, pin)
+			if (p_pos) {
+				this.draw_pin(p_pos.x, p_pos.y, pin)
+			}
 		}
-	}	
+	}
 
 	static draw_pin(x, y, pin)
 	{

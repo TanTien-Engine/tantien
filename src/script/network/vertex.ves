@@ -14,6 +14,7 @@ class Vertex
 		this.pin_types_t = []
 
 		this.pins = []
+		this.pin_dynamic = true
 
 		this.pos = Vector2()
 
@@ -87,5 +88,19 @@ class Vertex
 	}
 
 	bind_editor() { return false }
-	draw_editor() {}	
+	draw_editor() {}
+
+	add_pin(pin)
+	{
+		if (this.pin_dynamic) {
+			this.pins.add(pin)
+		}
+	}
+
+	remove_pin(pin)
+	{
+		if (this.pin_dynamic) {
+			this.pins.remove(pin)
+		}
+	}
 }

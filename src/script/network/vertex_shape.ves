@@ -7,6 +7,7 @@ var SHAPE_CIRCLE    = 0
 var SHAPE_CAPSULE_H = 1
 var SHAPE_CAPSULE_V = 2
 var SHAPE_ROD       = 3
+var SHAPE_PANEL		= 4
 
 var SHAPE_CIRCLE_RADIUS = 20
 
@@ -15,6 +16,10 @@ var SHAPE_CAPSULE_LENGTH = SHAPE_CAPSULE_WIDTH * 3
 
 var SHAPE_ROD_WIDTH  = 20
 var SHAPE_ROD_LENGTH = SHAPE_ROD_WIDTH * 5
+
+var SHAPE_PANEL_WIDTH  = 256
+//var SHAPE_PANEL_HEIGHT = TITLE_HEIGHT
+var SHAPE_PANEL_HEIGHT = SHAPE_PANEL_WIDTH
 
 var PIN_RADIUS = 5
 
@@ -31,11 +36,20 @@ var PIN_ROD_END_IDX   = 1
 var PIN_CIRCLE_NAMES  = [ "around" ]
 var PIN_CAPSULE_NAMES = [ "top", "bottom", "left", "right" ]
 var PIN_ROD_NAMES     = [ "start", "end" ]
+var PIN_PANEL_NAMES   = [ "pos" ]
 
 class VertexShape
 {
 	static calc_pin_pos(pin)
 	{
+		if (pin.vert.shape == SHAPE_PANEL) {
+			if (pin.vert.has_method("calc_pin_pos(_)")) {
+				return pin.vert.calc_pin_pos(pin)
+			} else {
+				return nil
+			}
+		}
+
 		var e = pin.edge
 		if (!e or !e.pin0 or !e.pin1) {
 			return nil
@@ -136,7 +150,19 @@ class VertexShape
 					pos.y = p0.y + SHAPE_ROD_LENGTH * 0.5 + PIN_RADIUS
 				}
 			}
-		}				
+		}
+		else if (pin.vert.shape == SHAPE_PANEL)
+		{
+			if (pin.vert.has_method("calc_pin_pos(_)")) {
+				return pin.vert.calc_pin_pos(pin)
+			} else {
+				return nil
+			}
+		}
+		else
+		{
+			return nil
+		}	
 
 		return pos
 	}
@@ -166,9 +192,11 @@ class VertexShape
 		for (var pin in vert.pins)
 		{
 			var pin_pos = this.calc_pin_pos(pin)
-			var dist = Calc.dis_pos_to_pos(pos, pin_pos)
-			if (dist < PIN_RADIUS * 1.1) {
-				return pin
+			if (pin_pos) {
+				var dist = Calc.dis_pos_to_pos(pos, pin_pos)
+				if (dist < PIN_RADIUS * 1.1) {
+					return pin
+				}
 			}
 		}
 
@@ -260,6 +288,11 @@ class VertexShape
 				size.y = size.y + PIN_RADIUS * 4
 			}
 		}
+		else if (vert.shape == SHAPE_PANEL)
+		{
+			expand_sz = false
+			size = Vector2(SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT)
+		}
 
 		if (!size) {
 			return nil
@@ -295,13 +328,26 @@ class VertexShape
 			return PIN_CAPSULE_NAMES
 		} else if (vert.shape == SHAPE_ROD) {
 			return PIN_ROD_NAMES
+		} else if (vert.shape == SHAPE_PANEL) {
+			return PIN_PANEL_NAMES
 		} else {
 			return nil
 		}
 	}
 
-	static pin_type_to_name(vert, type)
+	static get_pin_name(pin)
 	{
+		var vert = pin.vert
+		var type = pin.type
+
+		if (vert.shape == SHAPE_PANEL) {
+			if (vert.has_method("get_pin_name(_)")) {
+				return vert.get_pin_name(pin)
+			} else {
+				return nil
+			}
+		}
+
 		var names = this.get_vert_pin_names(vert)
 		if (!names) {
 			return nil
@@ -310,19 +356,37 @@ class VertexShape
 		}
 	}
 
+	static fetch_pin(vert, name)
+	{
+		if (vert.shape == SHAPE_PANEL) {
+			if (vert.has_method("query_pin(_)")) {
+				return vert.query_pin(name)
+			} else {
+				return nil
+			}
+		}
+
+		var type = this.pin_name_to_type(vert, name)
+		return Pin(vert, type)
+	}
+
 	static pin_name_to_type(vert, name)
 	{
+		if (vert.shape == SHAPE_PANEL) {
+			return 0
+		}
+
 		var names = this.get_vert_pin_names(vert)
 		if (!names) {
 			return nil
-		} else {
-			for (var i in 0 .. names.count) {
-				if (names[i] == name) {
-					return i
-				}
-			}
-			return -1
 		}
+
+		for (var i in 0 .. names.count) {
+			if (names[i] == name) {
+				return i
+			}
+		}
+		return -1
 	}
 
 	static is_shape_rod_hori(vert)

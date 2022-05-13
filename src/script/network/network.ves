@@ -47,8 +47,8 @@ class Network
 
 	static connect(pin0, pin1)
 	{
-		pin0.vert.pins.add(pin0)
-		pin1.vert.pins.add(pin1)
+		pin0.vert.add_pin(pin0)
+		pin1.vert.add_pin(pin1)
 
 		pin0.vert.on_connection_changed()
 		pin1.vert.on_connection_changed()
@@ -64,7 +64,7 @@ class Network
 	{
 		if (edge.pin0) 
 		{
-			edge.pin0.vert.pins.remove(edge.pin0)
+			edge.pin0.vert.remove_pin(edge.pin0)
 			edge.pin0.edge = nil
 
 			edge.pin0.vert.on_connection_changed()
@@ -72,7 +72,7 @@ class Network
 
 		if (edge.pin1) 
 		{
-			edge.pin1.vert.pins.remove(edge.pin1)
+			edge.pin1.vert.remove_pin(edge.pin1)
 			edge.pin1.edge = nil
 
 			edge.pin1.vert.on_connection_changed()
@@ -83,47 +83,52 @@ class Network
 
 	static connect(vert0, pin0, vert1, pin1)
 	{
-		var type0 = VertexShape.pin_name_to_type(vert0, pin0)
-		var type1 = VertexShape.pin_name_to_type(vert1, pin1)
-		return this.connect(Pin(vert0, type0), Pin(vert1, type1))
+		var p0 = VertexShape.fetch_pin(vert0, pin0)
+		var p1 = VertexShape.fetch_pin(vert1, pin1)
+		return this.connect(p0, p1)
+	}
+
+	static neighbors_pins(vert, type)
+	{
+		var pins = []
+
+		for (var pin in vert.pins) 
+		{
+			if ((!type or pin.type == type) and pin.edge)
+			{
+				if (pin.edge.pin0.vert != vert) {
+					pins.add(pin.edge.pin0)
+				} else if (pin.edge.pin1.vert != vert) {
+					pins.add(pin.edge.pin1)
+				}
+			}
+		}
+
+		return pins
 	}
 
 	static neighbors(vert)
 	{
-		var ret = []
+		var verts = []
 
-		for (var pin in vert.pins) 
-		{
-			if (pin.edge)
-			{
-				if (pin.edge.pin0.vert != vert) {
-					ret.add(pin.edge.pin0.vert)
-				} else if (pin.edge.pin1.vert != vert) {
-					ret.add(pin.edge.pin1.vert)
-				}
-			}
+		var pins = this.neighbors_pins(vert)
+		for (var pin in pins) {
+			verts.add(pin.vert)
 		}
 
-		return ret
+		return verts
 	}
 
 	static neighbors(vert, type)
 	{
-		var ret = []
+		var verts = []
 
-		for (var pin in vert.pins) 
-		{
-			if (pin.type == type and pin.edge)
-			{
-				if (pin.edge.pin0.vert != vert) {
-					ret.add(pin.edge.pin0.vert)
-				} else if (pin.edge.pin1.vert != vert) {
-					ret.add(pin.edge.pin1.vert)
-				}
-			}
+		var pins = this.neighbors_pins(vert, type)
+		for (var pin in pins) {
+			verts.add(pin.vert)
 		}
 
-		return ret
+		return verts
 	}	
 
 	static adjacent(vert0, pin0, vert1, pin1)

@@ -968,8 +968,8 @@ import \"editor\" for _editor
 						}
 						if (t_name) 
 						{
-							var f_pin = VertexShape.pin_type_to_name(pin.edge.pin0.vert, pin.edge.pin0.type)
-							var t_pin = VertexShape.pin_type_to_name(pin.edge.pin1.vert, pin.edge.pin1.type)
+							var f_pin = VertexShape.get_pin_name(pin.edge.pin0)
+							var t_pin = VertexShape.get_pin_name(pin.edge.pin1)
 							file.write("Network.connect(%(f_name), \"%(f_pin)\", %(t_name), \"%(t_pin)\")\n")
 						}
 					}
