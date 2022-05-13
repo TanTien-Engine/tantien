@@ -384,7 +384,7 @@ int w_Polyline_finalize(void* data)
 void w_Polyline_clone()
 {
     auto src = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
-    auto dst = std::make_shared<gs::Polyline2D>(src->GetVertices());
+    auto dst = std::make_shared<gs::Polyline2D>(src->GetVertices(), src->GetClosed());
 
     ves_pop(ves_argnum());
     auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
