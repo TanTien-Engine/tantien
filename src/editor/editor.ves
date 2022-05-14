@@ -1020,8 +1020,12 @@ _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.positi
 
 		// connections
 		var bp_nodes = []
-		for (var node in scene.selection) {
-			bp_nodes.add(node.components["bp"])		
+		for (var node in scene.selection)
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is BP_Node) {
+				bp_nodes.add(bp_node)
+			}
 		}
 		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
 		for (var t_node in sorted_nodes) 
