@@ -55,11 +55,20 @@ class VertexShape
 			return nil
 		}
 
-		var p0 = e.pin0.vert.pos
-		var p1 = e.pin1.vert.pos
+		var pos0 = e.pin0.vert.pos
+		if (e.pin0.vert.has_method("calc_pin_pos(_)")) {
+			pos0 = e.pin0.vert.calc_pin_pos(e.pin0)
+		}
+		var pos1 = e.pin1.vert.pos
+		if (e.pin1.vert.has_method("calc_pin_pos(_)")) {
+			pos1 = e.pin1.vert.calc_pin_pos(e.pin1)
+		}
+
+		var p0 = pos0
+		var p1 = pos1
 		if (pin == e.pin1) {
-			p0 = e.pin1.vert.pos
-			p1 = e.pin0.vert.pos
+			p0 = pos1
+			p1 = pos0
 		}
 
 		var pos = Vector2()
