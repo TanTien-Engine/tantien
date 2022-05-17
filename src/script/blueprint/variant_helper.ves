@@ -16,7 +16,13 @@ class VariantHelper
 	static flatten_values(variant, type)
 	{
 		var values = []
-		this.flatten_values(variant, type, values)
+		if (type is List) {
+			for (var t in type) {
+				this.flatten_values(variant, t, values)
+			}
+		} else {
+			this.flatten_values(variant, type, values)
+		}
 		return values
 	}
 }
