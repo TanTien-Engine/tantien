@@ -40,7 +40,7 @@ class FuncCall is Node
 	calc_value(idx)
 	{
 		if (!this.func_node) {
-			this.func_node = this.get_func_node(Blueprint.get_input_node(this, 0))
+			this.func_node = this.get_func_node(Blueprint.get_input_pin(this, 0))
 		}
 
 		if (this.func_node) {
@@ -87,29 +87,33 @@ class FuncCall is Node
 		}
 	}
 
-	get_func_node(node)
+	get_func_node(pin)
 	{
-		if (node is Function) {
+		var node = pin.node
+		if (node is Function) 
+		{
 			return node
-		} else if (node is Input) {
-			var prev = Blueprint.get_input_node(node.parent_node, node.parent_pin_idx)
+		} 
+		else if (node is Input) 
+		{
+			var prev = Blueprint.get_input_pin(node.parent_node, node.parent_pin_idx)
 			return this.get_func_node(prev)
-		} else if (node is Subgraph) {
+		} 
+		else if (node is Subgraph) 
+		{
 			for (var c in node.out_nodes) {
-				if (c.var_name == this.imports[0].name) {
-					var prev = Blueprint.get_input_node(c, 0)
-					return this.get_func_node(prev)
+				if (c.var_name == pin.name) {
+					return this.get_func_node(Blueprint.get_input_pin(c, 0))
 				}
-			}
-		} else {
-			return nil
+			}			
 		}
+
+		return nil
 	}
 
 	setup_func()
 	{
-		var prev_node = Blueprint.get_input_node(this, 0)
-		var func_node = this.get_func_node(prev_node)
+		var func_node = this.get_func_node(Blueprint.get_input_pin(this, 0))
 		if (!func_node) {
 			return
 		}
