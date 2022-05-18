@@ -2,11 +2,8 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_FUNCTION
 import "blueprint.blueprint" for Blueprint
-import "blueprint.nodes.function" for Function
 import "blueprint.nodes.func_in" for FuncIn
 import "blueprint.nodes.func_out" for FuncOut
-import "blueprint.nodes.input" for Input
-import "blueprint.nodes.subgraph" for Subgraph
 
 class FuncCall is Node
 {
@@ -40,7 +37,7 @@ class FuncCall is Node
 	calc_value(idx)
 	{
 		if (!this.func_node) {
-			this.func_node = this.get_func_node(Blueprint.get_input_pin(this, 0))
+			this.func_node = this.get_func_node()
 		}
 
 		if (this.func_node) {
@@ -87,33 +84,19 @@ class FuncCall is Node
 		}
 	}
 
-	get_func_node(pin)
+	get_func_node()
 	{
-		var node = pin.node
-		if (node is Function) 
-		{
-			return node
-		} 
-		else if (node is Input) 
-		{
-			var prev = Blueprint.get_input_pin(node.parent_node, node.parent_pin_idx)
-			return this.get_func_node(prev)
-		} 
-		else if (node is Subgraph) 
-		{
-			for (var c in node.out_nodes) {
-				if (c.var_name == pin.name) {
-					return this.get_func_node(Blueprint.get_input_pin(c, 0))
-				}
-			}			
+		var v_func = Blueprint.calc_input_value(this, 0)
+		if (v_func) {
+			return v_func.value
+		} else {
+			return nil
 		}
-
-		return nil
 	}
 
 	setup_func()
 	{
-		var func_node = this.get_func_node(Blueprint.get_input_pin(this, 0))
+		var func_node = this.get_func_node()
 		if (!func_node) {
 			return
 		}
