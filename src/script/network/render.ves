@@ -89,10 +89,10 @@ class Render
 	static draw_pin(x, y, pin)
 	{
 		var pt = Painter.init()
-		if (pin.edge) {
-			pt.add_circle_filled(nil, x, y, PIN_RADIUS, pin.color, 12)		
+		if (pin.edges.isEmpty) {
+			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)		
 		} else {
-			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)
+			pt.add_circle_filled(nil, x, y, PIN_RADIUS, pin.color, 12)
 		}
 		Graphics.draw_painter(pt)
 	}
@@ -102,9 +102,10 @@ class Render
 		var pt = Painter.init()
 		for (var pin in vert.pins)
 		{
-			var edge = pin.edge
-			if (edge and edge.curve) {
-				pt.add_bezier(nil, edge.curve, edge.pin0.color, 2)			
+			for (var edge in pin.edges) {
+				if (edge and edge.curve) {
+					pt.add_bezier(nil, edge.curve, edge.pin0.color, 2)
+				}
 			}
 		}
 		Graphics.draw_painter(pt)

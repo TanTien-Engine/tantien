@@ -54,8 +54,8 @@ class Vertex
 	update_pin_conns()
 	{
 		for (var p in this.pins) {
-			if (p.edge) {
-				p.edge.update()
+			for (var edge in p.edges) {
+				edge.update()			
 			}
 		}
 	}

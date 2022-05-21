@@ -22,13 +22,13 @@ class Network
 			var v = curr[0]
 			for (var p in v.pins)
 			{
-				if (p.edge)
+				for (var edge in p.edges)
 				{
 					var other = nil
-					if (p.edge.pin0.vert != v) {
-						other = p.edge.pin0.vert
+					if (edge.pin0.vert != v) {
+						other = edge.pin0.vert
 					} else {
-						other = p.edge.pin1.vert
+						other = edge.pin1.vert
 					}
 
 					if (!other.flag)
@@ -54,8 +54,8 @@ class Network
 		pin1.vert.on_connection_changed()
 
 		var e = Edge(pin0, pin1)
-		pin0.edge = e
-		pin1.edge = e
+		pin0.edges.add(e)
+		pin1.edges.add(e)
 		e.update()
 		return e
 	}
@@ -65,7 +65,7 @@ class Network
 		if (edge.pin0) 
 		{
 			edge.pin0.vert.remove_pin(edge.pin0)
-			edge.pin0.edge = nil
+			edge.pin0.edges.remove(edge)
 
 			edge.pin0.vert.on_connection_changed()
 		}
@@ -73,7 +73,7 @@ class Network
 		if (edge.pin1) 
 		{
 			edge.pin1.vert.remove_pin(edge.pin1)
-			edge.pin1.edge = nil
+			edge.pin1.edges.remove(edge)
 
 			edge.pin1.vert.on_connection_changed()
 		}
@@ -94,12 +94,15 @@ class Network
 
 		for (var pin in vert.pins) 
 		{
-			if ((!type or pin.type == type) and pin.edge)
+			if ((!type or pin.type == type))
 			{
-				if (pin.edge.pin0.vert != vert) {
-					pins.add(pin.edge.pin0)
-				} else if (pin.edge.pin1.vert != vert) {
-					pins.add(pin.edge.pin1)
+				for (var edge in pin.edges)
+				{
+					if (edge.pin0.vert != vert) {
+						pins.add(edge.pin0)
+					} else if (edge.pin1.vert != vert) {
+						pins.add(edge.pin1)
+					}
 				}
 			}
 		}

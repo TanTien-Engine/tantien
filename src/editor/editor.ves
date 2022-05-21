@@ -957,20 +957,23 @@ import \"editor\" for _editor
 				}
 				for (var pin in node.pins)
 				{
-					if (pin.edge and pin.edge.pin0 == pin)
+					for (var edge in pin.edges)
 					{
-						var t_name = nil
-						for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
-							var f_bp = scene.nodes[f_idx].components["bp"]
-							if (f_bp == pin.edge.pin1.vert) {
-								t_name = "node%(f_idx)"
-							}
-						}
-						if (t_name) 
+						if (edge.pin0 == pin)
 						{
-							var f_pin = VertexShape.get_pin_name(pin.edge.pin0)
-							var t_pin = VertexShape.get_pin_name(pin.edge.pin1)
-							file.write("Network.connect(%(f_name), \"%(f_pin)\", %(t_name), \"%(t_pin)\")\n")
+							var t_name = nil
+							for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
+								var f_bp = scene.nodes[f_idx].components["bp"]
+								if (f_bp == edge.pin1.vert) {
+									t_name = "node%(f_idx)"
+								}
+							}
+							if (t_name) 
+							{
+								var f_pin = VertexShape.get_pin_name(edge.pin0)
+								var t_pin = VertexShape.get_pin_name(edge.pin1)
+								file.write("Network.connect(%(f_name), \"%(f_pin)\", %(t_name), \"%(t_pin)\")\n")
+							}
 						}
 					}
 				}

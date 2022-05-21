@@ -43,10 +43,6 @@ class ConnectPins is EditOP
 			// add new conn
 			if (pin != this.selected_pin and pin.vert != this.selected_pin.vert)
 			{
-				if (pin.edge) {
-					Network.disconnect(pin.edge)
-				}
-
 				Network.connect(this.selected_pin, pin)
 				this.scene_stack.bp_dirty = true
 			}
@@ -55,8 +51,12 @@ class ConnectPins is EditOP
 		{
 			// remove conns
 			var disconn = false
-			if (this.selected_pin.edge) {
-				Network.disconnect(this.selected_pin.edge)
+			var edges = this.selected_pin.edges
+			while (!edges.isEmpty)
+			{
+				Network.disconnect(edges.back())
+				edges.pop_back()
+
 				this.scene_stack.bp_dirty = true
 				disconn = true
 			}
@@ -76,7 +76,7 @@ class ConnectPins is EditOP
 		}
 
 		// new temp conn
-		if (!this.selected_pin.edge)
+		if (this.selected_pin.edges.isEmpty)
 		{
 			var p0 = VertexShape.calc_pin_pos(this.selected_pin)
 			if (!p0) {

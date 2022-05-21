@@ -50,8 +50,12 @@ class VertexShape
 			}
 		}
 
-		var e = pin.edge
-		if (!e or !e.pin0 or !e.pin1) {
+		if (pin.edges.isEmpty) {
+			return nil
+		}
+
+		var e = pin.edges.front()
+		if (!e.pin0 or !e.pin1) {
 			return nil
 		}
 
@@ -402,20 +406,27 @@ class VertexShape
 	{
 		import "network.network" for Network
 
+		var hori = true
+
 		var s = nil
 		var e = nil
 
-		var nodes = Network.neighbors(vert, PIN_ROD_START_IDX)
-		if (!nodes.isEmpty) {
-			s = nodes[0]
+		var pins = Network.neighbors_pins(vert, PIN_ROD_START_IDX)
+		if (!pins.isEmpty) {
+			s = pins[0]
 		}
-		nodes = Network.neighbors(vert, PIN_ROD_END_IDX)
-		if (!nodes.isEmpty) {
-			e = nodes[0]
+		pins = Network.neighbors_pins(vert, PIN_ROD_END_IDX)
+		if (!pins.isEmpty) {
+			e = pins[0]
 		}
 
-		var hori = true
-		if (s and e and Math.abs(s.pos.y - e.pos.y) > Math.abs(s.pos.x - e.pos.x)) {
+		if (!s or !e) {
+			return hori
+		}
+
+		var sp = this.calc_pin_pos(s)
+		var ep = this.calc_pin_pos(e)
+		if (Math.abs(sp.y - ep.y) > Math.abs(sp.x - ep.x)) {
 			hori = false
 		}
 
