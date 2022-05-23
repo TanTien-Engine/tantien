@@ -26,6 +26,8 @@ class Vertex
 
 		// fixme: update aabb
 		this.shape_rod_hori = true
+
+		this.params = []
 	}
 
 	get_size() 
@@ -71,7 +73,11 @@ class Vertex
 
 	to_string(name) 
 	{
-		return ""
+		var ret = ""
+		for (var p in this.params) {
+			ret = ret + p.to_string(name)
+		}
+		return ret
 	}
 
 	on_selected() { this.selected = true }
@@ -107,5 +113,15 @@ class Vertex
 		if (this.pin_dynamic) {
 			this.pins.remove(pin)
 		}
+	}
+
+	query_param(name)
+	{
+		for (var p in this.params) {
+			if (p.name == name) {
+				return p
+			}
+		}
+		return nil
 	}
 }
