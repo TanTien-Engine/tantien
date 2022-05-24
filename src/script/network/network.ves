@@ -50,13 +50,14 @@ class Network
 		pin0.vert.add_pin(pin0)
 		pin1.vert.add_pin(pin1)
 
-		pin0.vert.on_connection_changed()
-		pin1.vert.on_connection_changed()
-
 		var e = Edge(pin0, pin1)
 		pin0.edges.add(e)
 		pin1.edges.add(e)
 		e.update()
+
+		pin0.vert.on_connection_changed()
+		pin1.vert.on_connection_changed()
+
 		return e
 	}
 
