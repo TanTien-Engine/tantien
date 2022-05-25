@@ -615,9 +615,9 @@ class Editor
 		else if (node is TR_Node)
 		{
 			if (pin.is_child) {
-				pins = node.children
-			} else {
 				pins = [ node.parent ]
+			} else {
+				pins = node.children
 			}
 		}
 		for (var p in pins) 
