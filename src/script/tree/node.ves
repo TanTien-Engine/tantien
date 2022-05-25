@@ -1,0 +1,110 @@
+import "blueprint.node_style" for COL_PANEL_BG
+import "tree.node_shape" for NodeShape, SHAPE_CIRCLE
+import "tree.render" for Render
+import "maths.vector" for Vector2
+import "maths" for Float2
+
+class Node
+{
+	init()
+	{
+		this.shape = SHAPE_CIRCLE
+
+		this.parent = nil
+		this.children = []
+
+		this.pos = Vector2()
+
+		this.color = COL_PANEL_BG
+
+		this.params = []
+
+		this.selected = false
+	}
+
+	get_size() 
+	{
+		return NodeShape.calc_aabb(this)
+	}
+
+	update(mt)
+	{
+		var pos = Float2.init()
+		pos.transform(mt)
+		if (this.pos.x == pos.x() and this.pos.y == pos.y()) {
+			return
+		}
+		this.pos.x = pos.x()
+		this.pos.y = pos.y()
+
+		if (this.parent and this.parent.edge) {
+			this.parent.edge.update()
+		}
+		for (var c in this.children) {
+			if (c.edge) {
+				c.edge.update()
+			}
+		}
+	}
+
+	draw(mt, cam_mt)
+	{
+		Render.draw_node(this)
+	}
+
+	draw_gui(ctx) 
+	{
+	}
+
+	layout()
+	{
+		if (this.parent) {
+			this.parent.is_child = false
+			this.parent.slot_idx = 0
+		}
+		for (var i = 0; i < this.children.count; i = i + 1) {
+			this.children[i].is_child = true
+			this.children[i].slot_idx = i
+		}
+	}
+
+	to_string(name) 
+	{
+		var ret = ""
+		for (var p in this.params) {
+			ret = ret + p.to_string(name)
+		}
+		return ret
+	}
+
+	on_selected() { this.selected = true }
+	on_deselected() { this.selected = false }
+
+	on_key_pressed(key) {}
+	on_key_released(key) {}
+	on_mouse_pressed(x, y, btn) {}
+	on_mouse_released(x, y, btn) {}
+	on_mouse_moved(x, y, btn) {}
+	on_mouse_dragged(x, y, btn) {}
+	on_mouse_scrolled(x, y, dx, dy) {}
+
+	on_connection_changed() {}
+	
+	get_title()
+	{
+		return this.get_class().name
+	}
+
+	bind_editor() { return false }
+	draw_editor() {}
+
+	query_param(name)
+	{
+		for (var p in this.params) {
+			if (p.name == name) {
+				return p
+			}
+		}
+		return nil
+	}
+}

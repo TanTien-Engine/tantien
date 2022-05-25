@@ -1,0 +1,48 @@
+import "blueprint.node_layout" for CONNECTING_BEZIER_DIST
+import "tree.node_shape" for NodeShape
+import "maths.vector" for Vector2
+import "geometry" for Bezier
+import "math" for Math
+
+class Edge
+{
+	init(pin0, pin1)
+	{
+		this.pin0 = pin0
+		this.pin1 = pin1
+
+		this.curve = Bezier.init()
+	}
+
+	update()
+	{
+		this.update_curve()
+	}
+
+	update_curve()
+	{
+		var p0 = NodeShape.calc_pin_pos(this.pin0)
+		var p1 = NodeShape.calc_pin_pos(this.pin1)
+		if (p0.x > p1.x) {
+			Edge.build_curve(p1, p0, this.curve)
+		} else {
+			Edge.build_curve(p0, p1, this.curve)
+		}
+	}
+
+	clear()
+	{
+		this.pin0 = nil
+		this.pin1 = nil
+
+		this.curve = nil
+	}
+
+	static build_curve(p0, p1, curve)
+	{
+		var d = Math.abs(p1.x - p0.x) * CONNECTING_BEZIER_DIST
+		var v1 = Vector2(p0.x + d, p0.y)
+		var v2 = Vector2(p1.x - d, p1.y)
+		curve.set_ctrl_pos([p0.x, p0.y, v1.x, v1.y, v2.x, v2.y, p1.x, p1.y])
+	}
+}

@@ -28,6 +28,8 @@ import "network.vertex" for Vertex as NW_Vertex
 import "network.pin" for Pin as NW_Pin
 import "network.network" for Network
 import "network.vertex_shape" for VertexShape
+import "tree.node" for Node as TR_Node
+import "tree.tree" for Tree
 import "math" for Math
 import "rendergraph.nodes.texture" for Texture
 import "rendergraph.nodes.shader_code" for ShaderCode
@@ -471,6 +473,25 @@ class Editor
 							this.scene_stack.bp_dirty = true
 						}
 					}
+					else if (new_node is TR_Node)
+					{
+						if (this.prev_pin.is_child) 
+						{
+							var idx = this.query_matched_pin_idx(this.prev_pin, [ new_node.parent ])
+							if (idx >= 0) {
+								Tree.connect(this.prev_pin, new_node.parent)
+								this.scene_stack.bp_dirty = true
+							}
+						}
+						else
+						{
+							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.children)
+							if (idx >= 0) {
+								Tree.connect(new_node.children[idx], this.prev_pin)
+								this.scene_stack.bp_dirty = true
+							}
+						}
+					}
 					else
 					{
 						if (this.prev_pin.is_input) 
@@ -582,12 +603,23 @@ class Editor
 			return true
 		}
 
-		var pins
-		if (pin.is_input) {
-			pins = node.exports
-		} else {
-			pins = node.imports
-		}	
+		var pins = []
+		if (node is BP_Node)
+		{
+			if (pin.is_input) {
+				pins = node.exports
+			} else {
+				pins = node.imports
+			}
+		}
+		else if (node is TR_Node)
+		{
+			if (pin.is_child) {
+				pins = node.children
+			} else {
+				pins = [ node.parent ]
+			}
+		}
 		for (var p in pins) 
 		{
 			if (p.type == VAR_TYPE_ANY) {
@@ -904,6 +936,7 @@ import \"editor\" for _editor
 		// connections
 		var bp_nodes = []
 		var nw_nodes = []
+		var tr_nodes = []
 		for (var f_node in scene.nodes) 
 		{
 			var bp = f_node.components["bp"]
@@ -911,6 +944,8 @@ import \"editor\" for _editor
 				bp_nodes.add(bp)
 			} else if (bp is NW_Vertex) {
 				nw_nodes.add(bp)
+			} else if (bp is TR_Node) {
+				tr_nodes.add(bp)
 			}
 		}
 
@@ -977,6 +1012,32 @@ import \"editor\" for _editor
 						}
 					}
 				}
+			}
+		}
+
+		if (!tr_nodes.isEmpty)
+		{
+			for (var p_node in tr_nodes)
+			{
+				var p_name = nil
+				var p_idx = this.query_node_idx(scene.nodes, p_node)
+				if (p_idx >= 0) {
+					p_name = "node%(p_idx)"
+				}
+				for (var c_pin in p_node.children)
+				{
+					var edge = c_pin.edge
+					var c_name = nil
+					for (var c_idx = 0; c_idx < scene.nodes.count; c_idx = c_idx + 1) {
+						var c_node = scene.nodes[c_idx].components["bp"]
+						if (c_node == edge.pin1.node) {
+							c_name = "node%(c_idx)"
+						}
+					}
+					if (c_name) {
+						file.write("Tree.connect(%(p_name), \"%(edge.pin0.name)\", %(c_name), \"%(edge.pin1.name)\")\n")
+					}
+				}			
 			}
 		}
 

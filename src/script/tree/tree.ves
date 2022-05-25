@@ -1,0 +1,65 @@
+import "tree.edge" for Edge
+
+class Tree
+{
+	static connect(pin0, pin1)
+	{
+		if (pin0.is_child == pin1.is_child) {
+			return nil
+		}
+
+		var edge = nil
+		if (pin0.is_child) {
+			edge = Edge(pin0, pin1)
+		} else {
+			edge = Edge(pin1, pin0)
+		}
+
+		pin0.edge = edge
+		pin1.edge = edge
+		edge.update()
+
+		pin0.node.on_connection_changed()
+		pin1.node.on_connection_changed()
+
+		return edge
+	}
+
+	static disconnect(edge)
+	{
+		if (edge.pin0) 
+		{
+			edge.pin0.edge = nil
+			edge.pin0.node.on_connection_changed()
+		}
+
+		if (edge.pin1) 
+		{
+			edge.pin1.edge = nil
+			edge.pin1.node.on_connection_changed()
+		}
+
+		edge.clear()
+	}
+
+	static connect(node0, pin0, node1, pin1)
+	{
+		var p0 = nil
+		for (var c in node0.children) {
+			if (c.name == pin0) {
+				p0 = c
+			}
+		}
+
+		var p1 = nil
+		if (node1.parent.name == pin1) {
+			p1 = node1.parent
+		}
+
+		if (p0 and p1) {
+			return this.connect(p0, p1)		
+		} else {
+			return nil
+		}
+	}
+}

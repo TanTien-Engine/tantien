@@ -1,0 +1,64 @@
+import "maths.vector" for Vector2
+import "math" for Math
+
+var SHAPE_CIRCLE    = 0
+
+var SHAPE_CIRCLE_RADIUS = 20
+
+var PIN_RADIUS = 5
+
+class NodeShape
+{
+	static calc_pin_pos(pin)
+	{
+		var pos = Vector2()
+
+		if (pin.node.shape == SHAPE_CIRCLE)
+		{
+			var angle = 0
+			if (pin.is_child)
+			{
+				if (pin.slot_idx == 0) {
+					angle = -Math.pi() * 0.75
+				} else {
+					angle = -Math.pi() * 0.25
+				}
+			}
+			else
+			{
+				angle = Math.pi() * 0.5
+			}
+
+			var r = SHAPE_CIRCLE_RADIUS + PIN_RADIUS
+			var p = pin.node.pos
+			pos.x = p.x + r * Math.cos(angle)
+			pos.y = p.y + r * Math.sin(angle)
+		}
+
+		return pos
+	}
+
+
+	static calc_aabb(node)
+	{
+		var expand_sz = true
+
+		var size = nil
+		if (node.shape == SHAPE_CIRCLE)
+		{
+			var diam = SHAPE_CIRCLE_RADIUS * 2
+			size = Vector2(diam, diam)
+		}
+
+		if (!size) {
+			return nil
+		}
+
+		if (expand_sz) {
+			size.x = size.x + PIN_RADIUS * 4
+			size.y = size.y + PIN_RADIUS * 4
+		}
+
+		return size
+	}
+}

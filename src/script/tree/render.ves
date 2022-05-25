@@ -1,0 +1,83 @@
+import "blueprint.node_layout" for PIN_RADIUS
+import "blueprint.node_style" for TB_TITLE, TB_TITLE_V
+import "tree.node_shape" for NodeShape, SHAPE_CIRCLE, SHAPE_CIRCLE_RADIUS
+import "graphics" for Painter, Graphics
+
+class Render
+{
+	static draw_node(node)
+	{
+		this.draw_node_panel(node)
+
+		// todo: LOD
+		this.draw_node_pins(node)
+		this.draw_node_edge(node)
+	}
+
+	static draw_node_panel(node)
+	{
+		var pt = Painter.init()
+
+		var vertical = false
+		var dy = 0
+
+		if (node.shape == SHAPE_CIRCLE)
+		{
+			pt.add_circle_filled(nil, node.pos.x, node.pos.y, SHAPE_CIRCLE_RADIUS, node.color, 24)
+		}
+
+		Graphics.draw_painter(pt)
+
+		// todo: LOD
+		var tb = TB_TITLE
+		if (vertical) {
+			tb = TB_TITLE_V
+		}
+		Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + dy, 0.7, tb)
+	}
+
+	static draw_node_pins(node)
+	{
+		var pt = Painter.init()
+
+		this.draw_pin(pt, node.parent)
+		for (var c in node.children) {
+			this.draw_pin(pt, c)
+		}
+
+		Graphics.draw_painter(pt)
+	}
+
+	static draw_pin(pt, pin)
+	{
+		if (!pin) {
+			return
+		}
+
+		var pos = NodeShape.calc_pin_pos(pin)
+		if (pin.edge) {
+			pt.add_circle_filled(nil, pos.x, pos.y, PIN_RADIUS, pin.color, 12)		
+		} else {
+			pt.add_circle(nil, pos.x, pos.y, PIN_RADIUS, pin.color, 1.0, 12)
+		}
+	}
+
+	static draw_node_edge(node)
+	{
+		var pt = Painter.init()
+
+		if (node.parent and node.parent.edge) {
+			var e = node.parent.edge
+			pt.add_bezier(nil, e.curve, e.pin0.color, 2)
+		}
+		for (var c in node.children)
+		{
+			var e = c.edge
+			if (e) {
+				pt.add_bezier(nil, e.curve, e.pin0.color, 2)
+			}
+		}
+
+		Graphics.draw_painter(pt)
+	}
+}

@@ -1,0 +1,19 @@
+import "blueprint.node_style" for COL_PIN_PORT
+
+class Pin
+{
+	init(node, name, type)
+	{
+		this.node = node
+		this.name = name
+		this.type = type
+
+		this.edge = nil
+
+		// for calc pos
+		this.is_child = false
+		this.slot_idx = 0
+
+		this.color = COL_PIN_PORT
+	}
+}

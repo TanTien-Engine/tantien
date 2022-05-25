@@ -1,0 +1,149 @@
+import "blueprint.node_layout" for PIN_RADIUS
+import "tree.edge" for Edge
+import "tree.node" for Node
+import "tree.node_shape" for NodeShape
+import "tree.tree" for Tree
+import "editor.editop" for EditOP
+import "geometry" for Bezier
+import "graphics" for Painter, Graphics
+import "maths.vector" for Vector2
+import "maths.calc" for Calc
+
+class ConnectPins is EditOP
+{
+	init(cam, scene_stack, popup_cb)
+	{
+		this.camera = cam
+		this.scene_stack = scene_stack
+
+		this.selected_pin = nil
+		this.curve = Bezier.init()
+
+		this.popup_cb = popup_cb
+	}
+
+	on_mouse_press(x, y) 
+	{
+		var pos = this.camera.screen2world(Vector2(x, y))
+		var pin = this.query_pin_by_pos(pos, true)
+		if (pin) {
+			this.selected_pin = pin
+			this.curve = Bezier.init()
+		}
+	}
+
+	on_mouse_release(x, y) 
+	{
+		if (!this.selected_pin) {
+			return
+		}
+
+		var pos = this.camera.screen2world(Vector2(x, y))
+		var pin = this.query_pin_by_pos(pos, false)
+		if (pin)
+		{
+			// add new conn
+			if (pin != this.selected_pin and pin.node != this.selected_pin.node)
+			{
+				Tree.connect(this.selected_pin, pin)
+				this.scene_stack.bp_dirty = true
+			}
+		}
+		else
+		{
+			// remove conns
+			var disconn = false
+			var edge = this.selected_pin.edge
+			if (edge)
+			{
+				Tree.disconnect(edge)
+				this.selected_pin.edge = nil
+
+				this.scene_stack.bp_dirty = true
+				disconn = true
+			}
+
+			if (this.popup_cb and !disconn) {
+				this.popup_cb(x, y, this.selected_pin)
+			}
+		}
+
+		this.clear()
+	}
+
+	on_mouse_drag(x, y) 
+	{
+		if (!this.selected_pin) {
+			return
+		}
+
+		// new temp conn
+		if (!this.selected_pin.edge)
+		{
+			var p0 = NodeShape.calc_pin_pos(this.selected_pin)
+			if (!p0) {
+				p0 = this.selected_pin.node.pos
+			}
+
+			var p1 = this.camera.screen2world(Vector2(x, y))
+
+			if (p0.x > p1.x) {
+				Edge.build_curve(p1, p0, this.curve)
+			} else {
+				Edge.build_curve(p0, p1, this.curve)
+			}
+		}
+	}
+
+	draw()
+	{
+		if (!this.curve) {
+			return
+		}
+		
+		var pt = Painter.init()
+
+		pt.add_bezier(nil, this.curve, [255,0,0,255], 1)
+
+		Graphics.draw_painter(pt)
+	}
+
+	clear()
+	{
+		this.selected_pin = nil
+		this.curve = nil
+	}
+
+	query_pin_by_pos(pos, only_selection)
+	{
+		var nodes
+		var scene = this.scene_stack.top()
+		if (only_selection) {
+			nodes = scene.selection
+		} else {
+			nodes = scene.nodes
+		}
+		for (var node in nodes) 
+		{
+			var bp_node = node.components["bp"]
+			if (bp_node is Node) 
+			{
+				if (bp_node.parent)
+				{
+					var p_pos = NodeShape.calc_pin_pos(bp_node.parent)
+					if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+						return bp_node.parent
+					}
+				}
+				for (var pin in bp_node.children)
+				{
+					var p_pos = NodeShape.calc_pin_pos(pin)
+					if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+						return pin
+					}
+				}
+			}
+		}
+		return nil
+	}
+}
