@@ -1,6 +1,6 @@
-import "blueprint.node_layout" for PIN_RADIUS
+import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
 import "blueprint.node_style" for TB_TITLE, TB_TITLE_V
-import "tree.node_shape" for NodeShape, SHAPE_CIRCLE, SHAPE_CIRCLE_RADIUS
+import "tree.node_shape" for NodeShape, SHAPE_CIRCLE, SHAPE_CIRCLE_RADIUS, SHAPE_PANEL, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT
 import "graphics" for Painter, Graphics
 
 class Render
@@ -24,6 +24,15 @@ class Render
 		if (node.shape == SHAPE_CIRCLE)
 		{
 			pt.add_circle_filled(nil, node.pos.x, node.pos.y, SHAPE_CIRCLE_RADIUS, node.color, 24)
+		}
+		else if (node.shape == SHAPE_PANEL)
+		{
+			var x = node.pos.x - SHAPE_PANEL_WIDTH * 0.5
+			var y = node.pos.y - SHAPE_PANEL_HEIGHT * 0.5
+
+			pt.add_rect_filled(nil, [x, y, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT], node.color)
+
+			dy = (SHAPE_PANEL_HEIGHT - TITLE_HEIGHT) * 0.5 - PIN_RADIUS * 2
 		}
 
 		Graphics.draw_painter(pt)

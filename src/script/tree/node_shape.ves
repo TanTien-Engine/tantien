@@ -1,9 +1,13 @@
 import "maths.vector" for Vector2
 import "math" for Math
 
-var SHAPE_CIRCLE    = 0
+var SHAPE_CIRCLE = 0
+var SHAPE_PANEL	 = 1
 
 var SHAPE_CIRCLE_RADIUS = 20
+
+var SHAPE_PANEL_WIDTH  = 256
+var SHAPE_PANEL_HEIGHT = SHAPE_PANEL_WIDTH
 
 var PIN_RADIUS = 5
 
@@ -13,6 +17,7 @@ class NodeShape
 	{
 		var pos = Vector2()
 
+		var node_pos = pin.node.pos
 		if (pin.node.shape == SHAPE_CIRCLE)
 		{
 			var angle = 0
@@ -30,9 +35,24 @@ class NodeShape
 			}
 
 			var r = SHAPE_CIRCLE_RADIUS + PIN_RADIUS
-			var p = pin.node.pos
-			pos.x = p.x + r * Math.cos(angle)
-			pos.y = p.y + r * Math.sin(angle)
+			pos.x = node_pos.x + r * Math.cos(angle)
+			pos.y = node_pos.y + r * Math.sin(angle)
+		}
+		else if (pin.node.shape == SHAPE_PANEL)
+		{
+			if (pin.is_child)
+			{
+				var num = pin.node.children.count
+				var dx = SHAPE_PANEL_WIDTH / num
+				pos.x = node_pos.x - SHAPE_PANEL_WIDTH * 0.5 + (pin.slot_idx + 0.5) * dx
+
+				pos.y = node_pos.y - SHAPE_PANEL_HEIGHT * 0.5 + PIN_RADIUS * 2
+			}
+			else
+			{
+				pos.x = node_pos.x
+				pos.y = node_pos.y + SHAPE_PANEL_HEIGHT * 0.5 - PIN_RADIUS * 2
+			}
 		}
 
 		return pos
@@ -48,6 +68,11 @@ class NodeShape
 		{
 			var diam = SHAPE_CIRCLE_RADIUS * 2
 			size = Vector2(diam, diam)
+		}
+		else if (node.shape == SHAPE_PANEL)
+		{
+			expand_sz = false
+			size = Vector2(SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT)
 		}
 
 		if (!size) {
