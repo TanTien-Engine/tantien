@@ -1,5 +1,5 @@
 import "blueprint.node_layout" for TITLE_HEIGHT, PIN_RADIUS
-import "blueprint.node_style" for TB_TITLE, TB_TITLE_V
+import "blueprint.node_style" for TB_LEFT
 import "tree.node_shape" for NodeShape, SHAPE_CIRCLE, SHAPE_CIRCLE_RADIUS, SHAPE_PANEL, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT
 import "graphics" for Painter, Graphics
 
@@ -18,9 +18,8 @@ class Render
 	{
 		var pt = Painter.init()
 
-		var vertical = false
+		var dx = 70
 		var dy = 0
-
 		if (node.shape == SHAPE_CIRCLE)
 		{
 			pt.add_circle_filled(nil, node.pos.x, node.pos.y, SHAPE_CIRCLE_RADIUS, node.color, 24)
@@ -32,17 +31,13 @@ class Render
 
 			pt.add_rect_filled(nil, [x, y, SHAPE_PANEL_WIDTH, SHAPE_PANEL_HEIGHT], node.color)
 
-			dy = (SHAPE_PANEL_HEIGHT - TITLE_HEIGHT) * 0.5 - PIN_RADIUS * 2
+			dy = (SHAPE_PANEL_HEIGHT - TITLE_HEIGHT) * 0.5
 		}
 
 		Graphics.draw_painter(pt)
 
 		// todo: LOD
-		var tb = TB_TITLE
-		if (vertical) {
-			tb = TB_TITLE_V
-		}
-		Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + dy, 0.7, tb)
+		Graphics.draw_text(node.get_title(), node.pos.x + dx, node.pos.y + dy, 0.7, TB_LEFT)
 	}
 
 	static draw_node_pins(node)
