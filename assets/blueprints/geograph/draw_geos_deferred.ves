@@ -1,4 +1,5 @@
 var node0 = ::geograph::nodes::brush_to_gltf::BrushToGltf()
+node0.query_param("adjacencies").value = false
 
 _editor.add_node(node0, -233.2981122369, -246.77417200059)
 
@@ -28,6 +29,7 @@ node4.skip = false
 _editor.add_node(node4, 784.30380359571, -191.81447758435)
 
 var node5 = ::rendergraph::nodes::shader::Shader()
+node5.query_param("inc_dir").value = ""
 
 node5.vs = "
 #version 330 core
@@ -138,9 +140,9 @@ _editor.add_node(node5, 605.45756861689, -133.49176664733)
 var node6 = ::rendergraph::nodes::clear::Clear()
 
 node6.masks = [ "color", "depth" ]
-node6.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+node6.values = { "color" : [ 0, 0, 0, 0 ] }
 
-_editor.add_node(node6, 996.66028898274, 225.89512574204)
+_editor.add_node(node6, 769.17729517107, 294.19647127855)
 
 var node7 = ::blueprint::nodes::perspective::Perspective()
 
@@ -192,6 +194,7 @@ _editor.add_node(node15, 1006.2254582471, -601.81666748678)
 var node16 = ::rendergraph::nodes::texture::Texture()
 node16.query_param("unif_name").value = "u_tex"
 node16.gamma_correction = false
+node16.mipmap = false
 node16.init_texture(0, 0, "rgb")
 
 _editor.add_node(node16, 474.40405076971, -784.61954261786)
@@ -199,6 +202,7 @@ _editor.add_node(node16, 474.40405076971, -784.61954261786)
 var node17 = ::rendergraph::nodes::texture::Texture()
 node17.query_param("unif_name").value = "u_tex"
 node17.gamma_correction = false
+node17.mipmap = false
 node17.init_texture(0, 0, "r16f")
 
 _editor.add_node(node17, 720.05358296636, -779.70827458377)
@@ -206,6 +210,7 @@ _editor.add_node(node17, 720.05358296636, -779.70827458377)
 var node18 = ::rendergraph::nodes::texture::Texture()
 node18.query_param("unif_name").value = "u_tex"
 node18.gamma_correction = false
+node18.mipmap = false
 node18.init_texture(0, 0, "rgb16f")
 
 _editor.add_node(node18, 942.95412422541, -781.75098051994)
@@ -238,6 +243,7 @@ node22.skip = false
 _editor.add_node(node22, 1850.7890513854, -817.59943915683)
 
 var node23 = ::rendergraph::nodes::shader::Shader()
+node23.query_param("inc_dir").value = ""
 
 node23.vs = "
 #version 330 core
@@ -367,6 +373,7 @@ _editor.add_node(node28, 2532.6442579609, -820.59767915388)
 var node29 = ::rendergraph::nodes::texture::Texture()
 node29.query_param("unif_name").value = "u_tex"
 node29.gamma_correction = false
+node29.mipmap = false
 node29.init_texture(0, 0, "rgb")
 
 _editor.add_node(node29, 2169.5975193976, -1011.5945192769)
@@ -380,6 +387,7 @@ node30.skip = false
 _editor.add_node(node30, 2659.8492689063, -983.98777384766)
 
 var node31 = ::rendergraph::nodes::shader::Shader()
+node31.query_param("inc_dir").value = ""
 
 node31.vs = "
 #version 330 core
@@ -569,7 +577,7 @@ _editor.add_node(node50, -530.50628134814, 300.43876159183)
 
 var node51 = ::blueprint::nodes::branch_f::BranchF()
 
-_editor.add_node(node51, 103.40640258789, 445.70220947266)
+_editor.add_node(node51, 128.24325551026, 414.6561433197)
 
 var node52 = ::blueprint::nodes::input::Input()
 
@@ -638,6 +646,55 @@ node63.value = 3
 
 _editor.add_node(node63, -399.76329006827, 124.24425306656)
 
+var node64 = ::blueprint::nodes::input::Input()
+
+node64.var_name = "model"
+node64.var_type = "mat4"
+
+_editor.add_node(node64, 280.96244330514, 603.28062731543)
+
+var node65 = ::blueprint::nodes::subgraph::Subgraph()
+node65.load_from_file(_editor, "../tools/opt_value.ves")
+
+_editor.add_node(node65, 468.02582763672, 567.49682617188)
+
+var node66 = ::blueprint::nodes::matrix::Matrix()
+
+_editor.add_node(node66, 285.03167267401, 519.36319908558)
+
+var node67 = ::blueprint::nodes::number3::Number3()
+
+node67.value.set(0.25385114550591, 0.35385113954544, 0.36496224999428)
+
+_editor.add_node(node67, 59.653396606445, 748.71981201172)
+
+var node68 = ::blueprint::nodes::property::Property()
+
+node68.var_name = "no_bg"
+node68.var_type = "bool"
+
+_editor.add_node(node68, 767.35557890986, 421.60414954163)
+
+var node69 = ::rendergraph::nodes::clear::Clear()
+
+node69.masks = [ "color", "depth" ]
+node69.values = { "color" : [ 0.5, 0.5, 0.5, 1 ] }
+
+_editor.add_node(node69, 633.46477948575, 301.90323384557)
+
+var node70 = ::blueprint::nodes::branch::Branch()
+
+_editor.add_node(node70, 916.99616491947, 394.74632729775)
+
+Blueprint.connect(node68, "var", node70, "cond")
+Blueprint.connect(node6, "next", node70, "true")
+Blueprint.connect(node69, "next", node70, "false")
+Blueprint.connect(node70, "next", node10, "prev")
+Blueprint.connect(node3, "var", node10, "in")
+Blueprint.connect(node12, "next", node10, "do")
+Blueprint.connect(node67, "v3", node66, "scaling")
+Blueprint.connect(node64, "var", node65, "val")
+Blueprint.connect(node66, "mat", node65, "default")
 Blueprint.connect(node59, "v2", node62, "a")
 Blueprint.connect(node63, "v", node62, "b")
 Blueprint.connect(node52, "var", node53, "var")
@@ -691,9 +748,6 @@ Blueprint.connect(node51, "result", node14, "a")
 Blueprint.connect(node8, "mat", node14, "b")
 Blueprint.connect(node10, "out", node13, "geos")
 Blueprint.connect(node14, "v", node13, "mat")
-Blueprint.connect(node6, "next", node10, "prev")
-Blueprint.connect(node3, "var", node10, "in")
-Blueprint.connect(node12, "next", node10, "do")
 Blueprint.connect(node10, "out", node0, "brush")
 Blueprint.connect(node0, "inst_mats", node43, "in")
 Blueprint.connect(node43, "out", node44, "in")
@@ -702,6 +756,7 @@ Blueprint.connect(node40, "v", node41, "a")
 Blueprint.connect(node42, "v", node41, "b")
 Blueprint.connect(node44, "out", node45, "a")
 Blueprint.connect(node41, "out", node45, "b")
+Blueprint.connect(node64, "var", node5, "model")
 Blueprint.connect(node8, "mat", node5, "view")
 Blueprint.connect(node51, "result", node5, "projection")
 Blueprint.connect(node39, "var", node5, "offset")
