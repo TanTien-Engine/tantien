@@ -15,6 +15,13 @@ class Tree
 			edge = Edge(pin1, pin0)
 		}
 
+		if (pin0.edge) {
+			this.disconnect(pin0.edge)
+		}
+		if (pin1.edge) {
+			this.disconnect(pin1.edge)
+		}
+
 		pin0.edge = edge
 		pin1.edge = edge
 		edge.update()
