@@ -69,4 +69,20 @@ class Tree
 			return nil
 		}
 	}
+
+	static calc_input_value(pin)
+	{
+		if (!pin.edge) {
+			return nil
+		}
+
+		var other = nil
+		if (pin.edge.pin0.node == pin.node) {
+			other = pin.edge.pin1.node
+		} else {
+			other = pin.edge.pin0.node
+		}
+
+		return other.calc_value(0)
+	}
 }
