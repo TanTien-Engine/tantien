@@ -44,10 +44,14 @@ class EditOP
 			{
 				var node = scene.selection.front()
 				var bp_node = node.components["bp"]
-				for (var pin in bp_node.pins) {
-					if (pin.edge) {
-						Tree.disconnect(pin.edge)
-						pin.edge = nil
+				if (bp_node.parent and bp_node.parent.edge) {
+					Tree.disconnect(bp_node.parent.edge)
+					bp_node.parent.edge = nil
+				}
+				for (var c in bp_node.children) {
+					if (c.edge) {
+						Tree.disconnect(c.edge)
+						c.edge = nil
 					}
 				}
 				scene.delete(node)
