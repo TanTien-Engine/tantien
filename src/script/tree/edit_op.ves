@@ -44,24 +44,10 @@ class EditOP
 			{
 				var node = scene.selection.front()
 				var bp_node = node.components["bp"]
-				if (bp_node.pin_dynamic)
-				{
-					while (!bp_node.pins.isEmpty) 
-					{
-						var pin = bp_node.pins.front()
-						if (pin.edge) {
-							Tree.disconnect(pin.edge)
-							pin.edge = nil
-						}
-					}
-				}
-				else
-				{
-					for (var pin in bp_node.pins) {
-						if (pin.edge) {
-							Tree.disconnect(pin.edge)
-							pin.edge = nil
-						}
+				for (var pin in bp_node.pins) {
+					if (pin.edge) {
+						Tree.disconnect(pin.edge)
+						pin.edge = nil
 					}
 				}
 				scene.delete(node)
