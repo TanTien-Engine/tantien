@@ -1,5 +1,7 @@
 import "tree.edge" for Edge
 
+var PIN_DIRTY_TIMESTAMP = 0
+
 class Tree
 {
 	static connect(pin0, pin1)
@@ -29,6 +31,9 @@ class Tree
 		pin0.node.on_connection_changed()
 		pin1.node.on_connection_changed()
 
+		Tree.send_pin_dirty_root(pin0)
+		Tree.send_pin_dirty_root(pin1)
+
 		return edge
 	}
 
@@ -45,6 +50,9 @@ class Tree
 			edge.pin1.edge = nil
 			edge.pin1.node.on_connection_changed()
 		}
+
+		Tree.send_pin_dirty_root(edge.pin0)
+		Tree.send_pin_dirty_root(edge.pin1)
 
 		edge.clear()
 	}
@@ -84,5 +92,30 @@ class Tree
 		}
 
 		return other.calc_value(0)
+	}
+
+	static send_pin_dirty_root(pin)
+	{
+		if (pin) {
+			PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+			this.send_pin_dirty(pin)
+		}
+	}
+
+	static send_pin_dirty(pin)
+	{
+		if (!pin or pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
+			return
+		}
+
+		pin.dirty_timestamp = PIN_DIRTY_TIMESTAMP
+
+		pin.node.on_pin_dirty(pin)
+
+		if (pin.edge.pin0 == pin) {
+			this.send_pin_dirty(pin.edge.pin1)
+		} else {
+			this.send_pin_dirty(pin.edge.pin0)
+		}
 	}
 }
