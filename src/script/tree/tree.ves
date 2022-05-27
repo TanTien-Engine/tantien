@@ -118,4 +118,26 @@ class Tree
 			this.send_pin_dirty(pin.edge.pin0)
 		}
 	}
+
+	static get_successor_nodes(root)
+	{
+		var nodes = []
+
+		var buf = []
+		buf.add(root)
+		while (!buf.isEmpty)
+		{
+			var n = buf[buf.count - 1]
+			buf.removeAt(buf.count - 1)
+
+			nodes.add(n)
+			for (var pin in n.children) {
+				if (pin.edge) {
+					buf.add(pin.edge.pin1.node)
+				}
+			}
+		}
+
+		return nodes
+	}
 }
