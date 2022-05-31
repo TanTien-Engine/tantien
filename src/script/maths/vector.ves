@@ -24,9 +24,29 @@ class Vector2
 		this.y = y	
 	}
 
+	length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y)
+	}
+
+	normalize() 
+	{
+		var len = this.length()
+		if (len == 0) {
+			return
+		}
+		var s = 1.0 / len
+		this.x = this.x * s
+		this.y = this.y * s
+	}
+
 	add(v)
 	{
 		return Vector2(this.x + v.x, this.y + v.y)
+	}
+
+	mul(v)
+	{
+		return Vector2(this.x * v, this.y * v)
 	}
 
 	rotate(rad)
