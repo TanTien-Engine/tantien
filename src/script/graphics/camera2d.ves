@@ -18,10 +18,7 @@ class Camera2D
 
 	screen2world(screen) 
 	{
-		var proj = Vector2()
-		proj.x = (screen.x - this.size.x * 0.5)  * this.scale + this.pos.x
-		proj.y = (this.size.y * 0.5 - screen.y) * this.scale + this.pos.y
-		return proj
+		return Camera2D.screen2world(screen, this.size.x, this.size.y, this.scale, this.scale, this.pos.x, this.pos.y)
 	}
 
 	world2screen(project)
@@ -60,5 +57,13 @@ class Camera2D
 		this.scale = 1.0
 
 		Graphics.on_cam_update(this.pos.x, this.pos.y, this.scale)	
+	}
+
+	static screen2world(screen, screen_width, screen_height, scale_x, scale_y, pos_x, pos_y)
+	{
+		var proj = Vector2()
+		proj.x = (screen.x - screen_width * 0.5)  * scale_x + pos_x
+		proj.y = (screen_height * 0.5 - screen.y) * scale_y + pos_y
+		return proj
 	}
 }

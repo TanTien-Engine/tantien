@@ -1,7 +1,10 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2, VAR_TYPE_MATRIX4
 import "blueprint.blueprint" for Blueprint
+import "graphics.camera2d" for Camera2D
+import "maths.vector" for Vector2
+import "graphics" for Graphics
 
 class CoordTrans is Node
 {
@@ -10,7 +13,8 @@ class CoordTrans is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "screen", VAR_TYPE_NUMBER2),
+			Pin(this, "screen",  VAR_TYPE_NUMBER2),
+			Pin(this, "cam_mat", VAR_TYPE_MATRIX4),
 		]
 		this.exports = [
 			Pin(this, "world", VAR_TYPE_NUMBER2),
@@ -21,19 +25,25 @@ class CoordTrans is Node
 
 	calc_value(idx) 
 	{
-		if (idx == 0) 
-		{
-			var v_screen = Blueprint.calc_input_value(this, 0)
-			if (v_screen)
-			{
-				import "blueprint.blackboard" for BLACKBOARD
-				var pos = BLACKBOARD.editor_cam.screen2world(v_screen.value)
-				return Variant(pos)
-			}
-
-			retunr v_screen
+		var v_screen = Blueprint.calc_input_value(this, 0)
+		if (!v_screen) {
+			return nil
 		}
 
-		return nil
+		var v_mat = Blueprint.calc_input_value(this, 1)
+		if (v_mat)
+		{
+			var sw = Graphics.get_width()
+			var sh = Graphics.get_height()
+			var srt = v_mat.value.decompose()
+			var pos = Camera2D.screen2world(v_screen.value, sw, sh, 1.0 / srt[0], 1.0 / srt[1], -srt[6], -srt[7])
+			return Variant(pos)
+		}
+		else
+		{
+			import "blueprint.blackboard" for BLACKBOARD
+			var pos = BLACKBOARD.editor_cam.screen2world(v_screen.value)
+			return Variant(pos)
+		}
 	}
 }
