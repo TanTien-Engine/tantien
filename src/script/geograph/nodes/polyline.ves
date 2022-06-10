@@ -1,10 +1,11 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.nodes.array" for Array
-import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2, VAR_TYPE_MATRIX4
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
+import "blueprint.input_proxy" for InputProxy
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "geometry" for Polyline as tt_Polyline, Circle
@@ -19,6 +20,7 @@ class Polyline is Node
 
 		this.imports = [
 			Pin(this, "vertices", VAR_TYPE_ARRAY),
+			Pin(this, "cam_mat",  VAR_TYPE_MATRIX4),
 		]
 		this.exports = [
 			Pin(this, "geo", VAR_TYPE_GEO),
@@ -98,6 +100,7 @@ class Polyline is Node
 		}
 
 		Blueprint.connect(this.editor_polyline.exports[0], EDITOR.editor_node.imports[1])
+		Blueprint.connect(InputProxy(this, "cam_mat"), "out", EDITOR.editor_node, "cam_mat")
 
 		Blueprint.send_node_dirty_root(EDITOR.editor_node)
 

@@ -186,6 +186,27 @@ var node35 = ::blueprint::nodes::is_empty::IsEmpty()
 
 _editor.add_node(node35, -49.564910888672, -57.045883178711)
 
+var node36 = ::blueprint::nodes::input::Input()
+
+node36.var_name = "cam_mat"
+node36.var_type = "mat4"
+
+_editor.add_node(node36, -1198.1514892578, -538.16296386719)
+
+var node37 = ::blueprint::nodes::store::Store()
+
+node37.var_name = "cam_mat"
+
+_editor.add_node(node37, -1060.1514892578, -537.16296386719)
+
+var node38 = ::blueprint::nodes::load::Load()
+
+node38.var_name = "cam_mat"
+
+_editor.add_node(node38, -801.15148925781, -88.162963867188)
+
+Blueprint.connect(node36, "var", node37, "var")
+Blueprint.connect(node37, "var", node38, "var")
 Blueprint.connect(node26, "v", node34, "var")
 Blueprint.connect(node26, "v", node27, "var")
 Blueprint.connect(node27, "var", node32, "var")
@@ -224,6 +245,7 @@ Blueprint.connect(node35, "empty", node9, "cond")
 Blueprint.connect(node29, "next", node9, "true")
 Blueprint.connect(node31, "next", node9, "false")
 Blueprint.connect(node0, "pos", node2, "screen")
+Blueprint.connect(node38, "var", node2, "cam_mat")
 Blueprint.connect(node4, "out", node3, "geo")
 Blueprint.connect(node2, "world", node3, "pos")
 Blueprint.connect(node3, "out", node5, "cond")

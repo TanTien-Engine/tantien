@@ -4,7 +4,7 @@ _editor.add_node(node0, 499.04192784549, 112.39832751298)
 
 var node1 = ::editorgraph::nodes::mouse_left_drag::MouseLeftDrag()
 
-_editor.add_node(node1, -342.79535953848, 117.54465436458)
+_editor.add_node(node1, -361.80362400129, 119.19754692656)
 
 var node2 = ::editorgraph::nodes::coord_trans::CoordTrans()
 
@@ -40,7 +40,7 @@ _editor.add_node(node7, -767.35699860782, -68.776953930864)
 
 var node8 = ::editorgraph::nodes::trigger::Trigger()
 
-_editor.add_node(node8, 83.852868356008, 415.16633828801)
+_editor.add_node(node8, 84.679314637, 399.46385894917)
 
 var node9 = ::editorgraph::nodes::mouse_left_down::MouseLeftDown()
 
@@ -80,7 +80,7 @@ var node16 = ::blueprint::nodes::load::Load()
 
 node16.var_name = "tmp_last_pos"
 
-_editor.add_node(node16, -196.12480226627, 311.16313385766)
+_editor.add_node(node16, -196.12480226627, 300.41933220477)
 
 var node17 = ::blueprint::nodes::load::Load()
 
@@ -96,19 +96,26 @@ _editor.add_node(node18, 176.60247020879, -57.431907464652)
 
 var node19 = ::blueprint::nodes::assignment::Assignment()
 
-_editor.add_node(node19, 113.51455830919, 255.99968814583)
+_editor.add_node(node19, 87.894723598446, 272.52861376566)
 
 var node20 = ::blueprint::nodes::load::Load()
 
 node20.var_name = "tmp_last_pos"
 
-_editor.add_node(node20, -38.772848342531, 220.34163323358)
+_editor.add_node(node20, -64.392683053275, 236.87055885341)
 
 var node21 = ::blueprint::nodes::load::Load()
 
 node21.var_name = "last_pos"
 
-_editor.add_node(node21, -39.455851434301, 263.37146572011)
+_editor.add_node(node21, -65.075686145045, 279.90039133994)
+
+var node22 = ::blueprint::nodes::input::Input()
+
+node22.var_name = "cam_mat"
+node22.var_type = "mat4"
+
+_editor.add_node(node22, -363.77560987799, 213.39505537444)
 
 Blueprint.connect(node12, "v2", node13, "var")
 Blueprint.connect(node13, "var", node20, "var")
@@ -116,6 +123,7 @@ Blueprint.connect(node13, "var", node18, "var")
 Blueprint.connect(node13, "var", node17, "var")
 Blueprint.connect(node13, "var", node16, "var")
 Blueprint.connect(node9, "pos", node10, "screen")
+Blueprint.connect(node22, "var", node10, "cam_mat")
 Blueprint.connect(node10, "world", node11, "src")
 Blueprint.connect(node16, "var", node11, "dst")
 Blueprint.connect(node9, "event", node8, "event")
@@ -128,6 +136,7 @@ Blueprint.connect(node14, "var", node21, "var")
 Blueprint.connect(node21, "var", node19, "src")
 Blueprint.connect(node20, "var", node19, "dst")
 Blueprint.connect(node1, "pos", node2, "screen")
+Blueprint.connect(node22, "var", node2, "cam_mat")
 Blueprint.connect(node2, "world", node3, "a")
 Blueprint.connect(node17, "var", node3, "b")
 Blueprint.connect(node6, "var", node4, "geo")

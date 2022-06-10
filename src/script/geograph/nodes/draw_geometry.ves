@@ -18,10 +18,10 @@ class DrawGeometry is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "prev",   VAR_TYPE_PORT),
-			Pin(this, "geos", [ VAR_TYPE_NUMBER2, VAR_TYPE_RECT, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "color",  VAR_TYPE_NUMBER3),
-			Pin(this, "mat",    VAR_TYPE_MATRIX4),			
+			Pin(this, "prev",    VAR_TYPE_PORT),
+			Pin(this, "geos",  [ VAR_TYPE_NUMBER2, VAR_TYPE_RECT, VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "color",   VAR_TYPE_NUMBER3),
+			Pin(this, "cam_mat", VAR_TYPE_MATRIX4),
 		]
 		this.exports = [
 			Pin(this, "next", VAR_TYPE_PORT)

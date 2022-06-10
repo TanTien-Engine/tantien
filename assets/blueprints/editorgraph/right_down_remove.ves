@@ -135,6 +135,13 @@ var node25 = ::blueprint::nodes::list_clear::ListClear()
 
 _editor.add_node(node25, 215.49329451782, -243.28377904422)
 
+var node26 = ::blueprint::nodes::input::Input()
+
+node26.var_name = "cam_mat"
+node26.var_type = "mat4"
+
+_editor.add_node(node26, -409.45810869706, -238.76066198428)
+
 Blueprint.connect(node20, "var", node21, "var")
 Blueprint.connect(node21, "var", node22, "var")
 Blueprint.connect(node22, "var", node25, "list")
@@ -160,6 +167,7 @@ Blueprint.connect(node15, "v", node14, "src")
 Blueprint.connect(node19, "var", node14, "dst")
 Blueprint.connect(node10, "var", node11, "var")
 Blueprint.connect(node4, "pos", node5, "screen")
+Blueprint.connect(node26, "var", node5, "cam_mat")
 Blueprint.connect(node1, "out", node2, "geo")
 Blueprint.connect(node5, "world", node2, "pos")
 Blueprint.connect(node2, "out", node6, "cond")

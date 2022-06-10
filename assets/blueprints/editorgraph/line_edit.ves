@@ -6,7 +6,7 @@ _editor.add_node(node0, 61.371550906983, 310.56716721547)
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "translate_selected.ves")
 
-_editor.add_node(node1, 157.13605604289, -105.57805320918)
+_editor.add_node(node1, 119.36233157052, -31.878572299401)
 
 var node2 = ::blueprint::nodes::array::Array()
 node2.query_param("serialize").value = false
@@ -16,7 +16,7 @@ _editor.add_node(node2, -900.18953895969, 117.48656488237)
 var node3 = ::geograph::nodes::draw_geometry::DrawGeometry()
 node3.query_param("skip").value = false
 
-_editor.add_node(node3, 332.83907714468, 308.28525850186)
+_editor.add_node(node3, 376.64073003724, 307.45881222087)
 
 var node4 = ::blueprint::nodes::number3::Number3()
 
@@ -26,7 +26,7 @@ _editor.add_node(node4, 191.18156641058, 220.59465222878)
 
 var node5 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node5, -87.468170068428, 229.25711976798)
+_editor.add_node(node5, -88.129327093221, 303.30670654484)
 
 var node6 = ::blueprint::nodes::input::Input()
 
@@ -65,13 +65,13 @@ var node11 = ::blueprint::nodes::load::Load()
 
 node11.var_name = "p0"
 
-_editor.add_node(node11, -281.08525854694, 312.73261557334)
+_editor.add_node(node11, -229.26707672876, 329.09625193698)
 
 var node12 = ::blueprint::nodes::load::Load()
 
 node12.var_name = "p1"
 
-_editor.add_node(node12, -280.28364726926, 259.46809727692)
+_editor.add_node(node12, -228.46546545108, 275.83173364056)
 
 var node13 = ::blueprint::nodes::load::Load()
 
@@ -95,7 +95,7 @@ var node16 = ::blueprint::nodes::load::Load()
 
 node16.var_name = "selected"
 
-_editor.add_node(node16, -230.79003281222, -107.70423352239)
+_editor.add_node(node16, -87.73218157255, 52.130477221412)
 
 var node17 = ::geograph::nodes::line::Line()
 node17.query_param("x0").value = 0
@@ -114,8 +114,36 @@ _editor.add_node(node18, 26.655506480825, 622.47235107422)
 var node19 = ::blueprint::nodes::subgraph::Subgraph()
 node19.load_from_file(_editor, "left_down_select.ves")
 
-_editor.add_node(node19, 158.01872033306, -0.96080018809468)
+_editor.add_node(node19, 124.25463318054, 91.060236626331)
 
+var node20 = ::blueprint::nodes::input::Input()
+
+node20.var_name = "cam_mat"
+node20.var_type = "mat4"
+
+_editor.add_node(node20, -900.95218740416, 40.694442622917)
+
+var node21 = ::blueprint::nodes::store::Store()
+
+node21.var_name = "cam_mat"
+
+_editor.add_node(node21, -757.15053388107, 41.520888903909)
+
+var node22 = ::blueprint::nodes::load::Load()
+
+node22.var_name = "cam_mat"
+
+_editor.add_node(node22, -88.472877187176, 239.28947990985)
+
+var node23 = ::blueprint::nodes::load::Load()
+
+node23.var_name = "cam_mat"
+
+_editor.add_node(node23, -85.4293760602, 4.9748292712319)
+
+Blueprint.connect(node20, "var", node21, "var")
+Blueprint.connect(node21, "var", node23, "var")
+Blueprint.connect(node21, "var", node22, "var")
 Blueprint.connect(node7, "var", node10, "var")
 Blueprint.connect(node10, "var", node18, "var")
 Blueprint.connect(node10, "var", node12, "var")
@@ -128,12 +156,16 @@ Blueprint.connect(node9, "var", node11, "var")
 Blueprint.connect(node11, "var", node5, "in0")
 Blueprint.connect(node12, "var", node5, "in1")
 Blueprint.connect(node5, "list", node0, "geos")
+Blueprint.connect(node22, "var", node0, "cam_mat")
 Blueprint.connect(node2, "all", node14, "var")
 Blueprint.connect(node14, "var", node16, "var")
 Blueprint.connect(node5, "list", node19, "geos")
 Blueprint.connect(node16, "var", node19, "selected")
+Blueprint.connect(node23, "var", node19, "cam_mat")
 Blueprint.connect(node16, "var", node1, "selected")
+Blueprint.connect(node23, "var", node1, "cam_mat")
 Blueprint.connect(node14, "var", node15, "var")
 Blueprint.connect(node0, "next", node3, "prev")
 Blueprint.connect(node15, "var", node3, "geos")
 Blueprint.connect(node4, "v3", node3, "color")
+Blueprint.connect(node22, "var", node3, "cam_mat")

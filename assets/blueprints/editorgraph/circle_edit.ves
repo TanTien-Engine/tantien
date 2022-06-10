@@ -6,7 +6,7 @@ _editor.add_node(node0, 61.371550906983, 310.56716721547)
 var node1 = ::blueprint::nodes::subgraph::Subgraph()
 node1.load_from_file(_editor, "translate_selected.ves")
 
-_editor.add_node(node1, 865.53605604289, 75.921946790819)
+_editor.add_node(node1, 879.19632515019, 48.601408576216)
 
 var node2 = ::blueprint::nodes::array::Array()
 node2.query_param("serialize").value = false
@@ -26,7 +26,7 @@ _editor.add_node(node4, 191.18156641058, 220.59465222878)
 
 var node5 = ::blueprint::nodes::merge::Merge()
 
-_editor.add_node(node5, -87.468170068428, 229.25711976798)
+_editor.add_node(node5, -77.468170068428, 330.16621067707)
 
 var node6 = ::blueprint::nodes::input::Input()
 
@@ -64,7 +64,7 @@ var node11 = ::blueprint::nodes::output::Output()
 node11.var_name = "circle"
 node11.var_type = "geo"
 
-_editor.add_node(node11, 326.13886555501, 657.24333789576)
+_editor.add_node(node11, 317.33886555501, 663.84333789576)
 
 var node12 = ::blueprint::nodes::store::Store()
 
@@ -82,13 +82,13 @@ var node14 = ::blueprint::nodes::load::Load()
 
 node14.var_name = "center"
 
-_editor.add_node(node14, -281.08525854694, 312.73261557334)
+_editor.add_node(node14, -217.44889491058, 362.73261557334)
 
 var node15 = ::blueprint::nodes::load::Load()
 
 node15.var_name = "outer"
 
-_editor.add_node(node15, -280.28364726926, 259.46809727692)
+_editor.add_node(node15, -216.6472836329, 309.46809727692)
 
 var node16 = ::blueprint::nodes::load::Load()
 
@@ -150,7 +150,7 @@ _editor.add_node(node26, -92.096984218889, -149.46480860425)
 
 var node27 = ::editorgraph::nodes::coord_trans::CoordTrans()
 
-_editor.add_node(node27, -234.40296577149, -166.29404609783)
+_editor.add_node(node27, -235.50296577149, -111.29404609783)
 
 var node28 = ::blueprint::nodes::list_add::ListAdd()
 node28.query_param("unique").value = true
@@ -201,7 +201,7 @@ var node37 = ::blueprint::nodes::load::Load()
 
 node37.var_name = "selected"
 
-_editor.add_node(node37, -234.94623609811, -75.25528735957)
+_editor.add_node(node37, -234.94623609811, 20.44471264043)
 
 var node38 = ::blueprint::nodes::load::Load()
 
@@ -219,9 +219,52 @@ var node40 = ::blueprint::nodes::load::Load()
 
 node40.var_name = "center"
 
-_editor.add_node(node40, -233.9888596395, -122.84620270991)
+_editor.add_node(node40, -232.8888596395, -37.04620270991)
 
+var node41 = ::blueprint::nodes::input::Input()
+
+node41.var_name = "cam_mat"
+node41.var_type = "mat4"
+
+_editor.add_node(node41, -885.70138383345, 44.647781649499)
+
+var node42 = ::blueprint::nodes::store::Store()
+
+node42.var_name = "cam_mat"
+
+_editor.add_node(node42, -751.22084960938, 45.58117675781)
+
+var node43 = ::blueprint::nodes::load::Load()
+
+node43.var_name = "cam_mat"
+
+_editor.add_node(node43, -76.920886230468, 264.48121337891)
+
+var node44 = ::blueprint::nodes::load::Load()
+
+node44.var_name = "cam_mat"
+
+_editor.add_node(node44, -386.30976721319, -135.80193558578)
+
+var node45 = ::blueprint::nodes::load::Load()
+
+node45.var_name = "cam_mat"
+
+_editor.add_node(node45, 192.14159558771, 145.60358610618)
+
+var node46 = ::blueprint::nodes::load::Load()
+
+node46.var_name = "cam_mat"
+
+_editor.add_node(node46, 670.50269527556, 11.151602726057)
+
+Blueprint.connect(node41, "var", node42, "var")
+Blueprint.connect(node42, "var", node46, "var")
+Blueprint.connect(node42, "var", node45, "var")
+Blueprint.connect(node42, "var", node44, "var")
+Blueprint.connect(node42, "var", node43, "var")
 Blueprint.connect(node24, "pos", node27, "screen")
+Blueprint.connect(node44, "var", node27, "cam_mat")
 Blueprint.connect(node24, "event", node23, "event")
 Blueprint.connect(node31, "next", node23, "action")
 Blueprint.connect(node7, "var", node13, "var")
@@ -248,6 +291,7 @@ Blueprint.connect(node12, "var", node14, "var")
 Blueprint.connect(node14, "var", node5, "in0")
 Blueprint.connect(node15, "var", node5, "in1")
 Blueprint.connect(node5, "list", node0, "geos")
+Blueprint.connect(node43, "var", node0, "cam_mat")
 Blueprint.connect(node2, "all", node19, "var")
 Blueprint.connect(node19, "var", node38, "var")
 Blueprint.connect(node19, "var", node37, "var")
@@ -264,6 +308,7 @@ Blueprint.connect(node33, "var", node34, "add")
 Blueprint.connect(node19, "var", node22, "var")
 Blueprint.connect(node23, "next", node1, "prev")
 Blueprint.connect(node22, "var", node1, "selected")
+Blueprint.connect(node46, "var", node1, "cam_mat")
 Blueprint.connect(node19, "var", node21, "var")
 Blueprint.connect(node21, "var", node28, "list")
 Blueprint.connect(node39, "var", node28, "add")
@@ -274,3 +319,4 @@ Blueprint.connect(node19, "var", node20, "var")
 Blueprint.connect(node0, "next", node3, "prev")
 Blueprint.connect(node20, "var", node3, "geos")
 Blueprint.connect(node4, "v3", node3, "color")
+Blueprint.connect(node45, "var", node3, "cam_mat")
