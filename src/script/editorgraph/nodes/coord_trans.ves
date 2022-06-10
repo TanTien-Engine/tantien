@@ -36,7 +36,11 @@ class CoordTrans is Node
 			var sw = Graphics.get_width()
 			var sh = Graphics.get_height()
 			var srt = v_mat.value.decompose()
-			var pos = Camera2D.screen2world(v_screen.value, sw, sh, 1.0 / srt[0], 1.0 / srt[1], -srt[6], -srt[7])
+			var sx = srt[0]
+			var sy = srt[1]
+			var dx = srt[6] / sx
+			var dy = srt[7] / sy
+			var pos = Camera2D.screen2world(v_screen.value, sw, sh, 1.0 / sx, 1.0 / sy, -dx, -dy)
 			return Variant(pos)
 		}
 		else
