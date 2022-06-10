@@ -2,7 +2,8 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
+import "maths.vector" for Vector2
+import "gui" for GUI, MOUSE_RIGHT
 import "maths" for Matrix44
 import "graphics" for Graphics
 
@@ -23,6 +24,8 @@ class Camera2d is Node
 		this.scale = 1
 
 		this.speed = 0.01		
+
+		this.last_pos = nil
 	}
 
 	calc_value(idx)
@@ -80,6 +83,33 @@ class Camera2d is Node
 			this.x = 0
 			this.y = 0		
 			this.scale = 1.0
+		}
+	}
+
+	on_mouse_pressed(x, y, btn)
+	{
+		if (btn == MOUSE_RIGHT) {
+			this.last_pos = Vector2(x, y)
+		}
+	}
+
+	on_mouse_released(x, y, btn)
+	{
+		if (btn == MOUSE_RIGHT) {
+			this.last_pos = nil		
+		}
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		if (btn == MOUSE_RIGHT)
+		{
+			var dx = this.last_pos.x - x
+			var dy = y - this.last_pos.y
+			this.last_pos.set(x, y)
+
+			this.x = this.x + dx
+			this.y = this.y + dy
 		}
 	}
 
