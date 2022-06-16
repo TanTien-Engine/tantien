@@ -13,6 +13,7 @@ class Pi is Node
 			Pin(this, "pi/8", VAR_TYPE_NUMBER),		
 			Pin(this, "pi/6", VAR_TYPE_NUMBER),
 			Pin(this, "pi/4", VAR_TYPE_NUMBER),
+			Pin(this, "pi/3", VAR_TYPE_NUMBER),
 			Pin(this, "pi/2", VAR_TYPE_NUMBER),
 			Pin(this, "pi",   VAR_TYPE_NUMBER),
 			Pin(this, "pi*2", VAR_TYPE_NUMBER),
@@ -28,12 +29,14 @@ class Pi is Node
 		} else if (idx == 1) {
 			return Variant(VAR_TYPE_NUMBER, Math.pi() / 6)
 		} else if (idx == 2) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.25)
+			return Variant(VAR_TYPE_NUMBER, Math.pi() / 4)
 		} else if (idx == 3) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi() * 0.5)
+			return Variant(VAR_TYPE_NUMBER, Math.pi() / 3)
 		} else if (idx == 4) {
-			return Variant(VAR_TYPE_NUMBER, Math.pi())
+			return Variant(VAR_TYPE_NUMBER, Math.pi() / 2)
 		} else if (idx == 5) {
+			return Variant(VAR_TYPE_NUMBER, Math.pi())
+		} else if (idx == 6) {
 			return Variant(VAR_TYPE_NUMBER, Math.pi() * 2)
 		}
 
