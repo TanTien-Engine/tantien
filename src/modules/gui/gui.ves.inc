@@ -2,8 +2,9 @@
 static const char* guiModuleSource = QUOTE(
 
 // button
-var MOUSE_LEFT  = 1
-var MOUSE_RIGHT = 2
+var MOUSE_LEFT   = 1
+var MOUSE_RIGHT  = 2
+var MOUSE_MIDDLE = 3
 
 // action
 var MOUSE_DOWN = 0
@@ -32,7 +33,7 @@ foreign class GUI
 
 	foreign static on_size(w, h)
 	foreign static trans_scr_pos_to_proj(x, y, cam_x, cam_y, cam_scale)
-	// btn: MOUSE_LEFT, MOUSE_RIGHT
+	// btn: MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE
 	// action: MOUSE_DOWN, MOUSE_UP, MOUSE_MOVE, MOUSE_DRAG
 	foreign static mouse_input(ctx, btn, action, x, y, cam_x, cam_y, cam_scale)
 

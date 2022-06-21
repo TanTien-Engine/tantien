@@ -85,7 +85,8 @@ void w_GUI_trans_scr_pos_to_proj()
 enum MouseButton
 {
 	MOUSE_LEFT = 1,
-	MOUSE_RIGHT
+	MOUSE_RIGHT,
+	MOUSE_MIDDLE,
 };
 
 enum MouseAction
@@ -122,7 +123,7 @@ void w_GUI_mouse_input()
 			break;
 		}
 	}
-	break;
+		break;
 	case MOUSE_RIGHT:
 	{
 		switch (action)
@@ -132,6 +133,19 @@ void w_GUI_mouse_input()
 			break;
 		case MOUSE_UP:
 			ctx->input_events.emplace_back(egui::InputType::MOUSE_RIGHT_UP, (int)pos.x, (int)pos.y);
+			break;
+		}
+		break;
+	}
+	case MOUSE_MIDDLE:
+	{
+		switch (action)
+		{
+		case MOUSE_DOWN:
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_MIDDLE_DOWN, (int)pos.x, (int)pos.y);
+			break;
+		case MOUSE_UP:
+			ctx->input_events.emplace_back(egui::InputType::MOUSE_MIDDLE_UP, (int)pos.x, (int)pos.y);
 			break;
 		}
 		break;
