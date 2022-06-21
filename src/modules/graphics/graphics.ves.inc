@@ -31,6 +31,8 @@ foreign class Painter
 	foreign add_circle(mat, x, y, radius, color, line_width, num_segments)
 	foreign add_circle_filled(mat, x, y, radius, color, num_segments)
 
+	foreign add_arc(mat, x, y, radius, start_angle, end_angle, color, line_width, num_segments)
+
 	foreign add_bezier(mat, bezier, color, line_width)
 
 	foreign add_point3d(mat, p, color, size)

@@ -290,6 +290,28 @@ void w_Painter_add_circle_filled()
     pt->AddCircleFilled(center, r, col, seg);
 }
 
+void w_Painter_add_arc()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto mat = (sm::mat4*)ves_toforeign(1);
+
+    const float x = (float)ves_tonumber(2);
+    const float y = (float)ves_tonumber(3);
+    const float r = (float)ves_tonumber(4);
+    const float s = (float)ves_tonumber(5);
+    const float e = (float)ves_tonumber(6);
+    uint32_t col = tt::list_to_abgr(7);
+    const float width = (float)ves_tonumber(8);
+    const uint32_t seg = (uint32_t)ves_tonumber(9);
+
+    sm::vec2 center(x, y);
+    if (mat) {
+        center = *mat * center;
+    }
+
+    pt->AddArc(center, r, s, e, col, width, seg);
+}
+
 void w_Painter_add_bezier()
 {
     auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
@@ -646,6 +668,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "Painter.add_triangles_filled(_,_,_)") == 0) return w_Painter_add_triangles_filled;
     if (strcmp(signature, "Painter.add_circle(_,_,_,_,_,_,_)") == 0) return w_Painter_add_circle;
     if (strcmp(signature, "Painter.add_circle_filled(_,_,_,_,_,_)") == 0) return w_Painter_add_circle_filled;
+    if (strcmp(signature, "Painter.add_arc(_,_,_,_,_,_,_,_,_)") == 0) return w_Painter_add_arc;
     if (strcmp(signature, "Painter.add_bezier(_,_,_,_)") == 0) return w_Painter_add_bezier;
     // 3D
     if (strcmp(signature, "Painter.add_point3d(_,_,_,_)") == 0) return w_Painter_add_point3d;

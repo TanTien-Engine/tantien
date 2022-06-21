@@ -7,7 +7,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "geograph.brush" for BrushParts
 import "graphics" for Painter, Graphics
-import "geometry" for Line, Rect, Circle, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
+import "geometry" for Line, Rect, Circle, Arc, Polyline, Polygon, Box, Line3D, Polyline3D, Polygon3D
 import "maths.vector" for Vector2, Vector3
 import "maths.rect" for Rect as tt_Rect
 
@@ -118,6 +118,8 @@ class DrawGeometry is Node
 			this.draw_rect(pt, geo, col_array, mat)
 		} else if (shape is Circle) {
 			this.draw_circle(pt, geo, col_array, mat)
+		} else if (shape is Arc) {
+			this.draw_arc(pt, geo, col_array, mat)
 		} else if (shape is Polyline) {
 			this.draw_polyline(pt, geo, col_array, mat)
 		} else if (shape is Polygon) {
@@ -217,6 +219,24 @@ class DrawGeometry is Node
 		} else {
 			pt.add_circle(mat, center.x, center.y, radius, col, 2.0, 24)
 		}
+	}
+
+	draw_arc(pt, geo, col, mat)
+	{
+		var arc = geo.shape.get()
+
+		var center = Vector2(arc[0], arc[1])
+		center.rotate(geo.angle)
+		if (geo.pos) {
+			center.x = center.x + geo.pos[0]
+			center.y = center.y + geo.pos[1]
+		}
+
+		var radius      = arc[2]
+		var start_angle = arc[3]
+		var end_angle   = arc[4]
+
+		pt.add_arc(mat, center.x, center.y, radius, start_angle, end_angle, col, 2.0, 24)
 	}
 
 	draw_polyline(pt, geo, col, mat)
