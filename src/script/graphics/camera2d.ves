@@ -23,10 +23,7 @@ class Camera2D
 
 	world2screen(project)
 	{
-		var screen = Vector2()
-		screen.x = (project.x - this.pos.x) / this.scale + this.size.x * 0.5
-		screen.y = this.size.y * 0.5 - (project.y - this.pos.y) / this.scale
-		return screen
+		return Camera2D.world2screen(project, this.size.x, this.size.y, this.scale, this.scale, this.pos.x)
 	}
 
 	translate_cam(offset)
@@ -66,4 +63,12 @@ class Camera2D
 		proj.y = (screen_height * 0.5 - screen.y) * scale_y + pos_y
 		return proj
 	}
+
+	static world2screen(project, screen_width, screen_height, scale_x, scale_y, pos_x, pos_y)
+	{
+		var screen = Vector2()
+		screen.x = (project.x - pos_x) / scale_x + screen_width * 0.5
+		screen.y = screen_height * 0.5 - (project.y - pos_y) / scale_y
+		return screen
+	}	
 }
