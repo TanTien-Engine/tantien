@@ -55,9 +55,20 @@ void Graphics::OnCameraUpdate(const sm::vec2& offset, float scale)
     m_spr_rd->OnCameraUpdate(offset, scale);
 }
 
-void Graphics::DrawPainter(const tess::Painter& pt) const
+void Graphics::DrawPainter(const tess::Painter& pt, const sm::rect& region) const
 {
-    m_spr_rd->DrawPainter(*Render::Instance()->Context(), ur::DefaultRenderState2D(), pt);
+    auto rs = ur::DefaultRenderState2D();
+    if (region.IsValid())
+    {
+        rs.scissor_test.enabled = true;
+
+        int x = static_cast<int>(region.xmin);
+        int y = static_cast<int>(region.ymin);
+        int w = static_cast<int>(region.xmax - region.xmin);
+        int h = static_cast<int>(region.ymax - region.ymin);
+        rs.scissor_test.rect = ur::Rectangle(x, y, w, h);
+    }
+    m_spr_rd->DrawPainter(*Render::Instance()->Context(), rs, pt);
 }
 
 void Graphics::DrawText(const char* text, const sm::Matrix2D& mt, const gtxt_label_style& style) const

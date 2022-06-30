@@ -435,6 +435,18 @@ void w_Graphics_draw_painter()
     tt::Graphics::Instance()->DrawPainter(*pt);
 }
 
+void w_Graphics_draw_painter_regional()
+{
+    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
+    auto region = tt::list_to_array<float>(2);
+
+    float x = region[0];
+    float y = region[1];
+    float w = region[2];
+    float h = region[3];
+    tt::Graphics::Instance()->DrawPainter(*pt, sm::rect(x, y, x + w, y + h));
+}
+
 void w_Graphics_draw_text()
 {
     const char* text = ves_tostring(1);
@@ -680,6 +692,7 @@ VesselForeignMethodFn GraphicsBindMethod(const char* signature)
     if (strcmp(signature, "static Graphics.on_size(_,_)") == 0) return w_Graphics_on_size;
     if (strcmp(signature, "static Graphics.on_cam_update(_,_,_)") == 0) return w_Graphics_on_cam_update;
     if (strcmp(signature, "static Graphics.draw_painter(_)") == 0) return w_Graphics_draw_painter;
+    if (strcmp(signature, "static Graphics.draw_painter_regional(_,_)") == 0) return w_Graphics_draw_painter_regional;
     if (strcmp(signature, "static Graphics.draw_text(_,_,_,_,_)") == 0) return w_Graphics_draw_text;
     if (strcmp(signature, "static Graphics.draw_texture(_,_,_,_,_)") == 0) return w_Graphics_draw_texture;
     if (strcmp(signature, "static Graphics.draw_texture2(_,_)") == 0) return w_Graphics_draw_texture2;

@@ -69,6 +69,7 @@ foreign class Graphics
 	foreign static on_size(w, h)
 	foreign static on_cam_update(dx, dy, scale)
 	foreign static draw_painter(pt)
+	foreign static draw_painter_regional(pt, region)
 	foreign static draw_text(text, x, y, scale, textbox)
 	foreign static draw_texture(texture, pos, angle, scale, offset)
 	foreign static draw_texture2(texture, mat)
