@@ -51,6 +51,8 @@
 namespace
 {
 
+static const int SCREEN_SIZE = 1024;
+
 bool error = false;
 
 std::vector<std::string> search_paths;
@@ -373,7 +375,7 @@ void auto_test(const char* editor_path, const char* samples_path)
 {
     ves_init_vm();
 
-    tt_on_size(1024, 1024);
+    tt_on_size(SCREEN_SIZE, SCREEN_SIZE);
 
     VesselConfiguration cfg;
     cfg.load_module_fn = read_module;
@@ -464,7 +466,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     GLFWwindow *window;
-    if((window = glfwCreateWindow(512, 512, "screen_shot", 0, 0)) == 0) {
+    if((window = glfwCreateWindow(SCREEN_SIZE, SCREEN_SIZE, "screen_shot", 0, 0)) == 0) {
         std::cerr << "failed to open window" << std::endl;
         glfwTerminate();
         return 1;
