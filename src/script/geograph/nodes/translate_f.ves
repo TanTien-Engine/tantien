@@ -40,13 +40,13 @@ class TranslateF is Node
 		{
 			for (var p in v_xyz.value) {
 				var mat = this.calc_mat(p.value)
-				this.translate_impl(v_geo, mat, result)
+				this.translate_impl(v_geo, mat, p.value, result)
 			}
 		}
 		else
 		{
 			var mat = this.calc_mat(v_xyz.value)
-			this.translate_impl(v_geo, mat, result)
+			this.translate_impl(v_geo, mat, v_xyz.value, result)
 		}
 		
 		if (result.count == 0) {
@@ -76,19 +76,19 @@ class TranslateF is Node
 		return mat
 	}
 
-	translate_impl(v_geo, mat, result)
+	translate_impl(v_geo, mat, pos, result)
 	{
 		if (v_geo.type == VAR_TYPE_ARRAY) 
 		{
 			var list = []
 			for (var v in v_geo.value) {
-				this.translate_impl(v, mat, list)
+				this.translate_impl(v, mat, pos, list)
 			}
 			result.add(Variant(list))
 		} 
 		else if (v_geo.type == VAR_TYPE_GEO) 
 		{
-			result.add(this.translate_geo(v_geo.value, mat))
+			result.add(this.translate_geo(v_geo.value, mat, pos))
 		} 
 		else if (v_geo.type == VAR_TYPE_NUMBER3) 
 		{
@@ -96,15 +96,17 @@ class TranslateF is Node
 		}
 	}
 
-	translate_geo(geo, mat)
+	translate_geo(geo, mat, pos)
 	{
-		var new_brush = geo.clone()
-		if (new_brush.shape is Brush) {
-			new_brush.shape.transform(mat)
-		} else if (new_brush.shape is BrushInstanced) {
-			new_brush.shape.brush.transform(mat)
+		var new_geo = geo.clone()
+		if (new_geo.shape is Brush) {
+			new_geo.shape.transform(mat)
+		} else if (new_geo.shape is BrushInstanced) {
+			new_geo.shape.brush.transform(mat)
+		} else {
+			new_geo.shape.translate(pos.x, pos.y)
 		}
-		return Variant(VAR_TYPE_GEO, new_brush)
+		return Variant(VAR_TYPE_GEO, new_geo)
 	}
 
 	translate_num3(num3, mat)
