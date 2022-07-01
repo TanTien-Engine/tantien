@@ -1,5 +1,6 @@
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/TopoPolyAdapter.h"
+#include "modules/geometry/ShapeMaths.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 
@@ -1243,6 +1244,48 @@ void w_Ellipsoid_clone()
     proxy->obj = dst;
 }
 
+void w_ShapeMaths_scissor()
+{
+    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto rect = tt::list_to_array<float>(2);
+
+    auto shapes = tt::ShapeMaths::Scissor(src, sm::rect(rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]));
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)(shapes.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnil();
+
+        auto dst = shapes[i];
+        switch (dst->GetType())
+        {
+        case gs::ShapeType2D::Line:
+        {
+            ves_import_class("geometry", "Line");
+            auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Line2D>));
+            proxy->obj = std::static_pointer_cast<gs::Line2D>(dst);
+            ves_pop(1);
+            ves_seti(-2, i);
+        }
+            break;
+        case gs::ShapeType2D::Polyline:
+        {
+            ves_import_class("geometry", "Polyline");
+            auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polyline2D>));
+            proxy->obj = std::static_pointer_cast<gs::Polyline2D>(dst);
+            ves_pop(1);
+            ves_seti(-2, i);
+        }
+            break;
+        }
+
+        ves_pop(1);
+    }
+}
+
 }
 
 namespace tt
@@ -1340,6 +1383,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;
 
     if (strcmp(signature, "Ellipsoid.clone()") == 0) return w_Ellipsoid_clone;
+
+    if (strcmp(signature, "static ShapeMaths.scissor(_,_)") == 0) return w_ShapeMaths_scissor;
 
     return nullptr;
 }

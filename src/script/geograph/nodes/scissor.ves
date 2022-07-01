@@ -1,0 +1,89 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_RECT
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "maths.rect" for Rect as m_Rect
+import "geometry" for ShapeMaths
+import "geometry" for Rect as g_Rect
+
+class Scissor is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo",  [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "rect", [ VAR_TYPE_RECT, VAR_TYPE_GEO ]),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var v_rect = Blueprint.calc_input_value(this, 1)
+		if (!v_rect) {
+			return nil
+		}
+
+		var rect = nil
+		var r_val = v_rect.value
+		if (r_val is VarGeo) 
+		{
+			var s = r_val.shape
+			if (s is g_Rect) {
+				rect = s.get()
+			}
+		}
+		else if (r_val is m_Rect)
+		{
+			rect = [ r_val.x, r_val.y, r_val.w, r_val.h ]
+		}
+
+		if (!rect) {
+			return nil
+		}
+
+
+		var out = []
+		this.calc_scissor(v_geo, rect, out)
+		if (out.count == 1) {
+			return out[0]
+		} else {
+			return Variant(out)
+		}
+	}
+
+	calc_scissor(geo, rect, out)
+	{
+		if (geo.type == VAR_TYPE_ARRAY)
+		{
+			var list = []
+			for (var v in geo.value) {
+				this.calc_scissor(v, rect, list)
+			}
+			out.add(Variant(list))
+		}
+		else if (geo.type == VAR_TYPE_GEO)
+		{
+			var shape = geo.value.shape
+			var sub_shapes = ShapeMaths.scissor(shape, rect)
+			for (var s in sub_shapes)
+			{
+				var geo = VarGeo()
+				geo.shape = s
+				out.add(Variant(VAR_TYPE_GEO, geo))
+			}
+		}
+	}
+}

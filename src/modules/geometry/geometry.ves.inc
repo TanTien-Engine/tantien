@@ -304,4 +304,9 @@ foreign class Ellipsoid
 	foreign clone()
 }
 
+foreign class ShapeMaths
+{
+	foreign static scissor(shape, rect)
+}
+
 );
