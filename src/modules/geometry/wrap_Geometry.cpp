@@ -1312,6 +1312,23 @@ void w_ShapeMaths_expand()
         ves_pop(1);
     }
 }
+
+void w_ShapeMaths_extrude()
+{
+    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto dist = (float)ves_tonumber(2);
+
+    auto poly = tt::ShapeMaths::Extrude(src, dist);
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("geometry", "Polytope");
+    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
+    proxy->obj = poly;
+    ves_pop(1);
+}
+
 }
 
 namespace tt
@@ -1412,6 +1429,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
 
     if (strcmp(signature, "static ShapeMaths.scissor(_,_)") == 0) return w_ShapeMaths_scissor;
     if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
+    if (strcmp(signature, "static ShapeMaths.extrude(_,_)") == 0) return w_ShapeMaths_extrude;
 
     return nullptr;
 }

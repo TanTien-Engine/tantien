@@ -4,6 +4,11 @@
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
 #include <SM_Calc.h>
+#include <SM_Polyline.h>
+#include <SM_DouglasPeucker.h>
+
+// fixme
+#include "../../../../littleworld/citygen/Extrude.h"
 
 namespace
 {
@@ -13,6 +18,8 @@ bool is_pos_outside(const sm::vec2& pos, const sm::rect& rect)
 	return pos.x < rect.xmin || pos.x > rect.xmax
 		|| pos.y < rect.ymin || pos.y > rect.ymax;
 }
+
+const float POLYLINE_SIMPLIFY_PRECISION = 0.0001f;
 
 }
 
@@ -171,6 +178,31 @@ ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 		poly->SetVertices(fixed);
 
 		ret.push_back(poly);
+	}
+
+	return ret;
+}
+
+std::shared_ptr<pm3::Polytope>
+ShapeMaths::Extrude(const std::shared_ptr<gs::Shape2D>& shape, float dist)
+{
+	std::shared_ptr<pm3::Polytope> ret = nullptr;
+
+	switch (shape->GetType())
+	{
+	case gs::ShapeType2D::Polygon:
+	{
+		auto poly = std::static_pointer_cast<gs::Polygon2D>(shape);
+
+		auto verts = poly->GetVertices();
+		for (auto& v : verts) {
+			v *= 0.01f;
+		}
+		poly->SetVertices(verts);
+
+		ret = citygen::Extrude::Face(poly, dist);
+	}
+		break;
 	}
 
 	return ret;
