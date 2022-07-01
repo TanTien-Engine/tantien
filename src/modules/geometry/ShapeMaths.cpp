@@ -2,7 +2,8 @@
 
 #include <geoshape/Line2D.h>
 #include <geoshape/Polyline2D.h>
-#include <sm/SM_Calc.h>
+#include <geoshape/Polygon2D.h>
+#include <SM_Calc.h>
 
 namespace
 {
@@ -73,7 +74,7 @@ ShapeMaths::Scissor(const std::shared_ptr<gs::Shape2D>& shape, const sm::rect& r
 		}
 
 		std::vector<sm::vec2> new_verts;
-		for (int i = 0, n = verts.size(); i < n - 1; ++i)
+		for (size_t i = 0, n = verts.size(); i < n - 1; ++i)
 		{
 			auto& s = verts[i];
 			auto& e = verts[i + 1];
@@ -130,6 +131,46 @@ ShapeMaths::Scissor(const std::shared_ptr<gs::Shape2D>& shape, const sm::rect& r
 		}
 	}
 		break;
+	}
+
+	return ret;
+}
+
+std::vector<std::shared_ptr<gs::Shape2D>>
+ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
+{
+	std::vector<std::vector<sm::vec2>> loops;
+	switch (shape->GetType())
+	{
+	case gs::ShapeType2D::Line:
+	{
+		auto line = std::static_pointer_cast<gs::Line2D>(shape);
+		auto vertices = { line->GetStart(), line->GetEnd() };
+		loops = sm::polyline_expand(vertices, dist, false);
+	}
+		break;
+	case gs::ShapeType2D::Polyline:
+	{
+		auto polyline = std::static_pointer_cast<gs::Polyline2D>(shape);
+		auto& vertices = polyline->GetVertices();
+		bool is_closed = vertices.size() > 1 && vertices.front() == vertices.back();
+		loops = sm::polyline_expand(polyline->GetVertices(), dist, is_closed);
+	}
+		break;
+	}
+
+	std::vector<std::shared_ptr<gs::Shape2D>> ret;
+	for (auto& loop : loops) 
+	{
+		auto fixed = sm::douglas_peucker(loop, POLYLINE_SIMPLIFY_PRECISION);
+		if (fixed.size() <= 2) {
+			continue;
+		}
+
+		auto poly = std::make_shared<gs::Polygon2D>();
+		poly->SetVertices(fixed);
+
+		ret.push_back(poly);
 	}
 
 	return ret;

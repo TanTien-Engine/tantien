@@ -1,0 +1,71 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "blueprint.node_helper" for NodeHelper
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for ShapeMaths
+
+class PolyExpand is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "distance", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.params.add(NodeParam("distance", 0.0, { "region" : 10 }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var dist = NodeHelper.calc_prop_value(this, "distance")
+
+		var out = []
+		this.calc_expand(v_geo, dist, out)
+		if (out.count == 0) {
+			return nil
+		} else if (out.count == 1) {
+			return out[0]
+		} else {
+			return Variant(out)
+		}
+	}
+
+	calc_expand(geo, dist, out)
+	{
+		if (geo.type == VAR_TYPE_ARRAY)
+		{
+			var list = []
+			for (var v in geo.value) {
+				this.calc_expand(v, dist, list)
+			}
+			out.add(Variant(list))
+		}
+		else if (geo.type == VAR_TYPE_GEO)
+		{
+			var shape = geo.value.shape
+			var sub_shapes = ShapeMaths.expand(shape, dist)
+			for (var s in sub_shapes)
+			{
+				var geo = VarGeo()
+				geo.shape = s
+				out.add(Variant(VAR_TYPE_GEO, geo))
+			}
+		}
+	}
+}

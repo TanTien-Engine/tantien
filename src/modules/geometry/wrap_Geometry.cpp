@@ -1286,6 +1286,32 @@ void w_ShapeMaths_scissor()
     }
 }
 
+void w_ShapeMaths_expand()
+{
+    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto dist = (float)ves_tonumber(2);
+
+    auto shapes = tt::ShapeMaths::Expand(src, dist);
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)(shapes.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        assert(shapes[i]->GetType() == gs::ShapeType2D::Polygon);
+
+        ves_pushnil();
+
+        ves_import_class("geometry", "Polygon");
+        auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polygon2D>));
+        proxy->obj = std::static_pointer_cast<gs::Polygon2D>(shapes[i]);
+        ves_pop(1);
+        ves_seti(-2, i);
+
+        ves_pop(1);
+    }
+}
 }
 
 namespace tt
@@ -1385,6 +1411,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Ellipsoid.clone()") == 0) return w_Ellipsoid_clone;
 
     if (strcmp(signature, "static ShapeMaths.scissor(_,_)") == 0) return w_ShapeMaths_scissor;
+    if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
 
     return nullptr;
 }

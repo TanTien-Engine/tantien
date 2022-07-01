@@ -16,6 +16,8 @@ public:
 	static std::vector<std::shared_ptr<gs::Shape2D>> 
 		Scissor(const std::shared_ptr<gs::Shape2D>& shape, const sm::rect& rect);
 
+	static std::vector<std::shared_ptr<gs::Shape2D>>
+		Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist);
 }; // ShapeMaths
 
 }

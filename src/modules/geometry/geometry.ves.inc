@@ -307,6 +307,7 @@ foreign class Ellipsoid
 foreign class ShapeMaths
 {
 	foreign static scissor(shape, rect)
+	foreign static expand(shape, dist)
 }
 
 );
