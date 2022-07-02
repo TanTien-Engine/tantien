@@ -5,6 +5,7 @@
 #include <geoshape/Polygon2D.h>
 #include <SM_Calc.h>
 #include <SM_Polyline.h>
+#include <SM_DouglasPeucker.h>
 
 // fixme
 #include "../../../../littleworld/citygen/Extrude.h"
@@ -266,13 +267,16 @@ ShapeMaths::Extrude(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 		for (auto& v : verts) {
 			v *= 0.01f;
 		}
+		verts = sm::douglas_peucker(verts, SM_LARGE_EPSILON);
 		poly->SetVertices(verts);
 
 		auto holes = poly->GetHoles();
-		for (auto& hole : holes) {
+		for (auto& hole : holes) 
+		{
 			for (auto& v : hole) {
 				v *= 0.01f;
 			}
+			hole = sm::douglas_peucker(hole, SM_LARGE_EPSILON);
 		}
 		poly->SetHoles(holes);
 
