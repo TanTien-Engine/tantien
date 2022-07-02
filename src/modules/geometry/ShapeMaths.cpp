@@ -29,6 +29,26 @@ bool is_sampe_pos(const sm::vec2& p0, const sm::vec2& p1)
 	return d < POLYLINE_SIMPLIFY_PRECISION;
 }
 
+bool is_same_polyline(const std::vector<sm::vec2>& p0, const std::vector<sm::vec2>& p1)
+{
+	if (p0.size() != p1.size()) {
+		return false;
+	}
+
+	if (p0 == p1) {
+		return true;
+	}
+
+	for (int i = 0, n = p0.size(); i < n; ++i) {
+		auto d = sm::dis_pos_to_pos(p0[i], p1[i]);
+		if (d > SM_LARGE_EPSILON) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 std::vector<sm::vec2> clean_polyline(const std::vector<sm::vec2>& verts)
 {
 	std::vector<sm::vec2> ret;
@@ -405,20 +425,20 @@ ShapeMaths::Merge(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
 			{
 				std::vector<sm::vec2> part;
 				std::copy(old_verts.begin(), old_verts.begin() + new_verts.size(), std::back_inserter(part));
-				if (part == new_verts) {
+				if (is_same_polyline(part, new_verts)) {
 					is_part_of_old = true;
 				} else {
 					std::reverse(part.begin(), part.end());
-					if (part == new_verts) {
+					if (is_same_polyline(part, new_verts)) {
 						is_part_of_old = true;
 					} else {
 						part.clear();
 						std::copy(old_verts.rbegin(), old_verts.rbegin() + new_verts.size(), std::back_inserter(part));
-						if (part == new_verts) {
+						if (is_same_polyline(part, new_verts)) {
 							is_part_of_old = true;
 						} else {
 							std::reverse(part.begin(), part.end());
-							if (part == new_verts) {
+							if (is_same_polyline(part, new_verts)) {
 								is_part_of_old = true;
 							}
 						}
