@@ -243,9 +243,9 @@ ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 	}
 
 	auto poly = std::make_shared<gs::Polygon2D>();
-	poly->SetVertices(clean_polyline(clean_polyline(loops[0])));
+	poly->SetVertices(clean_polyline(loops[0]));
 	for (int i = 1, n = loops.size(); i < n; ++i) {
-		poly->AddHole(clean_polyline(clean_polyline(loops[i])));
+		poly->AddHole(clean_polyline(loops[i]));
 	}
 
 	return poly;
