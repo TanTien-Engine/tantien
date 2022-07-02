@@ -1244,13 +1244,8 @@ void w_Ellipsoid_clone()
     proxy->obj = dst;
 }
 
-void w_ShapeMaths_scissor()
+void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
 {
-    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
-    auto rect = tt::list_to_array<float>(2);
-
-    auto shapes = tt::ShapeMaths::Scissor(src, sm::rect(rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]));
-
     ves_pop(ves_argnum());
 
     const int num = (int)(shapes.size());
@@ -1262,13 +1257,52 @@ void w_ShapeMaths_scissor()
         auto dst = shapes[i];
         switch (dst->GetType())
         {
+        case gs::ShapeType2D::Point:
+        {
+            ves_import_class("geometry", "Point");
+            auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Point2D>));
+            proxy->obj = std::static_pointer_cast<gs::Point2D>(dst);
+            ves_pop(1);
+        }
+            break;
         case gs::ShapeType2D::Line:
         {
             ves_import_class("geometry", "Line");
             auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Line2D>));
             proxy->obj = std::static_pointer_cast<gs::Line2D>(dst);
             ves_pop(1);
-            ves_seti(-2, i);
+        }
+            break;
+        case gs::ShapeType2D::Rect:
+        {
+            ves_import_class("geometry", "Rect");
+            auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Rect>));
+            proxy->obj = std::static_pointer_cast<gs::Rect>(dst);
+            ves_pop(1);
+        }
+            break;
+        case gs::ShapeType2D::Circle:
+        {
+            ves_import_class("geometry", "Circle");
+            auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Circle>));
+            proxy->obj = std::static_pointer_cast<gs::Circle>(dst);
+            ves_pop(1);
+        }
+            break;
+        case gs::ShapeType2D::Arc:
+        {
+            ves_import_class("geometry", "Arc");
+            auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Arc>));
+            proxy->obj = std::static_pointer_cast<gs::Arc>(dst);
+            ves_pop(1);
+        }
+            break;
+        case gs::ShapeType2D::Ellipse:
+        {
+            ves_import_class("geometry", "Ellipse");
+            auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Ellipse>));
+            proxy->obj = std::static_pointer_cast<gs::Ellipse>(dst);
+            ves_pop(1);
         }
             break;
         case gs::ShapeType2D::Polyline:
@@ -1277,13 +1311,40 @@ void w_ShapeMaths_scissor()
             auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polyline2D>));
             proxy->obj = std::static_pointer_cast<gs::Polyline2D>(dst);
             ves_pop(1);
-            ves_seti(-2, i);
         }
             break;
+        case gs::ShapeType2D::Polygon:
+        {
+            ves_import_class("geometry", "Polygon");
+            auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polygon2D>));
+            proxy->obj = std::static_pointer_cast<gs::Polygon2D>(dst);
+            ves_pop(1);
+        }
+            break;
+        case gs::ShapeType2D::Bezier:
+        {
+            ves_import_class("geometry", "Bezier");
+            auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Bezier>));
+            proxy->obj = std::static_pointer_cast<gs::Bezier>(dst);
+            ves_pop(1);
+        }
+            break;
+        default:
+            assert(0);
         }
 
+        ves_seti(-2, i);
         ves_pop(1);
     }
+}
+
+void w_ShapeMaths_scissor()
+{
+    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto rect = tt::list_to_array<float>(2);
+
+    auto shapes = tt::ShapeMaths::Scissor(src, sm::rect(rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]));
+    return_shapes(shapes);
 }
 
 void w_ShapeMaths_expand()
@@ -1291,25 +1352,20 @@ void w_ShapeMaths_expand()
     auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto dist = (float)ves_tonumber(2);
 
-    auto shapes = tt::ShapeMaths::Expand(src, dist);
-
-    ves_pop(ves_argnum());
-
-    const int num = (int)(shapes.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
+    auto shape = tt::ShapeMaths::Expand(src, dist);
+    if (shape)
     {
-        assert(shapes[i]->GetType() == gs::ShapeType2D::Polygon);
+        ves_pop(ves_argnum());
 
         ves_pushnil();
-
         ves_import_class("geometry", "Polygon");
-        auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polygon2D>));
-        proxy->obj = std::static_pointer_cast<gs::Polygon2D>(shapes[i]);
+        auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<gs::Polygon2D>));
+        proxy->obj = std::static_pointer_cast<gs::Polygon2D>(shape);
         ves_pop(1);
-        ves_seti(-2, i);
-
-        ves_pop(1);
+    }
+    else 
+    {
+        ves_set_nil(0);
     }
 }
 
@@ -1327,6 +1383,15 @@ void w_ShapeMaths_extrude()
     auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
     proxy->obj = poly;
     ves_pop(1);
+}
+
+void w_ShapeMaths_merge()
+{
+    std::vector<std::shared_ptr<gs::Shape2D>> shapes;
+    tt::list_to_foreigns(1, shapes);
+
+    auto merged = tt::ShapeMaths::Merge(shapes);
+    return_shapes(merged);
 }
 
 }
@@ -1430,6 +1495,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "static ShapeMaths.scissor(_,_)") == 0) return w_ShapeMaths_scissor;
     if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
     if (strcmp(signature, "static ShapeMaths.extrude(_,_)") == 0) return w_ShapeMaths_extrude;
+    if (strcmp(signature, "static ShapeMaths.merge(_)") == 0) return w_ShapeMaths_merge;
 
     return nullptr;
 }

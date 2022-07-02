@@ -1,0 +1,61 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant_helper" for VariantHelper
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "geometry" for ShapeMaths
+
+class ShapeMerge is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return nil
+		}
+
+		var geos = VariantHelper.flatten_values(v_geo, VAR_TYPE_GEO)
+		var shapes = []
+		for (var geo in geos) 
+		{
+			var shape = geo.shape
+			if (!(shape is Brush)) {
+				shapes.add(shape)
+			}
+		}
+
+		var merged_shapes = ShapeMaths.merge(shapes)
+
+		var out = []
+		for (var shape in merged_shapes)
+		{
+			var geo = VarGeo()
+			geo.shape = shape
+			out.add(Variant(VAR_TYPE_GEO, geo))
+		}
+
+		if (out.count == 0) {
+			return nil
+		} else if (out.count == 1) {
+			return out[0]
+		} else {
+			return Variant(out)
+		}		
+	}
+}

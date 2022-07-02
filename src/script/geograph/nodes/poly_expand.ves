@@ -59,11 +59,11 @@ class PolyExpand is Node
 		else if (geo.type == VAR_TYPE_GEO)
 		{
 			var shape = geo.value.shape
-			var sub_shapes = ShapeMaths.expand(shape, dist)
-			for (var s in sub_shapes)
+			var polygon = ShapeMaths.expand(shape, dist)
+			if (polygon) 
 			{
 				var geo = VarGeo()
-				geo.shape = s
+				geo.shape = polygon
 				out.add(Variant(VAR_TYPE_GEO, geo))
 			}
 		}

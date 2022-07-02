@@ -17,10 +17,13 @@ public:
 	static std::vector<std::shared_ptr<gs::Shape2D>> 
 		Scissor(const std::shared_ptr<gs::Shape2D>& shape, const sm::rect& rect);
 
-	static std::vector<std::shared_ptr<gs::Shape2D>>
+	static std::shared_ptr<gs::Shape2D>
 		Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist);
 	static std::shared_ptr<pm3::Polytope>
 		Extrude(const std::shared_ptr<gs::Shape2D>& shape, float dist);
+
+	static std::vector<std::shared_ptr<gs::Shape2D>>
+		Merge(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes);
 
 }; // ShapeMaths
 

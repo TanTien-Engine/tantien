@@ -309,6 +309,7 @@ foreign class ShapeMaths
 	foreign static scissor(shape, rect)
 	foreign static expand(shape, dist)
 	foreign static extrude(shape, dist)
+	foreign static merge(shapes)
 }
 
 );
