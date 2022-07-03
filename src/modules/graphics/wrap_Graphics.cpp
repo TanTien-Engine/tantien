@@ -305,11 +305,16 @@ void w_Painter_add_arc()
     const uint32_t seg = (uint32_t)ves_tonumber(9);
 
     sm::vec2 center(x, y);
-    if (mat) {
+    float radius = r;
+    if (mat) 
+    {
         center = *mat * center;
+
+        auto r3 = sm::mat4(sm::mat3(*mat)) * sm::vec3(r, 0, 0);
+        radius = r3.x;
     }
 
-    pt->AddArc(center, r, s, e, col, width, seg);
+    pt->AddArc(center, radius, s, e, col, width, seg);
 }
 
 void w_Painter_add_bezier()
