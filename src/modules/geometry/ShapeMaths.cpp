@@ -3,6 +3,7 @@
 #include <geoshape/Line2D.h>
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
+#include <geoshape/Rect.h>
 #include <SM_Calc.h>
 #include <SM_Polyline.h>
 #include <SM_DouglasPeucker.h>
@@ -235,6 +236,19 @@ ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 			loops = sm::polyline_expand(fixed, dist, false);
 		}
 		assert(!loops.empty());
+	}
+		break;
+	case gs::ShapeType2D::Rect:
+	{
+		auto rect = std::static_pointer_cast<gs::Rect>(shape);
+		auto& r = rect->GetRect();
+		auto border = {
+			sm::vec2(r.xmin, r.ymin),
+			sm::vec2(r.xmax, r.ymin),
+			sm::vec2(r.xmax, r.ymax),
+			sm::vec2(r.xmin, r.ymax),
+		};
+		loops = sm::polyline_expand(border, dist, true);
 	}
 		break;
 	}
