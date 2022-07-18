@@ -71,6 +71,15 @@ std::vector<sm::vec2> clean_polyline(const std::vector<sm::vec2>& verts)
 	return ret;
 }
 
+std::vector<sm::vec2> prepare_polygon_loop(const std::vector<sm::vec2>& verts, bool is_border)
+{
+	auto fixed = clean_polyline(verts);
+	if (sm::is_polygon_clockwise(fixed) == is_border) {
+		std::reverse(fixed.begin(), fixed.end());
+	}
+	return fixed;
+}
+
 }
 
 namespace tt
@@ -258,9 +267,9 @@ ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 	}
 
 	auto poly = std::make_shared<gs::Polygon2D>();
-	poly->SetVertices(clean_polyline(loops[0]));
+	poly->SetVertices(prepare_polygon_loop(loops[0], true));
 	for (int i = 1, n = loops.size(); i < n; ++i) {
-		poly->AddHole(clean_polyline(loops[i]));
+		poly->AddHole(prepare_polygon_loop(loops[i], false));
 	}
 
 	return poly;

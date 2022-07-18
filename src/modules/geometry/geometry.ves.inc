@@ -256,7 +256,6 @@ foreign class PolyFace
 	foreign clone()
 
 	foreign get_normal()
-	foreign flip_normal()
 
 	foreign get_border()
 	foreign get_holes()

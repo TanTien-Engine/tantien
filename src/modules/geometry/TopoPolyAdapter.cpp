@@ -62,8 +62,6 @@ void TopoPolyAdapter::TransToPolymesh(std::vector<pm3::Polytope::PointPtr>& dst_
             curr_e = curr_e->next;
         } while (curr_e != first_e);
 
-        std::reverse(ret.begin(), ret.end());
-
         return ret;
     };
 
