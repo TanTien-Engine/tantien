@@ -135,6 +135,7 @@ foreign class Polyline is Shape2D
 	foreign get_closed()
 
 	foreign resample(length)
+	foreign calc_length()
 }
 
 foreign class Polygon is Shape2D

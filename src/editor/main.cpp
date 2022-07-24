@@ -37,6 +37,8 @@
 #include "pathtracer/src/pathtracer.ves.inc"
 #include "sketchlib/wrap_SketchLib.h"
 #include "sketchlib/sketchlib.ves.inc"
+#include "nurbslib/wrap_NurbsLib.h"
+#include "nurbslib/nurbslib.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -116,7 +118,8 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
         !strcmp(module, "pathtracer") == 0 &&
-        !strcmp(module, "sketchlib") == 0) {
+        !strcmp(module, "sketchlib") == 0 &&
+        !strcmp(module, "nurbslib") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -159,6 +162,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = pathtracerModuleSource;
     } else if (strcmp(module, "sketchlib") == 0) {
         source = sketchlibModuleSource;
+    } else if (strcmp(module, "nurbslib") == 0) {
+        source = nurbslibModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -301,6 +306,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     sketchlib::SketchLibBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    nurbslib::NurbsLibBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -366,6 +374,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = sketchlib::SketchLibBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = nurbslib::NurbsLibBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
