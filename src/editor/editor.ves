@@ -23,11 +23,13 @@ import "render" for Render, Framebuffer, RenderBuffer
 import "blueprint.nodes.commentary" for Commentary
 import "blueprint.nodes.subgraph" for Subgraph
 import "blueprint.nodes.viewport" for Viewport
+import "blueprint.pin" for Pin as BP_Pin
 import "blueprint.node" for Node as BP_Node
 import "network.vertex" for Vertex as NW_Vertex
 import "network.pin" for Pin as NW_Pin
 import "network.network" for Network
 import "network.vertex_shape" for VertexShape
+import "tree.pin" for Pin as TR_Pin
 import "tree.node" for Node as TR_Node
 import "tree.tree" for Tree
 import "math" for Math
@@ -604,7 +606,7 @@ class Editor
 		}
 
 		var pins = []
-		if (node is BP_Node)
+		if (pin is BP_Pin and node is BP_Node)
 		{
 			if (pin.is_input) {
 				pins = node.exports
@@ -612,7 +614,7 @@ class Editor
 				pins = node.imports
 			}
 		}
-		else if (node is TR_Node)
+		else if (pin is TR_Pin and node is TR_Node)
 		{
 			if (pin.is_child) {
 				pins = [ node.parent ]
