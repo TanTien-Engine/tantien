@@ -111,6 +111,14 @@ void w_Filesystem_is_file_exists()
     ves_set_boolean(0, exists);
 }
 
+void w_Filesystem_get_file_last_write_time()
+{
+    const char* path = ves_tostring(1);
+    struct stat attr;
+    stat(path, &attr);
+    ves_set_number(0, attr.st_mtime);
+}
+
 }
 
 namespace tt
@@ -128,6 +136,7 @@ VesselForeignMethodFn FilesystemBindMethod(const char* signature)
     if (strcmp(signature, "static Filesystem.get_directory_files(_)") == 0) return w_Filesystem_get_directory_files;
     if (strcmp(signature, "static Filesystem.remove_file(_)") == 0) return w_Filesystem_remove_file;
     if (strcmp(signature, "static Filesystem.is_file_exists(_)") == 0) return w_Filesystem_is_file_exists;
+    if (strcmp(signature, "static Filesystem.get_file_last_write_time(_)") == 0) return w_Filesystem_get_file_last_write_time;
 
     return NULL;
 }
