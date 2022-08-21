@@ -130,6 +130,21 @@
     <Filter Include="modules\3rd\nurbslib">
       <UniqueIdentifier>{312ce253-6dd6-4ab2-b0b4-663e34d0b902}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\3rd\partlib">
+      <UniqueIdentifier>{d5e40e5d-9fb4-44ce-abc8-877e5a271c6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\partlib\script">
+      <UniqueIdentifier>{01702a1c-7044-48c5-a445-3ddd2354748f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\partlib\data">
+      <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\loggraph">
+      <UniqueIdentifier>{f0416104-9fcb-4d3f-afff-d93d2071bfcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\loggraph\script">
+      <UniqueIdentifier>{8253eef3-5449-4fe7-9fa2-c0f555ad5ea8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -344,6 +359,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp">
       <Filter>modules\3rd\nurbslib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partlib\wrap_PartLib.cpp">
+      <Filter>modules\3rd\partlib\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp">
+      <Filter>modules\3rd\loggraph\script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -572,9 +593,6 @@
     <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\SubSystem.h">
       <Filter>modules\3rd\sketchlib\external\PlaneGCS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Util.h">
-      <Filter>modules\3rd\sketchlib\external\PlaneGCS</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\sketchlib\wrap_SketchLib.h">
       <Filter>modules\3rd\sketchlib\script</Filter>
     </ClInclude>
@@ -595,6 +613,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h">
       <Filter>modules\3rd\nurbslib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partlib\wrap_PartLib.h">
+      <Filter>modules\3rd\partlib\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partlib\TopoShape.h">
+      <Filter>modules\3rd\partlib\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Util.h">
+      <Filter>modules\3rd\sketchlib\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.h">
+      <Filter>modules\3rd\loggraph\script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -657,6 +687,12 @@
     </None>
     <None Include="..\..\..\..\cax\nurbslib\nurbslib.ves.inc">
       <Filter>modules\3rd\nurbslib</Filter>
+    </None>
+    <None Include="..\..\..\..\cax\partlib\partlib.ves.inc">
+      <Filter>modules\3rd\partlib\script</Filter>
+    </None>
+    <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc">
+      <Filter>modules\3rd\loggraph\script</Filter>
     </None>
   </ItemGroup>
 </Project>
