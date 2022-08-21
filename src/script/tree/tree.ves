@@ -31,8 +31,9 @@ class Tree
 		pin0.node.on_connection_changed()
 		pin1.node.on_connection_changed()
 
-		Tree.send_pin_dirty_root(pin0)
-		Tree.send_pin_dirty_root(pin1)
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+		this.send_pin_dirty(pin0)
+		this.send_pin_dirty(pin1)
 
 		return edge
 	}
@@ -51,8 +52,9 @@ class Tree
 			edge.pin1.node.on_connection_changed()
 		}
 
-		Tree.send_pin_dirty_root(edge.pin0)
-		Tree.send_pin_dirty_root(edge.pin1)
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+		this.send_pin_dirty(edge.pin0)
+		this.send_pin_dirty(edge.pin1)
 
 		edge.clear()
 	}

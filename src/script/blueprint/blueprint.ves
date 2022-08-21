@@ -115,6 +115,8 @@ class Blueprint
 
 	static connect(from, to)
 	{
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+
 		// input pin only has one conn
 		if (!to.conns.isEmpty) 
 		{
@@ -126,7 +128,7 @@ class Blueprint
 
 			conn.from.node.on_disconnected(conn.from)
 
-			Blueprint.send_pin_dirty_root(conn.from)
+			this.send_pin_dirty(conn.from)
 		}
 
 		var conn = Connecting(from, to)
@@ -137,8 +139,8 @@ class Blueprint
 		from.node.on_connected(from)
 		to.node.on_connected(to)
 
-		Blueprint.send_pin_dirty_root(from)
-		Blueprint.send_pin_dirty_root(to)
+		this.send_pin_dirty(from)
+		this.send_pin_dirty(to)
 
 		return conn
 	}
@@ -184,8 +186,9 @@ class Blueprint
 		conn.from.node.on_disconnected(conn.from)
 		conn.to.node.on_disconnected(conn.to)
 
-		Blueprint.send_pin_dirty_root(conn.from)
-		Blueprint.send_pin_dirty_root(conn.to)
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+		this.send_pin_dirty(conn.from)
+		this.send_pin_dirty(conn.to)
 	}
 
 	static get_input_pin(curr_node, input_slot)
