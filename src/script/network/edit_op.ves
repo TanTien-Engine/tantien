@@ -4,6 +4,7 @@ import "editor.operators.cam2d_zoom" for Cam2dZoom
 import "editor.operators.cam2d_translate" for Cam2dTranslate
 import "network.connect_pins" for ConnectPins
 import "network.network" for Network
+import "network.vertex" for Vertex
 
 class EditOP
 {
@@ -43,25 +44,28 @@ class EditOP
 			while (!scene.selection.isEmpty)
 			{
 				var node = scene.selection.front()
-				var bp_node = node.components["bp"]
-				if (bp_node.pin_dynamic)
+				if (node is Vertex)
 				{
-					while (!bp_node.pins.isEmpty) 
+					var bp_node = node.components["bp"]
+					if (bp_node.pin_dynamic)
 					{
-						var pin = bp_node.pins.front()
-						while (!pin.edges.isEmpty) {
-							Network.disconnect(pin.edges.back())
-							pin.edges.pop_back()
+						while (!bp_node.pins.isEmpty) 
+						{
+							var pin = bp_node.pins.front()
+							while (!pin.edges.isEmpty) {
+								Network.disconnect(pin.edges.back())
+								pin.edges.pop_back()
+							}
 						}
 					}
-				}
-				else
-				{
-					for (var pin in bp_node.pins) 
+					else
 					{
-						while (!pin.edges.isEmpty) {
-							Network.disconnect(pin.edges.back())
-							pin.edges.pop_back()
+						for (var pin in bp_node.pins) 
+						{
+							while (!pin.edges.isEmpty) {
+								Network.disconnect(pin.edges.back())
+								pin.edges.pop_back()
+							}
 						}
 					}
 				}
