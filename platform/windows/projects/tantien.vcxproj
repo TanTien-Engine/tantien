@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partlib\wrap_PartLib.cpp" />
     <ClCompile Include="..\..\..\..\cax\sketchlib\Scene.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/sketchlib/</ObjectFileName>
@@ -31,7 +35,10 @@
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\Geo.cpp" />
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\qp_eq.cpp" />
     <ClCompile Include="..\..\..\..\cax\thirdparty\PlaneGCS\SubSystem.cpp" />
-    <ClCompile Include="..\..\..\..\littleworld\archgen\MeshBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\littleworld\archgen\MeshBuilder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\archgen\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\archgen\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\archgen\PolytopeTools.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\archgen\RoofEditor.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\archgen\RoofSkeleton.cpp" />
@@ -102,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h" />
     <ClInclude Include="..\..\..\..\cax\partlib\TopoShape.h" />
     <ClInclude Include="..\..\..\..\cax\partlib\wrap_PartLib.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />
