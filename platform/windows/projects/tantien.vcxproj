@@ -24,7 +24,7 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\partlib\wrap_PartLib.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.cpp" />
     <ClCompile Include="..\..\..\..\cax\sketchlib\Scene.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/sketchlib/</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/sketchlib/</ObjectFileName>
@@ -64,6 +64,7 @@
     <ClCompile Include="..\..\..\..\littleworld\globegen\VTexBuilder.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Mesh.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Scene.cpp">
@@ -110,8 +111,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h" />
-    <ClInclude Include="..\..\..\..\cax\partlib\TopoShape.h" />
-    <ClInclude Include="..\..\..\..\cax\partlib\wrap_PartLib.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoShape.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Geometry.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Scene.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Node.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.h" />
     <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Light.h" />
     <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Material.h" />
@@ -200,14 +202,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\cax\nurbslib\nurbslib.ves.inc" />
-    <None Include="..\..\..\..\cax\partlib\partlib.ves.inc" />
+    <None Include="..\..\..\..\cax\partgraph_c\partgraph.ves.inc" />
     <None Include="..\..\..\..\cax\sketchlib\sketchlib.ves.inc" />
     <None Include="..\..\..\..\littleworld\archgen\archgen.ves.inc" />
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\ImageTools.inl" />
     <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc" />
-    <None Include="..\..\..\..\tt\analysis\loggraph_c\Node.cpp" />
     <None Include="..\..\..\..\tt_sim\pathtracer\src\pathtracer.ves.inc" />
     <None Include="..\..\..\src\modules\filesystem\filesystem.ves.inc" />
     <None Include="..\..\..\src\modules\geometry\geometry.ves.inc" />

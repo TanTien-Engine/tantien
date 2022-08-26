@@ -130,15 +130,6 @@
     <Filter Include="modules\3rd\nurbslib">
       <UniqueIdentifier>{312ce253-6dd6-4ab2-b0b4-663e34d0b902}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\partlib">
-      <UniqueIdentifier>{d5e40e5d-9fb4-44ce-abc8-877e5a271c6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\partlib\script">
-      <UniqueIdentifier>{01702a1c-7044-48c5-a445-3ddd2354748f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\partlib\data">
-      <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\3rd\loggraph">
       <UniqueIdentifier>{f0416104-9fcb-4d3f-afff-d93d2071bfcb}</UniqueIdentifier>
     </Filter>
@@ -147,6 +138,15 @@
     </Filter>
     <Filter Include="modules\3rd\loggraph\data">
       <UniqueIdentifier>{9a66c5dd-8e7d-4a84-9e17-19dc9ac57f97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\partgraph">
+      <UniqueIdentifier>{d5e40e5d-9fb4-44ce-abc8-877e5a271c6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\partgraph\script">
+      <UniqueIdentifier>{01702a1c-7044-48c5-a445-3ddd2354748f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\partgraph\data">
+      <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -363,14 +363,20 @@
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp">
       <Filter>modules\3rd\nurbslib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\partlib\wrap_PartLib.cpp">
-      <Filter>modules\3rd\partlib\script</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp">
       <Filter>modules\3rd\loggraph\script</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp">
       <Filter>modules\3rd\loggraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp">
+      <Filter>modules\3rd\loggraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
+      <Filter>modules\3rd\partgraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.cpp">
+      <Filter>modules\3rd\partgraph\script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -620,12 +626,6 @@
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h">
       <Filter>modules\3rd\nurbslib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\partlib\wrap_PartLib.h">
-      <Filter>modules\3rd\partlib\script</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\partlib\TopoShape.h">
-      <Filter>modules\3rd\partlib\data</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\thirdparty\PlaneGCS\Util.h">
       <Filter>modules\3rd\sketchlib\script</Filter>
     </ClInclude>
@@ -637,6 +637,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h">
       <Filter>modules\3rd\loggraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h">
+      <Filter>modules\3rd\loggraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h">
+      <Filter>modules\3rd\partgraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoShape.h">
+      <Filter>modules\3rd\partgraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h">
+      <Filter>modules\3rd\partgraph\script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -700,14 +712,11 @@
     <None Include="..\..\..\..\cax\nurbslib\nurbslib.ves.inc">
       <Filter>modules\3rd\nurbslib</Filter>
     </None>
-    <None Include="..\..\..\..\cax\partlib\partlib.ves.inc">
-      <Filter>modules\3rd\partlib\script</Filter>
-    </None>
     <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc">
       <Filter>modules\3rd\loggraph\script</Filter>
     </None>
-    <None Include="..\..\..\..\tt\analysis\loggraph_c\Node.cpp">
-      <Filter>modules\3rd\loggraph\data</Filter>
+    <None Include="..\..\..\..\cax\partgraph_c\partgraph.ves.inc">
+      <Filter>modules\3rd\partgraph\script</Filter>
     </None>
   </ItemGroup>
 </Project>
