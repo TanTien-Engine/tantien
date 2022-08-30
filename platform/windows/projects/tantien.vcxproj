@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAlgo.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.cpp" />
     <ClCompile Include="..\..\..\..\cax\sketchlib\Scene.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/sketchlib/</ObjectFileName>
@@ -110,7 +112,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAlgo.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoShape.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />

@@ -39,8 +39,8 @@
 #include "sketchlib/sketchlib.ves.inc"
 #include "nurbslib/wrap_NurbsLib.h"
 #include "nurbslib/nurbslib.ves.inc"
-#include "partlib/wrap_PartLib.h"
-#include "partlib/partlib.ves.inc"
+#include "partgraph_c/wrap_PartGraph.h"
+#include "partgraph_c/partgraph.ves.inc"
 #include "loggraph_c/wrap_LogGraph.h"
 #include "loggraph_c/loggraph.ves.inc"
 
@@ -124,7 +124,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "pathtracer") == 0 &&
         !strcmp(module, "sketchlib") == 0 &&
         !strcmp(module, "nurbslib") == 0 &&
-        !strcmp(module, "partlib") == 0 &&
+        !strcmp(module, "partgraph") == 0 &&
         !strcmp(module, "loggraph") == 0) {
         free((void*)result.source);
         result.source = NULL;
@@ -170,8 +170,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = sketchlibModuleSource;
     } else if (strcmp(module, "nurbslib") == 0) {
         source = nurbslibModuleSource;
-    } else if (strcmp(module, "partlib") == 0) {
-        source = partlibModuleSource;
+    } else if (strcmp(module, "partgraph") == 0) {
+        source = partgraphModuleSource;
     } else if (strcmp(module, "loggraph") == 0) {
         source = loggraphModuleSource;
     } else {
@@ -319,7 +319,7 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     nurbslib::NurbsLibBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    partlib::PartLibBindClass(className, &methods);
+    partgraph::PartGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     loggraph::LogGraphBindClass(className, &methods);
@@ -395,7 +395,7 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = nurbslib::NurbsLibBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = partlib::PartLibBindMethod(fullName);
+    method = partgraph::PartGraphBindMethod(fullName);
     if (method != NULL) return method;
 
     method = loggraph::LogGraphBindMethod(fullName);
