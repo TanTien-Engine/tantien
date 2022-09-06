@@ -65,6 +65,8 @@
     <ClCompile Include="..\..\..\..\littleworld\globegen\VirtualTexture.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\VTexBuilder.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp" />
@@ -155,6 +157,9 @@
     <ClInclude Include="..\..\..\..\littleworld\globegen\VTexBuilder.h" />
     <ClInclude Include="..\..\..\..\littleworld\globegen\VTexInfo.h" />
     <ClInclude Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepKey.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Node.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h" />
@@ -212,6 +217,7 @@
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\ImageTools.inl" />
+    <None Include="..\..\..\..\testbed\brepgraph_c\brepgraph.ves.inc" />
     <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc" />
     <None Include="..\..\..\..\tt_sim\pathtracer\src\pathtracer.ves.inc" />
     <None Include="..\..\..\src\modules\filesystem\filesystem.ves.inc" />
@@ -336,7 +342,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -352,7 +358,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

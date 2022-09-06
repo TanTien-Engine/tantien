@@ -43,6 +43,8 @@
 #include "partgraph_c/partgraph.ves.inc"
 #include "loggraph_c/wrap_LogGraph.h"
 #include "loggraph_c/loggraph.ves.inc"
+#include "brepgraph_c/wrap_BrepGraph.h"
+#include "brepgraph_c/brepgraph.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -125,7 +127,8 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "sketchlib") == 0 &&
         !strcmp(module, "nurbslib") == 0 &&
         !strcmp(module, "partgraph") == 0 &&
-        !strcmp(module, "loggraph") == 0) {
+        !strcmp(module, "loggraph") == 0 &&
+        !strcmp(module, "brepgraph") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -174,6 +177,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = partgraphModuleSource;
     } else if (strcmp(module, "loggraph") == 0) {
         source = loggraphModuleSource;
+    } else if (strcmp(module, "brepgraph") == 0) {
+        source = brepgraphModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -325,6 +330,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     loggraph::LogGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    brepgraph::BrepGraphBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -399,6 +407,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = loggraph::LogGraphBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = brepgraph::BrepGraphBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
