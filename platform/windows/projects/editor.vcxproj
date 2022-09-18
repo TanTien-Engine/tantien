@@ -119,14 +119,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;SPVGENTWO_LOGGING=1;SPVGENTWO_REPLACE_PLACEMENTNEW=1;SPVGENTWO_REPLACE_TRAITS=1;SPVGENTWO_BUILD_EXAMPLES=1;SPVGENTWO_BUILD_DISASSEMBLER=1;SPVGENTWO_BUILD_REFLECT=1;CMAKE_INTDIR="Debug";_DEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim;../../../../cax;../../../../tt/analysis</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim;../../../../cax;../../../../tt/analysis;../../../../testbed</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2dd.lib;tiffd.lib;TKPrimd.lib;TKerneld.lib;TKMathd.lib;TKTopAlgod.lib;TKBRepd.lib;TKG3dd.lib;TKG2dd.lib;TKGeomBased.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslangd.lib;OSDependentd.lib;OGLCompilerd.lib;GenericCodeGend.lib;MachineIndependentd.lib;SPIRVd.lib;LLVMDxcSupportd.lib;glfw3d.lib;freetyped.lib;jpeg-staticd.lib;zlibstaticd.lib;libpng16_staticd.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2dd.lib;tiffd.lib;Ws2_32.lib;TKPrimd.lib;TKerneld.lib;TKMathd.lib;TKTopAlgod.lib;TKBRepd.lib;TKG3dd.lib;TKG2dd.lib;TKGeomBased.lib;TKMeshd.lib;TKGeomAlgod.lib;TKFilletd.lib;TKBoold.lib;TKShHealingd.lib;TKBOd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim;../../../../cax;../../../../tt/analysis</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../include;../../../src;../../../thirdparty/glfw/include;../../../thirdparty/gl/include;../../../thirdparty/vessel/src/include;../../../../littleworld;../../../../tt_sim;../../../../cax;../../../../tt/analysis;../../../../testbed</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -147,12 +147,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2d.lib;tiff.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;dxcompiler.lib;glslang.lib;OSDependent.lib;OGLCompiler.lib;GenericCodeGen.lib;MachineIndependent.lib;SPIRV.lib;LLVMDxcSupport.lib;glfw3.lib;freetype.lib;jpeg-static.lib;zlibstatic.lib;libpng16_static.lib;assimp-vc142-mt.lib;libfbxsdk.lib;box2d.lib;tiff.lib;Ws2_32.lib;TKPrim.lib;TKernel.lib;TKMath.lib;TKTopAlgo.lib;TKBRep.lib;TKG3d.lib;TKG2d.lib;TKGeomBase.lib;TKMesh.lib;TKGeomAlgo.lib;TKFillet.lib;TKBool.lib;TKShHealing.lib;TKBO.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\thirdparty\brepdb\platform\msvc\projects\brepdb.vcxproj">
       <Project>{d224df61-1af4-4049-92e3-0219e81a8f4f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\thirdparty\cslang\platform\msvc\projects\cslang.vcxproj">
+      <Project>{e034b5be-6f9a-4bb6-8f85-7450431fd59a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\..\thirdparty\dtex\platform\msvc\projects\dtex_new.vcxproj">
       <Project>{777baf91-dc51-4eef-8f46-6502630063a2}</Project>

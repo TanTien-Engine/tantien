@@ -157,6 +157,15 @@
     <Filter Include="modules\3rd\brepgraph\data">
       <UniqueIdentifier>{34b12a4d-bdcb-461b-a16e-a30c69f0693a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\3rd\codegraph">
+      <UniqueIdentifier>{2b1b3688-75d6-4b6b-bf83-39e4ffe7a8f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\codegraph\script">
+      <UniqueIdentifier>{e246ce9e-19dd-47c8-9e8f-c25b821fe695}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\codegraph\data">
+      <UniqueIdentifier>{1ad38085-018d-43c9-bdbf-c623c0126295}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -398,6 +407,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.cpp">
       <Filter>modules\3rd\brepgraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.cpp">
+      <Filter>modules\3rd\loggraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\wrap_CodeGraph.cpp">
+      <Filter>modules\3rd\codegraph\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\Node.h">
+      <Filter>modules\3rd\codegraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\Node.cpp">
+      <Filter>modules\3rd\codegraph\data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -686,6 +707,15 @@
     <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepKey.h">
       <Filter>modules\3rd\brepgraph\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\RegionVisitor.h">
+      <Filter>modules\3rd\brepgraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.h">
+      <Filter>modules\3rd\loggraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\wrap_CodeGraph.h">
+      <Filter>modules\3rd\codegraph\script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\render\render.ves.inc">
@@ -756,6 +786,9 @@
     </None>
     <None Include="..\..\..\..\testbed\brepgraph_c\brepgraph.ves.inc">
       <Filter>modules\3rd\brepgraph\script</Filter>
+    </None>
+    <None Include="..\..\..\..\tt\analysis\codegraph_c\codegraph.ves.inc">
+      <Filter>modules\3rd\codegraph\script</Filter>
     </None>
   </ItemGroup>
 </Project>
