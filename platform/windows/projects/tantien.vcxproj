@@ -67,8 +67,16 @@
     <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.cpp" />
-    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\Node.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeExpand.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\Node.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/codegraph/</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)/codegraph/</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\Node.h" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodePrint.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeRename.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeTraversal.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\VarAnalysis.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\wrap_CodeGraph.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp" />
@@ -165,6 +173,11 @@
     <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepKey.h" />
     <ClInclude Include="..\..\..\..\testbed\brepgraph_c\RegionVisitor.h" />
     <ClInclude Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeExpand.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodePrint.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeRename.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeTraversal.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\VarAnalysis.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\wrap_CodeGraph.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Node.h" />
