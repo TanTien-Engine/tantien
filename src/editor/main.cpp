@@ -332,11 +332,15 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     partgraph::PartGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    loggraph::LogGraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    if (strcmp(module, "loggraph") == 0) {
+        loggraph::LogGraphBindClass(className, &methods);
+        if (methods.allocate != NULL) return methods;
+    }
 
-    codegraph::CodeGraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    if (strcmp(module, "codegraph") == 0) {
+        codegraph::CodeGraphBindClass(className, &methods);
+        if (methods.allocate != NULL) return methods;
+    }
 
     brepgraph::BrepGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
@@ -414,11 +418,15 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = partgraph::PartGraphBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = loggraph::LogGraphBindMethod(fullName);
-    if (method != NULL) return method;
+    if (strcmp(module, "loggraph") == 0) {
+        method = loggraph::LogGraphBindMethod(fullName);
+        if (method != NULL) return method;
+    }
 
-    method = codegraph::CodeGraphBindMethod(fullName);
-    if (method != NULL) return method;
+    if (strcmp(module, "codegraph") == 0) {
+        method = codegraph::CodeGraphBindMethod(fullName);
+        if (method != NULL) return method;
+    }
 
     method = brepgraph::BrepGraphBindMethod(fullName);
     if (method != NULL) return method;
