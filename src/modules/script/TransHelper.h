@@ -20,6 +20,8 @@ std::vector<T> list_to_array(int index);
 template <typename T>
 std::vector<std::vector<T>> list_to_array2(int index);
 
+std::vector<std::string> list_to_string_array(int index);
+
 uint32_t list_to_abgr(int index);
 uint32_t list_to_rgba(int index);
 
