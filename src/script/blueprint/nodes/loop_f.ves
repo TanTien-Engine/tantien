@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
+import "logger.logger" for Logger
 
 class LoopF is Node
 {
@@ -57,6 +58,9 @@ class LoopF is Node
 
 		this.last_val = Blueprint.calc_input_value(this, 0)
 
+		var num = 0
+		var max = 1000
+
 		this.curr_idx = nil
 		for (var i in 0..v_times.value)
 		{
@@ -64,6 +68,15 @@ class LoopF is Node
 
 			var v_eval = Blueprint.calc_input_value(this, 2)
 			this.last_val = v_eval
+
+			num = num + 1
+			if (num >= max) 
+			{
+				num = 0
+
+				var p = (i + 1) / v_times.value * 100
+				Logger.info("%(p)\%")
+			}
 		}
 		this.curr_idx = nil
 	}
