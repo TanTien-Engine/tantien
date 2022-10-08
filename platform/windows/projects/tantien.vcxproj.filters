@@ -169,8 +169,11 @@
     <Filter Include="modules\3rd\codegraph\tools">
       <UniqueIdentifier>{17b35094-488c-458b-8aca-6c02aab137cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\codegraph\impl">
+    <Filter Include="modules\3rd\codegraph\node">
       <UniqueIdentifier>{787842e4-d301-407b-a729-986457f38b0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\codegraph\block">
+      <UniqueIdentifier>{5f597095-3f41-4d5e-af2a-c97367417074}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -393,9 +396,6 @@
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp">
       <Filter>modules\3rd\loggraph\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp">
-      <Filter>modules\3rd\loggraph\data</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
       <Filter>modules\3rd\partgraph\data</Filter>
     </ClCompile>
@@ -427,19 +427,28 @@
       <Filter>modules\3rd\codegraph\data</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeExpand.cpp">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodePrint.cpp">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeRename.cpp">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeTraversal.cpp">
       <Filter>modules\3rd\codegraph\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\VarAnalysis.cpp">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeName.cpp">
+      <Filter>modules\3rd\codegraph\node</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\BasicBlock.cpp">
+      <Filter>modules\3rd\codegraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\FlowGraph.cpp">
+      <Filter>modules\3rd\codegraph\block</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -701,9 +710,6 @@
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h">
       <Filter>modules\3rd\loggraph\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h">
-      <Filter>modules\3rd\loggraph\data</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h">
       <Filter>modules\3rd\partgraph\data</Filter>
     </ClInclude>
@@ -738,19 +744,28 @@
       <Filter>modules\3rd\codegraph\script</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeExpand.h">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodePrint.h">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeRename.h">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeTraversal.h">
       <Filter>modules\3rd\codegraph\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\VarAnalysis.h">
-      <Filter>modules\3rd\codegraph\impl</Filter>
+      <Filter>modules\3rd\codegraph\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\NodeName.h">
+      <Filter>modules\3rd\codegraph\node</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\BasicBlock.h">
+      <Filter>modules\3rd\codegraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\FlowGraph.h">
+      <Filter>modules\3rd\codegraph\block</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
