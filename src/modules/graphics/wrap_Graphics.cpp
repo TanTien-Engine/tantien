@@ -342,7 +342,7 @@ void w_Painter_add_bezier()
 }
 
 sm::mat4* CAM_MAT = nullptr;
-bool CAM_ORTHO = true;
+bool CAM_ORTHO = false;
 
 auto trans3d = [&](const sm::vec3& pos3)->sm::vec2 
 {
