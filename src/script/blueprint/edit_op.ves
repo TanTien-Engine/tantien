@@ -105,6 +105,12 @@ class EditOP
 	on_mouse_clicked(x, y, btn)
 	{
 		this.curr_op.on_mouse_clicked(x, y)
+
+		var scene = this.scene_stack.top()
+		for (var node in scene.selection) {
+			var bp = node.components["bp"]
+			bp.on_mouse_clicked(x, y, btn)
+		}
 	}
 
 	on_mouse_scrolled(x, y, dx, dy)
