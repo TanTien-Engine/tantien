@@ -2,8 +2,10 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_RECT
 import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
 import "maths.rect" for Rect
 import "maths.vector" for Vector2
+import "geometry" for Polyline
 
 class AABB is Node
 {
@@ -40,35 +42,72 @@ class AABB is Node
 		}
 
 		var v_verts = Blueprint.calc_input_value(this, 0)
-		if (!v_verts or v_verts.value.isEmpty) {
+		if (!v_verts) {
 			return nil
 		}
 
-		var xmin = v_verts.value[0].value.x
-		var xmax = xmin
-		var ymin = v_verts.value[0].value.y
-		var ymax = ymin
-		if (v_verts.value.count > 1)
+		if (v_verts.type == VAR_TYPE_GEO)
 		{
-			for (var i in 1 .. v_verts.value.count)
+			if (v_verts.value.shape is Polyline) 
 			{
-				var p = v_verts.value[i].value
-				if (p.x < xmin) {
-					xmin = p.x
+				var verts = v_verts.value.shape.get_vertices()
+				if (verts.count < 2) {
+					return nil
 				}
-				if (p.x > xmax) {
-					xmax = p.x
+
+				var xmin = verts[0]
+				var xmax = xmin
+				var ymin = verts[1]
+				var ymax = ymin
+				for (var i in 1 .. verts.count / 2)
+				{
+					var x = verts[i * 2]
+					var y = verts[i * 2 + 1]
+					if (x < xmin) {
+						xmin = x
+					}
+					if (x > xmax) {
+						xmax = x
+					}
+					if (y < ymin) {
+						ymin = y
+					}
+					if (y > ymax) {
+						ymax = y
+					}
 				}
-				if (p.y < ymin) {
-					ymin = p.y
-				}
-				if (p.y > ymax) {
-					ymax = p.y
-				}
+
+				this.rect = Rect(Vector2(xmin, ymin), Vector2(xmax, ymax))
 			}
 		}
+		else if (v_verts.type == VAR_TYPE_ARRAY)
+		{
+			var xmin = verts[0].value.x
+			var xmax = xmin
+			var ymin = verts[0].value.y
+			var ymax = ymin
+			if (verts.count > 1)
+			{
+				for (var i in 1 .. verts.count)
+				{
+					var p = verts[i].value
+					if (p.x < xmin) {
+						xmin = p.x
+					}
+					if (p.x > xmax) {
+						xmax = p.x
+					}
+					if (p.y < ymin) {
+						ymin = p.y
+					}
+					if (p.y > ymax) {
+						ymax = p.y
+					}
+				}
+			}
+			this.rect = Rect(Vector2(xmin, ymin), Vector2(xmax, ymax))
+		}
 
-		this.rect = Rect(Vector2(xmin, ymin), Vector2(xmax, ymax))
 		return Variant(VAR_TYPE_RECT, this.rect)
 	}
 }
