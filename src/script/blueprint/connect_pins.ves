@@ -1,6 +1,7 @@
 import "editor.editop" for EditOP
 import "maths.calc" for Calc
 import "maths.vector" for Vector2
+import "blueprint.node" for Node
 import "blueprint.node_layout" for NodeLayout, PIN_RADIUS
 import "blueprint.connecting" for Connecting
 import "blueprint.blueprint" for Blueprint
@@ -131,18 +132,21 @@ class ConnectPins is EditOP
 		for (var node in nodes) 
 		{
 			var bp_node = node.components["bp"]
-			for (var pin in bp_node.imports) 
+			if (bp_node is Node) 
 			{
-				var p_pos = NodeLayout.calc_pin_pos(pin)
-				if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
-					return pin
+				for (var pin in bp_node.imports) 
+				{
+					var p_pos = NodeLayout.calc_pin_pos(pin)
+					if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+						return pin
+					}
 				}
-			}
-			for (var pin in bp_node.exports) 
-			{
-				var p_pos = NodeLayout.calc_pin_pos(pin)
-				if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
-					return pin
+				for (var pin in bp_node.exports) 
+				{
+					var p_pos = NodeLayout.calc_pin_pos(pin)
+					if (Calc.dis_pos_to_pos(pos, p_pos) < PIN_RADIUS * 1.5) {
+						return pin
+					}
 				}
 			}
 		}

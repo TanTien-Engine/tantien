@@ -581,7 +581,7 @@ class Editor
 
 	is_pin_node_type_match(pin, node)
 	{
-		if (node is NW_Vertex) 
+		if (node is NW_Vertex and pin is NW_Pin)
 		{
 			var expects = pin.vert.pin_types_t[pin.type]
 			for (var l in expects) {
