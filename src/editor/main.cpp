@@ -1,4 +1,6 @@
-﻿#include "tantien.h"
+﻿#define _NO_OCCT_
+
+#include "tantien.h"
 #include "modules/render/wrap_Render.h"
 #include "modules/render/render.ves.inc"
 #include "modules/graphics/wrap_Graphics.h"
@@ -39,8 +41,10 @@
 #include "sketchlib/sketchlib.ves.inc"
 #include "nurbslib/wrap_NurbsLib.h"
 #include "nurbslib/nurbslib.ves.inc"
+#ifndef _NO_OCCT_
 #include "partgraph_c/wrap_PartGraph.h"
 #include "partgraph_c/partgraph.ves.inc"
+#endif // _NO_OCCT_
 #include "loggraph_c/wrap_LogGraph.h"
 #include "loggraph_c/loggraph.ves.inc"
 #include "codegraph_c/wrap_CodeGraph.h"
@@ -128,7 +132,9 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "pathtracer") == 0 &&
         !strcmp(module, "sketchlib") == 0 &&
         !strcmp(module, "nurbslib") == 0 &&
+#ifndef _NO_OCCT_
         !strcmp(module, "partgraph") == 0 &&
+#endif // _NO_OCCT_
         !strcmp(module, "loggraph") == 0 &&
         !strcmp(module, "codegraph") == 0 &&
         !strcmp(module, "brepgraph") == 0) {
@@ -176,8 +182,10 @@ VesselLoadModuleResult read_module(const char* module)
         source = sketchlibModuleSource;
     } else if (strcmp(module, "nurbslib") == 0) {
         source = nurbslibModuleSource;
+#ifndef _NO_OCCT_
     } else if (strcmp(module, "partgraph") == 0) {
         source = partgraphModuleSource;
+#endif // _NO_OCCT_
     } else if (strcmp(module, "loggraph") == 0) {
         source = loggraphModuleSource;
     } else if (strcmp(module, "codegraph") == 0) {
@@ -329,8 +337,10 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     nurbslib::NurbsLibBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+#ifndef _NO_OCCT_
     partgraph::PartGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
+#endif // _NO_OCCT_
 
     if (strcmp(module, "loggraph") == 0) {
         loggraph::LogGraphBindClass(className, &methods);
@@ -415,8 +425,10 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = nurbslib::NurbsLibBindMethod(fullName);
     if (method != NULL) return method;
 
+#ifndef _NO_OCCT_
     method = partgraph::PartGraphBindMethod(fullName);
     if (method != NULL) return method;
+#endif // _NO_OCCT_
 
     if (strcmp(module, "loggraph") == 0) {
         method = loggraph::LogGraphBindMethod(fullName);
