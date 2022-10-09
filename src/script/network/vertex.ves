@@ -1,6 +1,7 @@
 import "blueprint.node_style" for COL_PANEL_BG
 import "network.vertex_shape" for VertexShape, SHAPE_CIRCLE
 import "network.render" for Render
+import "network.network" for Network
 import "maths.vector" for Vector2
 import "maths" for Float2
 
@@ -94,6 +95,15 @@ class Vertex
 
 	on_connection_changed() {}
 	
+	disconnect()
+	{
+		for (var p in this.pins) {
+			for (var edge in p.edges) {
+				Network.disconnect(edge)
+			}
+		}
+	}
+
 	on_scene_add(editor) {}
 	
 	get_title()
