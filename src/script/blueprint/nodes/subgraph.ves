@@ -121,8 +121,12 @@ class Subgraph is Node
 		if (Subgraph.has_draw_node(this)) 
 		{
 			var nodes = []
-			for (var item in this.all_items) {
-				nodes.add(item[0])
+			for (var item in this.all_items)
+			{
+				var node = item[0]
+				if (node is Node) {
+					nodes.add(node)
+				}
 			}
 
 			import "rendergraph.drawlist" for Drawlist
@@ -152,8 +156,12 @@ class Subgraph is Node
 	execute_gen()
 	{
 		var nodes = []
-		for (var item in this.all_items) {
-			nodes.add(item[0])
+		for (var item in this.all_items)
+		{
+			var node = item[0]
+			if (node is Node) {
+				nodes.add(node)
+			}
 		}
 
 		this.exe_list = ExecuteList(nodes)
