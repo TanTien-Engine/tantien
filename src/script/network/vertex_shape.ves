@@ -93,9 +93,17 @@ class VertexShape
 				var hw = SHAPE_CAPSULE_LENGTH * 0.5 - SHAPE_CAPSULE_WIDTH * 0.5			
 				if (e.pin0.vert.shape == SHAPE_CAPSULE_H and e.pin1.vert.shape == SHAPE_CAPSULE_H)
 				{
-					var angle = Math.atan2(p1.y - p0.y, p1.x - p0.x)
+					var off_x = p1.x - p0.x
+					// move right
+					if (p0.y < p1.y and pin.type == PIN_CAPSULE_BOTTOM_IDX) {
+						off_x = off_x + 100
+					}
+					var off_y = p1.y - p0.y
+					var angle = Math.atan2(off_y, off_x)
+
 					dx = Math.cos(angle) * SHAPE_CAPSULE_WIDTH
 					dx = Math.max(Math.min(dx, hw), -hw)
+
 				}
 				else
 				{
