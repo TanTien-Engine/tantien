@@ -85,15 +85,6 @@
     <Filter Include="modules\3rd\test">
       <UniqueIdentifier>{c5c85cbb-5769-4458-a32f-440f7e3c953e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\test\brepgraph">
-      <UniqueIdentifier>{9668cf80-cd83-47ce-90ef-7aaaad7434fa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\test\brepgraph\script">
-      <UniqueIdentifier>{1f9b1182-2e44-47e8-a0ef-c88f995aa55b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\test\brepgraph\data">
-      <UniqueIdentifier>{34b12a4d-bdcb-461b-a16e-a30c69f0693a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\3rd\world">
       <UniqueIdentifier>{b6e5fd95-6b00-4894-b39b-16c3598b73b1}</UniqueIdentifier>
     </Filter>
@@ -189,6 +180,15 @@
     </Filter>
     <Filter Include="modules\3rd\sim\pathtracer\3rd\RadeonRays">
       <UniqueIdentifier>{dd53c8a2-4def-42e3-8406-d895a70a9b72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepdb">
+      <UniqueIdentifier>{9668cf80-cd83-47ce-90ef-7aaaad7434fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepdb\script">
+      <UniqueIdentifier>{1f9b1182-2e44-47e8-a0ef-c88f995aa55b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepdb\data">
+      <UniqueIdentifier>{34b12a4d-bdcb-461b-a16e-a30c69f0693a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -423,12 +423,6 @@
     <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp">
       <Filter>modules\3rd\cax\partgraph\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.cpp">
-      <Filter>modules\3rd\test\brepgraph\script</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.cpp">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.cpp">
       <Filter>modules\3rd\analy\loggraph\data</Filter>
     </ClCompile>
@@ -452,9 +446,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\NodeName.cpp">
       <Filter>modules\3rd\analy\codegraph\ast</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\testbed\brepgraph_c\RTree.cpp">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\BBlockBuilder.cpp">
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
@@ -482,6 +473,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\BBlockTools.cpp">
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepdb_c\BRepTrans.cpp">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepdb_c\RTree.cpp">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.cpp">
+      <Filter>modules\3rd\test\brepdb\script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -758,18 +758,6 @@
     <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h">
       <Filter>modules\3rd\cax\partgraph\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\wrap_BrepGraph.h">
-      <Filter>modules\3rd\test\brepgraph\script</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepTrans.h">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\BRepKey.h">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\RegionVisitor.h">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.h">
       <Filter>modules\3rd\analy\loggraph\data</Filter>
     </ClInclude>
@@ -781,9 +769,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\VarAnalysis.h">
       <Filter>modules\3rd\analy\codegraph\ast</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\testbed\brepgraph_c\RTree.h">
-      <Filter>modules\3rd\test\brepgraph\data</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\BBlockBuilder.h">
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
@@ -811,6 +796,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\BBlockTools.h">
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepdb_c\BRepKey.h">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepdb_c\BRepTrans.h">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepdb_c\RegionVisitor.h">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepdb_c\RTree.h">
+      <Filter>modules\3rd\test\brepdb\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.h">
+      <Filter>modules\3rd\test\brepdb\script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -880,11 +880,11 @@
     <None Include="..\..\..\..\cax\partgraph_c\partgraph.ves.inc">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </None>
-    <None Include="..\..\..\..\testbed\brepgraph_c\brepgraph.ves.inc">
-      <Filter>modules\3rd\test\brepgraph\script</Filter>
-    </None>
     <None Include="..\..\..\..\tt\analysis\codegraph_c\codegraph.ves.inc">
       <Filter>modules\3rd\analy\codegraph\script</Filter>
+    </None>
+    <None Include="..\..\..\..\testbed\brepdb_c\brepdb.ves.inc">
+      <Filter>modules\3rd\test\brepdb\script</Filter>
     </None>
   </ItemGroup>
 </Project>
