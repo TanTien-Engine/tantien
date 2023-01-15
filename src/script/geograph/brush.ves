@@ -87,6 +87,26 @@ class Brush is Shape3D
 		this.set_model_dirty()
 	}
 
+	fork(plane)
+	{
+		var polys = []
+		for (var poly in this.polys) {
+			polys.add(poly.fork(plane))
+		}
+		return Brush(polys)
+	}
+
+	join(other)
+	{
+		if (this.polys.count != other.polys.count) {
+			return
+		}
+
+		for (var i in 0..this.polys.count) {
+			this.polys[i].join(other.polys[i])
+		}
+	}
+
 	set_model_dirty() { this.model_dirty = true }
 
 	get_model(adjacencies)
@@ -94,7 +114,6 @@ class Brush is Shape3D
 		if (this.model_dirty) 
 		{
 			import "model" for glTF
-
 			this.model = glTF.create_from_polytope(this.polys, this.materials, this.offsets, this.colors, adjacencies)
 
 			this.model_dirty = false

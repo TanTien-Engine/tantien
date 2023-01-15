@@ -276,6 +276,8 @@ foreign class Polytope
 	foreign mirror(plane)
 
 	foreign clip(plane, keep, seam)
+	foreign fork(plane)
+	foreign join(other)
 
 	foreign get_points()
 	foreign get_faces()

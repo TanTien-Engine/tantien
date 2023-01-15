@@ -963,6 +963,30 @@ void w_Polytope_clip()
     }
 }
 
+void w_Polytope_fork()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+
+    auto new_topo = poly->GetTopoPoly()->Fork(*plane);
+    poly->BuildFromTopo();
+
+    auto new_poly = std::make_shared<pm3::Polytope>(new_topo);
+
+    ves_pop(ves_argnum());
+    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    proxy->obj = new_poly;
+}
+
+void w_Polytope_join()
+{
+    auto poly  = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto other = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+
+    poly->GetTopoPoly()->Join(other->GetTopoPoly());
+    poly->BuildFromTopo();
+}
+
 void w_Polytope_get_points()
 {
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
@@ -1488,6 +1512,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.transform(_)") == 0) return w_Polytope_transform;
     if (strcmp(signature, "Polytope.mirror(_)") == 0) return w_Polytope_mirror;
     if (strcmp(signature, "Polytope.clip(_,_,_)") == 0) return w_Polytope_clip;
+    if (strcmp(signature, "Polytope.fork(_)") == 0) return w_Polytope_fork;
+    if (strcmp(signature, "Polytope.join(_)") == 0) return w_Polytope_join;
     if (strcmp(signature, "Polytope.get_points()") == 0) return w_Polytope_get_points;
     if (strcmp(signature, "Polytope.get_faces()") == 0) return w_Polytope_get_faces;
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
