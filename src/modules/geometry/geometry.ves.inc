@@ -194,6 +194,27 @@ foreign class Line3D is Shape3D
 	foreign set_p1(p)
 }
 
+foreign class Arc3D is Shape3D
+{
+	init() {}
+	init(p0, p1, p2) { 
+		this.set_p0(p0)
+		this.set_p1(p1)
+		this.set_p2(p2)
+	}
+
+	toString() {
+		return "::geometry::Arc3D.init(%(this.get_p0()), %(this.get_p1()), %(this.get_p2()))"
+	}
+
+	foreign get_p0()
+	foreign set_p0(p)
+	foreign get_p1()
+	foreign set_p1(p)
+	foreign get_p2()
+	foreign set_p2(p)
+}
+
 foreign class Box is Shape3D
 {
 	init() {}

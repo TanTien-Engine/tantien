@@ -1,0 +1,54 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "blueprint.node_helper" for NodeHelper
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geometry" for Arc3D as tt_Arc3D
+import "maths.vector" for Vector3
+
+class Arc3d is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "p0", VAR_TYPE_NUMBER3),
+			Pin(this, "p1", VAR_TYPE_NUMBER3),
+			Pin(this, "p2", VAR_TYPE_NUMBER3),			
+		]
+		this.exports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+
+		// shape
+		this.params.add(NodeParam("p0", Vector3(0, 0, 0), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("p1", Vector3(0.5, 0.5, 0.5), { "min" : -1000, "max" : 1000 }))
+		this.params.add(NodeParam("p2", Vector3(1, 1, 1), { "min" : -1000, "max" : 1000 }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var geo = VarGeo()
+		geo.shape = tt_Arc3D.init()
+		this.update_geo(geo)
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	update_geo(geo)
+	{
+		var p0 = NodeHelper.calc_prop_value(this, "p0")
+		var p1 = NodeHelper.calc_prop_value(this, "p1")
+		var p2 = NodeHelper.calc_prop_value(this, "p2")
+
+		geo.shape.set_p0([p0.x, p0.y, p0.z])
+		geo.shape.set_p1([p1.x, p1.y, p1.z])
+		geo.shape.set_p2([p2.x, p2.y, p2.z])
+		
+//		geo.render_style["fill"] = this.query_param("fill").value
+//		geo.render_style["color"] = this.query_param("color").value
+	}	
+}

@@ -15,6 +15,7 @@
 #include <geoshape/Bezier.h>
 #include <geoshape/Box.h>
 #include <geoshape/Line3D.h>
+#include <geoshape/Arc3D.h>
 #include <geoshape/Polyline3D.h>
 #include <geoshape/Polygon3D.h>
 #include <polymesh3/Polytope.h>
@@ -580,6 +581,67 @@ void w_Line3D_set_p1()
     auto p1 = tt::list_to_vec3(1);
 
     l->SetEnd(p1);
+}
+
+void w_Arc3D_allocate()
+{
+    auto proxy = (tt::Proxy<gs::Arc3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc3D>));
+    proxy->obj = std::make_shared<gs::Arc3D>();
+}
+
+int w_Arc3D_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<gs::Arc3D>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<gs::Arc3D>);
+}
+
+void w_Arc3D_get_p0()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+
+    auto p0 = arc->GetStart();
+    tt::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
+}
+
+void w_Arc3D_set_p0()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p0 = tt::list_to_vec3(1);
+
+    arc->SetStart(p0);
+}
+
+void w_Arc3D_get_p1()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+
+    auto p1 = arc->GetMiddle();
+    tt::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
+}
+
+void w_Arc3D_set_p1()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p1 = tt::list_to_vec3(1);
+
+    arc->SetMiddle(p1);
+}
+
+void w_Arc3D_get_p2()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+
+    auto p2 = arc->GetEnd();
+    tt::return_list(std::vector<float>{ p2.x, p2.y, p2.z });
+}
+
+void w_Arc3D_set_p2()
+{
+    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p2 = tt::list_to_vec3(1);
+
+    arc->SetEnd(p2);
 }
 
 void w_Box_allocate()
@@ -1486,6 +1548,13 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Line3D.get_p1()") == 0) return w_Line3D_get_p1;
     if (strcmp(signature, "Line3D.set_p1(_)") == 0) return w_Line3D_set_p1;
 
+    if (strcmp(signature, "Arc3D.get_p0()") == 0) return w_Arc3D_get_p0;
+    if (strcmp(signature, "Arc3D.set_p0(_)") == 0) return w_Arc3D_set_p0;
+    if (strcmp(signature, "Arc3D.get_p1()") == 0) return w_Arc3D_get_p1;
+    if (strcmp(signature, "Arc3D.set_p1(_)") == 0) return w_Arc3D_set_p1;
+    if (strcmp(signature, "Arc3D.get_p2()") == 0) return w_Arc3D_get_p2;
+    if (strcmp(signature, "Arc3D.set_p2(_)") == 0) return w_Arc3D_set_p2;
+
     if (strcmp(signature, "Box.get_min()") == 0) return w_Box_get_min;
     if (strcmp(signature, "Box.get_max()") == 0) return w_Box_get_max;
     if (strcmp(signature, "Box.set_size(_,_)") == 0) return w_Box_set_size;
@@ -1609,6 +1678,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Line3D_allocate;
         methods->finalize = w_Line3D_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Arc3D") == 0)
+    {
+        methods->allocate = w_Arc3D_allocate;
+        methods->finalize = w_Arc3D_finalize;
         return;
     }
 
