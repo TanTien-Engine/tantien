@@ -64,9 +64,6 @@
     <Filter Include="modules\3rd\cax\partgraph\script">
       <UniqueIdentifier>{01702a1c-7044-48c5-a445-3ddd2354748f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\cax\partgraph\data">
-      <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\3rd\cax\sketchlib">
       <UniqueIdentifier>{5e5f9f80-246b-4e81-be03-ae2b4ea400e7}</UniqueIdentifier>
     </Filter>
@@ -201,6 +198,15 @@
     </Filter>
     <Filter Include="modules\3rd\test\brepvm\data">
       <UniqueIdentifier>{9f308ef5-35d6-448d-a9c5-d0c2df41f41f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\analy\loggraph\parser">
+      <UniqueIdentifier>{79b134bf-be16-4b5d-9d5e-4e5842dd1fba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\partgraph\brep">
+      <UniqueIdentifier>{4a9e33ab-063e-4145-ac5a-8bbdedf33446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\partgraph\tools">
+      <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -420,20 +426,14 @@
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp">
       <Filter>modules\3rd\analy\loggraph\script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp">
-      <Filter>modules\3rd\analy\loggraph\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAdapter.cpp">
+      <Filter>modules\3rd\cax\partgraph\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.cpp">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAlgo.cpp">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
+      <Filter>modules\3rd\cax\partgraph\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.cpp">
       <Filter>modules\3rd\analy\loggraph\data</Filter>
@@ -512,6 +512,27 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRep.cpp">
       <Filter>modules\3rd\test\brepvm\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Node.cpp">
+      <Filter>modules\3rd\analy\loggraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp">
+      <Filter>modules\3rd\analy\loggraph\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp">
+      <Filter>modules\3rd\analy\loggraph\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Variant.cpp">
+      <Filter>modules\3rd\analy\loggraph\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepSelector.cpp">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -770,23 +791,14 @@
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Node.h">
       <Filter>modules\3rd\analy\loggraph\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h">
-      <Filter>modules\3rd\analy\loggraph\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoShape.h">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAdapter.h">
+      <Filter>modules\3rd\cax\partgraph\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAlgo.h">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h">
-      <Filter>modules\3rd\cax\partgraph\data</Filter>
+      <Filter>modules\3rd\cax\partgraph\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.h">
       <Filter>modules\3rd\analy\loggraph\data</Filter>
@@ -859,6 +871,27 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\testbed\brepvm_c\BRep.h">
       <Filter>modules\3rd\test\brepvm\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h">
+      <Filter>modules\3rd\analy\loggraph\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h">
+      <Filter>modules\3rd\analy\loggraph\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Variant.h">
+      <Filter>modules\3rd\analy\loggraph\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepBuilder.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoDataset.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepSelector.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

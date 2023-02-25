@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepSelector.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp" />
-    <ClCompile Include="..\..\..\..\cax\partgraph_c\MeshBuilder.cpp">
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAdapter.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
     </ClCompile>
@@ -93,8 +95,11 @@
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\wrap_CodeGraph.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Diff.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Node.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Regex.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.cpp" />
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Variant.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Mesh.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\src\Scene.cpp">
@@ -140,10 +145,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepBuilder.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepSelector.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h" />
-    <ClInclude Include="..\..\..\..\cax\partgraph_c\MeshBuilder.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAdapter.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAlgo.h" />
-    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoShape.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoDataset.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Geometry.h" />
@@ -207,8 +214,10 @@
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Diff.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\LogParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Node.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\ProtoParser.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Regex.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Traceback.h" />
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Variant.h" />
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\wrap_LogGraph.h" />
     <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Light.h" />
     <ClInclude Include="..\..\..\..\tt_sim\pathtracer\src\Material.h" />
