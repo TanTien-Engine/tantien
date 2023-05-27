@@ -208,6 +208,42 @@
     <Filter Include="modules\3rd\cax\partgraph\tools">
       <UniqueIdentifier>{c1394a93-2b93-41dd-93c5-b9778146be66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\3rd\test\brepfw">
+      <UniqueIdentifier>{bb189522-c687-4fff-a6a7-f681cb619273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\label">
+      <UniqueIdentifier>{45c882e1-0a5d-4100-aa10-22cb29e7f5bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\label\attribute">
+      <UniqueIdentifier>{fbe74a69-b761-4e4c-9d4e-d0f98e7be1e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\label\base">
+      <UniqueIdentifier>{e2c12f7b-6451-499c-ba10-f5e6a347cf39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\label\naming">
+      <UniqueIdentifier>{465b4af0-9b80-479d-a15e-9364ed5d2229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\shape">
+      <UniqueIdentifier>{ee546722-2088-4ae8-b526-7b0ae9901129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\shape\brep">
+      <UniqueIdentifier>{fc5da04f-f68a-4e45-9aa8-d1120d5487ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\base">
+      <UniqueIdentifier>{93de5752-9095-43be-a2dc-8ccd8b0690f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\shape\base">
+      <UniqueIdentifier>{9d7cde0f-432c-4623-963e-041e120acd1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\shape\components">
+      <UniqueIdentifier>{7eb16455-91da-4d49-a5e9-18a703371006}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\shape\tools">
+      <UniqueIdentifier>{efb16332-60d6-48f9-a3f8-fd874ebf8ab7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\test\brepfw\script">
+      <UniqueIdentifier>{792221fe-59af-4a0d-b5d4-948996532ced}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp">
@@ -533,6 +569,45 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepSelector.cpp">
       <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepTools.cpp">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepHistory.cpp">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNaming.cpp">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.cpp">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\LabelTools.cpp">
+      <Filter>modules\3rd\test\brepfw\label\naming</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.cpp">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\Component.cpp">
+      <Filter>modules\3rd\test\brepfw\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\Object.cpp">
+      <Filter>modules\3rd\test\brepfw\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.cpp">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.cpp">
+      <Filter>modules\3rd\test\brepfw\shape\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.cpp">
+      <Filter>modules\3rd\test\brepfw\script</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.cpp">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepExplore.cpp">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -893,6 +968,81 @@
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepSelector.h">
       <Filter>modules\3rd\cax\partgraph\brep</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\GeomDataset.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\occt_adapter.h">
+      <Filter>modules\3rd\cax\partgraph\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepTools.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepHistory.h">
+      <Filter>modules\3rd\cax\partgraph\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNaming.h">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.h">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\LabelTools.h">
+      <Filter>modules\3rd\test\brepfw\label\naming</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.h">
+      <Filter>modules\3rd\test\brepfw\label\attribute</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoVertex.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoEdge.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoLoop.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoFace.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShell.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoBody.h">
+      <Filter>modules\3rd\test\brepfw\shape\brep</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Component.h">
+      <Filter>modules\3rd\test\brepfw\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Object.h">
+      <Filter>modules\3rd\test\brepfw\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Attribute.h">
+      <Filter>modules\3rd\test\brepfw\label\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Label.h">
+      <Filter>modules\3rd\test\brepfw\label\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShape.h">
+      <Filter>modules\3rd\test\brepfw\shape\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShapeType.h">
+      <Filter>modules\3rd\test\brepfw\shape\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.h">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.h">
+      <Filter>modules\3rd\test\brepfw\shape\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.h">
+      <Filter>modules\3rd\test\brepfw\script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.h">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepExplore.h">
+      <Filter>modules\3rd\test\brepfw\shape\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\modules\render\render.ves.inc">
@@ -969,6 +1119,12 @@
     </None>
     <None Include="..\..\..\..\testbed\brepvm_c\brepvm.ves.inc">
       <Filter>modules\3rd\test\brepvm\script</Filter>
+    </None>
+    <None Include="..\..\..\..\testbed\brepfw_c\Object.inl">
+      <Filter>modules\3rd\test\brepfw\base</Filter>
+    </None>
+    <None Include="..\..\..\..\testbed\brepfw_c\brepfw.ves.inc">
+      <Filter>modules\3rd\test\brepfw\script</Filter>
     </None>
   </ItemGroup>
 </Project>

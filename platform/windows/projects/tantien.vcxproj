@@ -20,8 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
-    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepHistory.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepSelector.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepTools.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\PrimMaker.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAdapter.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
@@ -70,6 +75,20 @@
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\BRepTrans.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\RTree.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepfw\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepfw\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepExplore.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\Component.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\Object.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNaming.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\LabelTools.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepCode.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRep.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepOpcodes.cpp" />
@@ -146,7 +165,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepBuilder.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepHistory.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepSelector.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepTools.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\GeomDataset.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\occt_adapter.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\PrimMaker.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAdapter.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAlgo.h" />
@@ -195,6 +218,27 @@
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\RegionVisitor.h" />
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\RTree.h" />
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Attribute.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepExplore.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Component.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Label.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\Object.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNaming.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\LabelTools.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoBody.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoEdge.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoFace.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoLoop.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShape.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShapeType.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShell.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoVertex.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.h" />
     <ClInclude Include="..\..\..\..\testbed\brepvm_c\BRepCode.h" />
     <ClInclude Include="..\..\..\..\testbed\brepvm_c\BRep.h" />
     <ClInclude Include="..\..\..\..\testbed\brepvm_c\BRepOpcodes.h" />
@@ -273,6 +317,8 @@
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\ImageTools.inl" />
     <None Include="..\..\..\..\testbed\brepdb_c\brepdb.ves.inc" />
+    <None Include="..\..\..\..\testbed\brepfw_c\brepfw.ves.inc" />
+    <None Include="..\..\..\..\testbed\brepfw_c\Object.inl" />
     <None Include="..\..\..\..\testbed\brepvm_c\brepvm.ves.inc" />
     <None Include="..\..\..\..\tt\analysis\codegraph_c\codegraph.ves.inc" />
     <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc" />
