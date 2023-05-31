@@ -297,4 +297,26 @@ void return_list(const std::vector<std::string>& strs)
     }
 }
 
+void return_vec(const sm::vec3& vec3)
+{
+    ves_pop(ves_argnum());
+
+    ves_newmap();
+    {
+        ves_pushnumber(vec3.x);
+        ves_setfield(-2, "x");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(vec3.y);
+        ves_setfield(-2, "y");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(vec3.z);
+        ves_setfield(-2, "z");
+        ves_pop(1);
+    }
+}
+
 }

@@ -48,6 +48,8 @@ void return_list(const std::vector<T>& vals);
 template<typename T>
 void return_list2(const std::vector<std::vector<T>>& vals);
 
+void return_vec(const sm::vec3& vec3);
+
 }
 
 #include "TransHelper.inl"
