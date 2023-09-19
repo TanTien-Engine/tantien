@@ -1,0 +1,39 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vm" for VM
+
+class Vm is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+		this.exports = [
+			Pin(this, "val", VAR_TYPE_ANY),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_codes = Blueprint.calc_input_value(this, 0)
+		if (!v_codes) {
+			return nil
+		}
+
+		var vm = VM.init(v_codes.value)
+		vm.run()
+
+		var reg = v_codes.value.get_ret_reg()
+		var num = vm.load_number(reg)
+
+		return Variant(VAR_TYPE_NUMBER, num)
+	}
+}

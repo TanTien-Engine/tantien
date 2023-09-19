@@ -1,0 +1,50 @@
+var node0 = ::blueprint::nodes::integer::Integer()
+
+node0.value = 1
+
+_editor.add_node(node0, -219, 224)
+
+var node1 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node1, -64, 185)
+
+var node2 = ::blueprint::nodes::print::Print()
+
+_editor.add_node(node2, 102, 220.5)
+
+var node3 = ::vmgraph::nodes::compiler::Compiler()
+
+_editor.add_node(node3, 100, 132.5)
+
+var node4 = ::vmgraph::nodes::vm::Vm()
+
+_editor.add_node(node4, 236, 132.5)
+
+var node5 = ::blueprint::nodes::print::Print()
+
+_editor.add_node(node5, 381, 134.5)
+
+var node6 = ::blueprint::nodes::integer::Integer()
+
+node6.value = 5
+
+_editor.add_node(node6, -372.75709090909, 175.67418181818)
+
+var node7 = ::blueprint::nodes::integer::Integer()
+
+node7.value = 4
+
+_editor.add_node(node7, -372.75709090909, 78.674181818182)
+
+var node8 = ::blueprint::nodes::add::Add()
+
+_editor.add_node(node8, -217.75709090909, 136.67418181818)
+
+Blueprint.connect(node6, "v", node8, "a")
+Blueprint.connect(node7, "v", node8, "b")
+Blueprint.connect(node0, "v", node1, "a")
+Blueprint.connect(node8, "v", node1, "b")
+Blueprint.connect(node1, "v", node3, "val")
+Blueprint.connect(node3, "codes", node4, "codes")
+Blueprint.connect(node4, "val", node5, "value")
+Blueprint.connect(node1, "v", node2, "value")

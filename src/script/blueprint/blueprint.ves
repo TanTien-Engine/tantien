@@ -269,6 +269,23 @@ class Blueprint
 		}
 	}
 
+	static calc_input_opcodes(curr_node, input_slot, compiler, opcodes)
+	{
+		var pin = this.query_pin(curr_node.imports, input_slot)
+		if (!pin or pin.conns.isEmpty) {
+			return -1
+		}
+
+		var f_pin = pin.conns.front().from
+		var f_node = f_pin.node
+
+		if (f_node.has_method("calc_opcodes(_,_,_)")) {
+			return f_node.calc_opcodes(compiler, opcodes, f_pin.slot_idx)
+		}
+
+		return -1
+	}
+
 	static get_first_connect_pin(pin)
 	{
 		if (pin.conns.isEmpty) {

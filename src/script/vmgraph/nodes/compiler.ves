@@ -1,0 +1,49 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vm" for Bytecodes, Compiler as tt_Compiler
+
+class Compiler is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "val", VAR_TYPE_ANY),
+		]
+		this.exports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+
+		this.layout()
+
+		this.opcodes = nil
+	}
+
+	on_pin_dirty(pin)
+	{
+		if (pin.is_input) {
+			this.opcodes = nil
+			Blueprint.send_pin_dirty(this.exports[0])
+		}
+	}
+
+	calc_value(idx)
+	{
+		if (!this.opcodes)
+		{
+			var compiler = tt_Compiler.init()
+			var opcodes = Bytecodes.init()
+
+			var ret = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+			opcodes.set_ret_reg(ret)
+
+			this.opcodes = opcodes
+		}
+
+		return Variant(VAR_TYPE_BYTECODES, this.opcodes)
+	}
+}

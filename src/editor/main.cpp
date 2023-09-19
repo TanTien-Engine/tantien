@@ -1,4 +1,4 @@
-﻿#define _NO_OCCT_
+﻿//#define _NO_OCCT_
 
 #include "tantien.h"
 #include "modules/render/wrap_Render.h"
@@ -27,6 +27,8 @@
 #include "modules/io/wrap_Keyboard.h"
 #include "modules/io/Keyboard.h"
 #include "modules/io/keyboard.ves.inc"
+#include "modules/VM/wrap_VM.h"
+#include "modules/VM/VM.ves.inc"
 
 // fixme
 #include "archgen/wrap_ArchGen.h"
@@ -44,6 +46,8 @@
 #ifndef _NO_OCCT_
 #include "partgraph_c/wrap_PartGraph.h"
 #include "partgraph_c/partgraph.ves.inc"
+#include "breptopo_c/wrap_BrepTopo.h"
+#include "breptopo_c/breptopo.ves.inc"
 #endif // _NO_OCCT_
 #include "loggraph_c/wrap_LogGraph.h"
 #include "loggraph_c/loggraph.ves.inc"
@@ -51,8 +55,8 @@
 #include "codegraph_c/codegraph.ves.inc"
 #include "brepdb_c/wrap_BrepDB.h"
 #include "brepdb_c/brepdb.ves.inc"
-#include "brepvm_c/wrap_BrepVM.h"
-#include "brepvm_c/brepvm.ves.inc"
+//#include "brepvm_c/wrap_BrepVM.h"
+//#include "brepvm_c/brepvm.ves.inc"
 #include "brepfw_c/wrap_BrepFW.h"
 #include "brepfw_c/brepfw.ves.inc"
 
@@ -130,6 +134,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "shader") == 0 &&
         !strcmp(module, "physics") == 0 &&
         !strcmp(module, "keyboard") == 0 &&
+        !strcmp(module, "vm") == 0 &&
         !strcmp(module, "archgen") == 0 &&
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
@@ -138,6 +143,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "nurbslib") == 0 &&
 #ifndef _NO_OCCT_
         !strcmp(module, "partgraph") == 0 &&
+        !strcmp(module, "breptopo") == 0 &&
 #endif // _NO_OCCT_
         !strcmp(module, "loggraph") == 0 &&
         !strcmp(module, "codegraph") == 0 &&
@@ -176,6 +182,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = physicsModuleSource;
     } else if (strcmp(module, "keyboard") == 0) {
         source = keyboardModuleSource;
+    } else if (strcmp(module, "vm") == 0) {
+        source = vmModuleSource;
     } else if (strcmp(module, "archgen") == 0) {
         source = archgenModuleSource;
     } else if (strcmp(module, "citygen") == 0) {
@@ -191,6 +199,8 @@ VesselLoadModuleResult read_module(const char* module)
 #ifndef _NO_OCCT_
     } else if (strcmp(module, "partgraph") == 0) {
         source = partgraphModuleSource;
+    } else if (strcmp(module, "breptopo") == 0) {
+        source = breptopoModuleSource;
 #endif // _NO_OCCT_
     } else if (strcmp(module, "loggraph") == 0) {
         source = loggraphModuleSource;
@@ -198,8 +208,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = codegraphModuleSource;
     } else if (strcmp(module, "brepdb") == 0) {
         source = brepdbModuleSource;
-    } else if (strcmp(module, "brepvm") == 0) {
-        source = brepvmModuleSource;
+    //} else if (strcmp(module, "brepvm") == 0) {
+    //    source = brepvmModuleSource;
     } else if (strcmp(module, "brepfw") == 0) {
         source = brepfwModuleSource;
     } else {
@@ -329,6 +339,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::KeyboardBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::VmBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     archgen::ArchGenBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -350,6 +363,8 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
 #ifndef _NO_OCCT_
     partgraph::PartGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
+    breptopo::BrepTopoBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
 #endif // _NO_OCCT_
 
     if (strcmp(module, "loggraph") == 0) {
@@ -365,8 +380,8 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     brepdbgraph::BrepDBBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    brepvmgraph::BrepVMBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    //brepvmgraph::BrepVMBindClass(className, &methods);
+    //if (methods.allocate != NULL) return methods;
 
     brepfwgraph::BrepFWBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
@@ -423,6 +438,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::KeyboardBindMethod(fullName);
     if (method != NULL) return method;
 
+    method = tt::VmBindMethod(fullName);
+    if (method != NULL) return method;
+
     method = archgen::ArchGenBindMethod(fullName);
     if (method != NULL) return method;
 
@@ -444,6 +462,8 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
 #ifndef _NO_OCCT_
     method = partgraph::PartGraphBindMethod(fullName);
     if (method != NULL) return method;
+    method = breptopo::BrepTopoBindMethod(fullName);
+    if (method != NULL) return method;
 #endif // _NO_OCCT_
 
     if (strcmp(module, "loggraph") == 0) {
@@ -459,8 +479,8 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = brepdbgraph::BrepDBBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = brepvmgraph::BrepVMBindMethod(fullName);
-    if (method != NULL) return method;
+    //method = brepvmgraph::BrepVMBindMethod(fullName);
+    //if (method != NULL) return method;
 
     method = brepfwgraph::BrepFWBindMethod(fullName);
     if (method != NULL) return method;

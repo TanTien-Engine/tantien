@@ -20,8 +20,21 @@ class Integer is Node
 		this.value = 0
 	}
 
-	calc_value(idx) {
+	calc_value(idx) 
+	{
 		return Variant(VAR_TYPE_INTEGER, this.value)
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.store_num(reg, this.value)
+
+		return reg
 	}
 
 	layout() 

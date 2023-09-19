@@ -40,6 +40,7 @@ void list_to_foreigns(int index, std::vector<T>& foreigns);
 
 void return_list(const std::vector<std::vector<sm::vec2>>& polys);
 void return_list(const std::vector<sm::vec2>& pts);
+void return_list(const std::vector<sm::ivec2>& pts);
 void return_list(const std::vector<sm::vec3>& pts);
 void return_list(const std::vector<std::string>& strs);
 
@@ -48,6 +49,7 @@ void return_list(const std::vector<T>& vals);
 template<typename T>
 void return_list2(const std::vector<std::vector<T>>& vals);
 
+void return_vec(const sm::vec2& vec2);
 void return_vec(const sm::vec3& vec3);
 
 }

@@ -263,6 +263,23 @@ void return_list(const std::vector<sm::vec2>& pts)
     }
 }
 
+void return_list(const std::vector<sm::ivec2>& pts)
+{
+    ves_pop(ves_argnum());
+
+    ves_newlist(int(pts.size()) * 2);
+    for (int i = 0, n = int(pts.size()); i < n; ++i)
+    {
+        ves_pushnumber(pts[i].x);
+        ves_seti(-2, i * 2);
+        ves_pop(1);
+
+        ves_pushnumber(pts[i].y);
+        ves_seti(-2, i * 2 + 1);
+        ves_pop(1);
+    }
+}
+
 void return_list(const std::vector<sm::vec3>& pts)
 {
     ves_pop(ves_argnum());
@@ -293,6 +310,23 @@ void return_list(const std::vector<std::string>& strs)
     {
         ves_pushstring(strs[i].c_str());
         ves_seti(-2, i);
+        ves_pop(1);
+    }
+}
+
+void return_vec(const sm::vec2& vec2)
+{
+    ves_pop(ves_argnum());
+
+    ves_newmap();
+    {
+        ves_pushnumber(vec2.x);
+        ves_setfield(-2, "x");
+        ves_pop(1);
+    }
+    {
+        ves_pushnumber(vec2.y);
+        ves_setfield(-2, "y");
         ves_pop(1);
     }
 }

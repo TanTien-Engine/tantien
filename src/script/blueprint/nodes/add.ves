@@ -21,7 +21,6 @@ class Add is Node
 		this.layout()
 	}
 
-	
 	calc_value(idx)
 	{
 		var a = Blueprint.calc_input_value(this, 0)
@@ -50,6 +49,30 @@ class Add is Node
 		}
 
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var a = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (a < 0) {
+			return -1
+		}
+		var b = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (b < 0) {
+			return -1
+		}
+
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.add(reg, a, b)
+
+		compiler.free_reg(a)
+		compiler.free_reg(b)
+
+		return reg
 	}
 
 	shader_gen(node, idx)

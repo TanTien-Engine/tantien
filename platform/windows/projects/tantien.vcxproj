@@ -19,6 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\Graph.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\breptopo\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\breptopo\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\GraphTools.cpp" />
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\Node.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\breptopo\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\breptopo\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoAdapter.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\breptopo\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\breptopo\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.cpp" />
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
@@ -33,6 +47,10 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\TopoAlgo.cpp" />
+    <ClCompile Include="..\..\..\..\cax\partgraph_c\TransHelper.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\partgraph\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\partgraph\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.cpp" />
     <ClCompile Include="..\..\..\..\cax\sketchlib\Scene.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)/sketchlib/</ObjectFileName>
@@ -55,7 +73,10 @@
     <ClCompile Include="..\..\..\..\littleworld\archgen\wrap_ArchGen.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Chaikin.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Extrude.cpp" />
-    <ClCompile Include="..\..\..\..\littleworld\citygen\Graph.cpp" />
+    <ClCompile Include="..\..\..\..\littleworld\citygen\Graph.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\citygen\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\citygen\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\littleworld\citygen\KMeans.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\Math.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\citygen\ParcelsOBB.cpp" />
@@ -75,24 +96,55 @@
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\BRepTrans.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\RTree.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrColor.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrRenderObj.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepfw\</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepfw\</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepExplore.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepOpcodes.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepfw\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepfw\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepVM.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepfw\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepfw\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\Component.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\Label.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\Object.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrNaming.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\LabelTools.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\PrimBuilder.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\LabelBuilder.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoAdapter.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepfw\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepfw\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoBody.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoEdge.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoFace.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoLoop.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoShell.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepfw_c\TopoVertex.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepCode.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepCode.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepvm\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepvm\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRep.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepOpcodes.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepVM.cpp" />
+    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepOpcodes.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepvm\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepvm\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\testbed\brepvm_c\BRepVM.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\brepvm\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\brepvm\</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\VBO.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepvm_c\wrap_BrepVM.cpp" />
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\BasicBlock.cpp" />
@@ -161,8 +213,16 @@
     <ClCompile Include="..\..\..\src\modules\shader\wrap_Shader.cpp" />
     <ClCompile Include="..\..\..\src\modules\system\System.cpp" />
     <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
+    <ClCompile Include="..\..\..\src\modules\vm\Compiler.cpp" />
+    <ClCompile Include="..\..\..\src\modules\vm\wrap_VM.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\Edge.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\Graph.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphTools.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\Node.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoAdapter.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.h" />
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepBuilder.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepHistory.h" />
@@ -174,6 +234,7 @@
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAdapter.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoAlgo.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TopoDataset.h" />
+    <ClInclude Include="..\..\..\..\cax\partgraph_c\TransHelper.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\wrap_PartGraph.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Constraint.h" />
     <ClInclude Include="..\..\..\..\cax\sketchlib\Geometry.h" />
@@ -218,17 +279,23 @@
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\RegionVisitor.h" />
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\RTree.h" />
     <ClInclude Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrColor.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\Attribute.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrRenderObj.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepCode.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepExplore.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepOpcodes.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\BRepVM.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\CompHalfEdge.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\Component.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNamedShape.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\Label.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\LabelBuilder.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\Object.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrNaming.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrTreeNode.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\LabelTools.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\PrimBuilder.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\RenderBuilder.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoBody.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoEdge.h" />
@@ -237,6 +304,7 @@
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShape.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShapeType.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoShell.h" />
+    <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoAdapter.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\TopoVertex.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\wrap_BrepFW.h" />
     <ClInclude Include="..\..\..\..\testbed\brepvm_c\BRepCode.h" />
@@ -307,8 +375,12 @@
     <ClInclude Include="..\..\..\src\modules\shader\wrap_Shader.h" />
     <ClInclude Include="..\..\..\src\modules\system\System.h" />
     <ClInclude Include="..\..\..\src\modules\system\wrap_System.h" />
+    <ClInclude Include="..\..\..\src\modules\vm\Bytecodes.h" />
+    <ClInclude Include="..\..\..\src\modules\vm\Compiler.h" />
+    <ClInclude Include="..\..\..\src\modules\vm\wrap_VM.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\cax\breptopo_c\breptopo.ves.inc" />
     <None Include="..\..\..\..\cax\nurbslib\nurbslib.ves.inc" />
     <None Include="..\..\..\..\cax\partgraph_c\partgraph.ves.inc" />
     <None Include="..\..\..\..\cax\sketchlib\sketchlib.ves.inc" />
@@ -336,6 +408,7 @@
     <None Include="..\..\..\src\modules\script\TransHelper.inl" />
     <None Include="..\..\..\src\modules\shader\shader.ves.inc" />
     <None Include="..\..\..\src\modules\system\system.ves.inc" />
+    <None Include="..\..\..\src\modules\vm\vm.ves.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -445,7 +518,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -461,7 +534,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
