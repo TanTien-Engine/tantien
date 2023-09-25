@@ -40,10 +40,124 @@ class Box is Node
 		if (idx == 0) {
 			return this.calc_out_geo()
 		} else if (idx == 1) {
-			return this.calc_out_cube()			
+			return this.calc_out_cube()
 		}
 
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var size = this.query_param("size").value
+
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+
+		var pos = this.query_param("pos").value
+
+		var xmin = pos.x - hx
+		var xmax = pos.x + hx
+		var ymin = pos.y - hy
+		var ymax = pos.y + hy
+		var zmin = pos.z - hz
+		var zmax = pos.z + hz
+
+		if (this.query_param("offset_x").value) {
+			xmin = xmin + hx
+			xmax = xmax + hx
+		}
+		if (this.query_param("offset_y").value) {
+			ymin = ymin + hy
+			ymax = ymax + hy
+		}
+		if (this.query_param("offset_z").value) {
+			zmin = zmin + hz
+			zmax = zmax + hz
+		}
+
+    	var top_left_front  = [ xmin, ymax, zmin ]
+    	var top_left_back   = [ xmin, ymax, zmax ]
+    	var top_right_front = [ xmax, ymax, zmin ]
+    	var top_right_back  = [ xmax, ymax, zmax ]
+    	var btm_left_front  = [ xmin, ymin, zmin ]
+    	var btm_left_back   = [ xmin, ymin, zmax ]
+    	var btm_right_front = [ xmax, ymin, zmin ]
+    	var btm_right_back  = [ xmax, ymin, zmax ]
+
+    	var reg_list = compiler.new_reg()
+    	opcodes.create_vector(reg_list)
+
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_front, top_left_back, top_right_back, reg_list)
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, btm_left_front, btm_right_front, btm_right_back, reg_list)
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_back, top_left_front, btm_left_front, reg_list)
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_right_front, top_right_back, btm_right_back, reg_list)
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_front, top_right_front, btm_right_front, reg_list)
+		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_right_back, top_left_back, btm_left_back, reg_list)
+
+		var reg_poly = compiler.new_reg()
+		opcodes.create_polytope(reg_poly, reg_list)
+		compiler.free_reg(reg_list)
+
+		return reg_poly
+	}
+
+	calc_opcodes_create_plane(compiler, opcodes, p0, p1, p2)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var reg_p0 = compiler.new_reg()
+		if (reg_p0 < 0) {
+			return -1
+		}
+		var reg_p1 = compiler.new_reg()
+		if (reg_p1 < 0) {
+			return -1
+		}
+		var reg_p2 = compiler.new_reg()
+		if (reg_p2 < 0) {
+			return -1
+		}
+
+		opcodes.store_vec3(reg_p0, p0)
+		opcodes.store_vec3(reg_p1, p1)
+		opcodes.store_vec3(reg_p2, p2)
+
+		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
+
+		compiler.free_reg(reg_p0)
+		compiler.free_reg(reg_p1)
+		compiler.free_reg(reg_p2)
+
+		return reg
+	}
+
+	calc_opcodes_create_face(compiler, opcodes, p0, p1, p2)
+	{
+    	var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var reg_plane = this.calc_opcodes_create_plane(compiler, opcodes, p0, p1, p2)
+		if (reg_plane < 0) {
+			return -1
+		}
+
+		opcodes.create_polyface(reg, reg_plane)
+		compiler.free_reg(reg_plane)
+
+		return reg
+	}
+
+	calc_opcodes_create_face_to_list(compiler, opcodes, p0, p1, p2, list)
+	{
+		var reg = this.calc_opcodes_create_face(compiler, opcodes, p0, p1, p2)
+		opcodes.add_vector(list, reg)
+		compiler.free_reg(reg)
 	}
 
 	calc_in_size()

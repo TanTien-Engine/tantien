@@ -2,7 +2,10 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER
 import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_PLANE, VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "geometry" for PolyFace, Polytope
 import "vm" for VM
 
 class Vm is Node
@@ -32,8 +35,16 @@ class Vm is Node
 		vm.run()
 
 		var reg = v_codes.value.get_ret_reg()
-		var num = vm.load_number(reg)
+//		var num = vm.load_number(reg)
 
-		return Variant(VAR_TYPE_NUMBER, num)
+//		return Variant(VAR_TYPE_NUMBER, num)
+
+//		var plane = vm.load_polyface(reg)
+//		return Variant(VAR_TYPE_PLANE, plane)
+
+		var poly = vm.load_polytope(reg)
+		var geo = VarGeo()
+		geo.shape = Brush([ poly ])
+		return Variant(VAR_TYPE_GEO, geo)
 	}
 }
