@@ -1,0 +1,85 @@
+class OpCodes
+{
+	static create_plane(compiler, opcodes, p0, p1, p2)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var reg_p0 = compiler.new_reg()
+		if (reg_p0 < 0) {
+			return -1
+		}
+		var reg_p1 = compiler.new_reg()
+		if (reg_p1 < 0) {
+			return -1
+		}
+		var reg_p2 = compiler.new_reg()
+		if (reg_p2 < 0) {
+			return -1
+		}
+
+		opcodes.store_vec3(reg_p0, p0)
+		opcodes.store_vec3(reg_p1, p1)
+		opcodes.store_vec3(reg_p2, p2)
+
+		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
+
+		compiler.free_reg(reg_p0)
+		compiler.free_reg(reg_p1)
+		compiler.free_reg(reg_p2)
+
+		return reg
+	}
+
+	static create_face(compiler, opcodes, p0, p1, p2)
+	{
+    	var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var reg_plane = this.create_plane(compiler, opcodes, p0, p1, p2)
+		if (reg_plane < 0) {
+			return -1
+		}
+
+		opcodes.create_polyface(reg, reg_plane)
+		compiler.free_reg(reg_plane)
+
+		return reg
+	}
+}
+
+class PolytopeBuilder
+{
+	init(compiler, opcodes)
+	{
+		this.compiler = compiler
+		this.opcodes = opcodes
+
+		this.faces = compiler.new_reg()
+		opcodes.create_vector(this.faces)
+	}
+
+	add_face(p0, p1, p2)
+	{
+		var face = OpCodes.create_face(this.compiler, this.opcodes, p0, p1, p2)
+		this.opcodes.add_vector(this.faces, face)
+		this.compiler.free_reg(face)
+	}
+
+	// flush
+	create_polytope()
+	{
+		var poly = this.compiler.new_reg()
+
+		this.opcodes.create_polytope(poly, this.faces)
+
+		this.compiler.free_reg(this.faces)
+		this.faces = 0
+
+		return poly
+	}
+}

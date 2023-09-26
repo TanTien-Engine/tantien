@@ -5,6 +5,7 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VarGeo
 import "geograph.brush" for Brush
+import "geograph.opcodes" for PolytopeBuilder
 import "geometry" for PolyFace, Polytope
 import "maths.vector" for Vector3
 import "maths.cube" for Cube
@@ -85,79 +86,16 @@ class Box is Node
     	var btm_right_front = [ xmax, ymin, zmin ]
     	var btm_right_back  = [ xmax, ymin, zmax ]
 
-    	var reg_list = compiler.new_reg()
-    	opcodes.create_vector(reg_list)
+    	var builder = PolytopeBuilder(compiler, opcodes)
 
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_front, top_left_back, top_right_back, reg_list)
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, btm_left_front, btm_right_front, btm_right_back, reg_list)
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_back, top_left_front, btm_left_front, reg_list)
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_right_front, top_right_back, btm_right_back, reg_list)
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_left_front, top_right_front, btm_right_front, reg_list)
-		this.calc_opcodes_create_face_to_list(compiler, opcodes, top_right_back, top_left_back, btm_left_back, reg_list)
+		builder.add_face(top_left_front, top_left_back, top_right_back)
+		builder.add_face(btm_left_front, btm_right_front, btm_right_back)
+		builder.add_face(top_left_back, top_left_front, btm_left_front)
+		builder.add_face(top_right_front, top_right_back, btm_right_back)
+		builder.add_face(top_left_front, top_right_front, btm_right_front)
+		builder.add_face(top_right_back, top_left_back, btm_left_back)
 
-		var reg_poly = compiler.new_reg()
-		opcodes.create_polytope(reg_poly, reg_list)
-		compiler.free_reg(reg_list)
-
-		return reg_poly
-	}
-
-	calc_opcodes_create_plane(compiler, opcodes, p0, p1, p2)
-	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
-
-		var reg_p0 = compiler.new_reg()
-		if (reg_p0 < 0) {
-			return -1
-		}
-		var reg_p1 = compiler.new_reg()
-		if (reg_p1 < 0) {
-			return -1
-		}
-		var reg_p2 = compiler.new_reg()
-		if (reg_p2 < 0) {
-			return -1
-		}
-
-		opcodes.store_vec3(reg_p0, p0)
-		opcodes.store_vec3(reg_p1, p1)
-		opcodes.store_vec3(reg_p2, p2)
-
-		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
-
-		compiler.free_reg(reg_p0)
-		compiler.free_reg(reg_p1)
-		compiler.free_reg(reg_p2)
-
-		return reg
-	}
-
-	calc_opcodes_create_face(compiler, opcodes, p0, p1, p2)
-	{
-    	var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
-
-		var reg_plane = this.calc_opcodes_create_plane(compiler, opcodes, p0, p1, p2)
-		if (reg_plane < 0) {
-			return -1
-		}
-
-		opcodes.create_polyface(reg, reg_plane)
-		compiler.free_reg(reg_plane)
-
-		return reg
-	}
-
-	calc_opcodes_create_face_to_list(compiler, opcodes, p0, p1, p2, list)
-	{
-		var reg = this.calc_opcodes_create_face(compiler, opcodes, p0, p1, p2)
-		opcodes.add_vector(list, reg)
-		compiler.free_reg(reg)
+		return builder.create_polytope()
 	}
 
 	calc_in_size()
