@@ -1,4 +1,4 @@
-class OpCodes
+class Compiler
 {
 	static create_plane(compiler, opcodes, p0, p1, p2)
 	{
@@ -65,7 +65,7 @@ class PolytopeBuilder
 
 	add_face(p0, p1, p2)
 	{
-		var face = OpCodes.create_face(this.compiler, this.opcodes, p0, p1, p2)
+		var face = Compiler.create_face(this.compiler, this.opcodes, p0, p1, p2)
 		this.opcodes.add_vector(this.faces, face)
 		this.compiler.free_reg(face)
 	}
