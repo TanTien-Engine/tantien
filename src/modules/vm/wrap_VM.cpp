@@ -4,8 +4,9 @@
 #include "modules/vm/Bytecodes.h"
 #include "modules/vm/Compiler.h"
 #include "modules/vm/VM.h"
-#include "modules/vm/geo_op_codes.h"
-#include "modules/vm/stl_op_codes.h"
+#include "modules/vm/math_opcodes.h"
+#include "modules/vm/geo_opcodes.h"
+#include "modules/vm/stl_opcodes.h"
 
 #include <SM_Plane.h>
 #include <polymesh3/Polytope.h>
@@ -28,6 +29,19 @@ int w_Bytecodes_finalize(void* data)
     auto proxy = (tt::Proxy<tt::Bytecodes>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<tt::Bytecodes>);
+}
+
+void w_Bytecodes_set_ret_reg()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    code->SetRetReg(reg);
+}
+
+void w_Bytecodes_get_ret_reg()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    ves_set_number(0, code->GetRetReg());
 }
 
 void w_Bytecodes_store_num()
@@ -72,31 +86,6 @@ void w_Bytecodes_add()
     code->Write(reinterpret_cast<const char*>(&reg_src2), sizeof(uint8_t));
 }
 
-void w_Bytecodes_create_vector()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::StlOpCode::OP_VECTOR_CREATE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
-}
-
-void w_Bytecodes_add_vector()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::StlOpCode::OP_VECTOR_ADD;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t dst_reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&dst_reg), sizeof(uint8_t));
-
-    uint8_t src_reg = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&src_reg), sizeof(uint8_t));
-}
-
 void w_Bytecodes_store_vec3()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -122,6 +111,31 @@ void w_Bytecodes_print_vec3()
 
     uint8_t reg = (uint8_t)ves_tonumber(1);
     code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+}
+
+void w_Bytecodes_create_vector()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    uint8_t op = tt::StlOpCode::OP_VECTOR_CREATE;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+}
+
+void w_Bytecodes_add_vector()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    uint8_t op = tt::StlOpCode::OP_VECTOR_ADD;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t dst_reg = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&dst_reg), sizeof(uint8_t));
+
+    uint8_t src_reg = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&src_reg), sizeof(uint8_t));
 }
 
 void w_Bytecodes_create_plane()
@@ -168,19 +182,6 @@ void w_Bytecodes_create_polytope()
 
     uint8_t reg_faces = (uint8_t)ves_tonumber(2);
     code->Write(reinterpret_cast<const char*>(&reg_faces), sizeof(uint8_t));
-}
-
-void w_Bytecodes_set_ret_reg()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->SetRetReg(reg);
-}
-
-void w_Bytecodes_get_ret_reg()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    ves_set_number(0, code->GetRetReg());
 }
 
 void w_Compiler_allocate()
@@ -344,21 +345,22 @@ namespace tt
 
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
+    // base
+    if (strcmp(signature, "Bytecodes.set_ret_reg(_)") == 0) return w_Bytecodes_set_ret_reg;
+    if (strcmp(signature, "Bytecodes.get_ret_reg()") == 0) return w_Bytecodes_get_ret_reg;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
     if (strcmp(signature, "Bytecodes.add(_,_,_)") == 0) return w_Bytecodes_add;
+    // math
+    if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
+    if (strcmp(signature, "Bytecodes.print_vec3(_)") == 0) return w_Bytecodes_print_vec3;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.add_vector(_,_)") == 0) return w_Bytecodes_add_vector;
     // geo
-    if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
-    if (strcmp(signature, "Bytecodes.print_vec3(_)") == 0) return w_Bytecodes_print_vec3;
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;
     if (strcmp(signature, "Bytecodes.create_polytope(_,_)") == 0) return w_Bytecodes_create_polytope;
-
-    if (strcmp(signature, "Bytecodes.set_ret_reg(_)") == 0) return w_Bytecodes_set_ret_reg;
-    if (strcmp(signature, "Bytecodes.get_ret_reg()") == 0) return w_Bytecodes_get_ret_reg;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;

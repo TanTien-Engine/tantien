@@ -5,23 +5,24 @@ foreign class Bytecodes
 {
 	init() {}
 
+	foreign set_ret_reg(reg)
+	foreign get_ret_reg()
+
 	foreign store_num(reg, num)
 	foreign print_num(reg)
 
 	foreign add(reg_dst, reg_src1, reg_src2)
 
-	foreign create_vector(reg)
-	foreign add_vector(reg_dst, reg_src)
-
+	// math
 	foreign store_vec3(reg, xyz)
 	foreign print_vec3(reg)
-
+	// stl
+	foreign create_vector(reg)
+	foreign add_vector(reg_dst, reg_src)
+	// geo
 	foreign create_plane(reg, p0, p1, p2)
 	foreign create_polyface(reg, plane)
 	foreign create_polytope(reg, faces)
-
-	foreign set_ret_reg(reg)
-	foreign get_ret_reg()
 }
 
 foreign class Compiler

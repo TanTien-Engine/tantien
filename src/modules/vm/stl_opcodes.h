@@ -7,7 +7,7 @@ namespace tt
 
 enum StlOpCode
 {
-	OP_VECTOR_CREATE = 32,
+	OP_VECTOR_CREATE = 64,
 	OP_VECTOR_ADD,
 };
 
