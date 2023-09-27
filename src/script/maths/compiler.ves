@@ -1,0 +1,26 @@
+class Compiler
+{
+	static create_vec3(compiler, opcodes, vec3)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.store_vec3(reg, [ vec3.x, vec3.y, vec3.z ])
+
+		return reg
+	}
+
+	static create_mat4(compiler, opcodes)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.create_mat4(reg)
+
+		return reg
+	}
+}

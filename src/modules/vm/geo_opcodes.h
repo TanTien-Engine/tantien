@@ -10,6 +10,8 @@ enum GeoOpCode
 	OP_CREATE_PLANE = 96,
 	OP_CREATE_POLYFACE,
 	OP_CREATE_POLYTOPE,
+
+	OP_POLYTOPE_TRANSFORM,
 };
 
 class GeoOpCodeImpl
@@ -24,6 +26,8 @@ private:
 	static void CreatePlane(evm::VM* vm);
 	static void CreatePolyFace(evm::VM* vm);
 	static void CreatePolytope(evm::VM* vm);
+
+	static void PolytopeTransform(evm::VM* vm);
 
 }; // GeoOpCodeImpl
 

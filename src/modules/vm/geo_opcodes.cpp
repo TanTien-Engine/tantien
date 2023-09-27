@@ -1,5 +1,6 @@
 #include "geo_opcodes.h"
 
+#include <SM_Matrix.h>
 #include <polymesh3/Polytope.h>
 #include <easyvm/VM.h>
 #include <easyvm/VMHelper.h>
@@ -13,6 +14,8 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_CREATE_PLANE, CreatePlane);
 	vm->RegistOperator(OP_CREATE_POLYFACE, CreatePolyFace);
 	vm->RegistOperator(OP_CREATE_POLYTOPE, CreatePolytope);
+
+	vm->RegistOperator(OP_POLYTOPE_TRANSFORM, PolytopeTransform);
 }
 
 void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
@@ -107,6 +110,28 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	v.as.handle = new evm::Handle<pm3::Polytope>(poly);
 
 	vm->SetRegister(dst_reg, v);
+}
+
+void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
+{
+	uint8_t reg_poly = vm->NextByte();
+	auto poly = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, reg_poly);
+	if (!poly) {
+		return;
+	}
+
+	uint8_t reg_mat = vm->NextByte();
+	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, reg_mat);
+	if (!mat) {
+		return;
+	}
+
+	auto& pts = poly->Points();
+	for (auto& p : pts) {
+		p->pos = *mat * p->pos;
+	}
+
+	poly->SetTopoDirty();
 }
 
 }

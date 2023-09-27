@@ -8,6 +8,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_editor" for NodeEditor
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3
+import "maths.compiler" for Compiler
 import "maths" for Matrix44, Float3
 import "graphics" for Graphics
 
@@ -33,8 +34,14 @@ class Number3 is Node
 		this.editor_pts = Array()
 	}
 
-	calc_value(idx) {
+	calc_value(idx) 
+	{
 		return Variant(VAR_TYPE_NUMBER3, this.value)
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		return Compiler.create_vec3(compiler, opcodes, this.value)
 	}
 
 	layout() 

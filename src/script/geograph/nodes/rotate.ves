@@ -5,6 +5,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "maths.vector" for Vector3
+import "maths.compiler" for Compiler as math_Compiler
 import "math" for Math
 import "maths" for Matrix44, Float3
 
@@ -45,6 +46,28 @@ class Rotate is Node
 		} else {
 			return Variant(result)
 		}
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_geo < 0) {
+			return -1
+		}
+
+		var r_xyz = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)
+		if (r_xyz < 0) {
+			return -1
+		}
+
+		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
+		opcodes.rotate_mat4(r_mat, r_xyz)
+
+		opcodes.polytope_transform(r_geo, r_mat)
+
+		compiler.free_reg(r_mat)
+
+		return r_geo
 	}
 
 	calc_mat()

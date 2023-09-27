@@ -18,6 +18,19 @@
 namespace
 {
 
+void bytecodes_write(uint8_t op, int num)
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    for (int i = 0; i < num; ++i)
+    {
+        uint8_t reg = (uint8_t)ves_tonumber(i + 1);
+        code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    }
+}
+
 void w_Bytecodes_allocate()
 {
     auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Bytecodes>));
@@ -34,7 +47,7 @@ int w_Bytecodes_finalize(void* data)
 void w_Bytecodes_set_ret_reg()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    uint8_t reg = (uint8_t)ves_tonumber(1);
+    int reg = (int)ves_tonumber(1);
     code->SetRetReg(reg);
 }
 
@@ -60,30 +73,12 @@ void w_Bytecodes_store_num()
 
 void w_Bytecodes_print_num()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = evm::OP_NUMBER_PRINT;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    bytecodes_write(evm::OP_NUMBER_PRINT, 1);
 }
 
 void w_Bytecodes_add()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = evm::OP_ADD;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg_dst = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg_dst), sizeof(uint8_t));
-
-    uint8_t reg_src1 = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&reg_src1), sizeof(uint8_t));
-
-    uint8_t reg_src2 = (uint8_t)ves_tonumber(3);
-    code->Write(reinterpret_cast<const char*>(&reg_src2), sizeof(uint8_t));
+    bytecodes_write(evm::OP_ADD, 3);
 }
 
 void w_Bytecodes_store_vec3()
@@ -104,84 +99,52 @@ void w_Bytecodes_store_vec3()
 
 void w_Bytecodes_print_vec3()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    bytecodes_write(tt::OP_VEC3_PRINT, 1);
+}
 
-    uint8_t op = tt::OP_VEC3_PRINT;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+void w_Bytecodes_create_mat4()
+{
+    bytecodes_write(tt::OP_MATRIX_CREATE, 1);
+}
 
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+void w_Bytecodes_rotate_mat4()
+{
+    bytecodes_write(tt::OP_MATRIX_ROTATE, 2);
+}
+
+void w_Bytecodes_translate_mat4()
+{
+    bytecodes_write(tt::OP_MATRIX_TRANSLATE, 2);
 }
 
 void w_Bytecodes_create_vector()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::StlOpCode::OP_VECTOR_CREATE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_CREATE, 1);
 }
 
 void w_Bytecodes_add_vector()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::StlOpCode::OP_VECTOR_ADD;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t dst_reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&dst_reg), sizeof(uint8_t));
-
-    uint8_t src_reg = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&src_reg), sizeof(uint8_t));
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_ADD, 2);
 }
 
 void w_Bytecodes_create_plane()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::OP_CREATE_PLANE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg_dst = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg_dst), sizeof(uint8_t));
-
-    uint8_t reg_p0 = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&reg_p0), sizeof(uint8_t));
-    uint8_t reg_p1 = (uint8_t)ves_tonumber(3);
-    code->Write(reinterpret_cast<const char*>(&reg_p1), sizeof(uint8_t));
-    uint8_t reg_p2 = (uint8_t)ves_tonumber(4);
-    code->Write(reinterpret_cast<const char*>(&reg_p2), sizeof(uint8_t));
+    bytecodes_write(tt::OP_CREATE_PLANE, 4);
 }
 
 void w_Bytecodes_create_polyface()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    uint8_t op = tt::OP_CREATE_POLYFACE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg_dst = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg_dst), sizeof(uint8_t));
-
-    uint8_t reg_plane = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&reg_plane), sizeof(uint8_t));
+    bytecodes_write(tt::OP_CREATE_POLYFACE, 2);
 }
 
 void w_Bytecodes_create_polytope()
 {
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    bytecodes_write(tt::OP_CREATE_POLYTOPE, 2);
+}
 
-    uint8_t op = tt::OP_CREATE_POLYTOPE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg_dst = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg_dst), sizeof(uint8_t));
-
-    uint8_t reg_faces = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&reg_faces), sizeof(uint8_t));
+void w_Bytecodes_polytope_transform()
+{
+    bytecodes_write(tt::OP_POLYTOPE_TRANSFORM, 2);
 }
 
 void w_Compiler_allocate()
@@ -354,6 +317,10 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     // math
     if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
     if (strcmp(signature, "Bytecodes.print_vec3(_)") == 0) return w_Bytecodes_print_vec3;
+    if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
+    if (strcmp(signature, "Bytecodes.rotate_mat4(_,_)") == 0) return w_Bytecodes_rotate_mat4;
+    if (strcmp(signature, "Bytecodes.translate_mat4(_,_)") == 0) return w_Bytecodes_translate_mat4;
+
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.add_vector(_,_)") == 0) return w_Bytecodes_add_vector;
@@ -361,6 +328,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;
     if (strcmp(signature, "Bytecodes.create_polytope(_,_)") == 0) return w_Bytecodes_create_polytope;
+    if (strcmp(signature, "Bytecodes.polytope_transform(_,_)") == 0) return w_Bytecodes_polytope_transform;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;

@@ -1,0 +1,49 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1.6526862382889, 2, 0.76379734277725)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -534.30323164382, 41.320526132815)
+
+var node1 = ::blueprint::nodes::number3::Number3()
+
+node1.value.set(0.48194733262062, 0, 0)
+
+_editor.add_node(node1, -381.92071509724, 50.38458706503)
+
+var node2 = ::blueprint::nodes::camera3d::Camera3d()
+
+node2.cam.position.set(1.5762675143195, 2.8525984174862, 2.5710345982052)
+node2.cam.yaw = -120.9
+node2.cam.pitch = -49
+node2.cam.zoom = 45
+node2.cam.update_vectors()
+node2.speed = 0.29207175970078
+
+_editor.add_node(node2, 28.17621431949, -47.63817340057)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node3, 219, 86.5)
+
+var node4 = ::vmgraph::nodes::compiler::Compiler()
+
+_editor.add_node(node4, -109.09090909091, 108.45454545455)
+
+var node5 = ::vmgraph::nodes::vm::Vm()
+
+_editor.add_node(node5, 22.909090909091, 108.95454545455)
+
+var node6 = ::geograph::nodes::rotate::Rotate()
+
+_editor.add_node(node6, -246.76457542751, 92.943026908279)
+
+Blueprint.connect(node0, "geo", node6, "geo")
+Blueprint.connect(node1, "v3", node6, "rot_xyz")
+Blueprint.connect(node6, "geo", node4, "val")
+Blueprint.connect(node4, "codes", node5, "codes")
+Blueprint.connect(node5, "val", node3, "geos")
+Blueprint.connect(node2, "this", node3, "view_cam")

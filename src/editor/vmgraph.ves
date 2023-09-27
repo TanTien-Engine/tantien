@@ -18,6 +18,11 @@ class Vmgraph is Editor
 			super.add_popup_node(node)
 		}
 
+		import "editor.geonodes" for GEO_NODES
+		for (var node in GEO_NODES) {
+			super.add_popup_node(node)
+		}
+
 		import "editor.vmnodes" for VM_NODES
 		for (var node in VM_NODES) {
 			super.add_popup_node(node)

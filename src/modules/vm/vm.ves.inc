@@ -14,15 +14,21 @@ foreign class Bytecodes
 	foreign add(reg_dst, reg_src1, reg_src2)
 
 	// math
-	foreign store_vec3(reg, xyz)
-	foreign print_vec3(reg)
+	foreign store_vec3(r_vec, r_xyz)
+	foreign print_vec3(r_vec)
+	foreign create_mat4(r_mat)
+	foreign rotate_mat4(r_mat, r_xyz)
+	foreign translate_mat4(r_mat, r_xyz)
+
 	// stl
-	foreign create_vector(reg)
-	foreign add_vector(reg_dst, reg_src)
+	foreign create_vector(r_list)
+	foreign add_vector(r_list, r_item)
+
 	// geo
-	foreign create_plane(reg, p0, p1, p2)
-	foreign create_polyface(reg, plane)
-	foreign create_polytope(reg, faces)
+	foreign create_plane(r_dst, r_p0, r_p1, r_p2)
+	foreign create_polyface(r_dst, r_plane)
+	foreign create_polytope(r_dst, r_faces)
+	foreign polytope_transform(r_poly, r_mat)
 }
 
 foreign class Compiler
