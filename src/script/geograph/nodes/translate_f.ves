@@ -73,7 +73,7 @@ class TranslateF is Node
 		}
 
 		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
-		opcodes.translate_mat4(r_mat, r_xyz)
+		opcodes.mat4_translate(r_mat, r_xyz)
 
 		opcodes.polytope_transform(r_geo, r_mat)
 

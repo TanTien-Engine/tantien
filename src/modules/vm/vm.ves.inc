@@ -15,14 +15,14 @@ foreign class Bytecodes
 
 	// math
 	foreign store_vec3(r_vec, r_xyz)
-	foreign print_vec3(r_vec)
+	foreign vec3_print(r_vec)
 	foreign create_mat4(r_mat)
-	foreign rotate_mat4(r_mat, r_xyz)
-	foreign translate_mat4(r_mat, r_xyz)
+	foreign mat4_rotate(r_mat, r_xyz)
+	foreign mat4_translate(r_mat, r_xyz)
 
 	// stl
 	foreign create_vector(r_list)
-	foreign add_vector(r_list, r_item)
+	foreign vector_add(r_list, r_item)
 
 	// geo
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)

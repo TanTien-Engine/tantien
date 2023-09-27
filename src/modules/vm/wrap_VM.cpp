@@ -97,7 +97,7 @@ void w_Bytecodes_store_vec3()
     code->Write(reinterpret_cast<const char*>(&pos.z), sizeof(float));
 }
 
-void w_Bytecodes_print_vec3()
+void w_Bytecodes_vec3_print()
 {
     bytecodes_write(tt::OP_VEC3_PRINT, 1);
 }
@@ -107,12 +107,12 @@ void w_Bytecodes_create_mat4()
     bytecodes_write(tt::OP_MATRIX_CREATE, 1);
 }
 
-void w_Bytecodes_rotate_mat4()
+void w_Bytecodes_mat4_rotate()
 {
     bytecodes_write(tt::OP_MATRIX_ROTATE, 2);
 }
 
-void w_Bytecodes_translate_mat4()
+void w_Bytecodes_mat4_translate()
 {
     bytecodes_write(tt::OP_MATRIX_TRANSLATE, 2);
 }
@@ -122,7 +122,7 @@ void w_Bytecodes_create_vector()
     bytecodes_write(tt::StlOpCode::OP_VECTOR_CREATE, 1);
 }
 
-void w_Bytecodes_add_vector()
+void w_Bytecodes_vector_add()
 {
     bytecodes_write(tt::StlOpCode::OP_VECTOR_ADD, 2);
 }
@@ -316,14 +316,13 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.add(_,_,_)") == 0) return w_Bytecodes_add;
     // math
     if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
-    if (strcmp(signature, "Bytecodes.print_vec3(_)") == 0) return w_Bytecodes_print_vec3;
+    if (strcmp(signature, "Bytecodes.vec3_print(_)") == 0) return w_Bytecodes_vec3_print;
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
-    if (strcmp(signature, "Bytecodes.rotate_mat4(_,_)") == 0) return w_Bytecodes_rotate_mat4;
-    if (strcmp(signature, "Bytecodes.translate_mat4(_,_)") == 0) return w_Bytecodes_translate_mat4;
-
+    if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
+    if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
-    if (strcmp(signature, "Bytecodes.add_vector(_,_)") == 0) return w_Bytecodes_add_vector;
+    if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;
     // geo
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;
