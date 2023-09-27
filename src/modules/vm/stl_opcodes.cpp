@@ -34,7 +34,7 @@ void StlOpCodeImpl::VectorAdd(evm::VM* vm)
 	uint8_t dst_reg = vm->NextByte();
 	uint8_t src_reg = vm->NextByte();
 
-	auto vector = evm::VMHelper::GetHandler<std::vector<evm::Value>>(vm, dst_reg);
+	auto vector = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, dst_reg);
 
 	evm::Value val;
 	// todo: del it in vector's dtor

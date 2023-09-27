@@ -34,7 +34,7 @@ void MathOpCodeImpl::Vec3Create(evm::VM* vm)
 void MathOpCodeImpl::Vec3Print(evm::VM* vm)
 {
 	uint8_t reg = vm->NextByte();
-	auto vec = evm::VMHelper::GetHandler<sm::vec3>(vm, reg);
+	auto vec = evm::VMHelper::GetRegHandler<sm::vec3>(vm, reg);
 	if (vec) {
 		printf("%f, %f, %f", vec->x, vec->y, vec->z);
 	}

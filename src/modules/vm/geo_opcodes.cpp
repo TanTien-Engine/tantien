@@ -20,13 +20,13 @@ void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
 	uint8_t dst_reg = vm->NextByte();
 
 	uint8_t p0_reg = vm->NextByte();
-	auto p0 = evm::VMHelper::GetHandler<sm::vec3>(vm, p0_reg);
+	auto p0 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, p0_reg);
 
 	uint8_t p1_reg = vm->NextByte();
-	auto p1 = evm::VMHelper::GetHandler<sm::vec3>(vm, p1_reg);
+	auto p1 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, p1_reg);
 
 	uint8_t p2_reg = vm->NextByte();
-	auto p2 = evm::VMHelper::GetHandler<sm::vec3>(vm, p2_reg);
+	auto p2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, p2_reg);
 
 	evm::Value val;
 	val.type = evm::ValueType::HANDLE;
@@ -54,7 +54,7 @@ void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
 
 	uint8_t plane_reg = vm->NextByte();
 
-	auto plane = evm::VMHelper::GetHandler<sm::Plane>(vm, plane_reg);
+	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, plane_reg);
 
 	evm::Value val;
 	val.type = evm::ValueType::HANDLE;
@@ -81,7 +81,7 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	uint8_t dst_reg = vm->NextByte();
 	uint8_t src_reg = vm->NextByte();
 
-	auto faces = evm::VMHelper::GetHandler<std::vector<evm::Value>>(vm, src_reg);
+	auto faces = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, src_reg);
 
 	evm::Value val;
 	val.type = evm::ValueType::HANDLE;
