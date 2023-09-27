@@ -15,13 +15,13 @@ public:
 
 	auto& GetCode() const { return m_code; }
 
-	void SetRetReg(uint8_t reg) { m_ret_reg = reg; }
-	uint8_t GetRetReg() const { return m_ret_reg; }
+	void SetRetReg(int reg) { m_ret_reg = reg; }
+	int GetRetReg() const { return m_ret_reg; }
 
 private:
 	std::vector<uint8_t> m_code;
 
-	uint8_t m_ret_reg = 0xff;
+	int m_ret_reg = -1;
 
 }; // Bytecodes
 

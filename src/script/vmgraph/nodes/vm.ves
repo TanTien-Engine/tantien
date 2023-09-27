@@ -35,6 +35,10 @@ class Vm is Node
 		vm.run()
 
 		var reg = v_codes.value.get_ret_reg()
+		if (reg < 0) {
+			return nil
+		}
+
 //		var num = vm.load_number(reg)
 
 //		return Variant(VAR_TYPE_NUMBER, num)
