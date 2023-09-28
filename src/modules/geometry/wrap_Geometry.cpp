@@ -435,9 +435,13 @@ void w_Polyline_calc_length()
     auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
 
     float len = 0;
+
     auto& verts = polyline->GetVertices();
-    for (int i = 0, n = verts.size() - 1; i < n; ++i) {
-        len += sm::dis_pos_to_pos(verts[i], verts[i + 1]);
+    if (verts.size() > 1)
+    {
+        for (size_t i = 0, n = verts.size() - 1; i < n; ++i) {
+            len += sm::dis_pos_to_pos(verts[i], verts[i + 1]);
+        }
     }
 
     ves_set_number(0, len);
