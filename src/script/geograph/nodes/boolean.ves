@@ -53,7 +53,26 @@ class Boolean is Node
 		} else {
 			return Variant(brushes)
 		}
-	}	
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_base = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_base < 0) {
+			return -1
+		}
+
+		var r_tool = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (r_tool < 0) {
+			return -1
+		}
+
+		var r_dst = compiler.new_reg()
+
+		opcodes.polytope_subtract(r_dst, r_base, r_tool)
+
+		return r_dst
+	}
 
 	get_polys(dst, src)
 	{

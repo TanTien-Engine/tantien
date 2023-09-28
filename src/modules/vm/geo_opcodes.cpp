@@ -16,6 +16,7 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_CREATE_POLYTOPE, CreatePolytope);
 
 	vm->RegistOperator(OP_POLYTOPE_TRANSFORM, PolytopeTransform);
+	vm->RegistOperator(OP_POLYTOPE_SUBTRACT, PolytopeSubtract);
 }
 
 void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
@@ -132,6 +133,66 @@ void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
 	}
 
 	poly->SetTopoDirty();
+}
+
+void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
+{
+	uint8_t reg_dst = vm->NextByte();
+
+	uint8_t reg_base = vm->NextByte();
+	auto base = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, reg_base);
+	if (!base) {
+		return;
+	}
+
+	uint8_t reg_tool = vm->NextByte();
+	auto tool = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, reg_tool);
+	if (!tool) {
+		return;
+	}
+
+	auto base_topo = base->GetTopoPoly();
+	auto tool_topo = tool->GetTopoPoly();
+	if (!base_topo || !tool_topo) {
+		return;
+	}
+
+	auto polytopes = base_topo->Subtract(*tool_topo);
+	if (polytopes.empty()) {
+		return;
+	}
+
+	if (polytopes.size() == 1)
+	{
+		auto poly = std::make_shared<pm3::Polytope>(polytopes[0]);
+
+		evm::Value v;
+		v.type = evm::ValueType::HANDLE;
+		v.as.handle = new evm::Handle<pm3::Polytope>(poly);
+
+		vm->SetRegister(reg_dst, v);
+	}
+	else
+	{
+		auto list = std::make_shared<std::vector<evm::Value>>();
+
+		for (auto src : polytopes)
+		{
+			auto dst = std::make_shared<pm3::Polytope>(src);
+
+			evm::Value v;
+			v.type = evm::ValueType::HANDLE;
+			v.as.handle = new evm::Handle<pm3::Polytope>(dst);
+
+			list->push_back(v);
+		}
+
+		evm::Value v;
+		v.type = evm::ValueType::HANDLE;
+		v.as.handle = new evm::Handle<std::vector<evm::Value>>(list);
+
+		vm->SetRegister(reg_dst, v);
+	}
 }
 
 }

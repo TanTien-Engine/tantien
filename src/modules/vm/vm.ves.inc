@@ -29,6 +29,7 @@ foreign class Bytecodes
 	foreign create_polyface(r_dst, r_plane)
 	foreign create_polytope(r_dst, r_faces)
 	foreign polytope_transform(r_poly, r_mat)
+	foreign polytope_subtract(r_dst, r_base, r_tool)
 }
 
 foreign class Compiler
@@ -44,6 +45,8 @@ foreign class VM
 	init(code) {}
 
 	foreign run()
+
+	foreign load_register(reg)
 
 	foreign load_boolean(reg)
 	foreign load_number(reg)

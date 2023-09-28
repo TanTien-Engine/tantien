@@ -12,6 +12,7 @@ enum GeoOpCode
 	OP_CREATE_POLYTOPE,
 
 	OP_POLYTOPE_TRANSFORM,
+	OP_POLYTOPE_SUBTRACT,
 };
 
 class GeoOpCodeImpl
@@ -28,6 +29,7 @@ private:
 	static void CreatePolytope(evm::VM* vm);
 
 	static void PolytopeTransform(evm::VM* vm);
+	static void PolytopeSubtract(evm::VM* vm);
 
 }; // GeoOpCodeImpl
 

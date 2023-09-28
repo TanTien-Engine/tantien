@@ -46,9 +46,14 @@ class Vm is Node
 //		var plane = vm.load_polyface(reg)
 //		return Variant(VAR_TYPE_PLANE, plane)
 
-		var poly = vm.load_polytope(reg)
+//		var poly = vm.load_polytope(reg)
+//		var geo = VarGeo()
+//		geo.shape = Brush([ poly ])
+//		return Variant(VAR_TYPE_GEO, geo)
+
+		var polys = vm.load_register(reg)
 		var geo = VarGeo()
-		geo.shape = Brush([ poly ])
+		geo.shape = Brush(polys)
 		return Variant(VAR_TYPE_GEO, geo)
 	}
 }

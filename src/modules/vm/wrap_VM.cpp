@@ -147,6 +147,11 @@ void w_Bytecodes_polytope_transform()
     bytecodes_write(tt::OP_POLYTOPE_TRANSFORM, 2);
 }
 
+void w_Bytecodes_polytope_subtract()
+{
+    bytecodes_write(tt::OP_POLYTOPE_SUBTRACT, 3);
+}
+
 void w_Compiler_allocate()
 {
     auto proxy = (tt::Proxy<tt::Compiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Compiler>));
@@ -200,6 +205,41 @@ void w_VM_run()
     tt::InitVM(vm);
 
     vm->Run();
+}
+
+void w_VM_load_register()
+{
+    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+
+    evm::Value val;
+    if (!vm->GetRegister(reg, val)) {
+        ves_set_nil(0);
+        return;
+    }
+
+    // todo
+    if (val.type != evm::ValueType::HANDLE) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto polytopes = static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
+
+    ves_pop(ves_argnum());
+
+    const int num = (int)polytopes->size();
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        ves_pushnil();
+        ves_import_class("geometry", "Polytope");
+        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
+        proxy->obj = static_cast<evm::Handle<pm3::Polytope>*>((*polytopes)[i].as.handle)->obj;
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
 }
 
 void w_VM_load_boolean()
@@ -328,11 +368,14 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;
     if (strcmp(signature, "Bytecodes.create_polytope(_,_)") == 0) return w_Bytecodes_create_polytope;
     if (strcmp(signature, "Bytecodes.polytope_transform(_,_)") == 0) return w_Bytecodes_polytope_transform;
+    if (strcmp(signature, "Bytecodes.polytope_subtract(_,_,_)") == 0) return w_Bytecodes_polytope_subtract;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
+    if (strcmp(signature, "VM.load_register(_)") == 0) return w_VM_load_register;
+
     if (strcmp(signature, "VM.load_boolean(_)") == 0) return w_VM_load_boolean;
     if (strcmp(signature, "VM.load_number(_)") == 0) return w_VM_load_number;
     if (strcmp(signature, "VM.load_string(_)") == 0) return w_VM_load_string;
