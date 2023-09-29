@@ -1,3 +1,6 @@
+import "maths.vector" for Vector3
+import "maths.compiler" for Compiler as maths_Compiler
+
 class Compiler
 {
 	static create_plane(compiler, opcodes, p0, p1, p2)
@@ -50,6 +53,31 @@ class Compiler
 
 		return reg
 	}
+
+	static create_face(compiler, opcodes, indices)
+	{
+    	var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var r_indices = compiler.new_reg()
+		opcodes.create_vector(r_indices)
+		for (var idx in indices)
+		{
+			var r_idx = compiler.new_reg()
+			opcodes.store_num(r_idx, idx)
+
+			opcodes.vector_add(r_indices, r_idx)
+
+			compiler.free_reg(r_idx)
+		}
+
+		opcodes.create_polyface_2(reg, r_indices, -1)
+		compiler.free_reg(r_indices)
+
+		return reg
+	}
 }
 
 class PolytopeBuilder
@@ -59,8 +87,13 @@ class PolytopeBuilder
 		this.compiler = compiler
 		this.opcodes = opcodes
 
-		this.faces = compiler.new_reg()
-		opcodes.create_vector(this.faces)
+		this.faces = nil
+	}
+
+	begin()
+	{
+		this.faces = this.compiler.new_reg()
+		this.opcodes.create_vector(this.faces)
 	}
 
 	add_face(p0, p1, p2)
@@ -70,15 +103,65 @@ class PolytopeBuilder
 		this.compiler.free_reg(face)
 	}
 
-	// flush
-	create_polytope()
+	end()
 	{
 		var poly = this.compiler.new_reg()
 
 		this.opcodes.create_polytope(poly, this.faces)
 
 		this.compiler.free_reg(this.faces)
-		this.faces = 0
+
+		this.faces = nil
+
+		return poly
+	}
+}
+
+class PolytopeBuilder2
+{
+	init(compiler, opcodes)
+	{
+		this.compiler = compiler
+		this.opcodes = opcodes
+
+		this.points = nil
+		this.faces = nil
+	}
+
+	begin()
+	{
+		this.points = this.compiler.new_reg()
+		this.opcodes.create_vector(this.points)
+
+		this.faces = this.compiler.new_reg()
+		this.opcodes.create_vector(this.faces)
+	}
+
+	add_point(x, y, z)
+	{
+		var point = maths_Compiler.create_vec3(this.compiler, this.opcodes, Vector3(x, y, z))
+		this.opcodes.vector_add(this.points, point)
+		this.compiler.free_reg(point)
+	}
+
+	add_face(border, holes)
+	{
+		var face = Compiler.create_face(this.compiler, this.opcodes, border)
+		this.opcodes.vector_add(this.faces, face)
+		this.compiler.free_reg(face)
+	}
+
+	end()
+	{
+		var poly = this.compiler.new_reg()
+
+		this.opcodes.create_polytope_2(poly, this.points, this.faces)
+
+		this.compiler.free_reg(this.points)
+		this.compiler.free_reg(this.faces)
+
+		this.points = nil
+		this.faces = nil
 
 		return poly
 	}

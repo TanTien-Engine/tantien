@@ -71,6 +71,9 @@ class Boolean is Node
 
 		opcodes.polytope_subtract(r_dst, r_base, r_tool)
 
+		compiler.free_reg(r_base)
+		compiler.free_reg(r_tool)
+
 		return r_dst
 	}
 

@@ -47,6 +47,25 @@ class PolyExtrude is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_poly = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_poly < 0) {
+			return -1
+		}
+
+		var r_dist = NodeHelper.calc_prop_opcodes(this, "distance", compiler, opcodes)
+		if (r_dist < 0) {
+			return -1
+		}
+
+		opcodes.polytope_extrude(r_poly, r_dist)
+
+		compiler.free_reg(r_dist)		
+
+		return r_poly
+	}
+
 	calc_extrude(geo, dist, out)
 	{
 		if (geo.type == VAR_TYPE_ARRAY)

@@ -28,8 +28,11 @@ foreign class Bytecodes
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)
 	foreign create_polyface(r_dst, r_plane)
 	foreign create_polytope(r_dst, r_faces)
+	foreign create_polyface_2(r_dst, r_border, r_holes)
+	foreign create_polytope_2(r_dst, r_points, r_faces)
 	foreign polytope_transform(r_poly, r_mat)
 	foreign polytope_subtract(r_dst, r_base, r_tool)
+	foreign polytope_extrude(r_poly, r_dist)
 }
 
 foreign class Compiler

@@ -88,6 +88,8 @@ class Box is Node
 
     	var builder = PolytopeBuilder(compiler, opcodes)
 
+    	builder.begin()
+
 		builder.add_face(top_left_front, top_left_back, top_right_back)
 		builder.add_face(btm_left_front, btm_right_front, btm_right_back)
 		builder.add_face(top_left_back, top_left_front, btm_left_front)
@@ -95,7 +97,9 @@ class Box is Node
 		builder.add_face(top_left_front, top_right_front, btm_right_front)
 		builder.add_face(top_right_back, top_left_back, btm_left_back)
 
-		return builder.create_polytope()
+		var poly = builder.end()
+		
+		return poly
 	}
 
 	calc_in_size()

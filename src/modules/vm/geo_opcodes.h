@@ -8,11 +8,14 @@ namespace tt
 enum GeoOpCode
 {
 	OP_CREATE_PLANE = 96,
-	OP_CREATE_POLYFACE,
-	OP_CREATE_POLYTOPE,
+	OP_CREATE_POLYFACE,		// plane
+	OP_CREATE_POLYTOPE,		// faces
+	OP_CREATE_POLYFACE_2,	// border, holes
+	OP_CREATE_POLYTOPE_2,	// points, faces
 
 	OP_POLYTOPE_TRANSFORM,
 	OP_POLYTOPE_SUBTRACT,
+	OP_POLYTOPE_EXTRUDE,
 };
 
 class GeoOpCodeImpl
@@ -27,9 +30,12 @@ private:
 	static void CreatePlane(evm::VM* vm);
 	static void CreatePolyFace(evm::VM* vm);
 	static void CreatePolytope(evm::VM* vm);
+	static void CreatePolyFace2(evm::VM* vm);
+	static void CreatePolytope2(evm::VM* vm);
 
 	static void PolytopeTransform(evm::VM* vm);
 	static void PolytopeSubtract(evm::VM* vm);
+	static void PolytopeExtrude(evm::VM* vm);
 
 }; // GeoOpCodeImpl
 

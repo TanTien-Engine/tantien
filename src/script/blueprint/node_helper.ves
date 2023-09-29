@@ -139,4 +139,19 @@ class NodeHelper
 			return node.query_param(name).value
 		}
 	}
+
+	static calc_prop_opcodes(node, name, compiler, opcodes)
+	{
+		var r_input = Blueprint.calc_input_opcodes(node, name, compiler, opcodes)
+		if (r_input < 0) 
+		{
+			var r_dst = compiler.new_reg()
+			opcodes.store_num(r_dst, node.query_param(name).value)
+			return r_dst
+		}
+		else
+		{
+			return r_input
+		}
+	}
 }

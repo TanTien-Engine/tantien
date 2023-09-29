@@ -142,6 +142,16 @@ void w_Bytecodes_create_polytope()
     bytecodes_write(tt::OP_CREATE_POLYTOPE, 2);
 }
 
+void w_Bytecodes_create_polyface_2()
+{
+    bytecodes_write(tt::OP_CREATE_POLYFACE_2, 3);
+}
+
+void w_Bytecodes_create_polytope_2()
+{
+    bytecodes_write(tt::OP_CREATE_POLYTOPE_2, 3);
+}
+
 void w_Bytecodes_polytope_transform()
 {
     bytecodes_write(tt::OP_POLYTOPE_TRANSFORM, 2);
@@ -150,6 +160,11 @@ void w_Bytecodes_polytope_transform()
 void w_Bytecodes_polytope_subtract()
 {
     bytecodes_write(tt::OP_POLYTOPE_SUBTRACT, 3);
+}
+
+void w_Bytecodes_polytope_extrude()
+{
+    bytecodes_write(tt::OP_POLYTOPE_EXTRUDE, 2);
 }
 
 void w_Compiler_allocate()
@@ -367,8 +382,11 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;
     if (strcmp(signature, "Bytecodes.create_polytope(_,_)") == 0) return w_Bytecodes_create_polytope;
+    if (strcmp(signature, "Bytecodes.create_polyface_2(_,_,_)") == 0) return w_Bytecodes_create_polyface_2;
+    if (strcmp(signature, "Bytecodes.create_polytope_2(_,_,_)") == 0) return w_Bytecodes_create_polytope_2;
     if (strcmp(signature, "Bytecodes.polytope_transform(_,_)") == 0) return w_Bytecodes_polytope_transform;
     if (strcmp(signature, "Bytecodes.polytope_subtract(_,_,_)") == 0) return w_Bytecodes_polytope_subtract;
+    if (strcmp(signature, "Bytecodes.polytope_extrude(_,_)") == 0) return w_Bytecodes_polytope_extrude;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
