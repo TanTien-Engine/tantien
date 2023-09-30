@@ -5,8 +5,9 @@ import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
+import "geograph.compiler" for PolytopeBuilder2
 import "geometry" for Rect, Circle, Polygon, PolyPoint, PolyFace, Polytope
-import "maths.vector" for Vector2
+import "maths.vector" for Vector2, Vector3
 import "math" for Math
 
 class Column is Node
@@ -45,6 +46,115 @@ class Column is Node
 			}
 		}
 
+		var points = []
+		var faces = []
+		this.calc_poly(v_base, points, faces)
+		if (points.isEmpty or faces.isEmpty) {
+			return nil
+		}
+
+		return this.build_poly(points, faces)
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var v_base = Blueprint.calc_input_value(this, 0)
+		if (!v_base or !v_base.value) {
+			return -1
+		}
+
+		var points = []
+		var faces = []
+
+		this.calc_poly(v_base, points, faces)
+		if (points.isEmpty or faces.isEmpty) {
+			return -1
+		}
+
+		return this.build_poly_opcodes(compiler, opcodes, points, faces)
+	}
+
+	build_poly(points, faces)
+	{
+		var poly_faces = []
+		for (var f in faces) {
+			poly_faces.add(PolyFace.init(f, []))
+		}
+
+		var poly_points = []
+		for (var p in points) {
+			poly_points.add(PolyPoint.init([ p.x, p.y, p.z ]))
+		}
+
+		var poly = Polytope.init(poly_points, poly_faces)	
+
+		var geo = VarGeo()
+		geo.shape = Brush([ poly ])
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+
+	build_poly_opcodes(compiler, opcodes, points, faces)
+	{
+		var builder = PolytopeBuilder2(compiler, opcodes)
+
+    	builder.begin()
+
+    	for (var p in points) {
+    		builder.add_point(p.x, p.y, p.z)
+    	}
+
+    	for (var f in faces) {
+    		builder.add_face(f, [])
+    	}
+
+    	var poly = builder.end()
+
+    	return poly
+	}
+
+	build_from_2_rect(bottom, top)
+	{
+		var b_rect = bottom.get()
+		var b_lead = [
+			Vector2(b_rect[0], b_rect[1]),
+			Vector2(b_rect[0] + b_rect[2], b_rect[1]),
+			Vector2(b_rect[0] + b_rect[2], b_rect[1] + b_rect[3]),
+			Vector2(b_rect[0], b_rect[1] + b_rect[3]),	
+		]
+
+		var t_rect = top.get()
+		var t_lead = [
+			Vector2(t_rect[0], t_rect[1]),
+			Vector2(t_rect[0] + t_rect[2], t_rect[1]),
+			Vector2(t_rect[0] + t_rect[2], t_rect[1] + t_rect[3]),
+			Vector2(t_rect[0], t_rect[1] + t_rect[3]),	
+		]
+
+		var points = []
+
+		var h = this.calc_height()
+		for (var i = 0; i < 4; i = i + 1) {
+			points.add(PolyPoint.init([ b_lead[i].x, 0, b_lead[i].y ]))
+			points.add(PolyPoint.init([ t_lead[i].x, h, t_lead[i].y ]))
+		}
+
+		return this.build_poly(points, 4, 2)
+	}
+
+	calc_height()
+	{
+		var height = 0
+		var v_height = Blueprint.calc_input_value(this, 2)
+		if (v_height) {
+			height = v_height.value
+		} else {
+			height = this.query_param("height").value
+		}
+		return height
+	}
+
+	calc_lead(v_base)
+	{
 		var lead = []
 
 		var cx = 0
@@ -94,12 +204,11 @@ class Column is Node
 			}			
 		}
 
-		if (lead.isEmpty) {
-			return nil
-		}
+		return lead
+	}
 
-		var height = this.calc_height()
-
+	calc_bus()
+	{
 		var bus = nil
 		var p_bus = this.query_param("generatrix").value
 		if (!p_bus.isEmpty) 
@@ -112,17 +221,36 @@ class Column is Node
 				bus.add(Vector2(h, r))
 			}
 		}
+		return bus
+	}
+
+	calc_poly(v_base, points, faces)
+	{
+		var lead = this.calc_lead(v_base)
+		if (lead.isEmpty) {
+			return nil
+		}
+
+		var height = this.calc_height()
 
 		var lead_num = lead.count
+
+		var bus = this.calc_bus()
 		var bus_num = 2
+		if (bus) {
+			bus_num = bus.count
+		}
 
-		var points = []
+		this.calc_poly_points(bus, lead, height, points)
+		this.calc_poly_faces(lead_num, bus_num, faces)
+	}
 
+	calc_poly_points(bus, lead, height, points)
+	{
 		if (bus)
 		{
 			var dx = this.query_param("offset_z_absolute").value
 
-			bus_num = bus.count
 			for (var p in lead) 
 			{
 				for (var b in bus)
@@ -141,32 +269,27 @@ class Column is Node
 						z = z * r
 					}
 
-					points.add(PolyPoint.init([ x, y, z ]))
+					points.add(Vector3(x, y, z))
 				}
 			}
 		}
 		else
 		{
-			bus_num = 2
 			for (var p in lead) {
-				points.add(PolyPoint.init([ p.x, 0, p.y ]))
-				points.add(PolyPoint.init([ p.x, height, p.y ]))
+				points.add(Vector3(p.x, 0, p.y))
+				points.add(Vector3(p.x, height, p.y))
 			}
 		}
-
-		return this.build_poly(points, lead_num, bus_num)
 	}
 
-	build_poly(points, lead_num, bus_num)
+	calc_poly_faces(lead_num, bus_num, faces)
 	{
-		var faces = []
-
 		// bottom
 		var bottom = []
 		for (var i in 0..lead_num) {
 			bottom.add(i * bus_num)
 		}
-		faces.add(PolyFace.init(bottom, []))
+		faces.add(bottom)
 
 		// top
 		var top = []
@@ -174,7 +297,7 @@ class Column is Node
 			top.add(i * bus_num + bus_num - 1)
 		}
 		top.reverse()
-		faces.add(PolyFace.init(top, []))
+		faces.add(top)
 
 		// sides
 		for (var b in 0..bus_num - 1)
@@ -193,55 +316,8 @@ class Column is Node
 				side.add(b + j * bus_num + 1)
 				side.add(b + j * bus_num)
 
-				faces.add(PolyFace.init(side, []))
+				faces.add(side)
 			}
 		}
-
-		var poly = Polytope.init(points, faces)	
-
-		var geo = VarGeo()
-		geo.shape = Brush([ poly ])
-		return Variant(VAR_TYPE_GEO, geo)
-	}
-
-	build_from_2_rect(bottom, top)
-	{
-		var b_rect = bottom.get()
-		var b_lead = [
-			Vector2(b_rect[0], b_rect[1]),
-			Vector2(b_rect[0] + b_rect[2], b_rect[1]),
-			Vector2(b_rect[0] + b_rect[2], b_rect[1] + b_rect[3]),
-			Vector2(b_rect[0], b_rect[1] + b_rect[3]),	
-		]
-
-		var t_rect = top.get()
-		var t_lead = [
-			Vector2(t_rect[0], t_rect[1]),
-			Vector2(t_rect[0] + t_rect[2], t_rect[1]),
-			Vector2(t_rect[0] + t_rect[2], t_rect[1] + t_rect[3]),
-			Vector2(t_rect[0], t_rect[1] + t_rect[3]),	
-		]
-
-		var points = []
-
-		var h = this.calc_height()
-		for (var i = 0; i < 4; i = i + 1) {
-			points.add(PolyPoint.init([ b_lead[i].x, 0, b_lead[i].y ]))
-			points.add(PolyPoint.init([ t_lead[i].x, h, t_lead[i].y ]))
-		}
-
-		return this.build_poly(points, 4, 2)
-	}
-
-	calc_height()
-	{
-		var height = 0
-		var v_height = Blueprint.calc_input_value(this, 2)
-		if (v_height) {
-			height = v_height.value
-		} else {
-			height = this.query_param("height").value
-		}
-		return height
 	}
 }
