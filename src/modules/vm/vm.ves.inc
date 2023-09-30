@@ -49,8 +49,6 @@ foreign class VM
 
 	foreign run()
 
-	foreign load_register(reg)
-
 	foreign load_boolean(reg)
 	foreign load_number(reg)
 	foreign load_string(reg)

@@ -89,7 +89,7 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	uint8_t dst_reg = vm->NextByte();
 	uint8_t src_reg = vm->NextByte();
 
-	auto faces = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, src_reg);
+	auto faces = evm::VMHelper::GetRegArray(vm, src_reg);
 
 	evm::Value val;
 	val.type = evm::ValueType::HANDLE;
@@ -122,7 +122,7 @@ void GeoOpCodeImpl::CreatePolyFace2(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 
 	uint8_t r_border = vm->NextByte();
-	auto v_border = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, r_border);
+	auto v_border = evm::VMHelper::GetRegArray(vm, r_border);
 
 	// todo: holes
 	uint8_t r_holes = vm->NextByte();
@@ -158,10 +158,10 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 
 	uint8_t r_points = vm->NextByte();
-	auto v_points = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, r_points);
+	auto v_points = evm::VMHelper::GetRegArray(vm, r_points);
 
 	uint8_t r_faces = vm->NextByte();
-	auto v_faces = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, r_faces);
+	auto v_faces = evm::VMHelper::GetRegArray(vm, r_faces);
 
 	evm::Value val;
 	val.type = evm::ValueType::HANDLE;
@@ -271,7 +271,7 @@ void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 		}
 
 		evm::Value v;
-		v.type = evm::ValueType::HANDLE;
+		v.type = evm::ValueType::ARRAY;
 		v.as.handle = new evm::Handle<std::vector<evm::Value>>(list);
 
 		vm->SetRegister(reg_dst, v);

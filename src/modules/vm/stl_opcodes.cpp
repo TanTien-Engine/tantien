@@ -23,7 +23,7 @@ void StlOpCodeImpl::VectorCreate(evm::VM* vm)
 	auto vector = std::make_shared<std::vector<evm::Value>>();
 
 	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
+	val.type = evm::ValueType::ARRAY;
 	val.as.handle = new evm::Handle<std::vector<evm::Value>>(vector);
 
 	vm->SetRegister(reg, val);
@@ -34,7 +34,7 @@ void StlOpCodeImpl::VectorAdd(evm::VM* vm)
 	uint8_t dst_reg = vm->NextByte();
 	uint8_t src_reg = vm->NextByte();
 
-	auto vector = evm::VMHelper::GetRegHandler<std::vector<evm::Value>>(vm, dst_reg);
+	auto vector = evm::VMHelper::GetRegArray(vm, dst_reg);
 
 	evm::Value val;
 	// todo: del it in vector's dtor

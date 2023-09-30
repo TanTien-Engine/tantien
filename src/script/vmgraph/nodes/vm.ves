@@ -46,22 +46,20 @@ class Vm is Node
 //		var plane = vm.load_polyface(reg)
 //		return Variant(VAR_TYPE_PLANE, plane)
 
-		return this.ret_one(vm, reg)
+		return this.return_polytope(vm, reg)
 	}
 
-	ret_one(vm, reg)
+	return_polytope(vm, reg)
 	{
+		var geo = VarGeo()
+
 		var poly = vm.load_polytope(reg)
-		var geo = VarGeo()
-		geo.shape = Brush([ poly ])
-		return Variant(VAR_TYPE_GEO, geo)
-	}
+		if (poly is List) {
+			geo.shape = Brush(poly)
+		} else {
+			geo.shape = Brush([ poly ])
+		}
 
-	ret_multi(vm, reg)
-	{
-		var polys = vm.load_register(reg)
-		var geo = VarGeo()
-		geo.shape = Brush(polys)
 		return Variant(VAR_TYPE_GEO, geo)
 	}
 }
