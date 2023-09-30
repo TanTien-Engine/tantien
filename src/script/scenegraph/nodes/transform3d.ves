@@ -59,6 +59,34 @@ class Transform3d is Node
 		return nil
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx == 0)
+		{
+			var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+			if (r_geo < 0) {
+				return -1
+			}
+
+			var r_mat = this.calc_mat_opcodes(compiler, opcodes)
+			if (r_mat < 0) {
+				return -1
+			}
+
+			opcodes.polytope_transform(r_geo, r_mat)
+
+			compiler.free_reg(r_mat)
+
+			return r_geo
+		}
+		else if (idx == 1)
+		{
+			return this.calc_mat_opcodes(compiler, opcodes)
+		}
+
+		return -1
+	}
+
 	calc_mat()
 	{
 		// scale
@@ -110,6 +138,37 @@ class Transform3d is Node
 		mat.transform_mat4(trans_mat)
 
 		return mat
+	}
+
+	calc_mat_opcodes(compiler, opcodes)
+	{
+		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
+
+		// scale
+		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)
+		if (r_scale >= 0) 
+		{
+			opcodes.mat4_scale(r_mat, r_scale)
+			compiler.free_reg(r_scale)
+		}
+
+		// rotate
+		var r_rotate = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)		
+		if (r_rotate >= 0) 
+		{
+			opcodes.mat4_rotate(r_mat, r_rotate)
+			compiler.free_reg(r_rotate)
+		}
+
+		// translate
+		var r_translate = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (r_translate >= 0) 
+		{
+			opcodes.mat4_translate(r_mat, r_translate)
+			compiler.free_reg(r_translate)
+		}
+
+		return r_mat
 	}
 
 	transform_impl(v_obj, mat, result)

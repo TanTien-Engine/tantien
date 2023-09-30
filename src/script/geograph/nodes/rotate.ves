@@ -62,6 +62,7 @@ class Rotate is Node
 
 		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
 		opcodes.mat4_rotate(r_mat, r_xyz)
+		compiler.free_reg(r_xyz)
 
 		opcodes.polytope_transform(r_geo, r_mat)
 
