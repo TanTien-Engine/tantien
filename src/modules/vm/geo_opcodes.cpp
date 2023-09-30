@@ -1,5 +1,6 @@
 #include "geo_opcodes.h"
 #include "modules/geometry/PolytopeAlgos.h"
+#include "modules/vm/VMHelper.h"
 
 #include <SM_Matrix.h>
 #include <polymesh3/Polytope.h>
@@ -36,13 +37,9 @@ void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
 	uint8_t p2_reg = vm->NextByte();
 	auto p2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, p2_reg);
 
-	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
-	val.as.handle = nullptr;
-
 	if (!p0 || !p1 || !p2) 
 	{
-		vm->SetRegister(dst_reg, val);
+		vm->SetRegister(dst_reg, evm::Value());
 		return;
 	}
 
@@ -63,14 +60,9 @@ void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
 	uint8_t plane_reg = vm->NextByte();
 
 	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, plane_reg);
-
-	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
-	val.as.handle = nullptr;
-
 	if (!plane)
 	{
-		vm->SetRegister(dst_reg, val);
+		vm->SetRegister(dst_reg, evm::Value());
 		return;
 	}
 
@@ -90,14 +82,9 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	uint8_t src_reg = vm->NextByte();
 
 	auto faces = evm::VMHelper::GetRegArray(vm, src_reg);
-
-	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
-	val.as.handle = nullptr;
-
 	if (!faces)
 	{
-		vm->SetRegister(dst_reg, val);
+		vm->SetRegister(dst_reg, evm::Value());
 		return;
 	}
 
@@ -123,19 +110,14 @@ void GeoOpCodeImpl::CreatePolyFace2(evm::VM* vm)
 
 	uint8_t r_border = vm->NextByte();
 	auto v_border = evm::VMHelper::GetRegArray(vm, r_border);
+	if (!v_border)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
 
 	// todo: holes
 	uint8_t r_holes = vm->NextByte();
-
-	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
-	val.as.handle = nullptr;
-
-	if (!v_border)
-	{
-		vm->SetRegister(r_dst, val);
-		return;
-	}
 
 	std::vector<size_t> border;
 	border.reserve(v_border->size());
@@ -163,13 +145,9 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	uint8_t r_faces = vm->NextByte();
 	auto v_faces = evm::VMHelper::GetRegArray(vm, r_faces);
 
-	evm::Value val;
-	val.type = evm::ValueType::HANDLE;
-	val.as.handle = nullptr;
-
 	if (!v_points || !v_faces)
 	{
-		vm->SetRegister(r_dst, val);
+		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
 
@@ -220,62 +198,20 @@ void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
 
 void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 {
-	uint8_t reg_dst = vm->NextByte();
+	uint8_t r_dst = vm->NextByte();
 
-	uint8_t reg_base = vm->NextByte();
-	auto base = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, reg_base);
-	if (!base) {
+	uint8_t r_base = vm->NextByte();
+	auto base = tt::VMHelper::LoadPolys(vm, r_base);
+	if (base.empty()) {
+		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
 
-	uint8_t reg_tool = vm->NextByte();
-	auto tool = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, reg_tool);
-	if (!tool) {
-		return;
-	}
+	uint8_t r_tool = vm->NextByte();
+	auto tool = tt::VMHelper::LoadPolys(vm, r_tool);
 
-	auto base_topo = base->GetTopoPoly();
-	auto tool_topo = tool->GetTopoPoly();
-	if (!base_topo || !tool_topo) {
-		return;
-	}
-
-	auto polytopes = base_topo->Subtract(*tool_topo);
-	if (polytopes.empty()) {
-		return;
-	}
-
-	if (polytopes.size() == 1)
-	{
-		auto poly = std::make_shared<pm3::Polytope>(polytopes[0]);
-
-		evm::Value v;
-		v.type = evm::ValueType::HANDLE;
-		v.as.handle = new evm::Handle<pm3::Polytope>(poly);
-
-		vm->SetRegister(reg_dst, v);
-	}
-	else
-	{
-		auto list = std::make_shared<std::vector<evm::Value>>();
-
-		for (auto src : polytopes)
-		{
-			auto dst = std::make_shared<pm3::Polytope>(src);
-
-			evm::Value v;
-			v.type = evm::ValueType::HANDLE;
-			v.as.handle = new evm::Handle<pm3::Polytope>(dst);
-
-			list->push_back(v);
-		}
-
-		evm::Value v;
-		v.type = evm::ValueType::ARRAY;
-		v.as.handle = new evm::Handle<std::vector<evm::Value>>(list);
-
-		vm->SetRegister(reg_dst, v);
-	}
+	auto polys = PolytopeAlgos::Subtract(base, tool);
+	VMHelper::StorePolys(vm, r_dst, polys);
 }
 
 void GeoOpCodeImpl::PolytopeExtrude(evm::VM* vm)
