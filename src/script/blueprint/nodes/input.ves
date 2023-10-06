@@ -50,6 +50,15 @@ class Input is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx == 0) {
+			return Blueprint.calc_input_opcodes(this.parent_node, this.parent_pin_idx, compiler, opcodes)
+		} else {
+			return -1
+		}
+	}
+
 	to_string(name) 
 	{
 		if (this.var_name == "in")

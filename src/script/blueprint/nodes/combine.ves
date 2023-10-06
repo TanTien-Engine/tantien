@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "maths.vector" for Vector2, Vector3, Vector4
+import "maths.compiler" for Compiler
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 
 class Combine is Node
@@ -71,6 +72,23 @@ class Combine is Node
 		}
 
 		return nil		
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_dst = compiler.new_reg()
+
+		var r_x = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_y = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		var r_z = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
+
+		opcodes.vec3_create(r_dst, r_x, r_y, r_z)
+
+		compiler.free_reg(r_x)
+		compiler.free_reg(r_y)
+		compiler.free_reg(r_z)
+
+		return r_dst
 	}
 
 	shader_gen(node, idx)

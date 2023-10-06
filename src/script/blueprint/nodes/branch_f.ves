@@ -30,4 +30,14 @@ class BranchF is Node
 			return Blueprint.calc_input_value(this, 2)
 		}
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var v_cond = Blueprint.calc_input_value(this, 0)
+		if (v_cond and v_cond.value) {
+			return Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		} else {
+			return Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
+		}
+	}	
 }

@@ -20,10 +20,23 @@ class Boolean is Node
 		this.value = false
 	}
 
-	calc_value(idx) {
+	calc_value(idx) 
+	{
 		return Variant(VAR_TYPE_BOOLEAN, this.value)
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.store_bool(reg, this.value)
+
+		return reg
+	}
+	
 	layout() 
 	{
 		super.layout()

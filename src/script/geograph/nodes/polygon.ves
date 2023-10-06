@@ -8,6 +8,7 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "geograph.brush" for Brush
+import "geograph.compiler" for PolytopeBuilder2
 import "maths.vector" for Vector3
 import "geometry" for Polygon as tt_Polygon, Circle, PolyPoint, PolyFace, Polytope
 
@@ -48,31 +49,72 @@ class Polygon is Node
 		}
 		else if (idx == 1)
 		{
-			var vertices = this.calc_vertices()
-			if (!vertices or vertices.count < 3 * 2) {
+			var points = []
+			var border = []
+			if (!this.calc_polytope(points, border)) {
 				return nil
 			}
 
-			var points = []
-			var border = []
-			var n = vertices.count / 2
-			for (var i = 0; i < n; i = i + 1)
-			{
-				var x = vertices[i * 2]
-				var y = vertices[i * 2 + 1]
-				points.add(PolyPoint.init([ x, 0, y ]))
-
-				border.add(i)
+			var p_points = []
+			for (var p in points) {
+				p_points.add(PolyPoint.init([ p.x, p.y, p.z ]))
 			}
 
 			var face = PolyFace.init(border, [])
-			var poly = Polytope.init(points, [ face ])
+			var poly = Polytope.init(p_points, [ face ])
 
 			var geo = VarGeo()
 			geo.shape = Brush([ poly ])
 			return Variant(VAR_TYPE_GEO, geo)
 		}
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx != 1) {
+			return -1
+		}
+
+		var points = []
+		var border = []
+		if (!this.calc_polytope(points, border)) {
+			return -1
+		}
+
+		var builder = PolytopeBuilder2(compiler, opcodes)
+
+    	builder.begin()
+
+    	for (var p in points) {
+    		builder.add_point(p.x, p.y, p.z)
+    	}
+
+    	builder.add_face(border, [])
+
+    	var poly = builder.end()
+
+    	return poly		
+	}
+
+	calc_polytope(points, border)
+	{
+		var vertices = this.calc_vertices()
+		if (!vertices or vertices.count < 3 * 2) {
+			return false
+		}
+
+		var n = vertices.count / 2
+		for (var i = 0; i < n; i = i + 1)
+		{
+			var x = vertices[i * 2]
+			var y = vertices[i * 2 + 1]
+			points.add(Vector3(x, 0, y))
+
+			border.add(i)
+		}
+
+		return true
 	}
 
 	calc_vertices()
@@ -120,6 +162,7 @@ class Polygon is Node
 			return this.query_param("vertices").value
 		}
 	}
+
 
 	update_geo(geo)
 	{

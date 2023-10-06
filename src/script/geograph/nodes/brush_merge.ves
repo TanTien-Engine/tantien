@@ -72,6 +72,11 @@ class BrushMerge is Node
 		return nil		
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		return Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+	}
+
 	add_to_list(dst_instanced, dst_poly, dst_mat, dst_offset, dst_color, src)
 	{
 		if (src.type == VAR_TYPE_ARRAY) 

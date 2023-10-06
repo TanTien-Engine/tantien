@@ -100,6 +100,26 @@ class Subgraph is Node
 		return nil
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var name = nil
+		if (idx is Num) {
+			name = this.exports[idx].name
+		} else if (idx is String) {
+			name = idx
+		}
+		if (!name) {
+			return -1
+		}
+
+		for (var node in this.out_nodes) {
+			if (node.var_name == name) {
+				return Blueprint.calc_input_opcodes(node, 0, compiler, opcodes)
+			}
+		}
+		return -1
+	}
+
 	static has_draw_node(subgraph)
 	{
 		for (var item in subgraph.all_items) 

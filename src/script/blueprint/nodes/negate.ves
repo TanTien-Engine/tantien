@@ -38,6 +38,23 @@ class Negate is Node
 			return nil
 		}
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_src = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_src < 0) {
+			return -1
+		}
+
+		var r_dst = compiler.new_reg()
+		if (r_dst < 0) {
+			return -1
+		}
+
+		opcodes.negate_num(r_dst, r_src)
+
+		return r_dst
+	}
 	
 	shader_gen(node, idx)
 	{

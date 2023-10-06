@@ -28,4 +28,21 @@ class IsNull is Node
 			return Variant(false)
 		}
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var v_in = Blueprint.calc_input_value(this, 0)
+		if (!v_in or !v_in.value) {
+			opcodes.store_bool(reg, true)
+		} else {
+			opcodes.store_bool(reg, false)
+		}
+
+		return reg
+	}
 }

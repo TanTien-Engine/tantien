@@ -36,6 +36,23 @@ class Property is Node
 		return Variant(this.var_type, this.value)
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (this.var_type == "num")
+		{
+			var reg = compiler.new_reg()
+			if (reg < 0) {
+				return -1
+			}
+
+			opcodes.store_num(reg, this.value)
+
+			return reg
+		}
+
+		return -1
+	}
+
 	to_string(name) 
 	{
 		if (this.var_name == "prop")

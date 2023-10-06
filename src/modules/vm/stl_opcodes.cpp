@@ -7,6 +7,27 @@
 
 #include <vector>
 
+namespace
+{
+
+void vector_concat(evm::Value& dst, const evm::Value& src)
+{
+	auto v_dst = evm::VMHelper::GetValArray(dst);
+	if (src.type == evm::ValueType::ARRAY)
+	{
+		auto v_src = evm::VMHelper::GetValArray(src);
+		for (auto v : *v_src) {
+			vector_concat(dst, v);
+		}
+	}
+	else
+	{
+		v_dst->push_back(src);
+	}
+};
+
+}
+
 namespace tt
 {
 
@@ -14,6 +35,7 @@ void StlOpCodeImpl::OpCodeInit(evm::VM* vm)
 {
 	vm->RegistOperator(OP_VECTOR_CREATE, VectorCreate);
 	vm->RegistOperator(OP_VECTOR_ADD, VectorAdd);
+	vm->RegistOperator(OP_VECTOR_CONCAT, VectorConcat);
 }
 
 void StlOpCodeImpl::VectorCreate(evm::VM* vm)
@@ -40,6 +62,17 @@ void StlOpCodeImpl::VectorAdd(evm::VM* vm)
 	// todo: del it in vector's dtor
 	vm->MoveRegister(src_reg, val);
 	vector->push_back(val);
+}
+
+void StlOpCodeImpl::VectorConcat(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	evm::Value dst, src;
+	if (vm->GetRegister(r_dst, dst) && vm->GetRegister(r_src, src)) {
+		vector_concat(dst, src);
+	}
 }
 
 }

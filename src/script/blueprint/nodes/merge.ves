@@ -44,6 +44,23 @@ class Merge is Node
 		return Variant(VAR_TYPE_ARRAY, ret)
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_dst = compiler.new_reg()
+		opcodes.create_vector(r_dst)
+
+		for (var i in 0..this.imports.count) 
+		{
+			var r_one = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
+			if (r_one >= 0) {
+				opcodes.vector_concat(r_dst, r_one)
+				compiler.free_reg(r_one)
+			}
+		}
+
+		return r_dst
+	}
+	
 	on_connected(pin)
 	{
 		if (pin.is_input) {

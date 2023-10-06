@@ -39,6 +39,20 @@ class SwitchF is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var v_type = Blueprint.calc_input_value(this, 0)
+		if (!v_type or !v_type.value) {
+			return Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		}
+
+		if (v_type.value >= 0 and (v_type.value < this.imports.count - CASE_IDX_OFFSET - 1)) {
+			return Blueprint.calc_input_opcodes(this, v_type.value + CASE_IDX_OFFSET, compiler, opcodes)
+		} else {
+			return Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		}
+	}
+
 	on_connected(pin)
 	{
 		if (pin.is_input) {

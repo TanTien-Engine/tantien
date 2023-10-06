@@ -8,14 +8,23 @@ foreign class Bytecodes
 	foreign set_ret_reg(reg)
 	foreign get_ret_reg()
 
+	foreign store_bool(reg, bool)
+
 	foreign store_num(reg, num)
 	foreign print_num(reg)
+	foreign negate_num(dst, src)
 
-	foreign add(reg_dst, reg_src1, reg_src2)
+	foreign add(r_dst, r_src1, r_src2)
+	foreign sub(r_dst, r_src1, r_src2)
+	foreign mul(r_dst, r_src1, r_src2)
+	foreign div(r_dst, r_src1, r_src2)
 
 	// math
+	foreign vec3_create(r_dst, r_x, r_y, r_z)
 	foreign store_vec3(r_vec, r_xyz)
 	foreign vec3_print(r_vec)
+	foreign vec3_add(r_dst, r_src1, r_src2)
+	foreign vec3_sub(r_dst, r_src1, r_src2)
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
@@ -23,6 +32,7 @@ foreign class Bytecodes
 	// stl
 	foreign create_vector(r_list)
 	foreign vector_add(r_list, r_item)
+	foreign vector_concat(r_dst, r_src)
 
 	// geo
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)

@@ -40,6 +40,11 @@ class Load is Node
 		return Blueprint.calc_input_value(this, 0)
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		return Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+	}
+	
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder

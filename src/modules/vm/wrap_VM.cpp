@@ -58,6 +58,20 @@ void w_Bytecodes_get_ret_reg()
     ves_set_number(0, code->GetRetReg());
 }
 
+void w_Bytecodes_store_bool()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    uint8_t op = evm::OP_BOOL_STORE;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+
+    bool b = ves_toboolean(2);
+    code->Write(reinterpret_cast<const char*>(&b), sizeof(bool));
+}
+
 void w_Bytecodes_store_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -77,9 +91,34 @@ void w_Bytecodes_print_num()
     bytecodes_write(evm::OP_NUMBER_PRINT, 1);
 }
 
+void w_Bytecodes_negate_num()
+{
+    bytecodes_write(evm::OP_NUMBER_NEGATE, 2);
+}
+
 void w_Bytecodes_add()
 {
     bytecodes_write(evm::OP_ADD, 3);
+}
+
+void w_Bytecodes_sub()
+{
+    bytecodes_write(evm::OP_SUB, 3);
+}
+
+void w_Bytecodes_mul()
+{
+    bytecodes_write(evm::OP_MUL, 3);
+}
+
+void w_Bytecodes_div()
+{
+    bytecodes_write(evm::OP_DIV, 3);
+}
+
+void w_Bytecodes_vec3_create()
+{
+    bytecodes_write(tt::OP_VEC3_CREATE, 4);
 }
 
 void w_Bytecodes_store_vec3()
@@ -101,6 +140,16 @@ void w_Bytecodes_store_vec3()
 void w_Bytecodes_vec3_print()
 {
     bytecodes_write(tt::OP_VEC3_PRINT, 1);
+}
+
+void w_Bytecodes_vec3_add()
+{
+    bytecodes_write(tt::OP_VEC3_ADD, 3);
+}
+
+void w_Bytecodes_vec3_sub()
+{
+    bytecodes_write(tt::OP_VEC3_SUB, 3);
 }
 
 void w_Bytecodes_create_mat4()
@@ -126,6 +175,11 @@ void w_Bytecodes_create_vector()
 void w_Bytecodes_vector_add()
 {
     bytecodes_write(tt::StlOpCode::OP_VECTOR_ADD, 2);
+}
+
+void w_Bytecodes_vector_concat()
+{
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_CONCAT, 2);
 }
 
 void w_Bytecodes_create_plane()
@@ -351,18 +405,27 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     // base
     if (strcmp(signature, "Bytecodes.set_ret_reg(_)") == 0) return w_Bytecodes_set_ret_reg;
     if (strcmp(signature, "Bytecodes.get_ret_reg()") == 0) return w_Bytecodes_get_ret_reg;
+    if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
+    if (strcmp(signature, "Bytecodes.negate_num(_,_)") == 0) return w_Bytecodes_negate_num;
     if (strcmp(signature, "Bytecodes.add(_,_,_)") == 0) return w_Bytecodes_add;
+    if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
+    if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
+    if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
     // math
+    if (strcmp(signature, "Bytecodes.vec3_create(_,_,_,_)") == 0) return w_Bytecodes_vec3_create;
     if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
     if (strcmp(signature, "Bytecodes.vec3_print(_)") == 0) return w_Bytecodes_vec3_print;
+    if (strcmp(signature, "Bytecodes.vec3_add(_,_,_)") == 0) return w_Bytecodes_vec3_add;
+    if (strcmp(signature, "Bytecodes.vec3_sub(_,_,_)") == 0) return w_Bytecodes_vec3_sub;
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;
+    if (strcmp(signature, "Bytecodes.vector_concat(_,_)") == 0) return w_Bytecodes_vector_concat;
     // geo
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_polyface(_,_)") == 0) return w_Bytecodes_create_polyface;

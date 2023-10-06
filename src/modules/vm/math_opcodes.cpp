@@ -12,12 +12,41 @@ namespace tt
 
 void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 {
+	vm->RegistOperator(OP_VEC3_CREATE, Vec3Create3);
 	vm->RegistOperator(OP_VEC3_STORE, Vec3Create);
 	vm->RegistOperator(OP_VEC3_PRINT, Vec3Print);
+	vm->RegistOperator(OP_VEC3_ADD, Vec3Add);
+	vm->RegistOperator(OP_VEC3_SUB, Vec3Sub);
 
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
 	vm->RegistOperator(OP_MATRIX_TRANSLATE, MatrixTranslate);
+}
+
+void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_x = vm->NextByte();
+	uint8_t r_y = vm->NextByte();
+	uint8_t r_z = vm->NextByte();
+
+	auto v3 = std::make_shared<sm::vec3>();
+	if (r_x != 0xff) {
+		v3->x = evm::VMHelper::GetRegNumber(vm, r_x);
+	}
+	if (r_y != 0xff) {
+		v3->y = evm::VMHelper::GetRegNumber(vm, r_y);
+	}
+	if (r_z != 0xff) {
+		v3->z = evm::VMHelper::GetRegNumber(vm, r_z);
+	}
+
+	evm::Value v;
+	v.type = evm::ValueType::HANDLE;
+	v.as.handle = new evm::Handle<sm::vec3>(v3);
+
+	vm->SetRegister(r_dst, v);
 }
 
 void MathOpCodeImpl::Vec3Create(evm::VM* vm)
@@ -43,6 +72,70 @@ void MathOpCodeImpl::Vec3Print(evm::VM* vm)
 	if (vec) {
 		printf("%f, %f, %f", vec->x, vec->y, vec->z);
 	}
+}
+
+void MathOpCodeImpl::Vec3Add(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	auto src1 = r_src1 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
+	auto src2 = r_src2 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
+	if (!src1 && !src2)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	sm::vec3 ret;
+	if (src1 && src2) {
+		ret = *src1 + *src2;
+	} else if (src1) {
+		ret = *src1;
+	} else {
+		assert(src2);
+		ret = *src2;
+	}
+
+	evm::Value v;
+	v.type = evm::ValueType::HANDLE;
+	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+	vm->SetRegister(r_dst, v);
+}
+
+void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	auto src1 = r_src1 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
+	auto src2 = r_src2 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
+	if (!src1 && !src2)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	sm::vec3 ret;
+	if (src1 && src2) {
+		ret = *src1 - *src2;
+	} else if (src1) {
+		ret = *src1;
+	} else {
+		assert(src2);
+		ret = -*src2;
+	}
+
+	evm::Value v;
+	v.type = evm::ValueType::HANDLE;
+	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+	vm->SetRegister(r_dst, v);
 }
 
 void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
