@@ -53,14 +53,14 @@ void StlOpCodeImpl::VectorCreate(evm::VM* vm)
 
 void StlOpCodeImpl::VectorAdd(evm::VM* vm)
 {
-	uint8_t dst_reg = vm->NextByte();
-	uint8_t src_reg = vm->NextByte();
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
 
-	auto vector = evm::VMHelper::GetRegArray(vm, dst_reg);
+	auto vector = evm::VMHelper::GetRegArray(vm, r_dst);
 
 	evm::Value val;
 	// todo: del it in vector's dtor
-	vm->MoveRegister(src_reg, val);
+	vm->MoveRegister(r_src, val);
 	vector->push_back(val);
 }
 

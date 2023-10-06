@@ -153,15 +153,14 @@ void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 
 void MathOpCodeImpl::MatrixRotate(evm::VM* vm)
 {
-	uint8_t reg = vm->NextByte();
-
-	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, reg);
+	uint8_t r_mat = vm->NextByte();
+	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
 	if (!mat) {
 		return;
 	}
 
-	uint8_t reg_xyz = vm->NextByte();
-	auto vec = evm::VMHelper::GetRegHandler<sm::vec3>(vm, reg_xyz);
+	uint8_t r_xyz = vm->NextByte();
+	auto vec = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_xyz);
 	if (!vec) {
 		return;
 	}
@@ -171,15 +170,14 @@ void MathOpCodeImpl::MatrixRotate(evm::VM* vm)
 
 void MathOpCodeImpl::MatrixTranslate(evm::VM* vm)
 {
-	uint8_t reg = vm->NextByte();
-
-	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, reg);
+	uint8_t r_mat = vm->NextByte();
+	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
 	if (!mat) {
 		return;
 	}
 
-	uint8_t reg_xyz = vm->NextByte();
-	auto vec = evm::VMHelper::GetRegHandler<sm::vec3>(vm, reg_xyz);
+	uint8_t r_xyz = vm->NextByte();
+	auto vec = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_xyz);
 	if (!vec) {
 		return;
 	}
