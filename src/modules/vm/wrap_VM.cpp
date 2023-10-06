@@ -249,8 +249,10 @@ void w_Compiler_new_reg()
 void w_Compiler_free_reg()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    c->FreeRegister(reg);
+    int reg = (int)ves_tonumber(1);
+    if (reg >= 0) {
+        c->FreeRegister(reg);
+    }
 }
 
 void w_VM_allocate()

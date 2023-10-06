@@ -1,5 +1,7 @@
 #include "Compiler.h"
 
+#include <assert.h>
+
 namespace tt
 {
 
@@ -23,6 +25,7 @@ int Compiler::NewRegister()
 
 void Compiler::FreeRegister(int reg)
 {
+    assert(reg >= 0 && reg < REGISTER_COUNT);
     m_registers[reg] = false;
 }
 
