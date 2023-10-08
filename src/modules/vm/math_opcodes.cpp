@@ -46,6 +46,9 @@ void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::vec3>(v3);
+#ifdef _DEBUG
+	v.handle_type = "vec3";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -62,6 +65,9 @@ void MathOpCodeImpl::Vec3Create(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::vec3>(v3);
+#ifdef _DEBUG
+	v.handle_type = "vec3";
+#endif // _DEBUG
 
 	vm->SetRegister(reg, v);
 }
@@ -103,6 +109,9 @@ void MathOpCodeImpl::Vec3Add(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+#ifdef _DEBUG
+	v.handle_type = "vec3";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -135,7 +144,10 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
-
+#ifdef _DEBUG
+	v.handle_type = "vec3";
+#endif // _DEBUG
+	
 	vm->SetRegister(r_dst, v);
 }
 
@@ -175,7 +187,10 @@ void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::mat4>(mat);
-
+#ifdef _DEBUG
+	v.handle_type = "mat4";
+#endif // _DEBUG
+	
 	vm->SetRegister(reg, v);
 }
 

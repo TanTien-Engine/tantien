@@ -47,6 +47,9 @@ void StlOpCodeImpl::VectorCreate(evm::VM* vm)
 	evm::Value val;
 	val.type = evm::ValueType::ARRAY;
 	val.as.handle = new evm::Handle<std::vector<evm::Value>>(vector);
+#ifdef _DEBUG
+	val.handle_type = "vector";
+#endif // _DEBUG
 
 	vm->SetRegister(reg, val);
 }

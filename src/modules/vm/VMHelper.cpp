@@ -19,6 +19,9 @@ void VMHelper::StorePolys(evm::VM* vm, int reg,
 		evm::Value v;
 		v.type = evm::ValueType::HANDLE;
 		v.as.handle = new evm::Handle<pm3::Polytope>(polytopes[0]);
+#ifdef _DEBUG
+		v.handle_type = "poly";
+#endif // _DEBUG
 
 		vm->SetRegister(reg, v);
 	}
@@ -31,6 +34,9 @@ void VMHelper::StorePolys(evm::VM* vm, int reg,
 			evm::Value v;
 			v.type = evm::ValueType::HANDLE;
 			v.as.handle = new evm::Handle<pm3::Polytope>(src);
+#ifdef _DEBUG
+			v.handle_type = "poly";
+#endif // _DEBUG
 
 			list->push_back(v);
 		}
@@ -38,6 +44,9 @@ void VMHelper::StorePolys(evm::VM* vm, int reg,
 		evm::Value v;
 		v.type = evm::ValueType::ARRAY;
 		v.as.handle = new evm::Handle<std::vector<evm::Value>>(list);
+#ifdef _DEBUG
+		v.handle_type = "vector";
+#endif // _DEBUG
 
 		vm->SetRegister(reg, v);
 	}

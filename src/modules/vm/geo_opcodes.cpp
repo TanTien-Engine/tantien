@@ -49,6 +49,9 @@ void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<sm::Plane>(plane);
+#ifdef _DEBUG
+	v.handle_type = "plane";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -56,7 +59,6 @@ void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
 void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
 {
 	uint8_t r_dst = vm->NextByte();
-
 	uint8_t r_plane = vm->NextByte();
 
 	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_plane);
@@ -72,6 +74,9 @@ void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<pm3::Polytope::Face>(face);
+#ifdef _DEBUG
+	v.handle_type = "poly_face";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -100,6 +105,9 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<pm3::Polytope>(poly);
+#ifdef _DEBUG
+	v.handle_type = "poly";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -131,6 +139,9 @@ void GeoOpCodeImpl::CreatePolyFace2(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<pm3::Polytope::Face>(face);
+#ifdef _DEBUG
+	v.handle_type = "poly_face";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -170,6 +181,9 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	evm::Value v;
 	v.type = evm::ValueType::HANDLE;
 	v.as.handle = new evm::Handle<pm3::Polytope>(poly);
+#ifdef _DEBUG
+	v.handle_type = "poly";
+#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
