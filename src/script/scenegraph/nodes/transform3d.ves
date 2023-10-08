@@ -74,7 +74,12 @@ class Transform3d is Node
 				return -1
 			}
 
-			opcodes.polytope_transform(r_geo, r_mat)
+			var type = compiler.get_reg_type(r_geo)
+			if (type == "vec3") {
+				opcodes.vec3_transform(r_geo, r_mat)
+			} else {
+				opcodes.polytope_transform(r_geo, r_mat)
+			}
 
 			compiler.free_reg(r_mat)
 

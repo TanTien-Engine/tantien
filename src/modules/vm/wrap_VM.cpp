@@ -152,6 +152,11 @@ void w_Bytecodes_vec3_sub()
     bytecodes_write(tt::OP_VEC3_SUB, 3);
 }
 
+void w_Bytecodes_vec3_transform()
+{
+    bytecodes_write(tt::OP_VEC3_TRANSFORM, 2);
+}
+
 void w_Bytecodes_create_mat4()
 {
     bytecodes_write(tt::OP_MATRIX_CREATE, 1);
@@ -253,6 +258,24 @@ void w_Compiler_free_reg()
     if (reg >= 0) {
         c->FreeRegister(reg);
     }
+}
+
+void w_Compiler_set_reg_type()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    int reg = (int)ves_tonumber(1);
+    const char* type = ves_tostring(2);
+    if (reg >= 0) {
+        c->SetRegType(reg, type);
+    }
+}
+
+void w_Compiler_get_reg_type()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    int reg = (int)ves_tonumber(1);
+    std::string type = c->GetRegType(reg);
+    ves_set_lstring(0, type.c_str(), type.size());
 }
 
 void w_VM_allocate()
@@ -421,6 +444,8 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.vec3_print(_)") == 0) return w_Bytecodes_vec3_print;
     if (strcmp(signature, "Bytecodes.vec3_add(_,_,_)") == 0) return w_Bytecodes_vec3_add;
     if (strcmp(signature, "Bytecodes.vec3_sub(_,_,_)") == 0) return w_Bytecodes_vec3_sub;
+    if (strcmp(signature, "Bytecodes.vec3_transform(_,_)") == 0) return w_Bytecodes_vec3_transform;
+
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
@@ -440,6 +465,8 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
+    if (strcmp(signature, "Compiler.set_reg_type(_,_)") == 0) return w_Compiler_set_reg_type;
+    if (strcmp(signature, "Compiler.get_reg_type(_)") == 0) return w_Compiler_get_reg_type;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 

@@ -25,6 +25,7 @@ foreign class Bytecodes
 	foreign vec3_print(r_vec)
 	foreign vec3_add(r_dst, r_src1, r_src2)
 	foreign vec3_sub(r_dst, r_src1, r_src2)
+	foreign vec3_transform(r_dst, r_mat)
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
@@ -51,6 +52,9 @@ foreign class Compiler
 
 	foreign new_reg()
 	foreign free_reg(reg)
+
+	foreign set_reg_type(reg, type)
+	foreign get_reg_type(reg)
 }
 
 foreign class VM

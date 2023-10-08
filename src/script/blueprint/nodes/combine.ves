@@ -84,6 +84,8 @@ class Combine is Node
 
 		opcodes.vec3_create(r_dst, r_x, r_y, r_z)
 
+		compiler.set_reg_type(r_dst, "vec3")
+
 		compiler.free_reg(r_x)
 		compiler.free_reg(r_y)
 		compiler.free_reg(r_z)

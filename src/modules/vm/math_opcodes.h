@@ -12,6 +12,7 @@ enum MathOpCode
 	OP_VEC3_PRINT,
 	OP_VEC3_ADD,
 	OP_VEC3_SUB,
+	OP_VEC3_TRANSFORM,
 
 	OP_MATRIX_CREATE,
 	OP_MATRIX_ROTATE,
@@ -29,6 +30,7 @@ private:
 	static void Vec3Print(evm::VM* vm);
 	static void Vec3Add(evm::VM* vm);
 	static void Vec3Sub(evm::VM* vm);
+	static void Vec3Transform(evm::VM* vm);
 
 	static void MatrixCreate(evm::VM* vm);
 	static void MatrixRotate(evm::VM* vm);

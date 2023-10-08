@@ -17,6 +17,7 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VEC3_PRINT, Vec3Print);
 	vm->RegistOperator(OP_VEC3_ADD, Vec3Add);
 	vm->RegistOperator(OP_VEC3_SUB, Vec3Sub);
+	vm->RegistOperator(OP_VEC3_TRANSFORM, Vec3Transform);
 
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
@@ -136,6 +137,33 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
 
 	vm->SetRegister(r_dst, v);
+}
+
+void MathOpCodeImpl::Vec3Transform(evm::VM* vm)
+{
+	uint8_t r_vec3 = vm->NextByte();
+	uint8_t r_mat = vm->NextByte();
+
+	auto vec3 = r_vec3 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_vec3);
+	if (!vec3) {
+		return;
+	}
+
+	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
+	if (!mat) {
+		return;
+	}
+
+	sm::vec3 ret = (*mat) * (*vec3);
+
+	evm::Value v;
+	v.type = evm::ValueType::HANDLE;
+	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+#ifdef _DEBUG
+	v.handle_type = "vec3";
+#endif // _DEBUG
+
+	vm->SetRegister(r_vec3, v);
 }
 
 void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
