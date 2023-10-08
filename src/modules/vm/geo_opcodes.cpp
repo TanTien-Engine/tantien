@@ -115,17 +115,16 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 void GeoOpCodeImpl::CreatePolyFace2(evm::VM* vm)
 {
 	uint8_t r_dst = vm->NextByte();
-
 	uint8_t r_border = vm->NextByte();
+	// todo: holes
+	uint8_t r_holes = vm->NextByte();
+
 	auto v_border = evm::VMHelper::GetRegArray(vm, r_border);
 	if (!v_border)
 	{
 		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
-
-	// todo: holes
-	uint8_t r_holes = vm->NextByte();
 
 	std::vector<size_t> border;
 	border.reserve(v_border->size());
@@ -192,13 +191,11 @@ void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
 {
 	uint8_t r_poly = vm->NextByte();
 	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
-	if (polys.empty()) {
-		return;
-	}
 
 	uint8_t r_mat = vm->NextByte();
 	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
-	if (!mat) {
+
+	if (polys.empty() || !mat) {
 		return;
 	}
 
@@ -215,16 +212,16 @@ void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
 
 void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 {
-	uint8_t r_dst = vm->NextByte();
-
+	uint8_t r_dst  = vm->NextByte();
 	uint8_t r_base = vm->NextByte();
+	uint8_t r_tool = vm->NextByte();
+
 	auto base = tt::VMHelper::LoadPolys(vm, r_base);
 	if (base.empty()) {
 		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
 
-	uint8_t r_tool = vm->NextByte();
 	auto tool = tt::VMHelper::LoadPolys(vm, r_tool);
 
 	auto polys = PolytopeAlgos::Subtract(base, tool);
@@ -234,12 +231,13 @@ void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 void GeoOpCodeImpl::PolytopeExtrude(evm::VM* vm)
 {
 	uint8_t r_poly = vm->NextByte();
+	uint8_t r_dist = vm->NextByte();
+
 	auto poly = evm::VMHelper::GetRegHandler<pm3::Polytope>(vm, r_poly);
 	if (!poly) {
 		return;
 	}
 
-	uint8_t r_dist = vm->NextByte();
 	auto dist = evm::VMHelper::GetRegNumber(vm, r_dist);
 
 	PolytopeAlgos::Extrude(poly, static_cast<float>(dist));
