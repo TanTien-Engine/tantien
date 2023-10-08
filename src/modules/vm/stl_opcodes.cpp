@@ -73,8 +73,13 @@ void StlOpCodeImpl::VectorConcat(evm::VM* vm)
 	uint8_t r_src = vm->NextByte();
 
 	evm::Value dst, src;
-	if (vm->GetRegister(r_dst, dst) && vm->GetRegister(r_src, src)) {
+	if (vm->GetRegister(r_dst, dst) && vm->GetRegister(r_src, src)) 
+	{
 		vector_concat(dst, src);
+
+		// move
+		evm::Value val;
+		vm->MoveRegister(r_src, val);
 	}
 }
 
