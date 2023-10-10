@@ -17,6 +17,8 @@ enum MathOpCode
 	OP_MATRIX_CREATE,
 	OP_MATRIX_ROTATE,
 	OP_MATRIX_TRANSLATE,
+
+	OP_MUL_UNKNOWN,
 };
 
 class MathOpCodeImpl
@@ -35,6 +37,8 @@ private:
 	static void MatrixCreate(evm::VM* vm);
 	static void MatrixRotate(evm::VM* vm);
 	static void MatrixTranslate(evm::VM* vm);
+
+	static void MulUnknown(evm::VM* vm);
 
 }; // MathOpCodeImpl
 

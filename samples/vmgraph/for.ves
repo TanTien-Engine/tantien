@@ -1,0 +1,72 @@
+var node0 = ::blueprint::nodes::for_each_f::ForEachF()
+
+_editor.add_node(node0, -405.3253168, 143.4777124)
+
+var node1 = ::blueprint::nodes::integer::Integer()
+
+node1.value = 10
+
+_editor.add_node(node1, -596.669, 167.011)
+
+var node2 = ::blueprint::nodes::multiply::Multiply()
+
+_editor.add_node(node2, -998.779, 17.591)
+
+var node3 = ::blueprint::nodes::integer::Integer()
+
+node3.value = 2
+
+_editor.add_node(node3, -1152.379, -9.359)
+
+var node4 = ::vmgraph::nodes::compiler::Compiler()
+
+_editor.add_node(node4, -259.69, 253.7)
+
+var node5 = ::vmgraph::nodes::vm::Vm()
+
+_editor.add_node(node5, -122.11, 251.28)
+
+var node6 = ::blueprint::nodes::camera3d::Camera3d()
+
+node6.cam.position.set(12.922146895179, 17.163336639257, 9.6882685290447)
+node6.cam.yaw = -120.8
+node6.cam.pitch = -57
+node6.cam.zoom = 45
+node6.cam.update_vectors()
+node6.speed = 0.5
+
+_editor.add_node(node6, -116.5028765896, -43.837264309661)
+
+var node7 = ::blueprint::nodes::subgraph::Subgraph()
+node7.load_from_file(_editor, "../../assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node7, 73.320909090909, 90.300909090909)
+
+var node8 = ::geograph::nodes::box::Box()
+node8.query_param("size").value.set(1, 1, 1)
+node8.query_param("pos").value.set(0, 0, 0)
+node8.query_param("offset_x").value = false
+node8.query_param("offset_y").value = false
+node8.query_param("offset_z").value = false
+
+_editor.add_node(node8, -949.35, 272.16)
+
+var node9 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node9, -602.27, 90.55)
+
+var node10 = ::blueprint::nodes::combine::Combine()
+
+_editor.add_node(node10, -837.5, -25.64)
+
+Blueprint.connect(node0, "curr_item", node2, "a")
+Blueprint.connect(node3, "v", node2, "b")
+Blueprint.connect(node2, "v", node10, "x")
+Blueprint.connect(node8, "geo", node9, "geo")
+Blueprint.connect(node10, "xyz", node9, "xyz")
+Blueprint.connect(node1, "v", node0, "count")
+Blueprint.connect(node9, "geo", node0, "eval")
+Blueprint.connect(node0, "result", node4, "val")
+Blueprint.connect(node4, "codes", node5, "codes")
+Blueprint.connect(node5, "val", node7, "geos")
+Blueprint.connect(node6, "this", node7, "view_cam")

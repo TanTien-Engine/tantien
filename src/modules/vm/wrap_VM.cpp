@@ -45,6 +45,12 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<tt::Bytecodes>);
 }
 
+void w_Bytecodes_size()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    ves_set_number(0, static_cast<double>(code->GetCode().size()));
+}
+
 void w_Bytecodes_set_ret_reg()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -116,6 +122,35 @@ void w_Bytecodes_div()
     bytecodes_write(evm::OP_DIV, 3);
 }
 
+void w_Bytecodes_inc()
+{
+    bytecodes_write(evm::OP_INC, 1);
+}
+
+void w_Bytecodes_dec()
+{
+    bytecodes_write(evm::OP_DEC, 1);
+}
+
+void w_Bytecodes_cmp()
+{
+    bytecodes_write(evm::OP_CMP, 3);
+}
+
+void w_Bytecodes_jump_if_not()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    uint8_t op = evm::OP_JUMP_IF_NOT;
+    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+
+    uint32_t offset = (uint32_t)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
+
+    uint8_t reg = (uint8_t)ves_tonumber(2);
+    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+}
+
 void w_Bytecodes_vec3_create()
 {
     bytecodes_write(tt::OP_VEC3_CREATE, 4);
@@ -170,6 +205,11 @@ void w_Bytecodes_mat4_rotate()
 void w_Bytecodes_mat4_translate()
 {
     bytecodes_write(tt::OP_MATRIX_TRANSLATE, 2);
+}
+
+void w_Bytecodes_mul_unknown()
+{
+    bytecodes_write(tt::OP_MUL_UNKNOWN, 3);
 }
 
 void w_Bytecodes_create_vector()
@@ -276,6 +316,16 @@ void w_Compiler_get_reg_type()
     int reg = (int)ves_tonumber(1);
     std::string type = c->GetRegType(reg);
     ves_set_lstring(0, type.c_str(), type.size());
+}
+
+void w_Compiler_keep_reg()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    int reg = (int)ves_tonumber(1);
+    bool keep = ves_toboolean(2);
+    if (reg >= 0) {
+        c->SetRegKeep(reg, keep);
+    }
 }
 
 void w_VM_allocate()
@@ -428,6 +478,7 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_ret_reg(_)") == 0) return w_Bytecodes_set_ret_reg;
     if (strcmp(signature, "Bytecodes.get_ret_reg()") == 0) return w_Bytecodes_get_ret_reg;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
@@ -438,6 +489,10 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
     if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
     if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
+    if (strcmp(signature, "Bytecodes.inc(_)") == 0) return w_Bytecodes_inc;
+    if (strcmp(signature, "Bytecodes.dec(_)") == 0) return w_Bytecodes_dec;
+    if (strcmp(signature, "Bytecodes.cmp(_,_,_)") == 0) return w_Bytecodes_cmp;
+    if (strcmp(signature, "Bytecodes.jump_if_not(_,_)") == 0) return w_Bytecodes_jump_if_not;
     // math
     if (strcmp(signature, "Bytecodes.vec3_create(_,_,_,_)") == 0) return w_Bytecodes_vec3_create;
     if (strcmp(signature, "Bytecodes.store_vec3(_,_)") == 0) return w_Bytecodes_store_vec3;
@@ -445,10 +500,10 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.vec3_add(_,_,_)") == 0) return w_Bytecodes_vec3_add;
     if (strcmp(signature, "Bytecodes.vec3_sub(_,_,_)") == 0) return w_Bytecodes_vec3_sub;
     if (strcmp(signature, "Bytecodes.vec3_transform(_,_)") == 0) return w_Bytecodes_vec3_transform;
-
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
+    if (strcmp(signature, "Bytecodes.mul_unknown(_,_,_)") == 0) return w_Bytecodes_mul_unknown;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;
@@ -467,6 +522,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.set_reg_type(_,_)") == 0) return w_Compiler_set_reg_type;
     if (strcmp(signature, "Compiler.get_reg_type(_)") == 0) return w_Compiler_get_reg_type;
+    if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 

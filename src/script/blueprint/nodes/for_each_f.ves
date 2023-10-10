@@ -24,6 +24,7 @@ class ForEachF is Node
 		this.exports[1].stop_port_pass = true
 
 		this.curr_item = nil
+		this.r_curr_item = -1
 	}
 
 	calc_value(idx) 
@@ -34,6 +35,49 @@ class ForEachF is Node
 			return this.curr_item
 		}
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx == 0)
+		{
+			var r_dst = compiler.new_reg()
+			opcodes.create_vector(r_dst)
+
+			var r_count = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+
+			this.r_curr_item = compiler.new_reg()
+			opcodes.store_num(this.r_curr_item, 0)
+
+			compiler.keep_reg(this.r_curr_item, true)
+
+			var r_cmp = compiler.new_reg()
+			opcodes.store_bool(r_cmp, false)
+
+			var start_ip = opcodes.size()
+
+			var r_eval = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
+			opcodes.vector_concat(r_dst, r_eval)
+			compiler.free_reg(r_eval)
+
+			opcodes.inc(this.r_curr_item)
+			opcodes.cmp(r_cmp, this.r_curr_item, r_count)
+			opcodes.jump_if_not(start_ip, r_cmp)
+
+			compiler.free_reg(r_cmp)
+			compiler.free_reg(this.r_curr_item)
+			this.r_curr_item = -1
+
+			compiler.keep_reg(this.r_curr_item, false)
+
+			return r_dst
+		}
+		else if (idx == 1)
+		{
+			return this.r_curr_item
+		}
+
+		return -1
 	}
 
 	calc_result()

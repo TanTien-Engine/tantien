@@ -149,6 +149,7 @@ class Transform3d is Node
 	calc_mat_opcodes(compiler, opcodes)
 	{
 		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
+		compiler.set_reg_type(r_mat, "mat4")
 
 		// scale
 		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)

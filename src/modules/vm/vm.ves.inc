@@ -5,6 +5,8 @@ foreign class Bytecodes
 {
 	init() {}
 
+	foreign size()
+
 	foreign set_ret_reg(reg)
 	foreign get_ret_reg()
 
@@ -19,6 +21,13 @@ foreign class Bytecodes
 	foreign mul(r_dst, r_src1, r_src2)
 	foreign div(r_dst, r_src1, r_src2)
 
+	foreign inc(reg)
+	foreign dec(reg)
+
+	foreign cmp(r_dst, r_src1, r_src2)
+
+	foreign jump_if_not(offset, r_bool)
+
 	// math
 	foreign vec3_create(r_dst, r_x, r_y, r_z)
 	foreign store_vec3(r_vec, r_xyz)
@@ -29,6 +38,7 @@ foreign class Bytecodes
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
+	foreign mul_unknown(r_dst, r_src1, r_src2)
 
 	// stl
 	foreign create_vector(r_list)
@@ -55,6 +65,8 @@ foreign class Compiler
 
 	foreign set_reg_type(reg, type)
 	foreign get_reg_type(reg)
+
+	foreign keep_reg(reg, keep)
 }
 
 foreign class VM

@@ -22,6 +22,11 @@ int Compiler::NewRegister()
 void Compiler::FreeRegister(int reg)
 {
     assert(reg >= 0 && reg < REGISTER_COUNT);
+
+    if (m_registers[reg].keep) {
+        return;
+    }
+
     m_registers[reg].used = false;
     m_registers[reg].type.clear();
 }
@@ -36,6 +41,12 @@ std::string Compiler::GetRegType(int reg) const
 {
     assert(reg >= 0 && reg < REGISTER_COUNT);
     return m_registers[reg].type;
+}
+
+void Compiler::SetRegKeep(int reg, bool keep)
+{
+    assert(reg >= 0 && reg < REGISTER_COUNT);
+    m_registers[reg].keep = keep;
 }
 
 }

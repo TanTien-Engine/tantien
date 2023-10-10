@@ -22,6 +22,8 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
 	vm->RegistOperator(OP_MATRIX_TRANSLATE, MatrixTranslate);
+
+	vm->RegistOperator(OP_MUL_UNKNOWN, MulUnknown);
 }
 
 void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
@@ -147,7 +149,7 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 #ifdef _DEBUG
 	v.handle_type = "vec3";
 #endif // _DEBUG
-	
+
 	vm->SetRegister(r_dst, v);
 }
 
@@ -190,7 +192,7 @@ void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 #ifdef _DEBUG
 	v.handle_type = "mat4";
 #endif // _DEBUG
-	
+
 	vm->SetRegister(reg, v);
 }
 
@@ -228,6 +230,22 @@ void MathOpCodeImpl::MatrixTranslate(evm::VM* vm)
 	}
 
 	mat->Translate(vec->x, vec->y, vec->z);
+}
+
+void MathOpCodeImpl::MulUnknown(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	double src1 = evm::VMHelper::GetRegNumber(vm, r_src1);
+	double src2 = evm::VMHelper::GetRegNumber(vm, r_src2);
+
+	evm::Value val;
+	val.type = evm::ValueType::NUMBER;
+	val.as.number = src1 * src2;
+
+	vm->SetRegister(r_dst, val);
 }
 
 }

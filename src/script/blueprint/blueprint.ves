@@ -281,6 +281,9 @@ class Blueprint
 
 		if (f_node.has_method("calc_opcodes(_,_,_)")) {
 			return f_node.calc_opcodes(compiler, opcodes, f_pin.slot_idx)
+		} else {
+			import "logger.logger" for Logger
+			Logger.error("No calc_opcodes in %(f_node) !")
 		}
 
 		return -1
