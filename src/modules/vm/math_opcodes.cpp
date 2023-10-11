@@ -19,6 +19,9 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VEC3_ADD, Vec3Add);
 	vm->RegistOperator(OP_VEC3_SUB, Vec3Sub);
 	vm->RegistOperator(OP_VEC3_TRANSFORM, Vec3Transform);
+	vm->RegistOperator(OP_VEC3_GET_X, Vec3GetX);
+	vm->RegistOperator(OP_VEC3_GET_Y, Vec3GetY);
+	vm->RegistOperator(OP_VEC3_GET_Z, Vec3GetZ);
 
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
@@ -166,6 +169,57 @@ void MathOpCodeImpl::Vec3Transform(evm::VM* vm)
 	vm->SetRegister(r_vec3, v);
 }
 
+void MathOpCodeImpl::Vec3GetX(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	if (!vec3) {
+		return;
+	}
+
+	evm::Value val;
+	val.type = evm::ValueType::V_NUMBER;
+	val.as.number = vec3->x;
+
+	vm->SetRegister(r_dst, val);
+}
+
+void MathOpCodeImpl::Vec3GetY(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	if (!vec3) {
+		return;
+	}
+
+	evm::Value val;
+	val.type = evm::ValueType::V_NUMBER;
+	val.as.number = vec3->y;
+
+	vm->SetRegister(r_dst, val);
+}
+
+void MathOpCodeImpl::Vec3GetZ(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	if (!vec3) {
+		return;
+	}
+
+	evm::Value val;
+	val.type = evm::ValueType::V_NUMBER;
+	val.as.number = vec3->z;
+
+	vm->SetRegister(r_dst, val);
+}
+
 void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 {
 	uint8_t reg = vm->NextByte();
@@ -221,14 +275,67 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	double src1 = evm::VMHelper::GetRegNumber(vm, r_src1);
-	double src2 = evm::VMHelper::GetRegNumber(vm, r_src2);
+	evm::Value src1, src2;
+	if (!vm->GetRegister(r_src1, src1)) {
+		return;
+	}
+	if (!vm->GetRegister(r_src2, src2)) {
+		return;
+	}
 
-	evm::Value val;
-	val.type = evm::ValueType::V_NUMBER;
-	val.as.number = src1 * src2;
+	if (src1.type == evm::ValueType::V_NUMBER &&
+		src2.type == evm::ValueType::V_NUMBER)
+	{
+		evm::Value val;
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = src1.as.number * src2.as.number;
 
-	vm->SetRegister(r_dst, val);
+		vm->SetRegister(r_dst, val);
+	}
+	else if (src1.type == evm::ValueType::V_NUMBER &&
+		     src2.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+		sm::vec3 ret = src2_v3 * src1.as.number;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src2.type == evm::ValueType::V_NUMBER &&
+		     src1.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 * src2.as.number;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC3 &&
+		     src2.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 * src2_v3;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else
+	{
+		int zz = 0;
+	}
 }
 
 }

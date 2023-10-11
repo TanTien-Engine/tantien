@@ -13,6 +13,9 @@ enum MathOpCode
 	OP_VEC3_ADD,
 	OP_VEC3_SUB,
 	OP_VEC3_TRANSFORM,
+	OP_VEC3_GET_X,
+	OP_VEC3_GET_Y,
+	OP_VEC3_GET_Z,
 
 	OP_MATRIX_CREATE,
 	OP_MATRIX_ROTATE,
@@ -33,6 +36,9 @@ private:
 	static void Vec3Add(evm::VM* vm);
 	static void Vec3Sub(evm::VM* vm);
 	static void Vec3Transform(evm::VM* vm);
+	static void Vec3GetX(evm::VM* vm);
+	static void Vec3GetY(evm::VM* vm);
+	static void Vec3GetZ(evm::VM* vm);
 
 	static void MatrixCreate(evm::VM* vm);
 	static void MatrixRotate(evm::VM* vm);

@@ -3,7 +3,7 @@ import "maths.compiler" for Compiler as maths_Compiler
 
 class Compiler
 {
-	static create_plane(compiler, opcodes, p0, p1, p2)
+	static create_plane_i(compiler, opcodes, p0, p1, p2)
 	{
 		var reg = compiler.new_reg()
 		if (reg < 0) {
@@ -36,14 +36,44 @@ class Compiler
 		return reg
 	}
 
-	static create_face(compiler, opcodes, p0, p1, p2)
+	static create_face_i(compiler, opcodes, p0, p1, p2)
 	{
     	var reg = compiler.new_reg()
 		if (reg < 0) {
 			return -1
 		}
 
-		var reg_plane = this.create_plane(compiler, opcodes, p0, p1, p2)
+		var reg_plane = this.create_plane_i(compiler, opcodes, p0, p1, p2)
+		if (reg_plane < 0) {
+			return -1
+		}
+
+		opcodes.create_polyface(reg, reg_plane)
+		compiler.free_reg(reg_plane)
+
+		return reg
+	}
+
+	static create_plane_r(compiler, opcodes, reg_p0, reg_p1, reg_p2)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
+
+		return reg
+	}
+
+	static create_face_r(compiler, opcodes, p0, p1, p2)
+	{
+    	var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		var reg_plane = this.create_plane_r(compiler, opcodes, p0, p1, p2)
 		if (reg_plane < 0) {
 			return -1
 		}
@@ -96,9 +126,16 @@ class PolytopeBuilder
 		this.opcodes.create_vector(this.faces)
 	}
 
-	add_face(p0, p1, p2)
+	add_face_i(p0, p1, p2)
 	{
-		var face = Compiler.create_face(this.compiler, this.opcodes, p0, p1, p2)
+		var face = Compiler.create_face_i(this.compiler, this.opcodes, p0, p1, p2)
+		this.opcodes.vector_add(this.faces, face)
+		this.compiler.free_reg(face)
+	}
+
+	add_face_r(p0, p1, p2)
+	{
+		var face = Compiler.create_face_r(this.compiler, this.opcodes, p0, p1, p2)
 		this.opcodes.vector_add(this.faces, face)
 		this.compiler.free_reg(face)
 	}

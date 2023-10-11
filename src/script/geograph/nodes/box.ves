@@ -49,57 +49,191 @@ class Box is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		var size = this.query_param("size").value
+		var r_size = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_pos = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 
-		var hx = size.x * 0.5
-		var hy = size.y * 0.5
-		var hz = size.z * 0.5
+		if (r_size < 0 and r_pos < 0) 
+		{
+			var size = this.query_param("size").value
 
-		var pos = this.query_param("pos").value
+			var hx = size.x * 0.5
+			var hy = size.y * 0.5
+			var hz = size.z * 0.5
 
-		var xmin = pos.x - hx
-		var xmax = pos.x + hx
-		var ymin = pos.y - hy
-		var ymax = pos.y + hy
-		var zmin = pos.z - hz
-		var zmax = pos.z + hz
+			var pos = this.query_param("pos").value
 
-		if (this.query_param("offset_x").value) {
-			xmin = xmin + hx
-			xmax = xmax + hx
+			var xmin = pos.x - hx
+			var xmax = pos.x + hx
+			var ymin = pos.y - hy
+			var ymax = pos.y + hy
+			var zmin = pos.z - hz
+			var zmax = pos.z + hz
+
+			if (this.query_param("offset_x").value) {
+				xmin = xmin + hx
+				xmax = xmax + hx
+			}
+			if (this.query_param("offset_y").value) {
+				ymin = ymin + hy
+				ymax = ymax + hy
+			}
+			if (this.query_param("offset_z").value) {
+				zmin = zmin + hz
+				zmax = zmax + hz
+			}
+
+	    	var top_left_front  = [ xmin, ymax, zmin ]
+	    	var top_left_back   = [ xmin, ymax, zmax ]
+	    	var top_right_front = [ xmax, ymax, zmin ]
+	    	var top_right_back  = [ xmax, ymax, zmax ]
+	    	var btm_left_front  = [ xmin, ymin, zmin ]
+	    	var btm_left_back   = [ xmin, ymin, zmax ]
+	    	var btm_right_front = [ xmax, ymin, zmin ]
+	    	var btm_right_back  = [ xmax, ymin, zmax ]
+
+	    	var builder = PolytopeBuilder(compiler, opcodes)
+
+	    	builder.begin()
+
+			builder.add_face_i(top_left_front, top_left_back, top_right_back)
+			builder.add_face_i(btm_left_front, btm_right_front, btm_right_back)
+			builder.add_face_i(top_left_back, top_left_front, btm_left_front)
+			builder.add_face_i(top_right_front, top_right_back, btm_right_back)
+			builder.add_face_i(top_left_front, top_right_front, btm_right_front)
+			builder.add_face_i(top_right_back, top_left_back, btm_left_back)
+
+			var poly = builder.end()
+			
+			return poly			
 		}
-		if (this.query_param("offset_y").value) {
-			ymin = ymin + hy
-			ymax = ymax + hy
+		else
+		{
+			var r_size_x = compiler.new_reg()
+			var r_size_y = compiler.new_reg()
+			var r_size_z = compiler.new_reg()
+			if (r_size >= 0)
+			{
+				opcodes.vec3_get_x(r_size_x, r_size)
+				opcodes.vec3_get_y(r_size_y, r_size)
+				opcodes.vec3_get_z(r_size_z, r_size)
+			}
+			else
+			{
+				var size = this.query_param("size").value
+				opcodes.store_num(r_size_x, size.x)
+				opcodes.store_num(r_size_y, size.y)
+				opcodes.store_num(r_size_z, size.z)
+			}
+
+			var r_pos_x = compiler.new_reg()
+			var r_pos_y = compiler.new_reg()
+			var r_pos_z = compiler.new_reg()
+			if (r_pos >= 0)
+			{
+				opcodes.vec3_get_x(r_pos_x, r_pos)
+				opcodes.vec3_get_y(r_pos_y, r_pos)
+				opcodes.vec3_get_z(r_pos_z, r_pos)
+			}
+			else
+			{
+				var pos = this.query_param("pos").value
+				opcodes.store_num(r_pos_x, pos.x)
+				opcodes.store_num(r_pos_y, pos.y)
+				opcodes.store_num(r_pos_z, pos.z)
+			}
+
+			var r_hx = compiler.new_reg()
+			var r_hy = compiler.new_reg()
+			var r_hz = compiler.new_reg()
+			var r_tmp = compiler.new_reg()
+			opcodes.store_num(r_tmp, 0.5)
+			opcodes.mul(r_hx, r_size_x, r_tmp)
+			opcodes.mul(r_hy, r_size_y, r_tmp)
+			opcodes.mul(r_hz, r_size_z, r_tmp)
+			compiler.free_reg(r_tmp)
+			compiler.free_reg(r_size_x)
+			compiler.free_reg(r_size_y)
+			compiler.free_reg(r_size_z)
+
+			var r_xmin = compiler.new_reg()
+			var r_xmax = compiler.new_reg()
+			var r_ymin = compiler.new_reg()
+			var r_ymax = compiler.new_reg()
+			var r_zmin = compiler.new_reg()
+			var r_zmax = compiler.new_reg()
+			opcodes.sub(r_xmin, r_pos_x, r_hx)
+			opcodes.add(r_xmax, r_pos_x, r_hx)
+			opcodes.sub(r_ymin, r_pos_y, r_hy)
+			opcodes.add(r_ymax, r_pos_y, r_hy)
+			opcodes.sub(r_zmin, r_pos_z, r_hz)
+			opcodes.add(r_zmax, r_pos_z, r_hz)
+			compiler.free_reg(r_pos_x)
+			compiler.free_reg(r_pos_y)
+			compiler.free_reg(r_pos_z)
+
+			if (this.query_param("offset_x").value) {
+				opcodes.add(r_xmin, r_xmin, r_hx)
+				opcodes.add(r_xmax, r_xmax, r_hx)
+			}
+			if (this.query_param("offset_y").value) {
+				opcodes.add(r_ymin, r_ymin, r_hy)
+				opcodes.add(r_ymax, r_ymax, r_hy)
+			}
+			if (this.query_param("offset_z").value) {
+				opcodes.add(r_zmin, r_zmin, r_hz)
+				opcodes.add(r_zmax, r_zmax, r_hz)
+			}
+			compiler.free_reg(r_hx)
+			compiler.free_reg(r_hy)
+			compiler.free_reg(r_hz)
+
+			var r_top_left_front  = compiler.new_reg()
+			var r_top_left_back   = compiler.new_reg()
+			var r_top_right_front = compiler.new_reg()
+			var r_top_right_back  = compiler.new_reg()
+			var r_btm_left_front  = compiler.new_reg()
+			var r_btm_left_back   = compiler.new_reg()
+			var r_btm_right_front = compiler.new_reg()
+			var r_btm_right_back  = compiler.new_reg()
+			opcodes.vec3_create(r_top_left_front , r_xmin, r_ymax, r_zmin)
+			opcodes.vec3_create(r_top_left_back  , r_xmin, r_ymax, r_zmax)
+			opcodes.vec3_create(r_top_right_front, r_xmax, r_ymax, r_zmin)
+			opcodes.vec3_create(r_top_right_back , r_xmax, r_ymax, r_zmax)
+			opcodes.vec3_create(r_btm_left_front , r_xmin, r_ymin, r_zmin)
+			opcodes.vec3_create(r_btm_left_back  , r_xmin, r_ymin, r_zmax)
+			opcodes.vec3_create(r_btm_right_front, r_xmax, r_ymin, r_zmin)
+			opcodes.vec3_create(r_btm_right_back , r_xmax, r_ymin, r_zmax)
+			compiler.free_reg(r_xmin)
+			compiler.free_reg(r_xmax)
+			compiler.free_reg(r_ymin)
+			compiler.free_reg(r_ymax)
+			compiler.free_reg(r_zmin)
+			compiler.free_reg(r_zmax)
+
+	    	var builder = PolytopeBuilder(compiler, opcodes)
+
+	    	builder.begin()
+
+			builder.add_face_r(r_top_left_front, r_top_left_back, r_top_right_back)
+			builder.add_face_r(r_btm_left_front, r_btm_right_front, r_btm_right_back)
+			builder.add_face_r(r_top_left_back, r_top_left_front, r_btm_left_front)
+			builder.add_face_r(r_top_right_front, r_top_right_back, r_btm_right_back)
+			builder.add_face_r(r_top_left_front, r_top_right_front, r_btm_right_front)
+			builder.add_face_r(r_top_right_back, r_top_left_back, r_btm_left_back)
+
+			var poly = builder.end()
+			
+			compiler.free_reg(r_top_left_front)
+			compiler.free_reg(r_top_left_back)
+			compiler.free_reg(r_top_right_front)
+			compiler.free_reg(r_top_right_back)
+			compiler.free_reg(r_btm_left_front)
+			compiler.free_reg(r_btm_left_back)
+			compiler.free_reg(r_btm_right_front)
+			compiler.free_reg(r_btm_right_back)
+
+			return poly
 		}
-		if (this.query_param("offset_z").value) {
-			zmin = zmin + hz
-			zmax = zmax + hz
-		}
-
-    	var top_left_front  = [ xmin, ymax, zmin ]
-    	var top_left_back   = [ xmin, ymax, zmax ]
-    	var top_right_front = [ xmax, ymax, zmin ]
-    	var top_right_back  = [ xmax, ymax, zmax ]
-    	var btm_left_front  = [ xmin, ymin, zmin ]
-    	var btm_left_back   = [ xmin, ymin, zmax ]
-    	var btm_right_front = [ xmax, ymin, zmin ]
-    	var btm_right_back  = [ xmax, ymin, zmax ]
-
-    	var builder = PolytopeBuilder(compiler, opcodes)
-
-    	builder.begin()
-
-		builder.add_face(top_left_front, top_left_back, top_right_back)
-		builder.add_face(btm_left_front, btm_right_front, btm_right_back)
-		builder.add_face(top_left_back, top_left_front, btm_left_front)
-		builder.add_face(top_right_front, top_right_back, btm_right_back)
-		builder.add_face(top_left_front, top_right_front, btm_right_front)
-		builder.add_face(top_right_back, top_left_back, btm_left_back)
-
-		var poly = builder.end()
-		
-		return poly
 	}
 
 	calc_in_size()

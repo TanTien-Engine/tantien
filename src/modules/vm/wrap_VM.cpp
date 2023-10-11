@@ -193,6 +193,21 @@ void w_Bytecodes_vec3_transform()
     bytecodes_write(tt::OP_VEC3_TRANSFORM, 2);
 }
 
+void w_Bytecodes_vec3_get_x()
+{
+    bytecodes_write(tt::OP_VEC3_GET_X, 2);
+}
+
+void w_Bytecodes_vec3_get_y()
+{
+    bytecodes_write(tt::OP_VEC3_GET_Y, 2);
+}
+
+void w_Bytecodes_vec3_get_z()
+{
+    bytecodes_write(tt::OP_VEC3_GET_Z, 2);
+}
+
 void w_Bytecodes_create_mat4()
 {
     bytecodes_write(tt::OP_MATRIX_CREATE, 1);
@@ -483,6 +498,9 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.vec3_add(_,_,_)") == 0) return w_Bytecodes_vec3_add;
     if (strcmp(signature, "Bytecodes.vec3_sub(_,_,_)") == 0) return w_Bytecodes_vec3_sub;
     if (strcmp(signature, "Bytecodes.vec3_transform(_,_)") == 0) return w_Bytecodes_vec3_transform;
+    if (strcmp(signature, "Bytecodes.vec3_get_x(_,_)") == 0) return w_Bytecodes_vec3_get_x;
+    if (strcmp(signature, "Bytecodes.vec3_get_y(_,_)") == 0) return w_Bytecodes_vec3_get_y;
+    if (strcmp(signature, "Bytecodes.vec3_get_z(_,_)") == 0) return w_Bytecodes_vec3_get_z;
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
