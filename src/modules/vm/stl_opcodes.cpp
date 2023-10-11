@@ -1,4 +1,6 @@
 #include "stl_opcodes.h"
+#include "VMHelper.h"
+#include "ValueType.h"
 
 #include <easyvm/VM.h>
 #include <easyvm/VMHelper.h>
@@ -12,10 +14,10 @@ namespace
 
 void vector_concat(evm::Value& dst, const evm::Value& src)
 {
-	auto v_dst = evm::VMHelper::GetValArray(dst);
-	if (src.type == evm::ValueType::ARRAY)
+	auto v_dst = tt::VMHelper::GetValArray(dst);
+	if (src.type == tt::ValueType::V_ARRAY)
 	{
-		auto v_src = evm::VMHelper::GetValArray(src);
+		auto v_src = tt::VMHelper::GetValArray(src);
 		for (auto v : *v_src) {
 			vector_concat(dst, v);
 		}
@@ -45,11 +47,8 @@ void StlOpCodeImpl::VectorCreate(evm::VM* vm)
 	auto vector = std::make_shared<std::vector<evm::Value>>();
 
 	evm::Value val;
-	val.type = evm::ValueType::ARRAY;
+	val.type = tt::ValueType::V_ARRAY;
 	val.as.handle = new evm::Handle<std::vector<evm::Value>>(vector);
-#ifdef _DEBUG
-	val.handle_type = "vector";
-#endif // _DEBUG
 
 	vm->SetRegister(reg, val);
 }
@@ -59,7 +58,7 @@ void StlOpCodeImpl::VectorAdd(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src = vm->NextByte();
 
-	auto vector = evm::VMHelper::GetRegArray(vm, r_dst);
+	auto vector = tt::VMHelper::GetRegArray(vm, r_dst);
 
 	evm::Value val;
 	// todo: del it in vector's dtor

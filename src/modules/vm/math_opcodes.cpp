@@ -1,4 +1,5 @@
 #include "math_opcodes.h"
+#include "ValueType.h"
 
 #include <SM_Vector.h>
 #include <SM_Plane.h>
@@ -46,11 +47,8 @@ void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
 	}
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_VEC3;
 	v.as.handle = new evm::Handle<sm::vec3>(v3);
-#ifdef _DEBUG
-	v.handle_type = "vec3";
-#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -65,11 +63,8 @@ void MathOpCodeImpl::Vec3Create(evm::VM* vm)
 	v3->z = evm::VMHelper::ReadData<float>(vm);
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_VEC3;
 	v.as.handle = new evm::Handle<sm::vec3>(v3);
-#ifdef _DEBUG
-	v.handle_type = "vec3";
-#endif // _DEBUG
 
 	vm->SetRegister(reg, v);
 }
@@ -109,11 +104,8 @@ void MathOpCodeImpl::Vec3Add(evm::VM* vm)
 	}
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_VEC3;
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
-#ifdef _DEBUG
-	v.handle_type = "vec3";
-#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -144,11 +136,8 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 	}
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_VEC3;
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
-#ifdef _DEBUG
-	v.handle_type = "vec3";
-#endif // _DEBUG
 
 	vm->SetRegister(r_dst, v);
 }
@@ -171,11 +160,8 @@ void MathOpCodeImpl::Vec3Transform(evm::VM* vm)
 	sm::vec3 ret = (*mat) * (*vec3);
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_VEC3;
 	v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
-#ifdef _DEBUG
-	v.handle_type = "vec3";
-#endif // _DEBUG
 
 	vm->SetRegister(r_vec3, v);
 }
@@ -187,11 +173,8 @@ void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 	auto mat = std::make_shared<sm::mat4>();
 
 	evm::Value v;
-	v.type = evm::ValueType::HANDLE;
+	v.type = tt::ValueType::V_MAT4;
 	v.as.handle = new evm::Handle<sm::mat4>(mat);
-#ifdef _DEBUG
-	v.handle_type = "mat4";
-#endif // _DEBUG
 
 	vm->SetRegister(reg, v);
 }
@@ -242,7 +225,7 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 	double src2 = evm::VMHelper::GetRegNumber(vm, r_src2);
 
 	evm::Value val;
-	val.type = evm::ValueType::NUMBER;
+	val.type = evm::ValueType::V_NUMBER;
 	val.as.number = src1 * src2;
 
 	vm->SetRegister(r_dst, val);

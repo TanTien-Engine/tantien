@@ -8,6 +8,7 @@
 #include "modules/vm/math_opcodes.h"
 #include "modules/vm/geo_opcodes.h"
 #include "modules/vm/stl_opcodes.h"
+#include "ValueType.h"
 
 #include <SM_Plane.h>
 #include <polymesh3/Polytope.h>
@@ -358,7 +359,7 @@ void w_VM_load_boolean()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::BOOLEAN) {
+    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_BOOLEAN) {
         ves_set_boolean(0, val.as.boolean);
     } else {
         ves_set_nil(0);
@@ -371,7 +372,7 @@ void w_VM_load_number()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::NUMBER) {
+    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_NUMBER) {
         ves_set_number(0, val.as.number);
     } else {
         ves_set_nil(0);
@@ -384,7 +385,7 @@ void w_VM_load_string()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::STRING) {
+    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_STRING) {
         ves_set_lstring(0, val.as.string, strlen(val.as.string));
     } else {
         ves_set_nil(0);
@@ -397,7 +398,7 @@ void w_VM_load_plane()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     evm::Value val;
-    if (!vm->GetRegister(reg, val) || val.type != evm::ValueType::HANDLE) {
+    if (!vm->GetRegister(reg, val) || val.type != tt::ValueType::V_PLANE) {
         ves_set_nil(0);
         return;
     }
@@ -417,7 +418,7 @@ void w_VM_load_polyface()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     evm::Value val;
-    if (!vm->GetRegister(reg, val) || val.type != evm::ValueType::HANDLE) {
+    if (!vm->GetRegister(reg, val) || val.type != tt::ValueType::V_POLY_FACE) {
         ves_set_nil(0);
         return;
     }
