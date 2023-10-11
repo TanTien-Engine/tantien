@@ -71,6 +71,38 @@ class Average is Node
 		return nil
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (this.imports.count != 3)
+		{
+			import "logger.logger" for Logger
+			Logger.error("Average not support input count.")
+			return -1
+		}
+
+		var r_dst = compiler.new_reg()
+		if (r_dst < 0) {
+			return -1
+		}
+
+		var r_0 = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_1 = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+
+		opcodes.vec3_add(r_dst, r_0, r_1)
+
+		compiler.free_reg(r_0)
+		compiler.free_reg(r_1)
+
+		var r_tmp = compiler.new_reg()
+		opcodes.store_num(r_tmp, 0.5)
+
+		opcodes.mul_unknown(r_dst, r_dst, r_tmp)
+
+		compiler.free_reg(r_tmp)
+
+		return r_dst
+	}
+
 	on_connected(pin)
 	{
 		if (pin.is_input) {
