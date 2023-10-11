@@ -12,7 +12,6 @@ int Compiler::NewRegister()
         if (!m_registers[i].used)
         {
             m_registers[i].used = true;
-            m_registers[i].type.clear();
             return i;
         }
     }
@@ -28,19 +27,6 @@ void Compiler::FreeRegister(int reg)
     }
 
     m_registers[reg].used = false;
-    m_registers[reg].type.clear();
-}
-
-void Compiler::SetRegType(int reg, const std::string& type)
-{
-    assert(reg >= 0 && reg < REGISTER_COUNT);
-    m_registers[reg].type = type;
-}
-
-std::string Compiler::GetRegType(int reg) const
-{
-    assert(reg >= 0 && reg < REGISTER_COUNT);
-    return m_registers[reg].type;
 }
 
 void Compiler::SetRegKeep(int reg, bool keep)

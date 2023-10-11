@@ -301,24 +301,6 @@ void w_Compiler_free_reg()
     }
 }
 
-void w_Compiler_set_reg_type()
-{
-    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    int reg = (int)ves_tonumber(1);
-    const char* type = ves_tostring(2);
-    if (reg >= 0) {
-        c->SetRegType(reg, type);
-    }
-}
-
-void w_Compiler_get_reg_type()
-{
-    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    int reg = (int)ves_tonumber(1);
-    std::string type = c->GetRegType(reg);
-    ves_set_lstring(0, type.c_str(), type.size());
-}
-
 void w_Compiler_keep_reg()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
@@ -521,8 +503,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
-    if (strcmp(signature, "Compiler.set_reg_type(_,_)") == 0) return w_Compiler_set_reg_type;
-    if (strcmp(signature, "Compiler.get_reg_type(_)") == 0) return w_Compiler_get_reg_type;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;

@@ -62,10 +62,6 @@ foreign class Compiler
 
 	foreign new_reg()
 	foreign free_reg(reg)
-
-	foreign set_reg_type(reg, type)
-	foreign get_reg_type(reg)
-
 	foreign keep_reg(reg, keep)
 }
 
