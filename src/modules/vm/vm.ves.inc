@@ -57,6 +57,7 @@ foreign class Bytecodes
 	foreign polytope_transform(r_poly, r_mat)
 	foreign polytope_subtract(r_dst, r_base, r_tool)
 	foreign polytope_extrude(r_poly, r_dist)
+	foreign transform_unknown(r_obj, r_mat)
 }
 
 foreign class Compiler

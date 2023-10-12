@@ -16,6 +16,7 @@ enum GeoOpCode
 	OP_POLYTOPE_TRANSFORM,
 	OP_POLYTOPE_SUBTRACT,
 	OP_POLYTOPE_EXTRUDE,
+	OP_TRANSFORM_UNKNOWN,
 };
 
 class GeoOpCodeImpl
@@ -36,6 +37,7 @@ private:
 	static void PolytopeTransform(evm::VM* vm);
 	static void PolytopeSubtract(evm::VM* vm);
 	static void PolytopeExtrude(evm::VM* vm);
+	static void TransformUnknown(evm::VM* vm);
 
 }; // GeoOpCodeImpl
 

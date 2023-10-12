@@ -82,9 +82,6 @@ class Multiply is Node
 			return -1
 		}
 
-		var t_a = compiler.get_reg_type(r_a)
-		var t_b = compiler.get_reg_type(r_b)
-
 		opcodes.mul_unknown(r_dst, r_a, r_b)
 
 		compiler.free_reg(r_a)

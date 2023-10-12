@@ -9,6 +9,8 @@
 #include <easyvm/VMHelper.h>
 #include <easyvm/Value.h>
 
+#include <stdexcept>
+
 namespace tt
 {
 
@@ -23,6 +25,7 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_POLYTOPE_TRANSFORM, PolytopeTransform);
 	vm->RegistOperator(OP_POLYTOPE_SUBTRACT, PolytopeSubtract);
 	vm->RegistOperator(OP_POLYTOPE_EXTRUDE, PolytopeExtrude);
+	vm->RegistOperator(OP_TRANSFORM_UNKNOWN, TransformUnknown);
 }
 
 void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
@@ -227,6 +230,97 @@ void GeoOpCodeImpl::PolytopeExtrude(evm::VM* vm)
 	auto dist = evm::VMHelper::GetRegNumber(vm, r_dist);
 
 	PolytopeAlgos::Extrude(poly, static_cast<float>(dist));
+}
+
+void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
+{
+	uint8_t r_obj = vm->NextByte();
+
+	uint8_t r_mat = vm->NextByte();
+	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
+	if (!mat) {
+		return;
+	}
+
+	evm::Value v_obj;
+	if (!vm->GetRegister(r_obj, v_obj)) {
+		return;
+	}
+
+	if (v_obj.type == tt::V_VEC3)
+	{
+		auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_obj);
+		if (!vec3) {
+			return;
+		}
+
+		sm::vec3 ret = (*mat) * (*vec3);
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_obj, v);
+	}
+	else if (v_obj.type == tt::V_POLY || v_obj.type == tt::V_ARRAY)
+	{
+		auto polys = tt::VMHelper::LoadPolys(vm, r_obj);
+
+		for (auto poly : polys)
+		{
+			auto& pts = poly->Points();
+			for (auto& p : pts) {
+				p->pos = *mat * p->pos;
+			}
+
+			poly->SetTopoDirty();
+		}
+	}
+	else if (v_obj.type == tt::V_PLANE)
+	{
+		auto p = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_obj);
+		if (!p) {
+			return;
+		}
+
+		auto& norm = p->normal;
+
+		sm::vec3 pos0;
+		if (norm.x != 0)
+		{
+			pos0.x = -p->dist / norm.x;
+			pos0.y = 0;
+			pos0.z = 0;
+		}
+		else if (norm.y != 0)
+		{
+			pos0.x = 0;
+			pos0.y = -p->dist / norm.y;
+			pos0.z = 0;
+		}
+		else if (norm.z != 0)
+		{
+			pos0.x = 0;
+			pos0.y = 0;
+			pos0.z = -p->dist / norm.z;
+		}
+
+		auto pos1 = pos0 + norm;
+
+		pos0 = *mat * pos0;
+		pos1 = *mat * pos1;
+		p->Build(pos1 - pos0, pos0);
+
+		evm::Value v;
+		v.type = tt::ValueType::V_PLANE;
+		v.as.handle = new evm::Handle<sm::Plane>(std::make_shared<sm::Plane>(p->normal, p->dist));
+
+		vm->SetRegister(r_obj, v);
+	}
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
 }
 
 }

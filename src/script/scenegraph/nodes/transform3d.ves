@@ -64,8 +64,8 @@ class Transform3d is Node
 	{
 		if (idx == 0)
 		{
-			var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-			if (r_geo < 0) {
+			var r_obj = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+			if (r_obj < 0) {
 				return -1
 			}
 
@@ -74,16 +74,11 @@ class Transform3d is Node
 				return -1
 			}
 
-			var type = compiler.get_reg_type(r_geo)
-			if (type == "vec3") {
-				opcodes.vec3_transform(r_geo, r_mat)
-			} else {
-				opcodes.polytope_transform(r_geo, r_mat)
-			}
+			opcodes.transform_unknown(r_obj, r_mat)
 
 			compiler.free_reg(r_mat)
 
-			return r_geo
+			return r_obj
 		}
 		else if (idx == 1)
 		{
@@ -149,7 +144,6 @@ class Transform3d is Node
 	calc_mat_opcodes(compiler, opcodes)
 	{
 		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
-		compiler.set_reg_type(r_mat, "mat4")
 
 		// scale
 		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)

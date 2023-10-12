@@ -283,6 +283,11 @@ void w_Bytecodes_polytope_extrude()
     bytecodes_write(tt::OP_POLYTOPE_EXTRUDE, 2);
 }
 
+void w_Bytecodes_transform_unknown()
+{
+    bytecodes_write(tt::OP_TRANSFORM_UNKNOWN, 2);
+}
+
 void w_Compiler_allocate()
 {
     auto proxy = (tt::Proxy<tt::Compiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Compiler>));
@@ -518,6 +523,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.polytope_transform(_,_)") == 0) return w_Bytecodes_polytope_transform;
     if (strcmp(signature, "Bytecodes.polytope_subtract(_,_,_)") == 0) return w_Bytecodes_polytope_subtract;
     if (strcmp(signature, "Bytecodes.polytope_extrude(_,_)") == 0) return w_Bytecodes_polytope_extrude;
+    if (strcmp(signature, "Bytecodes.transform_unknown(_,_)") == 0) return w_Bytecodes_transform_unknown;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
