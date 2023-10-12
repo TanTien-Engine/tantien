@@ -8,6 +8,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
 import "geograph.brush" for Brush
 import "maths.vector" for Vector3
 import "maths.compiler" for Compiler as math_Compiler
+import "maths.calc" for Calc
 import "maths" for Matrix44, Float3
 
 class Transform3d is Node
@@ -90,55 +91,10 @@ class Transform3d is Node
 
 	calc_mat()
 	{
-		// scale
-		var sx = 1
-		var sy = 1
-		var sz = 1
-		var v_scale = Blueprint.calc_input_value(this, 3)
-		if (v_scale) {
-			sx = v_scale.value.x
-			sy = v_scale.value.y
-			sz = v_scale.value.z
-		}
-
-		var scale_mat = Matrix44.init()
-		scale_mat.scale(sx, sy, sz)		
-
-		// translate
-		var x = 0
-		var y = 0
-		var z = 0
 		var v_translate = Blueprint.calc_input_value(this, 1)
-		if (v_translate) {
-			x = v_translate.value.x
-			y = v_translate.value.y
-			z = v_translate.value.z
-		}
-
-		var trans_mat = Matrix44.init()
-		trans_mat.translate(x, y, z)
-
-		// rotate
-		var rx = 0
-		var ry = 0
-		var rz = 0
 		var v_rotate = Blueprint.calc_input_value(this, 2)
-		if (v_rotate) {
-			rx = v_rotate.value.x
-			ry = v_rotate.value.y
-			rz = v_rotate.value.z
-		}
-
-		var rot_mat = Matrix44.init()
-		rot_mat.rotate(rx, ry, rz)
-
-		var mat = Matrix44.init()
-
-		mat.transform_mat4(scale_mat)
-		mat.transform_mat4(rot_mat)
-		mat.transform_mat4(trans_mat)
-
-		return mat
+		var v_scale = Blueprint.calc_input_value(this, 3)
+		return Calc.transform_mat(v_scale, v_rotate, v_translate)
 	}
 
 	calc_mat_opcodes(compiler, opcodes)

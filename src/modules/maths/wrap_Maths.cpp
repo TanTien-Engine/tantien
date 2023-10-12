@@ -1,4 +1,5 @@
 #include "modules/maths/wrap_Maths.h"
+#include "modules/maths/Maths.h"
 #include "modules/script/TransHelper.h"
 #include "modules/graphics/Graphics.h"
 
@@ -497,34 +498,7 @@ void w_Plane_transform()
 {
     sm::Plane* p = (sm::Plane*)ves_toforeign(0);
     sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
-
-    auto& norm = p->normal;
-
-    sm::vec3 pos0;
-    if (norm.x != 0)
-    {
-        pos0.x = -p->dist / norm.x;
-        pos0.y = 0;
-        pos0.z = 0;
-    }
-    else if (norm.y != 0)
-    {
-        pos0.x = 0;
-        pos0.y = -p->dist / norm.y;
-        pos0.z = 0;
-    }
-    else if (norm.z != 0)
-    {
-        pos0.x = 0;
-        pos0.y = 0;
-        pos0.z = -p->dist / norm.z;
-    }
-
-    auto pos1 = pos0 + norm;
-
-    pos0 = *mt * pos0;
-    pos1 = *mt * pos1;
-    p->Build(pos1 - pos0, pos0);
+    tt::Maths::TransformPlane(*p, *mt);
 }
 
 void w_Cube_allocate()
