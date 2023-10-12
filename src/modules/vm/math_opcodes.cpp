@@ -40,13 +40,13 @@ void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
 
 	auto v3 = std::make_shared<sm::vec3>();
 	if (r_x != 0xff) {
-		v3->x = evm::VMHelper::GetRegNumber(vm, r_x);
+		v3->x = static_cast<float>(evm::VMHelper::GetRegNumber(vm, r_x));
 	}
 	if (r_y != 0xff) {
-		v3->y = evm::VMHelper::GetRegNumber(vm, r_y);
+		v3->y = static_cast<float>(evm::VMHelper::GetRegNumber(vm, r_y));
 	}
 	if (r_z != 0xff) {
-		v3->z = evm::VMHelper::GetRegNumber(vm, r_z);
+		v3->z = static_cast<float>(evm::VMHelper::GetRegNumber(vm, r_z));
 	}
 
 	evm::Value v;
@@ -88,8 +88,8 @@ void MathOpCodeImpl::Vec3Add(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	auto src1 = r_src1 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
-	auto src2 = r_src2 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
+	auto src1 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
+	auto src2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
 	if (!src1 && !src2)
 	{
 		vm->SetRegister(r_dst, evm::Value());
@@ -120,8 +120,8 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	auto src1 = r_src1 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
-	auto src2 = r_src2 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
+	auto src1 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src1);
+	auto src2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
 	if (!src1 && !src2)
 	{
 		vm->SetRegister(r_dst, evm::Value());
@@ -150,7 +150,7 @@ void MathOpCodeImpl::Vec3Transform(evm::VM* vm)
 	uint8_t r_vec3 = vm->NextByte();
 	uint8_t r_mat = vm->NextByte();
 
-	auto vec3 = r_vec3 == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_vec3);
+	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_vec3);
 	if (!vec3) {
 		return;
 	}
@@ -174,7 +174,7 @@ void MathOpCodeImpl::Vec3GetX(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src = vm->NextByte();
 
-	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
 	if (!vec3) {
 		return;
 	}
@@ -191,7 +191,7 @@ void MathOpCodeImpl::Vec3GetY(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src = vm->NextByte();
 
-	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
 	if (!vec3) {
 		return;
 	}
@@ -208,7 +208,7 @@ void MathOpCodeImpl::Vec3GetZ(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src = vm->NextByte();
 
-	auto vec3 = r_src == 0xff ? nullptr : evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
+	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
 	if (!vec3) {
 		return;
 	}
