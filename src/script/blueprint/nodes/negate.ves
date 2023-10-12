@@ -53,6 +53,8 @@ class Negate is Node
 
 		opcodes.negate_num(r_dst, r_src)
 
+		compiler.free_reg(r_src)
+
 		return r_dst
 	}
 	

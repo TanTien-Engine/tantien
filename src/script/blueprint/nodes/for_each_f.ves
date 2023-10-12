@@ -64,6 +64,7 @@ class ForEachF is Node
 			opcodes.cmp(r_cmp, this.r_curr_item, r_count)
 			opcodes.jump_if_not(start_ip, r_cmp)
 
+			compiler.free_reg(r_count)
 			compiler.free_reg(r_cmp)
 			compiler.free_reg(this.r_curr_item)
 			this.r_curr_item = -1
