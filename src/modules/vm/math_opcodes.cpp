@@ -297,7 +297,7 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 	{
 		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
 
-		sm::vec3 ret = src2_v3 * src1.as.number;
+		sm::vec3 ret = src2_v3 * static_cast<float>(src1.as.number);
 
 		evm::Value v;
 		v.type = tt::ValueType::V_VEC3;
@@ -310,7 +310,7 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 	{
 		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
 
-		sm::vec3 ret = src1_v3 * src2.as.number;
+		sm::vec3 ret = src1_v3 * static_cast<float>(src2.as.number);
 
 		evm::Value v;
 		v.type = tt::ValueType::V_VEC3;
