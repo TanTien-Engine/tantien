@@ -50,6 +50,7 @@ foreign class Bytecodes
 
 	// geo
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)
+	foreign create_plane_2(r_dst, r_ori, r_dir)
 	foreign create_polyface(r_dst, r_plane)
 	foreign create_polytope(r_dst, r_faces)
 	foreign create_polyface_2(r_dst, r_border, r_holes)
@@ -57,6 +58,7 @@ foreign class Bytecodes
 	foreign polytope_transform(r_poly, r_mat)
 	foreign polytope_subtract(r_dst, r_base, r_tool)
 	foreign polytope_extrude(r_poly, r_dist)
+	foreign polytope_clip(r_poly, r_plane, keep, seam)
 	foreign transform_unknown(r_obj, r_mat)
 }
 

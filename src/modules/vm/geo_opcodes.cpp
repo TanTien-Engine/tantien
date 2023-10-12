@@ -17,6 +17,7 @@ namespace tt
 void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 {
 	vm->RegistOperator(OP_CREATE_PLANE, CreatePlane);
+	vm->RegistOperator(OP_CREATE_PLANE_2, CreatePlane2);
 	vm->RegistOperator(OP_CREATE_POLYFACE, CreatePolyFace);
 	vm->RegistOperator(OP_CREATE_POLYTOPE, CreatePolytope);
 	vm->RegistOperator(OP_CREATE_POLYFACE_2, CreatePolyFace2);
@@ -25,6 +26,8 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_POLYTOPE_TRANSFORM, PolytopeTransform);
 	vm->RegistOperator(OP_POLYTOPE_SUBTRACT, PolytopeSubtract);
 	vm->RegistOperator(OP_POLYTOPE_EXTRUDE, PolytopeExtrude);
+	vm->RegistOperator(OP_POLYTOPE_CLIP, PolytopeClip);
+
 	vm->RegistOperator(OP_TRANSFORM_UNKNOWN, TransformUnknown);
 }
 
@@ -49,6 +52,32 @@ void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
 
 	auto plane = std::make_shared<sm::Plane>();
 	plane->Build(*p0, *p1, *p2);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_PLANE;
+	v.as.handle = new evm::Handle<sm::Plane>(plane);
+
+	vm->SetRegister(r_dst, v);
+}
+
+void GeoOpCodeImpl::CreatePlane2(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_ori = vm->NextByte();
+	auto ori = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_ori);
+
+	uint8_t r_dir = vm->NextByte();
+	auto dir = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_dir);
+
+	if (!ori || !dir)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	auto plane = std::make_shared<sm::Plane>();
+	plane->Build(*ori, *dir);
 
 	evm::Value v;
 	v.type = tt::ValueType::V_PLANE;
@@ -230,6 +259,29 @@ void GeoOpCodeImpl::PolytopeExtrude(evm::VM* vm)
 	auto dist = evm::VMHelper::GetRegNumber(vm, r_dist);
 
 	PolytopeAlgos::Extrude(poly, static_cast<float>(dist));
+}
+
+void GeoOpCodeImpl::PolytopeClip(evm::VM* vm)
+{
+	uint8_t r_poly = vm->NextByte();
+	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
+
+	uint8_t r_plane = vm->NextByte();
+	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_plane);
+
+	uint8_t keep = vm->NextByte();
+	uint8_t seam = vm->NextByte();
+
+	if (polys.empty() || !plane) {
+		return;
+	}
+
+	for (auto poly : polys)
+	{
+		if (poly->GetTopoPoly()->Clip(*plane, he::Polyhedron::KeepType(keep), bool(seam))) {
+			poly->SetTopoDirty();
+		}
+	}
 }
 
 void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)

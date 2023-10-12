@@ -50,6 +50,42 @@ class Knife is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_geo < 0) {
+			return -1
+		}
+
+		var r_plane = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (r_plane < 0) {
+			return -1
+		}
+
+		var keep = this.query_param("keep").value
+		var seam = this.query_param("seam").value
+
+		var i_keep = 0
+		if (keep == "above") {
+			i_keep = 0
+		} else if (keep == "below") {
+			i_keep = 1
+		} else if (keep == "all") {
+			i_keep = 2
+		}
+
+		var i_seam = 0
+		if (seam) {
+			i_seam = 1
+		}
+
+		opcodes.polytope_clip(r_geo, r_plane, i_keep, i_seam)
+
+		compiler.free_reg(r_plane)
+
+		return r_geo
+	}
+
 	calc_clip(geo, plane, keep, seam, out)
 	{
 		if (geo.type == VAR_TYPE_ARRAY)
