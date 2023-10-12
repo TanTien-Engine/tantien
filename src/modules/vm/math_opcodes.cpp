@@ -8,6 +8,8 @@
 #include <easyvm/VMHelper.h>
 #include <easyvm/Value.h>
 
+#include <stdexcept>
+
 namespace tt
 {
 
@@ -334,7 +336,7 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 	}
 	else
 	{
-		int zz = 0;
+		throw std::runtime_error("Not Implemented!");
 	}
 }
 
