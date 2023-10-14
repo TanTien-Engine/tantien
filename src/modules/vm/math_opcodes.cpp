@@ -4,6 +4,7 @@
 #include <SM_Vector.h>
 #include <SM_Plane.h>
 #include <SM_Matrix.h>
+#include <SM_Cube.h>
 #include <easyvm/VM.h>
 #include <easyvm/VMHelper.h>
 #include <easyvm/Value.h>
@@ -28,6 +29,10 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
 	vm->RegistOperator(OP_MATRIX_TRANSLATE, MatrixTranslate);
+
+	vm->RegistOperator(OP_CREATE_PLANE, CreatePlane);
+	vm->RegistOperator(OP_CREATE_PLANE_2, CreatePlane2);
+	vm->RegistOperator(OP_CREATE_CUBE, CreateCube);
 
 	vm->RegistOperator(OP_MUL_UNKNOWN, MulUnknown);
 }
@@ -269,6 +274,86 @@ void MathOpCodeImpl::MatrixTranslate(evm::VM* vm)
 	}
 
 	mat->Translate(vec->x, vec->y, vec->z);
+}
+
+void MathOpCodeImpl::CreatePlane(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_p0 = vm->NextByte();
+	auto p0 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p0);
+
+	uint8_t r_p1 = vm->NextByte();
+	auto p1 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p1);
+
+	uint8_t r_p2 = vm->NextByte();
+	auto p2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p2);
+
+	if (!p0 || !p1 || !p2)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	auto plane = std::make_shared<sm::Plane>();
+	plane->Build(*p0, *p1, *p2);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_PLANE;
+	v.as.handle = new evm::Handle<sm::Plane>(plane);
+
+	vm->SetRegister(r_dst, v);
+}
+
+void MathOpCodeImpl::CreatePlane2(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_ori = vm->NextByte();
+	auto ori = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_ori);
+
+	uint8_t r_dir = vm->NextByte();
+	auto dir = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_dir);
+
+	if (!ori || !dir)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	auto plane = std::make_shared<sm::Plane>();
+	plane->Build(*dir, *ori);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_PLANE;
+	v.as.handle = new evm::Handle<sm::Plane>(plane);
+
+	vm->SetRegister(r_dst, v);
+}
+
+void MathOpCodeImpl::CreateCube(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_min = vm->NextByte();
+	auto min = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_min);
+
+	uint8_t r_max = vm->NextByte();
+	auto max = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_max);
+
+	if (!min || !max)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	auto cube = std::make_shared<sm::cube>(*min, *max);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_CUBE;
+	v.as.handle = new evm::Handle<sm::cube>(cube);
+
+	vm->SetRegister(r_dst, v);
 }
 
 void MathOpCodeImpl::MulUnknown(evm::VM* vm)

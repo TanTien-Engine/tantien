@@ -41,12 +41,14 @@ foreign class Bytecodes
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
+	foreign create_cube(r_dst, r_min, r_max)
 	foreign mul_unknown(r_dst, r_src1, r_src2)
 
 	// stl
 	foreign create_vector(r_list)
 	foreign vector_add(r_list, r_item)
 	foreign vector_concat(r_dst, r_src)
+	foreign vector_get(r_dst, r_vec, idx)
 
 	// geo
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)
@@ -59,6 +61,9 @@ foreign class Bytecodes
 	foreign polytope_subtract(r_dst, r_base, r_tool)
 	foreign polytope_extrude(r_poly, r_dist)
 	foreign polytope_clip(r_poly, r_plane, keep, seam)
+	foreign polytope_set_dirty(r_poly)
+	foreign polypoint_select(r_dst, r_poly, r_cube)
+	foreign polyface_select(r_dst, r_poly, r_normal, r_region)	
 	foreign transform_unknown(r_obj, r_mat)
 }
 

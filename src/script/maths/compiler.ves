@@ -1,5 +1,17 @@
 class Compiler
 {
+	static create_number(compiler, opcodes, num)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.store_num(reg, num)
+
+		return reg
+	}
+
 	static create_vec3(compiler, opcodes, vec3)
 	{
 		var reg = compiler.new_reg()
@@ -23,4 +35,28 @@ class Compiler
 
 		return reg
 	}
+
+	static create_vec3(compiler, opcodes, vec3)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.store_vec3(reg, [ vec3.x, vec3.y, vec3.z ])
+
+		return reg
+	}
+
+	static create_cube(compiler, opcodes, r_min, r_max)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.create_cube(reg, r_min, r_max)
+
+		return reg
+	}	
 }

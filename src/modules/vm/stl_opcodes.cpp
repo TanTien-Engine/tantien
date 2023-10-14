@@ -38,6 +38,7 @@ void StlOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VECTOR_CREATE, VectorCreate);
 	vm->RegistOperator(OP_VECTOR_ADD, VectorAdd);
 	vm->RegistOperator(OP_VECTOR_CONCAT, VectorConcat);
+	vm->RegistOperator(OP_VECTOR_GET, VectorGet);
 }
 
 void StlOpCodeImpl::VectorCreate(evm::VM* vm)
@@ -80,6 +81,20 @@ void StlOpCodeImpl::VectorConcat(evm::VM* vm)
 		evm::Value val;
 		vm->MoveRegister(r_src, val);
 	}
+}
+
+void StlOpCodeImpl::VectorGet(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_vec = vm->NextByte();
+	uint8_t idx = vm->NextByte();
+
+	auto vec = tt::VMHelper::GetRegArray(vm, r_vec);
+	if (!vec || idx < 0 || idx >= vec->size()) {
+		return;
+	}
+
+	vm->SetRegister(r_dst, (*vec)[idx]);
 }
 
 }

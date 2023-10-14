@@ -58,4 +58,32 @@ class SelPolyPoints is Node
 		geo.shape = parts
 		return Variant(VAR_TYPE_GEO, geo)
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_poly = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_cube = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (r_poly < 0 or r_cube < 0) 
+		{
+			compiler.free_reg(r_poly)
+			compiler.free_reg(r_cube)
+			return -1
+		}
+
+		var r_dst = compiler.new_reg()
+		opcodes.create_vector(r_dst)
+
+		var r_pts = compiler.new_reg()
+
+		opcodes.polypoint_select(r_pts, r_poly, r_cube)
+
+		opcodes.vector_add(r_dst, r_poly)
+		opcodes.vector_add(r_dst, r_pts)
+
+		compiler.free_reg(r_poly)
+		compiler.free_reg(r_cube)
+		compiler.free_reg(r_pts)
+
+		return r_dst
+	}
 }

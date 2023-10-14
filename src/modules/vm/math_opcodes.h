@@ -21,6 +21,10 @@ enum MathOpCode
 	OP_MATRIX_ROTATE,
 	OP_MATRIX_TRANSLATE,
 
+	OP_CREATE_PLANE,
+	OP_CREATE_PLANE_2,
+	OP_CREATE_CUBE,
+
 	OP_MUL_UNKNOWN,
 };
 
@@ -43,6 +47,10 @@ private:
 	static void MatrixCreate(evm::VM* vm);
 	static void MatrixRotate(evm::VM* vm);
 	static void MatrixTranslate(evm::VM* vm);
+
+	static void CreatePlane(evm::VM* vm);
+	static void CreatePlane2(evm::VM* vm);
+	static void CreateCube(evm::VM* vm);
 
 	static void MulUnknown(evm::VM* vm);
 

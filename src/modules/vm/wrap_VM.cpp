@@ -228,6 +228,11 @@ void w_Bytecodes_mul_unknown()
     bytecodes_write(tt::OP_MUL_UNKNOWN, 3);
 }
 
+void w_Bytecodes_create_cube()
+{
+    bytecodes_write(tt::OP_CREATE_CUBE, 3);
+}
+
 void w_Bytecodes_create_vector()
 {
     bytecodes_write(tt::StlOpCode::OP_VECTOR_CREATE, 1);
@@ -241,6 +246,11 @@ void w_Bytecodes_vector_add()
 void w_Bytecodes_vector_concat()
 {
     bytecodes_write(tt::StlOpCode::OP_VECTOR_CONCAT, 2);
+}
+
+void w_Bytecodes_vector_get()
+{
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_GET, 3);
 }
 
 void w_Bytecodes_create_plane()
@@ -291,6 +301,21 @@ void w_Bytecodes_polytope_extrude()
 void w_Bytecodes_polytope_clip()
 {
     bytecodes_write(tt::OP_POLYTOPE_CLIP, 4);
+}
+
+void w_Bytecodes_polytope_set_dirty()
+{
+    bytecodes_write(tt::OP_POLYTOPE_SET_DIRTY, 1);
+}
+
+void w_Bytecodes_polypoint_select()
+{
+    bytecodes_write(tt::OP_POLYPOINT_SELECT, 3);
+}
+
+void w_Bytecodes_polyface_select()
+{
+    bytecodes_write(tt::OP_POLYFACE_SELECT, 4);
 }
 
 void w_Bytecodes_transform_unknown()
@@ -519,11 +544,13 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
+    if (strcmp(signature, "Bytecodes.create_cube(_,_,_)") == 0) return w_Bytecodes_create_cube;
     if (strcmp(signature, "Bytecodes.mul_unknown(_,_,_)") == 0) return w_Bytecodes_mul_unknown;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;
     if (strcmp(signature, "Bytecodes.vector_concat(_,_)") == 0) return w_Bytecodes_vector_concat;
+    if (strcmp(signature, "Bytecodes.vector_get(_,_,_)") == 0) return w_Bytecodes_vector_get;
     // geo
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_plane_2(_,_,_)") == 0) return w_Bytecodes_create_plane_2;
@@ -535,6 +562,9 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.polytope_subtract(_,_,_)") == 0) return w_Bytecodes_polytope_subtract;
     if (strcmp(signature, "Bytecodes.polytope_extrude(_,_)") == 0) return w_Bytecodes_polytope_extrude;
     if (strcmp(signature, "Bytecodes.polytope_clip(_,_,_,_)") == 0) return w_Bytecodes_polytope_clip;
+    if (strcmp(signature, "Bytecodes.polytope_set_dirty(_)") == 0) return w_Bytecodes_polytope_set_dirty;
+    if (strcmp(signature, "Bytecodes.polypoint_select(_,_,_)") == 0) return w_Bytecodes_polypoint_select;
+    if (strcmp(signature, "Bytecodes.polyface_select(_,_,_,_)") == 0) return w_Bytecodes_polyface_select;
     if (strcmp(signature, "Bytecodes.transform_unknown(_,_)") == 0) return w_Bytecodes_transform_unknown;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;

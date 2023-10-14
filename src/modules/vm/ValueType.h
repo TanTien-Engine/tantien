@@ -13,6 +13,9 @@ enum ValueType
 	V_MAT4,
 
 	V_PLANE,
+	V_CUBE,
+
+	V_POLY_POINT,
 	V_POLY_FACE,
 	V_POLY,
 };

@@ -5,6 +5,7 @@
 #include "modules/maths/Maths.h"
 
 #include <SM_Matrix.h>
+#include <SM_Calc.h>
 #include <polymesh3/Polytope.h>
 #include <easyvm/VM.h>
 #include <easyvm/VMHelper.h>
@@ -12,13 +13,65 @@
 
 #include <stdexcept>
 
+namespace
+{
+
+void transform_unknown(evm::Value& val, const sm::mat4& mat)
+{
+	if (val.type == tt::V_ARRAY)
+	{
+		auto list = static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
+		for (auto item : *list) {
+			transform_unknown(item, mat);
+		}
+	}
+	else if (val.type == tt::V_VEC3)
+	{
+		auto vec3 = evm::VMHelper::GetHandleValue<sm::vec3>(val);
+		if (vec3) {
+			*vec3 = mat * (*vec3);
+		}
+	}
+	else if (val.type == tt::V_POLY)
+	{
+		auto poly = evm::VMHelper::GetHandleValue<pm3::Polytope>(val);
+		if (poly) 
+		{
+			auto& pts = poly->Points();
+			for (auto& p : pts) {
+				p->pos = mat * p->pos;
+			}
+
+			poly->SetTopoDirty();
+		}
+	}
+	else if (val.type == tt::V_PLANE)
+	{
+		auto plane = evm::VMHelper::GetHandleValue<sm::Plane>(val);
+		if (plane) {
+			tt::Maths::TransformPlane(*plane, mat);
+		}
+	}
+	else if (val.type == tt::V_POLY_POINT)
+	{
+		auto point = evm::VMHelper::GetHandleValue<pm3::Polytope::Point>(val);
+		if (point) {
+			point->pos = mat * point->pos;
+		}
+	}
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
+}
+
+}
+
 namespace tt
 {
 
 void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 {
-	vm->RegistOperator(OP_CREATE_PLANE, CreatePlane);
-	vm->RegistOperator(OP_CREATE_PLANE_2, CreatePlane2);
 	vm->RegistOperator(OP_CREATE_POLYFACE, CreatePolyFace);
 	vm->RegistOperator(OP_CREATE_POLYTOPE, CreatePolytope);
 	vm->RegistOperator(OP_CREATE_POLYFACE_2, CreatePolyFace2);
@@ -28,63 +81,12 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_POLYTOPE_SUBTRACT, PolytopeSubtract);
 	vm->RegistOperator(OP_POLYTOPE_EXTRUDE, PolytopeExtrude);
 	vm->RegistOperator(OP_POLYTOPE_CLIP, PolytopeClip);
+	vm->RegistOperator(OP_POLYTOPE_SET_DIRTY, PolytopeSetDirty);
+
+	vm->RegistOperator(OP_POLYPOINT_SELECT, PolyPointSelect);
+	vm->RegistOperator(OP_POLYFACE_SELECT, PolyFaceSelect);
 
 	vm->RegistOperator(OP_TRANSFORM_UNKNOWN, TransformUnknown);
-}
-
-void GeoOpCodeImpl::CreatePlane(evm::VM* vm)
-{
-	uint8_t r_dst = vm->NextByte();
-
-	uint8_t r_p0 = vm->NextByte();
-	auto p0 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p0);
-
-	uint8_t r_p1 = vm->NextByte();
-	auto p1 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p1);
-
-	uint8_t r_p2 = vm->NextByte();
-	auto p2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_p2);
-
-	if (!p0 || !p1 || !p2) 
-	{
-		vm->SetRegister(r_dst, evm::Value());
-		return;
-	}
-
-	auto plane = std::make_shared<sm::Plane>();
-	plane->Build(*p0, *p1, *p2);
-
-	evm::Value v;
-	v.type = tt::ValueType::V_PLANE;
-	v.as.handle = new evm::Handle<sm::Plane>(plane);
-
-	vm->SetRegister(r_dst, v);
-}
-
-void GeoOpCodeImpl::CreatePlane2(evm::VM* vm)
-{
-	uint8_t r_dst = vm->NextByte();
-
-	uint8_t r_ori = vm->NextByte();
-	auto ori = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_ori);
-
-	uint8_t r_dir = vm->NextByte();
-	auto dir = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_dir);
-
-	if (!ori || !dir)
-	{
-		vm->SetRegister(r_dst, evm::Value());
-		return;
-	}
-
-	auto plane = std::make_shared<sm::Plane>();
-	plane->Build(*ori, *dir);
-
-	evm::Value v;
-	v.type = tt::ValueType::V_PLANE;
-	v.as.handle = new evm::Handle<sm::Plane>(plane);
-
-	vm->SetRegister(r_dst, v);
 }
 
 void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
@@ -265,24 +267,137 @@ void GeoOpCodeImpl::PolytopeExtrude(evm::VM* vm)
 void GeoOpCodeImpl::PolytopeClip(evm::VM* vm)
 {
 	uint8_t r_poly = vm->NextByte();
-	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
+	auto src = tt::VMHelper::LoadPolys(vm, r_poly);
 
 	uint8_t r_plane = vm->NextByte();
 	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_plane);
 
-	uint8_t keep = vm->NextByte();
-	uint8_t seam = vm->NextByte();
+	auto keep = static_cast<he::Polyhedron::KeepType>(vm->NextByte());
+	auto seam = static_cast<bool>(vm->NextByte());
 
-	if (polys.empty() || !plane) {
+	if (src.empty() || !plane) {
 		return;
 	}
 
-	for (auto poly : polys)
+	std::vector<std::shared_ptr<pm3::Polytope>> dst;
+
+	for (auto p : src)
 	{
-		if (poly->GetTopoPoly()->Clip(*plane, he::Polyhedron::KeepType(keep), bool(seam))) {
-			poly->SetTopoDirty();
+		if (p->GetTopoPoly()->Clip(*plane, keep, seam)) 
+		{
+			p->BuildFromTopo();
+			dst.push_back(p);
 		}
 	}
+
+	if (dst.size() != src.size())
+	{
+		auto list = std::make_shared<std::vector<evm::Value>>();
+
+		for (auto p : dst)
+		{
+			evm::Value v;
+			v.type = tt::ValueType::V_POLY;
+			v.as.handle = new evm::Handle<pm3::Polytope>(p);
+
+			list->push_back(v);
+		}
+
+		evm::Value val;
+		val.type = tt::ValueType::V_ARRAY;
+		val.as.handle = new evm::Handle<std::vector<evm::Value>>(list);
+
+		vm->SetRegister(r_poly, val);
+	}
+}
+
+void GeoOpCodeImpl::PolytopeSetDirty(evm::VM* vm)
+{
+	uint8_t r_poly = vm->NextByte();
+	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
+	for (auto poly : polys) {
+		poly->SetTopoDirty();
+	}
+}
+
+void GeoOpCodeImpl::PolyPointSelect(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_poly = vm->NextByte();
+	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
+
+	uint8_t r_cube = vm->NextByte();
+	auto cube = evm::VMHelper::GetRegHandler<sm::cube>(vm, r_cube);
+
+	if (polys.empty() || !cube) {
+		return;
+	}
+
+	auto vector = std::make_shared<std::vector<evm::Value>>();
+
+	for (auto poly : polys)
+	{
+		for (auto pt : poly->Points())
+		{
+			if (sm::is_point_in_cube(*cube, pt->pos)) 
+			{
+				evm::Value v;
+				v.type = tt::ValueType::V_POLY_POINT;
+				v.as.handle = new evm::Handle<pm3::Polytope::Point>(pt);
+
+				vector->push_back(v);
+			}
+		}
+	}
+
+	evm::Value val;
+	val.type = tt::ValueType::V_ARRAY;
+	val.as.handle = new evm::Handle<std::vector<evm::Value>>(vector);
+
+	vm->SetRegister(r_dst, val);
+}
+
+void GeoOpCodeImpl::PolyFaceSelect(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+
+	uint8_t r_poly = vm->NextByte();
+	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
+
+	uint8_t r_normal = vm->NextByte();
+	auto normal = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_normal);
+
+	uint8_t r_region = vm->NextByte();
+	double region = evm::VMHelper::GetRegNumber(vm, r_region);
+
+	if (polys.empty() || !normal) {
+		return;
+	}
+
+	auto vector = std::make_shared<std::vector<evm::Value>>();
+
+	for (auto poly : polys)
+	{
+		for (auto face : poly->Faces())
+		{
+			float angle = sm::get_angle(sm::vec3(0, 0, 0), face->plane.normal, *normal);
+			if (fabs(angle) < region) 
+			{
+				evm::Value v;
+				v.type = tt::ValueType::V_POLY_FACE;
+				v.as.handle = new evm::Handle<pm3::Polytope::Face>(face);
+
+				vector->push_back(v);
+			}
+		}
+	}
+
+	evm::Value val;
+	val.type = tt::ValueType::V_ARRAY;
+	val.as.handle = new evm::Handle<std::vector<evm::Value>>(vector);
+
+	vm->SetRegister(r_dst, val);
 }
 
 void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
@@ -300,54 +415,7 @@ void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
 		return;
 	}
 
-	if (v_obj.type == tt::V_VEC3)
-	{
-		auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_obj);
-		if (!vec3) {
-			return;
-		}
-
-		sm::vec3 ret = (*mat) * (*vec3);
-
-		evm::Value v;
-		v.type = tt::ValueType::V_VEC3;
-		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
-
-		vm->SetRegister(r_obj, v);
-	}
-	else if (v_obj.type == tt::V_POLY || v_obj.type == tt::V_ARRAY)
-	{
-		auto polys = tt::VMHelper::LoadPolys(vm, r_obj);
-
-		for (auto poly : polys)
-		{
-			auto& pts = poly->Points();
-			for (auto& p : pts) {
-				p->pos = *mat * p->pos;
-			}
-
-			poly->SetTopoDirty();
-		}
-	}
-	else if (v_obj.type == tt::V_PLANE)
-	{
-		auto p = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_obj);
-		if (!p) {
-			return;
-		}
-
-		tt::Maths::TransformPlane(*p, *mat);
-
-		evm::Value v;
-		v.type = tt::ValueType::V_PLANE;
-		v.as.handle = new evm::Handle<sm::Plane>(std::make_shared<sm::Plane>(p->normal, p->dist));
-
-		vm->SetRegister(r_obj, v);
-	}
-	else
-	{
-		throw std::runtime_error("Not Implemented!");
-	}
+	transform_unknown(v_obj, *mat);
 }
 
 }
