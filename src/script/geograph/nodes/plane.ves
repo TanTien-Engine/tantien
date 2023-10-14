@@ -67,6 +67,9 @@ class Plane is Node
 
 				opcodes.create_plane_2(r_dst, r_ori, r_dir)
 
+				compiler.free_reg(r_ori)
+				compiler.free_reg(r_dir)
+
 				return r_dst
 			}
 			else
