@@ -40,7 +40,7 @@ class Transform3d is Node
 				return nil
 			}
 
-			var mat = this.calc_mat()
+			var mat = this.calc_mat_value()
 
 			var result = []
 			this.transform_impl(v_obj, mat, result)
@@ -54,7 +54,7 @@ class Transform3d is Node
 		}
 		else if (idx == 1)
 		{
-			var mat = this.calc_mat()
+			var mat = this.calc_mat_value()
 			return Variant(mat)
 		}
 
@@ -85,11 +85,16 @@ class Transform3d is Node
 		{
 			return this.calc_mat_opcodes(compiler, opcodes)
 		}
-
-		return -1
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+						
+			return -1
+		}
 	}
 
-	calc_mat()
+	calc_mat_value()
 	{
 		var v_translate = Blueprint.calc_input_value(this, 1)
 		var v_rotate = Blueprint.calc_input_value(this, 2)
