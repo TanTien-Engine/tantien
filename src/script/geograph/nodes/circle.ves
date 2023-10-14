@@ -7,8 +7,10 @@ import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
-import "geometry" for Circle as tt_Circle, PolyPoint, PolyFace, Polytope
+import "geograph.poly_builder" for PolyBuilder
+import "geometry" for Circle as tt_Circle
 import "maths.vector" for Vector2, Vector3
+import "maths.compiler" for Compiler as math_Compiler
 import "maths.calc" for Calc
 import "math" for Math
 
@@ -56,30 +58,44 @@ class Circle is Node
 		}
 		else if (idx == 1)
 		{
-			var c = this.get_center()
-			var r = this.get_radius()
-
 			var points = []
-			var border = []
-			var N = Math.max(16, r * 16)
-			for (var i = 0; i < N; i = i + 1)
-			{
-				var angle = Math.pi() * 2 / N * i
-				var x = r * Math.cos(angle)
-				var y = r * Math.sin(angle)
-				points.add(PolyPoint.init([ x, 0, y ]))
+			var faces = []
+			this.calc_poly(points, faces)
 
-				border.add(i)
+			if (points.isEmpty or faces.isEmpty) {
+				return nil
 			}
 
-			var face = PolyFace.init(border, [])
-			var poly = Polytope.init(points, [ face ])
-
+			var poly = PolyBuilder.build_poly(points, faces)
+			
 			var geo = VarGeo()
 			geo.shape = Brush([ poly ])
 			return Variant(VAR_TYPE_GEO, geo)
 		}
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx == 1)
+		{
+			var points = []
+			var faces = []
+
+			this.calc_poly(points, faces)
+			if (points.isEmpty or faces.isEmpty) {
+				return -1
+			}
+
+			return PolyBuilder.build_poly_opcodes(compiler, opcodes, points, faces)
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
+			return -1
+		}
 	}
 
 	update_geo(geo)
@@ -122,6 +138,26 @@ class Circle is Node
 			r = this.query_param("r").value
 		}
 		return r
+	}
+
+	calc_poly(points, faces)
+	{
+		var c = this.get_center()
+		var r = this.get_radius()
+
+		var border = []
+		var N = Math.max(16, r * 16)
+		for (var i = 0; i < N; i = i + 1)
+		{
+			var angle = Math.pi() * 2 / N * i
+			var x = r * Math.cos(angle)
+			var y = r * Math.sin(angle)
+			points.add(Vector3(x, 0, y))
+
+			border.add(i)
+		}
+
+		faces.add(border)
 	}
 
 	bind_editor()

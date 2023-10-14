@@ -9,8 +9,9 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
 import "geograph.brush" for Brush
 import "geograph.compiler" for PolytopeBuilder2
+import "geograph.poly_builder" for PolyBuilder
 import "maths.vector" for Vector3
-import "geometry" for Polygon as tt_Polygon, Circle, PolyPoint, PolyFace, Polytope
+import "geometry" for Polygon as tt_Polygon, Circle
 
 var EDITOR = nil
 
@@ -55,13 +56,7 @@ class Polygon is Node
 				return nil
 			}
 
-			var p_points = []
-			for (var p in points) {
-				p_points.add(PolyPoint.init([ p.x, p.y, p.z ]))
-			}
-
-			var face = PolyFace.init(border, [])
-			var poly = Polytope.init(p_points, [ face ])
+			var poly = PolyBuilder.build_poly(points, [border])
 
 			var geo = VarGeo()
 			geo.shape = Brush([ poly ])

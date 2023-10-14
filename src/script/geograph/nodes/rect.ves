@@ -8,7 +8,8 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geograph.compiler" for PolytopeBuilder2
-import "geometry" for Rect as tt_Rect, PolyPoint, PolyFace, Polytope
+import "geograph.poly_builder" for PolyBuilder
+import "geometry" for Rect as tt_Rect
 import "maths.vector" for Vector3
 
 var EDITOR = nil
@@ -59,13 +60,15 @@ class Rect is Node
 			var params = this.calc_rect_params()
 
 			var points = []
-			points.add(PolyPoint.init([ params[0],             0, params[1]             ]))
-			points.add(PolyPoint.init([ params[0] + params[2], 0, params[1]             ]))
-			points.add(PolyPoint.init([ params[0] + params[2], 0, params[1] + params[3] ]))
-			points.add(PolyPoint.init([ params[0],             0, params[1] + params[3] ]))
+			points.add(Vector3(params[0],             0, params[1]            ))
+			points.add(Vector3(params[0] + params[2], 0, params[1]            ))
+			points.add(Vector3(params[0] + params[2], 0, params[1] + params[3]))
+			points.add(Vector3(params[0],             0, params[1] + params[3]))
 
-			var face = PolyFace.init([ 0, 1, 2, 3 ], [])
-			var poly = Polytope.init(points, [ face ])
+			var faces = []
+			faces.add([ 0, 1, 2, 3 ])
+
+			var poly = PolyBuilder.build_poly(points, faces)
 
 			var geo = VarGeo()
 			geo.shape = Brush([ poly ])

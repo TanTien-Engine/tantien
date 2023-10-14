@@ -9,6 +9,7 @@ import "geograph.compiler" for PolytopeBuilder
 import "geometry" for PolyFace, Polytope
 import "maths.vector" for Vector3
 import "maths.cube" for Cube
+import "maths.compiler" for Compiler as maths_Compiler
 import "maths" for Plane
 
 class Box is Node
@@ -82,29 +83,44 @@ class Box is Node
 				zmax = zmax + hz
 			}
 
-	    	var top_left_front  = [ xmin, ymax, zmin ]
-	    	var top_left_back   = [ xmin, ymax, zmax ]
-	    	var top_right_front = [ xmax, ymax, zmin ]
-	    	var top_right_back  = [ xmax, ymax, zmax ]
-	    	var btm_left_front  = [ xmin, ymin, zmin ]
-	    	var btm_left_back   = [ xmin, ymin, zmax ]
-	    	var btm_right_front = [ xmax, ymin, zmin ]
-	    	var btm_right_back  = [ xmax, ymin, zmax ]
+			if (idx == 0)
+			{
+		    	var top_left_front  = [ xmin, ymax, zmin ]
+		    	var top_left_back   = [ xmin, ymax, zmax ]
+		    	var top_right_front = [ xmax, ymax, zmin ]
+		    	var top_right_back  = [ xmax, ymax, zmax ]
+		    	var btm_left_front  = [ xmin, ymin, zmin ]
+		    	var btm_left_back   = [ xmin, ymin, zmax ]
+		    	var btm_right_front = [ xmax, ymin, zmin ]
+		    	var btm_right_back  = [ xmax, ymin, zmax ]
 
-	    	var builder = PolytopeBuilder(compiler, opcodes)
+		    	var builder = PolytopeBuilder(compiler, opcodes)
 
-	    	builder.begin()
+		    	builder.begin()
 
-			builder.add_face_i(top_left_front, top_left_back, top_right_back)
-			builder.add_face_i(btm_left_front, btm_right_front, btm_right_back)
-			builder.add_face_i(top_left_back, top_left_front, btm_left_front)
-			builder.add_face_i(top_right_front, top_right_back, btm_right_back)
-			builder.add_face_i(top_left_front, top_right_front, btm_right_front)
-			builder.add_face_i(top_right_back, top_left_back, btm_left_back)
+				builder.add_face_i(top_left_front, top_left_back, top_right_back)
+				builder.add_face_i(btm_left_front, btm_right_front, btm_right_back)
+				builder.add_face_i(top_left_back, top_left_front, btm_left_front)
+				builder.add_face_i(top_right_front, top_right_back, btm_right_back)
+				builder.add_face_i(top_left_front, top_right_front, btm_right_front)
+				builder.add_face_i(top_right_back, top_left_back, btm_left_back)
 
-			var poly = builder.end()
-			
-			return poly			
+				var poly = builder.end()
+				
+				return poly
+			}
+			else if (idx == 1)
+			{
+				var r_min = maths_Compiler.create_vec3(compiler, opcodes, Vector3(xmin, ymin, zmin))
+				var r_max = maths_Compiler.create_vec3(compiler, opcodes, Vector3(xmax, ymax, zmax))
+
+				var r_cube = maths_Compiler.create_cube(compiler, opcodes, r_min, r_max)
+
+				compiler.free_reg(r_min)
+				compiler.free_reg(r_max)
+
+				return r_cube
+			}
 		}
 		else
 		{
@@ -189,53 +205,83 @@ class Box is Node
 			compiler.free_reg(r_hy)
 			compiler.free_reg(r_hz)
 
-			var r_top_left_front  = compiler.new_reg()
-			var r_top_left_back   = compiler.new_reg()
-			var r_top_right_front = compiler.new_reg()
-			var r_top_right_back  = compiler.new_reg()
-			var r_btm_left_front  = compiler.new_reg()
-			var r_btm_left_back   = compiler.new_reg()
-			var r_btm_right_front = compiler.new_reg()
-			var r_btm_right_back  = compiler.new_reg()
-			opcodes.vec3_create(r_top_left_front , r_xmin, r_ymax, r_zmin)
-			opcodes.vec3_create(r_top_left_back  , r_xmin, r_ymax, r_zmax)
-			opcodes.vec3_create(r_top_right_front, r_xmax, r_ymax, r_zmin)
-			opcodes.vec3_create(r_top_right_back , r_xmax, r_ymax, r_zmax)
-			opcodes.vec3_create(r_btm_left_front , r_xmin, r_ymin, r_zmin)
-			opcodes.vec3_create(r_btm_left_back  , r_xmin, r_ymin, r_zmax)
-			opcodes.vec3_create(r_btm_right_front, r_xmax, r_ymin, r_zmin)
-			opcodes.vec3_create(r_btm_right_back , r_xmax, r_ymin, r_zmax)
-			compiler.free_reg(r_xmin)
-			compiler.free_reg(r_xmax)
-			compiler.free_reg(r_ymin)
-			compiler.free_reg(r_ymax)
-			compiler.free_reg(r_zmin)
-			compiler.free_reg(r_zmax)
+			if (idx == 0)
+			{
+				var r_top_left_front  = compiler.new_reg()
+				var r_top_left_back   = compiler.new_reg()
+				var r_top_right_front = compiler.new_reg()
+				var r_top_right_back  = compiler.new_reg()
+				var r_btm_left_front  = compiler.new_reg()
+				var r_btm_left_back   = compiler.new_reg()
+				var r_btm_right_front = compiler.new_reg()
+				var r_btm_right_back  = compiler.new_reg()
+				opcodes.vec3_create(r_top_left_front , r_xmin, r_ymax, r_zmin)
+				opcodes.vec3_create(r_top_left_back  , r_xmin, r_ymax, r_zmax)
+				opcodes.vec3_create(r_top_right_front, r_xmax, r_ymax, r_zmin)
+				opcodes.vec3_create(r_top_right_back , r_xmax, r_ymax, r_zmax)
+				opcodes.vec3_create(r_btm_left_front , r_xmin, r_ymin, r_zmin)
+				opcodes.vec3_create(r_btm_left_back  , r_xmin, r_ymin, r_zmax)
+				opcodes.vec3_create(r_btm_right_front, r_xmax, r_ymin, r_zmin)
+				opcodes.vec3_create(r_btm_right_back , r_xmax, r_ymin, r_zmax)
+				compiler.free_reg(r_xmin)
+				compiler.free_reg(r_xmax)
+				compiler.free_reg(r_ymin)
+				compiler.free_reg(r_ymax)
+				compiler.free_reg(r_zmin)
+				compiler.free_reg(r_zmax)
 
-	    	var builder = PolytopeBuilder(compiler, opcodes)
+		    	var builder = PolytopeBuilder(compiler, opcodes)
 
-	    	builder.begin()
+		    	builder.begin()
 
-			builder.add_face_r(r_top_left_front, r_top_left_back, r_top_right_back)
-			builder.add_face_r(r_btm_left_front, r_btm_right_front, r_btm_right_back)
-			builder.add_face_r(r_top_left_back, r_top_left_front, r_btm_left_front)
-			builder.add_face_r(r_top_right_front, r_top_right_back, r_btm_right_back)
-			builder.add_face_r(r_top_left_front, r_top_right_front, r_btm_right_front)
-			builder.add_face_r(r_top_right_back, r_top_left_back, r_btm_left_back)
+				builder.add_face_r(r_top_left_front, r_top_left_back, r_top_right_back)
+				builder.add_face_r(r_btm_left_front, r_btm_right_front, r_btm_right_back)
+				builder.add_face_r(r_top_left_back, r_top_left_front, r_btm_left_front)
+				builder.add_face_r(r_top_right_front, r_top_right_back, r_btm_right_back)
+				builder.add_face_r(r_top_left_front, r_top_right_front, r_btm_right_front)
+				builder.add_face_r(r_top_right_back, r_top_left_back, r_btm_left_back)
 
-			var poly = builder.end()
-			
-			compiler.free_reg(r_top_left_front)
-			compiler.free_reg(r_top_left_back)
-			compiler.free_reg(r_top_right_front)
-			compiler.free_reg(r_top_right_back)
-			compiler.free_reg(r_btm_left_front)
-			compiler.free_reg(r_btm_left_back)
-			compiler.free_reg(r_btm_right_front)
-			compiler.free_reg(r_btm_right_back)
+				var poly = builder.end()
+				
+				compiler.free_reg(r_top_left_front)
+				compiler.free_reg(r_top_left_back)
+				compiler.free_reg(r_top_right_front)
+				compiler.free_reg(r_top_right_back)
+				compiler.free_reg(r_btm_left_front)
+				compiler.free_reg(r_btm_left_back)
+				compiler.free_reg(r_btm_right_front)
+				compiler.free_reg(r_btm_right_back)
 
-			return poly
+				return poly
+			}
+			else if (idx == 1)
+			{
+				var r_min = compiler.new_reg()
+				opcodes.vec3_create(r_xmin, r_ymin, r_zmin)
+
+				var r_max = compiler.new_reg()
+				opcodes.vec3_create(r_xmax, r_ymax, r_zmax)
+
+				compiler.free_reg(r_xmin)
+				compiler.free_reg(r_xmax)
+				compiler.free_reg(r_ymin)
+				compiler.free_reg(r_ymax)
+				compiler.free_reg(r_zmin)
+				compiler.free_reg(r_zmax)
+				
+				var r_cube = maths_Compiler.create_cube(compiler, opcodes, r_min, r_max)
+
+				compiler.free_reg(r_min)
+				compiler.free_reg(r_max)
+
+				return r_cube
+			}
 		}
+
+		import "logger.logger" for Logger
+		Logger.error("Not Implemented!")
+
+		return -1
 	}
 
 	calc_in_size()

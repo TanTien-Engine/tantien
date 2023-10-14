@@ -6,9 +6,9 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_PLANE, VarGeo
 import "geograph.brush" for Brush
 import "geograph.compiler" for Compiler as geo_Compiler
+import "geograph.poly_builder" for PolyBuilder
 import "maths.vector" for Vector3
 import "maths.compiler" for Compiler as math_Compiler
-import "geometry" for PolyPoint, PolyFace, Polytope
 import "maths" for Plane as tt_Plane, Maths, Matrix44, Float3
 
 class Plane is Node
@@ -113,11 +113,13 @@ class Plane is Node
 			var x = ori.x + p.x()
 			var y = ori.y + p.y()
 			var z = ori.z + p.z()
-			points.add(PolyPoint.init([ x, y, z ]))
+			points.add(Vector3(x, y, z))
 		}
 
-		var face = PolyFace.init([ 0, 1, 2, 3 ], [])
-		var poly = Polytope.init(points, [ face ])
+		var faces = []
+		faces.add([ 0, 1, 2, 3 ])
+
+		var poly = PolyBuilder.build_poly(points, faces)
 
 		var geo = VarGeo()
 		geo.shape = Brush([ poly ])

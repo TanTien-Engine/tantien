@@ -6,7 +6,8 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geograph.compiler" for PolytopeBuilder2
-import "geometry" for Rect, Circle, Polygon, PolyPoint, PolyFace, Polytope
+import "geograph.poly_builder" for PolyBuilder
+import "geometry" for Rect, Circle, Polygon, PolyPoint
 import "maths.vector" for Vector2, Vector3
 import "math" for Math
 
@@ -71,45 +72,16 @@ class Column is Node
 			return -1
 		}
 
-		return this.build_poly_opcodes(compiler, opcodes, points, faces)
+		return PolyBuilder.build_poly_opcodes(compiler, opcodes, points, faces)
 	}
 
 	build_poly(points, faces)
 	{
-		var poly_faces = []
-		for (var f in faces) {
-			poly_faces.add(PolyFace.init(f, []))
-		}
-
-		var poly_points = []
-		for (var p in points) {
-			poly_points.add(PolyPoint.init([ p.x, p.y, p.z ]))
-		}
-
-		var poly = Polytope.init(poly_points, poly_faces)	
+		var poly = PolyBuilder.build_poly(points, faces)
 
 		var geo = VarGeo()
 		geo.shape = Brush([ poly ])
 		return Variant(VAR_TYPE_GEO, geo)
-	}
-
-	build_poly_opcodes(compiler, opcodes, points, faces)
-	{
-		var builder = PolytopeBuilder2(compiler, opcodes)
-
-    	builder.begin()
-
-    	for (var p in points) {
-    		builder.add_point(p.x, p.y, p.z)
-    	}
-
-    	for (var f in faces) {
-    		builder.add_face(f, [])
-    	}
-
-    	var poly = builder.end()
-
-    	return poly
 	}
 
 	build_from_2_rect(bottom, top)
