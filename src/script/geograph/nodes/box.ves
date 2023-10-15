@@ -85,14 +85,14 @@ class Box is Node
 
 			if (idx == 0)
 			{
-		    	var top_left_front  = [ xmin, ymax, zmin ]
-		    	var top_left_back   = [ xmin, ymax, zmax ]
-		    	var top_right_front = [ xmax, ymax, zmin ]
-		    	var top_right_back  = [ xmax, ymax, zmax ]
-		    	var btm_left_front  = [ xmin, ymin, zmin ]
-		    	var btm_left_back   = [ xmin, ymin, zmax ]
-		    	var btm_right_front = [ xmax, ymin, zmin ]
-		    	var btm_right_back  = [ xmax, ymin, zmax ]
+		    	var top_left_front  = Vector3(xmin, ymax, zmin)
+		    	var top_left_back   = Vector3(xmin, ymax, zmax)
+		    	var top_right_front = Vector3(xmax, ymax, zmin)
+		    	var top_right_back  = Vector3(xmax, ymax, zmax)
+		    	var btm_left_front  = Vector3(xmin, ymin, zmin)
+		    	var btm_left_back   = Vector3(xmin, ymin, zmax)
+		    	var btm_right_front = Vector3(xmax, ymin, zmin)
+		    	var btm_right_back  = Vector3(xmax, ymin, zmax)
 
 		    	var builder = PolytopeBuilder(compiler, opcodes)
 
@@ -165,9 +165,9 @@ class Box is Node
 			var r_hz = compiler.new_reg()
 			var r_tmp = compiler.new_reg()
 			opcodes.store_num(r_tmp, 0.5)
-			opcodes.mul(r_hx, r_size_x, r_tmp)
-			opcodes.mul(r_hy, r_size_y, r_tmp)
-			opcodes.mul(r_hz, r_size_z, r_tmp)
+			opcodes.mul_num(r_hx, r_size_x, r_tmp)
+			opcodes.mul_num(r_hy, r_size_y, r_tmp)
+			opcodes.mul_num(r_hz, r_size_z, r_tmp)
 			compiler.free_reg(r_tmp)
 			compiler.free_reg(r_size_x)
 			compiler.free_reg(r_size_y)
@@ -179,27 +179,27 @@ class Box is Node
 			var r_ymax = compiler.new_reg()
 			var r_zmin = compiler.new_reg()
 			var r_zmax = compiler.new_reg()
-			opcodes.sub(r_xmin, r_pos_x, r_hx)
-			opcodes.add(r_xmax, r_pos_x, r_hx)
-			opcodes.sub(r_ymin, r_pos_y, r_hy)
-			opcodes.add(r_ymax, r_pos_y, r_hy)
-			opcodes.sub(r_zmin, r_pos_z, r_hz)
-			opcodes.add(r_zmax, r_pos_z, r_hz)
+			opcodes.sub_num(r_xmin, r_pos_x, r_hx)
+			opcodes.add_num(r_xmax, r_pos_x, r_hx)
+			opcodes.sub_num(r_ymin, r_pos_y, r_hy)
+			opcodes.add_num(r_ymax, r_pos_y, r_hy)
+			opcodes.sub_num(r_zmin, r_pos_z, r_hz)
+			opcodes.add_num(r_zmax, r_pos_z, r_hz)
 			compiler.free_reg(r_pos_x)
 			compiler.free_reg(r_pos_y)
 			compiler.free_reg(r_pos_z)
 
 			if (this.query_param("offset_x").value) {
-				opcodes.add(r_xmin, r_xmin, r_hx)
-				opcodes.add(r_xmax, r_xmax, r_hx)
+				opcodes.add_num(r_xmin, r_xmin, r_hx)
+				opcodes.add_num(r_xmax, r_xmax, r_hx)
 			}
 			if (this.query_param("offset_y").value) {
-				opcodes.add(r_ymin, r_ymin, r_hy)
-				opcodes.add(r_ymax, r_ymax, r_hy)
+				opcodes.add_num(r_ymin, r_ymin, r_hy)
+				opcodes.add_num(r_ymax, r_ymax, r_hy)
 			}
 			if (this.query_param("offset_z").value) {
-				opcodes.add(r_zmin, r_zmin, r_hz)
-				opcodes.add(r_zmax, r_zmax, r_hz)
+				opcodes.add_num(r_zmin, r_zmin, r_hz)
+				opcodes.add_num(r_zmax, r_zmax, r_hz)
 			}
 			compiler.free_reg(r_hx)
 			compiler.free_reg(r_hy)
@@ -215,14 +215,14 @@ class Box is Node
 				var r_btm_left_back   = compiler.new_reg()
 				var r_btm_right_front = compiler.new_reg()
 				var r_btm_right_back  = compiler.new_reg()
-				opcodes.vec3_create(r_top_left_front , r_xmin, r_ymax, r_zmin)
-				opcodes.vec3_create(r_top_left_back  , r_xmin, r_ymax, r_zmax)
-				opcodes.vec3_create(r_top_right_front, r_xmax, r_ymax, r_zmin)
-				opcodes.vec3_create(r_top_right_back , r_xmax, r_ymax, r_zmax)
-				opcodes.vec3_create(r_btm_left_front , r_xmin, r_ymin, r_zmin)
-				opcodes.vec3_create(r_btm_left_back  , r_xmin, r_ymin, r_zmax)
-				opcodes.vec3_create(r_btm_right_front, r_xmax, r_ymin, r_zmin)
-				opcodes.vec3_create(r_btm_right_back , r_xmax, r_ymin, r_zmax)
+				opcodes.vec3_create_r(r_top_left_front , r_xmin, r_ymax, r_zmin)
+				opcodes.vec3_create_r(r_top_left_back  , r_xmin, r_ymax, r_zmax)
+				opcodes.vec3_create_r(r_top_right_front, r_xmax, r_ymax, r_zmin)
+				opcodes.vec3_create_r(r_top_right_back , r_xmax, r_ymax, r_zmax)
+				opcodes.vec3_create_r(r_btm_left_front , r_xmin, r_ymin, r_zmin)
+				opcodes.vec3_create_r(r_btm_left_back  , r_xmin, r_ymin, r_zmax)
+				opcodes.vec3_create_r(r_btm_right_front, r_xmax, r_ymin, r_zmin)
+				opcodes.vec3_create_r(r_btm_right_back , r_xmax, r_ymin, r_zmax)
 				compiler.free_reg(r_xmin)
 				compiler.free_reg(r_xmax)
 				compiler.free_reg(r_ymin)
@@ -257,10 +257,10 @@ class Box is Node
 			else if (idx == 1)
 			{
 				var r_min = compiler.new_reg()
-				opcodes.vec3_create(r_xmin, r_ymin, r_zmin)
+				opcodes.vec3_create_r(r_xmin, r_ymin, r_zmin)
 
 				var r_max = compiler.new_reg()
-				opcodes.vec3_create(r_xmax, r_ymax, r_zmax)
+				opcodes.vec3_create_r(r_xmax, r_ymax, r_zmax)
 
 				compiler.free_reg(r_xmin)
 				compiler.free_reg(r_xmax)

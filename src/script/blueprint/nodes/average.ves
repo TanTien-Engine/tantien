@@ -96,7 +96,7 @@ class Average is Node
 		var r_tmp = compiler.new_reg()
 		opcodes.store_num(r_tmp, 0.5)
 
-		opcodes.mul_unknown(r_dst, r_dst, r_tmp)
+		opcodes.mul(r_dst, r_dst, r_tmp)
 
 		compiler.free_reg(r_tmp)
 

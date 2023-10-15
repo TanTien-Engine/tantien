@@ -60,8 +60,8 @@ class ForEachF is Node
 			opcodes.vector_concat(r_dst, r_eval)
 			compiler.free_reg(r_eval)
 
-			opcodes.inc(this.r_curr_item)
-			opcodes.cmp(r_cmp, this.r_curr_item, r_count)
+			opcodes.inc_num(this.r_curr_item)
+			opcodes.cmp_num(r_cmp, this.r_curr_item, r_count)
 			opcodes.jump_if_not(start_ip, r_cmp)
 
 			compiler.free_reg(r_count)

@@ -12,6 +12,18 @@ class Compiler
 		return reg
 	}
 
+	static create_vec2(compiler, opcodes, vec2)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.vec2_create_i(reg, [ vec2.x, vec2.y ])
+
+		return reg
+	}
+
 	static create_vec3(compiler, opcodes, vec3)
 	{
 		var reg = compiler.new_reg()
@@ -19,7 +31,19 @@ class Compiler
 			return -1
 		}
 
-		opcodes.store_vec3(reg, [ vec3.x, vec3.y, vec3.z ])
+		opcodes.vec3_create_i(reg, vec3.x, vec3.y, vec3.z)
+
+		return reg
+	}
+
+	static create_vec4(compiler, opcodes, vec4)
+	{
+		var reg = compiler.new_reg()
+		if (reg < 0) {
+			return -1
+		}
+
+		opcodes.vec4_create_i(reg, [ vec4.x, vec4.y, vec4.z, vec4.w ])
 
 		return reg
 	}
@@ -32,18 +56,6 @@ class Compiler
 		}
 
 		opcodes.create_mat4(reg)
-
-		return reg
-	}
-
-	static create_vec3(compiler, opcodes, vec3)
-	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
-
-		opcodes.store_vec3(reg, [ vec3.x, vec3.y, vec3.z ])
 
 		return reg
 	}

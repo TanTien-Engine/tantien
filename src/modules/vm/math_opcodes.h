@@ -7,8 +7,10 @@ namespace tt
 
 enum MathOpCode
 {
-	OP_VEC3_CREATE = 32,
-	OP_VEC3_STORE,
+	OP_VEC2_CREATE_I = 32,
+
+	OP_VEC3_CREATE_R,
+	OP_VEC3_CREATE_I,
 	OP_VEC3_PRINT,
 	OP_VEC3_ADD,
 	OP_VEC3_SUB,
@@ -16,6 +18,8 @@ enum MathOpCode
 	OP_VEC3_GET_X,
 	OP_VEC3_GET_Y,
 	OP_VEC3_GET_Z,
+
+	OP_VEC4_CREATE_I,
 
 	OP_MATRIX_CREATE,
 	OP_MATRIX_ROTATE,
@@ -25,7 +29,10 @@ enum MathOpCode
 	OP_CREATE_PLANE_2,
 	OP_CREATE_CUBE,
 
-	OP_MUL_UNKNOWN,
+	OP_ADD,
+	OP_SUB,
+	OP_MUL,
+	OP_DIV,
 };
 
 class MathOpCodeImpl
@@ -34,8 +41,10 @@ public:
 	static void OpCodeInit(evm::VM* vm);
 
 private:
-	static void Vec3Create3(evm::VM* vm);
-	static void Vec3Create(evm::VM* vm);
+	static void Vec2CreateI(evm::VM* vm);
+
+	static void Vec3CreateR(evm::VM* vm);
+	static void Vec3CreateI(evm::VM* vm);
 	static void Vec3Print(evm::VM* vm);
 	static void Vec3Add(evm::VM* vm);
 	static void Vec3Sub(evm::VM* vm);
@@ -43,6 +52,8 @@ private:
 	static void Vec3GetX(evm::VM* vm);
 	static void Vec3GetY(evm::VM* vm);
 	static void Vec3GetZ(evm::VM* vm);
+
+	static void Vec4CreateI(evm::VM* vm);
 
 	static void MatrixCreate(evm::VM* vm);
 	static void MatrixRotate(evm::VM* vm);
@@ -52,7 +63,10 @@ private:
 	static void CreatePlane2(evm::VM* vm);
 	static void CreateCube(evm::VM* vm);
 
-	static void MulUnknown(evm::VM* vm);
+	static void Add(evm::VM* vm);
+	static void Sub(evm::VM* vm);
+	static void Mul(evm::VM* vm);
+	static void Div(evm::VM* vm);
 
 }; // MathOpCodeImpl
 

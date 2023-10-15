@@ -6,6 +6,7 @@ import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "gui" for GUI
 import "maths.vector" for Vector2
+import "maths.compiler" for Compiler
 
 var EDITOR = nil
 
@@ -24,8 +25,14 @@ class Number2 is Node
 		this.value = Vector2()
 	}
 
-	calc_value(idx) {
+	calc_value(idx) 
+	{
 		return Variant(VAR_TYPE_NUMBER2, this.value)
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		return Compiler.create_vec2(compiler, opcodes, this.value)
 	}
 
 	layout() 

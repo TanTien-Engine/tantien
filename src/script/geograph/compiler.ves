@@ -23,9 +23,9 @@ class Compiler
 			return -1
 		}
 
-		opcodes.store_vec3(reg_p0, p0)
-		opcodes.store_vec3(reg_p1, p1)
-		opcodes.store_vec3(reg_p2, p2)
+		opcodes.vec3_create_i(reg_p0, p0.x, p0.y, p0.z)
+		opcodes.vec3_create_i(reg_p1, p1.x, p1.y, p1.z)
+		opcodes.vec3_create_i(reg_p2, p2.x, p2.y, p2.z)
 
 		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
 

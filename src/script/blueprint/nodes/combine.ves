@@ -82,7 +82,7 @@ class Combine is Node
 		var r_y = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 		var r_z = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
 
-		opcodes.vec3_create(r_dst, r_x, r_y, r_z)
+		opcodes.vec3_create_r(r_dst, r_x, r_y, r_z)
 
 		compiler.free_reg(r_x)
 		compiler.free_reg(r_y)

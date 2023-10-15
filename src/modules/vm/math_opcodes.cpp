@@ -16,8 +16,10 @@ namespace tt
 
 void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 {
-	vm->RegistOperator(OP_VEC3_CREATE, Vec3Create3);
-	vm->RegistOperator(OP_VEC3_STORE, Vec3Create);
+	vm->RegistOperator(OP_VEC2_CREATE_I, Vec2CreateI);
+
+	vm->RegistOperator(OP_VEC3_CREATE_R, Vec3CreateR);
+	vm->RegistOperator(OP_VEC3_CREATE_I, Vec3CreateI);
 	vm->RegistOperator(OP_VEC3_PRINT, Vec3Print);
 	vm->RegistOperator(OP_VEC3_ADD, Vec3Add);
 	vm->RegistOperator(OP_VEC3_SUB, Vec3Sub);
@@ -25,6 +27,8 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VEC3_GET_X, Vec3GetX);
 	vm->RegistOperator(OP_VEC3_GET_Y, Vec3GetY);
 	vm->RegistOperator(OP_VEC3_GET_Z, Vec3GetZ);
+
+	vm->RegistOperator(OP_VEC4_CREATE_I, Vec4CreateI);
 
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
@@ -34,10 +38,28 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_CREATE_PLANE_2, CreatePlane2);
 	vm->RegistOperator(OP_CREATE_CUBE, CreateCube);
 
-	vm->RegistOperator(OP_MUL_UNKNOWN, MulUnknown);
+	vm->RegistOperator(OP_ADD, Add);
+	vm->RegistOperator(OP_SUB, Sub);
+	vm->RegistOperator(OP_MUL, Mul);
+	vm->RegistOperator(OP_DIV, Div);
 }
 
-void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
+void MathOpCodeImpl::Vec2CreateI(evm::VM* vm)
+{
+	uint8_t reg = vm->NextByte();
+
+	auto v2 = std::make_shared<sm::vec2>();
+	v2->x = evm::VMHelper::ReadData<float>(vm);
+	v2->y = evm::VMHelper::ReadData<float>(vm);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_VEC2;
+	v.as.handle = new evm::Handle<sm::vec2>(v2);
+
+	vm->SetRegister(reg, v);
+}
+
+void MathOpCodeImpl::Vec3CreateR(evm::VM* vm)
 {
 	uint8_t r_dst = vm->NextByte();
 
@@ -63,7 +85,7 @@ void MathOpCodeImpl::Vec3Create3(evm::VM* vm)
 	vm->SetRegister(r_dst, v);
 }
 
-void MathOpCodeImpl::Vec3Create(evm::VM* vm)
+void MathOpCodeImpl::Vec3CreateI(evm::VM* vm)
 {
 	uint8_t reg = vm->NextByte();
 
@@ -227,6 +249,23 @@ void MathOpCodeImpl::Vec3GetZ(evm::VM* vm)
 	vm->SetRegister(r_dst, val);
 }
 
+void MathOpCodeImpl::Vec4CreateI(evm::VM* vm)
+{
+	uint8_t reg = vm->NextByte();
+
+	auto v4 = std::make_shared<sm::vec4>();
+	v4->x = evm::VMHelper::ReadData<float>(vm);
+	v4->y = evm::VMHelper::ReadData<float>(vm);
+	v4->z = evm::VMHelper::ReadData<float>(vm);
+	v4->w = evm::VMHelper::ReadData<float>(vm);
+
+	evm::Value v;
+	v.type = tt::ValueType::V_VEC4;
+	v.as.handle = new evm::Handle<sm::vec4>(v4);
+
+	vm->SetRegister(reg, v);
+}
+
 void MathOpCodeImpl::MatrixCreate(evm::VM* vm)
 {
 	uint8_t reg = vm->NextByte();
@@ -356,17 +395,239 @@ void MathOpCodeImpl::CreateCube(evm::VM* vm)
 	vm->SetRegister(r_dst, v);
 }
 
-void MathOpCodeImpl::MulUnknown(evm::VM* vm)
+void MathOpCodeImpl::Add(evm::VM* vm)
 {
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
 	evm::Value src1, src2;
-	if (!vm->GetRegister(r_src1, src1)) {
+	bool b_src1 = vm->GetRegister(r_src1, src1);
+	bool b_src2 = vm->GetRegister(r_src2, src2);
+
+	if (!b_src1 && !b_src2)
+	{
+		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
-	if (!vm->GetRegister(r_src2, src2)) {
+	else if (!b_src1 || !b_src2)
+	{
+		if (!b_src1) 
+		{
+			vm->SetRegister(r_dst, src2);
+
+			// move
+			evm::Value val;
+			vm->MoveRegister(r_src2, val);
+		} 
+		else 
+		{
+			vm->SetRegister(r_dst, src1);
+
+			// move
+			evm::Value val;
+			vm->MoveRegister(r_src1, val);
+		}
+		return;
+	}
+
+	if (src1.type == evm::ValueType::V_NUMBER &&
+		src2.type == evm::ValueType::V_NUMBER)
+	{
+		evm::Value val;
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = src1.as.number + src2.as.number;
+
+		vm->SetRegister(r_dst, val);
+	}
+	else if (src1.type == tt::ValueType::V_VEC2 &&
+		     src2.type == tt::ValueType::V_VEC2)
+	{
+		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
+		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+
+		sm::vec2 ret = src1_v2 + src2_v2;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC2;
+		v.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC3 &&
+		     src2.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 + src2_v3;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC4 &&
+		     src2.type == tt::ValueType::V_VEC4)
+	{
+		sm::vec4 src1_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src1.as.handle)->obj);
+		sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+
+		sm::vec4 ret = src1_v4 + src2_v4;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC4;
+		v.as.handle = new evm::Handle<sm::vec4>(std::make_shared<sm::vec4>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
+}
+
+void MathOpCodeImpl::Sub(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	evm::Value src1, src2;
+	bool b_src1 = vm->GetRegister(r_src1, src1);
+	bool b_src2 = vm->GetRegister(r_src2, src2);
+
+	if (!b_src1 && !b_src2)
+	{
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+	else if (!b_src1 || !b_src2)
+	{
+		if (!b_src1) 
+		{
+			evm::Value val;
+
+			switch (src2.type)
+			{
+			case evm::ValueType::V_NUMBER:
+			{
+				val.type = evm::ValueType::V_NUMBER;
+				val.as.number = -src2.as.number;
+			}
+				break;
+			case tt::ValueType::V_VEC2:
+			{
+				sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+
+				val.type = tt::ValueType::V_VEC2;
+				val.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(-src2_v2));
+			}
+				break;
+			case tt::ValueType::V_VEC3:
+			{
+				sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+				val.type = tt::ValueType::V_VEC3;
+				val.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(-src2_v3));
+			}
+				break;
+			case tt::ValueType::V_VEC4:
+			{
+				sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+
+				src2_v4.x = -src2_v4.x;
+				src2_v4.y = -src2_v4.y;
+				src2_v4.z = -src2_v4.z;
+				src2_v4.w = -src2_v4.w;
+
+				val.type = tt::ValueType::V_VEC4;
+				val.as.handle = new evm::Handle<sm::vec4>(std::make_shared<sm::vec4>(src2_v4));
+			}
+				break;
+			}
+
+			vm->SetRegister(r_dst, val);
+		} 
+		else 
+		{
+			vm->SetRegister(r_dst, src1);
+
+			// move
+			evm::Value val;
+			vm->MoveRegister(r_src1, val);
+		}
+		return;
+	}
+
+	if (src1.type == evm::ValueType::V_NUMBER &&
+		src2.type == evm::ValueType::V_NUMBER)
+	{
+		evm::Value val;
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = src1.as.number - src2.as.number;
+
+		vm->SetRegister(r_dst, val);
+	}
+	else if (src1.type == tt::ValueType::V_VEC2 &&
+		     src2.type == tt::ValueType::V_VEC2)
+	{
+		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
+		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+
+		sm::vec2 ret = src1_v2 - src2_v2;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC2;
+		v.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC3 &&
+		     src2.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 - src2_v3;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC4 &&
+		     src2.type == tt::ValueType::V_VEC4)
+	{
+		sm::vec4 src1_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src1.as.handle)->obj);
+		sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+
+		sm::vec4 ret = src1_v4 - src2_v4;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC4;
+		v.as.handle = new evm::Handle<sm::vec4>(std::make_shared<sm::vec4>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
+}
+
+void MathOpCodeImpl::Mul(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	evm::Value src1, src2;
+	if (!vm->GetRegister(r_src1, src1) ||
+		!vm->GetRegister(r_src2, src2)) {
+		vm->SetRegister(r_dst, evm::Value());
 		return;
 	}
 
@@ -378,6 +639,34 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 		val.as.number = src1.as.number * src2.as.number;
 
 		vm->SetRegister(r_dst, val);
+	}
+	else if (src1.type == tt::ValueType::V_VEC2 &&
+		     src2.type == tt::ValueType::V_VEC2)
+	{
+		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
+		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+
+		sm::vec2 ret = src1_v2 * src2_v2;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC2;
+		v.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == tt::ValueType::V_VEC3 &&
+		     src2.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 * src2_v3;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
 	}
 	else if (src1.type == evm::ValueType::V_NUMBER &&
 		     src2.type == tt::ValueType::V_VEC3)
@@ -405,13 +694,83 @@ void MathOpCodeImpl::MulUnknown(evm::VM* vm)
 
 		vm->SetRegister(r_dst, v);
 	}
-	else if (src1.type == tt::ValueType::V_VEC3 &&
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
+}
+
+void MathOpCodeImpl::Div(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src1 = vm->NextByte();
+	uint8_t r_src2 = vm->NextByte();
+
+	evm::Value src1, src2;
+	if (!vm->GetRegister(r_src1, src1) ||
+		!vm->GetRegister(r_src2, src2)) {
+		vm->SetRegister(r_dst, evm::Value());
+		return;
+	}
+
+	if (src1.type == evm::ValueType::V_NUMBER &&
+		src2.type == evm::ValueType::V_NUMBER)
+	{
+		if (src2.as.number == 0) {
+			throw std::runtime_error("Divide zero!");
+		}
+
+		evm::Value val;
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = src1.as.number / src2.as.number;
+
+		vm->SetRegister(r_dst, val);
+	}
+	else if (src1.type == tt::ValueType::V_VEC2 &&
+		     src2.type == tt::ValueType::V_VEC2)
+	{
+		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
+		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+
+		if (src2_v2.x == 0 || src2_v2.y == 0) {
+			throw std::runtime_error("Divide zero!");
+		}
+
+		sm::vec2 ret = src1_v2 / src2_v2;
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC2;
+		v.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src1.type == evm::ValueType::V_NUMBER &&
 		     src2.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		if (src1.as.number == 0) {
+			throw std::runtime_error("Divide zero!");
+		}
+
 		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
 
-		sm::vec3 ret = src1_v3 * src2_v3;
+		sm::vec3 ret = src2_v3 / static_cast<float>(src1.as.number);
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src2.type == evm::ValueType::V_NUMBER &&
+		     src1.type == tt::ValueType::V_VEC3)
+	{
+		if (src2.as.number == 0) {
+			throw std::runtime_error("Divide zero!");
+		}
+
+		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+
+		sm::vec3 ret = src1_v3 / static_cast<float>(src2.as.number);
 
 		evm::Value v;
 		v.type = tt::ValueType::V_VEC3;

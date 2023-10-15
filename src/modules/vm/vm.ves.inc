@@ -16,21 +16,22 @@ foreign class Bytecodes
 	foreign print_num(reg)
 	foreign negate_num(dst, src)
 
-	foreign add(r_dst, r_src1, r_src2)
-	foreign sub(r_dst, r_src1, r_src2)
-	foreign mul(r_dst, r_src1, r_src2)
-	foreign div(r_dst, r_src1, r_src2)
+	foreign add_num(r_dst, r_src1, r_src2)
+	foreign sub_num(r_dst, r_src1, r_src2)
+	foreign mul_num(r_dst, r_src1, r_src2)
+	foreign div_num(r_dst, r_src1, r_src2)
 
-	foreign inc(reg)
-	foreign dec(reg)
+	foreign inc_num(reg)
+	foreign dec_num(reg)
 
-	foreign cmp(r_dst, r_src1, r_src2)
+	foreign cmp_num(r_dst, r_src1, r_src2)
 
 	foreign jump_if_not(offset, r_bool)
 
 	// math
-	foreign vec3_create(r_dst, r_x, r_y, r_z)
-	foreign store_vec3(r_vec, r_xyz)
+	foreign vec2_create_i(r_vec, x, y)
+	foreign vec3_create_r(r_dst, r_x, r_y, r_z)
+	foreign vec3_create_i(r_vec, x, y, z)
 	foreign vec3_print(r_vec)
 	foreign vec3_add(r_dst, r_src1, r_src2)
 	foreign vec3_sub(r_dst, r_src1, r_src2)
@@ -38,11 +39,11 @@ foreign class Bytecodes
 	foreign vec3_get_x(r_dst, r_src)
 	foreign vec3_get_y(r_dst, r_src)
 	foreign vec3_get_z(r_dst, r_src)
+	foreign vec4_create_i(r_vec, x, y, z, w)
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
 	foreign create_cube(r_dst, r_min, r_max)
-	foreign mul_unknown(r_dst, r_src1, r_src2)
 
 	// stl
 	foreign create_vector(r_list)
@@ -64,6 +65,12 @@ foreign class Bytecodes
 	foreign polytope_set_dirty(r_poly)
 	foreign polypoint_select(r_dst, r_poly, r_cube)
 	foreign polyface_select(r_dst, r_poly, r_normal, r_region)	
+
+	// multi
+	foreign add(r_dst, r_src1, r_src2)
+	foreign sub(r_dst, r_src1, r_src2)
+	foreign mul(r_dst, r_src1, r_src2)
+	foreign div(r_dst, r_src1, r_src2)
 	foreign transform_unknown(r_obj, r_mat)
 }
 

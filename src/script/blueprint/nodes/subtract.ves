@@ -64,24 +64,7 @@ class Subtract is Node
 			return -1
 		}
 
-		// fixme
-		var v_a = Blueprint.calc_input_value(this, 0)
-		var v_b = Blueprint.calc_input_value(this, 1)
-		if ((v_a and v_a.type == VAR_TYPE_NUMBER3) or 
-		    (v_b and v_b.type == VAR_TYPE_NUMBER3))
-		{
-			opcodes.vec3_sub(r_dst, r_a, r_b)
-		}
-		else
-		{
-			if (r_a < 0) {
-				opcodes.store_num(r_dst, -v_b.value)
-			} else if (r_b < 0) {
-				opcodes.store_num(r_dst, v_a.value)
-			} else {
-				opcodes.sub(r_dst, r_a, r_b)
-			}
-		}
+		opcodes.sub(r_dst, r_a, r_b)
 
 		compiler.free_reg(r_a)
 		compiler.free_reg(r_b)
