@@ -66,6 +66,8 @@ class ForEachF is Node
 
 			compiler.free_reg(r_count)
 			compiler.free_reg(r_cmp)
+
+			compiler.keep_reg(this.r_curr_item, false)
 			compiler.free_reg(this.r_curr_item)
 			this.r_curr_item = -1
 
