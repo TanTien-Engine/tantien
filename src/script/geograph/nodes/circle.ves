@@ -5,6 +5,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geograph.poly_builder" for PolyBuilder
@@ -205,6 +206,6 @@ class Circle is Node
 		this.params[1].value = this.editor_center.value.y
 		this.params[2].value = Calc.dis_pos_to_pos(this.editor_center.value, this.editor_outer.value)
 
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }

@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_ANY, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
+import "blueprint.dirty_types" for DIRTY_EXECUTE
 
 class ListAdd is Node
 {
@@ -24,10 +25,10 @@ class ListAdd is Node
 		this.layout()
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		if (pin == this.imports[1]) {
-			Blueprint.send_pin_dirty(this.imports[2])
+			Blueprint.send_pin_dirty(this.imports[2], type)
 		}
 	}
 
@@ -55,7 +56,7 @@ class ListAdd is Node
 		}
 
 		if (dirty) {
-			Blueprint.send_pin_dirty_root(this.imports[1])
+			Blueprint.send_pin_dirty_root(this.imports[1], DIRTY_EXECUTE)
 		}
 	}
 

@@ -5,6 +5,7 @@ import "blueprint.nodes.perspective" for Perspective
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER3, VAR_TYPE_NODE
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "blueprint.node_editor" for NodeEditor
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
@@ -168,6 +169,6 @@ class Polygon3d is Node
 		EDITOR.on_mouse_dragged(x, y, btn)
 
 		this.load_from_editor()
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }

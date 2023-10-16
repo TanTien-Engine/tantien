@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EXECUTE
 import "blueprint.nodes.load" for Load
 import "blueprint.nodes.boolean" for Boolean
 import "blueprint.nodes.integer" for Integer
@@ -38,7 +39,7 @@ class Assignment is Node
 		var dirty = this.assign()
 
 		if (dirty) {
-			Blueprint.send_pin_dirty_root(this.imports[2])
+			Blueprint.send_pin_dirty_root(this.imports[2], DIRTY_EXECUTE)
 		}
 	}
 

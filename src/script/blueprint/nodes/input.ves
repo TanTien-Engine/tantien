@@ -26,11 +26,11 @@ class Input is Node
 		this.parent_pin_idx = -1
 	}	
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		var p = Blueprint.query_pin(this.parent_node.imports, this.parent_pin_idx)
 		if (p) {
-			Blueprint.send_pin_dirty(p)
+			Blueprint.send_pin_dirty(p, type)
 		}
 	}
 

@@ -5,6 +5,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geograph.compiler" for PolytopeBuilder2
@@ -203,6 +204,6 @@ class Rect is Node
 		this.params[2].value = this.editor_in_max.value.x - this.editor_in_min.value.x
 		this.params[3].value = this.editor_in_max.value.y - this.editor_in_min.value.y
 
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }

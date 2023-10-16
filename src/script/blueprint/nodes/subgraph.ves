@@ -12,6 +12,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.execute_list" for ExecuteList
 import "blueprint.blackboard" for BLACKBOARD
+import "blueprint.dirty_types" for DIRTY_GUI
 import "rendergraph.nodes.draw" for Draw
 import "rendergraph.nodes.compute" for Compute
 import "rendergraph.nodes.pass" for Pass
@@ -55,7 +56,7 @@ class Subgraph is Node
 		this.op_node = nil
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		if (pin.is_input) 
 		{
@@ -63,7 +64,7 @@ class Subgraph is Node
 			{
 				var node = item[0]
 				if (node is Input and node.var_name == pin.name) {
-					Blueprint.send_pin_dirty(node.exports[0])
+					Blueprint.send_pin_dirty(node.exports[0], type)
 					return
 				}
 			}
@@ -355,7 +356,7 @@ class Subgraph is Node
 
 			if (prop_dirty) 
 			{
-				Blueprint.send_pin_dirty_root(prop.exports[0])
+				Blueprint.send_pin_dirty_root(prop.exports[0], DIRTY_GUI)
 				
 				dirty = true
 			}

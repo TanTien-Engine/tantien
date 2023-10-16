@@ -27,11 +27,11 @@ class Output is Node
 		this.value = nil
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		var p = Blueprint.query_pin(this.parent_node.exports, this.parent_pin_idx)
 		if (p) {
-			Blueprint.send_pin_dirty(p)
+			Blueprint.send_pin_dirty(p, type)
 		}
 	}
 

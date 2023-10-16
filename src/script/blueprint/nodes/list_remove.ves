@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_PORT, VAR_TYPE_INTEGER, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EXECUTE
 
 class ListRemove is Node
 {
@@ -27,7 +28,7 @@ class ListRemove is Node
 		var v_index = Blueprint.calc_input_value(this, 2)
 		if (v_list and v_index) {
 			v_list.value.removeAt(v_index.value)
-			Blueprint.send_pin_dirty_root(this.imports[1])
+			Blueprint.send_pin_dirty_root(this.imports[1], DIRTY_EXECUTE)
 		}
 	}
 }

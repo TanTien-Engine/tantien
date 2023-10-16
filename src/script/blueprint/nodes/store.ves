@@ -28,12 +28,12 @@ class Store is Node
 		this.val = nil
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0])
+			Blueprint.send_pin_dirty(this.exports[0], type)
 		} else {
-			Blueprint.send_pin_dirty(this.imports[0])		
+			Blueprint.send_pin_dirty(this.imports[0], type)
 		}
 
 		this.clear_cache()

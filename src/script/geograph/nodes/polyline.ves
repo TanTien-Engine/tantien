@@ -5,6 +5,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER2, VAR_TY
 import "blueprint.node_param" for NodeParam
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "blueprint.input_proxy" for InputProxy
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.config" for POINT_RADIUS
@@ -152,6 +153,6 @@ class Polyline is Node
 			this.params[0].value.add(c[1])
 		}
 
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }

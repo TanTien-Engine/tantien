@@ -23,7 +23,7 @@ class Compiler is Node
 		this.opcodes = nil
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		if (pin.is_input) {
 			this.opcodes = nil

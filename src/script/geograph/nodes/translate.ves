@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ARRAY, VAR_TYPE_PORT, VAR_TYPE_NUMBER2, VAR_TYPE_RECT
 import "blueprint.node_param" for NodeParam
+import "blueprint.dirty_types" for DIRTY_EXECUTE
 import "geograph.variant" for VAR_TYPE_GEO
 import "aigraph.behavior" for STATUS_SUCCESS
 
@@ -64,7 +65,7 @@ class Translate is Node
 			this.translate(v_geo, dx, dy)
 		}
 
-		Blueprint.send_pin_dirty_root(this.imports[1])
+		Blueprint.send_pin_dirty_root(this.imports[1], DIRTY_EXECUTE)
 
 		return true
 	}

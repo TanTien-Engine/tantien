@@ -1,5 +1,6 @@
 import "blueprint.connecting" for Connecting
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
+import "blueprint.dirty_types" for DIRTY_CONNECTION
 
 var PIN_DIRTY_TIMESTAMP = 0
 var NODE_DIRTY_TIMESTAMP = 0
@@ -128,7 +129,7 @@ class Blueprint
 
 			conn.from.node.on_disconnected(conn.from)
 
-			this.send_pin_dirty(conn.from)
+			this.send_pin_dirty(conn.from, DIRTY_CONNECTION)
 		}
 
 		var conn = Connecting(from, to)
@@ -139,8 +140,8 @@ class Blueprint
 		from.node.on_connected(from)
 		to.node.on_connected(to)
 
-		this.send_pin_dirty(from)
-		this.send_pin_dirty(to)
+		this.send_pin_dirty(from, DIRTY_CONNECTION)
+		this.send_pin_dirty(to, DIRTY_CONNECTION)
 
 		return conn
 	}
@@ -187,8 +188,8 @@ class Blueprint
 		conn.to.node.on_disconnected(conn.to)
 
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
-		this.send_pin_dirty(conn.from)
-		this.send_pin_dirty(conn.to)
+		this.send_pin_dirty(conn.from, DIRTY_CONNECTION)
+		this.send_pin_dirty(conn.to, DIRTY_CONNECTION)
 	}
 
 	static get_input_pin(curr_node, input_slot)
@@ -328,7 +329,7 @@ class Blueprint
 		return port_num > 0
 	}
 
-	static send_pin_dirty(pin)
+	static send_pin_dirty(pin, type)
 	{
 		if (pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
 			return
@@ -336,23 +337,23 @@ class Blueprint
 
 		pin.dirty_timestamp = PIN_DIRTY_TIMESTAMP
 
-		pin.node.on_pin_dirty(pin)
+		pin.node.on_pin_dirty(pin, type)
 
 		if (pin.is_input) {
 			for (var conn in pin.conns) {
-				this.send_pin_dirty(conn.from)
+				this.send_pin_dirty(conn.from, type)
 			}
 		} else {
 			for (var conn in pin.conns) {
-				this.send_pin_dirty(conn.to)
+				this.send_pin_dirty(conn.to, type)
 			}
 		}
 	}
 
-	static send_pin_dirty_root(pin)
+	static send_pin_dirty_root(pin, type)
 	{
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
-		this.send_pin_dirty(pin)
+		this.send_pin_dirty(pin, type)
 	}
 
 	static send_node_dirty(node)

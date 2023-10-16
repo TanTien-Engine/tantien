@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EXECUTE
 
 class ListPopBack is Node
 {
@@ -25,7 +26,7 @@ class ListPopBack is Node
 		var v_list = Blueprint.calc_input_value(this, 1)
 		if (v_list) {
 			v_list.value.pop_back()
-			Blueprint.send_pin_dirty_root(this.imports[1])
+			Blueprint.send_pin_dirty_root(this.imports[1], DIRTY_EXECUTE)
 		}
 	}
 }

@@ -4,6 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "gui" for GUI
 import "maths.vector" for Vector2
 import "maths.compiler" for Compiler
@@ -108,6 +109,6 @@ class Number2 is Node
 	{
 		EDITOR.on_mouse_dragged(x, y, btn)
 
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }

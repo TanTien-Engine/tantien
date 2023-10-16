@@ -22,14 +22,14 @@ class FuncCall is Node
 		this.func_node = nil
 	}
 
-	on_pin_dirty(pin)
+	on_pin_dirty(pin, type)
 	{
 		if (this.func_node) {
-			this.func_node.on_pin_dirty(nil)
+			this.func_node.on_pin_dirty(nil, type)
 		}
 		if (pin.is_input) {
 			for (var pin in this.exports) {
-				Blueprint.send_pin_dirty(pin)
+				Blueprint.send_pin_dirty(pin, type)
 			}
 		}
 	}

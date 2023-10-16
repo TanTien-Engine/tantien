@@ -5,6 +5,7 @@ import "blueprint.nodes.perspective" for Perspective
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3, VAR_TYPE_NODE
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR, DIRTY_OPCODES
 import "blueprint.node_editor" for NodeEditor
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3
@@ -171,6 +172,6 @@ class Number3 is Node
 		EDITOR.on_mouse_dragged(x, y, btn)
 
 		this.load_from_editor()
-		Blueprint.send_pin_dirty_root(this.exports[0])
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
 	}
 }
