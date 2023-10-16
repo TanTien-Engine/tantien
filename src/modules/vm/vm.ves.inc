@@ -7,6 +7,9 @@ foreign class Bytecodes
 
 	foreign size()
 
+	foreign set_pos(pos)
+	foreign write_num(num)	
+
 	foreign set_ret_reg(reg)
 	foreign get_ret_reg()
 

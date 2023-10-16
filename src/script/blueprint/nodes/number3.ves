@@ -33,6 +33,9 @@ class Number3 is Node
 		this.value = Vector3()
 
 		this.editor_pts = Array()
+
+		this.last_opcodes = nil
+		this.last_code_pos = nil
 	}
 
 	calc_value(idx) 
@@ -42,7 +45,30 @@ class Number3 is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
+		this.last_opcodes = opcodes
+		this.last_code_pos = opcodes.size()
+
 		return Compiler.create_vec3(compiler, opcodes, this.value)
+	}
+
+	on_param_dirty()
+	{
+		if (this.last_opcodes and this.last_code_pos)
+		{
+			this.last_opcodes.set_pos(this.last_code_pos + 2)
+
+			this.last_opcodes.write_num(this.value.x)
+			this.last_opcodes.write_num(this.value.y)
+			this.last_opcodes.write_num(this.value.z)
+
+			this.last_opcodes.set_pos(-1)
+
+			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
+		}
+		else
+		{
+			super.on_param_dirty()
+		}
 	}
 
 	layout() 

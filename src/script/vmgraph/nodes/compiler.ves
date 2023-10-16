@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_OPCODES
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
 import "vm" for Bytecodes, Compiler as tt_Compiler
 
@@ -25,9 +26,16 @@ class Compiler is Node
 
 	on_pin_dirty(pin, type)
 	{
-		if (pin.is_input) {
-			this.opcodes = nil
-			Blueprint.send_pin_dirty(this.exports[0])
+		if (type == DIRTY_OPCODES)
+		{
+			Blueprint.send_pin_dirty(this.exports[0], type)
+		}
+		else
+		{
+			if (pin.is_input) {
+				this.opcodes = nil
+				Blueprint.send_pin_dirty(this.exports[0], type)
+			}
 		}
 	}
 
