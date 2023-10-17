@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include <stdexcept>
+
 namespace tt
 {
 
@@ -33,6 +35,16 @@ void Compiler::SetRegKeep(int reg, bool keep)
 {
     assert(reg >= 0 && reg < REGISTER_COUNT);
     m_registers[reg].keep = keep;
+}
+
+void Compiler::Finish()
+{
+    for (auto r : m_registers) 
+    {
+        if (r.used) {
+            throw std::runtime_error("Register leakage!");
+        }
+    }
 }
 
 }

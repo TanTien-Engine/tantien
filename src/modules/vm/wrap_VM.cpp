@@ -433,6 +433,12 @@ void w_Compiler_keep_reg()
     }
 }
 
+void w_Compiler_finish()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    c->Finish();
+}
+
 void w_VM_allocate()
 {
     auto proxy = (tt::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<evm::VM>));
@@ -645,6 +651,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
+    if (strcmp(signature, "Compiler.finish()") == 0) return w_Compiler_finish;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 

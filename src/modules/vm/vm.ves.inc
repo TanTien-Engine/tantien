@@ -84,6 +84,8 @@ foreign class Compiler
 	foreign new_reg()
 	foreign free_reg(reg)
 	foreign keep_reg(reg, keep)
+
+	foreign finish()
 }
 
 foreign class VM

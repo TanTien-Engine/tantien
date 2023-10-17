@@ -16,6 +16,8 @@ public:
 
 	void SetRegKeep(int reg, bool keep);
 
+	void Finish();
+
 private:
 	struct Register
 	{

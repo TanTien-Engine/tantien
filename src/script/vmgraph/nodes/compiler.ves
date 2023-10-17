@@ -48,6 +48,7 @@ class Compiler is Node
 
 			var ret = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 			opcodes.set_ret_reg(ret)
+			compiler.finish()
 
 			this.opcodes = opcodes
 		}
