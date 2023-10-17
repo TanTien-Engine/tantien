@@ -24,12 +24,10 @@ void bytecodes_write(uint8_t op, int num)
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+    code->WriteType(op);
 
-    for (int i = 0; i < num; ++i)
-    {
-        uint8_t reg = (uint8_t)ves_tonumber(i + 1);
-        code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    for (int i = 0; i < num; ++i) {
+        code->WriteReg((uint8_t)ves_tonumber(i + 1));
     }
 }
 
@@ -62,8 +60,7 @@ void w_Bytecodes_set_pos()
 void w_Bytecodes_write_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    float num = (float)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&num), sizeof(float));
+    code->WriteFloat((float)ves_tonumber(1));
 }
 
 void w_Bytecodes_set_ret_reg()
@@ -83,28 +80,18 @@ void w_Bytecodes_store_bool()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = evm::OP_BOOL_STORE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
-
-    bool b = ves_toboolean(2);
-    code->Write(reinterpret_cast<const char*>(&b), sizeof(bool));
+    code->WriteType(evm::OP_BOOL_STORE);
+    code->WriteReg((uint8_t)ves_tonumber(1));
+    code->WriteBool(ves_toboolean(2));
 }
 
 void w_Bytecodes_store_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = evm::OP_NUMBER_STORE;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
-
-    double num = ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&num), sizeof(double));
+    code->WriteType(evm::OP_NUMBER_STORE);
+    code->WriteReg((uint8_t)ves_tonumber(1));
+    code->WriteDouble(ves_tonumber(2));
 }
 
 void w_Bytecodes_print_num()
@@ -156,30 +143,19 @@ void w_Bytecodes_jump_if_not()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = evm::OP_JUMP_IF_NOT;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint32_t offset = (uint32_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&offset), sizeof(uint32_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(2);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    code->WriteType(evm::OP_JUMP_IF_NOT);
+    code->WriteInt((int)ves_tonumber(1));
+    code->WriteReg((uint8_t)ves_tonumber(2));
 }
 
 void w_Bytecodes_vec2_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = tt::OP_VEC2_CREATE_I;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
-
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
-
-    float x = (float)ves_tonumber(2);
-    float y = (float)ves_tonumber(3);
-    code->Write(reinterpret_cast<const char*>(&x), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&y), sizeof(float));
+    code->WriteType(tt::OP_VEC2_CREATE_I);
+    code->WriteReg((uint8_t)ves_tonumber(1));
+    code->WriteFloat((float)ves_tonumber(2));
+    code->WriteFloat((float)ves_tonumber(3));
 }
 
 void w_Bytecodes_vec3_create_r()
@@ -191,18 +167,13 @@ void w_Bytecodes_vec3_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = tt::OP_VEC3_CREATE_I;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+    code->WriteType(tt::OP_VEC3_CREATE_I);
 
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    code->WriteReg((uint8_t)ves_tonumber(1));
 
-    float x = (float)ves_tonumber(2);
-    float y = (float)ves_tonumber(3);
-    float z = (float)ves_tonumber(4);
-    code->Write(reinterpret_cast<const char*>(&x), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&y), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&z), sizeof(float));
+    code->WriteFloat((float)ves_tonumber(2));
+    code->WriteFloat((float)ves_tonumber(3));
+    code->WriteFloat((float)ves_tonumber(4));
 }
 
 void w_Bytecodes_vec3_print()
@@ -244,20 +215,14 @@ void w_Bytecodes_vec4_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    uint8_t op = tt::OP_VEC4_CREATE_I;
-    code->Write(reinterpret_cast<const char*>(&op), sizeof(uint8_t));
+    code->WriteType(tt::OP_VEC4_CREATE_I);
 
-    uint8_t reg = (uint8_t)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&reg), sizeof(uint8_t));
+    code->WriteReg((uint8_t)ves_tonumber(1));
 
-    float x = (float)ves_tonumber(2);
-    float y = (float)ves_tonumber(3);
-    float z = (float)ves_tonumber(4);
-    float w = (float)ves_tonumber(5);
-    code->Write(reinterpret_cast<const char*>(&x), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&y), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&z), sizeof(float));
-    code->Write(reinterpret_cast<const char*>(&w), sizeof(float));
+    code->WriteFloat((float)ves_tonumber(2));
+    code->WriteFloat((float)ves_tonumber(3));
+    code->WriteFloat((float)ves_tonumber(4));
+    code->WriteFloat((float)ves_tonumber(5));
 }
 
 void w_Bytecodes_create_mat4()
@@ -408,6 +373,13 @@ void w_Compiler_new_reg()
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
     int reg = c->NewRegister();
     if (reg >= 0) {
+
+        //if (reg == 10)
+        //{
+        //    ves_traceback();
+        //    printf("++++++++++++++++++++++++\n");
+        //}
+
         ves_set_number(0, reg);
     } else {
         ves_set_nil(0);
@@ -433,10 +405,30 @@ void w_Compiler_keep_reg()
     }
 }
 
+void w_Compiler_stat_call()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    const char* name = ves_tostring(1);
+    c->StatCall(name);
+}
+
 void w_Compiler_finish()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
     c->Finish();
+}
+
+void w_Compiler_add_cost()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    int cost = (int)ves_tonumber(1);
+    c->AddCost(cost);
+}
+
+void w_Compiler_get_cost()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    ves_set_number(0, c->GetCost());
 }
 
 void w_VM_allocate()
@@ -651,7 +643,10 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
+    if (strcmp(signature, "Compiler.stat_call(_)") == 0) return w_Compiler_stat_call;
     if (strcmp(signature, "Compiler.finish()") == 0) return w_Compiler_finish;
+    if (strcmp(signature, "Compiler.add_cost(_)") == 0) return w_Compiler_add_cost;
+    if (strcmp(signature, "Compiler.get_cost()") == 0) return w_Compiler_get_cost;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 

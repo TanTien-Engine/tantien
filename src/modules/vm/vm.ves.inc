@@ -85,7 +85,12 @@ foreign class Compiler
 	foreign free_reg(reg)
 	foreign keep_reg(reg, keep)
 
+	foreign stat_call(name)
+
 	foreign finish()
+
+	foreign add_cost(cost)
+	foreign get_cost()
 }
 
 foreign class VM

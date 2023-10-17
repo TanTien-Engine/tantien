@@ -46,8 +46,10 @@ class Compiler is Node
 			var compiler = tt_Compiler.init()
 			var opcodes = Bytecodes.init()
 
-			var ret = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-			opcodes.set_ret_reg(ret)
+			var r_dst = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+			opcodes.set_ret_reg(r_dst)
+			compiler.free_reg(r_dst)
+			
 			compiler.finish()
 
 			this.opcodes = opcodes

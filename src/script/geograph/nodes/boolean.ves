@@ -57,6 +57,9 @@ class Boolean is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
+				var ori_size = opcodes.size()
+				var ori_cost = compiler.get_cost()
+
 		var r_base = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		if (r_base < 0) {
 			return -1
@@ -71,8 +74,15 @@ class Boolean is Node
 
 		opcodes.polytope_subtract(r_dst, r_base, r_tool)
 
+		compiler.add_cost(1)
+
 		compiler.free_reg(r_base)
 		compiler.free_reg(r_tool)
+
+				var size = opcodes.size() - ori_size
+				var cost = compiler.get_cost() - ori_cost
+
+				compiler.stat_call("++ sub %(size) %(cost)")				
 
 		return r_dst
 	}

@@ -245,6 +245,9 @@ void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 
 	auto tool = tt::VMHelper::LoadPolys(vm, r_tool);
 
+	static int num = 0;
+	printf("++ sub %d\n", ++num);
+
 	auto polys = PolytopeAlgos::Subtract(base, tool);
 	VMHelper::StorePolys(vm, r_dst, polys);
 }
