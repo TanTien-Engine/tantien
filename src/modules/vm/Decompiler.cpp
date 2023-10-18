@@ -8,6 +8,8 @@
 #include <easyvm/OpCodes.h>
 
 #include <stdexcept>
+#include <map>
+#include <assert.h>
 
 namespace
 {
@@ -23,6 +25,13 @@ static T ReadData(const std::vector<uint8_t>& codes, int ip)
 	}
 
 	return ret;
+}
+
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+	std::hash<T> hasher;
+	seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 }
@@ -115,7 +124,7 @@ void Decompiler::Print(int begin, int end)
 			throw std::runtime_error("Decompile fail!");
 		}
 
-		for (int i = 0, n = fields->size(); i < n; ++i)
+		for (size_t i = 0, n = fields->size(); i < n; ++i)
 		{
 			switch ((*fields)[i])
 			{
@@ -157,6 +166,89 @@ void Decompiler::Print(int begin, int end)
 	}
 
 	printf("\n");
+}
+
+size_t Decompiler::Hash(int begin, int end)
+{
+	size_t hash = 0;
+
+	auto& codes = m_codes->GetCode();
+	if (begin < 0 || begin >= codes.size() || begin >= end) {
+		return hash;
+	}
+
+	std::map<int, int> reg_map;
+	int curr_reg = 0;
+
+	int ip = begin;
+	while (ip < codes.size() && ip < end)
+	{
+		auto fields = m_ops->Query(codes[ip]);
+		if (!fields) {
+			throw std::runtime_error("Hash fail!");
+		}
+
+		for (size_t i = 0, n = fields->size(); i < n; ++i)
+		{
+			switch ((*fields)[i])
+			{
+			case OpFieldType::OpType:
+			{
+				int type = codes[ip];
+				hash_combine(hash, type);
+				ip += sizeof(uint8_t);
+
+				if (type == evm::OP_JUMP_IF_NOT)
+				{
+					assert((*fields)[i + 1] == OpFieldType::Int);
+					int offset = ReadData<int>(codes, ip);
+					if (offset >= begin && offset < end)
+					{
+						hash_combine(hash, offset - begin);
+						ip += sizeof(int);
+						++i;
+					}
+				}
+			}
+				break;
+			case OpFieldType::Reg:
+			{
+				int old_reg = codes[ip];
+				int new_reg = 0;
+				auto itr = reg_map.find(old_reg);
+				if (itr == reg_map.end()) {
+					new_reg = curr_reg++;
+					reg_map.insert({ old_reg, new_reg });
+				} else {
+					new_reg = itr->second;
+				}
+				hash_combine(hash, new_reg);
+				ip += sizeof(uint8_t);
+			}
+				break;
+			case OpFieldType::Double:
+				hash_combine(hash, ReadData<double>(codes, ip));
+				ip += sizeof(double);
+				break;
+			case OpFieldType::Float:
+				hash_combine(hash, ReadData<float>(codes, ip));
+				ip += sizeof(float);
+				break;
+			case OpFieldType::Int:
+				hash_combine(hash, ReadData<int>(codes, ip));
+				ip += sizeof(int);
+				break;
+			case OpFieldType::Bool:
+				hash_combine(hash, ReadData<bool>(codes, ip));
+				ip += sizeof(bool);
+				break;
+			default:
+				throw std::runtime_error("Unknown type!");
+			}
+		}
+	}
+
+	return hash;
 }
 
 }

@@ -5,7 +5,8 @@ foreign class Bytecodes
 {
 	init() {}
 
-	foreign print()
+	foreign print(begin, end)
+	foreign hash(begin, end)
 
 	foreign size()
 

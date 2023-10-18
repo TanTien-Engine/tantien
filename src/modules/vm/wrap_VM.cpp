@@ -52,8 +52,33 @@ void w_Bytecodes_print()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
+    int begin = (int)ves_tonumber(1);
+    int end = (int)ves_tonumber(2);
+    if (begin == 0 && end == 0) {
+        begin = 0;
+        end = static_cast<int>(code->GetCode().size());
+    }
+
     tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
-    dc.Print(0, code->GetCode().size());
+    dc.Print(begin, end);
+}
+
+void w_Bytecodes_hash()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    int begin = (int)ves_tonumber(1);
+    int end   = (int)ves_tonumber(2);
+    if (begin == 0 && end == 0) {
+        begin = 0;
+        end = static_cast<int>(code->GetCode().size());
+    }
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    size_t hash = dc.Hash(begin, end);
+
+    std::string s_hash = std::to_string(hash);
+    ves_set_lstring(0, s_hash.c_str(), s_hash.length());
 }
 
 void w_Bytecodes_size()
@@ -607,7 +632,8 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
-    if (strcmp(signature, "Bytecodes.print()") == 0) return w_Bytecodes_print;
+    if (strcmp(signature, "Bytecodes.print(_,_)") == 0) return w_Bytecodes_print;
+    if (strcmp(signature, "Bytecodes.hash(_,_)") == 0) return w_Bytecodes_hash;
     if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
     if (strcmp(signature, "Bytecodes.write_num(_)") == 0) return w_Bytecodes_write_num;

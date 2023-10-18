@@ -18,6 +18,8 @@ public:
 
 	void Print(int begin, int end);
 
+	size_t Hash(int begin, int end);
+
 private:
 	std::shared_ptr<Bytecodes> m_codes;
 	std::shared_ptr<OpFieldMap> m_ops;
