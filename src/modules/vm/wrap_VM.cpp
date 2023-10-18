@@ -1,6 +1,8 @@
 #include "wrap_VM.h"
 #include "Bytecodes.h"
 #include "VMHelper.h"
+#include "CodesBuilder.h"
+#include "Decompiler.h"
 #include "modules/script/TransHelper.h"
 #include "modules/vm/Bytecodes.h"
 #include "modules/vm/Compiler.h"
@@ -24,10 +26,12 @@ void bytecodes_write(uint8_t op, int num)
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(op);
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(op);
 
     for (int i = 0; i < num; ++i) {
-        code->WriteReg((uint8_t)ves_tonumber(i + 1));
+        builder.WriteReg((uint8_t)ves_tonumber(i + 1));
     }
 }
 
@@ -42,6 +46,14 @@ int w_Bytecodes_finalize(void* data)
     auto proxy = (tt::Proxy<tt::Bytecodes>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<tt::Bytecodes>);
+}
+
+void w_Bytecodes_print()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    dc.Print(0, code->GetCode().size());
 }
 
 void w_Bytecodes_size()
@@ -60,7 +72,9 @@ void w_Bytecodes_set_pos()
 void w_Bytecodes_write_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    code->WriteFloat((float)ves_tonumber(1));
+
+    float f = (float)ves_tonumber(1);
+    code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
 }
 
 void w_Bytecodes_set_ret_reg()
@@ -80,18 +94,22 @@ void w_Bytecodes_store_bool()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(evm::OP_BOOL_STORE);
-    code->WriteReg((uint8_t)ves_tonumber(1));
-    code->WriteBool(ves_toboolean(2));
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_BOOL_STORE);
+    builder.WriteReg((uint8_t)ves_tonumber(1));
+    builder.WriteBool(ves_toboolean(2));
 }
 
 void w_Bytecodes_store_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(evm::OP_NUMBER_STORE);
-    code->WriteReg((uint8_t)ves_tonumber(1));
-    code->WriteDouble(ves_tonumber(2));
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_NUMBER_STORE);
+    builder.WriteReg((uint8_t)ves_tonumber(1));
+    builder.WriteDouble(ves_tonumber(2));
 }
 
 void w_Bytecodes_print_num()
@@ -143,19 +161,23 @@ void w_Bytecodes_jump_if_not()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(evm::OP_JUMP_IF_NOT);
-    code->WriteInt((int)ves_tonumber(1));
-    code->WriteReg((uint8_t)ves_tonumber(2));
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_JUMP_IF_NOT);
+    builder.WriteInt((int)ves_tonumber(1));
+    builder.WriteReg((uint8_t)ves_tonumber(2));
 }
 
 void w_Bytecodes_vec2_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(tt::OP_VEC2_CREATE_I);
-    code->WriteReg((uint8_t)ves_tonumber(1));
-    code->WriteFloat((float)ves_tonumber(2));
-    code->WriteFloat((float)ves_tonumber(3));
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(tt::OP_VEC2_CREATE_I);
+    builder.WriteReg((uint8_t)ves_tonumber(1));
+    builder.WriteFloat((float)ves_tonumber(2));
+    builder.WriteFloat((float)ves_tonumber(3));
 }
 
 void w_Bytecodes_vec3_create_r()
@@ -167,13 +189,15 @@ void w_Bytecodes_vec3_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(tt::OP_VEC3_CREATE_I);
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
 
-    code->WriteReg((uint8_t)ves_tonumber(1));
+    builder.WriteType(tt::OP_VEC3_CREATE_I);
 
-    code->WriteFloat((float)ves_tonumber(2));
-    code->WriteFloat((float)ves_tonumber(3));
-    code->WriteFloat((float)ves_tonumber(4));
+    builder.WriteReg((uint8_t)ves_tonumber(1));
+
+    builder.WriteFloat((float)ves_tonumber(2));
+    builder.WriteFloat((float)ves_tonumber(3));
+    builder.WriteFloat((float)ves_tonumber(4));
 }
 
 void w_Bytecodes_vec3_print()
@@ -215,14 +239,16 @@ void w_Bytecodes_vec4_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
 
-    code->WriteType(tt::OP_VEC4_CREATE_I);
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
 
-    code->WriteReg((uint8_t)ves_tonumber(1));
+    builder.WriteType(tt::OP_VEC4_CREATE_I);
 
-    code->WriteFloat((float)ves_tonumber(2));
-    code->WriteFloat((float)ves_tonumber(3));
-    code->WriteFloat((float)ves_tonumber(4));
-    code->WriteFloat((float)ves_tonumber(5));
+    builder.WriteReg((uint8_t)ves_tonumber(1));
+
+    builder.WriteFloat((float)ves_tonumber(2));
+    builder.WriteFloat((float)ves_tonumber(3));
+    builder.WriteFloat((float)ves_tonumber(4));
+    builder.WriteFloat((float)ves_tonumber(5));
 }
 
 void w_Bytecodes_create_mat4()
@@ -450,7 +476,7 @@ void w_VM_run()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
 
-    tt::InitVM(vm);
+    tt::VM::Instance()->Init(vm);
 
     vm->Run();
 }
@@ -581,6 +607,7 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.print()") == 0) return w_Bytecodes_print;
     if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
     if (strcmp(signature, "Bytecodes.write_num(_)") == 0) return w_Bytecodes_write_num;

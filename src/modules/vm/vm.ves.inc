@@ -5,6 +5,8 @@ foreign class Bytecodes
 {
 	init() {}
 
+	foreign print()
+
 	foreign size()
 
 	foreign set_pos(pos)
