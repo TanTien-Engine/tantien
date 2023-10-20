@@ -7,6 +7,34 @@
 
 #include <assert.h>
 
+namespace
+{
+
+void load_polys(std::vector<std::shared_ptr<pm3::Polytope>>& dst, const evm::Value& src)
+{
+	switch (src.type)
+	{
+	case tt::ValueType::V_POLY:
+	{
+		auto poly = static_cast<evm::Handle<pm3::Polytope>*>(src.as.handle)->obj;
+		dst.push_back(poly);
+	}
+		break;
+	case  tt::ValueType::V_ARRAY:
+	{
+		auto items = static_cast<evm::Handle<std::vector<evm::Value>>*>(src.as.handle)->obj;
+		for (auto item : *items) {
+			load_polys(dst, item);
+		}
+	}
+		break;
+	default:
+		assert(0);
+	}
+}
+
+}
+
 namespace tt
 {
 
@@ -56,18 +84,7 @@ VMHelper::LoadPolys(evm::VM* vm, int reg)
         return dst;
     }
 
-    if (val.type == tt::ValueType::V_POLY)
-    {
-        dst.push_back(static_cast<evm::Handle<pm3::Polytope>*>(val.as.handle)->obj);
-    }
-    else if (val.type == tt::ValueType::V_ARRAY)
-    {
-        auto src = static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
-        for (auto item : *src) {
-			assert(item.type == tt::ValueType::V_POLY);
-            dst.push_back(static_cast<evm::Handle<pm3::Polytope>*>(item.as.handle)->obj);
-        }
-    }
+	load_polys(dst, val);
 
     return dst;
 }
