@@ -79,10 +79,9 @@ class Boolean is Node
 		compiler.free_reg(r_base)
 		compiler.free_reg(r_tool)
 
-				var size = opcodes.size() - ori_size
-				var cost = compiler.get_cost() - ori_cost
-
-				compiler.stat_call("++ sub %(size) %(cost)")				
+		var size = opcodes.size() - ori_size
+		var hash = opcodes.hash(ori_size, opcodes.size())
+		compiler.add_code_block(opcodes, ori_size, opcodes.size(), r_dst)
 
 		return r_dst
 	}

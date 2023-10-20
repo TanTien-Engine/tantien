@@ -90,7 +90,9 @@ foreign class Compiler
 
 	foreign stat_call(name)
 
-	foreign finish()
+	foreign add_code_block(codes, begin, end, reg)
+
+	foreign finish(codes)
 
 	foreign add_cost(cost)
 	foreign get_cost()

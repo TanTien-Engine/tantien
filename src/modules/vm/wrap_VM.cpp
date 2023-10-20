@@ -463,10 +463,28 @@ void w_Compiler_stat_call()
     c->StatCall(name);
 }
 
+void w_Compiler_add_code_block()
+{
+    auto compiler = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    int begin = (int)ves_tonumber(2);
+    int end = (int)ves_tonumber(3);
+
+    int reg = (int)ves_tonumber(4);
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    size_t hash = dc.Hash(begin, end);
+
+    compiler->AddCodeBlock(hash, begin, end, reg);
+}
+
 void w_Compiler_finish()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    c->Finish();
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    c->Finish(code);
 }
 
 void w_Compiler_add_cost()
@@ -697,7 +715,8 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
     if (strcmp(signature, "Compiler.stat_call(_)") == 0) return w_Compiler_stat_call;
-    if (strcmp(signature, "Compiler.finish()") == 0) return w_Compiler_finish;
+    if (strcmp(signature, "Compiler.add_code_block(_,_,_,_)") == 0) return w_Compiler_add_code_block;
+    if (strcmp(signature, "Compiler.finish(_)") == 0) return w_Compiler_finish;
     if (strcmp(signature, "Compiler.add_cost(_)") == 0) return w_Compiler_add_cost;
     if (strcmp(signature, "Compiler.get_cost()") == 0) return w_Compiler_get_cost;
 

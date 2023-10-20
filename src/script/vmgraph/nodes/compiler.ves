@@ -50,7 +50,9 @@ class Compiler is Node
 			opcodes.set_ret_reg(r_dst)
 			compiler.free_reg(r_dst)
 			
-			compiler.finish()
+			compiler.finish(opcodes)
+
+//			opcodes.print(0, 0)
 
 			this.opcodes = opcodes
 		}

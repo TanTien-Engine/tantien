@@ -1,5 +1,6 @@
 #include "geo_opcodes.h"
 #include "ValueType.h"
+#include "VM.h"
 #include "modules/geometry/PolytopeAlgos.h"
 #include "modules/vm/VMHelper.h"
 #include "modules/maths/Maths.h"
@@ -65,6 +66,40 @@ void transform_unknown(evm::Value& val, const sm::mat4& mat)
 	}
 }
 
+evm::Value value_clone(const evm::Value& src)
+{
+	evm::Value dst;
+
+	switch (src.type)
+	{
+	case tt::ValueType::V_ARRAY:
+	{
+		auto src_items = tt::VMHelper::GetValArray(src);
+		auto dst_items = std::make_shared<std::vector<evm::Value>>();
+		for (auto src_item : *src_items) {
+			dst_items->push_back(value_clone(src_item));
+		}
+
+		dst.type = tt::ValueType::V_ARRAY;
+		dst.as.handle = new evm::Handle<std::vector<evm::Value>>(dst_items);
+	}
+		break;
+	case tt::ValueType::V_POLY:
+	{
+		auto src_poly = static_cast<evm::Handle<pm3::Polytope>*>(src.as.handle)->obj;
+		auto dst_poly = std::make_shared<pm3::Polytope>(*src_poly);
+
+		dst.type = tt::ValueType::V_POLY;
+		dst.as.handle = new evm::Handle<pm3::Polytope>(dst_poly);
+	}
+		break;
+	default:
+		throw std::runtime_error("Not Implemented!");
+	}
+
+	return dst;
+}
+
 }
 
 namespace tt
@@ -87,6 +122,8 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_POLYFACE_SELECT, PolyFaceSelect);
 
 	vm->RegistOperator(OP_TRANSFORM_UNKNOWN, TransformUnknown);
+
+	vm->RegistOperator(OP_POLY_COPY_FROM_MEM, PolyCopyFromMem);
 }
 
 void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
@@ -419,6 +456,24 @@ void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
 	}
 
 	transform_unknown(v_obj, *mat);
+}
+
+void GeoOpCodeImpl::PolyCopyFromMem(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	auto poly = std::make_shared<pm3::Polytope>();
+
+	auto cache = tt::VM::Instance()->GetCache();
+
+	evm::Value src;
+	if (!cache->GetValue(r_src, src)) {
+		return;
+	}
+
+	evm::Value dst = value_clone(src);
+	vm->SetRegister(r_dst, dst);
 }
 
 }

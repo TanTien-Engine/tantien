@@ -106,6 +106,7 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[tt::OP_POLYPOINT_SELECT]		= "poly_sel";
 		m_op_names[tt::OP_POLYFACE_SELECT]		= "face_sel";
 		m_op_names[tt::OP_TRANSFORM_UNKNOWN]	= "transform";
+		m_op_names[tt::OP_POLY_COPY_FROM_MEM]	= "poly_from_mem";
 	}
 }
 

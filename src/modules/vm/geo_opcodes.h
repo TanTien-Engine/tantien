@@ -22,6 +22,8 @@ enum GeoOpCode
 	OP_POLYFACE_SELECT,
 
 	OP_TRANSFORM_UNKNOWN,
+
+	OP_POLY_COPY_FROM_MEM,
 };
 
 class GeoOpCodeImpl
@@ -45,6 +47,8 @@ private:
 	static void PolyFaceSelect(evm::VM* vm);
 
 	static void TransformUnknown(evm::VM* vm);
+
+	static void PolyCopyFromMem(evm::VM* vm);
 
 }; // GeoOpCodeImpl
 

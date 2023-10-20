@@ -1,11 +1,17 @@
 #include "Compiler.h"
-
-#include <assert.h>
+#include "CodesOptimize.h"
 
 #include <stdexcept>
 
+#include <assert.h>
+
 namespace tt
 {
+
+Compiler::Compiler()
+{
+    m_optim = std::make_shared<CodesOptimize>();
+}
 
 int Compiler::NewRegister()
 {
@@ -47,9 +53,16 @@ void Compiler::StatCall(const std::string& name)
     }
 }
 
-void Compiler::Finish()
+void Compiler::AddCodeBlock(size_t hash, int begin, int end, int reg)
 {
-    for (auto r : m_registers) 
+    m_optim->AddBlock(hash, begin, end, reg);
+}
+
+void Compiler::Finish(const std::shared_ptr<Bytecodes>& codes)
+{
+    m_optim->RmDupCodes(codes);
+
+    for (auto r : m_registers)
     {
         if (r.used) {
             throw std::runtime_error("Register leakage!");

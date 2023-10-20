@@ -12,6 +12,7 @@ public:
 	void Write(const char* data, size_t size);
 
 	auto& GetCode() const { return m_code; }
+	void SetCode(const std::vector<uint8_t>& code) { m_code = code; }
 
 	void SetRetReg(int reg) { m_ret_reg = reg; }
 	int GetRetReg() const { return m_ret_reg; }
