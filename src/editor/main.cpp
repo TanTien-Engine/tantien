@@ -759,7 +759,7 @@ void limit_fps(int fps)
     double curr_time = glfwGetTime();
     double delta = curr_time - last_time;
     if (delta < 1.0f / fps) {
-        Sleep((1.0f / fps - delta) * 1000);
+        Sleep(static_cast<unsigned long>((1.0f / fps - delta) * 1000));
     }
     last_time = glfwGetTime();
 }
