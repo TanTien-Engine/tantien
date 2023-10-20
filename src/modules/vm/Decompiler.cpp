@@ -125,6 +125,8 @@ void Decompiler::Print(int begin, int end)
 			throw std::runtime_error("Decompile fail!");
 		}
 
+		printf("%d: ", ip);
+
 		for (size_t i = 0, n = fields->size(); i < n; ++i)
 		{
 			switch ((*fields)[i])
