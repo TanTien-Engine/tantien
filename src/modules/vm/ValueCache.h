@@ -12,8 +12,8 @@ class ValueCache
 public:
 	void Resize(size_t size);
 
-	bool SetValue(int idx, const evm::Value& val);
-	bool GetValue(int idx, evm::Value& val) const;
+	void SetValue(int idx, const evm::Value& val);
+	const evm::Value& GetValue(int idx) const;
 
 private:
 	std::vector<evm::Value> m_vals;

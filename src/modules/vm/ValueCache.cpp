@@ -1,5 +1,7 @@
 #include "ValueCache.h"
 
+#include <stdexcept>
+
 namespace tt
 {
 
@@ -8,27 +10,22 @@ void ValueCache::Resize(size_t size)
 	m_vals.resize(size);
 }
 
-bool ValueCache::SetValue(int idx, const evm::Value& val)
+void ValueCache::SetValue(int idx, const evm::Value& val)
 {
-	if (idx >= 0 && idx < m_vals.size()) {
-		m_vals[idx] = val;
-		return true;
-	} else {
-		return false;
-	}
+    if (idx < 0 || idx >= m_vals.size()) {
+        throw std::runtime_error("Error idx!");
+    } else {
+        m_vals[idx] = val;
+    }
 }
 
-bool ValueCache::GetValue(int idx, evm::Value& val) const
+const evm::Value& ValueCache::GetValue(int idx) const
 {
-	if (idx < 0 || idx >= m_vals.size())
-	{
-		return false;
-	}
-	else
-	{
-		val = m_vals[idx];
-		return true;
-	}
+    if (idx < 0 || idx >= m_vals.size()) {
+        throw std::runtime_error("Error idx!");
+    } else {
+        return m_vals[idx];
+    }
 }
 
 }

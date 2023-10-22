@@ -463,16 +463,14 @@ void GeoOpCodeImpl::PolyCopyFromMem(evm::VM* vm)
 	uint8_t r_dst = vm->NextByte();
 	uint8_t r_src = vm->NextByte();
 
-	auto poly = std::make_shared<pm3::Polytope>();
-
-	auto cache = tt::VM::Instance()->GetCache();
-
-	evm::Value src;
-	if (!cache->GetValue(r_src, src)) {
+	if (r_dst == 0xff || r_src == 0xff) {
 		return;
 	}
 
-	evm::Value dst = value_clone(src);
+	auto poly = std::make_shared<pm3::Polytope>();
+
+	auto cache = tt::VM::Instance()->GetCache();
+	evm::Value dst = value_clone(cache->GetValue(r_src));
 	vm->SetRegister(r_dst, dst);
 }
 
