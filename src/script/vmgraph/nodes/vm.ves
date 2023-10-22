@@ -50,9 +50,13 @@ class Vm is Node
 
 	return_polytope(vm, reg)
 	{
+		var poly = vm.load_polytope(reg)
+		if (!poly) {
+			return nil
+		}
+
 		var geo = VarGeo()
 
-		var poly = vm.load_polytope(reg)
 		if (poly is List) {
 			geo.shape = Brush(poly)
 		} else {
