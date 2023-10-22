@@ -68,13 +68,7 @@ void CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes)
 
         vm->Run(b.begin, b.end);
 
-        evm::Value val;
-        vm->GetRegister(b.reg, val);
-
-        evm::Value tmp;
-        vm->MoveRegister(b.reg, tmp);
-
-        cache->SetValue(i, val);
+        cache->SetValue(i, vm->GetRegister(b.reg));
     }
 
     std::vector<CodeBlock> sorted;

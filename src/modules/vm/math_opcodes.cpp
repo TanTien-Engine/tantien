@@ -121,7 +121,8 @@ void MathOpCodeImpl::Vec3Add(evm::VM* vm)
 	auto src2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
 	if (!src1 && !src2)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -153,7 +154,8 @@ void MathOpCodeImpl::Vec3Sub(evm::VM* vm)
 	auto src2 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src2);
 	if (!src1 && !src2)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -330,7 +332,8 @@ void MathOpCodeImpl::CreatePlane(evm::VM* vm)
 
 	if (!p0 || !p1 || !p2)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -356,7 +359,8 @@ void MathOpCodeImpl::CreatePlane2(evm::VM* vm)
 
 	if (!ori || !dir)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -382,7 +386,8 @@ void MathOpCodeImpl::CreateCube(evm::VM* vm)
 
 	if (!min || !max)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -401,36 +406,26 @@ void MathOpCodeImpl::Add(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	evm::Value src1, src2;
-	bool b_src1 = vm->GetRegister(r_src1, src1);
-	bool b_src2 = vm->GetRegister(r_src2, src2);
-
+	bool b_src1 = r_src1 != 0xff;
+	bool b_src2 = r_src2 != 0xff;
 	if (!b_src1 && !b_src2)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 	else if (!b_src1 || !b_src2)
 	{
-		if (!b_src1) 
-		{
-			vm->SetRegister(r_dst, src2);
-
-			// move
-			evm::Value val;
-			vm->MoveRegister(r_src2, val);
-		} 
-		else 
-		{
-			vm->SetRegister(r_dst, src1);
-
-			// move
-			evm::Value val;
-			vm->MoveRegister(r_src1, val);
+		if (!b_src1) {
+			vm->SetRegister(r_dst, vm->GetRegister(r_src2));
+		} else {
+			vm->SetRegister(r_dst, vm->GetRegister(r_src1));
 		}
 		return;
 	}
 
+	auto& src1 = vm->GetRegister(r_src1);
+	auto& src2 = vm->GetRegister(r_src2);
 	if (src1.type == evm::ValueType::V_NUMBER &&
 		src2.type == evm::ValueType::V_NUMBER)
 	{
@@ -494,19 +489,20 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	evm::Value src1, src2;
-	bool b_src1 = vm->GetRegister(r_src1, src1);
-	bool b_src2 = vm->GetRegister(r_src2, src2);
-
+	bool b_src1 = r_src1 != 0xff;
+	bool b_src2 = r_src2 != 0xff;
 	if (!b_src1 && !b_src2)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 	else if (!b_src1 || !b_src2)
 	{
 		if (!b_src1) 
 		{
+			auto& src2 = vm->GetRegister(r_src2);
+
 			evm::Value val;
 
 			switch (src2.type)
@@ -552,15 +548,13 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 		} 
 		else 
 		{
-			vm->SetRegister(r_dst, src1);
-
-			// move
-			evm::Value val;
-			vm->MoveRegister(r_src1, val);
+			vm->SetRegister(r_dst, vm->GetRegister(r_src1));
 		}
 		return;
 	}
 
+	auto& src1 = vm->GetRegister(r_src1);
+	auto& src2 = vm->GetRegister(r_src2);
 	if (src1.type == evm::ValueType::V_NUMBER &&
 		src2.type == evm::ValueType::V_NUMBER)
 	{
@@ -624,13 +618,15 @@ void MathOpCodeImpl::Mul(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	evm::Value src1, src2;
-	if (!vm->GetRegister(r_src1, src1) ||
-		!vm->GetRegister(r_src2, src2)) {
-		vm->SetRegister(r_dst, evm::Value());
+	if (r_src1 == 0xff || r_src2 == 0xff) 
+	{
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
+	auto& src1 = vm->GetRegister(r_src1);
+	auto& src2 = vm->GetRegister(r_src2);
 	if (src1.type == evm::ValueType::V_NUMBER &&
 		src2.type == evm::ValueType::V_NUMBER)
 	{
@@ -706,13 +702,15 @@ void MathOpCodeImpl::Div(evm::VM* vm)
 	uint8_t r_src1 = vm->NextByte();
 	uint8_t r_src2 = vm->NextByte();
 
-	evm::Value src1, src2;
-	if (!vm->GetRegister(r_src1, src1) ||
-		!vm->GetRegister(r_src2, src2)) {
-		vm->SetRegister(r_dst, evm::Value());
+	if (r_src1 == 0xff || r_src2 == 0xff)
+	{
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
+	auto& src1 = vm->GetRegister(r_src1);
+	auto& src2 = vm->GetRegister(r_src2);
 	if (src1.type == evm::ValueType::V_NUMBER &&
 		src2.type == evm::ValueType::V_NUMBER)
 	{

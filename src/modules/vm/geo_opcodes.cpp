@@ -17,12 +17,12 @@
 namespace
 {
 
-void transform_unknown(evm::Value& val, const sm::mat4& mat)
+void transform_unknown(const evm::Value& val, const sm::mat4& mat)
 {
 	if (val.type == tt::V_ARRAY)
 	{
 		auto list = static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
-		for (auto item : *list) {
+		for (auto& item : *list) {
 			transform_unknown(item, mat);
 		}
 	}
@@ -134,7 +134,8 @@ void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
 	auto plane = evm::VMHelper::GetRegHandler<sm::Plane>(vm, r_plane);
 	if (!plane)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -156,7 +157,8 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	auto faces = tt::VMHelper::GetRegArray(vm, r_src);
 	if (!faces)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -186,7 +188,8 @@ void GeoOpCodeImpl::CreatePolyFace2(evm::VM* vm)
 	auto v_border = tt::VMHelper::GetRegArray(vm, r_border);
 	if (!v_border)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -218,7 +221,8 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 
 	if (!v_points || !v_faces)
 	{
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -276,7 +280,8 @@ void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
 
 	auto base = tt::VMHelper::LoadPolys(vm, r_base);
 	if (base.empty()) {
-		vm->SetRegister(r_dst, evm::Value());
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
 		return;
 	}
 
@@ -447,12 +452,10 @@ void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
 		return;
 	}
 
-	evm::Value v_obj;
-	if (!vm->GetRegister(r_obj, v_obj)) {
-		return;
+	if (r_obj != 0xff) {
+		auto& v_obj = vm->GetRegister(r_obj);
+		transform_unknown(v_obj, *mat);
 	}
-
-	transform_unknown(v_obj, *mat);
 }
 
 void GeoOpCodeImpl::PolyCopyFromMem(evm::VM* vm)

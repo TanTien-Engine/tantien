@@ -16,6 +16,7 @@
 #include <polymesh3/Polytope.h>
 #include <easyvm/VM.h>
 #include <easyvm/OpCodes.h>
+#include <easyvm/VMHelper.h>
 
 #include <string>
 
@@ -528,12 +529,10 @@ void w_VM_load_boolean()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
-
-    evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_BOOLEAN) {
-        ves_set_boolean(0, val.as.boolean);
-    } else {
+    if (reg == 0xff) {
         ves_set_nil(0);
+    } else {
+        ves_set_boolean(0, evm::VMHelper::GetRegBool(vm.get(), reg));
     }
 }
 
@@ -541,12 +540,10 @@ void w_VM_load_number()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
-
-    evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_NUMBER) {
-        ves_set_number(0, val.as.number);
-    } else {
+    if (reg == 0xff) {
         ves_set_nil(0);
+    } else {
+        ves_set_number(0, evm::VMHelper::GetRegNumber(vm.get(), reg));
     }
 }
 
@@ -554,22 +551,26 @@ void w_VM_load_string()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
-
-    evm::Value val;
-    if (vm->GetRegister(reg, val) && val.type == evm::ValueType::V_STRING) {
-        ves_set_lstring(0, val.as.string, strlen(val.as.string));
-    } else {
+    if (reg == 0xff) {
         ves_set_nil(0);
+    } else {
+        auto str = evm::VMHelper::GetRegString(vm.get(), reg);
+        ves_set_lstring(0, str, strlen(str));
     }
 }
 
 void w_VM_load_plane()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
-    uint8_t reg = (uint8_t)ves_tonumber(1);
 
-    evm::Value val;
-    if (!vm->GetRegister(reg, val) || val.type != tt::ValueType::V_PLANE) {
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    if (reg == 0xff) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& val = vm->GetRegister(reg);
+    if (val.type != tt::ValueType::V_PLANE) {
         ves_set_nil(0);
         return;
     }
@@ -579,17 +580,22 @@ void w_VM_load_plane()
     ves_pushnil();
     ves_import_class("maths", "Plane");
     auto proxy = (tt::Proxy<sm::Plane>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<sm::Plane>));
-    proxy->obj = static_cast<evm::Handle<sm::Plane>*>(val.as.handle)->obj;
+    proxy->obj = evm::VMHelper::GetHandleValue<sm::Plane>(val);
     ves_pop(1);
 }
 
 void w_VM_load_polyface()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
-    uint8_t reg = (uint8_t)ves_tonumber(1);
 
-    evm::Value val;
-    if (!vm->GetRegister(reg, val) || val.type != tt::ValueType::V_POLY_FACE) {
+    uint8_t reg = (uint8_t)ves_tonumber(1);
+    if (reg == 0xff) {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& val = vm->GetRegister(reg);
+    if (val.type != tt::ValueType::V_POLY_FACE) {
         ves_set_nil(0);
         return;
     }

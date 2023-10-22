@@ -4,8 +4,9 @@
 
 #include <vessel.h>
 #include <easyvm/VM.h>
+#include <easyvm/VMHelper.h>
 
-#include <assert.h>
+#include <stdexcept>
 
 namespace
 {
@@ -23,13 +24,13 @@ void load_polys(std::vector<std::shared_ptr<pm3::Polytope>>& dst, const evm::Val
 	case  tt::ValueType::V_ARRAY:
 	{
 		auto items = static_cast<evm::Handle<std::vector<evm::Value>>*>(src.as.handle)->obj;
-		for (auto item : *items) {
+		for (auto& item : *items) {
 			load_polys(dst, item);
 		}
 	}
 		break;
 	default:
-		assert(0);
+		throw std::runtime_error("Unknown type!");
 	}
 }
 
@@ -38,12 +39,17 @@ void load_polys(std::vector<std::shared_ptr<pm3::Polytope>>& dst, const evm::Val
 namespace tt
 {
 
-void VMHelper::StorePolys(evm::VM* vm, int reg,
+void VMHelper::StorePolys(evm::VM* vm, uint8_t reg,
 	                      const std::vector<std::shared_ptr<pm3::Polytope>>& polytopes)
 {
+	if (reg == 0xff) {
+		return;
+	}
+
 	if (polytopes.empty()) 
 	{
-		vm->SetRegister(reg, evm::Value());
+		evm::Value v;
+		vm->SetRegister(reg, v);
 	}
 	else if (polytopes.size() == 1)
 	{
@@ -75,28 +81,25 @@ void VMHelper::StorePolys(evm::VM* vm, int reg,
 }
 
 std::vector<std::shared_ptr<pm3::Polytope>> 
-VMHelper::LoadPolys(evm::VM* vm, int reg)
+VMHelper::LoadPolys(evm::VM* vm, uint8_t reg)
 {
+	if (reg == 0xff) {
+		return {};
+	}
+
     std::vector<std::shared_ptr<pm3::Polytope>> dst;
-
-    evm::Value val;
-    if (!vm->GetRegister(reg, val)) {
-        return dst;
-    }
-
-	load_polys(dst, val);
-
+	load_polys(dst, vm->GetRegister(reg));
     return dst;
 }
 
-std::shared_ptr<std::vector<evm::Value>> VMHelper::GetRegArray(evm::VM* vm, int reg)
+std::shared_ptr<std::vector<evm::Value>> 
+VMHelper::GetRegArray(evm::VM* vm, uint8_t reg)
 {
-	evm::Value val;
-	if (!vm->GetRegister(reg, val)) {
-		vm->Error("Error reg.");
+	if (reg == 0xff) {
 		return nullptr;
 	}
 
+	auto& val = vm->GetRegister(reg);
 	if (val.type != tt::ValueType::V_ARRAY) {
 		vm->Error("The register doesn't contain a array.");
 		return nullptr;
@@ -105,7 +108,8 @@ std::shared_ptr<std::vector<evm::Value>> VMHelper::GetRegArray(evm::VM* vm, int 
 	return GetValArray(val);
 }
 
-std::shared_ptr<std::vector<evm::Value>> VMHelper::GetValArray(const evm::Value& val)
+std::shared_ptr<std::vector<evm::Value>> 
+VMHelper::GetValArray(const evm::Value& val)
 {
 	if (val.type == tt::ValueType::V_ARRAY) {
 		return static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
