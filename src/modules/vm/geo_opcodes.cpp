@@ -76,7 +76,7 @@ evm::Value value_clone(const evm::Value& src)
 	{
 		auto src_items = tt::VMHelper::GetValArray(src);
 		auto dst_items = std::make_shared<std::vector<evm::Value>>();
-		for (auto src_item : *src_items) {
+		for (auto& src_item : *src_items) {
 			dst_items->push_back(value_clone(src_item));
 		}
 
@@ -163,7 +163,7 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	}
 
 	std::vector<std::shared_ptr<pm3::Polytope::Face>> faces_vec;
-	for (auto f : *faces) 
+	for (auto& f : *faces) 
 	{
 		auto face = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(f);
 		faces_vec.push_back(face);
@@ -227,14 +227,14 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	}
 
 	std::vector<pm3::Polytope::PointPtr> points;
-	for (auto v_p : *v_points)
+	for (auto& v_p : *v_points)
 	{
 		auto pos = evm::VMHelper::GetHandleValue<sm::vec3>(v_p);
 		points.push_back(std::make_shared<pm3::Polytope::Point>(*pos));
 	}
 
 	std::vector<std::shared_ptr<pm3::Polytope::Face>> faces;
-	for (auto v_f : *v_faces) 
+	for (auto& v_f : *v_faces) 
 	{
 		auto face = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(v_f);
 		faces.push_back(face);

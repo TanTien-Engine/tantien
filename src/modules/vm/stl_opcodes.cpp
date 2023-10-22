@@ -18,7 +18,7 @@ void vector_concat(const evm::Value& dst, const evm::Value& src)
 	if (src.type == tt::ValueType::V_ARRAY)
 	{
 		auto v_src = tt::VMHelper::GetValArray(src);
-		for (auto v : *v_src) {
+		for (auto& v : *v_src) {
 			vector_concat(dst, v);
 		}
 	}
