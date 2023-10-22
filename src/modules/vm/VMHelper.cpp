@@ -17,13 +17,13 @@ void load_polys(std::vector<std::shared_ptr<pm3::Polytope>>& dst, const evm::Val
 	{
 	case tt::ValueType::V_POLY:
 	{
-		auto poly = static_cast<evm::Handle<pm3::Polytope>*>(src.as.handle)->obj;
+		auto poly = evm::VMHelper::GetHandleValue<pm3::Polytope>(src);
 		dst.push_back(poly);
 	}
 		break;
 	case  tt::ValueType::V_ARRAY:
 	{
-		auto items = static_cast<evm::Handle<std::vector<evm::Value>>*>(src.as.handle)->obj;
+		auto items = tt::VMHelper::GetValArray(src);
 		for (auto& item : *items) {
 			load_polys(dst, item);
 		}
@@ -112,7 +112,7 @@ std::shared_ptr<std::vector<evm::Value>>
 VMHelper::GetValArray(const evm::Value& val)
 {
 	if (val.type == tt::ValueType::V_ARRAY) {
-		return static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
+		return evm::VMHelper::GetHandleValue<std::vector<evm::Value>>(val);
 	} else {
 		return nullptr;
 	}

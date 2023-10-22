@@ -605,7 +605,7 @@ void w_VM_load_polyface()
     ves_pushnil();
     ves_import_class("geometry", "PolyFace");
     auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope::Face>));
-    proxy->obj = static_cast<evm::Handle<pm3::Polytope::Face>*>(val.as.handle)->obj;
+    proxy->obj = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(val);
     ves_pop(1);
 }
 

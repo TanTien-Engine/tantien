@@ -21,7 +21,7 @@ void transform_unknown(const evm::Value& val, const sm::mat4& mat)
 {
 	if (val.type == tt::V_ARRAY)
 	{
-		auto list = static_cast<evm::Handle<std::vector<evm::Value>>*>(val.as.handle)->obj;
+		auto list = tt::VMHelper::GetValArray(val);
 		for (auto& item : *list) {
 			transform_unknown(item, mat);
 		}
@@ -86,7 +86,7 @@ evm::Value value_clone(const evm::Value& src)
 		break;
 	case tt::ValueType::V_POLY:
 	{
-		auto src_poly = static_cast<evm::Handle<pm3::Polytope>*>(src.as.handle)->obj;
+		auto src_poly = evm::VMHelper::GetHandleValue<pm3::Polytope>(src);
 		auto dst_poly = std::make_shared<pm3::Polytope>(*src_poly);
 
 		dst.type = tt::ValueType::V_POLY;
@@ -165,8 +165,8 @@ void GeoOpCodeImpl::CreatePolytope(evm::VM* vm)
 	std::vector<std::shared_ptr<pm3::Polytope::Face>> faces_vec;
 	for (auto f : *faces) 
 	{
-		auto face = static_cast<evm::Handle<pm3::Polytope::Face>*>(f.as.handle);
-		faces_vec.push_back(face->obj);
+		auto face = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(f);
+		faces_vec.push_back(face);
 	}
 
 	auto poly = std::make_shared<pm3::Polytope>(faces_vec);
@@ -229,15 +229,15 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	std::vector<pm3::Polytope::PointPtr> points;
 	for (auto v_p : *v_points)
 	{
-		auto pos = static_cast<evm::Handle<sm::vec3>*>(v_p.as.handle);
-		points.push_back(std::make_shared<pm3::Polytope::Point>(*pos->obj));
+		auto pos = evm::VMHelper::GetHandleValue<sm::vec3>(v_p);
+		points.push_back(std::make_shared<pm3::Polytope::Point>(*pos));
 	}
 
 	std::vector<std::shared_ptr<pm3::Polytope::Face>> faces;
 	for (auto v_f : *v_faces) 
 	{
-		auto face = static_cast<evm::Handle<pm3::Polytope::Face>*>(v_f.as.handle);
-		faces.push_back(face->obj);
+		auto face = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(v_f);
+		faces.push_back(face);
 	}
 
 	auto poly = std::make_shared<pm3::Polytope>(points, faces);

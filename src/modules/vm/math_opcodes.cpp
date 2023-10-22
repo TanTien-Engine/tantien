@@ -438,8 +438,8 @@ void MathOpCodeImpl::Add(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC2 &&
 		     src2.type == tt::ValueType::V_VEC2)
 	{
-		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
-		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+		sm::vec2 src1_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src1);
+		sm::vec2 src2_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src2);
 
 		sm::vec2 ret = src1_v2 + src2_v2;
 
@@ -452,8 +452,8 @@ void MathOpCodeImpl::Add(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC3 &&
 		     src2.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
-		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+		sm::vec3 src1_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src1);
+		sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 		sm::vec3 ret = src1_v3 + src2_v3;
 
@@ -466,8 +466,8 @@ void MathOpCodeImpl::Add(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC4 &&
 		     src2.type == tt::ValueType::V_VEC4)
 	{
-		sm::vec4 src1_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src1.as.handle)->obj);
-		sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+		sm::vec4 src1_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src1);
+		sm::vec4 src2_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src2);
 
 		sm::vec4 ret = src1_v4 + src2_v4;
 
@@ -515,7 +515,7 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 				break;
 			case tt::ValueType::V_VEC2:
 			{
-				sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+				sm::vec2 src2_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src2);
 
 				val.type = tt::ValueType::V_VEC2;
 				val.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(-src2_v2));
@@ -523,7 +523,7 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 				break;
 			case tt::ValueType::V_VEC3:
 			{
-				sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+				sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 				val.type = tt::ValueType::V_VEC3;
 				val.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(-src2_v3));
@@ -531,7 +531,7 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 				break;
 			case tt::ValueType::V_VEC4:
 			{
-				sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+				sm::vec4 src2_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src2);
 
 				src2_v4.x = -src2_v4.x;
 				src2_v4.y = -src2_v4.y;
@@ -567,8 +567,8 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC2 &&
 		     src2.type == tt::ValueType::V_VEC2)
 	{
-		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
-		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+		sm::vec2 src1_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src1);
+		sm::vec2 src2_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src2);
 
 		sm::vec2 ret = src1_v2 - src2_v2;
 
@@ -581,8 +581,8 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC3 &&
 		     src2.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
-		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+		sm::vec3 src1_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src1);
+		sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 		sm::vec3 ret = src1_v3 - src2_v3;
 
@@ -595,8 +595,8 @@ void MathOpCodeImpl::Sub(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC4 &&
 		     src2.type == tt::ValueType::V_VEC4)
 	{
-		sm::vec4 src1_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src1.as.handle)->obj);
-		sm::vec4 src2_v4 = *(static_cast<evm::Handle<sm::vec4>*>(src2.as.handle)->obj);
+		sm::vec4 src1_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src1);
+		sm::vec4 src2_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src2);
 
 		sm::vec4 ret = src1_v4 - src2_v4;
 
@@ -639,8 +639,8 @@ void MathOpCodeImpl::Mul(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC2 &&
 		     src2.type == tt::ValueType::V_VEC2)
 	{
-		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
-		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+		sm::vec2 src1_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src1);
+		sm::vec2 src2_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src2);
 
 		sm::vec2 ret = src1_v2 * src2_v2;
 
@@ -653,8 +653,8 @@ void MathOpCodeImpl::Mul(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC3 &&
 		     src2.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
-		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+		sm::vec3 src1_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src1);
+		sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 		sm::vec3 ret = src1_v3 * src2_v3;
 
@@ -667,7 +667,7 @@ void MathOpCodeImpl::Mul(evm::VM* vm)
 	else if (src1.type == evm::ValueType::V_NUMBER &&
 		     src2.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+		sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 		sm::vec3 ret = src2_v3 * static_cast<float>(src1.as.number);
 
@@ -680,7 +680,7 @@ void MathOpCodeImpl::Mul(evm::VM* vm)
 	else if (src2.type == evm::ValueType::V_NUMBER &&
 		     src1.type == tt::ValueType::V_VEC3)
 	{
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src1_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src1);
 
 		sm::vec3 ret = src1_v3 * static_cast<float>(src2.as.number);
 
@@ -727,8 +727,8 @@ void MathOpCodeImpl::Div(evm::VM* vm)
 	else if (src1.type == tt::ValueType::V_VEC2 &&
 		     src2.type == tt::ValueType::V_VEC2)
 	{
-		sm::vec2 src1_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src1.as.handle)->obj);
-		sm::vec2 src2_v2 = *(static_cast<evm::Handle<sm::vec2>*>(src2.as.handle)->obj);
+		sm::vec2 src1_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src1);
+		sm::vec2 src2_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src2);
 
 		if (src2_v2.x == 0 || src2_v2.y == 0) {
 			throw std::runtime_error("Divide zero!");
@@ -749,7 +749,7 @@ void MathOpCodeImpl::Div(evm::VM* vm)
 			throw std::runtime_error("Divide zero!");
 		}
 
-		sm::vec3 src2_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src2.as.handle)->obj);
+		sm::vec3 src2_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src2);
 
 		sm::vec3 ret = src2_v3 / static_cast<float>(src1.as.number);
 
@@ -766,7 +766,7 @@ void MathOpCodeImpl::Div(evm::VM* vm)
 			throw std::runtime_error("Divide zero!");
 		}
 
-		sm::vec3 src1_v3 = *(static_cast<evm::Handle<sm::vec3>*>(src1.as.handle)->obj);
+		sm::vec3 src1_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src1);
 
 		sm::vec3 ret = src1_v3 / static_cast<float>(src2.as.number);
 
