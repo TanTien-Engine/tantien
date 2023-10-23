@@ -22,12 +22,12 @@ node2.cam.zoom = 45
 node2.cam.update_vectors()
 node2.speed = 0.29207175970078
 
-_editor.add_node(node2, 28.17621431949, -47.63817340057)
+_editor.add_node(node2, 171.60903994615, -37.392971570094)
 
 var node3 = ::blueprint::nodes::subgraph::Subgraph()
 node3.load_from_file(_editor, "../../assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node3, 219, 86.5)
+_editor.add_node(node3, 360.38378526057, 86.5)
 
 var node4 = ::geograph::nodes::translate_f::TranslateF()
 
@@ -37,13 +37,19 @@ var node5 = ::vmgraph::nodes::compiler::Compiler()
 
 _editor.add_node(node5, -109.09090909091, 108.45454545455)
 
-var node6 = ::vmgraph::nodes::vm::Vm()
+var node6 = ::vmgraph::nodes::vm_run::VmRun()
 
-_editor.add_node(node6, 22.909090909091, 108.95454545455)
+_editor.add_node(node6, 27.007171641281, 136.27508366915)
+
+var node7 = ::vmgraph::nodes::vm_load::VmLoad()
+
+_editor.add_node(node7, 168.00950725736, 109.74936120691)
 
 Blueprint.connect(node0, "geo", node4, "geo")
 Blueprint.connect(node1, "v3", node4, "xyz")
 Blueprint.connect(node4, "geo", node5, "val")
 Blueprint.connect(node5, "codes", node6, "codes")
-Blueprint.connect(node6, "val", node3, "geos")
+Blueprint.connect(node6, "vm", node7, "vm")
+Blueprint.connect(node5, "r_out", node7, "reg")
+Blueprint.connect(node7, "geo", node3, "geos")
 Blueprint.connect(node2, "this", node3, "view_cam")

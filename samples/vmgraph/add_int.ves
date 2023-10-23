@@ -16,13 +16,13 @@ var node3 = ::vmgraph::nodes::compiler::Compiler()
 
 _editor.add_node(node3, 100, 132.5)
 
-var node4 = ::vmgraph::nodes::vm::Vm()
+var node4 = ::vmgraph::nodes::vm_run::VmRun()
 
-_editor.add_node(node4, 236, 132.5)
+_editor.add_node(node4, 235.2486851991, 161.80127723516)
 
 var node5 = ::blueprint::nodes::print::Print()
 
-_editor.add_node(node5, 381, 134.5)
+_editor.add_node(node5, 511.72877535687, 111.20924117205)
 
 var node6 = ::blueprint::nodes::integer::Integer()
 
@@ -40,11 +40,17 @@ var node8 = ::blueprint::nodes::add::Add()
 
 _editor.add_node(node8, -217.75709090909, 136.67418181818)
 
+var node9 = ::vmgraph::nodes::vm_load::VmLoad()
+
+_editor.add_node(node9, 370.15776739543, 123.10069966191)
+
 Blueprint.connect(node6, "v", node8, "a")
 Blueprint.connect(node7, "v", node8, "b")
 Blueprint.connect(node0, "v", node1, "a")
 Blueprint.connect(node8, "v", node1, "b")
 Blueprint.connect(node1, "v", node3, "val")
 Blueprint.connect(node3, "codes", node4, "codes")
-Blueprint.connect(node4, "val", node5, "value")
+Blueprint.connect(node4, "vm", node9, "vm")
+Blueprint.connect(node3, "r_out", node9, "reg")
+Blueprint.connect(node9, "num", node5, "value")
 Blueprint.connect(node1, "v", node2, "value")

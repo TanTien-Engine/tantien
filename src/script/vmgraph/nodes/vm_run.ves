@@ -1,0 +1,43 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES, VAR_TYPE_VM
+import "vm" for VM
+
+class VmRun is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+		this.exports = [
+			Pin(this, "vm", VAR_TYPE_VM),
+		]
+
+		this.layout()
+
+		this.vm = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.vm)
+		{
+			var v_codes = Blueprint.calc_input_value(this, 0)
+			if (!v_codes) {
+				return nil
+			}
+
+			var vm = VM.init(v_codes.value)
+			vm.run()
+
+			this.vm = vm
+		}
+
+		return Variant(VAR_TYPE_VM, this.vm)
+	}
+}

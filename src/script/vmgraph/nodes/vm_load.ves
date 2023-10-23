@@ -1,0 +1,76 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_INTEGER, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "vmgraph.variant" for VAR_TYPE_VM
+
+class VmLoad is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "vm", VAR_TYPE_VM),
+			Pin(this, "reg", VAR_TYPE_INTEGER),			
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "num", VAR_TYPE_NUMBER)
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_vm = Blueprint.calc_input_value(this, 0)
+		if (!v_vm) {
+			return nil
+		}
+		var v_reg = Blueprint.calc_input_value(this, 1)
+		if (!v_reg) {
+			return nil
+		}
+
+		var vm = v_vm.value
+		var reg = v_reg.value
+
+		if (idx == 0)
+		{
+			return this.return_polytope(vm, reg)
+		}
+		else if (idx == 1)
+		{
+			var num = vm.load_number(reg)
+			return Variant(VAR_TYPE_NUMBER, num)
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
+			return nil
+		}
+	}
+
+	return_polytope(vm, reg)
+	{
+		var poly = vm.load_polytope(reg)
+		if (!poly) {
+			return nil
+		}
+
+		var geo = VarGeo()
+
+		if (poly is List) {
+			geo.shape = Brush(poly)
+		} else {
+			geo.shape = Brush([ poly ])
+		}
+
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}
