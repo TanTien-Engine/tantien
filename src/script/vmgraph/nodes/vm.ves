@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_NUMBER, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_PLANE, VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
@@ -15,6 +15,7 @@ class Vm is Node
 
 		this.imports = [
 			Pin(this, "codes", VAR_TYPE_BYTECODES),
+			Pin(this, "r_out", VAR_TYPE_INTEGER),
 		]
 		this.exports = [
 			Pin(this, "val", VAR_TYPE_ANY),
@@ -33,7 +34,12 @@ class Vm is Node
 		var vm = VM.init(v_codes.value)
 		vm.run()
 
-		var reg = v_codes.value.get_ret_reg()
+		var v_reg_out = Blueprint.calc_input_value(this, 1)
+		if (!v_reg_out) {
+			return nil
+		}
+
+		var reg = v_reg_out.value
 		if (reg < 0) {
 			return nil
 		}

@@ -13,9 +13,6 @@ foreign class Bytecodes
 	foreign set_pos(pos)
 	foreign write_num(num)	
 
-	foreign set_ret_reg(reg)
-	foreign get_ret_reg()
-
 	foreign store_bool(reg, bool)
 
 	foreign store_num(reg, num)

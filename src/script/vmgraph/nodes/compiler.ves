@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_ANY
+import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
@@ -17,11 +17,13 @@ class Compiler is Node
 		]
 		this.exports = [
 			Pin(this, "codes", VAR_TYPE_BYTECODES),
+			Pin(this, "r_out", VAR_TYPE_INTEGER),
 		]
 
 		this.layout()
 
 		this.opcodes = nil
+		this.out_reg = -1
 	}
 
 	on_pin_dirty(pin, type)
@@ -47,7 +49,6 @@ class Compiler is Node
 			var opcodes = Bytecodes.init()
 
 			var r_dst = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-			opcodes.set_ret_reg(r_dst)
 			compiler.free_reg(r_dst)
 			
 			compiler.finish(opcodes)
@@ -55,8 +56,23 @@ class Compiler is Node
 //			opcodes.print(0, 0)
 
 			this.opcodes = opcodes
+			this.out_reg = r_dst
 		}
 
-		return Variant(VAR_TYPE_BYTECODES, this.opcodes)
+		if (idx == 0) 
+		{
+			return Variant(VAR_TYPE_BYTECODES, this.opcodes)
+		}
+		else if (idx == 1)
+		{
+			return Variant(VAR_TYPE_INTEGER, this.out_reg)
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
+			return nil
+		}
 	}
 }

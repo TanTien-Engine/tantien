@@ -103,19 +103,6 @@ void w_Bytecodes_write_num()
     code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
 }
 
-void w_Bytecodes_set_ret_reg()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    int reg = (int)ves_tonumber(1);
-    code->SetRetReg(reg);
-}
-
-void w_Bytecodes_get_ret_reg()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    ves_set_number(0, code->GetRetReg());
-}
-
 void w_Bytecodes_store_bool()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -661,8 +648,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
     if (strcmp(signature, "Bytecodes.write_num(_)") == 0) return w_Bytecodes_write_num;
-    if (strcmp(signature, "Bytecodes.set_ret_reg(_)") == 0) return w_Bytecodes_set_ret_reg;
-    if (strcmp(signature, "Bytecodes.get_ret_reg()") == 0) return w_Bytecodes_get_ret_reg;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
