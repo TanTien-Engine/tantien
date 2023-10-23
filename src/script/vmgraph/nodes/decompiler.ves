@@ -1,0 +1,27 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vm" for CodeTools
+
+class Decompiler is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+
+		this.layout()
+	}
+
+	on_pin_dirty(pin, type)
+	{
+		var v_codes = Blueprint.calc_input_value(this, 0)
+		if (v_codes) {
+			CodeTools.decompiler(v_codes.value, 0, 0)
+		}
+	}
+}

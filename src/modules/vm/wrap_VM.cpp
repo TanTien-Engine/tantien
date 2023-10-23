@@ -49,39 +49,6 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<tt::Bytecodes>);
 }
 
-void w_Bytecodes_print()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    int begin = (int)ves_tonumber(1);
-    int end = (int)ves_tonumber(2);
-    if (begin == 0 && end == 0) {
-        begin = 0;
-        end = static_cast<int>(code->GetCode().size());
-    }
-
-    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
-    dc.Print(begin, end);
-}
-
-void w_Bytecodes_hash()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    int begin = (int)ves_tonumber(1);
-    int end   = (int)ves_tonumber(2);
-    if (begin == 0 && end == 0) {
-        begin = 0;
-        end = static_cast<int>(code->GetCode().size());
-    }
-
-    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
-    size_t hash = dc.Hash(begin, end);
-
-    std::string s_hash = std::to_string(hash);
-    ves_set_lstring(0, s_hash.c_str(), s_hash.length());
-}
-
 void w_Bytecodes_size()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -394,6 +361,39 @@ void w_Bytecodes_transform_unknown()
     bytecodes_write(tt::OP_TRANSFORM_UNKNOWN, 2);
 }
 
+void w_CodeTools_decompiler()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    int begin = (int)ves_tonumber(2);
+    int end = (int)ves_tonumber(3);
+    if (begin == 0 && end == 0) {
+        begin = 0;
+        end = static_cast<int>(code->GetCode().size());
+    }
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    dc.Print(begin, end);
+}
+
+void w_CodeTools_hash()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    int begin = (int)ves_tonumber(2);
+    int end = (int)ves_tonumber(3);
+    if (begin == 0 && end == 0) {
+        begin = 0;
+        end = static_cast<int>(code->GetCode().size());
+    }
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    size_t hash = dc.Hash(begin, end);
+
+    std::string s_hash = std::to_string(hash);
+    ves_set_lstring(0, s_hash.c_str(), s_hash.length());
+}
+
 void w_Compiler_allocate()
 {
     auto proxy = (tt::Proxy<tt::Compiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Compiler>));
@@ -643,8 +643,6 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
-    if (strcmp(signature, "Bytecodes.print(_,_)") == 0) return w_Bytecodes_print;
-    if (strcmp(signature, "Bytecodes.hash(_,_)") == 0) return w_Bytecodes_hash;
     if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
     if (strcmp(signature, "Bytecodes.write_num(_)") == 0) return w_Bytecodes_write_num;
@@ -701,6 +699,9 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
     if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
     if (strcmp(signature, "Bytecodes.transform_unknown(_,_)") == 0) return w_Bytecodes_transform_unknown;
+
+    if (strcmp(signature, "static CodeTools.decompiler(_,_,_)") == 0) return w_CodeTools_decompiler;
+    if (strcmp(signature, "static CodeTools.hash(_,_,_)") == 0) return w_CodeTools_hash;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;

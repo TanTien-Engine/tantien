@@ -5,16 +5,13 @@ foreign class Bytecodes
 {
 	init() {}
 
-	foreign print(begin, end)
-	foreign hash(begin, end)
-
 	foreign size()
 
 	foreign set_pos(pos)
 	foreign write_num(num)	
 
 	foreign store_bool(reg, bool)
-
+	
 	foreign store_num(reg, num)
 	foreign print_num(reg)
 	foreign negate_num(dst, src)
@@ -75,6 +72,12 @@ foreign class Bytecodes
 	foreign mul(r_dst, r_src1, r_src2)
 	foreign div(r_dst, r_src1, r_src2)
 	foreign transform_unknown(r_obj, r_mat)
+}
+
+foreign class CodeTools
+{
+	foreign static decompiler(codes, begin, end)
+	foreign static hash(codes, begin, end)
 }
 
 foreign class Compiler
