@@ -28,7 +28,7 @@ class CodesOptimize
 public:
 	void AddBlock(size_t hash, int begin, int end, int reg);
 
-	void RmDupCodes(const std::shared_ptr<Bytecodes>& codes);
+	std::shared_ptr<Bytecodes> RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const;
 
 private:
 	std::vector<std::vector<CodeBlock>> PrepareBlocks() const;

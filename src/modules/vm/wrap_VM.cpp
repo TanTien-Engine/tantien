@@ -3,6 +3,7 @@
 #include "VMHelper.h"
 #include "CodesBuilder.h"
 #include "Decompiler.h"
+#include "CodesOptimize.h"
 #include "modules/script/TransHelper.h"
 #include "modules/vm/Bytecodes.h"
 #include "modules/vm/Compiler.h"
@@ -53,6 +54,55 @@ void w_Bytecodes_size()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
     ves_set_number(0, static_cast<double>(code->GetCode().size()));
+}
+
+void w_Bytecodes_stat_call()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    const char* name = ves_tostring(1);
+    code->StatCall(name);
+}
+
+void w_Bytecodes_add_code_block()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    int begin = (int)ves_tonumber(1);
+    int end = (int)ves_tonumber(2);
+
+    int reg = (int)ves_tonumber(3);
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    size_t hash = dc.Hash(begin, end);
+
+    code->GetOptimizer()->AddBlock(hash, begin, end, reg);
+}
+
+void w_Bytecodes_add_cost()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    int cost = (int)ves_tonumber(1);
+    code->AddCost(cost);
+}
+
+void w_Bytecodes_get_cost()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    ves_set_number(0, code->GetCost());
+}
+
+void w_Bytecodes_optimize()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+    auto new_code = code->GetOptimizer()->RmDupCodes(code);
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("vm", "Bytecodes");
+    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
+    proxy->obj = new_code;
+    ves_pop(1);
 }
 
 void w_Bytecodes_set_pos()
@@ -444,48 +494,10 @@ void w_Compiler_keep_reg()
     }
 }
 
-void w_Compiler_stat_call()
+void w_Compiler_expect_reg_free()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    const char* name = ves_tostring(1);
-    c->StatCall(name);
-}
-
-void w_Compiler_add_code_block()
-{
-    auto compiler = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-
-    int begin = (int)ves_tonumber(2);
-    int end = (int)ves_tonumber(3);
-
-    int reg = (int)ves_tonumber(4);
-
-    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
-    size_t hash = dc.Hash(begin, end);
-
-    compiler->AddCodeBlock(hash, begin, end, reg);
-}
-
-void w_Compiler_finish()
-{
-    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-    c->Finish(code);
-}
-
-void w_Compiler_add_cost()
-{
-    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    int cost = (int)ves_tonumber(1);
-    c->AddCost(cost);
-}
-
-void w_Compiler_get_cost()
-{
-    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    ves_set_number(0, c->GetCost());
+    c->ExpectRegFree();
 }
 
 void w_VM_allocate()
@@ -642,6 +654,12 @@ namespace tt
 
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
+    // optimize
+    if (strcmp(signature, "Bytecodes.stat_call(_)") == 0) return w_Bytecodes_stat_call;
+    if (strcmp(signature, "Bytecodes.add_code_block(_,_,_)") == 0) return w_Bytecodes_add_code_block;
+    if (strcmp(signature, "Bytecodes.add_cost(_)") == 0) return w_Bytecodes_add_cost;
+    if (strcmp(signature, "Bytecodes.get_cost()") == 0) return w_Bytecodes_get_cost;
+    if (strcmp(signature, "Bytecodes.optimize()") == 0) return w_Bytecodes_optimize;
     // base
     if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
     if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
@@ -706,11 +724,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
-    if (strcmp(signature, "Compiler.stat_call(_)") == 0) return w_Compiler_stat_call;
-    if (strcmp(signature, "Compiler.add_code_block(_,_,_,_)") == 0) return w_Compiler_add_code_block;
-    if (strcmp(signature, "Compiler.finish(_)") == 0) return w_Compiler_finish;
-    if (strcmp(signature, "Compiler.add_cost(_)") == 0) return w_Compiler_add_cost;
-    if (strcmp(signature, "Compiler.get_cost()") == 0) return w_Compiler_get_cost;
+    if (strcmp(signature, "Compiler.expect_reg_free()") == 0) return w_Compiler_expect_reg_free;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 

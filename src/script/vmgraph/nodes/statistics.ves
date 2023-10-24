@@ -1,0 +1,43 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES
+
+class Statistics is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+		this.exports = [
+			Pin(this, "len", VAR_TYPE_NUMBER),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_codes = Blueprint.calc_input_value(this, 0)
+		if (!v_codes) {
+			return nil
+		}
+
+		if (idx == 0)
+		{
+			var len = v_codes.value.size()
+			return Variant(VAR_TYPE_NUMBER, len)
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
+			return nil
+		}
+	}
+}

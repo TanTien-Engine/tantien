@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "vmgraph.variant" for VAR_TYPE_BYTECODES
+
+class Optimize is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+		this.exports = [
+			Pin(this, "codes", VAR_TYPE_BYTECODES),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_code = Blueprint.calc_input_value(this, 0)
+		if (!v_code) {
+			return nil
+		}
+
+		var codes = v_code.value.optimize()
+		return Variant(VAR_TYPE_BYTECODES, codes)
+	}
+}

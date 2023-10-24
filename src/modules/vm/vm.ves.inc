@@ -7,9 +7,20 @@ foreign class Bytecodes
 
 	foreign size()
 
+	// optimize
+	foreign stat_call(name)
+	foreign add_code_block(begin, end, reg)
+	foreign add_cost(cost)
+	foreign get_cost()
+	foreign optimize()
+
+	// change
 	foreign set_pos(pos)
 	foreign write_num(num)	
 
+	// opcodes
+
+	// basic
 	foreign store_bool(reg, bool)
 	
 	foreign store_num(reg, num)
@@ -88,14 +99,7 @@ foreign class Compiler
 	foreign free_reg(reg)
 	foreign keep_reg(reg, keep)
 
-	foreign stat_call(name)
-
-	foreign add_code_block(codes, begin, end, reg)
-
-	foreign finish(codes)
-
-	foreign add_cost(cost)
-	foreign get_cost()
+	foreign expect_reg_free()
 }
 
 foreign class VM

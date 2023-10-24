@@ -38,11 +38,12 @@ void CodesOptimize::AddBlock(size_t hash, int begin, int end, int reg)
     }
 }
 
-void CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes)
+std::shared_ptr<Bytecodes>
+CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
 {
     auto blocks = PrepareBlocks();
     if (blocks.empty()) {
-        return;
+        return codes;
     }
 
     for (int i = 0, n = static_cast<int>(blocks.size()); i < n; ++i) {
@@ -107,7 +108,9 @@ void CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes)
 
     std::copy(old_codes.begin() + curr_pos, old_codes.end(), std::back_inserter(new_codes));
 
-    codes->SetCode(new_codes);
+    auto ret = std::make_shared<Bytecodes>();
+    ret->SetCode(new_codes);
+    return ret;
 }
 
 std::vector<std::vector<CodeBlock>> CodesOptimize::PrepareBlocks() const

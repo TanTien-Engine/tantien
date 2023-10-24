@@ -51,7 +51,7 @@ class Compiler is Node
 			var r_dst = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 			compiler.free_reg(r_dst)
 			
-			compiler.finish(opcodes)
+			compiler.expect_reg_free()
 
 			this.opcodes = opcodes
 			this.out_reg = r_dst

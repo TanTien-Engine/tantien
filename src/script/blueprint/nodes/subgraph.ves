@@ -118,14 +118,14 @@ class Subgraph is Node
 			if (node.var_name == name) 
 			{
 				var ori_size = opcodes.size()
-				var ori_cost = compiler.get_cost()
+				var ori_cost = opcodes.get_cost()
 
 				var r_dst = Blueprint.calc_input_opcodes(node, 0, compiler, opcodes)
 
 				var size = opcodes.size() - ori_size
-				var cost = compiler.get_cost() - ori_cost
+				var cost = opcodes.get_cost() - ori_cost
 
-				compiler.stat_call(this.filepath + "    " + name + "    %(size)")
+				opcodes.stat_call(this.filepath + "    " + name + "    %(size)")
 
 				return r_dst
 			}
