@@ -1,12 +1,8 @@
 #include "CodesOptimize.h"
 #include "Bytecodes.h"
 #include "OpFieldMap.h"
-
-#include "math_opcodes.h"
-#include "stl_opcodes.h"
-#include "geo_opcodes.h"
-
 #include "VM.h"
+#include "geo_opcodes.h"
 
 #include <easyvm/VM.h>
 
@@ -46,6 +42,9 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
         return codes;
     }
 
+    m_old_codes = codes;
+    m_removed_blocks = blocks;
+
     for (int i = 0, n = static_cast<int>(blocks.size()); i < n; ++i) {
         for (auto& b : blocks[i]) {
             b.group = i;
@@ -54,11 +53,7 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
 
     auto& old_codes = codes->GetCode();
 
-    auto vm = std::make_shared<evm::VM>((char*)old_codes.data(), old_codes.size());
-
-    MathOpCodeImpl::OpCodeInit(vm.get());
-    StlOpCodeImpl::OpCodeInit(vm.get());
-    GeoOpCodeImpl::OpCodeInit(vm.get());
+    auto vm = tt::VM::Instance()->CreateVM(old_codes);
 
     auto cache = tt::VM::Instance()->GetCache();
     cache->Resize(blocks.size());
@@ -164,6 +159,46 @@ std::vector<std::vector<CodeBlock>> CodesOptimize::PrepareBlocks() const
     }
 
     return blocks;
+}
+
+bool CodesOptimize::WriteNumber(int pos, float num)
+{
+    for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
+    {
+        for (auto& b : m_removed_blocks[i])
+        {
+            if (pos < b.begin || pos >= b.end) {
+                continue;
+            }
+
+            m_old_codes->SetCurrPos(pos);
+            m_old_codes->Write(reinterpret_cast<const char*>(&num), sizeof(float));
+
+            b.dirty = true;
+
+            return true;
+        }
+    }
+    return false;
+}
+
+void CodesOptimize::FlushCache()
+{
+    for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
+    {
+        for (auto& b : m_removed_blocks[i])
+        {
+            if (b.dirty)
+            {
+                auto vm = tt::VM::Instance()->CreateVM(m_old_codes->GetCode());
+
+                vm->Run(b.begin, b.end);
+
+                auto cache = tt::VM::Instance()->GetCache();
+                cache->SetValue(static_cast<int>(i), vm->GetRegister(b.reg));
+            }
+        }
+    }
 }
 
 }

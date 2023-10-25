@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
+import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
 import "vm" for Bytecodes, Compiler as tt_Compiler
 
@@ -27,7 +28,7 @@ class Compiler is Node
 	}
 
 	on_pin_dirty(pin, type)
-	{
+	{		
 		if (type == DIRTY_OPCODES)
 		{
 			Blueprint.send_pin_dirty(this.exports[0], type)
@@ -45,6 +46,8 @@ class Compiler is Node
 	{
 		if (!this.opcodes)
 		{
+			Logger.info("compile")
+
 			var compiler = tt_Compiler.init()
 			var opcodes = Bytecodes.init()
 

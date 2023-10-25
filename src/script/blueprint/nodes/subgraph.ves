@@ -23,6 +23,7 @@ import "shader" for ShaderGen
 import "editorgraph.event_types" for EVENT_MOUSE_LEFT_DOWN, EVENT_MOUSE_LEFT_UP, EVENT_MOUSE_RIGHT_DOWN, EVENT_MOUSE_RIGHT_UP, EVENT_MOUSE_LEFT_DRAG, EVENT_BLUEPRINT_CHANGED, EVENT_MOUSE_MOVE
 import "gui" for MOUSE_LEFT, MOUSE_RIGHT
 import "math" for Math
+import "vm" for CodeStats, CodeTools
 
 class Subgraph is Node
 {
@@ -117,15 +118,15 @@ class Subgraph is Node
 		{
 			if (node.var_name == name) 
 			{
-				var ori_size = opcodes.size()
-				var ori_cost = opcodes.get_cost()
+				var ori_size = CodeTools.get_size(opcodes)
+				var ori_cost = CodeStats.get_cost(opcodes)
 
 				var r_dst = Blueprint.calc_input_opcodes(node, 0, compiler, opcodes)
 
-				var size = opcodes.size() - ori_size
-				var cost = opcodes.get_cost() - ori_cost
+				var size = CodeTools.get_size(opcodes) - ori_size
+				var cost = CodeStats.get_cost(opcodes) - ori_cost
 
-				opcodes.stat_call(this.filepath + "    " + name + "    %(size)")
+				CodeStats.stat_call(opcodes, this.filepath + "    " + name + "    %(size)")
 
 				return r_dst
 			}

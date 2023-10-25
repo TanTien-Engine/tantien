@@ -12,6 +12,7 @@ import "maths.vector" for Vector2, Vector3
 import "maths.compiler" for Compiler
 import "maths" for Matrix44, Float3
 import "graphics" for Graphics
+import "vm" for CodeRegen, CodeTools
 
 var EDITOR = nil
 
@@ -46,7 +47,7 @@ class Number3 is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		this.last_opcodes = opcodes
-		this.last_code_pos = opcodes.size()
+		this.last_code_pos = CodeTools.get_size(opcodes)
 		return Compiler.create_vec3(compiler, opcodes, this.value)
 	}
 
@@ -54,13 +55,15 @@ class Number3 is Node
 	{
 		if (this.last_opcodes and this.last_code_pos)
 		{
-			this.last_opcodes.set_pos(this.last_code_pos + 2)
+			var codes = this.last_opcodes
 
-			this.last_opcodes.write_num(this.value.x)
-			this.last_opcodes.write_num(this.value.y)
-			this.last_opcodes.write_num(this.value.z)
+			var pos = this.last_code_pos + 2
 
-			this.last_opcodes.set_pos(-1)
+			CodeRegen.write_num(codes, pos, this.value.x)
+			CodeRegen.write_num(codes, pos + 4, this.value.y)
+			CodeRegen.write_num(codes, pos + 8, this.value.z)
+
+			CodeRegen.flush(codes)
 
 			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
 		}

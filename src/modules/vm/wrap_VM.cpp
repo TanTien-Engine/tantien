@@ -50,76 +50,6 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<tt::Bytecodes>);
 }
 
-void w_Bytecodes_size()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    ves_set_number(0, static_cast<double>(code->GetCode().size()));
-}
-
-void w_Bytecodes_stat_call()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    const char* name = ves_tostring(1);
-    code->StatCall(name);
-}
-
-void w_Bytecodes_add_code_block()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    int begin = (int)ves_tonumber(1);
-    int end = (int)ves_tonumber(2);
-
-    int reg = (int)ves_tonumber(3);
-
-    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
-    size_t hash = dc.Hash(begin, end);
-
-    code->GetOptimizer()->AddBlock(hash, begin, end, reg);
-}
-
-void w_Bytecodes_add_cost()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    int cost = (int)ves_tonumber(1);
-    code->AddCost(cost);
-}
-
-void w_Bytecodes_get_cost()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    ves_set_number(0, code->GetCost());
-}
-
-void w_Bytecodes_optimize()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    auto new_code = code->GetOptimizer()->RmDupCodes(code);
-
-    ves_pop(ves_argnum());
-
-    ves_pushnil();
-    ves_import_class("vm", "Bytecodes");
-    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
-    proxy->obj = new_code;
-    ves_pop(1);
-}
-
-void w_Bytecodes_set_pos()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-    int pos = (int)ves_tonumber(1);
-    code->SetCurrPos(pos);
-}
-
-void w_Bytecodes_write_num()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
-
-    float f = (float)ves_tonumber(1);
-    code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
-}
-
 void w_Bytecodes_store_bool()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -411,6 +341,47 @@ void w_Bytecodes_transform_unknown()
     bytecodes_write(tt::OP_TRANSFORM_UNKNOWN, 2);
 }
 
+void w_CodeStats_stat_call()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    const char* name = ves_tostring(2);
+    code->StatCall(name);
+}
+
+void w_CodeStats_add_code_block()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    int begin = (int)ves_tonumber(2);
+    int end = (int)ves_tonumber(3);
+
+    int reg = (int)ves_tonumber(4);
+
+    tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
+    size_t hash = dc.Hash(begin, end);
+
+    code->GetOptimizer()->AddBlock(hash, begin, end, reg);
+}
+
+void w_CodeStats_add_cost()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    int cost = (int)ves_tonumber(2);
+    code->AddCost(cost);
+}
+
+void w_CodeStats_get_cost()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    ves_set_number(0, code->GetCost());
+}
+
+void w_CodeTools_get_size()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    ves_set_number(0, static_cast<double>(code->GetCode().size()));
+}
+
 void w_CodeTools_decompiler()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
@@ -442,6 +413,40 @@ void w_CodeTools_hash()
 
     std::string s_hash = std::to_string(hash);
     ves_set_lstring(0, s_hash.c_str(), s_hash.length());
+}
+
+void w_CodeRegen_optimize()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    auto new_code = code->GetOptimizer()->RmDupCodes(code);
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("vm", "Bytecodes");
+    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
+    proxy->obj = new_code;
+    ves_pop(1);
+}
+
+void w_CodeRegen_write_num()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    int pos = (int)ves_tonumber(2);
+    float f = (float)ves_tonumber(3);
+
+    // todo: write outside
+    if (!code->GetOptimizer()->WriteNumber(pos, f)) 
+    {
+        code->SetCurrPos(pos);
+        code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
+    }
+}
+
+void w_CodeRegen_flush()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    code->GetOptimizer()->FlushCache();
 }
 
 void w_Compiler_allocate()
@@ -505,7 +510,7 @@ void w_VM_allocate()
     auto proxy = (tt::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<evm::VM>));
     auto b_code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
     auto& code = b_code->GetCode();
-    proxy->obj = std::make_shared<evm::VM>((const char*)code.data(), code.size());
+    proxy->obj = tt::VM::Instance()->CreateVM(code);
 }
 
 int w_VM_finalize(void* data)
@@ -518,9 +523,6 @@ int w_VM_finalize(void* data)
 void w_VM_run()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
-
-    tt::VM::Instance()->Init(vm);
-
     vm->Run();
 }
 
@@ -654,16 +656,7 @@ namespace tt
 
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
-    // optimize
-    if (strcmp(signature, "Bytecodes.stat_call(_)") == 0) return w_Bytecodes_stat_call;
-    if (strcmp(signature, "Bytecodes.add_code_block(_,_,_)") == 0) return w_Bytecodes_add_code_block;
-    if (strcmp(signature, "Bytecodes.add_cost(_)") == 0) return w_Bytecodes_add_cost;
-    if (strcmp(signature, "Bytecodes.get_cost()") == 0) return w_Bytecodes_get_cost;
-    if (strcmp(signature, "Bytecodes.optimize()") == 0) return w_Bytecodes_optimize;
     // base
-    if (strcmp(signature, "Bytecodes.size()") == 0) return w_Bytecodes_size;
-    if (strcmp(signature, "Bytecodes.set_pos(_)") == 0) return w_Bytecodes_set_pos;
-    if (strcmp(signature, "Bytecodes.write_num(_)") == 0) return w_Bytecodes_write_num;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
@@ -718,8 +711,18 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
     if (strcmp(signature, "Bytecodes.transform_unknown(_,_)") == 0) return w_Bytecodes_transform_unknown;
 
+    if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;
+    if (strcmp(signature, "static CodeStats.add_code_block(_,_,_,_)") == 0) return w_CodeStats_add_code_block;
+    if (strcmp(signature, "static CodeStats.add_cost(_,_)") == 0) return w_CodeStats_add_cost;
+    if (strcmp(signature, "static CodeStats.get_cost(_)") == 0) return w_CodeStats_get_cost;
+
+    if (strcmp(signature, "static CodeTools.get_size(_)") == 0) return w_CodeTools_get_size;
     if (strcmp(signature, "static CodeTools.decompiler(_,_,_)") == 0) return w_CodeTools_decompiler;
     if (strcmp(signature, "static CodeTools.hash(_,_,_)") == 0) return w_CodeTools_hash;
+
+    if (strcmp(signature, "static CodeRegen.optimize(_)") == 0) return w_CodeRegen_optimize;
+    if (strcmp(signature, "static CodeRegen.write_num(_,_,_)") == 0) return w_CodeRegen_write_num;
+    if (strcmp(signature, "static CodeRegen.flush(_)") == 0) return w_CodeRegen_flush;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;

@@ -18,7 +18,7 @@ class OpFieldMap;
 class VM
 {
 public:
-	void Init(const std::shared_ptr<evm::VM>& vm);
+	std::shared_ptr<evm::VM> CreateVM(const std::vector<uint8_t>& codes) const;
 
 	auto GetOpFields() const { return m_op_fields; }
 

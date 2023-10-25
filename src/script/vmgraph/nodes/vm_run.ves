@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
+import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES, VAR_TYPE_VM
 import "vm" for VM
 
@@ -23,6 +24,13 @@ class VmRun is Node
 		this.vm = nil
 	}
 
+	on_pin_dirty(pin, type)
+	{
+		super.on_pin_dirty(pin, type)
+
+		this.vm = nil
+	}
+
 	calc_value(idx)
 	{
 		if (!this.vm)
@@ -31,6 +39,8 @@ class VmRun is Node
 			if (!v_codes) {
 				return nil
 			}
+
+			Logger.info("run")
 
 			var vm = VM.init(v_codes.value)
 			vm.run()

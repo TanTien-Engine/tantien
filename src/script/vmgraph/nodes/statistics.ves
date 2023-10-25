@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "blueprint.blueprint" for Blueprint
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vm" for CodeTools
 
 class Statistics is Node
 {
@@ -29,7 +30,7 @@ class Statistics is Node
 
 		if (idx == 0)
 		{
-			var len = v_codes.value.size()
+			var len = CodeTools.get_size(v_codes.value)
 			return Variant(VAR_TYPE_NUMBER, len)
 		}
 		else

@@ -5,21 +5,6 @@ foreign class Bytecodes
 {
 	init() {}
 
-	foreign size()
-
-	// optimize
-	foreign stat_call(name)
-	foreign add_code_block(begin, end, reg)
-	foreign add_cost(cost)
-	foreign get_cost()
-	foreign optimize()
-
-	// change
-	foreign set_pos(pos)
-	foreign write_num(num)	
-
-	// opcodes
-
 	// basic
 	foreign store_bool(reg, bool)
 	
@@ -85,10 +70,28 @@ foreign class Bytecodes
 	foreign transform_unknown(r_obj, r_mat)
 }
 
+foreign class CodeStats
+{
+	foreign static stat_call(codes, name)
+	foreign static add_code_block(codes, begin, end, reg)
+	foreign static add_cost(codes, cost)
+	foreign static get_cost(codes)
+}
+
 foreign class CodeTools
 {
+	foreign static get_size(codes)	
+
 	foreign static decompiler(codes, begin, end)
 	foreign static hash(codes, begin, end)
+}
+
+foreign class CodeRegen
+{
+	foreign static optimize(codes)
+
+	foreign static write_num(codes, pos, num)
+	foreign static flush(codes)
 }
 
 foreign class Compiler

@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
+import "vm" for CodeTools
 
 class ForEachF is Node
 {
@@ -54,7 +55,7 @@ class ForEachF is Node
 			var r_cmp = compiler.new_reg()
 			opcodes.store_bool(r_cmp, false)
 
-			var start_ip = opcodes.size()
+			var start_ip = CodeTools.get_size(opcodes)
 
 			var r_eval = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
 			opcodes.vector_concat(r_dst, r_eval)
@@ -62,7 +63,7 @@ class ForEachF is Node
 
 			opcodes.inc_num(this.r_curr_item)
 			opcodes.cmp_num(r_cmp, this.r_curr_item, r_count)
-			opcodes.jump_if_not(start_ip - opcodes.size(), r_cmp)
+			opcodes.jump_if_not(start_ip - CodeTools.get_size(opcodes), r_cmp)
 
 			compiler.free_reg(r_count)
 			compiler.free_reg(r_cmp)

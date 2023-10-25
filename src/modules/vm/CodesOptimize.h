@@ -19,6 +19,8 @@ struct CodeBlock
 	int times = 0;
 
 	int group;
+
+	bool dirty = false;
 };
 
 class Bytecodes;
@@ -30,11 +32,18 @@ public:
 
 	std::shared_ptr<Bytecodes> RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const;
 
+	// rewrite
+	bool WriteNumber(int pos, float num);
+	void FlushCache();
+
 private:
 	std::vector<std::vector<CodeBlock>> PrepareBlocks() const;
 
 private:
 	std::map<size_t, std::vector<CodeBlock>> m_blocks;
+
+	mutable std::shared_ptr<Bytecodes> m_old_codes;
+	mutable std::vector<std::vector<CodeBlock>> m_removed_blocks;
 
 }; // CodesOptimize
 

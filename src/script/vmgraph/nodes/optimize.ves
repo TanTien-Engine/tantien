@@ -2,7 +2,10 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_OPCODES
+import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vm" for CodeRegen
 
 class Optimize is Node
 {
@@ -18,16 +21,34 @@ class Optimize is Node
 		]
 
 		this.layout()
+
+		this.new_codes = nil
+	}
+
+	on_pin_dirty(pin, type)
+	{
+		super.on_pin_dirty(pin, type)
+
+		if (type != DIRTY_OPCODES) {
+			this.new_codes = nil
+		}
 	}
 
 	calc_value(idx)
 	{
-		var v_code = Blueprint.calc_input_value(this, 0)
-		if (!v_code) {
-			return nil
+		if (!this.new_codes)
+		{
+			var v_code = Blueprint.calc_input_value(this, 0)
+			if (!v_code) {
+				return nil
+			}
+
+			Logger.info("optimize")
+
+			var old_codes = v_code.value
+			this.new_codes = CodeRegen.optimize(old_codes)
 		}
 
-		var codes = v_code.value.optimize()
-		return Variant(VAR_TYPE_BYTECODES, codes)
+		return Variant(VAR_TYPE_BYTECODES, this.new_codes)
 	}
 }

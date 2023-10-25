@@ -68,17 +68,22 @@ TT_SINGLETON_DEFINITION(VM)
 
 VM::VM()
 {
+	evm::Value::SetFreeCb(free_value);
+
 	m_op_fields = std::make_shared<OpFieldMap>();
 	m_cache = std::make_shared<ValueCache>();
 }
 
-void VM::Init(const std::shared_ptr<evm::VM>& vm)
+std::shared_ptr<evm::VM> 
+VM::CreateVM(const std::vector<uint8_t>& codes) const
 {
+	auto vm = std::make_shared<evm::VM>((char*)codes.data(), codes.size());
+
 	MathOpCodeImpl::OpCodeInit(vm.get());
 	StlOpCodeImpl::OpCodeInit(vm.get());
 	GeoOpCodeImpl::OpCodeInit(vm.get());
 
-	evm::Value::SetFreeCb(free_value);
+	return vm;
 }
 
 }
