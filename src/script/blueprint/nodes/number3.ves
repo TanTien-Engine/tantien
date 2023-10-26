@@ -6,13 +6,14 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3, VAR_TYPE_NODE
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_EDITOR, DIRTY_OPCODES
+import "blueprint.msg_types" for Message, UPDATE_OPCODES
 import "blueprint.node_editor" for NodeEditor
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3
 import "maths.compiler" for Compiler
 import "maths" for Matrix44, Float3
 import "graphics" for Graphics
-import "vm" for CodeRegen, CodeTools
+import "vm" for CodeTools
 
 var EDITOR = nil
 
@@ -35,7 +36,6 @@ class Number3 is Node
 
 		this.editor_pts = Array()
 
-		this.last_opcodes = nil
 		this.last_code_pos = nil
 	}
 
@@ -46,26 +46,26 @@ class Number3 is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		this.last_opcodes = opcodes
 		this.last_code_pos = CodeTools.get_size(opcodes)
 		return Compiler.create_vec3(compiler, opcodes, this.value)
 	}
 
 	on_param_dirty()
 	{
-		if (this.last_opcodes and this.last_code_pos)
+		if (this.last_code_pos)
 		{
-			var codes = this.last_opcodes
-
 			var pos = this.last_code_pos + 2
 
-			CodeRegen.write_num(codes, pos, this.value.x)
-			CodeRegen.write_num(codes, pos + 4, this.value.y)
-			CodeRegen.write_num(codes, pos + 8, this.value.z)
+			var msg = Message()
+			msg.type = UPDATE_OPCODES
+			msg.value = [ 
+				pos, 		this.value.x,
+				pos + 4, 	this.value.y,
+				pos + 8, 	this.value.z
+			]
+			Blueprint.send_message_root(this, msg)
 
-			CodeRegen.flush(codes)
-
-			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
+			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)	
 		}
 		else
 		{

@@ -13,31 +13,11 @@
 namespace tt
 {
 
-void CodesOptimize::AddBlock(size_t hash, int begin, int end, int reg)
-{
-    CodeBlock b;
-    b.hash = hash;
-    b.begin = begin;
-    b.end = end;
-    b.reg = reg;
-    b.times = 1;
-
-    auto itr = m_blocks.find(hash);
-    if (itr == m_blocks.end())
-    {
-        m_blocks.insert({ hash, { b } });
-    }
-    else
-    {
-        assert(begin - end == itr->second.front().begin - itr->second.front().end);
-        itr->second.push_back(b);
-    }
-}
-
 std::shared_ptr<Bytecodes>
-CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
+CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes,
+                          const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
 {
-    auto blocks = PrepareBlocks();
+    auto blocks = PrepareBlocks(_blocks);
     if (blocks.empty()) {
         return codes;
     }
@@ -108,10 +88,11 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
     return m_new_codes;
 }
 
-std::vector<std::vector<CodeBlock>> CodesOptimize::PrepareBlocks() const
+std::vector<std::vector<CodeBlock>> 
+CodesOptimize::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
 {
     std::vector<std::vector<CodeBlock>> blocks;
-    for (auto b : m_blocks) {
+    for (auto b : _blocks) {
         if (b.second.size() > 1) {
             blocks.push_back(b.second);
         }

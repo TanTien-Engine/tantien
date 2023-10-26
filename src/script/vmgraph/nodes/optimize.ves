@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
+import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
 import "vm" for CodeRegen
@@ -29,8 +30,31 @@ class Optimize is Node
 	{
 		super.on_pin_dirty(pin, type)
 
-		if (type != DIRTY_OPCODES) {
+		if (type != DIRTY_OPCODES) 
+		{
 			this.new_codes = nil
+		}
+	}
+
+	on_message(msg) 
+	{
+		if (msg.type == UPDATE_OPCODES)
+		{
+			var v_code = Blueprint.calc_input_value(this, 0)
+			if (!v_code) {
+				return
+			}
+
+			var codes = v_code.value
+
+			for (var i = 0; i < msg.value.count; i = i + 2)
+			{
+				var pos = msg.value[i]
+				var num = msg.value[i+1]
+				CodeRegen.write_num(codes, pos, num)
+			}
+
+			CodeRegen.flush(codes)
 		}
 	}
 

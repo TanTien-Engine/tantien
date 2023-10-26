@@ -2,8 +2,9 @@ import "blueprint.connecting" for Connecting
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.dirty_types" for DIRTY_CONNECTION
 
-var PIN_DIRTY_TIMESTAMP = 0
-var NODE_DIRTY_TIMESTAMP = 0
+var PIN_DIRTY_TIMESTAMP 	= 0
+var NODE_DIRTY_TIMESTAMP 	= 0
+var PIN_MESSAGE_TIMESTAMP 	= 0
 
 class Blueprint
 {
@@ -377,5 +378,28 @@ class Blueprint
 	{
 		NODE_DIRTY_TIMESTAMP = NODE_DIRTY_TIMESTAMP + 1
 		this.send_node_dirty(node)
+	}
+
+	static send_message_root(node, msg)
+	{
+		PIN_MESSAGE_TIMESTAMP = PIN_MESSAGE_TIMESTAMP + 1
+		this.send_message(node, msg)
+	}	
+
+	static send_message(node, msg)
+	{
+		if (node.msg_timestamp == PIN_MESSAGE_TIMESTAMP) {
+			return
+		}
+
+		node.msg_timestamp = PIN_MESSAGE_TIMESTAMP
+
+		node.on_message(msg)
+
+		for (var pin in node.exports) {
+			for (var conn in pin.conns) {
+				this.send_message(conn.to.node, msg)
+			}
+		}
 	}
 }

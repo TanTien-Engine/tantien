@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CodeBlock.h"
+
 #include <vector>
 #include <iterator>
 #include <string>
@@ -18,6 +20,14 @@ public:
 
 	void Write(const char* data, size_t size);
 
+	// rewrite
+	void WriteNum(int pos, float num);
+	void WriteFlush();
+
+	// optimize
+	void AddOptimBlock(size_t hash, int begin, int end, int reg);
+	std::shared_ptr<Bytecodes> RmDupCodes(const std::shared_ptr<Bytecodes>& codes);
+
 	auto& GetCode() const { return m_code; }
 	void SetCode(const std::vector<uint8_t>& code) { m_code = code; }
 
@@ -26,11 +36,10 @@ public:
 
 	void SetCurrPos(int pos) { m_curr_pos = pos; }
 
-	// optimize
+	// statistics
 	void StatCall(const std::string& name);
 	void AddCost(int cost) { m_cost += cost; }
 	int GetCost() const { return m_cost; }
-	auto GetOptimizer() const { return m_optimize; }
 
 private:
 	std::vector<uint8_t> m_code;
@@ -39,10 +48,13 @@ private:
 
 	int m_curr_pos = -1;
 
+	// statistics
+	std::map<size_t, std::vector<CodeBlock>> m_blocks;
+
 	// optimize
 	std::map<std::string, int> m_stat_call;
 	int m_cost = 0;
-	std::shared_ptr<CodesOptimize> m_optimize;
+	mutable std::shared_ptr<CodesOptimize> m_optimize = nullptr;
 
 }; // Bytecodes
 

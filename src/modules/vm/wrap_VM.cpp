@@ -360,7 +360,7 @@ void w_CodeStats_add_code_block()
     tt::Decompiler dc(code, tt::VM::Instance()->GetOpFields());
     size_t hash = dc.Hash(begin, end);
 
-    code->GetOptimizer()->AddBlock(hash, begin, end, reg);
+    code->AddOptimBlock(hash, begin, end, reg);
 }
 
 void w_CodeStats_add_cost()
@@ -418,7 +418,7 @@ void w_CodeTools_hash()
 void w_CodeRegen_optimize()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-    auto new_code = code->GetOptimizer()->RmDupCodes(code);
+    auto new_code = code->RmDupCodes(code);
 
     ves_pop(ves_argnum());
 
@@ -435,16 +435,13 @@ void w_CodeRegen_write_num()
     int pos = (int)ves_tonumber(2);
     float f = (float)ves_tonumber(3);
 
-    code->GetOptimizer()->WriteNumber(pos, f);
-
-    code->SetCurrPos(pos);
-    code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
+    code->WriteNum(pos, f);
 }
 
 void w_CodeRegen_flush()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-    code->GetOptimizer()->FlushCache();
+    code->WriteFlush();
 }
 
 void w_Compiler_allocate()
