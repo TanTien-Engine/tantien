@@ -435,12 +435,7 @@ void w_CodeRegen_write_num()
     int pos = (int)ves_tonumber(2);
     float f = (float)ves_tonumber(3);
 
-    // todo: write outside
-    if (!code->GetOptimizer()->WriteNumber(pos, f)) 
-    {
-        code->SetCurrPos(pos);
-        code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
-    }
+    code->GetOptimizer()->WriteNumber(pos, f);
 }
 
 void w_CodeRegen_flush()

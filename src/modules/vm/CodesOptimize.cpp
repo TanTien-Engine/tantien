@@ -103,9 +103,9 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes) const
 
     std::copy(old_codes.begin() + curr_pos, old_codes.end(), std::back_inserter(new_codes));
 
-    auto ret = std::make_shared<Bytecodes>();
-    ret->SetCode(new_codes);
-    return ret;
+    m_new_codes = std::make_shared<Bytecodes>();
+    m_new_codes->SetCode(new_codes);
+    return m_new_codes;
 }
 
 std::vector<std::vector<CodeBlock>> CodesOptimize::PrepareBlocks() const
@@ -161,8 +161,9 @@ std::vector<std::vector<CodeBlock>> CodesOptimize::PrepareBlocks() const
     return blocks;
 }
 
-bool CodesOptimize::WriteNumber(int pos, float num)
+void CodesOptimize::WriteNumber(int pos, float num)
 {
+    // in rm codes
     for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
     {
         for (auto& b : m_removed_blocks[i])
@@ -176,10 +177,13 @@ bool CodesOptimize::WriteNumber(int pos, float num)
 
             b.dirty = true;
 
-            return true;
+            return;
         }
     }
-    return false;
+
+    // outside
+    m_new_codes->SetCurrPos(Relocate(pos));
+    m_new_codes->Write(reinterpret_cast<const char*>(&num), sizeof(float));
 }
 
 void CodesOptimize::FlushCache()
@@ -199,6 +203,25 @@ void CodesOptimize::FlushCache()
             }
         }
     }
+}
+
+int CodesOptimize::Relocate(int pos) const
+{
+    int offset = 0;
+    for (auto& bs : m_removed_blocks)
+    {
+        for (auto& b : bs) 
+        {
+            if (pos >= b.end) 
+            {
+                // del code block
+                offset += b.end - b.begin;
+                // add OP_POLY_COPY_FROM_MEM
+                offset -= 3;
+            }
+        }
+    }
+    return pos - offset;
 }
 
 }
