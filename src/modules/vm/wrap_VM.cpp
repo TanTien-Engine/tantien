@@ -436,6 +436,9 @@ void w_CodeRegen_write_num()
     float f = (float)ves_tonumber(3);
 
     code->GetOptimizer()->WriteNumber(pos, f);
+
+    code->SetCurrPos(pos);
+    code->Write(reinterpret_cast<const char*>(&f), sizeof(float));
 }
 
 void w_CodeRegen_flush()
