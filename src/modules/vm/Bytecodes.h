@@ -11,22 +11,17 @@
 namespace tt
 {
 
-class CodesOptimize;
-
 class Bytecodes
 {
 public:
-	Bytecodes();
-
 	void Write(const char* data, size_t size);
 
 	// rewrite
 	void WriteNum(int pos, float num);
-	void WriteFlush();
 
-	// optimize
+	// stat
 	void AddOptimBlock(size_t hash, int begin, int end, int reg);
-	std::shared_ptr<Bytecodes> RmDupCodes(const std::shared_ptr<Bytecodes>& codes);
+	auto& GetCodeBlocks() const { return m_blocks; }
 
 	auto& GetCode() const { return m_code; }
 	void SetCode(const std::vector<uint8_t>& code) { m_code = code; }
@@ -54,7 +49,6 @@ private:
 	// optimize
 	std::map<std::string, int> m_stat_call;
 	int m_cost = 0;
-	mutable std::shared_ptr<CodesOptimize> m_optimize = nullptr;
 
 }; // Bytecodes
 

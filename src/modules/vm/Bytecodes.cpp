@@ -1,15 +1,9 @@
 #include "Bytecodes.h"
-#include "CodesOptimize.h"
 
 #include <assert.h>
 
 namespace tt
 {
-
-Bytecodes::Bytecodes()
-	: m_optimize(nullptr)
-{
-}
 
 void Bytecodes::Write(const char* data, size_t size)
 {
@@ -28,19 +22,8 @@ void Bytecodes::Write(const char* data, size_t size)
 
 void Bytecodes::WriteNum(int pos, float num)
 {
-	if (m_optimize) {
-		m_optimize->WriteNumber(pos, num);
-	}
-
 	SetCurrPos(pos);
 	Write(reinterpret_cast<const char*>(&num), sizeof(float));
-}
-
-void Bytecodes::WriteFlush()
-{
-	if (m_optimize) {
-		m_optimize->FlushCache();
-	}
 }
 
 void Bytecodes::AddOptimBlock(size_t hash, int begin, int end, int reg)
@@ -62,15 +45,6 @@ void Bytecodes::AddOptimBlock(size_t hash, int begin, int end, int reg)
 		assert(begin - end == itr->second.front().begin - itr->second.front().end);
 		itr->second.push_back(b);
 	}
-}
-
-std::shared_ptr<Bytecodes> 
-Bytecodes::RmDupCodes(const std::shared_ptr<Bytecodes>& codes)
-{
-	if (!m_optimize) {
-		m_optimize = std::make_shared<CodesOptimize>();
-	}
-	return m_optimize->RmDupCodes(codes, m_blocks);
 }
 
 void Bytecodes::StatCall(const std::string& name)

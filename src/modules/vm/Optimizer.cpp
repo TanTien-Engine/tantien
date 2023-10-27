@@ -1,4 +1,4 @@
-#include "CodesOptimize.h"
+#include "Optimizer.h"
 #include "Bytecodes.h"
 #include "OpFieldMap.h"
 #include "VM.h"
@@ -13,16 +13,19 @@
 namespace tt
 {
 
-std::shared_ptr<Bytecodes>
-CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes,
-                          const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
+Optimizer::Optimizer(const std::shared_ptr<Bytecodes>& old_codes)
+    : m_old_codes(old_codes)
 {
-    auto blocks = PrepareBlocks(_blocks);
+}
+
+void Optimizer::RmDupCodes() const
+{
+    auto& old_blocks = m_old_codes->GetCodeBlocks();
+    auto blocks = PrepareBlocks(old_blocks);
     if (blocks.empty()) {
-        return codes;
+        return;
     }
 
-    m_old_codes = codes;
     m_removed_blocks = blocks;
 
     for (int i = 0, n = static_cast<int>(blocks.size()); i < n; ++i) {
@@ -31,7 +34,7 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes,
         }
     }
 
-    auto& old_codes = codes->GetCode();
+    auto& old_codes = m_old_codes->GetCode();
 
     auto vm = tt::VM::Instance()->CreateVM(old_codes);
 
@@ -85,11 +88,10 @@ CodesOptimize::RmDupCodes(const std::shared_ptr<Bytecodes>& codes,
 
     m_new_codes = std::make_shared<Bytecodes>();
     m_new_codes->SetCode(new_codes);
-    return m_new_codes;
 }
 
 std::vector<std::vector<CodeBlock>> 
-CodesOptimize::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
+Optimizer::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
 {
     std::vector<std::vector<CodeBlock>> blocks;
     for (auto b : _blocks) {
@@ -142,7 +144,7 @@ CodesOptimize::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _bl
     return blocks;
 }
 
-void CodesOptimize::WriteNumber(int pos, float num)
+void Optimizer::WriteNumber(int pos, float num)
 {
     // in rm codes
     for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
@@ -167,7 +169,7 @@ void CodesOptimize::WriteNumber(int pos, float num)
     m_new_codes->Write(reinterpret_cast<const char*>(&num), sizeof(float));
 }
 
-void CodesOptimize::FlushCache()
+void Optimizer::FlushCache()
 {
     for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
     {
@@ -186,7 +188,7 @@ void CodesOptimize::FlushCache()
     }
 }
 
-int CodesOptimize::Relocate(int pos) const
+int Optimizer::Relocate(int pos) const
 {
     int offset = 0;
     for (auto& bs : m_removed_blocks)

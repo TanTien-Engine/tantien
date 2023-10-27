@@ -3,7 +3,7 @@
 #include "VMHelper.h"
 #include "CodesBuilder.h"
 #include "Decompiler.h"
-#include "CodesOptimize.h"
+#include "Optimizer.h"
 #include "modules/script/TransHelper.h"
 #include "modules/vm/Bytecodes.h"
 #include "modules/vm/Compiler.h"
@@ -415,20 +415,6 @@ void w_CodeTools_hash()
     ves_set_lstring(0, s_hash.c_str(), s_hash.length());
 }
 
-void w_CodeRegen_optimize()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-    auto new_code = code->RmDupCodes(code);
-
-    ves_pop(ves_argnum());
-
-    ves_pushnil();
-    ves_import_class("vm", "Bytecodes");
-    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
-    proxy->obj = new_code;
-    ves_pop(1);
-}
-
 void w_CodeRegen_write_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
@@ -436,12 +422,6 @@ void w_CodeRegen_write_num()
     float f = (float)ves_tonumber(3);
 
     code->WriteNum(pos, f);
-}
-
-void w_CodeRegen_flush()
-{
-    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
-    code->WriteFlush();
 }
 
 void w_Compiler_allocate()
@@ -498,6 +478,65 @@ void w_Compiler_expect_reg_free()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
     c->ExpectRegFree();
+}
+
+void w_Optimizer_allocate()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    auto proxy = (tt::Proxy<tt::Optimizer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Optimizer>));
+    proxy->obj = std::make_shared<tt::Optimizer>(code);
+}
+
+int w_Optimizer_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<tt::Optimizer>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<tt::Optimizer>);
+}
+
+void w_Optimizer_optimize()
+{
+    auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
+    optim->RmDupCodes();
+    auto new_code = optim->GetNewCodes();
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("vm", "Bytecodes");
+    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
+    proxy->obj = new_code;
+    ves_pop(1);
+}
+
+void w_Optimizer_write_num()
+{
+    auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
+    int pos = (int)ves_tonumber(1);
+    float num = (float)ves_tonumber(2);
+
+    optim->WriteNumber(pos, num);
+}
+
+void w_Optimizer_flush()
+{
+    auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
+    optim->FlushCache();
+}
+
+void w_Optimizer_get_codes()
+{
+    auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
+    auto new_code = optim->GetNewCodes();
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("vm", "Bytecodes");
+    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
+    proxy->obj = new_code;
+    ves_pop(1);
 }
 
 void w_VM_allocate()
@@ -715,14 +754,17 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "static CodeTools.decompiler(_,_,_)") == 0) return w_CodeTools_decompiler;
     if (strcmp(signature, "static CodeTools.hash(_,_,_)") == 0) return w_CodeTools_hash;
 
-    if (strcmp(signature, "static CodeRegen.optimize(_)") == 0) return w_CodeRegen_optimize;
     if (strcmp(signature, "static CodeRegen.write_num(_,_,_)") == 0) return w_CodeRegen_write_num;
-    if (strcmp(signature, "static CodeRegen.flush(_)") == 0) return w_CodeRegen_flush;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
     if (strcmp(signature, "Compiler.expect_reg_free()") == 0) return w_Compiler_expect_reg_free;
+
+    if (strcmp(signature, "Optimizer.optimize()") == 0) return w_Optimizer_optimize;
+    if (strcmp(signature, "Optimizer.write_num(_,_)") == 0) return w_Optimizer_write_num;
+    if (strcmp(signature, "Optimizer.flush()") == 0) return w_Optimizer_flush;
+    if (strcmp(signature, "Optimizer.get_codes()") == 0) return w_Optimizer_get_codes;
 
     if (strcmp(signature, "VM.run()") == 0) return w_VM_run;
 
@@ -750,6 +792,13 @@ void VmBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Compiler_allocate;
         methods->finalize = w_Compiler_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Optimizer") == 0)
+    {
+        methods->allocate = w_Optimizer_allocate;
+        methods->finalize = w_Optimizer_finalize;
         return;
     }
 

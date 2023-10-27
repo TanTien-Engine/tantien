@@ -3,9 +3,10 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
+import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
-import "vm" for Bytecodes, Compiler as tt_Compiler
+import "vm" for Bytecodes, Compiler as tt_Compiler, CodeRegen
 
 class Compiler is Node
 {
@@ -28,16 +29,25 @@ class Compiler is Node
 	}
 
 	on_pin_dirty(pin, type)
-	{		
-		if (type == DIRTY_OPCODES)
-		{
-			Blueprint.send_pin_dirty(this.exports[0], type)
+	{
+		super.on_pin_dirty(pin, type)
+
+		if (type != DIRTY_OPCODES) {
+			this.opcodes = nil
 		}
-		else
+	}
+
+	on_message(msg) 
+	{
+		if (msg.type == UPDATE_OPCODES)
 		{
-			if (pin.is_input) {
-				this.opcodes = nil
-				Blueprint.send_pin_dirty(this.exports[0], type)
+			var codes = this.opcodes
+
+			for (var i = 0; i < msg.value.count; i = i + 2)
+			{
+				var pos = msg.value[i]
+				var num = msg.value[i+1]
+				CodeRegen.write_num(codes, pos, num)
 			}
 		}
 	}

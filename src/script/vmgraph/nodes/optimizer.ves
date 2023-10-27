@@ -6,9 +6,9 @@ import "blueprint.dirty_types" for DIRTY_OPCODES
 import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
-import "vm" for CodeRegen
+import "vm" for Optimizer as tt_Optimizer
 
-class Optimize is Node
+class Optimizer is Node
 {
 	init()
 	{
@@ -23,16 +23,15 @@ class Optimize is Node
 
 		this.layout()
 
-		this.new_codes = nil
+		this.optim = nil
 	}
 
 	on_pin_dirty(pin, type)
 	{
 		super.on_pin_dirty(pin, type)
 
-		if (type != DIRTY_OPCODES) 
-		{
-			this.new_codes = nil
+		if (type != DIRTY_OPCODES) {
+			this.optim = nil
 		}
 	}
 
@@ -40,27 +39,22 @@ class Optimize is Node
 	{
 		if (msg.type == UPDATE_OPCODES)
 		{
-			var v_code = Blueprint.calc_input_value(this, 0)
-			if (!v_code) {
-				return
-			}
-
-			var codes = v_code.value
-
-			for (var i = 0; i < msg.value.count; i = i + 2)
+			if (this.optim)
 			{
-				var pos = msg.value[i]
-				var num = msg.value[i+1]
-				CodeRegen.write_num(codes, pos, num)
+				for (var i = 0; i < msg.value.count; i = i + 2)
+				{
+					var pos = msg.value[i]
+					var num = msg.value[i+1]
+					this.optim.write_num(pos, num)
+				}
+				this.optim.flush()
 			}
-
-			CodeRegen.flush(codes)
 		}
 	}
 
 	calc_value(idx)
 	{
-		if (!this.new_codes)
+		if (!this.optim)
 		{
 			var v_code = Blueprint.calc_input_value(this, 0)
 			if (!v_code) {
@@ -69,10 +63,11 @@ class Optimize is Node
 
 			Logger.info("optimize")
 
-			var old_codes = v_code.value
-			this.new_codes = CodeRegen.optimize(old_codes)
+			this.optim = tt_Optimizer.init(v_code.value)
+			this.optim.optimize()
 		}
 
-		return Variant(VAR_TYPE_BYTECODES, this.new_codes)
+		var new_codes = this.optim.get_codes()
+		return Variant(VAR_TYPE_BYTECODES, new_codes)
 	}
 }

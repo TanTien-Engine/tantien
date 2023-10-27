@@ -88,10 +88,7 @@ foreign class CodeTools
 
 foreign class CodeRegen
 {
-	foreign static optimize(codes)
-
 	foreign static write_num(codes, pos, num)
-	foreign static flush(codes)
 }
 
 foreign class Compiler
@@ -103,6 +100,18 @@ foreign class Compiler
 	foreign keep_reg(reg, keep)
 
 	foreign expect_reg_free()
+}
+
+foreign class Optimizer
+{
+	init(codes) {}
+
+	foreign optimize()
+
+	foreign write_num(pos, num)
+	foreign flush()
+
+	foreign get_codes()
 }
 
 foreign class VM

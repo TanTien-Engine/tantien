@@ -11,15 +11,18 @@ namespace tt
 
 class Bytecodes;
 
-class CodesOptimize
+class Optimizer
 {
 public:
-	std::shared_ptr<Bytecodes> RmDupCodes(const std::shared_ptr<Bytecodes>& codes,
-		const std::map<size_t, std::vector<CodeBlock>>& blocks) const;
+	Optimizer(const std::shared_ptr<Bytecodes>& old_codes);
+
+	void RmDupCodes() const;
 
 	// rewrite
 	void WriteNumber(int pos, float num);
 	void FlushCache();
+
+	auto GetNewCodes() const { return m_new_codes; }
 
 private:
 	std::vector<std::vector<CodeBlock>> PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& blocks) const;
@@ -27,11 +30,11 @@ private:
 	int Relocate(int pos) const;
 
 private:
-	mutable std::shared_ptr<Bytecodes> m_old_codes;
+	std::shared_ptr<Bytecodes> m_old_codes;
 	mutable std::vector<std::vector<CodeBlock>> m_removed_blocks;
 
 	mutable std::shared_ptr<Bytecodes> m_new_codes;
 
-}; // CodesOptimize
+}; // Optimizer
 
 }
