@@ -6,7 +6,7 @@ import "blueprint.variant" for Variant
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush, BrushParts
 import "maths.calc" for Calc
-import "maths.compiler" for Compiler as math_Compiler
+import "maths.compiler" for Compiler as maths_Compiler
 import "maths" for Float3
 
 import "maths.vector" for Vector3
@@ -142,7 +142,7 @@ class BrushEdit is Node
 
 	calc_mat_opcodes(compiler, opcodes)
 	{
-		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
+		var r_mat = maths_Compiler.create_mat4(compiler, opcodes)
 
 		// scale
 		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)

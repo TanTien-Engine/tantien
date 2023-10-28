@@ -95,11 +95,8 @@ class Compiler
 		opcodes.create_vector(r_indices)
 		for (var idx in indices)
 		{
-			var r_idx = compiler.new_reg()
-			opcodes.store_num(r_idx, idx)
-
+			var r_idx = maths_Compiler.create_number(compiler, opcodes, idx)
 			opcodes.vector_add(r_indices, r_idx)
-
 			compiler.free_reg(r_idx)
 		}
 

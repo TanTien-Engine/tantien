@@ -8,7 +8,7 @@ import "geograph.brush" for Brush
 import "geograph.compiler" for Compiler as geo_Compiler
 import "geograph.poly_builder" for PolyBuilder
 import "maths.vector" for Vector3
-import "maths.compiler" for Compiler as math_Compiler
+import "maths.compiler" for Compiler as maths_Compiler
 import "maths" for Plane as tt_Plane, Maths, Matrix44, Float3
 
 class Plane is Node
@@ -52,12 +52,12 @@ class Plane is Node
 			{
 				var r_ori = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 				if (r_ori < 0) {
-					r_ori = math_Compiler.create_vec3(compiler, opcodes, this.query_param("ori").value)
+					r_ori = maths_Compiler.create_vec3(compiler, opcodes, this.query_param("ori").value)
 				}
 
 				var r_dir = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 				if (r_dir < 0) {
-					r_dir = math_Compiler.create_vec3(compiler, opcodes, this.query_param("dir").value)
+					r_dir = maths_Compiler.create_vec3(compiler, opcodes, this.query_param("dir").value)
 				}
 
 				var r_dst = compiler.new_reg()

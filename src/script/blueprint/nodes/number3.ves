@@ -10,7 +10,7 @@ import "blueprint.msg_types" for Message, UPDATE_OPCODES
 import "blueprint.node_editor" for NodeEditor
 import "gui" for GUI
 import "maths.vector" for Vector2, Vector3
-import "maths.compiler" for Compiler
+import "maths.compiler" for Compiler as maths_Compiler
 import "maths" for Matrix44, Float3
 import "graphics" for Graphics
 import "vm" for CodeTools
@@ -47,7 +47,7 @@ class Number3 is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		this.last_code_pos = CodeTools.get_size(opcodes)
-		return Compiler.create_vec3(compiler, opcodes, this.value)
+		return maths_Compiler.create_vec3(compiler, opcodes, this.value)
 	}
 
 	on_param_dirty()

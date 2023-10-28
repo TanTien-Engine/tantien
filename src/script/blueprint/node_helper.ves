@@ -1,6 +1,7 @@
 import "blueprint.pin" for Pin
 import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_UNKNOWN, VAR_TYPE_BOOLEAN, VAR_TYPE_INTEGER, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4, VAR_TYPE_MATRIX2, VAR_TYPE_MATRIX3, VAR_TYPE_MATRIX4, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
+import "maths.compiler" for Compiler as maths_Compiler
 import "render" for Render
 
 class NodeHelper
@@ -145,9 +146,8 @@ class NodeHelper
 		var r_input = Blueprint.calc_input_opcodes(node, name, compiler, opcodes)
 		if (r_input < 0) 
 		{
-			var r_dst = compiler.new_reg()
-			opcodes.store_num(r_dst, node.query_param(name).value)
-			return r_dst
+			var val = node.query_param(name).value
+			return maths_Compiler.create_number(compiler, opcodes, val)
 		}
 		else
 		{

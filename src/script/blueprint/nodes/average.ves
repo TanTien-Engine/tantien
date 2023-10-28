@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_helper" for NodeHelper
 import "blueprint.nodes.add" for Add
 import "maths.vector" for Vector2, Vector3, Vector4
+import "maths.compiler" for Compiler as maths_Compiler
 
 class Average is Node
 {
@@ -93,8 +94,7 @@ class Average is Node
 		compiler.free_reg(r_0)
 		compiler.free_reg(r_1)
 
-		var r_tmp = compiler.new_reg()
-		opcodes.store_num(r_tmp, 0.5)
+		var r_tmp = maths_Compiler.create_number(compiler, opcodes, 0.5)
 
 		opcodes.mul(r_dst, r_dst, r_tmp)
 

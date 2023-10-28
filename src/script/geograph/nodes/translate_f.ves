@@ -7,7 +7,7 @@ import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush, BrushInstanced
 import "geograph.compiler" for Compiler as geo_Compiler
 import "maths.vector" for Vector3
-import "maths.compiler" for Compiler as math_Compiler
+import "maths.compiler" for Compiler as maths_Compiler
 import "math" for Math
 import "maths" for Matrix44, Float3
 
@@ -72,7 +72,7 @@ class TranslateF is Node
 			return -1
 		}
 
-		var r_mat = math_Compiler.create_mat4(compiler, opcodes)
+		var r_mat = maths_Compiler.create_mat4(compiler, opcodes)
 		opcodes.mat4_translate(r_mat, r_xyz)
 		compiler.free_reg(r_xyz)
 

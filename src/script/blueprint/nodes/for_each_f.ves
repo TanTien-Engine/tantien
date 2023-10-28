@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
+import "maths.compiler" for Compiler as maths_Compiler
 import "vm" for CodeTools
 
 class ForEachF is Node
@@ -47,8 +48,7 @@ class ForEachF is Node
 
 			var r_count = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 
-			this.r_curr_item = compiler.new_reg()
-			opcodes.store_num(this.r_curr_item, 0)
+			this.r_curr_item = maths_Compiler.create_number(compiler, opcodes, 0)
 
 			compiler.keep_reg(this.r_curr_item, true)
 

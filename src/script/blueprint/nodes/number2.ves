@@ -5,9 +5,9 @@ import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_EDITOR
-import "gui" for GUI
 import "maths.vector" for Vector2
-import "maths.compiler" for Compiler
+import "maths.compiler" for Compiler as maths_Compiler
+import "gui" for GUI
 
 var EDITOR = nil
 
@@ -33,7 +33,7 @@ class Number2 is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		return Compiler.create_vec2(compiler, opcodes, this.value)
+		return maths_Compiler.create_vec2(compiler, opcodes, this.value)
 	}
 
 	layout() 

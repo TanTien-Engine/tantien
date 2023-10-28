@@ -2,8 +2,9 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
-import "gui" for GUI
 import "maths.vector" for Vector4
+import "maths.compiler" for Compiler as maths_Compiler
+import "gui" for GUI
 
 class Number4 is Node
 {
@@ -27,7 +28,7 @@ class Number4 is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		return Compiler.create_vec4(compiler, opcodes, this.value)
+		return maths_Compiler.create_vec4(compiler, opcodes, this.value)
 	}
 
 	layout() 
