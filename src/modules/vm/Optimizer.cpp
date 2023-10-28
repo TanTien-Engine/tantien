@@ -7,6 +7,7 @@
 #include <easyvm/VM.h>
 
 #include <algorithm>
+#include <thread>
 
 #include <assert.h>
 
@@ -103,18 +104,35 @@ void Optimizer::CacheBlocks() const
 
     auto& old_codes = m_old_codes->GetCode();
 
-    auto vm = tt::VM::Instance()->CreateVM(old_codes);
-
     auto cache = tt::VM::Instance()->GetCache();
     cache->Resize(blocks.size());
 
-    for (int i = 0; i < blocks.size(); ++i)
+    if (blocks.size() >= 2)
     {
-        auto& b = blocks[i].front();
+        std::vector<std::thread> ts;
+        for (int i = 0; i < blocks.size(); ++i)
+        {
+            ts.push_back(std::thread([](const CodeBlock& b, int i, const std::vector<uint8_t>& old_codes, const std::shared_ptr<ValueCache>& cache)
+            {
+                auto vm = tt::VM::Instance()->CreateVM(old_codes);
+                vm->Run(b.begin, b.end);
+                cache->SetValue(i, vm->GetRegister(b.reg));
 
-        vm->Run(b.begin, b.end);
-
-        cache->SetValue(i, vm->GetRegister(b.reg));
+            }, blocks[i].front(), i, old_codes, cache));
+        }
+        for (auto& t : ts) {
+            t.join();
+        }
+    }
+    else
+    {
+        auto vm = tt::VM::Instance()->CreateVM(old_codes);
+        for (int i = 0; i < blocks.size(); ++i)
+        {
+            auto& b = blocks[i].front();
+            vm->Run(b.begin, b.end);
+            cache->SetValue(i, vm->GetRegister(b.reg));
+        }
     }
 
     std::vector<CodeBlock> sorted;
@@ -187,18 +205,67 @@ void Optimizer::WriteNumber(int pos, float num)
 
 void Optimizer::FlushCache()
 {
-    for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i)
+    int num = 0;
+
+    for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i) {
+        for (auto& b : m_cached_blocks[i]) {
+            if (b.dirty) {
+                ++num;
+            }
+        }
+    }
+
+    if (num == 0) {
+        return;
+    }
+
+    if (num >= 2)
     {
-        for (auto& b : m_cached_blocks[i])
+        std::vector<std::thread> ts;
+
+        for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i)
         {
-            if (b.dirty)
+            for (auto& b : m_cached_blocks[i])
             {
-                auto vm = tt::VM::Instance()->CreateVM(m_old_codes->GetCode());
+                if (!b.dirty) {
+                    continue;
+                }
 
-                vm->Run(b.begin, b.end);
+                ts.push_back(std::thread([](const CodeBlock& b, int i, const std::vector<uint8_t>& old_codes)
+                {
+                    auto vm = tt::VM::Instance()->CreateVM(old_codes);
 
-                auto cache = tt::VM::Instance()->GetCache();
+                    vm->Run(b.begin, b.end);
+
+                    auto cache = tt::VM::Instance()->GetCache();
+                    cache->SetValue(static_cast<int>(i), vm->GetRegister(b.reg));
+                }, b, i, m_old_codes->GetCode()));
+
+                b.dirty = false;
+            }
+        }
+
+        for (auto& t : ts) {
+            t.detach();
+        }
+    }
+    else
+    {
+        auto vm = tt::VM::Instance()->CreateVM(m_old_codes->GetCode());
+        auto cache = tt::VM::Instance()->GetCache();
+
+        for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i)
+        {
+            for (auto& b : m_cached_blocks[i])
+            {
+                if (!b.dirty) {
+                    continue;
+                }
+
+                vm->Run(b.begin, b.end);                
                 cache->SetValue(static_cast<int>(i), vm->GetRegister(b.reg));
+
+                b.dirty = false;
             }
         }
     }
