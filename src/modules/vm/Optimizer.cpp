@@ -10,6 +10,8 @@
 
 #include <assert.h>
 
+//#define ONLY_CACHE_DUP_BLOCKS
+
 namespace tt
 {
 
@@ -19,85 +21,24 @@ Optimizer::Optimizer(const std::shared_ptr<Bytecodes>& old_codes)
 {
 }
 
-void Optimizer::RmDupCodes() const
+void Optimizer::Optimize()
 {
-    auto& old_blocks = m_old_codes->GetCodeBlocks();
-    auto blocks = PrepareBlocks(old_blocks);
-    if (blocks.empty()) {
-        return;
-    }
-
-    m_removed_blocks = blocks;
-
-    for (int i = 0, n = static_cast<int>(blocks.size()); i < n; ++i) {
-        for (auto& b : blocks[i]) {
-            b.group = i;
-        }
-    }
-
-    auto& old_codes = m_old_codes->GetCode();
-
-    auto vm = tt::VM::Instance()->CreateVM(old_codes);
-
-    auto cache = tt::VM::Instance()->GetCache();
-    cache->Resize(blocks.size());
-
-    for (int i = 0; i < blocks.size(); ++i)
-    {
-        auto& b = blocks[i].front();
-
-        vm->Run(b.begin, b.end);
-
-        cache->SetValue(i, vm->GetRegister(b.reg));
-    }
-
-    std::vector<CodeBlock> sorted;
-    for (auto bs : blocks) {
-        for (auto b : bs) {
-            sorted.push_back(b);
-        }
-    }
-    std::sort(sorted.begin(), sorted.end(), 
-        [](const CodeBlock& a, const CodeBlock& b) 
-    {
-        return a.begin < b.begin;
-    });
-
-    std::vector<uint8_t> new_codes;
-
-    int curr_pos = 0;
-    for (size_t i = 0, n = sorted.size(); i < n; ++i)
-    {
-        auto& block = sorted[i];
-        if (block.begin < curr_pos) {
-            assert(0);
-            continue;
-        }
-        std::copy(old_codes.begin() + curr_pos, old_codes.begin() + block.begin, std::back_inserter(new_codes));
-        curr_pos = block.end;
-
-        new_codes.push_back(OP_POLY_COPY_FROM_MEM);
-        new_codes.push_back(block.reg);
-        new_codes.push_back(block.group);
-    }
-
-    VM::Instance()->GetOpFields()->Add(OP_POLY_COPY_FROM_MEM, 
-        { OpFieldType::OpType, OpFieldType::Reg, OpFieldType::Reg }
-    );
-
-    std::copy(old_codes.begin() + curr_pos, old_codes.end(), std::back_inserter(new_codes));
-
-    m_new_codes = std::make_shared<Bytecodes>();
-    m_new_codes->SetCode(new_codes);
+    CacheBlocks();
 }
 
 std::vector<std::vector<CodeBlock>> 
-Optimizer::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _blocks) const
+Optimizer::CalcBlocks() const
 {
+    auto& _blocks = m_old_codes->GetCodeBlocks();
+
     std::vector<std::vector<CodeBlock>> blocks;
-    for (auto b : _blocks) {
-        if (b.second.size() > 1) {
-            blocks.push_back(b.second);
+    for (auto& bs : _blocks) 
+    {
+#ifdef ONLY_CACHE_DUP_BLOCKS
+        if (bs.second.size() > 1) 
+#endif // ONLY_CACHE_DUP_BLOCKS
+        {
+            blocks.push_back(bs.second);
         }
     }
 
@@ -145,12 +86,83 @@ Optimizer::PrepareBlocks(const std::map<size_t, std::vector<CodeBlock>>& _blocks
     return blocks;
 }
 
+void Optimizer::CacheBlocks() const
+{
+    auto blocks = CalcBlocks();
+    if (blocks.empty()) {
+        return;
+    }
+
+    m_cached_blocks = blocks;
+
+    for (int i = 0, n = static_cast<int>(blocks.size()); i < n; ++i) {
+        for (auto& b : blocks[i]) {
+            b.group = i;
+        }
+    }
+
+    auto& old_codes = m_old_codes->GetCode();
+
+    auto vm = tt::VM::Instance()->CreateVM(old_codes);
+
+    auto cache = tt::VM::Instance()->GetCache();
+    cache->Resize(blocks.size());
+
+    for (int i = 0; i < blocks.size(); ++i)
+    {
+        auto& b = blocks[i].front();
+
+        vm->Run(b.begin, b.end);
+
+        cache->SetValue(i, vm->GetRegister(b.reg));
+    }
+
+    std::vector<CodeBlock> sorted;
+    for (auto& bs : blocks) {
+        for (auto& b : bs) {
+            sorted.push_back(b);
+        }
+    }
+    std::sort(sorted.begin(), sorted.end(), 
+        [](const CodeBlock& a, const CodeBlock& b) 
+    {
+        return a.begin < b.begin;
+    });
+
+    std::vector<uint8_t> new_codes;
+
+    int curr_pos = 0;
+    for (size_t i = 0, n = sorted.size(); i < n; ++i)
+    {
+        auto& block = sorted[i];
+        if (block.begin < curr_pos) {
+            assert(0);
+            continue;
+        }
+        std::copy(old_codes.begin() + curr_pos, old_codes.begin() + block.begin, std::back_inserter(new_codes));
+        curr_pos = block.end;
+
+        new_codes.push_back(OP_POLY_COPY_FROM_MEM);
+        new_codes.push_back(block.reg);
+        new_codes.push_back(block.group);
+    }
+
+    VM::Instance()->GetOpFields()->Add(OP_POLY_COPY_FROM_MEM, 
+        { OpFieldType::OpType, OpFieldType::Reg, OpFieldType::Reg }
+    );
+
+    std::copy(old_codes.begin() + curr_pos, old_codes.end(), std::back_inserter(new_codes));
+
+    m_new_codes = std::make_shared<Bytecodes>();
+    m_new_codes->SetCode(new_codes);
+}
+
 void Optimizer::WriteNumber(int pos, float num)
 {
     // in rm codes
-    for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
+    for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i)
     {
-        for (auto& b : m_removed_blocks[i])
+        for (auto& b : m_cached_blocks[i])
         {
             if (pos < b.begin || pos >= b.end) {
                 continue;
@@ -175,9 +187,9 @@ void Optimizer::WriteNumber(int pos, float num)
 
 void Optimizer::FlushCache()
 {
-    for (size_t i = 0, n = m_removed_blocks.size(); i < n; ++i)
+    for (size_t i = 0, n = m_cached_blocks.size(); i < n; ++i)
     {
-        for (auto& b : m_removed_blocks[i])
+        for (auto& b : m_cached_blocks[i])
         {
             if (b.dirty)
             {
@@ -195,7 +207,7 @@ void Optimizer::FlushCache()
 int Optimizer::Relocate(int pos) const
 {
     int offset = 0;
-    for (auto& bs : m_removed_blocks)
+    for (auto& bs : m_cached_blocks)
     {
         for (auto& b : bs) 
         {

@@ -491,7 +491,7 @@ int w_Optimizer_finalize(void* data)
 void w_Optimizer_optimize()
 {
     auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
-    optim->RmDupCodes();
+    optim->Optimize();
 }
 
 void w_Optimizer_write_num()
