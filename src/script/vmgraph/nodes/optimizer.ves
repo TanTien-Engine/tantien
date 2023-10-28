@@ -68,6 +68,10 @@ class Optimizer is Node
 		}
 
 		var new_codes = this.optim.get_codes()
-		return Variant(VAR_TYPE_BYTECODES, new_codes)
+		if (new_codes) {
+			return Variant(VAR_TYPE_BYTECODES, new_codes)		
+		} else {
+			return Blueprint.calc_input_value(this, 0)
+		}
 	}
 }

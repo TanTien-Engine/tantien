@@ -442,13 +442,6 @@ void w_Compiler_new_reg()
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
     int reg = c->NewRegister();
     if (reg >= 0) {
-
-        //if (reg == 10)
-        //{
-        //    ves_traceback();
-        //    printf("++++++++++++++++++++++++\n");
-        //}
-
         ves_set_number(0, reg);
     } else {
         ves_set_nil(0);
@@ -499,15 +492,6 @@ void w_Optimizer_optimize()
 {
     auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
     optim->RmDupCodes();
-    auto new_code = optim->GetNewCodes();
-
-    ves_pop(ves_argnum());
-
-    ves_pushnil();
-    ves_import_class("vm", "Bytecodes");
-    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
-    proxy->obj = new_code;
-    ves_pop(1);
 }
 
 void w_Optimizer_write_num()
@@ -528,21 +512,29 @@ void w_Optimizer_flush()
 void w_Optimizer_get_codes()
 {
     auto optim = ((tt::Proxy<tt::Optimizer>*)ves_toforeign(0))->obj;
+
     auto new_code = optim->GetNewCodes();
+    if (new_code)
+    {
+        ves_pop(ves_argnum());
 
-    ves_pop(ves_argnum());
-
-    ves_pushnil();
-    ves_import_class("vm", "Bytecodes");
-    auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
-    proxy->obj = new_code;
-    ves_pop(1);
+        ves_pushnil();
+        ves_import_class("vm", "Bytecodes");
+        auto proxy = (tt::Proxy<tt::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<tt::Bytecodes>));
+        proxy->obj = new_code;
+        ves_pop(1);
+    }
+    else
+    {
+        ves_set_nil(0);
+    }
 }
 
 void w_VM_allocate()
 {
-    auto proxy = (tt::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<evm::VM>));
     auto b_code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+
+    auto proxy = (tt::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<evm::VM>));
     auto& code = b_code->GetCode();
     proxy->obj = tt::VM::Instance()->CreateVM(code);
 }

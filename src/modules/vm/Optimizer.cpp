@@ -15,6 +15,7 @@ namespace tt
 
 Optimizer::Optimizer(const std::shared_ptr<Bytecodes>& old_codes)
     : m_old_codes(old_codes)
+    , m_new_codes(nullptr)
 {
 }
 
@@ -165,8 +166,11 @@ void Optimizer::WriteNumber(int pos, float num)
     }
 
     // outside
-    m_new_codes->SetCurrPos(Relocate(pos));
-    m_new_codes->Write(reinterpret_cast<const char*>(&num), sizeof(float));
+    if (m_new_codes)
+    {
+        m_new_codes->SetCurrPos(Relocate(pos));
+        m_new_codes->Write(reinterpret_cast<const char*>(&num), sizeof(float));
+    }
 }
 
 void Optimizer::FlushCache()

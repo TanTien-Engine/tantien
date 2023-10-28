@@ -33,7 +33,7 @@ private:
 	std::shared_ptr<Bytecodes> m_old_codes;
 	mutable std::vector<std::vector<CodeBlock>> m_removed_blocks;
 
-	mutable std::shared_ptr<Bytecodes> m_new_codes;
+	mutable std::shared_ptr<Bytecodes> m_new_codes = nullptr;
 
 }; // Optimizer
 
