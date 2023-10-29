@@ -39,6 +39,8 @@ class ForEach is Node
 	{
 		if (pin == this.imports[1]) {
 			Blueprint.send_pin_dirty(this.exports[1], type)
+		} else if (pin == this.exports[1]) {
+			Blueprint.send_pin_dirty(this.imports[1], type)
 		}
 	}
 

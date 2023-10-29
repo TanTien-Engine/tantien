@@ -166,8 +166,24 @@ class Node
 
 	on_pin_dirty(pin, type) 
 	{
-		if (pin.is_input) {
+		var t = pin.dirty_timestamp
+		if (pin.is_input) 
+		{
+			// one-way
+			for (var p in this.imports) {
+				p.dirty_timestamp = Math.max(p.dirty_timestamp, t)
+			}
 			for (var pin in this.exports) {
+				Blueprint.send_pin_dirty(pin, type)
+			}
+		}
+		else
+		{
+			// one-way
+			for (var p in this.exports) {
+				p.dirty_timestamp = Math.max(p.dirty_timestamp, t)
+			}		
+			for (var pin in this.imports) {
 				Blueprint.send_pin_dirty(pin, type)
 			}
 		}

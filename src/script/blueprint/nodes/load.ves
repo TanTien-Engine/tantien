@@ -26,15 +26,6 @@ class Load is Node
 		this.var_name = "load"
 	}
 
-	on_pin_dirty(pin, type)
-	{
-		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0], type)
-		} else {
-			Blueprint.send_pin_dirty(this.imports[0], type)
-		}
-	}
-
 	calc_value(idx)
 	{
 		return Blueprint.calc_input_value(this, 0)

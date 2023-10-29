@@ -30,13 +30,11 @@ class Store is Node
 
 	on_pin_dirty(pin, type)
 	{
-		if (pin.is_input) {
-			Blueprint.send_pin_dirty(this.exports[0], type)
-		} else {
-			Blueprint.send_pin_dirty(this.imports[0], type)
-		}
+		super.on_pin_dirty(pin, type)
 
-		this.clear_cache()
+		if (pin.is_input) {
+			this.clear_cache()
+		}		
 	}
 	
 	calc_value(idx)

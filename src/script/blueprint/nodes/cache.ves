@@ -26,9 +26,10 @@ class Cache is Node
 
 	on_pin_dirty(pin, type)
 	{
+		super.on_pin_dirty(pin, type)
+
 		if (pin.is_input) {
 			this.clear_cache()
-			Blueprint.send_pin_dirty(this.exports[0], type)
 		}
 	}
 	
