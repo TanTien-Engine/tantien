@@ -4,10 +4,12 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_editor" for NodeEditor
 import "blueprint.blueprint" for Blueprint
-import "blueprint.dirty_types" for DIRTY_EDITOR
+import "blueprint.dirty_types" for DIRTY_EDITOR, DIRTY_OPCODES, DIRTY_COMPILE
+import "blueprint.msg_types" for Message, UPDATE_OPCODES
 import "maths.vector" for Vector2
 import "maths.compiler" for Compiler as maths_Compiler
 import "gui" for GUI
+import "vm" for CodeTools
 
 var EDITOR = nil
 
@@ -24,6 +26,44 @@ class Number2 is Node
 		this.layout()
 
 		this.value = Vector2()
+
+		this.pos_in_bytecode = []
+	}
+
+	on_pin_dirty(pin, type)
+	{
+		super.on_pin_dirty(pin, type)
+
+		if (type == DIRTY_COMPILE) {
+			this.pos_in_bytecode.clear()
+		}
+	}
+
+	on_param_dirty()
+	{
+		if (this.pos_in_bytecode.isEmpty)
+		{
+			super.on_param_dirty()
+		}
+		else
+		{
+			var msg = Message()
+
+			msg.type = UPDATE_OPCODES
+
+			msg.value = []
+			for (var pos in this.pos_in_bytecode) 
+			{
+				msg.value.add(pos + 2)
+				msg.value.add(this.value.x)
+				msg.value.add(pos + 6)
+				msg.value.add(this.value.y)
+			}
+
+			Blueprint.send_message_root(this, msg)
+
+			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
+		}
 	}
 
 	calc_value(idx) 
@@ -33,6 +73,7 @@ class Number2 is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
+		this.pos_in_bytecode.add(CodeTools.get_size(opcodes))
 		return maths_Compiler.create_vec2(compiler, opcodes, this.value)
 	}
 

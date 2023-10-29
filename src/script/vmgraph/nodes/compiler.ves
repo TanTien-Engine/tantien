@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
-import "blueprint.dirty_types" for DIRTY_OPCODES
+import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
 import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
@@ -60,6 +60,8 @@ class Compiler is Node
 
 			var compiler = tt_Compiler.init()
 			var opcodes = Bytecodes.init()
+
+			Blueprint.send_pin_dirty_root(this.imports[0], DIRTY_COMPILE)
 
 			var r_dst = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 			compiler.free_reg(r_dst)

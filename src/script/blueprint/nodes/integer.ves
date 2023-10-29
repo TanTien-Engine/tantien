@@ -2,8 +2,13 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_INTEGER
 import "blueprint.node_layout" for DEFAULT_HEIGHT
+import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
+import "blueprint.msg_types" for Message, UPDATE_OPCODES
+import "maths.compiler" for Compiler as maths_Compiler
 import "gui" for GUI
 import "math" for Math
+import "vm" for CodeTools
 
 class Integer is Node
 {
@@ -18,6 +23,42 @@ class Integer is Node
 		this.layout()
 
 		this.value = 0
+
+		this.pos_in_bytecode = []
+	}
+
+	on_pin_dirty(pin, type)
+	{
+		super.on_pin_dirty(pin, type)
+
+		if (type == DIRTY_COMPILE) {
+			this.pos_in_bytecode.clear()
+		}
+	}
+
+	on_param_dirty()
+	{
+		if (this.pos_in_bytecode.isEmpty)
+		{
+			super.on_param_dirty()
+		}
+		else
+		{
+			var msg = Message()
+
+			msg.type = UPDATE_OPCODES
+
+			msg.value = []
+			for (var pos in this.pos_in_bytecode) 
+			{
+				msg.value.add(pos + 2)
+				msg.value.add(this.value)
+			}
+
+			Blueprint.send_message_root(this, msg)
+
+			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
+		}
 	}
 
 	calc_value(idx) 
@@ -27,16 +68,10 @@ class Integer is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
-
-		opcodes.store_num(reg, this.value)
-
-		return reg
+		this.pos_in_bytecode.add(CodeTools.get_size(opcodes))
+		return maths_Compiler.create_number(compiler, opcodes, this.value)
 	}
-
+	
 	layout() 
 	{
 		super.layout()
