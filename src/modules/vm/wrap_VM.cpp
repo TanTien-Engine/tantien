@@ -69,7 +69,11 @@ void w_Bytecodes_store_num()
 
     builder.WriteType(evm::OP_NUMBER_STORE);
     builder.WriteReg((uint8_t)ves_tonumber(1));
+#ifdef EVM_SINGLE_PRECISION
+    builder.WriteFloat((float)ves_tonumber(2));
+#else
     builder.WriteDouble(ves_tonumber(2));
+#endif // EVM_SINGLE_PRECISION
 }
 
 void w_Bytecodes_print_num()
