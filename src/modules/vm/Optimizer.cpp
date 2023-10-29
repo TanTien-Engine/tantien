@@ -231,7 +231,7 @@ void Optimizer::FlushCache()
                     continue;
                 }
 
-                ts.push_back(std::thread([](const CodeBlock& b, int i, const std::vector<uint8_t>& old_codes)
+                ts.push_back(std::thread([](const CodeBlock& b, size_t i, const std::vector<uint8_t>& old_codes)
                 {
                     auto vm = tt::VM::Instance()->CreateVM(old_codes);
 
