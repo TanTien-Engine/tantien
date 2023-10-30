@@ -62,9 +62,9 @@ class Rect is Node
 
 			var points = []
 			points.add(Vector3(params[0],             0, params[1]            ))
-			points.add(Vector3(params[0] + params[2], 0, params[1]            ))
-			points.add(Vector3(params[0] + params[2], 0, params[1] + params[3]))
 			points.add(Vector3(params[0],             0, params[1] + params[3]))
+			points.add(Vector3(params[0] + params[2], 0, params[1] + params[3]))
+			points.add(Vector3(params[0] + params[2], 0, params[1]            ))
 
 			var faces = []
 			faces.add([ 0, 1, 2, 3 ])
@@ -93,9 +93,9 @@ class Rect is Node
     		builder.begin()
 
 			builder.add_point(params[0],             0, params[1]            )
-			builder.add_point(params[0] + params[2], 0, params[1]            )
-			builder.add_point(params[0] + params[2], 0, params[1] + params[3])
 			builder.add_point(params[0],             0, params[1] + params[3])
+			builder.add_point(params[0] + params[2], 0, params[1] + params[3])
+			builder.add_point(params[0] + params[2], 0, params[1]            )
 
     		builder.add_face([ 0, 1, 2, 3 ], [])
 

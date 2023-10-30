@@ -149,7 +149,7 @@ class Circle is Node
 		var N = Math.max(16, r * 16)
 		for (var i = 0; i < N; i = i + 1)
 		{
-			var angle = Math.pi() * 2 / N * i
+			var angle = Math.pi() * 2 / N * (N - i)
 			var x = r * Math.cos(angle)
 			var y = r * Math.sin(angle)
 			points.add(Vector3(x, 0, y))
