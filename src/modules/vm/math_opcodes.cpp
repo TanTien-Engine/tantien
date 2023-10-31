@@ -42,6 +42,7 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_SUB, Sub);
 	vm->RegistOperator(OP_MUL, Mul);
 	vm->RegistOperator(OP_DIV, Div);
+	vm->RegistOperator(OP_NEGATE, Negate);
 }
 
 void MathOpCodeImpl::Vec2CreateI(evm::VM* vm)
@@ -773,6 +774,68 @@ void MathOpCodeImpl::Div(evm::VM* vm)
 		evm::Value v;
 		v.type = tt::ValueType::V_VEC3;
 		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(ret));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else
+	{
+		throw std::runtime_error("Not Implemented!");
+	}
+}
+
+void MathOpCodeImpl::Negate(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	if (r_src == 0xff)
+	{
+		evm::Value v;
+		vm->SetRegister(r_dst, v);
+		return;
+	}
+
+	auto& src = vm->GetRegister(r_src);
+	if (src.type == evm::ValueType::V_NUMBER)
+	{
+		evm::Value val;
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = -src.as.number;
+
+		vm->SetRegister(r_dst, val);
+	}
+	else if (src.type == tt::ValueType::V_VEC2)
+	{
+		sm::vec2 src_v2 = *evm::VMHelper::GetHandleValue<sm::vec2>(src);
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC2;
+		v.as.handle = new evm::Handle<sm::vec2>(std::make_shared<sm::vec2>(-src_v2));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src.type == tt::ValueType::V_VEC3)
+	{
+		sm::vec3 src_v3 = *evm::VMHelper::GetHandleValue<sm::vec3>(src);
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC3;
+		v.as.handle = new evm::Handle<sm::vec3>(std::make_shared<sm::vec3>(-src_v3));
+
+		vm->SetRegister(r_dst, v);
+	}
+	else if (src.type == tt::ValueType::V_VEC4)
+	{
+		sm::vec4 src_v4 = *evm::VMHelper::GetHandleValue<sm::vec4>(src);
+
+		sm::vec4 dst_v4 = src_v4;
+		for (int i = 0; i < 4; ++i) {
+			dst_v4.xyzw[i] = -dst_v4.xyzw[i];
+		}
+
+		evm::Value v;
+		v.type = tt::ValueType::V_VEC4;
+		v.as.handle = new evm::Handle<sm::vec4>(std::make_shared<sm::vec4>(dst_v4));
 
 		vm->SetRegister(r_dst, v);
 	}

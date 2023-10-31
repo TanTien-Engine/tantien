@@ -48,7 +48,7 @@ class Negate is Node
 
 		var r_dst = compiler.new_reg()
 		if (r_dst) {
-			opcodes.negate_num(r_dst, r_src)
+			opcodes.negate(r_dst, r_src)
 		}
 
 		compiler.free_reg(r_src)

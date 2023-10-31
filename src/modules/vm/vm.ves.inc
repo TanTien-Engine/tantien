@@ -61,11 +61,12 @@ foreign class Bytecodes
 	foreign polypoint_select(r_dst, r_poly, r_cube)
 	foreign polyface_select(r_dst, r_poly, r_normal, r_region)	
 
-	// multi
+	// mix
 	foreign add(r_dst, r_src1, r_src2)
 	foreign sub(r_dst, r_src1, r_src2)
 	foreign mul(r_dst, r_src1, r_src2)
 	foreign div(r_dst, r_src1, r_src2)
+	foreign negate(r_dst, r_src)
 	foreign transform(r_obj, r_mat)
 }
 

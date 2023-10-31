@@ -340,6 +340,11 @@ void w_Bytecodes_div()
     bytecodes_write(tt::OP_DIV, 3);
 }
 
+void w_Bytecodes_negate()
+{
+    bytecodes_write(tt::OP_NEGATE, 2);
+}
+
 void w_Bytecodes_transform()
 {
     bytecodes_write(tt::OP_TRANSFORM, 2);
@@ -739,6 +744,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
     if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
     if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
+    if (strcmp(signature, "Bytecodes.negate(_,_)") == 0) return w_Bytecodes_negate;
     if (strcmp(signature, "Bytecodes.transform(_,_)") == 0) return w_Bytecodes_transform;
 
     if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;
