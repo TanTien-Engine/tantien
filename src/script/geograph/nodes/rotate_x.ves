@@ -5,6 +5,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYP
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "maths.vector" for Vector3
+import "maths.compiler" for Compiler as maths_Compiler
 import "math" for Math
 import "maths" for Matrix44, Float3
 
@@ -47,31 +48,67 @@ class RotateX is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_obj = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_rot = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		if (!r_rot)
+		{
+			r_rot = compiler.new_reg()
+			var angle = this.get_param_angle()
+			opcodes.store_num(r_rot, 0)
+		}
+
+		var r_zero = compiler.new_reg()
+		opcodes.store_num(r_zero, 0)
+
+		var r_xyz = compiler.new_reg()
+		opcodes.vec3_create_r(r_xyz, r_rot, r_zero, r_zero)
+		compiler.free_reg(r_rot)
+		compiler.free_reg(r_zero)
+
+		var r_mat = maths_Compiler.create_mat4(compiler, opcodes)
+		opcodes.mat4_rotate(r_mat, r_xyz)
+		compiler.free_reg(r_xyz)
+
+		opcodes.transform(r_obj, r_mat)
+
+		compiler.free_reg(r_mat)
+
+		return r_obj
+	}
+
 	calc_mat()
 	{
 		var angle = 0
 
 		var v_angle = Blueprint.calc_input_value(this, 1)
-		if (v_angle) 
-		{
+		if (v_angle) {
 			angle = v_angle.value
-		}
-		else
-		{
-			var s_angle = this.query_param("angle").value
-			if (s_angle == "90") {
-				angle = Math.pi() * 0.5
-			} else if (s_angle == "180") {
-				angle = Math.pi()
-			} else if (s_angle == "270") {
-				angle = Math.pi() * 1.5
-			}
+		} else {
+			angle = this.get_param_angle()
 		}
 
 		var mat = Matrix44.init()
 		mat.rotate(angle, 0, 0)
 
 		return mat
+	}
+
+	get_param_angle()
+	{
+		var angle = 0
+
+		var s_angle = this.query_param("angle").value
+		if (s_angle == "90") {
+			angle = Math.pi() * 0.5
+		} else if (s_angle == "180") {
+			angle = Math.pi()
+		} else if (s_angle == "270") {
+			angle = Math.pi() * 1.5
+		}
+
+		return angle
 	}
 
 	rotate_impl(v_geo, mat, result)
