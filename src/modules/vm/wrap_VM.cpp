@@ -32,8 +32,13 @@ void bytecodes_write(uint8_t op, int num)
 
     builder.WriteType(op);
 
-    for (int i = 0; i < num; ++i) {
-        builder.WriteReg((uint8_t)ves_tonumber(i + 1));
+    for (int i = 0; i < num; ++i) 
+    {
+        uint8_t reg = 0xff;
+        if (ves_type(i + 1) == VES_TYPE_NUM) {
+            reg = (uint8_t)ves_tonumber(i + 1);
+        }
+        builder.WriteReg(reg);
     }
 }
 
@@ -455,8 +460,9 @@ void w_Compiler_new_reg()
 void w_Compiler_free_reg()
 {
     auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
-    int reg = (int)ves_tonumber(1);
-    if (reg >= 0) {
+    if (ves_type(1) == VES_TYPE_NUM)
+    {
+        int reg = (int)ves_tonumber(1);
         c->FreeRegister(reg);
     }
 }

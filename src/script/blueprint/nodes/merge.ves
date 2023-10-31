@@ -41,7 +41,7 @@ class Merge is Node
 		for (var i in 0..this.imports.count) 
 		{
 			var r_one = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
-			if (r_one >= 0) {
+			if (r_one) {
 				opcodes.vector_concat(r_dst, r_one)
 				compiler.free_reg(r_one)
 			}

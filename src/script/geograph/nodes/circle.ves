@@ -84,7 +84,7 @@ class Circle is Node
 
 			this.calc_poly(points, faces)
 			if (points.isEmpty or faces.isEmpty) {
-				return -1
+				return nil
 			}
 
 			return PolyBuilder.build_poly_opcodes(compiler, opcodes, points, faces)
@@ -94,7 +94,7 @@ class Circle is Node
 			import "logger.logger" for Logger
 			Logger.error("Not Implemented!")
 
-			return -1
+			return nil
 		}
 	}
 

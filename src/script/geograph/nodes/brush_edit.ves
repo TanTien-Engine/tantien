@@ -102,8 +102,8 @@ class BrushEdit is Node
 		if (idx == 0)
 		{
 			var r_mat = this.calc_mat_opcodes(compiler, opcodes)
-			if (r_mat < 0) {
-				return -1
+			if (!r_mat) {
+				return nil
 			}
 
 			var r_part = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
@@ -128,7 +128,7 @@ class BrushEdit is Node
 			import "logger.logger" for Logger
 			Logger.error("Not Implemented!")
 						
-			return -1
+			return nil
 		}
 	}
 
@@ -146,7 +146,7 @@ class BrushEdit is Node
 
 		// scale
 		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)
-		if (r_scale >= 0) 
+		if (r_scale) 
 		{
 			opcodes.mat4_scale(r_mat, r_scale)
 			compiler.free_reg(r_scale)
@@ -154,7 +154,7 @@ class BrushEdit is Node
 
 		// rotate
 		var r_rotate = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)		
-		if (r_rotate >= 0) 
+		if (r_rotate) 
 		{
 			opcodes.mat4_rotate(r_mat, r_rotate)
 			compiler.free_reg(r_rotate)
@@ -162,7 +162,7 @@ class BrushEdit is Node
 
 		// translate
 		var r_translate = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_translate >= 0) 
+		if (r_translate) 
 		{
 			opcodes.mat4_translate(r_mat, r_translate)
 			compiler.free_reg(r_translate)

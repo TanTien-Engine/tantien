@@ -73,16 +73,11 @@ class Multiply is Node
 	{
 		var r_a = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		var r_b = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_a < 0 and r_b < 0) {
-			return -1
-		}
 
 		var r_dst = compiler.new_reg()
-		if (r_dst < 0) {
-			return -1
+		if (r_dst) {
+			opcodes.mul(r_dst, r_a, r_b)
 		}
-
-		opcodes.mul(r_dst, r_a, r_b)
 
 		compiler.free_reg(r_a)
 		compiler.free_reg(r_b)

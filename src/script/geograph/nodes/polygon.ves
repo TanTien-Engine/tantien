@@ -69,13 +69,13 @@ class Polygon is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		if (idx != 1) {
-			return -1
+			return nil
 		}
 
 		var points = []
 		var border = []
 		if (!this.calc_polytope(points, border)) {
-			return -1
+			return nil
 		}
 
 		var builder = PolytopeBuilder2(compiler, opcodes)

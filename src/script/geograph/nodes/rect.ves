@@ -80,11 +80,7 @@ class Rect is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		if (idx == 0)
-		{
-			return -1
-		}
-		else if (idx == 1)
+		if (idx == 1)
 		{
 			var params = this.calc_rect_params()
 
@@ -102,6 +98,13 @@ class Rect is Node
 			var poly = builder.end()
 			
 			return poly
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
+			return nil
 		}
 	}
 

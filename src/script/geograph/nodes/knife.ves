@@ -52,14 +52,7 @@ class Knife is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-		if (r_geo < 0) {
-			return -1
-		}
-
 		var r_plane = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_plane < 0) {
-			return -1
-		}
 
 		var keep = this.query_param("keep").value
 		var seam = this.query_param("seam").value

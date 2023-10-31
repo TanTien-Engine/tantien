@@ -275,7 +275,7 @@ class Blueprint
 	{
 		var pin = this.query_pin(curr_node.imports, input_slot)
 		if (!pin or pin.conns.isEmpty) {
-			return -1
+			return nil
 		}
 
 		var f_pin = pin.conns.front().from
@@ -288,7 +288,7 @@ class Blueprint
 			Logger.error("No calc_opcodes in %(f_node) !")
 		}
 
-		return -1
+		return nil
 	}
 
 	static get_first_connect_pin(pin)

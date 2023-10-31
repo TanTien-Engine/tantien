@@ -63,12 +63,6 @@ class SelPolyPoints is Node
 	{
 		var r_poly = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		var r_cube = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_poly < 0 or r_cube < 0) 
-		{
-			compiler.free_reg(r_poly)
-			compiler.free_reg(r_cube)
-			return -1
-		}
 
 		var r_dst = compiler.new_reg()
 		opcodes.create_vector(r_dst)

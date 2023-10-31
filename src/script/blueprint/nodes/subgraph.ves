@@ -111,7 +111,7 @@ class Subgraph is Node
 			name = idx
 		}
 		if (!name) {
-			return -1
+			return nil
 		}
 
 		for (var node in this.out_nodes) 
@@ -131,7 +131,7 @@ class Subgraph is Node
 				return r_dst
 			}
 		}
-		return -1
+		return nil
 	}
 
 	static has_draw_node(subgraph)

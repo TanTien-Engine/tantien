@@ -66,14 +66,7 @@ class Transform3d is Node
 		if (idx == 0)
 		{
 			var r_obj = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-			if (r_obj < 0) {
-				return -1
-			}
-
 			var r_mat = this.calc_mat_opcodes(compiler, opcodes)
-			if (r_mat < 0) {
-				return -1
-			}
 
 			opcodes.transform_unknown(r_obj, r_mat)
 
@@ -86,11 +79,8 @@ class Transform3d is Node
 			return this.calc_mat_opcodes(compiler, opcodes)
 		}
 		else
-		{
-			import "logger.logger" for Logger
-			Logger.error("Not Implemented!")
-						
-			return -1
+		{						
+			return nil
 		}
 	}
 
@@ -108,7 +98,7 @@ class Transform3d is Node
 
 		// scale
 		var r_scale = Blueprint.calc_input_opcodes(this, 3, compiler, opcodes)
-		if (r_scale >= 0) 
+		if (r_scale) 
 		{
 			opcodes.mat4_scale(r_mat, r_scale)
 			compiler.free_reg(r_scale)
@@ -116,7 +106,7 @@ class Transform3d is Node
 
 		// rotate
 		var r_rotate = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)		
-		if (r_rotate >= 0) 
+		if (r_rotate) 
 		{
 			opcodes.mat4_rotate(r_mat, r_rotate)
 			compiler.free_reg(r_rotate)
@@ -124,7 +114,7 @@ class Transform3d is Node
 
 		// translate
 		var r_translate = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_translate >= 0) 
+		if (r_translate) 
 		{
 			opcodes.mat4_translate(r_mat, r_translate)
 			compiler.free_reg(r_translate)

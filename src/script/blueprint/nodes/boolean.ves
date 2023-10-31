@@ -28,12 +28,9 @@ class Boolean is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
+		if (reg) {
+			opcodes.store_bool(reg, this.value)
 		}
-
-		opcodes.store_bool(reg, this.value)
-
 		return reg
 	}
 	

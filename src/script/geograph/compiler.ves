@@ -5,91 +5,73 @@ class Compiler
 {
 	static create_plane_i(compiler, opcodes, p0, p1, p2)
 	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
+		var r_dst = compiler.new_reg()
+		if (!r_dst) {
+			return nil
 		}
 
-		var reg_p0 = compiler.new_reg()
-		if (reg_p0 < 0) {
-			return -1
-		}
-		var reg_p1 = compiler.new_reg()
-		if (reg_p1 < 0) {
-			return -1
-		}
-		var reg_p2 = compiler.new_reg()
-		if (reg_p2 < 0) {
-			return -1
-		}
+		var r_p0 = compiler.new_reg()
+		var r_p1 = compiler.new_reg()
+		var r_p2 = compiler.new_reg()
 
-		opcodes.vec3_create_i(reg_p0, p0.x, p0.y, p0.z)
-		opcodes.vec3_create_i(reg_p1, p1.x, p1.y, p1.z)
-		opcodes.vec3_create_i(reg_p2, p2.x, p2.y, p2.z)
+		opcodes.vec3_create_i(r_p0, p0.x, p0.y, p0.z)
+		opcodes.vec3_create_i(r_p1, p1.x, p1.y, p1.z)
+		opcodes.vec3_create_i(r_p2, p2.x, p2.y, p2.z)
 
-		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
+		opcodes.create_plane(r_dst, r_p0, r_p1, r_p2)
 
-		compiler.free_reg(reg_p0)
-		compiler.free_reg(reg_p1)
-		compiler.free_reg(reg_p2)
+		compiler.free_reg(r_p0)
+		compiler.free_reg(r_p1)
+		compiler.free_reg(r_p2)
 
-		return reg
+		return r_dst
 	}
 
 	static create_face_i(compiler, opcodes, p0, p1, p2)
 	{
-    	var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
+    	var r_dst = compiler.new_reg()
 
-		var reg_plane = this.create_plane_i(compiler, opcodes, p0, p1, p2)
-		if (reg_plane < 0) {
-			return -1
-		}
+    	if (r_dst)
+    	{
+			var r_plane = this.create_plane_i(compiler, opcodes, p0, p1, p2)
+			opcodes.create_polyface(r_dst, r_plane)
+			compiler.free_reg(r_plane)
+    	}
 
-		opcodes.create_polyface(reg, reg_plane)
-		compiler.free_reg(reg_plane)
-
-		return reg
+		return r_dst
 	}
 
-	static create_plane_r(compiler, opcodes, reg_p0, reg_p1, reg_p2)
+	static create_plane_r(compiler, opcodes, r_p0, r_p1, r_p2)
 	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
+		var r_dst = compiler.new_reg()
+
+		if (r_dst) {
+			opcodes.create_plane(r_dst, r_p0, r_p1, r_p2)
 		}
 
-		opcodes.create_plane(reg, reg_p0, reg_p1, reg_p2)
-
-		return reg
+		return r_dst
 	}
 
 	static create_face_r(compiler, opcodes, p0, p1, p2)
 	{
-    	var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
+    	var r_dst = compiler.new_reg()
 
-		var reg_plane = this.create_plane_r(compiler, opcodes, p0, p1, p2)
-		if (reg_plane < 0) {
-			return -1
-		}
+    	if (r_dst)
+    	{
+			var r_plane = this.create_plane_r(compiler, opcodes, p0, p1, p2)
+			opcodes.create_polyface(r_dst, r_plane)
+			compiler.free_reg(r_plane)
+    	}
 
-		opcodes.create_polyface(reg, reg_plane)
-		compiler.free_reg(reg_plane)
-
-		return reg
+		return r_dst
 	}
 
 	static create_face(compiler, opcodes, indices)
 	{
-    	var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
-		}
+    	var r_dst = compiler.new_reg()
+    	if (!r_dst) {
+    		return nil
+    	}
 
 		var r_indices = compiler.new_reg()
 		opcodes.create_vector(r_indices)
@@ -100,10 +82,10 @@ class Compiler
 			compiler.free_reg(r_idx)
 		}
 
-		opcodes.create_polyface_2(reg, r_indices, -1)
+		opcodes.create_polyface_2(r_dst, r_indices, -1)
 		compiler.free_reg(r_indices)
 
-		return reg
+		return r_dst
 	}
 }
 

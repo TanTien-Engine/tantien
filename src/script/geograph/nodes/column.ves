@@ -61,7 +61,7 @@ class Column is Node
 	{
 		var v_base = Blueprint.calc_input_value(this, 0)
 		if (!v_base or !v_base.value) {
-			return -1
+			return nil
 		}
 
 		var points = []
@@ -69,7 +69,7 @@ class Column is Node
 
 		this.calc_poly(v_base, points, faces)
 		if (points.isEmpty or faces.isEmpty) {
-			return -1
+			return nil
 		}
 
 		return PolyBuilder.build_poly_opcodes(compiler, opcodes, points, faces)

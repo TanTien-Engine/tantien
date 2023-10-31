@@ -31,18 +31,19 @@ class IsNull is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		var reg = compiler.new_reg()
-		if (reg < 0) {
-			return -1
+		var r_dst = compiler.new_reg()
+		if (!r_dst) {
+			return nil
 		}
 
-		var v_in = Blueprint.calc_input_value(this, 0)
-		if (!v_in or !v_in.value) {
-			opcodes.store_bool(reg, true)
+		var r_in = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (r_in) {
+			opcodes.store_bool(r_dst, true)
 		} else {
-			opcodes.store_bool(reg, false)
+			opcodes.store_bool(r_dst, false)
 		}
+		compiler.free_reg(r_in)
 
-		return reg
+		return r_dst
 	}
 }

@@ -63,14 +63,7 @@ class TranslateF is Node
 	calc_opcodes(compiler, opcodes, idx)
 	{
 		var r_geo = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-		if (r_geo < 0) {
-			return -1
-		}
-
 		var r_xyz = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-		if (r_xyz < 0) {
-			return -1
-		}
 
 		var r_mat = maths_Compiler.create_mat4(compiler, opcodes)
 		opcodes.mat4_translate(r_mat, r_xyz)

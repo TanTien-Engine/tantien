@@ -515,7 +515,7 @@ class Editor
 					if (new_node is NW_Vertex)
 					{
 						var idx = VertexShape.get_match_pin_idx(this.prev_pin, new_node)
-						if (idx >= 0) 
+						if (idx) 
 						{
 							var new_pin = NW_Pin(new_node, idx)
 							Network.connect(this.prev_pin, new_pin)
@@ -527,7 +527,7 @@ class Editor
 						if (this.prev_pin.is_child) 
 						{
 							var idx = this.query_matched_pin_idx(this.prev_pin, [ new_node.parent ])
-							if (idx >= 0) {
+							if (idx) {
 								Tree.connect(this.prev_pin, new_node.parent)
 								this.scene_stack.bp_dirty = true
 							}
@@ -535,7 +535,7 @@ class Editor
 						else
 						{
 							var idx = this.query_matched_pin_idx(this.prev_pin, new_node.children)
-							if (idx >= 0) {
+							if (idx) {
 								Tree.connect(new_node.children[idx], this.prev_pin)
 								this.scene_stack.bp_dirty = true
 							}
@@ -548,7 +548,7 @@ class Editor
 							if (!new_node.exports.isEmpty) 
 							{
 								var idx = this.query_matched_pin_idx(this.prev_pin, new_node.exports)
-								if (idx >= 0) {
+								if (idx) {
 									Blueprint.connect(new_node.exports[idx], this.prev_pin)
 									this.scene_stack.bp_dirty = true
 								}
@@ -559,7 +559,7 @@ class Editor
 							if (!new_node.imports.isEmpty) 
 							{
 								var idx = this.query_matched_pin_idx(this.prev_pin, new_node.imports)
-								if (idx >= 0) {
+								if (idx) {
 									Blueprint.connect(this.prev_pin, new_node.imports[idx])
 									this.scene_stack.bp_dirty = true
 								}
@@ -589,7 +589,7 @@ class Editor
 				return i
 			}
 		}
-		return -1
+		return nil
 	}
 
 	is_pin_pin_type_match(a, b)
@@ -936,7 +936,7 @@ import \"editor\" for _editor
 				return i
 			}
 		}
-		return -1
+		return nil
 	}
 
 	savetofile()
@@ -1007,7 +1007,7 @@ import \"editor\" for _editor
 			{
 				var t_name = nil
 				var t_idx = this.query_node_idx(scene.nodes, t_node)
-				if (t_idx >= 0) {
+				if (t_idx) {
 					t_name = "node%(t_idx)"
 				}
 				for (var t_pin in t_node.imports)
@@ -1038,7 +1038,7 @@ import \"editor\" for _editor
 			{
 				var f_name = nil
 				var f_idx = this.query_node_idx(scene.nodes, node)
-				if (f_idx >= 0) {
+				if (f_idx) {
 					f_name = "node%(f_idx)"
 				}
 				for (var pin in node.pins)
@@ -1072,7 +1072,7 @@ import \"editor\" for _editor
 			{
 				var p_name = nil
 				var p_idx = this.query_node_idx(scene.nodes, p_node)
-				if (p_idx >= 0) {
+				if (p_idx) {
 					p_name = "node%(p_idx)"
 				}
 				for (var c_pin in p_node.children)
@@ -1147,7 +1147,7 @@ _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.positi
 		{
 			var t_name = nil
 			var t_idx = this.query_node_idx(scene.nodes, t_node)
-			if (t_idx >= 0) {
+			if (t_idx) {
 				t_name = "node%(t_idx)"			
 			}
 			for (var t_pin in t_node.imports)
@@ -1160,7 +1160,7 @@ _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.positi
 						var f_bp = node.components["bp"]
 						if (f_bp == t_conn.from.node) {
 							var f_idx = this.query_node_idx(scene.nodes, f_bp)
-							if (f_idx >= 0) {
+							if (f_idx) {
 								f_name = "node%(f_idx)"							
 							}
 						}
@@ -1173,7 +1173,7 @@ _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.positi
 					if (!f_name)
 					{
 						var f_idx = this.query_node_idx(scene.nodes, t_conn.from.node)
-						if (f_idx >= 0) {
+						if (f_idx) {
 							f_name = "_editor.scene_stack.top().nodes[%(f_idx)].components[\"bp\"]"
 						}
 					}

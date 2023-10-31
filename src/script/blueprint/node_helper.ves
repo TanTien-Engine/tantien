@@ -144,7 +144,7 @@ class NodeHelper
 	static calc_prop_opcodes(node, name, compiler, opcodes)
 	{
 		var r_input = Blueprint.calc_input_opcodes(node, name, compiler, opcodes)
-		if (r_input < 0) 
+		if (!r_input) 
 		{
 			var val = node.query_param(name).value
 			return maths_Compiler.create_number(compiler, opcodes, val)

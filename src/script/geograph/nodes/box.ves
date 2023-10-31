@@ -53,7 +53,7 @@ class Box is Node
 		var r_size = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		var r_pos = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 
-		if (r_size < 0 and r_pos < 0) 
+		if (!r_size and !r_pos) 
 		{
 			var size = this.query_param("size").value
 
@@ -127,7 +127,7 @@ class Box is Node
 			var r_size_x = compiler.new_reg()
 			var r_size_y = compiler.new_reg()
 			var r_size_z = compiler.new_reg()
-			if (r_size >= 0)
+			if (r_size)
 			{
 				opcodes.vec3_get_x(r_size_x, r_size)
 				opcodes.vec3_get_y(r_size_y, r_size)
@@ -145,7 +145,7 @@ class Box is Node
 			var r_pos_x = compiler.new_reg()
 			var r_pos_y = compiler.new_reg()
 			var r_pos_z = compiler.new_reg()
-			if (r_pos >= 0)
+			if (r_pos)
 			{
 				opcodes.vec3_get_x(r_pos_x, r_pos)
 				opcodes.vec3_get_y(r_pos_y, r_pos)
@@ -277,10 +277,7 @@ class Box is Node
 			}
 		}
 
-		import "logger.logger" for Logger
-		Logger.error("Not Implemented!")
-
-		return -1
+		return nil
 	}
 
 	calc_in_size()

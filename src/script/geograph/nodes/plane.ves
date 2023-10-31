@@ -48,24 +48,22 @@ class Plane is Node
 		if (idx == 1)
 		{
 			var r_3pos = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
-			if (r_3pos < 0)
+			if (!r_3pos)
 			{
 				var r_ori = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-				if (r_ori < 0) {
+				if (!r_ori) {
 					r_ori = maths_Compiler.create_vec3(compiler, opcodes, this.query_param("ori").value)
 				}
 
 				var r_dir = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
-				if (r_dir < 0) {
+				if (!r_dir) {
 					r_dir = maths_Compiler.create_vec3(compiler, opcodes, this.query_param("dir").value)
 				}
 
 				var r_dst = compiler.new_reg()
-				if (r_dst < 0) {
-					return -1
+				if (r_dst) {
+					opcodes.create_plane_2(r_dst, r_ori, r_dir)
 				}
-
-				opcodes.create_plane_2(r_dst, r_ori, r_dir)
 
 				compiler.free_reg(r_ori)
 				compiler.free_reg(r_dir)
@@ -88,7 +86,7 @@ class Plane is Node
 			import "logger.logger" for Logger
 			Logger.error("Not Implemented!")
 
-			return -1
+			return nil
 		}
 	}
 
