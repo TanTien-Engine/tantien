@@ -57,7 +57,7 @@ class Rotate is Node
 		opcodes.mat4_rotate(r_mat, r_xyz)
 		compiler.free_reg(r_xyz)
 
-		opcodes.polytope_transform(r_geo, r_mat)
+		opcodes.transform(r_geo, r_mat)
 
 		compiler.free_reg(r_mat)
 

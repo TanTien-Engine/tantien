@@ -12,7 +12,6 @@ enum GeoOpCode
 	OP_CREATE_POLYFACE_2,	// border, holes
 	OP_CREATE_POLYTOPE_2,	// points, faces
 
-	OP_POLYTOPE_TRANSFORM,
 	OP_POLYTOPE_SUBTRACT,
 	OP_POLYTOPE_EXTRUDE,
 	OP_POLYTOPE_CLIP,
@@ -21,7 +20,7 @@ enum GeoOpCode
 	OP_POLYPOINT_SELECT,
 	OP_POLYFACE_SELECT,
 
-	OP_TRANSFORM_UNKNOWN,
+	OP_TRANSFORM,
 
 	OP_POLY_COPY_FROM_MEM,
 };
@@ -37,7 +36,6 @@ private:
 	static void CreatePolyFace2(evm::VM* vm);
 	static void CreatePolytope2(evm::VM* vm);
 
-	static void PolytopeTransform(evm::VM* vm);
 	static void PolytopeSubtract(evm::VM* vm);
 	static void PolytopeExtrude(evm::VM* vm);
 	static void PolytopeClip(evm::VM* vm);
@@ -46,7 +44,7 @@ private:
 	static void PolyPointSelect(evm::VM* vm);
 	static void PolyFaceSelect(evm::VM* vm);
 
-	static void TransformUnknown(evm::VM* vm);
+	static void Transform(evm::VM* vm);
 
 	static void PolyCopyFromMem(evm::VM* vm);
 

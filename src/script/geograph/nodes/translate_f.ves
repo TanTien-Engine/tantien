@@ -69,7 +69,7 @@ class TranslateF is Node
 		opcodes.mat4_translate(r_mat, r_xyz)
 		compiler.free_reg(r_xyz)
 
-		opcodes.transform_unknown(r_obj, r_mat)
+		opcodes.transform(r_obj, r_mat)
 
 		compiler.free_reg(r_mat)
 

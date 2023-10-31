@@ -114,7 +114,7 @@ class BrushEdit is Node
 			var r_pts = compiler.new_reg()
 			opcodes.vector_get(r_pts, r_part, 1)
 
-			opcodes.transform_unknown(r_pts, r_mat)
+			opcodes.transform(r_pts, r_mat)
 			opcodes.polytope_set_dirty(r_poly)
 
 			compiler.free_reg(r_pts)

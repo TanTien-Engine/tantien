@@ -54,7 +54,6 @@ foreign class Bytecodes
 	foreign create_polytope(r_dst, r_faces)
 	foreign create_polyface_2(r_dst, r_border, r_holes)
 	foreign create_polytope_2(r_dst, r_points, r_faces)
-	foreign polytope_transform(r_poly, r_mat)
 	foreign polytope_subtract(r_dst, r_base, r_tool)
 	foreign polytope_extrude(r_poly, r_dist)
 	foreign polytope_clip(r_poly, r_plane, keep, seam)
@@ -67,7 +66,7 @@ foreign class Bytecodes
 	foreign sub(r_dst, r_src1, r_src2)
 	foreign mul(r_dst, r_src1, r_src2)
 	foreign div(r_dst, r_src1, r_src2)
-	foreign transform_unknown(r_obj, r_mat)
+	foreign transform(r_obj, r_mat)
 }
 
 foreign class CodeStats

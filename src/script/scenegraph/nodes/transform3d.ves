@@ -68,7 +68,7 @@ class Transform3d is Node
 			var r_obj = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 			var r_mat = this.calc_mat_opcodes(compiler, opcodes)
 
-			opcodes.transform_unknown(r_obj, r_mat)
+			opcodes.transform(r_obj, r_mat)
 
 			compiler.free_reg(r_mat)
 

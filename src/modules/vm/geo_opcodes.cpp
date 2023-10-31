@@ -17,13 +17,13 @@
 namespace
 {
 
-void transform_unknown(const evm::Value& val, const sm::mat4& mat)
+void transform(const evm::Value& val, const sm::mat4& mat)
 {
 	if (val.type == tt::V_ARRAY)
 	{
 		auto list = tt::VMHelper::GetValArray(val);
 		for (auto& item : *list) {
-			transform_unknown(item, mat);
+			transform(item, mat);
 		}
 	}
 	else if (val.type == tt::V_VEC3)
@@ -112,7 +112,6 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_CREATE_POLYFACE_2, CreatePolyFace2);
 	vm->RegistOperator(OP_CREATE_POLYTOPE_2, CreatePolytope2);
 
-	vm->RegistOperator(OP_POLYTOPE_TRANSFORM, PolytopeTransform);
 	vm->RegistOperator(OP_POLYTOPE_SUBTRACT, PolytopeSubtract);
 	vm->RegistOperator(OP_POLYTOPE_EXTRUDE, PolytopeExtrude);
 	vm->RegistOperator(OP_POLYTOPE_CLIP, PolytopeClip);
@@ -121,9 +120,9 @@ void GeoOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_POLYPOINT_SELECT, PolyPointSelect);
 	vm->RegistOperator(OP_POLYFACE_SELECT, PolyFaceSelect);
 
-	vm->RegistOperator(OP_TRANSFORM_UNKNOWN, TransformUnknown);
-
 	vm->RegistOperator(OP_POLY_COPY_FROM_MEM, PolyCopyFromMem);
+
+	vm->RegistOperator(OP_TRANSFORM, Transform);	
 }
 
 void GeoOpCodeImpl::CreatePolyFace(evm::VM* vm)
@@ -247,29 +246,6 @@ void GeoOpCodeImpl::CreatePolytope2(evm::VM* vm)
 	v.as.handle = new evm::Handle<pm3::Polytope>(poly);
 
 	vm->SetRegister(r_dst, v);
-}
-
-void GeoOpCodeImpl::PolytopeTransform(evm::VM* vm)
-{
-	uint8_t r_poly = vm->NextByte();
-	auto polys = tt::VMHelper::LoadPolys(vm, r_poly);
-
-	uint8_t r_mat = vm->NextByte();
-	auto mat = evm::VMHelper::GetRegHandler<sm::mat4>(vm, r_mat);
-
-	if (polys.empty() || !mat) {
-		return;
-	}
-
-	for (auto poly : polys)
-	{
-		auto& pts = poly->Points();
-		for (auto& p : pts) {
-			p->pos = *mat * p->pos;
-		}
-
-		poly->SetTopoDirty();
-	}
 }
 
 void GeoOpCodeImpl::PolytopeSubtract(evm::VM* vm)
@@ -442,7 +418,7 @@ void GeoOpCodeImpl::PolyFaceSelect(evm::VM* vm)
 	vm->SetRegister(r_dst, val);
 }
 
-void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
+void GeoOpCodeImpl::Transform(evm::VM* vm)
 {
 	uint8_t r_obj = vm->NextByte();
 
@@ -454,7 +430,7 @@ void GeoOpCodeImpl::TransformUnknown(evm::VM* vm)
 
 	if (r_obj != 0xff) {
 		auto& v_obj = vm->GetRegister(r_obj);
-		transform_unknown(v_obj, *mat);
+		transform(v_obj, *mat);
 	}
 }
 

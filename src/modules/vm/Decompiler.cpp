@@ -98,15 +98,15 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[tt::OP_CREATE_POLYTOPE]		= "poly";
 		m_op_names[tt::OP_CREATE_POLYFACE_2]	= "face2";
 		m_op_names[tt::OP_CREATE_POLYTOPE_2]	= "poly2";
-		m_op_names[tt::OP_POLYTOPE_TRANSFORM]	= "poly_trans";
 		m_op_names[tt::OP_POLYTOPE_SUBTRACT]	= "poly_sub";
 		m_op_names[tt::OP_POLYTOPE_EXTRUDE]		= "poly_ext";
 		m_op_names[tt::OP_POLYTOPE_CLIP]		= "poly_clip";
 		m_op_names[tt::OP_POLYTOPE_SET_DIRTY]	= "poly_dirty";
 		m_op_names[tt::OP_POLYPOINT_SELECT]		= "poly_sel";
 		m_op_names[tt::OP_POLYFACE_SELECT]		= "face_sel";
-		m_op_names[tt::OP_TRANSFORM_UNKNOWN]	= "transform";
 		m_op_names[tt::OP_POLY_COPY_FROM_MEM]	= "poly_from_mem";
+
+		m_op_names[tt::OP_TRANSFORM]		= "transform";
 	}
 }
 

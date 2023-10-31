@@ -290,11 +290,6 @@ void w_Bytecodes_create_polytope_2()
     bytecodes_write(tt::OP_CREATE_POLYTOPE_2, 3);
 }
 
-void w_Bytecodes_polytope_transform()
-{
-    bytecodes_write(tt::OP_POLYTOPE_TRANSFORM, 2);
-}
-
 void w_Bytecodes_polytope_subtract()
 {
     bytecodes_write(tt::OP_POLYTOPE_SUBTRACT, 3);
@@ -345,9 +340,9 @@ void w_Bytecodes_div()
     bytecodes_write(tt::OP_DIV, 3);
 }
 
-void w_Bytecodes_transform_unknown()
+void w_Bytecodes_transform()
 {
-    bytecodes_write(tt::OP_TRANSFORM_UNKNOWN, 2);
+    bytecodes_write(tt::OP_TRANSFORM, 2);
 }
 
 void w_CodeStats_stat_call()
@@ -733,7 +728,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.create_polytope(_,_)") == 0) return w_Bytecodes_create_polytope;
     if (strcmp(signature, "Bytecodes.create_polyface_2(_,_,_)") == 0) return w_Bytecodes_create_polyface_2;
     if (strcmp(signature, "Bytecodes.create_polytope_2(_,_,_)") == 0) return w_Bytecodes_create_polytope_2;
-    if (strcmp(signature, "Bytecodes.polytope_transform(_,_)") == 0) return w_Bytecodes_polytope_transform;
     if (strcmp(signature, "Bytecodes.polytope_subtract(_,_,_)") == 0) return w_Bytecodes_polytope_subtract;
     if (strcmp(signature, "Bytecodes.polytope_extrude(_,_)") == 0) return w_Bytecodes_polytope_extrude;
     if (strcmp(signature, "Bytecodes.polytope_clip(_,_,_,_)") == 0) return w_Bytecodes_polytope_clip;
@@ -745,7 +739,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
     if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
     if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
-    if (strcmp(signature, "Bytecodes.transform_unknown(_,_)") == 0) return w_Bytecodes_transform_unknown;
+    if (strcmp(signature, "Bytecodes.transform(_,_)") == 0) return w_Bytecodes_transform;
 
     if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;
     if (strcmp(signature, "static CodeStats.add_code_block(_,_,_,_)") == 0) return w_CodeStats_add_code_block;
