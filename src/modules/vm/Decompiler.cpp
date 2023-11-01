@@ -74,9 +74,6 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[tt::OP_VEC3_ADD]			= "vec3_add";
 		m_op_names[tt::OP_VEC3_SUB]			= "vec3_sub";
 		m_op_names[tt::OP_VEC3_TRANSFORM]	= "vec3_trans";
-		m_op_names[tt::OP_VEC3_GET_X]		= "vec3_x";
-		m_op_names[tt::OP_VEC3_GET_Y]		= "vec3_y";
-		m_op_names[tt::OP_VEC3_GET_Z]		= "vec3_z";
 		m_op_names[tt::OP_VEC4_CREATE_I]	= "vec4_i";
 		m_op_names[tt::OP_MATRIX_CREATE]	= "mat4";
 		m_op_names[tt::OP_MATRIX_ROTATE]	= "mat4_rot";
@@ -84,6 +81,10 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[tt::OP_CREATE_PLANE]		= "plane";
 		m_op_names[tt::OP_CREATE_PLANE_2]	= "plane_2";
 		m_op_names[tt::OP_CREATE_CUBE]		= "cube";
+		m_op_names[tt::OP_GET_X]			= "get_x";
+		m_op_names[tt::OP_GET_Y]			= "get_y";
+		m_op_names[tt::OP_GET_Z]			= "get_z";
+		m_op_names[tt::OP_GET_W]			= "get_w";
 		m_op_names[tt::OP_ADD]				= "add";
 		m_op_names[tt::OP_SUB]				= "sub";
 		m_op_names[tt::OP_MUL]				= "mul";

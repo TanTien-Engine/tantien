@@ -24,15 +24,17 @@ void MathOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VEC3_ADD, Vec3Add);
 	vm->RegistOperator(OP_VEC3_SUB, Vec3Sub);
 	vm->RegistOperator(OP_VEC3_TRANSFORM, Vec3Transform);
-	vm->RegistOperator(OP_VEC3_GET_X, Vec3GetX);
-	vm->RegistOperator(OP_VEC3_GET_Y, Vec3GetY);
-	vm->RegistOperator(OP_VEC3_GET_Z, Vec3GetZ);
 
 	vm->RegistOperator(OP_VEC4_CREATE_I, Vec4CreateI);
 
 	vm->RegistOperator(OP_MATRIX_CREATE, MatrixCreate);
 	vm->RegistOperator(OP_MATRIX_ROTATE, MatrixRotate);
 	vm->RegistOperator(OP_MATRIX_TRANSLATE, MatrixTranslate);
+
+	vm->RegistOperator(OP_GET_X, GetX);
+	vm->RegistOperator(OP_GET_Y, GetY);
+	vm->RegistOperator(OP_GET_Z, GetZ);
+	vm->RegistOperator(OP_GET_W, GetW);
 
 	vm->RegistOperator(OP_CREATE_PLANE, CreatePlane);
 	vm->RegistOperator(OP_CREATE_PLANE_2, CreatePlane2);
@@ -201,57 +203,6 @@ void MathOpCodeImpl::Vec3Transform(evm::VM* vm)
 	vm->SetRegister(r_vec3, v);
 }
 
-void MathOpCodeImpl::Vec3GetX(evm::VM* vm)
-{
-	uint8_t r_dst = vm->NextByte();
-	uint8_t r_src = vm->NextByte();
-
-	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
-	if (!vec3) {
-		return;
-	}
-
-	evm::Value val;
-	val.type = evm::ValueType::V_NUMBER;
-	val.as.number = vec3->x;
-
-	vm->SetRegister(r_dst, val);
-}
-
-void MathOpCodeImpl::Vec3GetY(evm::VM* vm)
-{
-	uint8_t r_dst = vm->NextByte();
-	uint8_t r_src = vm->NextByte();
-
-	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
-	if (!vec3) {
-		return;
-	}
-
-	evm::Value val;
-	val.type = evm::ValueType::V_NUMBER;
-	val.as.number = vec3->y;
-
-	vm->SetRegister(r_dst, val);
-}
-
-void MathOpCodeImpl::Vec3GetZ(evm::VM* vm)
-{
-	uint8_t r_dst = vm->NextByte();
-	uint8_t r_src = vm->NextByte();
-
-	auto vec3 = evm::VMHelper::GetRegHandler<sm::vec3>(vm, r_src);
-	if (!vec3) {
-		return;
-	}
-
-	evm::Value val;
-	val.type = evm::ValueType::V_NUMBER;
-	val.as.number = vec3->z;
-
-	vm->SetRegister(r_dst, val);
-}
-
 void MathOpCodeImpl::Vec4CreateI(evm::VM* vm)
 {
 	uint8_t reg = vm->NextByte();
@@ -316,6 +267,232 @@ void MathOpCodeImpl::MatrixTranslate(evm::VM* vm)
 	}
 
 	mat->Translate(vec->x, vec->y, vec->z);
+}
+
+void MathOpCodeImpl::GetX(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	evm::Value val;
+
+	auto& src = vm->GetRegister(r_src);
+	switch (src.type)
+	{
+	case tt::V_VEC2:
+	{
+		auto vec2 = evm::VMHelper::GetHandleValue<sm::vec2>(src);
+		if (vec2)
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec2->x;
+		}
+	}
+		break;
+	case tt::V_VEC3:
+	{
+		auto vec3 = evm::VMHelper::GetHandleValue<sm::vec3>(src);
+		if (vec3) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec3->x;
+		}
+	}
+		break;
+	case tt::V_VEC4:
+	{
+		auto vec4 = evm::VMHelper::GetHandleValue<sm::vec4>(src);
+		if (vec4) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec4->x;
+		}
+	}
+		break;
+	case tt::V_MAT4:
+	{
+		auto mat4 = evm::VMHelper::GetHandleValue<sm::mat4>(src);
+		if (mat4)
+		{
+			auto v4 = std::make_shared<sm::vec4>(
+				mat4->c[0][0], mat4->c[0][1], mat4->c[0][2], mat4->c[0][3]
+				);
+
+			val.type = tt::ValueType::V_VEC4;
+			val.as.handle = new evm::Handle<sm::vec4>(v4);
+		}
+	}
+		break;
+	default:
+		throw std::runtime_error("Unknown type!");
+	}
+
+	vm->SetRegister(r_dst, val);
+}
+
+void MathOpCodeImpl::GetY(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	evm::Value val;
+
+	auto& src = vm->GetRegister(r_src);
+	switch (src.type)
+	{
+	case tt::V_VEC2:
+	{
+		auto vec2 = evm::VMHelper::GetHandleValue<sm::vec2>(src);
+		if (vec2)
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec2->y;
+		}
+	}
+		break;
+	case tt::V_VEC3:
+	{
+		auto vec3 = evm::VMHelper::GetHandleValue<sm::vec3>(src);
+		if (vec3) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec3->y;
+		}
+	}
+		break;
+	case tt::V_VEC4:
+	{
+		auto vec4 = evm::VMHelper::GetHandleValue<sm::vec4>(src);
+		if (vec4) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec4->y;
+		}
+	}
+		break;
+	case tt::V_MAT4:
+	{
+		auto mat4 = evm::VMHelper::GetHandleValue<sm::mat4>(src);
+		if (mat4)
+		{
+			auto v4 = std::make_shared<sm::vec4>(
+				mat4->c[1][0], mat4->c[1][1], mat4->c[1][2], mat4->c[1][3]
+				);
+
+			val.type = tt::ValueType::V_VEC4;
+			val.as.handle = new evm::Handle<sm::vec4>(v4);
+		}
+	}
+		break;
+	default:
+		throw std::runtime_error("Unknown type!");
+	}
+
+	vm->SetRegister(r_dst, val);
+}
+
+void MathOpCodeImpl::GetZ(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	evm::Value val;
+
+	auto& src = vm->GetRegister(r_src);
+	switch (src.type)
+	{
+	case tt::V_VEC2:
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = 0;
+		break;
+	case tt::V_VEC3:
+	{
+		auto vec3 = evm::VMHelper::GetHandleValue<sm::vec3>(src);
+		if (vec3) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec3->z;
+		}
+	}
+		break;
+	case tt::V_VEC4:
+	{
+		auto vec4 = evm::VMHelper::GetHandleValue<sm::vec4>(src);
+		if (vec4) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec4->z;
+		}
+	}
+		break;
+	case tt::V_MAT4:
+	{
+		auto mat4 = evm::VMHelper::GetHandleValue<sm::mat4>(src);
+		if (mat4)
+		{
+			auto v4 = std::make_shared<sm::vec4>(
+				mat4->c[2][0], mat4->c[2][1], mat4->c[2][2], mat4->c[2][3]
+				);
+
+			val.type = tt::ValueType::V_VEC4;
+			val.as.handle = new evm::Handle<sm::vec4>(v4);
+		}
+	}
+		break;
+	default:
+		throw std::runtime_error("Unknown type!");
+	}
+
+	vm->SetRegister(r_dst, val);
+}
+
+void MathOpCodeImpl::GetW(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_src = vm->NextByte();
+
+	evm::Value val;
+
+	auto& src = vm->GetRegister(r_src);
+	switch (src.type)
+	{
+	case tt::V_VEC2:
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = 0;
+		break;
+	case tt::V_VEC3:
+		val.type = evm::ValueType::V_NUMBER;
+		val.as.number = 0;
+		break;
+	case tt::V_VEC4:
+	{
+		auto vec4 = evm::VMHelper::GetHandleValue<sm::vec4>(src);
+		if (vec4) 
+		{
+			val.type = evm::ValueType::V_NUMBER;
+			val.as.number = vec4->w;
+		}
+	}
+		break;
+	case tt::V_MAT4:
+	{
+		auto mat4 = evm::VMHelper::GetHandleValue<sm::mat4>(src);
+		if (mat4)
+		{
+			auto v4 = std::make_shared<sm::vec4>(
+				mat4->c[3][0], mat4->c[3][1], mat4->c[3][2], mat4->c[3][3]
+				);
+
+			val.type = tt::ValueType::V_VEC4;
+			val.as.handle = new evm::Handle<sm::vec4>(v4);
+		}
+	}
+		break;
+	default:
+		throw std::runtime_error("Unknown type!");
+	}
+
+	vm->SetRegister(r_dst, val);
 }
 
 void MathOpCodeImpl::CreatePlane(evm::VM* vm)

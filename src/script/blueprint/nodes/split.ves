@@ -120,6 +120,79 @@ class Split is Node
 		return nil
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (idx == 0)
+		{
+			for (var i = 0; i < 3; i = i + 1)
+			{
+				var r_src = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
+				if (r_src)
+				{
+					var r_dst = compiler.new_reg()
+
+					opcodes.get_x(r_dst, r_src)
+					compiler.free_reg(r_src)
+
+					return r_dst
+				}
+			}
+		}
+		else if (idx == 1)
+		{
+			for (var i = 0; i < 3; i = i + 1)
+			{
+				var r_src = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
+				if (r_src)
+				{
+					var r_dst = compiler.new_reg()
+
+					opcodes.get_y(r_dst, r_src)
+					compiler.free_reg(r_src)
+
+					return r_dst
+				}
+			}
+		}
+		else if (idx == 2)
+		{
+			for (var i = 0; i < 3; i = i + 1)
+			{
+				var r_src = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
+				if (r_src)
+				{
+					var r_dst = compiler.new_reg()
+
+					opcodes.get_z(r_dst, r_src)
+					compiler.free_reg(r_src)
+
+					return r_dst
+				}
+			}
+		}
+		else if (idx == 3)
+		{
+			for (var i = 0; i < 3; i = i + 1)
+			{
+				var r_src = Blueprint.calc_input_opcodes(this, i, compiler, opcodes)
+				if (r_src)
+				{
+					var r_dst = compiler.new_reg()
+
+					opcodes.get_w(r_dst, r_src)
+					compiler.free_reg(r_src)
+
+					return r_dst
+				}
+			}
+		}
+
+		import "logger.logger" for Logger
+		Logger.error("Not Implemented!")
+						
+		return nil
+	}
+
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder

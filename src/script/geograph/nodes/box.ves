@@ -129,9 +129,9 @@ class Box is Node
 			var r_size_z = compiler.new_reg()
 			if (r_size)
 			{
-				opcodes.vec3_get_x(r_size_x, r_size)
-				opcodes.vec3_get_y(r_size_y, r_size)
-				opcodes.vec3_get_z(r_size_z, r_size)
+				opcodes.get_x(r_size_x, r_size)
+				opcodes.get_y(r_size_y, r_size)
+				opcodes.get_z(r_size_z, r_size)
 				compiler.free_reg(r_size)
 			}
 			else
@@ -147,9 +147,9 @@ class Box is Node
 			var r_pos_z = compiler.new_reg()
 			if (r_pos)
 			{
-				opcodes.vec3_get_x(r_pos_x, r_pos)
-				opcodes.vec3_get_y(r_pos_y, r_pos)
-				opcodes.vec3_get_z(r_pos_z, r_pos)
+				opcodes.get_x(r_pos_x, r_pos)
+				opcodes.get_y(r_pos_y, r_pos)
+				opcodes.get_z(r_pos_z, r_pos)
 				compiler.free_reg(r_pos)
 			}
 			else

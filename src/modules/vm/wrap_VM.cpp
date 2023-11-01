@@ -189,21 +189,6 @@ void w_Bytecodes_vec3_transform()
     bytecodes_write(tt::OP_VEC3_TRANSFORM, 2);
 }
 
-void w_Bytecodes_vec3_get_x()
-{
-    bytecodes_write(tt::OP_VEC3_GET_X, 2);
-}
-
-void w_Bytecodes_vec3_get_y()
-{
-    bytecodes_write(tt::OP_VEC3_GET_Y, 2);
-}
-
-void w_Bytecodes_vec3_get_z()
-{
-    bytecodes_write(tt::OP_VEC3_GET_Z, 2);
-}
-
 void w_Bytecodes_vec4_create_i()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -239,6 +224,27 @@ void w_Bytecodes_create_cube()
 {
     bytecodes_write(tt::OP_CREATE_CUBE, 3);
 }
+ 
+void w_Bytecodes_get_x()
+{
+    bytecodes_write(tt::OP_GET_X, 2);
+}
+
+void w_Bytecodes_get_y()
+{
+    bytecodes_write(tt::OP_GET_Y, 2);
+}
+
+void w_Bytecodes_get_z()
+{
+    bytecodes_write(tt::OP_GET_Z, 2);
+}
+
+void w_Bytecodes_get_w()
+{
+    bytecodes_write(tt::OP_GET_W, 2);
+}
+
 
 void w_Bytecodes_create_vector()
 {
@@ -713,14 +719,15 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.vec3_add(_,_,_)") == 0) return w_Bytecodes_vec3_add;
     if (strcmp(signature, "Bytecodes.vec3_sub(_,_,_)") == 0) return w_Bytecodes_vec3_sub;
     if (strcmp(signature, "Bytecodes.vec3_transform(_,_)") == 0) return w_Bytecodes_vec3_transform;
-    if (strcmp(signature, "Bytecodes.vec3_get_x(_,_)") == 0) return w_Bytecodes_vec3_get_x;
-    if (strcmp(signature, "Bytecodes.vec3_get_y(_,_)") == 0) return w_Bytecodes_vec3_get_y;
-    if (strcmp(signature, "Bytecodes.vec3_get_z(_,_)") == 0) return w_Bytecodes_vec3_get_z;
     if (strcmp(signature, "Bytecodes.vec4_create_i(_,_,_,_,_)") == 0) return w_Bytecodes_vec4_create_i;
     if (strcmp(signature, "Bytecodes.create_mat4(_)") == 0) return w_Bytecodes_create_mat4;
     if (strcmp(signature, "Bytecodes.mat4_rotate(_,_)") == 0) return w_Bytecodes_mat4_rotate;
     if (strcmp(signature, "Bytecodes.mat4_translate(_,_)") == 0) return w_Bytecodes_mat4_translate;
     if (strcmp(signature, "Bytecodes.create_cube(_,_,_)") == 0) return w_Bytecodes_create_cube;
+    if (strcmp(signature, "Bytecodes.get_x(_,_)") == 0) return w_Bytecodes_get_x;
+    if (strcmp(signature, "Bytecodes.get_y(_,_)") == 0) return w_Bytecodes_get_y;
+    if (strcmp(signature, "Bytecodes.get_z(_,_)") == 0) return w_Bytecodes_get_z;
+    if (strcmp(signature, "Bytecodes.get_w(_,_)") == 0) return w_Bytecodes_get_w;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;

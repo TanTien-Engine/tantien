@@ -32,14 +32,15 @@ foreign class Bytecodes
 	foreign vec3_add(r_dst, r_src1, r_src2)
 	foreign vec3_sub(r_dst, r_src1, r_src2)
 	foreign vec3_transform(r_dst, r_mat)
-	foreign vec3_get_x(r_dst, r_src)
-	foreign vec3_get_y(r_dst, r_src)
-	foreign vec3_get_z(r_dst, r_src)
 	foreign vec4_create_i(r_vec, x, y, z, w)
 	foreign create_mat4(r_mat)
 	foreign mat4_rotate(r_mat, r_xyz)
 	foreign mat4_translate(r_mat, r_xyz)
 	foreign create_cube(r_dst, r_min, r_max)
+	foreign get_x(r_dst, r_src)
+	foreign get_y(r_dst, r_src)
+	foreign get_z(r_dst, r_src)
+	foreign get_w(r_dst, r_src)
 
 	// stl
 	foreign create_vector(r_list)
