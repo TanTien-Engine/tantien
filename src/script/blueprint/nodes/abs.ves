@@ -38,4 +38,21 @@ class Abs is Node
 			return nil
 		}
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_src = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (!r_src) {
+			return nil
+		}
+
+		var r_dst = compiler.new_reg()
+		if (r_dst) {
+			opcodes.abs(r_dst, r_src)
+		}
+
+		compiler.free_reg(r_src)
+
+		return r_dst
+	}
 }

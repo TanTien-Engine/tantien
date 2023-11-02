@@ -44,6 +44,19 @@ class FuncCall is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (!this.func_node) {
+			this.func_node = this.get_func_node()
+		}
+
+		if (this.func_node) {
+			return this.func_node.func_call_opcodes(this, idx, compiler, opcodes)
+		} else {
+			return nil
+		}
+	}
+
 	to_string(name)
 	{
 		var ret = ""

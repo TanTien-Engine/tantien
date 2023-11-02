@@ -4,6 +4,8 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER_SET, VAR
 import "blueprint.blueprint" for Blueprint
 import "blueprint.nodes.add" for Add
 import "maths.vector" for Vector2, Vector3, Vector4
+import "maths.compiler" for Compiler as maths_Compiler
+import "vm" for CodeTools, CodeRegen
 
 class Sum is Node
 {
@@ -45,5 +47,48 @@ class Sum is Node
 		}
 
 		return nil
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_list = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (!r_list) {
+			return nil
+		}
+
+		var r_dst = compiler.new_reg()
+
+		var r_idx = maths_Compiler.create_number(compiler, opcodes, 0)
+
+		var r_size = compiler.new_reg()
+		opcodes.vector_size(r_size, r_list)
+
+		var r_cmp = maths_Compiler.create_bool(compiler, opcodes, false)
+
+		var begin_ip = CodeTools.get_size(opcodes)
+
+		opcodes.cmp_num(r_cmp, r_idx, r_size)
+		var offset_pos = CodeTools.get_size(opcodes) + 1
+		var skip_ip = CodeTools.get_size(opcodes)
+		opcodes.jump_if(0, r_cmp)
+
+		var r_item = compiler.new_reg()
+		opcodes.vector_fetch_r(r_item, r_list, r_idx)
+
+		opcodes.add(r_dst, r_dst, r_item)
+
+		opcodes.inc_num(r_idx)
+
+		opcodes.jump(CodeTools.get_size(opcodes) - begin_ip)
+
+		CodeRegen.write_int(opcodes, offset_pos, CodeTools.get_size(opcodes) - skip_ip)
+
+		compiler.free_reg(r_list)
+		compiler.free_reg(r_size)
+		compiler.free_reg(r_idx)
+		compiler.free_reg(r_cmp)
+		compiler.free_reg(r_item)
+
+		return r_dst
 	}
 }

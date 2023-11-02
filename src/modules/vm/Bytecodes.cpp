@@ -24,6 +24,7 @@ void Bytecodes::WriteNum(int pos, float num)
 {
 	SetCurrPos(pos);
 	Write(reinterpret_cast<const char*>(&num), sizeof(float));
+	SetCurrPos(-1);
 }
 
 void Bytecodes::AddOptimBlock(size_t hash, int begin, int end, int reg)

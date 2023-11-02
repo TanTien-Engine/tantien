@@ -271,6 +271,35 @@ void w_Bytecodes_get_w()
     bytecodes_write(tt::OP_GET_W, 2);
 }
 
+void w_Bytecodes_add()
+{
+    bytecodes_write(tt::OP_ADD, 3);
+}
+
+void w_Bytecodes_sub()
+{
+    bytecodes_write(tt::OP_SUB, 3);
+}
+
+void w_Bytecodes_mul()
+{
+    bytecodes_write(tt::OP_MUL, 3);
+}
+
+void w_Bytecodes_div()
+{
+    bytecodes_write(tt::OP_DIV, 3);
+}
+
+void w_Bytecodes_negate()
+{
+    bytecodes_write(tt::OP_NEGATE, 2);
+}
+
+void w_Bytecodes_abs()
+{
+    bytecodes_write(tt::OP_ABS, 2);
+}
 
 void w_Bytecodes_create_vector()
 {
@@ -290,6 +319,16 @@ void w_Bytecodes_vector_concat()
 void w_Bytecodes_vector_get()
 {
     bytecodes_write(tt::StlOpCode::OP_VECTOR_GET, 3);
+}
+
+void w_Bytecodes_vector_fetch_r()
+{
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_FETCH_R, 3);
+}
+
+void w_Bytecodes_vector_size()
+{
+    bytecodes_write(tt::StlOpCode::OP_VECTOR_SIZE, 2);
 }
 
 void w_Bytecodes_create_plane()
@@ -350,31 +389,6 @@ void w_Bytecodes_polypoint_select()
 void w_Bytecodes_polyface_select()
 {
     bytecodes_write(tt::OP_POLYFACE_SELECT, 4);
-}
-
-void w_Bytecodes_add()
-{
-    bytecodes_write(tt::OP_ADD, 3);
-}
-
-void w_Bytecodes_sub()
-{
-    bytecodes_write(tt::OP_SUB, 3);
-}
-
-void w_Bytecodes_mul()
-{
-    bytecodes_write(tt::OP_MUL, 3);
-}
-
-void w_Bytecodes_div()
-{
-    bytecodes_write(tt::OP_DIV, 3);
-}
-
-void w_Bytecodes_negate()
-{
-    bytecodes_write(tt::OP_NEGATE, 2);
 }
 
 void w_Bytecodes_transform()
@@ -768,11 +782,19 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.get_y(_,_)") == 0) return w_Bytecodes_get_y;
     if (strcmp(signature, "Bytecodes.get_z(_,_)") == 0) return w_Bytecodes_get_z;
     if (strcmp(signature, "Bytecodes.get_w(_,_)") == 0) return w_Bytecodes_get_w;
+    if (strcmp(signature, "Bytecodes.add(_,_,_)") == 0) return w_Bytecodes_add;
+    if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
+    if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
+    if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
+    if (strcmp(signature, "Bytecodes.negate(_,_)") == 0) return w_Bytecodes_negate;
+    if (strcmp(signature, "Bytecodes.abs(_,_)") == 0) return w_Bytecodes_abs;
     // stl
     if (strcmp(signature, "Bytecodes.create_vector(_)") == 0) return w_Bytecodes_create_vector;
     if (strcmp(signature, "Bytecodes.vector_add(_,_)") == 0) return w_Bytecodes_vector_add;
     if (strcmp(signature, "Bytecodes.vector_concat(_,_)") == 0) return w_Bytecodes_vector_concat;
     if (strcmp(signature, "Bytecodes.vector_get(_,_,_)") == 0) return w_Bytecodes_vector_get;
+    if (strcmp(signature, "Bytecodes.vector_fetch_r(_,_,_)") == 0) return w_Bytecodes_vector_fetch_r;
+    if (strcmp(signature, "Bytecodes.vector_size(_,_)") == 0) return w_Bytecodes_vector_size;
     // geo
     if (strcmp(signature, "Bytecodes.create_plane(_,_,_,_)") == 0) return w_Bytecodes_create_plane;
     if (strcmp(signature, "Bytecodes.create_plane_2(_,_,_)") == 0) return w_Bytecodes_create_plane_2;
@@ -787,11 +809,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.polypoint_select(_,_,_)") == 0) return w_Bytecodes_polypoint_select;
     if (strcmp(signature, "Bytecodes.polyface_select(_,_,_,_)") == 0) return w_Bytecodes_polyface_select;
     // multi
-    if (strcmp(signature, "Bytecodes.add(_,_,_)") == 0) return w_Bytecodes_add;
-    if (strcmp(signature, "Bytecodes.sub(_,_,_)") == 0) return w_Bytecodes_sub;
-    if (strcmp(signature, "Bytecodes.mul(_,_,_)") == 0) return w_Bytecodes_mul;
-    if (strcmp(signature, "Bytecodes.div(_,_,_)") == 0) return w_Bytecodes_div;
-    if (strcmp(signature, "Bytecodes.negate(_,_)") == 0) return w_Bytecodes_negate;
     if (strcmp(signature, "Bytecodes.transform(_,_)") == 0) return w_Bytecodes_transform;
 
     if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;

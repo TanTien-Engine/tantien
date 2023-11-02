@@ -39,6 +39,8 @@ void StlOpCodeImpl::OpCodeInit(evm::VM* vm)
 	vm->RegistOperator(OP_VECTOR_ADD, VectorAdd);
 	vm->RegistOperator(OP_VECTOR_CONCAT, VectorConcat);
 	vm->RegistOperator(OP_VECTOR_GET, VectorGet);
+	vm->RegistOperator(OP_VECTOR_FETCH_R, VectorFetchR);
+	vm->RegistOperator(OP_VECTOR_SIZE, VectorSize);
 }
 
 void StlOpCodeImpl::VectorCreate(evm::VM* vm)
@@ -89,6 +91,42 @@ void StlOpCodeImpl::VectorGet(evm::VM* vm)
 	}
 
 	vm->SetRegister(r_dst, (*vec)[idx]);
+}
+
+void StlOpCodeImpl::VectorFetchR(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_vec = vm->NextByte();
+	uint8_t r_idx = vm->NextByte();
+
+	auto vec = tt::VMHelper::GetRegArray(vm, r_vec);
+	if (!vec) {
+		return;
+	}
+
+	auto idx = static_cast<int>(evm::VMHelper::GetRegNumber(vm, r_idx));
+	if (idx < 0 || idx >= vec->size()) {
+		return;
+	}
+
+	vm->SetRegister(r_dst, (*vec)[idx]);
+}
+
+void StlOpCodeImpl::VectorSize(evm::VM* vm)
+{
+	uint8_t r_dst = vm->NextByte();
+	uint8_t r_vec = vm->NextByte();
+
+	auto vec = tt::VMHelper::GetRegArray(vm, r_vec);
+	if (!vec) {
+		return;
+	}
+
+	evm::Value val;
+	val.type = evm::ValueType::V_NUMBER;
+	val.as.number = static_cast<t_num>(vec->size());
+
+	vm->SetRegister(r_dst, val);
 }
 
 }

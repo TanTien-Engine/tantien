@@ -32,6 +32,15 @@ class FuncIn is Node
 		}
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (this.caller_node) {
+			return Blueprint.calc_input_opcodes(this.caller_node, this.caller_idx, compiler, opcodes)
+		} else {
+			return nil
+		}
+	}
+
 	to_string(name) 
 	{
 		if (this.var_name == "in")

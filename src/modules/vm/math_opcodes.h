@@ -37,6 +37,7 @@ enum MathOpCode
 	OP_DIV,
 
 	OP_NEGATE,
+	OP_ABS,
 };
 
 class MathOpCodeImpl
@@ -75,6 +76,7 @@ private:
 	static void Div(evm::VM* vm);
 
 	static void Negate(evm::VM* vm);
+	static void Abs(evm::VM* vm);
 
 }; // MathOpCodeImpl
 

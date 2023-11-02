@@ -11,6 +11,8 @@ enum StlOpCode
 	OP_VECTOR_ADD,
 	OP_VECTOR_CONCAT,
 	OP_VECTOR_GET,
+	OP_VECTOR_FETCH_R,
+	OP_VECTOR_SIZE,
 };
 
 class StlOpCodeImpl
@@ -23,6 +25,8 @@ private:
 	static void VectorAdd(evm::VM* vm);
 	static void VectorConcat(evm::VM* vm);
 	static void VectorGet(evm::VM* vm);
+	static void VectorFetchR(evm::VM* vm);
+	static void VectorSize(evm::VM* vm);
 
 }; // StlOpCodeImpl
 

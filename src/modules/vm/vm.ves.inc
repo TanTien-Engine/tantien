@@ -45,12 +45,20 @@ foreign class Bytecodes
 	foreign get_y(r_dst, r_src)
 	foreign get_z(r_dst, r_src)
 	foreign get_w(r_dst, r_src)
+	foreign add(r_dst, r_src1, r_src2)
+	foreign sub(r_dst, r_src1, r_src2)
+	foreign mul(r_dst, r_src1, r_src2)
+	foreign div(r_dst, r_src1, r_src2)
+	foreign negate(r_dst, r_src)
+	foreign abs(r_dst, r_src)
 
 	// stl
 	foreign create_vector(r_list)
 	foreign vector_add(r_list, r_item)
 	foreign vector_concat(r_dst, r_src)
 	foreign vector_get(r_dst, r_vec, idx)
+	foreign vector_fetch_r(r_dst, r_vec, r_idx)
+	foreign vector_size(r_dst, r_vec)
 
 	// geo
 	foreign create_plane(r_dst, r_p0, r_p1, r_p2)
@@ -66,12 +74,7 @@ foreign class Bytecodes
 	foreign polypoint_select(r_dst, r_poly, r_cube)
 	foreign polyface_select(r_dst, r_poly, r_normal, r_region)	
 
-	// mix
-	foreign add(r_dst, r_src1, r_src2)
-	foreign sub(r_dst, r_src1, r_src2)
-	foreign mul(r_dst, r_src1, r_src2)
-	foreign div(r_dst, r_src1, r_src2)
-	foreign negate(r_dst, r_src)
+	// mixed
 	foreign transform(r_obj, r_mat)
 }
 

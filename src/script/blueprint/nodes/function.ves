@@ -56,6 +56,26 @@ class Function is Commentary
 
 	func_call(caller, idx)
 	{
+		var export = this.prepare_call(caller, idx)
+		if (export) {
+			return Blueprint.calc_input_value(export, 0)
+		} else {
+			return nil
+		}
+	}
+
+	func_call_opcodes(caller, idx, compiler, opcodes)
+	{
+		var export = this.prepare_call(caller, idx)
+		if (export) {
+			return Blueprint.calc_input_opcodes(export, 0, compiler, opcodes)
+		} else {
+			return nil		
+		}
+	}
+
+	prepare_call(caller, idx)
+	{
 		var export = nil
 		for (var node in this.children)
 		{
@@ -71,12 +91,6 @@ class Function is Commentary
 					}
 				}
 			}
-		}
-
-		if (export) {
-			return Blueprint.calc_input_value(export, 0)
-		} else {
-			return nil		
 		}
 	}
 }

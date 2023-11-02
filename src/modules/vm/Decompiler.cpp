@@ -92,11 +92,15 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[tt::OP_SUB]				= "sub";
 		m_op_names[tt::OP_MUL]				= "mul";
 		m_op_names[tt::OP_DIV]				= "div";
+		m_op_names[tt::OP_NEGATE]			= "neg";
+		m_op_names[tt::OP_ABS]              = "abs";
 
 		m_op_names[tt::OP_VECTOR_CREATE]	= "array";
 		m_op_names[tt::OP_VECTOR_ADD]		= "array_add";
 		m_op_names[tt::OP_VECTOR_CONCAT]	= "array_conn";
 		m_op_names[tt::OP_VECTOR_GET]		= "array_get";
+		m_op_names[tt::OP_VECTOR_FETCH_R]   = "array_get_r";
+		m_op_names[tt::OP_VECTOR_SIZE]      = "array_size";
 
 		m_op_names[tt::OP_CREATE_POLYFACE]		= "face";
 		m_op_names[tt::OP_CREATE_POLYTOPE]		= "poly";
