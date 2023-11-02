@@ -55,6 +55,11 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<tt::Bytecodes>);
 }
 
+void w_Bytecodes_move_val()
+{
+    bytecodes_write(evm::OP_MOVE_VAL, 2);
+}
+
 void w_Bytecodes_store_bool()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
@@ -124,6 +129,27 @@ void w_Bytecodes_dec_num()
 void w_Bytecodes_cmp_num()
 {
     bytecodes_write(evm::OP_CMP, 3);
+}
+
+void w_Bytecodes_jump()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_JUMP);
+    builder.WriteInt((int)ves_tonumber(1));
+}
+
+void w_Bytecodes_jump_if()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(0))->obj;
+
+    tt::CodesBuilder builder(code, tt::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_JUMP_IF);
+    builder.WriteInt((int)ves_tonumber(1));
+    builder.WriteReg((uint8_t)ves_tonumber(2));
 }
 
 void w_Bytecodes_jump_if_not()
@@ -430,6 +456,17 @@ void w_CodeTools_hash()
     ves_set_lstring(0, s_hash.c_str(), s_hash.length());
 }
 
+void w_CodeRegen_write_int()
+{
+    auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
+    int pos = (int)ves_tonumber(2);
+    int i = (int)ves_tonumber(3);
+
+    code->SetCurrPos(pos);
+    code->Write(reinterpret_cast<const char*>(&i), sizeof(float));
+    code->SetCurrPos(-1);
+}
+
 void w_CodeRegen_write_num()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
@@ -699,6 +736,7 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.move_val(_,_)") == 0) return w_Bytecodes_move_val;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
@@ -710,6 +748,8 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.inc_num(_)") == 0) return w_Bytecodes_inc_num;
     if (strcmp(signature, "Bytecodes.dec_num(_)") == 0) return w_Bytecodes_dec_num;
     if (strcmp(signature, "Bytecodes.cmp_num(_,_,_)") == 0) return w_Bytecodes_cmp_num;
+    if (strcmp(signature, "Bytecodes.jump(_)") == 0) return w_Bytecodes_jump;
+    if (strcmp(signature, "Bytecodes.jump_if(_,_)") == 0) return w_Bytecodes_jump_if;
     if (strcmp(signature, "Bytecodes.jump_if_not(_,_)") == 0) return w_Bytecodes_jump_if_not;
     // math
     if (strcmp(signature, "Bytecodes.vec2_create_i(_,_,_)") == 0) return w_Bytecodes_vec2_create_i;
@@ -763,6 +803,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "static CodeTools.decompiler(_,_,_)") == 0) return w_CodeTools_decompiler;
     if (strcmp(signature, "static CodeTools.hash(_,_,_)") == 0) return w_CodeTools_hash;
 
+    if (strcmp(signature, "static CodeRegen.write_int(_,_,_)") == 0) return w_CodeRegen_write_int;
     if (strcmp(signature, "static CodeRegen.write_num(_,_,_)") == 0) return w_CodeRegen_write_num;
 
     if (strcmp(signature, "Compiler.new_reg()") == 0) return w_Compiler_new_reg;

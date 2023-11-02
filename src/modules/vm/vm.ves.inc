@@ -6,6 +6,8 @@ foreign class Bytecodes
 	init() {}
 
 	// basic
+	foreign move_val(r_dst, r_src)
+
 	foreign store_bool(reg, bool)
 	
 	foreign store_num(reg, num)
@@ -22,6 +24,8 @@ foreign class Bytecodes
 
 	foreign cmp_num(r_dst, r_src1, r_src2)
 
+	foreign jump(offset)
+	foreign jump_if(offset, r_bool)
 	foreign jump_if_not(offset, r_bool)
 
 	// math
@@ -89,6 +93,7 @@ foreign class CodeTools
 
 foreign class CodeRegen
 {
+	foreign static write_int(codes, pos, num)
 	foreign static write_num(codes, pos, num)
 }
 

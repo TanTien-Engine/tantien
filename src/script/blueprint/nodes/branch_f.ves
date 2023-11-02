@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for VAR_TYPE_ANY, VAR_TYPE_BOOLEAN
+import "vm" for CodeTools, CodeRegen
 
 class BranchF is Node
 {
@@ -31,7 +32,7 @@ class BranchF is Node
 		}
 	}
 
-	calc_opcodes(compiler, opcodes, idx)
+	calc_opcodes_old(compiler, opcodes, idx)
 	{
 		var v_cond = Blueprint.calc_input_value(this, 0)
 		if (v_cond and v_cond.value) {
@@ -39,5 +40,44 @@ class BranchF is Node
 		} else {
 			return Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
 		}
-	}	
+	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_cond = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (!r_cond) {
+			return Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
+		}
+
+		var r_dst = compiler.new_reg()
+
+		var begin_ip = CodeTools.get_size(opcodes)
+
+		opcodes.jump_if_not(0, r_cond)
+
+		// true
+
+		var r_true = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+		opcodes.move_val(r_dst, r_true)
+		var t_pos = CodeTools.get_size(opcodes)
+		opcodes.jump(0)
+
+		// false
+
+		var f_pos = CodeTools.get_size(opcodes)
+
+		var r_false = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
+		opcodes.move_val(r_dst, r_false)
+
+		var end_ip = CodeTools.get_size(opcodes)
+
+		CodeRegen.write_int(opcodes, begin_ip + 1, f_pos - begin_ip)
+		CodeRegen.write_int(opcodes, t_pos + 1, end_ip - t_pos)
+
+		compiler.free_reg(r_cond)
+		compiler.free_reg(r_true)
+		compiler.free_reg(r_false)
+
+		return r_dst
+	}
 }

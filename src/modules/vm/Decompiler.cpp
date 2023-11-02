@@ -51,6 +51,7 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names.resize(MAX_OP_NUM);
 
 		m_op_names[evm::OP_EXIT]			= "exit";
+		m_op_names[evm::OP_MOVE_VAL]        = "move";
 		m_op_names[evm::OP_BOOL_STORE]		= "bool_store";
 		m_op_names[evm::OP_BOOL_PRINT]		= "bool_print";
 		m_op_names[evm::OP_NUMBER_STORE]	= "num_store";
@@ -63,7 +64,9 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[evm::OP_INC]				= "inc";
 		m_op_names[evm::OP_DEC]				= "dec";
 		m_op_names[evm::OP_CMP]				= "cmp";
-		m_op_names[evm::OP_JUMP_IF_NOT]		= "jump_nz";
+		m_op_names[evm::OP_JUMP]            = "jump";
+		m_op_names[evm::OP_JUMP_IF]         = "jump_true";
+		m_op_names[evm::OP_JUMP_IF_NOT]		= "jump_false";
 		m_op_names[evm::OP_STRING_STORE]	= "str_store";
 		m_op_names[evm::OP_STRING_PRINT]	= "str_print";
 
