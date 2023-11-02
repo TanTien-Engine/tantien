@@ -15,6 +15,8 @@ void load_polys(std::vector<std::shared_ptr<pm3::Polytope>>& dst, const evm::Val
 {
 	switch (src.type)
 	{
+	case evm::ValueType::V_NIL:
+		break;
 	case tt::ValueType::V_POLY:
 	{
 		auto poly = evm::VMHelper::GetHandleValue<pm3::Polytope>(src);

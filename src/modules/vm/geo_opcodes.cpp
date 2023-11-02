@@ -19,24 +19,30 @@ namespace
 
 void transform(const evm::Value& val, const sm::mat4& mat)
 {
-	if (val.type == tt::V_ARRAY)
+	switch (val.type)
+	{
+	case evm::V_NIL:
+		break;
+	case tt::V_ARRAY:
 	{
 		auto list = tt::VMHelper::GetValArray(val);
 		for (auto& item : *list) {
 			transform(item, mat);
 		}
 	}
-	else if (val.type == tt::V_VEC3)
+		break;
+	case tt::V_VEC3:
 	{
 		auto vec3 = evm::VMHelper::GetHandleValue<sm::vec3>(val);
 		if (vec3) {
 			*vec3 = mat * (*vec3);
 		}
 	}
-	else if (val.type == tt::V_POLY)
+		break;
+	case tt::V_POLY:
 	{
 		auto poly = evm::VMHelper::GetHandleValue<pm3::Polytope>(val);
-		if (poly) 
+		if (poly)
 		{
 			auto& pts = poly->Points();
 			for (auto& p : pts) {
@@ -46,22 +52,24 @@ void transform(const evm::Value& val, const sm::mat4& mat)
 			poly->SetTopoDirty();
 		}
 	}
-	else if (val.type == tt::V_PLANE)
+		break;
+	case tt::V_PLANE:
 	{
 		auto plane = evm::VMHelper::GetHandleValue<sm::Plane>(val);
 		if (plane) {
 			tt::Maths::TransformPlane(*plane, mat);
 		}
 	}
-	else if (val.type == tt::V_POLY_POINT)
+		break;
+	case tt::V_POLY_POINT:
 	{
 		auto point = evm::VMHelper::GetHandleValue<pm3::Polytope::Point>(val);
 		if (point) {
 			point->pos = mat * point->pos;
 		}
 	}
-	else
-	{
+		break;
+	default:
 		throw std::runtime_error("Not Implemented!");
 	}
 }
@@ -72,6 +80,8 @@ evm::Value value_clone(const evm::Value& src)
 
 	switch (src.type)
 	{
+	case evm::ValueType::V_NIL:
+		break;
 	case tt::ValueType::V_ARRAY:
 	{
 		auto src_items = tt::VMHelper::GetValArray(src);
