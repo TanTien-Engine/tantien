@@ -43,8 +43,15 @@ class Property is Node
 		{
 			return maths_Compiler.create_number(compiler, opcodes, this.value)
 		}
+		else if (this.var_type == "bool")
+		{
+			return maths_Compiler.create_bool(compiler, opcodes, this.value)
+		}
 		else
 		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented!")
+
 			return nil
 		}
 	}

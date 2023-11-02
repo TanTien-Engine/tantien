@@ -52,8 +52,7 @@ class ForEachF is Node
 
 			compiler.keep_reg(this.r_curr_item, true)
 
-			var r_cmp = compiler.new_reg()
-			opcodes.store_bool(r_cmp, false)
+			var r_cmp = maths_Compiler.create_bool(compiler, opcodes, false)
 
 			var start_ip = CodeTools.get_size(opcodes)
 

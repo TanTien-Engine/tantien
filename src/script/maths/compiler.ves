@@ -1,5 +1,14 @@
 class Compiler
 {
+	static create_bool(compiler, opcodes, bool)
+	{
+		var reg = compiler.new_reg()
+		if (reg) {
+			opcodes.store_bool(reg, bool)
+		}	
+		return reg
+	}
+
 	static create_number(compiler, opcodes, num)
 	{
 		var reg = compiler.new_reg()

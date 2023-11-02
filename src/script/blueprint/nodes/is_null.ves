@@ -2,6 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_BOOLEAN
 import "blueprint.blueprint" for Blueprint
+import "maths.compiler" for Compiler as maths_Compiler
 
 class IsNull is Node
 {
@@ -31,19 +32,17 @@ class IsNull is Node
 
 	calc_opcodes(compiler, opcodes, idx)
 	{
-		var r_dst = compiler.new_reg()
-		if (!r_dst) {
-			return nil
+		var r_in = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+
+		var bool
+		if (r_in) {
+			bool = false
+		} else {
+			bool = true
 		}
 
-		var r_in = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
-		if (r_in) {
-			opcodes.store_bool(r_dst, true)
-		} else {
-			opcodes.store_bool(r_dst, false)
-		}
 		compiler.free_reg(r_in)
 
-		return r_dst
+		return maths_Compiler.create_bool(compiler, opcodes, bool)
 	}
 }
