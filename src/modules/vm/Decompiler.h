@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CodeBlock.h"
+
 #include <memory>
 #include <vector>
 #include <string>
@@ -19,6 +21,11 @@ public:
 	void Print(int begin, int end);
 
 	size_t Hash(int begin, int end);
+
+	void JumpLabelEncode();
+	void JumpLabelDecode();
+
+	void JumpLabelRelocate(const std::vector<CodeBlock>& rm_blocks);
 
 private:
 	std::shared_ptr<Bytecodes> m_codes;

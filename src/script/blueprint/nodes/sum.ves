@@ -79,9 +79,9 @@ class Sum is Node
 
 		opcodes.inc_num(r_idx)
 
-		opcodes.jump(CodeTools.get_size(opcodes) - begin_ip)
+		opcodes.jump(begin_ip)
 
-		CodeRegen.write_int(opcodes, offset_pos, CodeTools.get_size(opcodes) - skip_ip)
+		CodeRegen.write_int(opcodes, offset_pos, CodeTools.get_size(opcodes))
 
 		compiler.free_reg(r_list)
 		compiler.free_reg(r_size)

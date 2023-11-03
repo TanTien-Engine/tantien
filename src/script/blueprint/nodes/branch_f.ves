@@ -71,8 +71,8 @@ class BranchF is Node
 
 		var end_ip = CodeTools.get_size(opcodes)
 
-		CodeRegen.write_int(opcodes, begin_ip + 1, f_pos - begin_ip)
-		CodeRegen.write_int(opcodes, t_pos + 1, end_ip - t_pos)
+		CodeRegen.write_int(opcodes, begin_ip + 1, f_pos)
+		CodeRegen.write_int(opcodes, t_pos + 1, end_ip)
 
 		compiler.free_reg(r_cond)
 		compiler.free_reg(r_true)

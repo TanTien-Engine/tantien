@@ -3,6 +3,7 @@
 #include "OpFieldMap.h"
 #include "VM.h"
 #include "geo_opcodes.h"
+#include "Decompiler.h"
 
 #include <easyvm/VM.h>
 
@@ -144,8 +145,23 @@ void Optimizer::CacheBlocks() const
     std::sort(sorted.begin(), sorted.end(), 
         [](const CodeBlock& a, const CodeBlock& b) 
     {
-        return a.begin < b.begin;
+        if (a.begin == b.begin)
+        {
+            return a.end - a.begin > b.end - b.begin;
+        }
+        else
+        {
+            return a.begin < b.begin;
+        }
     });
+
+    auto tmp_codes = std::make_shared<Bytecodes>();
+    tmp_codes->SetCode(old_codes);
+
+    tt::Decompiler dc(tmp_codes, tt::VM::Instance()->GetOpFields());
+    dc.JumpLabelRelocate(sorted);
+
+    auto& fixed_old_codes = tmp_codes->GetCode();
 
     std::vector<uint8_t> new_codes;
 
@@ -153,11 +169,12 @@ void Optimizer::CacheBlocks() const
     for (size_t i = 0, n = sorted.size(); i < n; ++i)
     {
         auto& block = sorted[i];
-        if (block.begin < curr_pos) {
-            assert(0);
+        if (block.begin < curr_pos) 
+        {
+            assert(block.end <= curr_pos);
             continue;
         }
-        std::copy(old_codes.begin() + curr_pos, old_codes.begin() + block.begin, std::back_inserter(new_codes));
+        std::copy(fixed_old_codes.begin() + curr_pos, fixed_old_codes.begin() + block.begin, std::back_inserter(new_codes));
         curr_pos = block.end;
 
         new_codes.push_back(OP_POLY_COPY_FROM_MEM);
@@ -169,7 +186,7 @@ void Optimizer::CacheBlocks() const
         { OpFieldType::OpType, OpFieldType::Reg, OpFieldType::Reg }
     );
 
-    std::copy(old_codes.begin() + curr_pos, old_codes.end(), std::back_inserter(new_codes));
+    std::copy(fixed_old_codes.begin() + curr_pos, fixed_old_codes.end(), std::back_inserter(new_codes));
 
     m_new_codes = std::make_shared<Bytecodes>();
     m_new_codes->SetCode(new_codes);
