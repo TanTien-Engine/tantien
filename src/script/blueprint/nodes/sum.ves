@@ -67,7 +67,7 @@ class Sum is Node
 
 		var begin_ip = CodeTools.get_size(opcodes)
 
-		opcodes.cmp_num(r_cmp, r_idx, r_size)
+		opcodes.equal_num(r_cmp, r_idx, r_size)
 		var offset_pos = CodeTools.get_size(opcodes) + 1
 		var skip_ip = CodeTools.get_size(opcodes)
 		opcodes.jump_if(0, r_cmp)

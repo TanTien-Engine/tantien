@@ -27,4 +27,18 @@ class AND is Node
 		var ret = v_a and v_a.value and v_b and v_b.value
 		return Variant(VAR_TYPE_BOOLEAN, ret)
 	}
+
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_a = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_b = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+
+		var r_dst = compiler.new_reg()
+		opcodes.and_bool(r_dst, r_a, r_b)
+
+		compiler.free_reg(r_a)
+		compiler.free_reg(r_b)
+
+		return r_dst
+	}	
 }

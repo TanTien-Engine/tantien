@@ -30,6 +30,23 @@ class Sqrt is Node
 		return nil
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_src = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		if (!r_src) {
+			return nil
+		}
+
+		var r_dst = compiler.new_reg()
+		if (r_dst) {
+			opcodes.sqrt_num(r_dst, r_src)
+		}
+
+		compiler.free_reg(r_src)
+
+		return r_dst
+	}
+
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder

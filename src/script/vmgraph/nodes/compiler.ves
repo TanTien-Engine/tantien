@@ -6,7 +6,7 @@ import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
 import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
-import "vm" for Bytecodes, Compiler as tt_Compiler, CodeRegen
+import "vm" for Bytecodes, Compiler as tt_Compiler, CodeRegen, CodeTools
 
 class Compiler is Node
 {
@@ -67,6 +67,8 @@ class Compiler is Node
 			compiler.free_reg(r_dst)
 			
 			compiler.expect_reg_free()
+
+			//CodeTools.decompiler(opcodes, 0, 0)
 
 			this.opcodes = opcodes
 			this.out_reg = r_dst

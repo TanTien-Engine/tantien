@@ -123,6 +123,33 @@ class Compare is Node
 		return Variant(count == num)
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		var r_a = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+		var r_b = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
+
+		var r_dst = compiler.new_reg()
+
+		if (this.cmp == "equal")
+		{
+			opcodes.equal_num(r_dst, r_a, r_b)
+		}
+		else if (this.cmp == "less")
+		{
+			opcodes.less_num(r_dst, r_a, r_b)
+		}
+		else
+		{
+			import "logger.logger" for Logger
+			Logger.error("Not Implemented! %(this.cmp)")
+		}
+
+		compiler.free_reg(r_a)
+		compiler.free_reg(r_b)
+
+		return r_dst
+	}
+
 	shader_gen(node, idx)
 	{
 		import "shadergraph.shader_builder" for ShaderBuilder

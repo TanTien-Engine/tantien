@@ -6,13 +6,19 @@ foreign class Bytecodes
 	init() {}
 
 	// basic
+	foreign is_nil(r_dst, r_src)
 	foreign move_val(r_dst, r_src)
 
 	foreign store_bool(reg, bool)
+
+	foreign and_bool(r_dst, r_src1, r_src2)
+	foreign or_bool(r_dst, r_src1, r_src2)
 	
 	foreign store_num(reg, num)
 	foreign print_num(reg)
+
 	foreign negate_num(dst, src)
+	foreign sqrt_num(dst, src)
 
 	foreign add_num(r_dst, r_src1, r_src2)
 	foreign sub_num(r_dst, r_src1, r_src2)
@@ -22,7 +28,8 @@ foreign class Bytecodes
 	foreign inc_num(reg)
 	foreign dec_num(reg)
 
-	foreign cmp_num(r_dst, r_src1, r_src2)
+	foreign equal_num(r_dst, r_src1, r_src2)
+	foreign less_num(r_dst, r_src1, r_src2)
 
 	foreign jump(offset)
 	foreign jump_if(offset, r_bool)

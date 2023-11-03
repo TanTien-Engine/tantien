@@ -55,6 +55,11 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<tt::Bytecodes>);
 }
 
+void w_Bytecodes_is_nil()
+{
+    bytecodes_write(evm::OP_IS_NIL, 2);
+}
+
 void w_Bytecodes_move_val()
 {
     bytecodes_write(evm::OP_MOVE_VAL, 2);
@@ -69,6 +74,16 @@ void w_Bytecodes_store_bool()
     builder.WriteType(evm::OP_BOOL_STORE);
     builder.WriteReg((uint8_t)ves_tonumber(1));
     builder.WriteBool(ves_toboolean(2));
+}
+
+void w_Bytecodes_and_bool()
+{
+    bytecodes_write(evm::OP_AND, 3);
+}
+
+void w_Bytecodes_or_bool()
+{
+    bytecodes_write(evm::OP_OR, 3);
 }
 
 void w_Bytecodes_store_num()
@@ -94,6 +109,11 @@ void w_Bytecodes_print_num()
 void w_Bytecodes_negate_num()
 {
     bytecodes_write(evm::OP_NUMBER_NEGATE, 2);
+}
+
+void w_Bytecodes_sqrt_num()
+{
+    bytecodes_write(evm::OP_SQRT, 2);
 }
 
 void w_Bytecodes_add_num()
@@ -126,9 +146,14 @@ void w_Bytecodes_dec_num()
     bytecodes_write(evm::OP_DEC, 1);
 }
 
-void w_Bytecodes_cmp_num()
+void w_Bytecodes_equal_num()
 {
-    bytecodes_write(evm::OP_CMP, 3);
+    bytecodes_write(evm::OP_EQUAL, 3);
+}
+
+void w_Bytecodes_less_num()
+{
+    bytecodes_write(evm::OP_LESS, 3);
 }
 
 void w_Bytecodes_jump()
@@ -750,18 +775,23 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.is_nil(_,_)") == 0) return w_Bytecodes_is_nil;
     if (strcmp(signature, "Bytecodes.move_val(_,_)") == 0) return w_Bytecodes_move_val;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;
+    if (strcmp(signature, "Bytecodes.and_bool(_,_,_)") == 0) return w_Bytecodes_and_bool;
+    if (strcmp(signature, "Bytecodes.or_bool(_,_,_)") == 0) return w_Bytecodes_or_bool;
     if (strcmp(signature, "Bytecodes.store_num(_,_)") == 0) return w_Bytecodes_store_num;
     if (strcmp(signature, "Bytecodes.print_num(_)") == 0) return w_Bytecodes_print_num;
     if (strcmp(signature, "Bytecodes.negate_num(_,_)") == 0) return w_Bytecodes_negate_num;
+    if (strcmp(signature, "Bytecodes.sqrt_num(_,_)") == 0) return w_Bytecodes_sqrt_num;
     if (strcmp(signature, "Bytecodes.add_num(_,_,_)") == 0) return w_Bytecodes_add_num;
     if (strcmp(signature, "Bytecodes.sub_num(_,_,_)") == 0) return w_Bytecodes_sub_num;
     if (strcmp(signature, "Bytecodes.mul_num(_,_,_)") == 0) return w_Bytecodes_mul_num;
     if (strcmp(signature, "Bytecodes.div_num(_,_,_)") == 0) return w_Bytecodes_div_num;
     if (strcmp(signature, "Bytecodes.inc_num(_)") == 0) return w_Bytecodes_inc_num;
     if (strcmp(signature, "Bytecodes.dec_num(_)") == 0) return w_Bytecodes_dec_num;
-    if (strcmp(signature, "Bytecodes.cmp_num(_,_,_)") == 0) return w_Bytecodes_cmp_num;
+    if (strcmp(signature, "Bytecodes.equal_num(_,_,_)") == 0) return w_Bytecodes_equal_num;
+    if (strcmp(signature, "Bytecodes.less_num(_,_,_)") == 0) return w_Bytecodes_less_num;
     if (strcmp(signature, "Bytecodes.jump(_)") == 0) return w_Bytecodes_jump;
     if (strcmp(signature, "Bytecodes.jump_if(_,_)") == 0) return w_Bytecodes_jump_if;
     if (strcmp(signature, "Bytecodes.jump_if_not(_,_)") == 0) return w_Bytecodes_jump_if_not;

@@ -61,7 +61,7 @@ class ForEachF is Node
 			compiler.free_reg(r_eval)
 
 			opcodes.inc_num(this.r_curr_item)
-			opcodes.cmp_num(r_cmp, this.r_curr_item, r_count)
+			opcodes.equal_num(r_cmp, this.r_curr_item, r_count)
 			opcodes.jump_if_not(start_ip - CodeTools.get_size(opcodes), r_cmp)
 
 			compiler.free_reg(r_count)

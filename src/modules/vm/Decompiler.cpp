@@ -54,6 +54,8 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[evm::OP_MOVE_VAL]        = "move";
 		m_op_names[evm::OP_BOOL_STORE]		= "bool_store";
 		m_op_names[evm::OP_BOOL_PRINT]		= "bool_print";
+		m_op_names[evm::OP_AND]				= "and";
+		m_op_names[evm::OP_OR]				= "or";
 		m_op_names[evm::OP_NUMBER_STORE]	= "num_store";
 		m_op_names[evm::OP_NUMBER_PRINT]	= "num_print";
 		m_op_names[evm::OP_NUMBER_NEGATE]	= "num_negate";
@@ -63,7 +65,8 @@ Decompiler::Decompiler(const std::shared_ptr<Bytecodes>& codes,
 		m_op_names[evm::OP_DIV]				= "num_div";
 		m_op_names[evm::OP_INC]				= "inc";
 		m_op_names[evm::OP_DEC]				= "dec";
-		m_op_names[evm::OP_CMP]				= "cmp";
+		m_op_names[evm::OP_EQUAL]			= "equal";
+		m_op_names[evm::OP_LESS]			= "less";
 		m_op_names[evm::OP_JUMP]            = "jump";
 		m_op_names[evm::OP_JUMP_IF]         = "jump_true";
 		m_op_names[evm::OP_JUMP_IF_NOT]		= "jump_false";
