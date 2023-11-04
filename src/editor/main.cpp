@@ -55,8 +55,6 @@
 #include "loggraph_c/loggraph.ves.inc"
 #include "codegraph_c/wrap_CodeGraph.h"
 #include "codegraph_c/codegraph.ves.inc"
-//#include "brepvm_c/wrap_BrepVM.h"
-//#include "brepvm_c/brepvm.ves.inc"
 #include "brepfw_c/wrap_BrepFW.h"
 #include "brepfw_c/brepfw.ves.inc"
 
@@ -148,8 +146,6 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
 #endif // _NO_OCCT_
         !strcmp(module, "loggraph") == 0 &&
         !strcmp(module, "codegraph") == 0 &&
-        !strcmp(module, "brepdb") == 0 &&
-        !strcmp(module, "brepvm") == 0 &&
         !strcmp(module, "brepfw") == 0) {
         free((void*)result.source);
         result.source = NULL;
@@ -209,8 +205,6 @@ VesselLoadModuleResult read_module(const char* module)
         source = loggraphModuleSource;
     } else if (strcmp(module, "codegraph") == 0) {
         source = codegraphModuleSource;
-    //} else if (strcmp(module, "brepvm") == 0) {
-    //    source = brepvmModuleSource;
     } else if (strcmp(module, "brepfw") == 0) {
         source = brepfwModuleSource;
     } else {
@@ -381,9 +375,6 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
         if (methods.allocate != NULL) return methods;
     }
 
-    //brepvmgraph::BrepVMBindClass(className, &methods);
-    //if (methods.allocate != NULL) return methods;
-
     brepfwgraph::BrepFWBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -479,9 +470,6 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
         method = codegraph::CodeGraphBindMethod(fullName);
         if (method != NULL) return method;
     }
-
-    //method = brepvmgraph::BrepVMBindMethod(fullName);
-    //if (method != NULL) return method;
 
     method = brepfwgraph::BrepFWBindMethod(fullName);
     if (method != NULL) return method;
