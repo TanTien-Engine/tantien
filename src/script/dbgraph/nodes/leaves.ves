@@ -1,0 +1,52 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "dbgraph.variant" for VAR_TYPE_RTREE
+import "db" for RTree
+
+class Leaves is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "region", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "leaves", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var geos = []
+
+		var leaves = nil
+		var v_region = Blueprint.calc_input_value(this, 1)
+		if (v_region) {
+			leaves = v_tree.value.query_leaves(v_region.value.shape)
+		} else {
+			leaves = v_tree.value.get_all_leaves()
+		}
+
+		for (var r in leaves)
+		{
+			var geo = VarGeo()
+			geo.shape = r
+			geos.add(Variant(VAR_TYPE_GEO, geo))
+		}
+
+		return Variant(VAR_TYPE_ARRAY, geos)
+	}
+}

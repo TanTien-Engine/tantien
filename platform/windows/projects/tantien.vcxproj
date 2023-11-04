@@ -93,9 +93,6 @@
     <ClCompile Include="..\..\..\..\littleworld\globegen\VirtualTexture.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\VTexBuilder.cpp" />
     <ClCompile Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepdb_c\BRepTrans.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepdb_c\RTree.cpp" />
-    <ClCompile Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrColor.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\AttrRenderObj.cpp" />
     <ClCompile Include="..\..\..\..\testbed\brepfw_c\BRepBuilder.cpp">
@@ -183,6 +180,15 @@
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\bvh_translator.cpp" />
     <ClCompile Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\split_bvh.cpp" />
     <ClCompile Include="..\..\..\include\tantien.cpp" />
+    <ClCompile Include="..\..\..\src\modules\db\BRepSerialize.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\db\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\db\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\modules\db\RTreeBuilder.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\db\</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\db\</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\modules\db\wrap_DB.cpp" />
     <ClCompile Include="..\..\..\src\modules\filesystem\Filesystem.cpp" />
     <ClCompile Include="..\..\..\src\modules\filesystem\ResourceUID.cpp" />
     <ClCompile Include="..\..\..\src\modules\filesystem\wrap_Filesystem.cpp" />
@@ -287,11 +293,6 @@
     <ClInclude Include="..\..\..\..\littleworld\globegen\VTexBuilder.h" />
     <ClInclude Include="..\..\..\..\littleworld\globegen\VTexInfo.h" />
     <ClInclude Include="..\..\..\..\littleworld\globegen\wrap_GlobeGen.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepdb_c\BRepKey.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepdb_c\BRepTrans.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepdb_c\RegionVisitor.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepdb_c\RTree.h" />
-    <ClInclude Include="..\..\..\..\testbed\brepdb_c\wrap_BrepDB.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrColor.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\Attribute.h" />
     <ClInclude Include="..\..\..\..\testbed\brepfw_c\AttrRenderObj.h" />
@@ -355,6 +356,11 @@
     <ClInclude Include="..\..\..\..\tt_sim\pathtracer\thirdparty\RadeonRays\split_bvh.h" />
     <ClInclude Include="..\..\..\include\tantien.h" />
     <ClInclude Include="..\..\..\src\core\macro.h" />
+    <ClInclude Include="..\..\..\src\modules\db\BRepKey.h" />
+    <ClInclude Include="..\..\..\src\modules\db\BRepSerialize.h" />
+    <ClInclude Include="..\..\..\src\modules\db\RegionVisitor.h" />
+    <ClInclude Include="..\..\..\src\modules\db\RTreeBuilder.h" />
+    <ClInclude Include="..\..\..\src\modules\db\wrap_DB.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\Filesystem.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\ResourceUID.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\wrap_Filesystem.h" />
@@ -416,13 +422,13 @@
     <None Include="..\..\..\..\littleworld\citygen\citygen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\globegen.ves.inc" />
     <None Include="..\..\..\..\littleworld\globegen\ImageTools.inl" />
-    <None Include="..\..\..\..\testbed\brepdb_c\brepdb.ves.inc" />
     <None Include="..\..\..\..\testbed\brepfw_c\brepfw.ves.inc" />
     <None Include="..\..\..\..\testbed\brepfw_c\Object.inl" />
     <None Include="..\..\..\..\testbed\brepvm_c\brepvm.ves.inc" />
     <None Include="..\..\..\..\tt\analysis\codegraph_c\codegraph.ves.inc" />
     <None Include="..\..\..\..\tt\analysis\loggraph_c\loggraph.ves.inc" />
     <None Include="..\..\..\..\tt_sim\pathtracer\src\pathtracer.ves.inc" />
+    <None Include="..\..\..\src\modules\db\db.ves.inc" />
     <None Include="..\..\..\src\modules\filesystem\filesystem.ves.inc" />
     <None Include="..\..\..\src\modules\geometry\geometry.ves.inc" />
     <None Include="..\..\..\src\modules\graphics\graphics.ves.inc" />

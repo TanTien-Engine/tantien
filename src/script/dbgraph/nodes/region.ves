@@ -1,0 +1,48 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "blueprint.node_param" for NodeParam
+import "maths.vector" for Vector3
+import "geometry" for Box
+
+class Region is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "aabb", VAR_TYPE_GEO),
+		]
+
+		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 10 }))
+		this.params.add(NodeParam("pos",  Vector3(0, 0, 0), { "min" : -10, "max" : 10 }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var size = this.query_param("size").value
+		var pos = this.query_param("pos").value
+
+		var hx = size.x * 0.5
+		var hy = size.y * 0.5
+		var hz = size.z * 0.5
+		
+		var xmin = pos.x - hx
+		var xmax = pos.x + hx
+		var ymin = pos.y - hy
+		var ymax = pos.y + hy
+		var zmin = pos.z - hz
+		var zmax = pos.z + hz
+
+		var box = Box.init()
+		box.set_size([xmin, ymin, zmin], [xmax, ymax, zmax])
+
+		var geo = VarGeo()
+		geo.shape = box
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}

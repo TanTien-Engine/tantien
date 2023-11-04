@@ -1,0 +1,87 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "geograph.variant" for VAR_TYPE_GEO
+import "dbgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+
+class Insert is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "time", VAR_TYPE_NUMBER),
+		]
+		this.exports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+
+		this.params.add(NodeParam("time", false))		
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_geo = Blueprint.calc_input_value(this, 1)
+		if (!v_geo) {
+			return nil
+		}
+
+		var time = 0
+		var v_time = Blueprint.calc_input_value(this, 2)
+		if (v_time) {
+			time = v_time.value
+		}
+
+		if (v_geo.type == VAR_TYPE_ARRAY) 
+		{
+			var time = this.query_param("time").value
+			if (time) 
+			{
+				for (var i in 0 .. v_geo.value.count) {
+					var geo = v_geo.value[i]
+					this.insert_geo_with_time(v_tree.value, geo.value, i * 0.1)				
+				}
+			}
+			else
+			{
+				for (var geo in v_geo.value) {
+					this.insert_geo_with_time(v_tree.value, geo.value, time)
+				}
+			}
+		} 
+		else 
+		{
+			this.insert_geo_with_time(v_tree.value, v_geo.value, time)
+		}
+
+		return v_tree
+	}
+
+	insert_geo(rtree, geo)
+	{
+		var polys = geo.shape.polys
+		for (var poly in polys) {
+			rtree.insert(poly)
+		}
+	}
+
+	insert_geo_with_time(rtree, geo, time)
+	{
+		var polys = geo.shape.polys
+		for (var poly in polys) {
+			rtree.insert_with_time(poly, time)
+		}
+	}	
+}

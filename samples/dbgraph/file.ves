@@ -1,0 +1,82 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "../../tantien/assets/blueprints/geograph/draw_geos.ves")
+
+_editor.add_node(node0, 790.75289554019, 7.6263275747569)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(-147.89907696593, 173.38400907995, 186.49116294148)
+node1.cam.yaw = -395.9
+node1.cam.pitch = -34.5
+node1.cam.zoom = 42
+node1.cam.update_vectors()
+node1.speed = 0.5
+
+_editor.add_node(node1, 224.26659200902, -177.307858)
+
+var node2 = ::dbgraph::nodes::rtree::Rtree()
+
+_editor.add_node(node2, -183.29679523877, 3.4074658213881)
+
+var node3 = ::blueprint::nodes::cache::Cache()
+node3.query_param("disable").value = false
+
+_editor.add_node(node3, -3.4208250802542, -2.7589235707901)
+
+var node4 = ::dbgraph::nodes::query::Query()
+
+_editor.add_node(node4, 178.77093914349, -4.2071074380195)
+
+var node5 = ::dbgraph::nodes::region::Region()
+node5.query_param("size").value.set(1.3358052968979, 1.1135830879211, 0.80568438768387)
+node5.query_param("pos").value.set(100, 0, 0)
+
+_editor.add_node(node5, -25.399892023648, 172.39202245062)
+
+var node6 = ::geograph::nodes::draw_geometry::DrawGeometry()
+node6.query_param("skip").value = false
+
+_editor.add_node(node6, 766.18575392643, -165.51410296333)
+
+var node7 = ::dbgraph::nodes::leaves::Leaves()
+
+_editor.add_node(node7, 151.53014288372, 88.904154123355)
+
+var node8 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node8, 435.74695787208, 139.57574183165)
+
+var node9 = ::dbgraph::nodes::file::File()
+node9.query_param("filename").value = "test_db"
+
+_editor.add_node(node9, -334, 4)
+
+var node10 = ::geograph::nodes::brush_merge::BrushMerge()
+
+_editor.add_node(node10, 326.29960828705, 3.3076756776137)
+
+var node11 = ::blueprint::nodes::cache::Cache()
+node11.query_param("disable").value = false
+
+_editor.add_node(node11, 486.93246973555, -4.3066753797301)
+
+var node12 = ::blueprint::nodes::cache::Cache()
+node12.query_param("disable").value = false
+
+_editor.add_node(node12, 283.40891296249, 88.937769063696)
+
+Blueprint.connect(node9, "db", node2, "db")
+Blueprint.connect(node2, "tree", node3, "var")
+Blueprint.connect(node3, "var", node7, "tree")
+Blueprint.connect(node5, "aabb", node7, "region")
+Blueprint.connect(node7, "leaves", node12, "var")
+Blueprint.connect(node5, "aabb", node8, "in0")
+Blueprint.connect(node12, "var", node8, "in1")
+Blueprint.connect(node3, "var", node4, "tree")
+Blueprint.connect(node5, "aabb", node4, "key")
+Blueprint.connect(node4, "geo", node10, "list")
+Blueprint.connect(node10, "brush", node11, "var")
+Blueprint.connect(node8, "list", node6, "geos")
+Blueprint.connect(node1, "mat", node6, "cam_mat")
+Blueprint.connect(node11, "var", node0, "geos")
+Blueprint.connect(node1, "this", node0, "view_cam")
