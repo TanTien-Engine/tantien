@@ -9,6 +9,7 @@ namespace tt
 
 Compiler::Compiler()
 {
+    m_precomp_cond_branch = true;
 }
 
 int Compiler::NewRegister()

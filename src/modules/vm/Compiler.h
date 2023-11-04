@@ -19,6 +19,10 @@ public:
 
 	void ExpectRegFree();
 
+	bool IsPrecompCondBranch() const { 
+		return m_precomp_cond_branch; 
+	}
+
 private:
 	struct Register
 	{
@@ -26,6 +30,8 @@ private:
 		bool keep = false;
 	};
 	std::array<Register, REGISTER_COUNT> m_registers;
+
+	bool m_precomp_cond_branch = false;
 
 }; // Compiler
 

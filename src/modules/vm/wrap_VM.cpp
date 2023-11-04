@@ -565,6 +565,12 @@ void w_Compiler_expect_reg_free()
     c->ExpectRegFree();
 }
 
+void w_Compiler_is_precomp_cond_branch()
+{
+    auto c = ((tt::Proxy<tt::Compiler>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, c->IsPrecompCondBranch());
+}
+
 void w_Optimizer_allocate()
 {
     auto code = ((tt::Proxy<tt::Bytecodes>*)ves_toforeign(1))->obj;
@@ -857,6 +863,7 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.free_reg(_)") == 0) return w_Compiler_free_reg;
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
     if (strcmp(signature, "Compiler.expect_reg_free()") == 0) return w_Compiler_expect_reg_free;
+    if (strcmp(signature, "Compiler.is_precomp_cond_branch()") == 0) return w_Compiler_is_precomp_cond_branch;
 
     if (strcmp(signature, "Optimizer.optimize()") == 0) return w_Optimizer_optimize;
     if (strcmp(signature, "Optimizer.write_num(_,_)") == 0) return w_Optimizer_write_num;

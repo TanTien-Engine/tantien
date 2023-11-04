@@ -32,7 +32,16 @@ class BranchF is Node
 		}
 	}
 
-	calc_opcodes_old(compiler, opcodes, idx)
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		if (compiler.is_precomp_cond_branch()) {
+			return this.calc_opcodes_compiletime(compiler, opcodes, idx)
+		} else {
+			return this.calc_opcodes_runtime(compiler, opcodes, idx)
+		}
+	}
+
+	calc_opcodes_compiletime(compiler, opcodes, idx)
 	{
 		var v_cond = Blueprint.calc_input_value(this, 0)
 		if (v_cond and v_cond.value) {
@@ -42,7 +51,7 @@ class BranchF is Node
 		}
 	}
 
-	calc_opcodes(compiler, opcodes, idx)
+	calc_opcodes_runtime(compiler, opcodes, idx)
 	{
 		var r_cond = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		if (!r_cond) {

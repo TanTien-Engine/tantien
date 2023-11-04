@@ -116,6 +116,8 @@ foreign class Compiler
 	foreign keep_reg(reg, keep)
 
 	foreign expect_reg_free()
+
+	foreign is_precomp_cond_branch()
 }
 
 foreign class Optimizer
