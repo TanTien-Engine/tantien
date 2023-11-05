@@ -40,8 +40,8 @@ bool is_same_polyline(const std::vector<sm::vec2>& p0, const std::vector<sm::vec
 	if (p0 == p1) {
 		return true;
 	}
-
-	for (int i = 0, n = p0.size(); i < n; ++i) {
+	
+	for (size_t i = 0, n = p0.size(); i < n; ++i) {
 		auto d = sm::dis_pos_to_pos(p0[i], p1[i]);
 		if (d > SM_LARGE_EPSILON) {
 			return false;
@@ -60,7 +60,7 @@ std::vector<sm::vec2> clean_polyline(const std::vector<sm::vec2>& verts)
 	}
 
 	ret.push_back(verts.front());
-	for (int i = 1, n = verts.size(); i < n; ++i) 
+	for (size_t i = 1, n = verts.size(); i < n; ++i) 
 	{
 		auto d = sm::dis_pos_to_pos(ret.back(), verts[i]);
 		if (d > 0.1f) {
@@ -268,7 +268,7 @@ ShapeMaths::Expand(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 
 	auto poly = std::make_shared<gs::Polygon2D>();
 	poly->SetVertices(prepare_polygon_loop(loops[0], true));
-	for (int i = 1, n = loops.size(); i < n; ++i) {
+	for (size_t i = 1, n = loops.size(); i < n; ++i) {
 		poly->AddHole(prepare_polygon_loop(loops[i], false));
 	}
 
