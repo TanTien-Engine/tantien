@@ -1,7 +1,5 @@
 #include "modules/geometry/wrap_Geometry.h"
-#include "modules/geometry/TopoPolyAdapter.h"
 #include "modules/geometry/ShapeMaths.h"
-#include "modules/geometry/PolytopeAlgos.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 
@@ -20,6 +18,7 @@
 #include <geoshape/Polyline3D.h>
 #include <geoshape/Polygon3D.h>
 #include <polymesh3/Polytope.h>
+#include <polymesh3/PolytopeAlgos.h>
 #include <model/ParametricEquations.h>
 #include <guard/check.h>
 #include <halfedge/Polygon.h>
@@ -898,7 +897,7 @@ void w_Polytope_extrude()
 {
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     auto dist = (float)ves_tonumber(1);
-    tt::PolytopeAlgos::Extrude(poly, dist);
+    pm3::PolytopeAlgos::Extrude(poly, dist);
 }
 
 void w_Polytope_offset()
@@ -917,7 +916,7 @@ void w_Polytope_offset()
     }
 
     auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
-    proxy->obj = tt::PolytopeAlgos::Offset(poly, keep, dist);
+    proxy->obj = pm3::PolytopeAlgos::Offset(poly, (int)keep, dist);
 }
 
 void w_Polytope_transform()
@@ -1124,15 +1123,15 @@ void w_Polytope_boolean()
 
     if (strcmp(op, "union") == 0) 
     {
-        polytopes = tt::PolytopeAlgos::Union(a, b);
+        polytopes = pm3::PolytopeAlgos::Union(a, b);
     }
     else if (strcmp(op, "intersect") == 0)
     {
-        polytopes = tt::PolytopeAlgos::Intersect(a, b);
+        polytopes = pm3::PolytopeAlgos::Intersect(a, b);
     }
     else if (strcmp(op, "subtract") == 0)
     {
-        polytopes = tt::PolytopeAlgos::Subtract(a, b);
+        polytopes = pm3::PolytopeAlgos::Subtract(a, b);
     }
 
     ves_pop(ves_argnum());

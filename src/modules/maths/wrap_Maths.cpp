@@ -1,5 +1,4 @@
 #include "modules/maths/wrap_Maths.h"
-#include "modules/maths/Maths.h"
 #include "modules/script/TransHelper.h"
 #include "modules/graphics/Graphics.h"
 
@@ -498,7 +497,7 @@ void w_Plane_transform()
 {
     sm::Plane* p = (sm::Plane*)ves_toforeign(0);
     sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
-    tt::Maths::TransformPlane(*p, *mt);
+    sm::transform_plane(*p, *mt);
 }
 
 void w_Cube_allocate()

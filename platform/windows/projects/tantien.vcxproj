@@ -177,9 +177,7 @@
     <ClCompile Include="..\..\..\src\modules\filesystem\Filesystem.cpp" />
     <ClCompile Include="..\..\..\src\modules\filesystem\ResourceUID.cpp" />
     <ClCompile Include="..\..\..\src\modules\filesystem\wrap_Filesystem.cpp" />
-    <ClCompile Include="..\..\..\src\modules\geometry\PolytopeAlgos.cpp" />
     <ClCompile Include="..\..\..\src\modules\geometry\ShapeMaths.cpp" />
-    <ClCompile Include="..\..\..\src\modules\geometry\TopoPolyAdapter.cpp" />
     <ClCompile Include="..\..\..\src\modules\geometry\wrap_Geometry.cpp" />
     <ClCompile Include="..\..\..\src\modules\graphics\DTex.cpp" />
     <ClCompile Include="..\..\..\src\modules\graphics\Graphics.cpp" />
@@ -194,7 +192,6 @@
     <ClCompile Include="..\..\..\src\modules\io\Keyboard.cpp" />
     <ClCompile Include="..\..\..\src\modules\io\wrap_Keyboard.cpp" />
     <ClCompile Include="..\..\..\src\modules\maths\float16.cpp" />
-    <ClCompile Include="..\..\..\src\modules\maths\Maths.cpp" />
     <ClCompile Include="..\..\..\src\modules\maths\wrap_Maths.cpp" />
     <ClCompile Include="..\..\..\src\modules\model\Model.cpp" />
     <ClCompile Include="..\..\..\src\modules\model\wrap_Model.cpp" />
@@ -206,18 +203,6 @@
     <ClCompile Include="..\..\..\src\modules\shader\wrap_Shader.cpp" />
     <ClCompile Include="..\..\..\src\modules\system\System.cpp" />
     <ClCompile Include="..\..\..\src\modules\system\wrap_System.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\Bytecodes.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\CodesBuilder.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\Optimizer.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\Compiler.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\Decompiler.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\geo_opcodes.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\math_opcodes.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\OpFieldMap.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\stl_opcodes.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\ValueCache.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\VM.cpp" />
-    <ClCompile Include="..\..\..\src\modules\vm\VMHelper.cpp" />
     <ClCompile Include="..\..\..\src\modules\vm\wrap_VM.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -343,9 +328,7 @@
     <ClInclude Include="..\..\..\src\modules\filesystem\Filesystem.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\ResourceUID.h" />
     <ClInclude Include="..\..\..\src\modules\filesystem\wrap_Filesystem.h" />
-    <ClInclude Include="..\..\..\src\modules\geometry\PolytopeAlgos.h" />
     <ClInclude Include="..\..\..\src\modules\geometry\ShapeMaths.h" />
-    <ClInclude Include="..\..\..\src\modules\geometry\TopoPolyAdapter.h" />
     <ClInclude Include="..\..\..\src\modules\geometry\wrap_Geometry.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\DTex.h" />
     <ClInclude Include="..\..\..\src\modules\graphics\Graphics.h" />
@@ -362,7 +345,6 @@
     <ClInclude Include="..\..\..\src\modules\io\Keyboard.h" />
     <ClInclude Include="..\..\..\src\modules\io\wrap_Keyboard.h" />
     <ClInclude Include="..\..\..\src\modules\maths\float16.h" />
-    <ClInclude Include="..\..\..\src\modules\maths\Maths.h" />
     <ClInclude Include="..\..\..\src\modules\maths\wrap_Maths.h" />
     <ClInclude Include="..\..\..\src\modules\model\Model.h" />
     <ClInclude Include="..\..\..\src\modules\model\wrap_Model.h" />
@@ -375,21 +357,6 @@
     <ClInclude Include="..\..\..\src\modules\shader\wrap_Shader.h" />
     <ClInclude Include="..\..\..\src\modules\system\System.h" />
     <ClInclude Include="..\..\..\src\modules\system\wrap_System.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\Bytecodes.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\CodeBlock.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\CodesBuilder.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\Optimizer.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\Compiler.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\Decompiler.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\geo_opcodes.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\math_opcodes.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\OpFieldMap.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\OpFieldType.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\stl_opcodes.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\ValueCache.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\ValueType.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\VM.h" />
-    <ClInclude Include="..\..\..\src\modules\vm\VMHelper.h" />
     <ClInclude Include="..\..\..\src\modules\vm\wrap_VM.h" />
   </ItemGroup>
   <ItemGroup>
@@ -530,7 +497,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/brepvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -546,7 +513,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;NO_BOOST;NO_RTTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../src;../../../thirdparty;../../../thirdparty/vessel/src/include;../../../thirdparty/unirender/include;../../../thirdparty/shadertrans/include;../../../thirdparty/shaderlink/include;../../../thirdparty/tessellation/include;../../../thirdparty/dtex/include;../../../thirdparty/geoshape/include;../../../thirdparty/primitive/include;../../../thirdparty/easygui/include;../../../thirdparty/model/include;../../../thirdparty/guard/include;../../../thirdparty/sm;../../../thirdparty/gtxt;../../../thirdparty/gimg;../../../thirdparty/glslang;../../../thirdparty/glfw/include;../../../thirdparty/uniphysics/include;../../../thirdparty/constraints2/include;../../../thirdparty/polymesh3/include;../../../thirdparty/halfedge/include;../../../thirdparty/CGAL-5.3.1/include;../../../thirdparty/boost;../../../thirdparty/heightfield/include;../../../thirdparty/eigen;../../../thirdparty/nurbs/include;../../../thirdparty/lexer/include;../../../thirdparty/brepdb/include;../../../thirdparty/cslang/include;../../../thirdparty/easyvm/include;../../../thirdparty/brepvm/include;../../../thirdparty/tinyobjloader;../../../thirdparty/oneTBB/include;../../../../cax/thirdparty/OCCT/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
