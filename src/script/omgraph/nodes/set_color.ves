@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for VAR_TYPE_NUMBER3
+import "omgraph.variant" for VAR_TYPE_LABEL, VAR_TYPE_TOPO_SHAPE
+
+class SetColor is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+			Pin(this, "color", VAR_TYPE_NUMBER3),
+		]
+		this.exports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var v_color = Blueprint.calc_input_value(this, 1)
+		if (v_color) {
+			v_label.value.set_color(v_color.value)
+		}
+
+		return v_label
+	}
+}

@@ -1,0 +1,48 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.node_param" for NodeParam
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_PLANE
+import "omgraph.variant" for VAR_TYPE_TOPO_SHAPE
+import "om" for BRepAlgos
+
+class Clip is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "shape", VAR_TYPE_TOPO_SHAPE),
+			Pin(this, "plane", VAR_TYPE_PLANE),
+		]
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_TOPO_SHAPE),
+		]
+
+		this.params.add(NodeParam("keep", "above", { "combo" : [ "above", "below", "all" ] }))
+		this.params.add(NodeParam("seam", false))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_shape = Blueprint.calc_input_value(this, 0)
+		if (!v_shape) {
+			return nil
+		}
+
+		var v_plane = Blueprint.calc_input_value(this, 1)
+		if (!v_plane) {
+			return v_shape
+		}
+
+		var keep = this.query_param("keep").value
+		var seam = this.query_param("seam").value
+
+		var shape = BRepAlgos.clip(v_shape.value, v_plane.value, keep, seam)
+		return Variant(VAR_TYPE_TOPO_SHAPE, shape)
+	}
+}

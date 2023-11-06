@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
+import "omgraph.variant" for VAR_TYPE_LABEL
+
+class GetColor is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+		this.exports = [
+			Pin(this, "color", VAR_TYPE_NUMBER3),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var color = v_label.value.get_color()
+		return Variant(VAR_TYPE_NUMBER3, color)
+	}
+}

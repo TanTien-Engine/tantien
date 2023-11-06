@@ -1,0 +1,38 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -383, 288)
+
+var node1 = ::omgraph::nodes::poly_to_shape::PolyToShape()
+
+_editor.add_node(node1, -246, 389.5)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "size"
+node2.var_type = "num3"
+
+_editor.add_node(node2, -524.11297607422, 389.33203125)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "pos"
+node3.var_type = "num3"
+
+_editor.add_node(node3, -524.11297607422, 324.33203125)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "shape"
+node4.var_type = "topo_shape"
+
+_editor.add_node(node4, -108.11297607422, 388.33203125)
+
+Blueprint.connect(node2, "var", node0, "size")
+Blueprint.connect(node3, "var", node0, "pos")
+Blueprint.connect(node0, "geo", node1, "geo")
+Blueprint.connect(node1, "shape", node4, "var")

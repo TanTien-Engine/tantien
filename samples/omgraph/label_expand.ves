@@ -1,0 +1,50 @@
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
+
+node0.cam.position.set(1.4928431034948, 1.4189947838139, 3.1044309262322)
+node0.cam.yaw = -120.6
+node0.cam.pitch = -23.5
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.34999999403954
+
+_editor.add_node(node0, -219, -81)
+
+var node1 = ::omgraph::nodes::set_shape::SetShape()
+
+_editor.add_node(node1, 95.909090909091, 276.22727272727)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../assets/blueprints/render/draw_label.ves")
+
+_editor.add_node(node2, 622.07589030804, 182.964365139)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
+
+_editor.add_node(node3, -94.904739280689, 222.3800296922)
+
+var node4 = ::omgraph::nodes::set_color::SetColor()
+
+_editor.add_node(node4, 236, 272.5)
+
+var node5 = ::blueprint::nodes::number3::Number3()
+
+node5.value.set(0.18888889253139, 0.37777778506279, 0)
+
+_editor.add_node(node5, 109, 186.5)
+
+var node6 = ::omgraph::nodes::label_expand::LabelExpand()
+
+_editor.add_node(node6, 398.9, 223.38)
+
+var node7 = ::omgraph::nodes::context::Context()
+
+_editor.add_node(node7, -52.635024414062, 305.83982055664)
+
+Blueprint.connect(node7, "label", node1, "label")
+Blueprint.connect(node3, "shape", node1, "shape")
+Blueprint.connect(node1, "label", node4, "label")
+Blueprint.connect(node5, "v3", node4, "color")
+Blueprint.connect(node4, "label", node6, "label")
+Blueprint.connect(node6, "0", node2, "label")
+Blueprint.connect(node0, "this", node2, "view_cam")

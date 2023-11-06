@@ -1,0 +1,38 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "rendergraph.variant" for VAR_TYPE_VERTEX_ARRAY
+import "omgraph.variant" for VAR_TYPE_LABEL
+
+class SetRenderObj is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+			Pin(this, "va", VAR_TYPE_VERTEX_ARRAY),
+		]
+		this.exports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var v_va = Blueprint.calc_input_value(this, 1)
+		if (v_va) {
+			v_label.value.set_render_obj(v_va.value)
+		}
+
+		return v_label
+	}
+}

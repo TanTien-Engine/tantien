@@ -1,0 +1,34 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "omgraph.variant" for VAR_TYPE_LABEL
+import "om" for Label
+
+class Context is Node
+{
+	init()
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+
+		this.root_label = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.root_label) {
+			this.root_label = Label.init()
+		}
+		return Variant(VAR_TYPE_LABEL, this.root_label)
+	}
+
+	gen_code(ctx)
+	{
+		ctx.push()
+	}
+}

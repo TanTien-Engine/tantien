@@ -1,0 +1,81 @@
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
+
+node0.cam.position.set(0.85153893062049, 0.72188309118119, 1.7075005476388)
+node0.cam.yaw = -119
+node0.cam.pitch = -13.7
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.34999999403954
+
+_editor.add_node(node0, 399, -198)
+
+var node1 = ::omgraph::nodes::clip::Clip()
+node1.query_param("keep").value = "above"
+node1.query_param("seam").value = true
+
+_editor.add_node(node1, -35.78784098738, -31.35750582666)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
+
+_editor.add_node(node2, -708.06292519695, 85.13901908065)
+
+var node3 = ::geograph::nodes::plane::Plane()
+node3.query_param("ori").value.set(0, 0, 0)
+node3.query_param("dir").value.set(0, 1, 0)
+
+_editor.add_node(node3, -184, -106)
+
+var node4 = ::omgraph::nodes::set_shape::SetShape()
+
+_editor.add_node(node4, -507.25039301015, 126.19152057282)
+
+var node5 = ::omgraph::nodes::context::Context()
+
+_editor.add_node(node5, -658.57592773437, 163.32550048828)
+
+var node6 = ::blueprint::nodes::subgraph::Subgraph()
+node6.load_from_file(_editor, "../../assets/blueprints/render/draw_label.ves")
+
+_editor.add_node(node6, 599.13989030804, -53.160634861)
+
+var node7 = ::omgraph::nodes::set_color::SetColor()
+
+_editor.add_node(node7, -308.48713822798, 95.59910999645)
+
+var node8 = ::blueprint::nodes::number3::Number3()
+
+node8.value.set(0.23470561206341, 0.36803895235062, 0)
+
+_editor.add_node(node8, -449.12350325151, 26.50820645419)
+
+var node9 = ::omgraph::nodes::get_shape::GetShape()
+
+_editor.add_node(node9, -176.33712768555, 40.23370361328)
+
+var node10 = ::omgraph::nodes::set_shape::SetShape()
+
+_editor.add_node(node10, 246.66286468506, 11.23370361328)
+
+var node11 = ::omgraph::nodes::label_expand::LabelExpand()
+
+_editor.add_node(node11, 394.72090285624, -15.65890532186)
+
+var node12 = ::blueprint::nodes::cache::Cache()
+node12.query_param("disable").value = false
+
+_editor.add_node(node12, 99.359236079412, -11.6879623268)
+
+Blueprint.connect(node5, "label", node4, "label")
+Blueprint.connect(node2, "shape", node4, "shape")
+Blueprint.connect(node4, "label", node7, "label")
+Blueprint.connect(node8, "v3", node7, "color")
+Blueprint.connect(node7, "label", node9, "label")
+Blueprint.connect(node9, "shape", node1, "shape")
+Blueprint.connect(node3, "plane", node1, "plane")
+Blueprint.connect(node1, "shape", node12, "var")
+Blueprint.connect(node7, "label", node10, "label")
+Blueprint.connect(node12, "var", node10, "shape")
+Blueprint.connect(node10, "label", node11, "label")
+Blueprint.connect(node11, "0", node6, "label")
+Blueprint.connect(node0, "this", node6, "view_cam")

@@ -1,0 +1,31 @@
+import "editor.editor" for Editor
+
+class Omgraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		this.clear_popup_nodes()
+
+		import "editor.bpnodes" for BP_NODES
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+			
+		import "editor.geonodes" for GEO_NODES
+		for (var node in GEO_NODES) {
+			super.add_popup_node(node)
+		}
+
+		import "editor.omnodes" for OM_NODES
+		for (var node in OM_NODES) {
+			super.add_popup_node(node)
+		}
+	}
+}

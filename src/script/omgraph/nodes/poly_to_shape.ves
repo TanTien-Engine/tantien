@@ -1,0 +1,41 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO
+import "geograph.brush" for Brush
+import "omgraph.variant" for VAR_TYPE_TOPO_SHAPE
+import "om" for BRepTools
+
+class PolyToShape is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "geo", VAR_TYPE_GEO),
+		]
+		this.exports = [
+			Pin(this, "shape", VAR_TYPE_TOPO_SHAPE),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo or !v_geo.value.shape is Brush) {
+			return nil
+		}
+
+		var polys = v_geo.value.shape.polys
+		if (polys.isEmpty) {
+			return nil
+		}
+
+		var shape = BRepTools.poly2shape(polys[0])
+		return Variant(VAR_TYPE_TOPO_SHAPE, shape)
+	}	
+}

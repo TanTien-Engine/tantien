@@ -1,0 +1,37 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "omgraph.variant" for VAR_TYPE_LABEL, VAR_TYPE_TOPO_SHAPE
+import "blueprint.blueprint" for Blueprint
+
+class SetShape is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+			Pin(this, "shape", VAR_TYPE_TOPO_SHAPE),
+		]
+		this.exports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var v_shape = Blueprint.calc_input_value(this, 1)
+		if (v_shape) {
+			v_label.value.set_shape(v_shape.value)
+		}
+
+		return v_label
+	}
+}

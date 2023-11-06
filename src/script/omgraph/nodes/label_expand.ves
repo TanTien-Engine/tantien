@@ -1,0 +1,71 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "omgraph.variant" for VAR_TYPE_LABEL
+
+class LabelExpand is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "label", VAR_TYPE_LABEL),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			return nil
+		}
+
+		var children = v_label.value.get_children()
+		if (idx < children.count) {
+			return Variant(VAR_TYPE_LABEL, children[idx])
+		} else {
+			return nil
+		}
+	}
+
+	on_connected(pin)
+	{
+		if (pin.is_input) {
+			this.setup_data()
+		}
+	}
+
+	on_disconnected(pin)
+	{
+		if (pin.is_input) {
+			this.setup_data()
+		}
+	}
+
+	setup_data()
+	{
+		for (var p in this.exports) {
+			while (!p.conns.isEmpty) {
+				Blueprint.disconnect(p.conns.front())
+			}
+		}
+		this.exports.clear()
+
+		var v_label = Blueprint.calc_input_value(this, 0)
+		if (!v_label) {
+			this.layout()
+			return
+		}
+
+		var children = v_label.value.get_children()
+		for (var i in 0 .. children.count) {
+			this.exports.add(Pin(this, "%(i)", VAR_TYPE_LABEL))
+		}
+
+		this.layout()
+	}
+}

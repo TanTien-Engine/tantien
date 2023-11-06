@@ -1,0 +1,33 @@
+var node0 = ::blueprint::nodes::camera3d::Camera3d()
+
+node0.cam.position.set(2.2278600415473, 1.3911969188819, 1.6936010479872)
+node0.cam.yaw = -137
+node0.cam.pitch = -28.5
+node0.cam.zoom = 45
+node0.cam.update_vectors()
+node0.speed = 0.34999999403954
+
+_editor.add_node(node0, 96, 127)
+
+var node1 = ::omgraph::nodes::set_shape::SetShape()
+
+_editor.add_node(node1, 92.909090909091, 266.22727272727)
+
+var node2 = ::blueprint::nodes::subgraph::Subgraph()
+node2.load_from_file(_editor, "../../assets/blueprints/render/draw_label.ves")
+
+_editor.add_node(node2, 280.36589030804, 239.494365139)
+
+var node3 = ::blueprint::nodes::subgraph::Subgraph()
+node3.load_from_file(_editor, "../../assets/blueprints/geometry/box.ves")
+
+_editor.add_node(node3, -94.904739280689, 222.3800296922)
+
+var node4 = ::omgraph::nodes::context::Context()
+
+_editor.add_node(node4, -45, 295.5)
+
+Blueprint.connect(node4, "label", node1, "label")
+Blueprint.connect(node3, "shape", node1, "shape")
+Blueprint.connect(node1, "label", node2, "label")
+Blueprint.connect(node0, "this", node2, "view_cam")

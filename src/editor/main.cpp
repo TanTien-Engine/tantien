@@ -31,6 +31,8 @@
 #include "modules/vm/VM.ves.inc"
 #include "modules/db/wrap_DB.h"
 #include "modules/db/DB.ves.inc"
+#include "modules/om/wrap_OM.h"
+#include "modules/om/OM.ves.inc"
 
 // fixme
 #include "archgen/wrap_ArchGen.h"
@@ -55,8 +57,6 @@
 #include "loggraph_c/loggraph.ves.inc"
 #include "codegraph_c/wrap_CodeGraph.h"
 #include "codegraph_c/codegraph.ves.inc"
-#include "brepfw_c/wrap_BrepFW.h"
-#include "brepfw_c/brepfw.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -134,6 +134,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "keyboard") == 0 &&
         !strcmp(module, "vm") == 0 &&
         !strcmp(module, "db") == 0 &&
+        !strcmp(module, "om") == 0 &&
         !strcmp(module, "archgen") == 0 &&
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
@@ -145,8 +146,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "breptopo") == 0 &&
 #endif // _NO_OCCT_
         !strcmp(module, "loggraph") == 0 &&
-        !strcmp(module, "codegraph") == 0 &&
-        !strcmp(module, "brepfw") == 0) {
+        !strcmp(module, "codegraph") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -183,6 +183,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = vmModuleSource;
     } else if (strcmp(module, "db") == 0) {
         source = dbModuleSource;
+    } else if (strcmp(module, "om") == 0) {
+        source = omModuleSource;
     } else if (strcmp(module, "archgen") == 0) {
         source = archgenModuleSource;
     } else if (strcmp(module, "citygen") == 0) {
@@ -205,8 +207,6 @@ VesselLoadModuleResult read_module(const char* module)
         source = loggraphModuleSource;
     } else if (strcmp(module, "codegraph") == 0) {
         source = codegraphModuleSource;
-    } else if (strcmp(module, "brepfw") == 0) {
-        source = brepfwModuleSource;
     } else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -340,6 +340,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::DbBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::OmBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     archgen::ArchGenBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -374,9 +377,6 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
         codegraph::CodeGraphBindClass(className, &methods);
         if (methods.allocate != NULL) return methods;
     }
-
-    brepfwgraph::BrepFWBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
 
     return methods;
 }
@@ -436,6 +436,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::DbBindMethod(fullName);
     if (method != NULL) return method;
 
+    method = tt::OmBindMethod(fullName);
+    if (method != NULL) return method;
+
     method = archgen::ArchGenBindMethod(fullName);
     if (method != NULL) return method;
 
@@ -470,9 +473,6 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
         method = codegraph::CodeGraphBindMethod(fullName);
         if (method != NULL) return method;
     }
-
-    method = brepfwgraph::BrepFWBindMethod(fullName);
-    if (method != NULL) return method;
 
     return NULL;
 }
