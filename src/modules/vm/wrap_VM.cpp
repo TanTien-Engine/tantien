@@ -647,6 +647,8 @@ void w_VM_run()
 {
     auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     vm->Run();
+
+    brepvm::VM::Instance()->GetCache()->Update();
 }
 
 void w_VM_load_boolean()
