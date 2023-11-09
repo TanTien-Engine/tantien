@@ -41,13 +41,16 @@ class Compiler is Node
 	{
 		if (msg.type == UPDATE_OPCODES)
 		{
-			var codes = this.opcodes
-
-			for (var i = 0; i < msg.value.count; i = i + 2)
+			if (this.opcodes)
 			{
-				var pos = msg.value[i]
-				var num = msg.value[i+1]
-				CodeRegen.write_num(codes, pos, num)
+				var codes = this.opcodes
+
+				for (var i = 0; i < msg.value.count; i = i + 2)
+				{
+					var pos = msg.value[i]
+					var num = msg.value[i+1]
+					CodeRegen.write_num(codes, pos, num)
+				}
 			}
 		}
 	}
