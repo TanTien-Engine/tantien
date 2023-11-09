@@ -338,15 +338,20 @@ class Blueprint
 
 		pin.dirty_timestamp = PIN_DIRTY_TIMESTAMP
 
-		pin.node.on_pin_dirty(pin, type)
-
-		if (pin.is_input) {
-			for (var conn in pin.conns) {
-				this.send_pin_dirty(conn.from, type)
+		if (pin.is_input) 
+		{
+			for (var conn in pin.conns) 
+			{
+				var next = conn.from
+				next.node.on_pin_dirty(next, type)
 			}
-		} else {
-			for (var conn in pin.conns) {
-				this.send_pin_dirty(conn.to, type)
+		} 
+		else 
+		{
+			for (var conn in pin.conns) 
+			{
+				var next = conn.to
+				next.node.on_pin_dirty(next, type)
 			}
 		}
 	}
