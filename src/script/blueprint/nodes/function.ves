@@ -76,7 +76,6 @@ class Function is Commentary
 
 	prepare_call(caller, idx)
 	{
-		var export = nil
 		for (var node in this.children)
 		{
 			if (node is FuncIn) {
@@ -87,10 +86,12 @@ class Function is Commentary
 			{
 				for (var i = 0; i < caller.exports.count; i = i + 1) {
 					if (caller.exports[i].name == node.var_name and i == idx) {
-						export = node
+						return node
 					}
 				}
 			}
 		}
+
+		return nil
 	}
 }
