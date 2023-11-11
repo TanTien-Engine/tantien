@@ -22,13 +22,13 @@ class FuncCall is Node
 		this.func_node = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		if (this.func_node) {
-			this.func_node.on_pin_dirty(nil, type)
+			this.func_node.on_pin_dirty(nil, type, msg)
 		}
 
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 	}
 
 	calc_value(idx)

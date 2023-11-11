@@ -28,9 +28,9 @@ class Store is Node
 		this.val = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 
 		if (pin.is_input) {
 			this.clear_cache()

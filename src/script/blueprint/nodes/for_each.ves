@@ -35,12 +35,12 @@ class ForEach is Node
 		this.exe_list = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		if (pin == this.imports[1]) {
-			Blueprint.send_pin_dirty(this.exports[1], type)
+			Blueprint.send_pin_dirty(this.exports[1], type, msg)
 		} else if (pin == this.exports[1]) {
-			Blueprint.send_pin_dirty(this.imports[1], type)
+			Blueprint.send_pin_dirty(this.imports[1], type, msg)
 		}
 	}
 

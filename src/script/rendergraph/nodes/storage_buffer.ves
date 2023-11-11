@@ -23,11 +23,11 @@ class StorageBuffer is Node
 		this.ssbo = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		if (pin.is_input) {
 			this.ssbo = nil
-			Blueprint.send_pin_dirty(this.exports[0], type)
+			Blueprint.send_pin_dirty(this.exports[0], type, msg)
 		}
 	}
 

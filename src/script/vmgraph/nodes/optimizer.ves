@@ -3,7 +3,6 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
-import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
 import "vm" for Optimizer as tt_Optimizer
@@ -26,25 +25,22 @@ class Optimizer is Node
 		this.optim = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 
-		if (type != DIRTY_OPCODES) {
+		if (type != DIRTY_OPCODES) 
+		{
 			this.optim = nil
 		}
-	}
-
-	on_message(msg) 
-	{
-		if (msg.type == UPDATE_OPCODES)
+		else
 		{
-			if (this.optim)
+			if (this.optim and msg)
 			{
-				for (var i = 0; i < msg.value.count; i = i + 2)
+				for (var i = 0; i < msg.count; i = i + 2)
 				{
-					var pos = msg.value[i]
-					var num = msg.value[i+1]
+					var pos = msg[i]
+					var num = msg[i+1]
 					this.optim.write_num(pos, num)
 				}
 				this.optim.flush()

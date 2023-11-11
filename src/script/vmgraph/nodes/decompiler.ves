@@ -17,8 +17,10 @@ class Decompiler is Node
 		this.layout()
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
+		super.on_pin_dirty(pin, type, msg)
+
 		var v_codes = Blueprint.calc_input_value(this, 0)
 		if (v_codes) {
 			CodeTools.decompiler(v_codes.value, 0, 0)

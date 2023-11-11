@@ -4,7 +4,6 @@ import "blueprint.dirty_types" for DIRTY_CONNECTION
 
 var PIN_DIRTY_TIMESTAMP 	= 0
 var NODE_DIRTY_TIMESTAMP 	= 0
-var PIN_MESSAGE_TIMESTAMP 	= 0
 
 class Blueprint
 {
@@ -330,7 +329,7 @@ class Blueprint
 		return port_num > 0
 	}
 
-	static send_pin_dirty(pin, type)
+	static send_pin_dirty(pin, type, msg)
 	{
 		if (pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
 			return
@@ -343,7 +342,7 @@ class Blueprint
 			for (var conn in pin.conns) 
 			{
 				var next = conn.from
-				next.node.on_pin_dirty(next, type)
+				next.node.on_pin_dirty(next, type, msg)
 			}
 		} 
 		else 
@@ -351,7 +350,7 @@ class Blueprint
 			for (var conn in pin.conns) 
 			{
 				var next = conn.to
-				next.node.on_pin_dirty(next, type)
+				next.node.on_pin_dirty(next, type, msg)
 			}
 		}
 	}
@@ -359,7 +358,13 @@ class Blueprint
 	static send_pin_dirty_root(pin, type)
 	{
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
-		this.send_pin_dirty(pin, type)
+		this.send_pin_dirty(pin, type, nil)
+	}
+
+	static send_pin_dirty_root(pin, type, msg)
+	{
+		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
+		this.send_pin_dirty(pin, type, msg)
 	}
 
 	static send_node_dirty(node)
@@ -383,28 +388,5 @@ class Blueprint
 	{
 		NODE_DIRTY_TIMESTAMP = NODE_DIRTY_TIMESTAMP + 1
 		this.send_node_dirty(node)
-	}
-
-	static send_message_root(node, msg)
-	{
-		PIN_MESSAGE_TIMESTAMP = PIN_MESSAGE_TIMESTAMP + 1
-		this.send_message(node, msg)
-	}	
-
-	static send_message(node, msg)
-	{
-		if (node.msg_timestamp == PIN_MESSAGE_TIMESTAMP) {
-			return
-		}
-
-		node.msg_timestamp = PIN_MESSAGE_TIMESTAMP
-
-		node.on_message(msg)
-
-		for (var pin in node.exports) {
-			for (var conn in pin.conns) {
-				this.send_message(conn.to.node, msg)
-			}
-		}
 	}
 }

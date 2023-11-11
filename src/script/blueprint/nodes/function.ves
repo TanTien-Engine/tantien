@@ -22,11 +22,11 @@ class Function is Commentary
 		this.title = "Function"
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		for (var node in this.children) {
 			if (node is FuncIn)  {
-				Blueprint.send_pin_dirty(node.exports[0], type)
+				Blueprint.send_pin_dirty(node.exports[0], type, msg)
 			}
 		}
 	}

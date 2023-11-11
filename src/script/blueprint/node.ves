@@ -164,7 +164,7 @@ class Node
 	on_mouse_clicked(x, y, btn) {}
 	on_mouse_scrolled(x, y, dx, dy) {}
 
-	on_pin_dirty(pin, type) 
+	on_pin_dirty(pin, type, msg) 
 	{
 		var t = pin.dirty_timestamp
 		if (pin.is_input) 
@@ -174,7 +174,7 @@ class Node
 				p.dirty_timestamp = Math.max(p.dirty_timestamp, t)
 			}
 			for (var pin in this.exports) {
-				Blueprint.send_pin_dirty(pin, type)
+				Blueprint.send_pin_dirty(pin, type, msg)
 			}
 		}
 		else
@@ -184,7 +184,7 @@ class Node
 				p.dirty_timestamp = Math.max(p.dirty_timestamp, t)
 			}		
 			for (var pin in this.imports) {
-				Blueprint.send_pin_dirty(pin, type)
+				Blueprint.send_pin_dirty(pin, type, msg)
 			}
 		}
 	}
@@ -197,10 +197,6 @@ class Node
 		for (var pin in this.exports) {
 			Blueprint.send_pin_dirty_root(pin, DIRTY_GUI)
 		}
-	}
-
-	on_message(msg) 
-	{
 	}
 
 	on_scene_add(editor) {}

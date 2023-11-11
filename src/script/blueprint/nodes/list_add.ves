@@ -25,10 +25,10 @@ class ListAdd is Node
 		this.layout()
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		if (pin == this.imports[1]) {
-			Blueprint.send_pin_dirty(this.imports[2], type)
+			Blueprint.send_pin_dirty(this.imports[2], type, msg)
 		}
 	}
 

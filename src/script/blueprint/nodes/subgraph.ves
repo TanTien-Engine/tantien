@@ -57,7 +57,7 @@ class Subgraph is Node
 		this.op_node = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
 		if (pin.is_input) 
 		{
@@ -65,7 +65,7 @@ class Subgraph is Node
 			{
 				var node = item[0]
 				if (node is Input and node.var_name == pin.name) {
-					Blueprint.send_pin_dirty(node.exports[0], type)
+					Blueprint.send_pin_dirty(node.exports[0], type, msg)
 					return
 				}
 			}

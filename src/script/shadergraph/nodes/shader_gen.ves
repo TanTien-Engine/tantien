@@ -34,15 +34,15 @@ class ShaderGen is Node
 		this.uniforms_insts = nil
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 
 		// update output texture
 		if (pin.is_input) {
 			for (var pin in this.imports) {
 				if (pin.type == VAR_TYPE_TEXTURE) {
-					Blueprint.send_pin_dirty(pin, type)
+					Blueprint.send_pin_dirty(pin, type, msg)
 				}
 			}
 		}

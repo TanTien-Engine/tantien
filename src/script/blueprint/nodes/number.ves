@@ -4,7 +4,6 @@ import "blueprint.variant" for Variant, VAR_TYPE_NUMBER
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
-import "blueprint.msg_types" for Message, UPDATE_OPCODES
 import "maths.compiler" for Compiler as maths_Compiler
 import "gui" for GUI
 import "vm" for CodeTools
@@ -26,9 +25,9 @@ class Number is Node
 		this.pos_in_bytecode = []
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 
 		if (type == DIRTY_COMPILE) {
 			this.pos_in_bytecode.clear()
@@ -43,20 +42,14 @@ class Number is Node
 		}
 		else
 		{
-			var msg = Message()
-
-			msg.type = UPDATE_OPCODES
-
-			msg.value = []
+			var msg = []
 			for (var pos in this.pos_in_bytecode) 
 			{
-				msg.value.add(pos + 2)
-				msg.value.add(this.value)
+				msg.add(pos + 2)
+				msg.add(this.value)
 			}
 
-			Blueprint.send_message_root(this, msg)
-
-			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES)
+			Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_OPCODES, msg)
 		}
 	}
 

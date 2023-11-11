@@ -3,7 +3,6 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
-import "blueprint.msg_types" for UPDATE_OPCODES
 import "logger.logger" for Logger
 import "vmgraph.variant" for VAR_TYPE_BYTECODES
 import "vm" for Bytecodes, Compiler as tt_Compiler, CodeRegen, CodeTools
@@ -28,27 +27,24 @@ class Compiler is Node
 		this.out_reg = -1
 	}
 
-	on_pin_dirty(pin, type)
+	on_pin_dirty(pin, type, msg)
 	{
-		super.on_pin_dirty(pin, type)
+		super.on_pin_dirty(pin, type, msg)
 
-		if (type != DIRTY_OPCODES) {
+		if (type != DIRTY_OPCODES) 
+		{
 			this.opcodes = nil
 		}
-	}
-
-	on_message(msg) 
-	{
-		if (msg.type == UPDATE_OPCODES)
+		else
 		{
-			if (this.opcodes)
+			if (this.opcodes and msg)
 			{
 				var codes = this.opcodes
 
-				for (var i = 0; i < msg.value.count; i = i + 2)
+				for (var i = 0; i < msg.count; i = i + 2)
 				{
-					var pos = msg.value[i]
-					var num = msg.value[i+1]
+					var pos = msg[i]
+					var num = msg[i+1]
 					CodeRegen.write_num(codes, pos, num)
 				}
 			}
