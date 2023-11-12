@@ -256,10 +256,10 @@ class Box is Node
 			else if (idx == 1)
 			{
 				var r_min = compiler.new_reg()
-				opcodes.vec3_create_r(r_xmin, r_ymin, r_zmin)
+				opcodes.vec3_create_r(r_min, r_xmin, r_ymin, r_zmin)
 
 				var r_max = compiler.new_reg()
-				opcodes.vec3_create_r(r_xmax, r_ymax, r_zmax)
+				opcodes.vec3_create_r(r_max, r_xmax, r_ymax, r_zmax)
 
 				compiler.free_reg(r_xmin)
 				compiler.free_reg(r_xmax)
