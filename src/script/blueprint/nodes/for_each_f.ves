@@ -3,7 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_ARRAY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "maths.compiler" for Compiler as maths_Compiler
-import "vm" for CodeTools
+import "vm" for CodeTools, CodeRegen
 
 class ForEachF is Node
 {
@@ -52,17 +52,23 @@ class ForEachF is Node
 
 			compiler.keep_reg(this.r_curr_item, true)
 
-			var r_cmp = maths_Compiler.create_bool(compiler, opcodes, false)
+			var r_cmp = compiler.new_reg()
 
-			var start_ip = CodeTools.get_size(opcodes)
+			var begin_ip = CodeTools.get_size(opcodes)
+
+			opcodes.less_num(r_cmp, this.r_curr_item, r_count)
+
+			var offset_pos = CodeTools.get_size(opcodes) + 1
+			opcodes.jump_if_not(0, r_cmp)
 
 			var r_eval = Blueprint.calc_input_opcodes(this, 2, compiler, opcodes)
 			opcodes.vector_concat(r_dst, r_eval)
 			compiler.free_reg(r_eval)
 
 			opcodes.inc_num(this.r_curr_item)
-			opcodes.equal_num(r_cmp, this.r_curr_item, r_count)
-			opcodes.jump_if_not(start_ip, r_cmp)
+			opcodes.jump(begin_ip)
+
+			CodeRegen.write_int(opcodes, offset_pos, CodeTools.get_size(opcodes))
 
 			compiler.free_reg(r_count)
 			compiler.free_reg(r_cmp)
