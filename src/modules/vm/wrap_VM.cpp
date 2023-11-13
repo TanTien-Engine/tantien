@@ -54,6 +54,11 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<brepvm::Bytecodes>);
 }
 
+void w_Bytecodes_set_nil()
+{
+    bytecodes_write(evm::OP_SET_NIL, 1);
+}
+
 void w_Bytecodes_is_nil()
 {
     bytecodes_write(evm::OP_IS_NIL, 2);
@@ -782,6 +787,7 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.set_nil(_)") == 0) return w_Bytecodes_set_nil;
     if (strcmp(signature, "Bytecodes.is_nil(_,_)") == 0) return w_Bytecodes_is_nil;
     if (strcmp(signature, "Bytecodes.move_val(_,_)") == 0) return w_Bytecodes_move_val;
     if (strcmp(signature, "Bytecodes.store_bool(_,_)") == 0) return w_Bytecodes_store_bool;

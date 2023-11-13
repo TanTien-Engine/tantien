@@ -7,6 +7,7 @@ foreign class Bytecodes
 
 	// basic
 	foreign is_nil(r_dst, r_src)
+	foreign set_nil(r_dst)
 	foreign move_val(r_dst, r_src)
 
 	foreign store_bool(reg, bool)
