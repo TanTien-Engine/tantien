@@ -129,7 +129,7 @@ class Blueprint
 
 			conn.from.node.on_disconnected(conn.from)
 
-			this.send_pin_dirty(conn.from, DIRTY_CONNECTION)
+			conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
 		}
 
 		var conn = Connecting(from, to)
@@ -140,8 +140,8 @@ class Blueprint
 		from.node.on_connected(from)
 		to.node.on_connected(to)
 
-		this.send_pin_dirty(from, DIRTY_CONNECTION)
-		this.send_pin_dirty(to, DIRTY_CONNECTION)
+		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
+		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
 
 		return conn
 	}
@@ -188,8 +188,8 @@ class Blueprint
 		conn.to.node.on_disconnected(conn.to)
 
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
-		this.send_pin_dirty(conn.from, DIRTY_CONNECTION)
-		this.send_pin_dirty(conn.to, DIRTY_CONNECTION)
+		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
+		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
 	}
 
 	static get_input_pin(curr_node, input_slot)
