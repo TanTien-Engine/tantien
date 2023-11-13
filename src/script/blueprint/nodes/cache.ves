@@ -42,6 +42,11 @@ class Cache is Node
 		return this.val
 	}
 
+	calc_opcodes(compiler, opcodes, idx)
+	{
+		return Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
+	}
+
 	clear_cache()
 	{
 		this.val = nil
