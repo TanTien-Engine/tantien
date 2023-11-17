@@ -6,8 +6,11 @@ foreign class Bytecodes
 	init() {}
 
 	// basic
-	foreign is_nil(r_dst, r_src)
+	foreign comments(str)
+
 	foreign set_nil(r_dst)
+	foreign is_nil(r_dst, r_src)
+
 	foreign move_val(r_dst, r_src)
 
 	foreign store_bool(reg, bool)

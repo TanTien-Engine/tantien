@@ -54,6 +54,18 @@ int w_Bytecodes_finalize(void* data)
     return sizeof(tt::Proxy<brepvm::Bytecodes>);
 }
 
+void w_Bytecodes_comments()
+{
+    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+
+    brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
+
+    builder.WriteType(evm::OP_COMMENTS);
+
+    const char* str = ves_tostring(1);
+    builder.WriteString(str);
+}
+
 void w_Bytecodes_set_nil()
 {
     bytecodes_write(evm::OP_SET_NIL, 1);
@@ -787,6 +799,7 @@ namespace tt
 VesselForeignMethodFn VmBindMethod(const char* signature)
 {
     // base
+    if (strcmp(signature, "Bytecodes.comments(_)") == 0) return w_Bytecodes_comments;
     if (strcmp(signature, "Bytecodes.set_nil(_)") == 0) return w_Bytecodes_set_nil;
     if (strcmp(signature, "Bytecodes.is_nil(_,_)") == 0) return w_Bytecodes_is_nil;
     if (strcmp(signature, "Bytecodes.move_val(_,_)") == 0) return w_Bytecodes_move_val;
