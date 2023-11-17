@@ -122,6 +122,10 @@ foreign class Compiler
 	foreign expect_reg_free()
 
 	foreign is_precomp_cond_branch()
+
+	foreign push_block(name, pos)
+	foreign pop_block(pos)
+	foreign print_block_tree()
 }
 
 foreign class Optimizer

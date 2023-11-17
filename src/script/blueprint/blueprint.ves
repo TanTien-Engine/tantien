@@ -1,6 +1,8 @@
 import "blueprint.connecting" for Connecting
 import "blueprint.variant" for VAR_TYPE_PORT, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER2, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER4
 import "blueprint.dirty_types" for DIRTY_CONNECTION
+import "geograph.variant" for VAR_TYPE_GEO
+import "vm" for CodeTools
 
 var PIN_DIRTY_TIMESTAMP 	= 0
 var NODE_DIRTY_TIMESTAMP 	= 0
@@ -280,9 +282,33 @@ class Blueprint
 		var f_pin = pin.conns.front().from
 		var f_node = f_pin.node
 
-		if (f_node.has_method("calc_opcodes(_,_,_)")) {
-			return f_node.calc_opcodes(compiler, opcodes, f_pin.slot_idx)
-		} else {
+		if (f_node.has_method("calc_opcodes(_,_,_)")) 
+		{
+			var is_geo_pin = false
+			if (f_pin.type is List)
+			{
+				for (var t in f_pin.type) {
+					if (t == VAR_TYPE_GEO) {
+						is_geo_pin = true
+					}
+				}
+			}
+			else
+			{
+				is_geo_pin = (f_pin.type == VAR_TYPE_GEO)
+			}
+
+			if (is_geo_pin) {
+				compiler.push_block(f_node.get_title(), CodeTools.get_size(opcodes))
+			}
+			var ret = f_node.calc_opcodes(compiler, opcodes, f_pin.slot_idx)
+			if (is_geo_pin) {
+				compiler.pop_block(CodeTools.get_size(opcodes))
+			}
+			return ret
+		} 
+		else 
+		{
 			import "logger.logger" for Logger
 			Logger.error("No calc_opcodes in %(f_node) !")
 		}

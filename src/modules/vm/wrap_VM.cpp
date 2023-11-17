@@ -587,6 +587,29 @@ void w_Compiler_is_precomp_cond_branch()
     ves_set_boolean(0, c->IsPrecompCondBranch());
 }
 
+void w_Compiler_push_block()
+{
+    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    const char* name = ves_tostring(1);
+    size_t pos = (size_t)ves_tonumber(2);
+
+    c->PushBlock(name, pos);
+}
+
+void w_Compiler_pop_block()
+{
+    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    size_t pos = (size_t)ves_tonumber(1);
+
+    c->PopBlock(pos);
+}
+
+void w_Compiler_print_block_tree()
+{
+    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    c->PrintBlockTree();
+}
+
 void w_Optimizer_allocate()
 {
     auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
@@ -884,6 +907,9 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
     if (strcmp(signature, "Compiler.expect_reg_free()") == 0) return w_Compiler_expect_reg_free;
     if (strcmp(signature, "Compiler.is_precomp_cond_branch()") == 0) return w_Compiler_is_precomp_cond_branch;
+    if (strcmp(signature, "Compiler.push_block(_,_)") == 0) return w_Compiler_push_block;
+    if (strcmp(signature, "Compiler.pop_block(_)") == 0) return w_Compiler_pop_block;
+    if (strcmp(signature, "Compiler.print_block_tree()") == 0) return w_Compiler_print_block_tree;
 
     if (strcmp(signature, "Optimizer.optimize()") == 0) return w_Optimizer_optimize;
     if (strcmp(signature, "Optimizer.write_num(_,_)") == 0) return w_Optimizer_write_num;
