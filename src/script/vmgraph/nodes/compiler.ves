@@ -4,7 +4,7 @@ import "blueprint.variant" for Variant, VAR_TYPE_ANY, VAR_TYPE_INTEGER
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES, DIRTY_COMPILE
 import "logger.logger" for Logger
-import "vmgraph.variant" for VAR_TYPE_BYTECODES
+import "vmgraph.variant" for VAR_TYPE_BYTECODES, VAR_TYPE_PROFILE
 import "vm" for Bytecodes, Compiler as tt_Compiler, CodeRegen, CodeTools
 
 class Compiler is Node
@@ -17,8 +17,9 @@ class Compiler is Node
 			Pin(this, "val", VAR_TYPE_ANY),
 		]
 		this.exports = [
-			Pin(this, "codes", VAR_TYPE_BYTECODES),
-			Pin(this, "r_out", VAR_TYPE_INTEGER),
+			Pin(this, "codes",   VAR_TYPE_BYTECODES),
+			Pin(this, "r_out",   VAR_TYPE_INTEGER),
+			Pin(this, "profile", VAR_TYPE_PROFILE),
 		]
 
 		this.layout()
@@ -67,12 +68,13 @@ class Compiler is Node
 			
 			compiler.expect_reg_free()
 
-			//compiler.print_block_tree()
+			compiler.get_profiler().print_block_tree()
 
 			//CodeTools.decompiler(opcodes, 0, 0)
 
 			this.opcodes = opcodes
 			this.out_reg = r_dst
+			this.profile = compiler.get_profiler()
 		}
 
 		if (idx == 0) 
@@ -82,6 +84,10 @@ class Compiler is Node
 		else if (idx == 1)
 		{
 			return Variant(VAR_TYPE_INTEGER, this.out_reg)
+		}
+		else if (idx == 2)
+		{
+			return Variant(VAR_TYPE_PROFILE, this.profile)
 		}
 		else
 		{

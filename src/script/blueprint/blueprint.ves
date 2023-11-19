@@ -298,12 +298,18 @@ class Blueprint
 				is_geo_pin = (f_pin.type == VAR_TYPE_GEO)
 			}
 
-			if (is_geo_pin) {
-				compiler.push_block(f_node.get_title(), CodeTools.get_size(opcodes))
+			if (is_geo_pin) 
+			{
+				compiler.get_profiler().push_block(f_node.get_title(), CodeTools.get_size(opcodes))
 			}
 			var ret = f_node.calc_opcodes(compiler, opcodes, f_pin.slot_idx)
-			if (is_geo_pin) {
-				compiler.pop_block(CodeTools.get_size(opcodes))
+			if (is_geo_pin) 
+			{
+				var reg = -1
+				if (ret) {
+					reg = ret
+				}
+				compiler.get_profiler().pop_block(CodeTools.get_size(opcodes), reg)
 			}
 			return ret
 		} 

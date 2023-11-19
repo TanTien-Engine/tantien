@@ -17,6 +17,7 @@
 #include <brepvm/geo_opcodes.h>
 #include <brepvm/Compiler.h>
 #include <brepvm/ValueType.h>
+#include <brepvm/Profiler.h>
 
 #include <string>
 
@@ -444,21 +445,6 @@ void w_CodeStats_stat_call()
     code->StatCall(name);
 }
 
-void w_CodeStats_add_code_block()
-{
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
-
-    int begin = (int)ves_tonumber(2);
-    int end = (int)ves_tonumber(3);
-
-    int reg = (int)ves_tonumber(4);
-
-    brepvm::Decompiler dc(code, brepvm::VM::Instance()->GetOpFields());
-    size_t hash = dc.Hash(begin, end);
-
-    code->AddOptimBlock(hash, begin, end, reg);
-}
-
 void w_CodeStats_add_cost()
 {
     auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
@@ -587,27 +573,54 @@ void w_Compiler_is_precomp_cond_branch()
     ves_set_boolean(0, c->IsPrecompCondBranch());
 }
 
-void w_Compiler_push_block()
+void w_Compiler_get_profiler()
 {
     auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("vm", "Profiler");
+    auto proxy = (tt::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepvm::Profiler>));
+    proxy->obj = c->GetProfiler();
+    ves_pop(1);
+}
+
+void w_Profiler_allocate()
+{
+    auto proxy = (tt::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvm::Profiler>));
+    proxy->obj = std::make_shared<brepvm::Profiler>();
+}
+
+int w_Profiler_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<brepvm::Profiler>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<brepvm::Profiler>);
+}
+
+void w_Profiler_push_block()
+{
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     const char* name = ves_tostring(1);
     size_t pos = (size_t)ves_tonumber(2);
 
-    c->PushBlock(name, pos);
+    prof->PushBlock(name, pos);
 }
 
-void w_Compiler_pop_block()
+void w_Profiler_pop_block()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     size_t pos = (size_t)ves_tonumber(1);
+    int reg = (int)ves_tonumber(2);
 
-    c->PopBlock(pos);
+    prof->PopBlock(pos, reg);
 }
 
-void w_Compiler_print_block_tree()
+void w_Profiler_print_block_tree()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
-    c->PrintBlockTree();
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    prof->PrintBlockTree();
 }
 
 void w_Optimizer_allocate()
@@ -628,7 +641,13 @@ int w_Optimizer_finalize(void* data)
 void w_Optimizer_optimize()
 {
     auto optim = ((tt::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
-    optim->Optimize();
+
+    std::shared_ptr<brepvm::Profiler> profiler = nullptr;
+    if (void* param = ves_toforeign(1)) {
+        profiler = ((tt::Proxy<brepvm::Profiler>*)param)->obj;
+    }
+
+    optim->Optimize(profiler);
 }
 
 void w_Optimizer_write_num()
@@ -891,7 +910,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Bytecodes.transform(_,_)") == 0) return w_Bytecodes_transform;
 
     if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;
-    if (strcmp(signature, "static CodeStats.add_code_block(_,_,_,_)") == 0) return w_CodeStats_add_code_block;
     if (strcmp(signature, "static CodeStats.add_cost(_,_)") == 0) return w_CodeStats_add_cost;
     if (strcmp(signature, "static CodeStats.get_cost(_)") == 0) return w_CodeStats_get_cost;
 
@@ -907,11 +925,13 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Compiler.keep_reg(_,_)") == 0) return w_Compiler_keep_reg;
     if (strcmp(signature, "Compiler.expect_reg_free()") == 0) return w_Compiler_expect_reg_free;
     if (strcmp(signature, "Compiler.is_precomp_cond_branch()") == 0) return w_Compiler_is_precomp_cond_branch;
-    if (strcmp(signature, "Compiler.push_block(_,_)") == 0) return w_Compiler_push_block;
-    if (strcmp(signature, "Compiler.pop_block(_)") == 0) return w_Compiler_pop_block;
-    if (strcmp(signature, "Compiler.print_block_tree()") == 0) return w_Compiler_print_block_tree;
+    if (strcmp(signature, "Compiler.get_profiler()") == 0) return w_Compiler_get_profiler;
 
-    if (strcmp(signature, "Optimizer.optimize()") == 0) return w_Optimizer_optimize;
+    if (strcmp(signature, "Profiler.push_block(_,_)") == 0) return w_Profiler_push_block;
+    if (strcmp(signature, "Profiler.pop_block(_,_)") == 0) return w_Profiler_pop_block;
+    if (strcmp(signature, "Profiler.print_block_tree()") == 0) return w_Profiler_print_block_tree;
+
+    if (strcmp(signature, "Optimizer.optimize(_)") == 0) return w_Optimizer_optimize;
     if (strcmp(signature, "Optimizer.write_num(_,_)") == 0) return w_Optimizer_write_num;
     if (strcmp(signature, "Optimizer.flush()") == 0) return w_Optimizer_flush;
     if (strcmp(signature, "Optimizer.get_codes()") == 0) return w_Optimizer_get_codes;
@@ -942,6 +962,13 @@ void VmBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Compiler_allocate;
         methods->finalize = w_Compiler_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Profiler") == 0)
+    {
+        methods->allocate = w_Profiler_allocate;
+        methods->finalize = w_Profiler_finalize;
         return;
     }
 

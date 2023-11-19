@@ -75,10 +75,6 @@ class Boolean is Node
 		compiler.free_reg(r_base)
 		compiler.free_reg(r_tool)
 
-		var curr_size = CodeTools.get_size(opcodes)
-		var hash = CodeTools.hash(opcodes, ori_size, curr_size)
-		CodeStats.add_code_block(opcodes, ori_size, curr_size, r_dst)
-
 		return r_dst
 	}
 

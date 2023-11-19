@@ -92,7 +92,6 @@ foreign class Bytecodes
 foreign class CodeStats
 {
 	foreign static stat_call(codes, name)
-	foreign static add_code_block(codes, begin, end, reg)
 	foreign static add_cost(codes, cost)
 	foreign static get_cost(codes)
 }
@@ -123,8 +122,15 @@ foreign class Compiler
 
 	foreign is_precomp_cond_branch()
 
+	foreign get_profiler()
+}
+
+foreign class Profiler
+{
+	init() {}
+
 	foreign push_block(name, pos)
-	foreign pop_block(pos)
+	foreign pop_block(pos, reg)
 	foreign print_block_tree()
 }
 
@@ -132,7 +138,7 @@ foreign class Optimizer
 {
 	init(codes) {}
 
-	foreign optimize()
+	foreign optimize(profiler)
 
 	foreign write_num(pos, num)
 	foreign flush()

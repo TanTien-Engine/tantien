@@ -4,8 +4,8 @@ import "blueprint.variant" for Variant
 import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_OPCODES
 import "logger.logger" for Logger
-import "vmgraph.variant" for VAR_TYPE_BYTECODES
-import "vm" for Optimizer as tt_Optimizer
+import "vmgraph.variant" for VAR_TYPE_BYTECODES, VAR_TYPE_PROFILE
+import "vm" for Optimizer as tt_Optimizer, CodeTools
 
 class Optimizer is Node
 {
@@ -14,7 +14,8 @@ class Optimizer is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "codes", VAR_TYPE_BYTECODES),
+			Pin(this, "codes",   VAR_TYPE_BYTECODES),
+			Pin(this, "profile", VAR_TYPE_PROFILE),
 		]
 		this.exports = [
 			Pin(this, "codes", VAR_TYPE_BYTECODES),
@@ -57,10 +58,16 @@ class Optimizer is Node
 				return nil
 			}
 
+			var prof = nil
+			var v_prof = Blueprint.calc_input_value(this, 1)
+			if (v_prof) {
+				prof = v_prof.value
+			}
+
 			Logger.info("optimize")
 
 			this.optim = tt_Optimizer.init(v_code.value)
-			this.optim.optimize()
+			this.optim.optimize(prof)
 		}
 
 		var new_codes = this.optim.get_codes()
