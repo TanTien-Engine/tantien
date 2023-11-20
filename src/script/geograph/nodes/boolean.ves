@@ -6,7 +6,7 @@ import "blueprint.blueprint" for Blueprint
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geometry" for Polytope
-import "vm" for CodeTools, CodeStats
+import "vm" for CodeTools
 
 class Boolean is Node
 {
@@ -62,15 +62,12 @@ class Boolean is Node
 			return nil
 		}
 
-		var ori_size = CodeTools.get_size(opcodes)
-		var ori_cost = CodeStats.get_cost(opcodes)
-
 		var r_base = Blueprint.calc_input_opcodes(this, 0, compiler, opcodes)
 		var r_tool = Blueprint.calc_input_opcodes(this, 1, compiler, opcodes)
 
 		opcodes.polytope_subtract(r_dst, r_base, r_tool)
 
-		CodeStats.add_cost(opcodes, 1)
+		compiler.get_profiler().add_cost(1)
 
 		compiler.free_reg(r_base)
 		compiler.free_reg(r_tool)

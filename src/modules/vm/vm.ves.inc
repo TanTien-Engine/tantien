@@ -89,13 +89,6 @@ foreign class Bytecodes
 	foreign transform(r_obj, r_mat)
 }
 
-foreign class CodeStats
-{
-	foreign static stat_call(codes, name)
-	foreign static add_cost(codes, cost)
-	foreign static get_cost(codes)
-}
-
 foreign class CodeTools
 {
 	foreign static get_size(codes)	
@@ -132,6 +125,11 @@ foreign class Profiler
 	foreign push_block(name, pos)
 	foreign pop_block(pos, reg)
 	foreign print_block_tree()
+
+	// stat
+	foreign stat_call(name)
+	foreign add_cost(cost)
+	foreign get_cost()	
 }
 
 foreign class Optimizer

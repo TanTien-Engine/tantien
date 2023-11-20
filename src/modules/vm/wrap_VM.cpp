@@ -438,26 +438,6 @@ void w_Bytecodes_transform()
     bytecodes_write(brepvm::OP_TRANSFORM, 2);
 }
 
-void w_CodeStats_stat_call()
-{
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
-    const char* name = ves_tostring(2);
-    code->StatCall(name);
-}
-
-void w_CodeStats_add_cost()
-{
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
-    int cost = (int)ves_tonumber(2);
-    code->AddCost(cost);
-}
-
-void w_CodeStats_get_cost()
-{
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
-    ves_set_number(0, code->GetCost());
-}
-
 void w_CodeTools_get_size()
 {
     auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
@@ -621,6 +601,26 @@ void w_Profiler_print_block_tree()
 {
     auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     prof->PrintBlockTree();
+}
+
+void w_Profiler_stat_call()
+{
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    const char* name = ves_tostring(1);
+    prof->StatCall(name);
+}
+
+void w_Profiler_add_cost()
+{
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    int cost = (int)ves_tonumber(1);
+    prof->AddCost(cost);
+}
+
+void w_Profiler_get_cost()
+{
+    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    ves_set_number(0, prof->GetCost());
 }
 
 void w_Optimizer_allocate()
@@ -909,10 +909,6 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     // multi
     if (strcmp(signature, "Bytecodes.transform(_,_)") == 0) return w_Bytecodes_transform;
 
-    if (strcmp(signature, "static CodeStats.stat_call(_,_)") == 0) return w_CodeStats_stat_call;
-    if (strcmp(signature, "static CodeStats.add_cost(_,_)") == 0) return w_CodeStats_add_cost;
-    if (strcmp(signature, "static CodeStats.get_cost(_)") == 0) return w_CodeStats_get_cost;
-
     if (strcmp(signature, "static CodeTools.get_size(_)") == 0) return w_CodeTools_get_size;
     if (strcmp(signature, "static CodeTools.decompiler(_,_,_)") == 0) return w_CodeTools_decompiler;
     if (strcmp(signature, "static CodeTools.hash(_,_,_)") == 0) return w_CodeTools_hash;
@@ -930,6 +926,9 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "Profiler.push_block(_,_)") == 0) return w_Profiler_push_block;
     if (strcmp(signature, "Profiler.pop_block(_,_)") == 0) return w_Profiler_pop_block;
     if (strcmp(signature, "Profiler.print_block_tree()") == 0) return w_Profiler_print_block_tree;
+    if (strcmp(signature, "Profiler.stat_call(_)") == 0) return w_Profiler_stat_call;
+    if (strcmp(signature, "Profiler.add_cost(_)") == 0) return w_Profiler_add_cost;
+    if (strcmp(signature, "Profiler.get_cost()") == 0) return w_Profiler_get_cost;
 
     if (strcmp(signature, "Optimizer.optimize(_)") == 0) return w_Optimizer_optimize;
     if (strcmp(signature, "Optimizer.write_num(_,_)") == 0) return w_Optimizer_write_num;
