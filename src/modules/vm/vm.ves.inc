@@ -160,4 +160,9 @@ foreign class VM
 	foreign load_polytope(reg)
 }
 
+foreign class ValueCache
+{
+	foreign static fetch(idx)
+}
+
 );

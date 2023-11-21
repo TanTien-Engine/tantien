@@ -1,0 +1,52 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_INTEGER, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
+import "vm" for ValueCache
+
+class ValCache is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "idx", VAR_TYPE_INTEGER),			
+		]
+		this.exports = [
+			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_idx = Blueprint.calc_input_value(this, 0)
+		if (v_idx) {
+			return this.return_polytope(v_idx.value)
+		} else {
+			return this.return_polytope(0)
+		}
+	}
+
+	return_polytope(idx)
+	{
+		var poly = ValueCache.fetch(idx)
+		if (!poly) {
+			return nil
+		}
+
+		var geo = VarGeo()
+
+		if (poly is List) {
+			geo.shape = Brush(poly)
+		} else {
+			geo.shape = Brush([ poly ])
+		}
+
+		return Variant(VAR_TYPE_GEO, geo)
+	}
+}

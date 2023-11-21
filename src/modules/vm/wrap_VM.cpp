@@ -803,6 +803,11 @@ void w_VM_load_polytope()
     tt::return_poly(polys);
 }
 
+void w_ValueCache_fetch()
+{
+    uint8_t idx = (uint8_t)ves_tonumber(1);
+    auto polys = brepvm::VMHelper::LoadPolysFromCache(idx);
+    tt::return_poly(polys);
 }
 
 }
@@ -916,6 +921,8 @@ VesselForeignMethodFn VmBindMethod(const char* signature)
     if (strcmp(signature, "VM.load_plane(_)") == 0) return w_VM_load_plane;
     if (strcmp(signature, "VM.load_polyface(_)") == 0) return w_VM_load_polyface;
     if (strcmp(signature, "VM.load_polytope(_)") == 0) return w_VM_load_polytope;
+
+    if (strcmp(signature, "static ValueCache.fetch(_)") == 0) return w_ValueCache_fetch;
 
 	return nullptr;
 }
