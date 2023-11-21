@@ -6,6 +6,7 @@ import "vm" for CodeTools
 
 var PIN_DIRTY_TIMESTAMP 	= 0
 var NODE_DIRTY_TIMESTAMP 	= 0
+var ENABLE_PASS_PIN_DIRTY 	= true
 
 class Blueprint
 {
@@ -361,9 +362,14 @@ class Blueprint
 		return port_num > 0
 	}
 
+	static enable_pass_pin_dirty(enable)
+	{
+		ENABLE_PASS_PIN_DIRTY = enable
+	}
+
 	static send_pin_dirty(pin, type, msg)
 	{
-		if (pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
+		if (!ENABLE_PASS_PIN_DIRTY or pin.dirty_timestamp == PIN_DIRTY_TIMESTAMP) {
 			return
 		}
 

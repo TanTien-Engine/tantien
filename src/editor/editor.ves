@@ -880,6 +880,8 @@ import \"blueprint.blueprint\" for Blueprint
 
 	loadfromstring(str)
 	{
+		Blueprint.enable_pass_pin_dirty(false)
+
 		this.clear()
 
 		var header = "
@@ -896,6 +898,8 @@ import \"editor\" for _editor
 		this.scene_stack.bp_dirty = true
 
 		this.scene_stack.set_root_filepath(this.filepath)
+
+		Blueprint.enable_pass_pin_dirty(true)
 	}
 
 	loadfromfile(filepath)
