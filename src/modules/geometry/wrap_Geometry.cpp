@@ -1134,20 +1134,7 @@ void w_Polytope_boolean()
         polytopes = pm3::PolytopeAlgos::Subtract(a, b);
     }
 
-    ves_pop(ves_argnum());
-
-    const int num = (int)polytopes.size();
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_pushnil();
-        ves_import_class("geometry", "Polytope");
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = polytopes[i];
-        ves_pop(1);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_poly(polytopes);
 }
 
 void w_Sphere_allocate()
@@ -1327,16 +1314,7 @@ void w_ShapeMaths_extrude()
 {
     auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto dist = (float)ves_tonumber(2);
-
-    auto poly = tt::ShapeMaths::Extrude(src, dist);
-
-    ves_pop(ves_argnum());
-
-    ves_pushnil();
-    ves_import_class("geometry", "Polytope");
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
-    proxy->obj = poly;
-    ves_pop(1);
+    tt::return_poly(tt::ShapeMaths::Extrude(src, dist));
 }
 
 void w_ShapeMaths_merge()

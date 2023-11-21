@@ -800,37 +800,9 @@ void w_VM_load_polytope()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     auto polys = brepvm::VMHelper::LoadPolys(vm.get(), reg);
-    if (polys.empty())
-    {
-        ves_set_nil(0);
-    }
-    else if (polys.size() == 1)
-    {
-        ves_pop(ves_argnum());
+    tt::return_poly(polys);
+}
 
-        ves_pushnil();
-        ves_import_class("geometry", "Polytope");
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = polys[0];
-        ves_pop(1);
-    }
-    else
-    {
-        ves_pop(ves_argnum());
-
-        const int num = (int)polys.size();
-        ves_newlist(num);
-        for (int i = 0; i < num; ++i)
-        {
-            ves_pushnil();
-            ves_import_class("geometry", "Polytope");
-            auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
-            proxy->obj = polys[i];
-            ves_pop(1);
-            ves_seti(-2, i);
-            ves_pop(1);
-        }
-    }
 }
 
 }

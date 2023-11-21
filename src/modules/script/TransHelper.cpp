@@ -353,4 +353,57 @@ void return_vec(const sm::vec3& vec3)
     }
 }
 
+void return_poly(const std::shared_ptr<pm3::Polytope>& poly)
+{
+    if (poly)
+    {
+        ves_pop(ves_argnum());
+
+        ves_pushnil();
+        ves_import_class("geometry", "Polytope");
+        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
+        proxy->obj = poly;
+        ves_pop(1);
+    }
+    else
+    {
+        ves_set_nil(0);
+    }
+}
+
+void return_poly(const std::vector<std::shared_ptr<pm3::Polytope>>& polys)
+{
+    if (polys.empty())
+    {
+        ves_set_nil(0);
+    }
+    else if (polys.size() == 1)
+    {
+        ves_pop(ves_argnum());
+
+        ves_pushnil();
+        ves_import_class("geometry", "Polytope");
+        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
+        proxy->obj = polys[0];
+        ves_pop(1);
+    }
+    else
+    {
+        ves_pop(ves_argnum());
+
+        const int num = (int)polys.size();
+        ves_newlist(num);
+        for (int i = 0; i < num; ++i)
+        {
+            ves_pushnil();
+            ves_import_class("geometry", "Polytope");
+            auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
+            proxy->obj = polys[i];
+            ves_pop(1);
+            ves_seti(-2, i);
+            ves_pop(1);
+        }
+    }
+}
+
 }

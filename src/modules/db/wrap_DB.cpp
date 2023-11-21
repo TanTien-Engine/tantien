@@ -165,20 +165,7 @@ void w_RTree_query()
         polys.push_back(poly);
     }
 
-    ves_pop(ves_argnum());
-
-    const int num = (int)(polys.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_pushnil();
-        ves_import_class("geometry", "Polytope");
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = polys[i];
-        ves_pop(1);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_poly(polys);
 }
 
 void w_RTree_query_with_time()
@@ -211,20 +198,7 @@ void w_RTree_query_with_time()
         polys.push_back(poly);
     }
 
-    ves_pop(ves_argnum());
-
-    const int num = (int)(polys.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        ves_pushnil();
-        ves_import_class("geometry", "Polytope");
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = polys[i];
-        ves_pop(1);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::return_poly(polys);
 }
 
 void w_RTree_get_all_leaves()

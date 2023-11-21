@@ -4,6 +4,7 @@
 
 #include <SM_Vector.h>
 #include <SM_Matrix.h>
+#include <polymesh3/Polytope.h>
 #include <vessel.h>
 
 #include <vector>
@@ -51,6 +52,9 @@ void return_list2(const std::vector<std::vector<T>>& vals);
 
 void return_vec(const sm::vec2& vec2);
 void return_vec(const sm::vec3& vec3);
+
+void return_poly(const std::shared_ptr<pm3::Polytope>& poly);
+void return_poly(const std::vector<std::shared_ptr<pm3::Polytope>>& polys);
 
 }
 
