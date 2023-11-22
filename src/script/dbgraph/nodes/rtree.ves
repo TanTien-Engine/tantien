@@ -27,14 +27,17 @@ class Rtree is Node
 		var rtree = nil
 
 		var v_db = Blueprint.calc_input_value(this, 0)
-		if (v_db and v_db.value) {
+		if (v_db and v_db.value) 
+		{
 			rtree = RTree.init(v_db.value)
-		} 
-
-		rtree = RTree.init()
-		var v_model = Blueprint.calc_input_value(this, 1)
-		if (v_model) {
-			rtree.load_from_file(v_model.value)
+		}
+		else
+		{
+			rtree = RTree.init()
+			var v_model = Blueprint.calc_input_value(this, 1)
+			if (v_model) {
+				rtree.load_from_file(v_model.value)
+			}
 		}
 
 		return Variant(VAR_TYPE_RTREE, rtree)
