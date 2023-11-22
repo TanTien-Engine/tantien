@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_STRING
 import "blueprint.blueprint" for Blueprint
 import "dbgraph.variant" for VAR_TYPE_DB_FILE, VAR_TYPE_RTREE
+import "logger.logger" for Logger
 import "db" for RTree
 
 class Rtree is Node
@@ -20,10 +21,30 @@ class Rtree is Node
 		]
 
 		this.layout()
+
+		this.rtree = nil
+	}
+
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.vm = nil
 	}
 
 	calc_value(idx)
 	{
+		if (!this.rtree) {
+			this.rtree = this.calc_rtree_impl(idx)
+		}
+
+		return Variant(VAR_TYPE_RTREE, this.rtree)
+	}
+
+	calc_rtree_impl(idx)
+	{
+		Logger.info("rtree")
+
 		var rtree = nil
 
 		var v_db = Blueprint.calc_input_value(this, 0)
@@ -40,6 +61,6 @@ class Rtree is Node
 			}
 		}
 
-		return Variant(VAR_TYPE_RTREE, rtree)
+		return rtree
 	}
 }
