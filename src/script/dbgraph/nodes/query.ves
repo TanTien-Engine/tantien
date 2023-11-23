@@ -28,30 +28,34 @@ class Query is Node
 
 		this.layout()
 
-		this.polys = nil
+		this.brush = nil
 	}
 
 	on_pin_dirty(pin, type, msg)
 	{
 		super.on_pin_dirty(pin, type, msg)
 
-		this.polys = nil
+		this.brush = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.polys) {
-			this.polys = this.calc_polys_impl(idx)
+		if (!this.brush) 
+		{
+			var polys = this.calc_polys_impl(idx)
+			if (polys) {
+				this.brush = Brush(polys)
+			}
 		}
 
-		if (!this.polys)
+		if (!this.brush)
 		{
 			return nil
 		}
 		else
 		{
 			var geo = VarGeo()
-			geo.shape = Brush(this.polys)
+			geo.shape = this.brush
 			return Variant(VAR_TYPE_GEO, geo)
 		}
 	}
@@ -78,13 +82,18 @@ class Query is Node
 			return nil
 		}
 
-		var tmin = this.query_param("tmin").value
-		var tmax = this.query_param("tmax").value
-		var polys = v_tree.value.query(key)
-//		var polys = v_tree.value.query_with_time(key, tmin, tmax)
-
 		Logger.info("query")
 
-		return polys
+		var polys = v_tree.value.query(key)
+
+//		var tmin = this.query_param("tmin").value
+//		var tmax = this.query_param("tmax").value
+//		var polys = v_tree.value.query_with_time(key, tmin, tmax)
+
+		if (polys and !(polys is List)) {
+			return [ polys ]
+		} else {
+			return polys
+		}		
 	}
 }

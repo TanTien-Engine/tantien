@@ -40,23 +40,25 @@ class BrushToGltf is Node
 		{
 			if (brush is Brush)
 			{
-				var gltf = brush.get_model(adjacencies)
-				if (gltf) {
-					var gltf_desc = gltf.get_desc()
-					return Variant(gltf_desc)
+				if (!brush.vbo) {
+					brush.vbo = brush.get_model(adjacencies)
+				}
+				if (brush.vbo) {
+					return Variant(brush.vbo.get_desc())
 				}
 			}
 			else if (brush is BrushInstanced)
 			{
-				var gltf = brush.brush.get_model(adjacencies)
-				if (gltf) 
+				if (!brush.vbo) {
+					brush.brush.vbo = brush.brush.get_model(adjacencies)
+				}
+				if (brush.brush.vbo)
 				{
 					if (!brush.brush.instanced_inited) {
-						gltf.set_instanced_mats(brush.transforms)
+						brush.brush.vbo.set_instanced_mats(brush.transforms)
 						brush.brush.instanced_inited = true
 					}
-					var gltf_desc = gltf.get_desc()
-					return Variant(gltf_desc)
+					return Variant(brush.brush.vbo.get_desc())
 				}
 			}
 			else if (brush is Surface)
