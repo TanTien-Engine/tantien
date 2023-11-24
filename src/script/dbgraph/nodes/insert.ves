@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.node_param" for NodeParam
 import "geograph.variant" for VAR_TYPE_GEO
 import "dbgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+import "logger.logger" for Logger
 
 class Insert is Node
 {
@@ -24,10 +25,30 @@ class Insert is Node
 		this.params.add(NodeParam("time", false))		
 
 		this.layout()
+
+		this.v_rtree = nil
+	}
+
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.v_rtree = nil
 	}
 
 	calc_value(idx)
 	{
+		if (!this.v_rtree) {
+			this.v_rtree = this.calc_rtree_impl(idx)
+		}
+
+		return this.v_rtree
+	}
+
+	calc_rtree_impl(idx)
+	{
+		Logger.info("dbgraph insert")
+
 		var v_tree = Blueprint.calc_input_value(this, 0)
 		if (!v_tree) {
 			return nil
