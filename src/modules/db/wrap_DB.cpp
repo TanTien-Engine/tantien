@@ -78,7 +78,7 @@ void w_RTree_insert()
     uint32_t length = 0;
     tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
 
-    id_type id = 0;
+    brepdb::id_type id = 0;
 
     brepdb::Region aabb;
     auto& pts = poly->Points();
@@ -115,7 +115,7 @@ void w_RTree_insert_with_time()
     uint32_t length = 0;
     tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
 
-    id_type id = 0;
+    brepdb::id_type id = 0;
 
     brepdb::Region aabb;
     auto& pts = poly->Points();

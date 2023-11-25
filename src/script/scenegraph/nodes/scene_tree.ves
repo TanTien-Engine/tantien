@@ -1,0 +1,51 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "dbgraph.variant" for VAR_TYPE_RTREE
+import "scenegraph.variant" for VAR_TYPE_SCENE_TREE
+import "logger.logger" for Logger
+import "scene" for SceneTree as tt_SceneTree
+
+class SceneTree is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "rtree", VAR_TYPE_RTREE),
+		]
+		this.exports = [
+			Pin(this, "stree", VAR_TYPE_SCENE_TREE),
+		]
+
+		this.layout()
+
+		this.stree = nil
+	}
+
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.stree = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.stree) 
+		{
+			Logger.info("build scene_tree")
+
+			this.stree = tt_SceneTree.init()
+
+			var v_tree = Blueprint.calc_input_value(this, 0)
+			if (v_tree) {
+				this.stree.build(v_tree.value)
+			}
+		}
+
+		return Variant(VAR_TYPE_SCENE_TREE, this.stree)
+	}
+}

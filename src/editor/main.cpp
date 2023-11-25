@@ -27,6 +27,8 @@
 #include "modules/io/wrap_Keyboard.h"
 #include "modules/io/Keyboard.h"
 #include "modules/io/keyboard.ves.inc"
+#include "modules/scene/wrap_Scene.h"
+#include "modules/scene/scene.ves.inc"
 #include "modules/vm/wrap_VM.h"
 #include "modules/vm/VM.ves.inc"
 #include "modules/db/wrap_DB.h"
@@ -132,6 +134,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "shader") == 0 &&
         !strcmp(module, "physics") == 0 &&
         !strcmp(module, "keyboard") == 0 &&
+        !strcmp(module, "scene") == 0 &&
         !strcmp(module, "vm") == 0 &&
         !strcmp(module, "db") == 0 &&
         !strcmp(module, "om") == 0 &&
@@ -179,6 +182,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = physicsModuleSource;
     } else if (strcmp(module, "keyboard") == 0) {
         source = keyboardModuleSource;
+    } else if (strcmp(module, "scene") == 0) {
+        source = sceneModuleSource;
     } else if (strcmp(module, "vm") == 0) {
         source = vmModuleSource;
     } else if (strcmp(module, "db") == 0) {
@@ -334,6 +339,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::KeyboardBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::SceneBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     tt::VmBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -428,6 +436,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::KeyboardBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::SceneBindMethod(fullName);
     if (method != NULL) return method;
 
     method = tt::VmBindMethod(fullName);

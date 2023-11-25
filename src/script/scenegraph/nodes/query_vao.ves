@@ -1,0 +1,33 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "scenegraph.variant" for VAR_TYPE_SCENE_TREE
+
+class QueryVao is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_SCENE_TREE),
+		]
+		this.exports = [
+			Pin(this, "vao", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var list = v_tree.value.get_all_vao()
+		return Variant(list)
+	}
+}

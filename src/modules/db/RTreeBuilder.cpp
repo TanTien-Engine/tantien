@@ -96,7 +96,7 @@ void RTreeBuilder::FromModeling(brepdb::RTree& rtree, const char* filepath)
 		uint32_t length = 0;
 		BrepSerialize::BRepToByteArray(points, faces, &data, length);
 
-		id_type id = 0;
+		brepdb::id_type id = 0;
 
 		brepdb::Region aabb;
 		for (auto& p : points)
