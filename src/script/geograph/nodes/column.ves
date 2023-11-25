@@ -102,14 +102,17 @@ class Column is Node
 		]
 
 		var points = []
+		var faces = []
 
 		var h = this.calc_height()
 		for (var i = 0; i < 4; i = i + 1) {
-			points.add(PolyPoint.init([ b_lead[i].x, 0, b_lead[i].y ]))
-			points.add(PolyPoint.init([ t_lead[i].x, h, t_lead[i].y ]))
+			points.add(Vector3(b_lead[i].x, 0, b_lead[i].y))
+			points.add(Vector3(t_lead[i].x, h, t_lead[i].y))
 		}
 
-		return this.build_poly(points, 4, 2)
+		this.calc_poly_faces(4, 2, faces)
+
+		return this.build_poly(points, faces)
 	}
 
 	calc_height()
