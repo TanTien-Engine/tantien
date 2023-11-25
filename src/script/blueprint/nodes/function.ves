@@ -81,7 +81,10 @@ class Function is Commentary
 			if (node is FuncIn) {
 				this.prepare_func_in(caller, node)
 			}
+		}
 
+		for (var node in this.children)
+		{
 			if (node is FuncOut)
 			{
 				for (var i = 0; i < caller.exports.count; i = i + 1) {
