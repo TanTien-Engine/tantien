@@ -1,0 +1,49 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(2.0685052871704, 1.1796163320541, 0.48462864756584)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -708.61655624616, 121.83597431869)
+
+var node1 = ::blueprint::nodes::camera3d::Camera3d()
+
+node1.cam.position.set(-3.0113877706777, 1.2040870526151, 1.6013189262743)
+node1.cam.yaw = -32.1
+node1.cam.pitch = -8
+node1.cam.zoom = 45
+node1.cam.update_vectors()
+node1.speed = 0.19565641880035
+
+_editor.add_node(node1, -496.59541639161, -95.265205721811)
+
+var node2 = ::blueprint::nodes::merge::Merge()
+
+_editor.add_node(node2, -519.53952403627, 158.15187700865)
+
+var node3 = ::scenegraph::nodes::pick::Pick()
+
+_editor.add_node(node3, -230.5, 37.6)
+
+var node4 = ::geograph::nodes::box::Box()
+node4.query_param("size").value.set(2.0685052871704, 1.1796163320541, 0.22730305790901)
+node4.query_param("pos").value.set(1, 1, 1)
+node4.query_param("offset_x").value = false
+node4.query_param("offset_y").value = false
+node4.query_param("offset_z").value = false
+
+_editor.add_node(node4, -699.45725624616, -191.19292568131)
+
+var node5 = ::blueprint::nodes::subgraph::Subgraph()
+node5.load_from_file(_editor, "../../../assets/blueprints/geograph/draw_geos_selected.ves")
+
+_editor.add_node(node5, 108, -61)
+
+Blueprint.connect(node0, "geo", node2, "in0")
+Blueprint.connect(node4, "geo", node2, "in1")
+Blueprint.connect(node2, "list", node3, "geo")
+Blueprint.connect(node1, "this", node3, "cam")
+Blueprint.connect(node3, "unselected", node5, "geos")
+Blueprint.connect(node1, "this", node5, "view_cam")
+Blueprint.connect(node3, "selected", node5, "selected")

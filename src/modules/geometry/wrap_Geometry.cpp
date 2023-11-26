@@ -24,6 +24,8 @@
 #include <halfedge/Polygon.h>
 #include <halfedge/Utility.h>
 #include <SM_Calc.h>
+#include <SM_Ray.h>
+#include <SM_RayIntersect.h>
 
 #include <iterator>
 #include <string>
@@ -1113,6 +1115,23 @@ void w_Polytope_is_face_inside()
     ves_set_boolean(0, is_inside);
 }
 
+void w_Polytope_is_ray_intersect()
+{
+    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto pos = tt::map_to_vec3(1);
+    auto dir = tt::map_to_vec3(2);
+
+    sm::Ray ray(pos, dir);
+
+    sm::cube aabb;
+    for (auto& p : poly->Points()) {
+        aabb.Combine(p->pos);
+    }
+
+    bool is_intersect = sm::ray_aabb_intersect(aabb, ray, nullptr);
+    ves_set_boolean(0, is_intersect);
+}
+
 void w_Polytope_boolean()
 {
     auto op = ves_tostring(1);
@@ -1427,6 +1446,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
     if (strcmp(signature, "Polytope.is_contain(_)") == 0) return w_Polytope_is_contain;
     if (strcmp(signature, "Polytope.is_face_inside(_)") == 0) return w_Polytope_is_face_inside;
+    if (strcmp(signature, "Polytope.is_ray_intersect(_,_)") == 0) return w_Polytope_is_ray_intersect;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;

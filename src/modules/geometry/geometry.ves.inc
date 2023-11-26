@@ -307,6 +307,7 @@ foreign class Polytope
 
 	foreign is_contain(pos)
 	foreign is_face_inside(face)
+	foreign is_ray_intersect(pos, dir)
 
 	// a, b is list
 	foreign static boolean(operator, a, b)
