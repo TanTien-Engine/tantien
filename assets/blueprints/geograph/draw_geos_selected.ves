@@ -1,0 +1,51 @@
+var node0 = ::blueprint::nodes::subgraph::Subgraph()
+node0.load_from_file(_editor, "draw_geos_color.ves")
+
+_editor.add_node(node0, -94.715688618751, 89.356886043284)
+
+var node1 = ::blueprint::nodes::input::Input()
+
+node1.var_name = "geos"
+node1.var_type = "array"
+
+_editor.add_node(node1, -307.61759389219, 100.83056843477)
+
+var node2 = ::rendergraph::nodes::clear::Clear()
+
+node2.masks = [ "color", "depth" ]
+node2.values = { "color" : [ 0.5, 0.5, 0.5, 0 ] }
+
+_editor.add_node(node2, -313.62256922893, 217.55545157855)
+
+var node3 = ::blueprint::nodes::input::Input()
+
+node3.var_name = "view_cam"
+node3.var_type = "node"
+
+_editor.add_node(node3, -321.19258329723, -28.957229485249)
+
+var node4 = ::blueprint::nodes::subgraph::Subgraph()
+node4.load_from_file(_editor, "draw_geos_color.ves")
+
+_editor.add_node(node4, 288.35948384209, 89.744386897047)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "selected"
+node5.var_type = "array"
+
+_editor.add_node(node5, 93.745696329033, 80.232149207793)
+
+var node6 = ::blueprint::nodes::number3::Number3()
+
+node6.value.set(1, 0, 0)
+
+_editor.add_node(node6, -44.691040039062, -113.30602645874)
+
+Blueprint.connect(node2, "next", node0, "prev")
+Blueprint.connect(node1, "var", node0, "geos")
+Blueprint.connect(node3, "var", node0, "view_cam")
+Blueprint.connect(node0, "next", node4, "prev")
+Blueprint.connect(node5, "var", node4, "geos")
+Blueprint.connect(node3, "var", node4, "view_cam")
+Blueprint.connect(node6, "v3", node4, "light_col")

@@ -34,7 +34,7 @@ class BuildTreeVisitor : public brepdb::IVisitor
 public:
     BuildTreeVisitor() {}
 
-    virtual void VisitNode(const brepdb::INode& src) override
+    virtual brepdb::VisitorStatus VisitNode(const brepdb::INode& src) override
     {
         auto dst = std::make_shared<tt::SceneNode>();
 
@@ -81,6 +81,8 @@ public:
 
             dst->vao = CreateVAO(vertices, indices);
         }
+
+        return brepdb::VisitorStatus::Continue;
     }
 
     virtual void VisitData(const brepdb::IData& d) override {}

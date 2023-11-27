@@ -1,0 +1,67 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NODE
+import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
+import "scenegraph.variant" for VAR_TYPE_SCENE_TREE
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "maths.vector" for Vector2
+import "graphics" for Graphics
+
+class PickTree is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_SCENE_TREE),
+			Pin(this, "cam", VAR_TYPE_NODE),
+		]
+		this.exports = [
+			Pin(this, "selected", VAR_TYPE_ARRAY),
+		]
+
+		this.layout()
+
+		this.sel_list = []
+	}
+
+	calc_value(idx)
+	{
+		return Variant(this.sel_list)
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
+
+		this.sel_list.clear()
+
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_cam = Blueprint.calc_input_value(this, 1)
+		if (!v_cam) {
+			return
+		}
+
+		var screen_pos = Vector2(x, y)
+		screen_pos.x = screen_pos.x - Graphics.get_width() * 0.5
+		screen_pos.y = Graphics.get_height() * 0.5 - screen_pos.y
+
+		var cam = v_cam.value.cam
+		var dir = cam.screen2dir(screen_pos)
+		var pos = cam.position
+
+		var leaves = v_tree.value.pick(pos, dir)
+		for (var r in leaves)
+		{
+			var geo = VarGeo()
+			geo.shape = r
+			this.sel_list.add(Variant(VAR_TYPE_GEO, geo))
+		}
+	}
+}

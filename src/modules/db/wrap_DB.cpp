@@ -2,6 +2,7 @@
 #include "BrepSerialize.h"
 #include "BRepKey.h"
 #include "RegionVisitor.h"
+#include "PickVisitor.h"
 #include "RTreeBuilder.h"
 #include "modules/script/TransHelper.h"
 
@@ -34,6 +35,26 @@ sm::cube region_to_cube(const brepdb::Region& r)
     }
 
     return sm::cube(min, max);
+}
+
+void return_regions(const std::vector<brepdb::Region>& regions)
+{
+    ves_pop(ves_argnum());
+
+    const int num = (int)(regions.size());
+    ves_newlist(num);
+    for (int i = 0; i < num; ++i)
+    {
+        auto cube = region_to_cube(regions[i]);
+
+        ves_pushnil();
+        ves_import_class("geometry", "Box");
+        auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Box>));
+        proxy->obj = std::make_shared<gs::Box>(cube);
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+    }
 }
 
 void w_RTree_allocate()
@@ -209,22 +230,7 @@ void w_RTree_get_all_leaves()
     rtree->LevelTraversal(visitor);
     auto& regions = visitor.GetRegions();
 
-    ves_pop(ves_argnum());
-
-    const int num = (int)(regions.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        auto cube = region_to_cube(regions[i]);
-
-        ves_pushnil();
-        ves_import_class("geometry", "Box");
-        auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Box>));        
-        proxy->obj = std::make_shared<gs::Box>(cube);
-        ves_pop(1);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    return_regions(regions);
 }
 
 void w_RTree_query_leaves()
@@ -241,22 +247,20 @@ void w_RTree_query_leaves()
     rtree->ContainsWhatQuery(region, visitor);
     auto& regions = visitor.GetRegions();
 
-    ves_pop(ves_argnum());
+    return_regions(regions);
+}
 
-    const int num = (int)(regions.size());
-    ves_newlist(num);
-    for (int i = 0; i < num; ++i)
-    {
-        auto cube = region_to_cube(regions[i]);
+void w_RTree_pick()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto pos = tt::map_to_vec3(1);
+    auto dir = tt::map_to_vec3(2);
 
-        ves_pushnil();
-        ves_import_class("geometry", "Box");
-        auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Box>));        
-        proxy->obj = std::make_shared<gs::Box>(cube);
-        ves_pop(1);
-        ves_seti(-2, i);
-        ves_pop(1);
-    }
+    tt::PickVisitor visitor(pos, dir);
+    rtree->LevelTraversal(visitor);
+    auto& regions = visitor.GetRegions();
+
+    return_regions(regions);
 }
 
 void w_RKey_allocate()
@@ -313,6 +317,7 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
     if (strcmp(signature, "RTree.query_with_time(_,_,_)") == 0) return w_RTree_query_with_time;
     if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;
     if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;
+    if (strcmp(signature, "RTree.pick(_,_)") == 0) return w_RTree_pick;
 
     return nullptr;
 }
