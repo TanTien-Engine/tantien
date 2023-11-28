@@ -17,7 +17,8 @@ foreign class RTree
 	foreign get_all_leaves()
 	foreign query_leaves(region)
 
-	foreign pick(pos, dir)
+	foreign pick_aabbs(pos, dir)
+	foreign pick_polys(pos, dir)
 }
 
 foreign class RKey

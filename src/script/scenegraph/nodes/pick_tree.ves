@@ -5,6 +5,7 @@ import "blueprint.blueprint" for Blueprint
 import "blueprint.dirty_types" for DIRTY_EDITOR
 import "scenegraph.variant" for VAR_TYPE_SCENE_TREE
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.brush" for Brush
 import "maths.vector" for Vector2
 import "graphics" for Graphics
 
@@ -56,11 +57,32 @@ class PickTree is Node
 		var dir = cam.screen2dir(screen_pos)
 		var pos = cam.position
 
-		var leaves = v_tree.value.pick(pos, dir)
-		for (var r in leaves)
+		//this.pick_aabbs(v_tree.value, pos, dir)
+		this.pick_polys(v_tree.value, pos, dir)
+	}
+
+	pick_aabbs(tree, pos, dir)
+	{
+		var aabbs = tree.pick_aabbs(pos, dir)
+		for (var aabb in aabbs)
 		{
 			var geo = VarGeo()
-			geo.shape = r
+			geo.shape = aabb
+			this.sel_list.add(Variant(VAR_TYPE_GEO, geo))
+		}
+	}
+
+	pick_polys(tree, pos, dir)
+	{
+		var polys = tree.pick_polys(pos, dir)
+		if (!polys or polys.isEmpty) {
+			return
+		}
+
+		for (var poly in polys)
+		{
+			var geo = VarGeo()
+			geo.shape = Brush([ poly ])
 			this.sel_list.add(Variant(VAR_TYPE_GEO, geo))
 		}
 	}

@@ -250,7 +250,7 @@ void w_RTree_query_leaves()
     return_regions(regions);
 }
 
-void w_RTree_pick()
+void w_RTree_pick_aabbs()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto pos = tt::map_to_vec3(1);
@@ -258,9 +258,22 @@ void w_RTree_pick()
 
     tt::PickVisitor visitor(pos, dir);
     rtree->LevelTraversal(visitor);
-    auto& regions = visitor.GetRegions();
 
+    auto& regions = visitor.GetRegions();
     return_regions(regions);
+}
+
+void w_RTree_pick_polys()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto pos = tt::map_to_vec3(1);
+    auto dir = tt::map_to_vec3(2);
+
+    tt::PickVisitor visitor(pos, dir);
+    rtree->LevelTraversal(visitor);
+
+    auto& polys = visitor.GetPolys();
+    tt::return_poly(polys);
 }
 
 void w_RKey_allocate()
@@ -317,7 +330,8 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
     if (strcmp(signature, "RTree.query_with_time(_,_,_)") == 0) return w_RTree_query_with_time;
     if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;
     if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;
-    if (strcmp(signature, "RTree.pick(_,_)") == 0) return w_RTree_pick;
+    if (strcmp(signature, "RTree.pick_aabbs(_,_)") == 0) return w_RTree_pick_aabbs;
+    if (strcmp(signature, "RTree.pick_polys(_,_)") == 0) return w_RTree_pick_polys;
 
     return nullptr;
 }

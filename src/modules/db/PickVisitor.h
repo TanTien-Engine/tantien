@@ -4,7 +4,10 @@
 #include <SM_Vector.h>
 #include <SM_Ray.h>
 
+#include <memory>
+
 namespace brepdb { class Region; }
+namespace pm3 { class Polytope; }
 
 namespace tt
 {
@@ -20,11 +23,16 @@ public:
     virtual void VisitData(std::vector<const brepdb::IData*>& v) override {}
 
     auto& GetRegions() const { return m_regions; }
-    
+    auto& GetPolys() const { return m_polys; }
+
+private:
+    void PickPoly(const brepdb::INode& n);
+
 private:
     sm::Ray m_ray;
 
     std::vector<brepdb::Region> m_regions;
+    std::vector<std::shared_ptr<pm3::Polytope>> m_polys;
 
 }; // PickVisitor
 
