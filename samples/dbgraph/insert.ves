@@ -19,7 +19,7 @@ var node2 = ::dbgraph::nodes::rtree::Rtree()
 _editor.add_node(node2, -350.5695225115, 125.22564763957)
 
 var node3 = ::dbgraph::nodes::insert::Insert()
-node3.query_param("time").value = false
+node3.query_param("b_time").value = false
 
 _editor.add_node(node3, -143.20462195112, -1.96486886567)
 
@@ -35,7 +35,7 @@ node5.query_param("tmax").value = 1
 _editor.add_node(node5, 239.07146506386, -27.340090157779)
 
 var node6 = ::dbgraph::nodes::region::Region()
-node6.query_param("size").value.set(1.8484280109406, 1.7373168468475, 1.8484280109406)
+node6.query_param("size").value.set(4.5857448577881, 5.9190783500671, 4.5857448577881)
 node6.query_param("pos").value.set(0, 0, 0)
 
 _editor.add_node(node6, 22.7282917958, 166.76704733284)
@@ -172,5 +172,5 @@ Blueprint.connect(node4, "var", node5, "tree")
 Blueprint.connect(node6, "aabb", node5, "key")
 Blueprint.connect(node25, "list", node7, "geos")
 Blueprint.connect(node1, "mat", node7, "cam_mat")
-Blueprint.connect(node19, "var", node0, "geos")
+Blueprint.connect(node5, "geo", node0, "geos")
 Blueprint.connect(node1, "this", node0, "view_cam")
