@@ -35,10 +35,17 @@ void w_SceneTree_get_all_vao()
 {
     auto stree = ((tt::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
 
+    auto root = stree->GetRoot();
+    if (!root) 
+    {
+        ves_set_nil(0);
+        return;
+    }
+
     std::vector<std::shared_ptr<ur::VertexArray>> vao_list;
 
     std::queue<std::shared_ptr<tt::SceneNode>> buf;
-    buf.push(stree->GetRoot());
+    buf.push(root);
     while (!buf.empty())
     {
         auto n = buf.front(); buf.pop();

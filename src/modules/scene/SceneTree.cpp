@@ -63,23 +63,7 @@ public:
         }
         else
         {
-            std::vector<Vertex> vertices;
-            std::vector<unsigned short> indices;
-
-            size_t start_idx = 0;
-            for (int i = 0, n = src.GetChildrenCount(); i < n; ++i)
-            {
-                uint32_t len = 0;
-                uint8_t* data = nullptr;
-                src.GetChildData(i, len, &data);
-
-                auto poly = tt::BrepSerialize::BRepFromByteArray(data);
-                Triangulate(poly, start_idx, vertices, indices);
-
-                start_idx += poly->Points().size();
-            }
-
-            dst->vao = CreateVAO(vertices, indices);
+            dst->vao = BuildVAO(src);
         }
 
         return brepdb::VisitorStatus::Continue;
@@ -91,6 +75,32 @@ public:
     auto GetRoot() const { return m_root; }
 
 private:
+    static std::shared_ptr<ur::VertexArray>
+        BuildVAO(const brepdb::INode& src)
+    {
+        if (src.GetChildrenCount() == 0) {
+            return nullptr;
+        }
+
+        std::vector<Vertex> vertices;
+        std::vector<unsigned short> indices;
+
+        size_t start_idx = 0;
+        for (int i = 0, n = src.GetChildrenCount(); i < n; ++i)
+        {
+            uint32_t len = 0;
+            uint8_t* data = nullptr;
+            src.GetChildData(i, len, &data);
+
+            auto poly = tt::BrepSerialize::BRepFromByteArray(data);
+            Triangulate(poly, start_idx, vertices, indices);
+
+            start_idx += poly->Points().size();
+        }
+
+        return CreateVAO(vertices, indices);
+    }
+
     static void Triangulate(const std::shared_ptr<pm3::Polytope>& poly, size_t start_idx,
         std::vector<Vertex>& vertices, std::vector<unsigned short>& indices)
     {
