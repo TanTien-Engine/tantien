@@ -1,6 +1,7 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
+import "blueprint.dirty_types" for DIRTY_EDITOR
 import "blueprint.variant" for Variant, VAR_TYPE_NODE, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
@@ -195,6 +196,10 @@ class Camera3d is Node
 		}
 
 		this.cam.update_vectors()
+
+		for (var pin in this.exports) {
+			Blueprint.send_pin_dirty_root(pin, DIRTY_EDITOR)
+		}
 	}
 	
 	on_mouse_scrolled(x, y, dx, dy)

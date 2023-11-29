@@ -64,8 +64,16 @@ class Subgraph is Node
 			for (var item in this.all_items)
 			{
 				var node = item[0]
-				if (node is Input and node.var_name == pin.name) {
+				if (node is Input and node.var_name == pin.name) 
+				{
 					Blueprint.send_pin_dirty(node.exports[0], type, msg)
+					return
+				}
+				else if (node is Proxy and node.real_name == pin.name)
+				{
+					for (var export in node.exports) {
+						Blueprint.send_pin_dirty(export, type, msg)
+					}
 					return
 				}
 			}
