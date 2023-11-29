@@ -90,10 +90,6 @@ class Query is Node
 //		var tmax = this.query_param("tmax").value
 //		var polys = v_tree.value.query_with_time(key, tmin, tmax)
 
-		if (polys and !(polys is List)) {
-			return [ polys ]
-		} else {
-			return polys
-		}		
+		return polys
 	}
 }
