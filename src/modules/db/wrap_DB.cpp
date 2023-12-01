@@ -189,6 +189,31 @@ void w_RTree_query()
     tt::return_poly(polys);
 }
 
+void w_RTree_delete()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto key = ((tt::Proxy<tt::BRepKey>*)ves_toforeign(1))->obj;
+
+    if (key->id < 0)
+    {
+        auto visitor = std::make_unique<brepdb::ObjVisitor>();
+        rtree->IntersectsWithQuery(key->r, *visitor);
+
+        auto& items = visitor->GetResults();
+        for (auto item : items)
+        {
+            brepdb::IShape* shape;
+            item->GetShape(&shape);
+            rtree->DeleteData(*shape, item->GetIdentifier());
+            delete shape;
+        }
+    }
+    else
+    {
+        rtree->DeleteData(key->r, key->id);
+    }
+}
+
 void w_RTree_query_with_time()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
@@ -327,6 +352,7 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
     if (strcmp(signature, "RTree.insert_with_time(_,_)") == 0) return w_RTree_insert_with_time;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
+    if (strcmp(signature, "RTree.delete(_)") == 0) return w_RTree_delete;
     if (strcmp(signature, "RTree.query_with_time(_,_,_)") == 0) return w_RTree_query_with_time;
     if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;
     if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;

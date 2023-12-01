@@ -10,6 +10,7 @@ foreign class RTree
 
 	foreign insert(poly)
 	foreign query(key)
+	foreign delete(key)
 
 	foreign insert_with_time(poly, time)
 	foreign query_with_time(key, tmin, tmax)
