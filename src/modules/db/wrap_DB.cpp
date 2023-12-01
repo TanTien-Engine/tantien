@@ -4,6 +4,7 @@
 #include "RegionVisitor.h"
 #include "PickVisitor.h"
 #include "RTreeBuilder.h"
+#include "DB.h"
 #include "modules/script/TransHelper.h"
 
 #include <brepdb/RTree.h>
@@ -20,6 +21,8 @@
 
 namespace
 {
+
+brepdb::id_type NEXT_ID = 0;
 
 sm::cube region_to_cube(const brepdb::Region& r)
 {
@@ -95,11 +98,27 @@ void w_RTree_insert()
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
 
+    brepdb::id_type id;
+
+    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
+    auto itr = map.find(poly);
+    if (itr != map.end())
+    {
+        auto& key = itr->second;
+        rtree->DeleteData(key->r, key->id);
+
+        id = key->id;
+
+        map.erase(itr);
+    }
+    else
+    {
+        id = NEXT_ID++;
+    }
+
     uint8_t* data = nullptr;
     uint32_t length = 0;
     tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
-
-    brepdb::id_type id = 0;
 
     brepdb::Region aabb;
     auto& pts = poly->Points();
@@ -118,6 +137,8 @@ void w_RTree_insert()
     auto rkey = std::make_shared<tt::BRepKey>();
     rkey->r = aabb;
     rkey->id = id;
+
+    map.insert({ poly, rkey });
 
     ves_pushnil();
     ves_import_class("db", "RKey");
