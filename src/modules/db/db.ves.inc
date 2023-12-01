@@ -26,6 +26,9 @@ foreign class RKey
 {
 	init() {}
 	init(aabb) {}
+
+	foreign region()
+	foreign id()
 }
 
 foreign class RFile

@@ -348,6 +348,35 @@ int w_RKey_finalize(void* data)
     return sizeof(tt::Proxy<tt::BRepKey>);
 }
 
+void w_RKey_region()
+{
+    auto rkey = ((tt::Proxy<tt::BRepKey>*)ves_toforeign(0))->obj;
+
+    auto min = rkey->r.GetLow();
+    auto max = rkey->r.GetHigh();
+
+    sm::cube aabb;
+    for (int i = 0; i < 3; ++i)
+    {
+        aabb.min[i] = static_cast<float>(min[i]);
+        aabb.max[i] = static_cast<float>(max[i]);
+    }
+
+    ves_pop(ves_argnum());
+
+    ves_pushnil();
+    ves_import_class("geometry", "Box");
+    auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<gs::Box>));
+    proxy->obj = std::make_shared<gs::Box>(aabb);
+    ves_pop(1);
+}
+
+void w_RKey_id()
+{
+    auto rkey = ((tt::Proxy<tt::BRepKey>*)ves_toforeign(0))->obj;
+    ves_set_number(0, static_cast<double>(rkey->id));
+}
+
 void w_RFile_allocate()
 {
     const char* filename = ves_tostring(1);
@@ -379,6 +408,9 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
     if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;
     if (strcmp(signature, "RTree.pick_aabbs(_,_)") == 0) return w_RTree_pick_aabbs;
     if (strcmp(signature, "RTree.pick_polys(_,_)") == 0) return w_RTree_pick_polys;
+
+    if (strcmp(signature, "RKey.region()") == 0) return w_RKey_region;
+    if (strcmp(signature, "RKey.id()") == 0) return w_RKey_id;
 
     return nullptr;
 }
