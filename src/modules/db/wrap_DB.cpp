@@ -5,6 +5,7 @@
 #include "PickVisitor.h"
 #include "RTreeBuilder.h"
 #include "DB.h"
+#include "modules/geometry/PolyHistory.h"
 #include "modules/script/TransHelper.h"
 
 #include <brepdb/RTree.h>
@@ -60,6 +61,52 @@ void return_regions(const std::vector<brepdb::Region>& regions)
     }
 }
 
+std::shared_ptr<tt::BRepKey> 
+insert_poly(const std::shared_ptr<brepdb::RTree>& rtree, const std::shared_ptr<pm3::Polytope>& poly)
+{
+    brepdb::id_type id;
+
+    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
+    auto itr = map.find(poly);
+    if (itr != map.end())
+    {
+        auto& key = itr->second;
+        rtree->DeleteData(key->r, key->id);
+
+        id = key->id;
+
+        map.erase(itr);
+    }
+    else
+    {
+        id = NEXT_ID++;
+    }
+
+    uint8_t* data = nullptr;
+    uint32_t length = 0;
+    tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
+
+    brepdb::Region aabb;
+    auto& pts = poly->Points();
+    for (auto& p : pts)
+    {
+        auto src = p->pos.xyz;
+        const double dst[4] = { src[0], src[1], src[2], 0 };
+        aabb.Combine(brepdb::Point(dst));
+    }
+
+    rtree->InsertData(length, data, aabb, id);
+    delete[] data;
+
+    auto rkey = std::make_shared<tt::BRepKey>();
+    rkey->r = aabb;
+    rkey->id = id;
+
+    map.insert({ poly, rkey });
+
+    return rkey;
+}
+
 void w_RTree_allocate()
 {
     auto proxy = (tt::Proxy<brepdb::RTree>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepdb::RTree>));
@@ -98,47 +145,9 @@ void w_RTree_insert()
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
 
-    brepdb::id_type id;
-
-    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
-    auto itr = map.find(poly);
-    if (itr != map.end())
-    {
-        auto& key = itr->second;
-        rtree->DeleteData(key->r, key->id);
-
-        id = key->id;
-
-        map.erase(itr);
-    }
-    else
-    {
-        id = NEXT_ID++;
-    }
-
-    uint8_t* data = nullptr;
-    uint32_t length = 0;
-    tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
-
-    brepdb::Region aabb;
-    auto& pts = poly->Points();
-    for (auto& p : pts) 
-    {
-        auto src = p->pos.xyz;
-        const double dst[4] = { src[0], src[1], src[2], 0 };
-        aabb.Combine(brepdb::Point(dst));
-    }
-
-    rtree->InsertData(length, data, aabb, id);
-    delete[] data;
+    auto rkey = insert_poly(rtree, poly);
 
     ves_pop(ves_argnum());
-
-    auto rkey = std::make_shared<tt::BRepKey>();
-    rkey->r = aabb;
-    rkey->id = id;
-
-    map.insert({ poly, rkey });
 
     ves_pushnil();
     ves_import_class("db", "RKey");
@@ -232,6 +241,35 @@ void w_RTree_delete()
     else
     {
         rtree->DeleteData(key->r, key->id);
+    }
+}
+
+void w_RTree_update()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(1))->obj;
+
+    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
+
+    auto& add_list = hist->GetAddList();
+    for (auto add_pair : add_list)
+    {
+        insert_poly(rtree, add_pair.second);
+    }
+
+    auto& mod_list = hist->GetModList();
+    for (auto mod_pair : mod_list)
+    {
+        auto itr = map.find(mod_pair.first);
+        if (itr != map.end())
+        {
+            auto& key = itr->second;
+            rtree->DeleteData(key->r, key->id);
+
+            //id = key->id;
+
+            map.erase(itr);
+        }
     }
 }
 
@@ -400,9 +438,10 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
 {
     if (strcmp(signature, "RTree.load_from_file(_)") == 0) return w_RTree_load_from_file;
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
-    if (strcmp(signature, "RTree.insert_with_time(_,_)") == 0) return w_RTree_insert_with_time;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
     if (strcmp(signature, "RTree.delete(_)") == 0) return w_RTree_delete;
+    if (strcmp(signature, "RTree.update(_)") == 0) return w_RTree_update;
+    if (strcmp(signature, "RTree.insert_with_time(_,_)") == 0) return w_RTree_insert_with_time;
     if (strcmp(signature, "RTree.query_with_time(_,_,_)") == 0) return w_RTree_query_with_time;
     if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;
     if (strcmp(signature, "RTree.query_leaves(_)") == 0) return w_RTree_query_leaves;

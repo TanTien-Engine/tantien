@@ -1,5 +1,6 @@
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/ShapeMaths.h"
+#include "modules/geometry/PolyHistory.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 
@@ -1345,6 +1346,43 @@ void w_ShapeMaths_merge()
     return_shapes(merged);
 }
 
+void w_PolyHistory_allocate()
+{
+    auto proxy = (tt::Proxy<tt::PolyHistory>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::PolyHistory>));
+    proxy->obj = std::make_shared<tt::PolyHistory>();
+}
+
+int w_PolyHistory_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<tt::PolyHistory>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<tt::PolyHistory>);
+}
+
+void w_PolyHistory_add_generated()
+{
+    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
+    
+    std::shared_ptr<pm3::Polytope> init = nullptr;
+    if (void* param = ves_toforeign(1)) {
+        init = ((tt::Proxy<pm3::Polytope>*)param)->obj;
+    }
+
+    auto generated = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
+
+    hist->AddGenerated(init, generated);
+}
+
+void w_PolyHistory_add_modified()
+{
+    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
+
+    auto init = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    auto mod = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
+
+    hist->AddModified(init, mod);
+}
+
 }
 
 namespace tt
@@ -1457,6 +1495,9 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
     if (strcmp(signature, "static ShapeMaths.extrude(_,_)") == 0) return w_ShapeMaths_extrude;
     if (strcmp(signature, "static ShapeMaths.merge(_)") == 0) return w_ShapeMaths_merge;
+
+    if (strcmp(signature, "PolyHistory.add_generated(_,_)") == 0) return w_PolyHistory_add_generated;
+    if (strcmp(signature, "PolyHistory.add_modified(_,_)") == 0) return w_PolyHistory_add_modified;
 
     return nullptr;
 }
@@ -1600,6 +1641,13 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Ellipsoid_allocate;
         methods->finalize = w_Ellipsoid_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "PolyHistory") == 0)
+    {
+        methods->allocate = w_PolyHistory_allocate;
+        methods->finalize = w_PolyHistory_finalize;
         return;
     }
 }

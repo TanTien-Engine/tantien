@@ -336,4 +336,12 @@ foreign class ShapeMaths
 	foreign static merge(shapes)
 }
 
+foreign class PolyHistory
+{
+	init() {}
+
+	foreign add_generated(initial, generated)
+	foreign add_modified(initial, modified)
+}
+
 );

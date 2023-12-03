@@ -3,13 +3,14 @@ import "blueprint.pin" for Pin
 import "blueprint.blueprint" for Blueprint
 import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
-import "geograph.variant" for VAR_TYPE_GEO, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_HIST, VarGeo
 import "geograph.brush" for Brush, BrushInstanced
 import "geograph.compiler" for Compiler as geo_Compiler
 import "maths.vector" for Vector3
 import "maths.compiler" for Compiler as maths_Compiler
 import "math" for Math
 import "maths" for Matrix44, Float3
+import "geometry" for PolyHistory
 
 class TranslateF is Node
 {
@@ -23,41 +24,49 @@ class TranslateF is Node
 		]
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "hist", VAR_TYPE_HIST),
 		]
 
 		this.layout()
+
+		this.result = nil
+		this.hist = nil
+	}
+
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.result = nil
+		this.hist = nil
 	}
 
 	calc_value(idx)
 	{
-		var v_geo = Blueprint.calc_input_value(this, 0)
-		if (!v_geo) {
-			return nil
+		if (!this.result) 
+		{
+			this.calc_value_impl()
 		}
 
-		var result = []
-
-		var v_xyz = Blueprint.calc_input_value(this, 1)
-		if (v_xyz.type == VAR_TYPE_ARRAY)
+		if (idx == 0)
 		{
-			for (var p in v_xyz.value) {
-				var mat = this.calc_mat(p.value)
-				this.translate_impl(v_geo, mat, p.value, result)
+			if (!this.result or this.result.count == 0) {
+				return nil
+			} else if (this.result.count == 1) {
+				return this.result[0]
+			} else {
+				return Variant(result)
 			}
 		}
-		else
+		else if (idx == 1)
 		{
-			var mat = this.calc_mat(v_xyz.value)
-			this.translate_impl(v_geo, mat, v_xyz.value, result)
+			return Variant(VAR_TYPE_HIST, this.hist)
 		}
-		
-		if (result.count == 0) {
-			return nil
-		} else if (result.count == 1) {
-			return result[0]
-		} else {
-			return Variant(result)
-		}
+
+		import "logger.logger" for Logger
+		Logger.error("Not Implemented!")
+						
+		return nil
 	}
 
 	calc_opcodes(compiler, opcodes, idx)
@@ -74,6 +83,31 @@ class TranslateF is Node
 		compiler.free_reg(r_mat)
 
 		return r_obj
+	}
+
+	calc_value_impl()
+	{
+		this.result = []
+		this.hist = PolyHistory.init()
+
+		var v_geo = Blueprint.calc_input_value(this, 0)
+		if (!v_geo) {
+			return
+		}
+
+		var v_xyz = Blueprint.calc_input_value(this, 1)
+		if (v_xyz.type == VAR_TYPE_ARRAY)
+		{
+			for (var p in v_xyz.value) {
+				var mat = this.calc_mat(p.value)
+				this.translate_impl(v_geo, mat, p.value, this.result)
+			}
+		}
+		else
+		{
+			var mat = this.calc_mat(v_xyz.value)
+			this.translate_impl(v_geo, mat, v_xyz.value, this.result)
+		}
 	}
 
 	calc_mat(pos)
@@ -117,11 +151,21 @@ class TranslateF is Node
 	translate_geo(geo, mat, pos)
 	{
 		var new_geo = geo.clone()
-		if (new_geo.shape is Brush) {
+		if (new_geo.shape is Brush) 
+		{
 			new_geo.shape.transform(mat)
-		} else if (new_geo.shape is BrushInstanced) {
+
+			for (var i in 0 .. geo.shape.polys.count)
+			{
+				this.hist.add_modified(geo.shape.polys[i], new_geo.shape.polys[i])
+			}
+		} 
+		else if (new_geo.shape is BrushInstanced) 
+		{
 			new_geo.shape.brush.transform(mat)
-		} else {
+		} 
+		else 
+		{
 			new_geo.shape.translate(pos.x, pos.y)
 		}
 		return Variant(VAR_TYPE_GEO, new_geo)
