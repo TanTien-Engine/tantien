@@ -4,8 +4,6 @@
 
 #include <vessel.h>
 
-//#define RETURN_SINGLE_POLY
-
 namespace tt
 {
 
@@ -373,24 +371,12 @@ void return_poly(const std::shared_ptr<pm3::Polytope>& poly)
     }
 }
 
-void return_poly(const std::vector<std::shared_ptr<pm3::Polytope>>& polys)
+void return_poly_list(const std::vector<std::shared_ptr<pm3::Polytope>>& polys)
 {
     if (polys.empty())
     {
         ves_set_nil(0);
     }
-#ifdef RETURN_SINGLE_POLY
-    else if (polys.size() == 1)
-    {
-        ves_pop(ves_argnum());
-
-        ves_pushnil();
-        ves_import_class("geometry", "Polytope");
-        auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope>));
-        proxy->obj = polys[0];
-        ves_pop(1);
-    }
-#endif // RETURN_SINGLE_POLY
     else
     {
         ves_pop(ves_argnum());

@@ -1153,7 +1153,7 @@ void w_Polytope_boolean()
         polytopes = pm3::PolytopeAlgos::Subtract(a, b);
     }
 
-    tt::return_poly(polytopes);
+    tt::return_poly_list(polytopes);
 }
 
 void w_Sphere_allocate()

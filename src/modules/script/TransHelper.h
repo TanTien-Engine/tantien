@@ -54,7 +54,7 @@ void return_vec(const sm::vec2& vec2);
 void return_vec(const sm::vec3& vec3);
 
 void return_poly(const std::shared_ptr<pm3::Polytope>& poly);
-void return_poly(const std::vector<std::shared_ptr<pm3::Polytope>>& polys);
+void return_poly_list(const std::vector<std::shared_ptr<pm3::Polytope>>& polys);
 
 }
 

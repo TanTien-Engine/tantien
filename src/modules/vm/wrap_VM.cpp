@@ -800,14 +800,14 @@ void w_VM_load_polytope()
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     auto polys = brepvm::VMHelper::LoadPolys(vm.get(), reg);
-    tt::return_poly(polys);
+    tt::return_poly_list(polys);
 }
 
 void w_ValueCache_fetch()
 {
     uint8_t idx = (uint8_t)ves_tonumber(1);
     auto polys = brepvm::VMHelper::LoadPolysFromCache(idx);
-    tt::return_poly(polys);
+    tt::return_poly_list(polys);
 }
 
 }

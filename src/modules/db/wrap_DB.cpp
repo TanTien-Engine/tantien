@@ -207,7 +207,7 @@ void w_RTree_query()
         polys.push_back(poly);
     }
 
-    tt::return_poly(polys);
+    tt::return_poly_list(polys);
 }
 
 void w_RTree_delete()
@@ -265,7 +265,7 @@ void w_RTree_query_with_time()
         polys.push_back(poly);
     }
 
-    tt::return_poly(polys);
+    tt::return_poly_list(polys);
 }
 
 void w_RTree_get_all_leaves()
@@ -319,7 +319,7 @@ void w_RTree_pick_polys()
     rtree->LevelTraversal(visitor);
 
     auto& polys = visitor.GetPolys();
-    tt::return_poly(polys);
+    tt::return_poly_list(polys);
 }
 
 void w_RKey_allocate()
