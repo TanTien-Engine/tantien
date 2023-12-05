@@ -1349,7 +1349,17 @@ void w_ShapeMaths_merge()
 void w_PolyHistory_allocate()
 {
     auto proxy = (tt::Proxy<tt::PolyHistory>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::PolyHistory>));
-    proxy->obj = std::make_shared<tt::PolyHistory>();
+
+    auto num = ves_argnum();
+    if (num == 2)
+    {
+        auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(1))->obj;
+        proxy->obj = std::make_shared<tt::PolyHistory>(*hist);
+    }
+    else
+    {
+        proxy->obj = std::make_shared<tt::PolyHistory>();
+    }
 }
 
 int w_PolyHistory_finalize(void* data)
@@ -1371,6 +1381,15 @@ void w_PolyHistory_add_generated()
     auto generated = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
 
     hist->AddGenerated(init, generated);
+}
+
+void w_PolyHistory_add_deleted()
+{
+    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
+
+    auto deleted = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+
+    hist->AddDeleted(deleted);
 }
 
 void w_PolyHistory_add_modified()
@@ -1497,6 +1516,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "static ShapeMaths.merge(_)") == 0) return w_ShapeMaths_merge;
 
     if (strcmp(signature, "PolyHistory.add_generated(_,_)") == 0) return w_PolyHistory_add_generated;
+    if (strcmp(signature, "PolyHistory.add_deleted(_)") == 0) return w_PolyHistory_add_deleted;
     if (strcmp(signature, "PolyHistory.add_modified(_,_)") == 0) return w_PolyHistory_add_modified;
 
     return nullptr;

@@ -91,6 +91,19 @@ var node16 = ::dbgraph::nodes::update::Update()
 
 _editor.add_node(node16, -151.52258300781, -1.0795104980499)
 
+var node17 = ::geograph::nodes::translate_f::TranslateF()
+
+_editor.add_node(node17, -512.7672928147, -348.81754925003)
+
+var node18 = ::blueprint::nodes::number3::Number3()
+
+node18.value.set(0, 0.7632771730423, 0)
+
+_editor.add_node(node18, -665.25016792693, -437.30400100353)
+
+Blueprint.connect(node12, "geo", node17, "geo")
+Blueprint.connect(node18, "v3", node17, "xyz")
+Blueprint.connect(node12, "hist", node17, "hist")
 Blueprint.connect(node12, "geo", node15, "var")
 Blueprint.connect(node15, "var", node3, "geo")
 Blueprint.connect(node12, "geo", node13, "geo")
@@ -98,7 +111,7 @@ Blueprint.connect(node14, "v3", node13, "xyz")
 Blueprint.connect(node3, "tree", node10, "tree")
 Blueprint.connect(node11, "aabb", node10, "key")
 Blueprint.connect(node2, "tree", node16, "tree")
-Blueprint.connect(node12, "hist", node16, "hist")
+Blueprint.connect(node17, "hist", node16, "hist")
 Blueprint.connect(node16, "tree", node4, "var")
 Blueprint.connect(node4, "var", node8, "tree")
 Blueprint.connect(node8, "leaves", node9, "in1")

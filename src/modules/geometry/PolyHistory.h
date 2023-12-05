@@ -14,6 +14,9 @@ namespace tt
 class PolyHistory
 {
 public:
+	PolyHistory() {}
+	PolyHistory(const PolyHistory& hist);
+
 	void AddGenerated(const PolyPtr& initial, const PolyPtr& generated);
 	void AddDeleted(const PolyPtr& poly);
 	void AddModified(const PolyPtr& initial, const PolyPtr& modified);

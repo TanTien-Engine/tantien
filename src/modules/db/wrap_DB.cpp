@@ -249,14 +249,24 @@ void w_RTree_update()
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(1))->obj;
 
+    // clear exist
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();
+    for (auto& itr : map)
+    {
+        auto& key = itr.second;
+        rtree->DeleteData(key->r, key->id);
+    }
+    map.clear();
 
+    // add_list
     auto& add_list = hist->GetAddList();
     for (auto add_pair : add_list)
     {
-        insert_poly(rtree, add_pair.second);
+        auto key = insert_poly(rtree, add_pair.second);
+        map.insert({ add_pair.second, key });
     }
 
+    // mod_list
     auto& mod_list = hist->GetModList();
     for (auto mod_pair : mod_list)
     {
@@ -270,6 +280,9 @@ void w_RTree_update()
 
             map.erase(itr);
         }
+
+        auto key = insert_poly(rtree, mod_pair.second);
+        map.insert({ mod_pair.second, key });
     }
 }
 

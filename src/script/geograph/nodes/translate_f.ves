@@ -21,6 +21,7 @@ class TranslateF is Node
 		this.imports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "xyz", [ VAR_TYPE_NUMBER3, VAR_TYPE_ARRAY ]),
+			Pin(this, "hist", VAR_TYPE_HIST),
 		]
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
@@ -88,7 +89,13 @@ class TranslateF is Node
 	calc_value_impl()
 	{
 		this.result = []
-		this.hist = PolyHistory.init()
+
+		var v_hist = Blueprint.calc_input_value(this, 2)
+		if (v_hist) {
+			this.hist = PolyHistory.init(v_hist.value)
+		} else {
+			this.hist = PolyHistory.init()
+		}
 
 		var v_geo = Blueprint.calc_input_value(this, 0)
 		if (!v_geo) {

@@ -339,8 +339,10 @@ foreign class ShapeMaths
 foreign class PolyHistory
 {
 	init() {}
+	init(hist) {}
 
 	foreign add_generated(initial, generated)
+	foreign add_deleted(deleted)
 	foreign add_modified(initial, modified)
 }
 

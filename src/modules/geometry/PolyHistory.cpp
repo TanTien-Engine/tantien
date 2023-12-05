@@ -5,6 +5,13 @@
 namespace tt
 {
 
+PolyHistory::PolyHistory(const PolyHistory& hist)
+{
+	m_add_list = hist.m_add_list;
+	m_del_list = hist.m_del_list;
+	m_mod_list = hist.m_mod_list;
+}
+
 void PolyHistory::AddGenerated(const PolyPtr& initial, const PolyPtr& generated)
 {
 	auto itr = m_add_list.find(initial);
