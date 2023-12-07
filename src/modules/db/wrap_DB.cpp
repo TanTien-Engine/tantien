@@ -266,6 +266,20 @@ void w_RTree_update()
         map.insert({ add_pair.second, key });
     }
 
+    // del_list
+    auto& del_list = hist->GetDelList();
+    for (auto del : del_list)
+    {
+        auto itr = map.find(del);
+        if (itr != map.end())
+        {
+            auto& key = itr->second;
+            rtree->DeleteData(key->r, key->id);
+
+            map.erase(itr);
+        }
+    }
+
     // mod_list
     auto& mod_list = hist->GetModList();
     for (auto mod_pair : mod_list)
@@ -275,8 +289,6 @@ void w_RTree_update()
         {
             auto& key = itr->second;
             rtree->DeleteData(key->r, key->id);
-
-            //id = key->id;
 
             map.erase(itr);
         }

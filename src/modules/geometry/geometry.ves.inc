@@ -344,6 +344,8 @@ foreign class PolyHistory
 	foreign add_generated(initial, generated)
 	foreign add_deleted(deleted)
 	foreign add_modified(initial, modified)
+
+	foreign add_io_list(input, output)
 }
 
 );

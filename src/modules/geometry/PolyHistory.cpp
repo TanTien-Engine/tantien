@@ -14,9 +14,7 @@ PolyHistory::PolyHistory(const PolyHistory& hist)
 
 void PolyHistory::AddGenerated(const PolyPtr& initial, const PolyPtr& generated)
 {
-	auto itr = m_add_list.find(initial);
-	assert(itr == m_add_list.end());
-	m_add_list.insert({ initial, generated });
+	m_add_list.push_back({ initial, generated });
 }
 
 void PolyHistory::AddDeleted(const PolyPtr& poly)

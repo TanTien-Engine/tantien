@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <set>
 #include <map>
 #include <memory>
@@ -26,7 +27,7 @@ public:
 	auto& GetModList() const { return m_mod_list; }
 
 private:
-	std::map<PolyPtr, PolyPtr> m_add_list;
+	std::vector<std::pair<PolyPtr, PolyPtr>> m_add_list;
 	std::set<PolyPtr> m_del_list;
 	std::map<PolyPtr, PolyPtr> m_mod_list;
 

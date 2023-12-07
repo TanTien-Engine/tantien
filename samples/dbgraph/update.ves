@@ -1,13 +1,13 @@
 var node0 = ::blueprint::nodes::subgraph::Subgraph()
 node0.load_from_file(_editor, "../../assets/blueprints/geograph/draw_geos.ves")
 
-_editor.add_node(node0, 624.8546573734, -156.94224642975)
+_editor.add_node(node0, 527.4098633734, -240.05878342975)
 
 var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-node1.cam.position.set(5.6450028687959, 6.599543811692, 8.1014168937141)
-node1.cam.yaw = -498.1
-node1.cam.pitch = -35.6
+node1.cam.position.set(2.7243195389858, 1.8884647370447, 1.841986951458)
+node1.cam.yaw = -499.3
+node1.cam.pitch = -35.2
 node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.30714285373688
@@ -64,23 +64,23 @@ node11.query_param("pos").value.set(0, 0, 0)
 _editor.add_node(node11, -809.02247680664, 149.96248901367)
 
 var node12 = ::geograph::nodes::box::Box()
-node12.query_param("size").value.set(1, 1, 1)
+node12.query_param("size").value.set(1, 0.8132256269455, 1)
 node12.query_param("pos").value.set(0, 0, 0)
 node12.query_param("offset_x").value = false
 node12.query_param("offset_y").value = false
 node12.query_param("offset_z").value = false
 
-_editor.add_node(node12, -961.74324707031, -425.98020581055)
+_editor.add_node(node12, -1624.1903545083, -213.02731324857)
 
 var node13 = ::geograph::nodes::translate_f::TranslateF()
 
-_editor.add_node(node13, -755.17130585938, -548.95235114746)
+_editor.add_node(node13, -458.47709098335, -765.48127676729)
 
 var node14 = ::blueprint::nodes::number3::Number3()
 
 node14.value.set(0.33125272393227, 0.4012525677681, 0.33458590507507)
 
-_editor.add_node(node14, -964.81272585938, -619.29022114746)
+_editor.add_node(node14, -668.11851098335, -835.81914676729)
 
 var node15 = ::blueprint::nodes::cache::Cache()
 node15.query_param("disable").value = false
@@ -93,14 +93,47 @@ _editor.add_node(node16, -151.52258300781, -1.0795104980499)
 
 var node17 = ::geograph::nodes::translate_f::TranslateF()
 
-_editor.add_node(node17, -512.7672928147, -348.81754925003)
+_editor.add_node(node17, -216.07307793867, -565.34647486986)
 
 var node18 = ::blueprint::nodes::number3::Number3()
 
-node18.value.set(0, 0.7632771730423, 0)
+node18.value.set(0, 0.52500206232071, 0)
 
-_editor.add_node(node18, -665.25016792693, -437.30400100353)
+_editor.add_node(node18, -368.5559530509, -653.83292662336)
 
+var node19 = ::geograph::nodes::boolean::Boolean()
+node19.query_param("operator").value = "subtract"
+
+_editor.add_node(node19, -1380.2150683755, -302.71399147122)
+
+var node20 = ::geograph::nodes::box::Box()
+node20.query_param("size").value.set(0.60981041193008, 1, 0.54314368963242)
+node20.query_param("pos").value.set(0.26536592841148, 0, 0)
+node20.query_param("offset_x").value = false
+node20.query_param("offset_y").value = false
+node20.query_param("offset_z").value = false
+
+_editor.add_node(node20, -1626.2300927896, -492.61799757474)
+
+var node21 = ::geograph::nodes::boolean::Boolean()
+node21.query_param("operator").value = "subtract"
+
+_editor.add_node(node21, -1212.9616800103, -371.94925809498)
+
+var node22 = ::geograph::nodes::box::Box()
+node22.query_param("size").value.set(1, 0.2956258058548, 1)
+node22.query_param("pos").value.set(0, 0, 0)
+node22.query_param("offset_x").value = false
+node22.query_param("offset_y").value = false
+node22.query_param("offset_z").value = false
+
+_editor.add_node(node22, -1382.6062859149, -519.40378740799)
+
+Blueprint.connect(node12, "geo", node19, "a")
+Blueprint.connect(node20, "geo", node19, "b")
+Blueprint.connect(node19, "geo", node21, "a")
+Blueprint.connect(node22, "geo", node21, "b")
+Blueprint.connect(node19, "hist", node21, "hist")
 Blueprint.connect(node12, "geo", node17, "geo")
 Blueprint.connect(node18, "v3", node17, "xyz")
 Blueprint.connect(node12, "hist", node17, "hist")
@@ -111,7 +144,7 @@ Blueprint.connect(node14, "v3", node13, "xyz")
 Blueprint.connect(node3, "tree", node10, "tree")
 Blueprint.connect(node11, "aabb", node10, "key")
 Blueprint.connect(node2, "tree", node16, "tree")
-Blueprint.connect(node17, "hist", node16, "hist")
+Blueprint.connect(node21, "hist", node16, "hist")
 Blueprint.connect(node16, "tree", node4, "var")
 Blueprint.connect(node4, "var", node8, "tree")
 Blueprint.connect(node8, "leaves", node9, "in1")

@@ -41,6 +41,14 @@ class Box is Node
 		this.hist = nil
 	}
 
+	on_node_dirty() 
+	{
+		super.on_node_dirty()
+
+		this.poly = nil
+		this.hist = nil
+	}
+
 	on_pin_dirty(pin, type, msg)
 	{
 		super.on_pin_dirty(pin, type, msg)

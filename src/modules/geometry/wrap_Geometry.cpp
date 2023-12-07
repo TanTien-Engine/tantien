@@ -1402,6 +1402,35 @@ void w_PolyHistory_add_modified()
     hist->AddModified(init, mod);
 }
 
+void w_PolyHistory_add_io_list()
+{
+    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
+
+    std::vector<std::shared_ptr<pm3::Polytope>> src, dst;
+    tt::list_to_foreigns(1, src);
+    tt::list_to_foreigns(2, dst);
+
+    std::set<std::shared_ptr<pm3::Polytope>> src_set, dst_set;
+    for (auto poly : src) {
+        src_set.insert(poly);
+    }
+    for (auto poly : dst) {
+        dst_set.insert(poly);
+    }
+
+    for (auto poly : src) {
+        if (dst_set.find(poly) == dst_set.end()) {
+            hist->AddDeleted(poly);
+        }
+    }
+
+    for (auto poly : dst) {
+        if (src_set.find(poly) == src_set.end()) {
+            hist->AddGenerated(nullptr, poly);
+        }
+    }
+}
+
 }
 
 namespace tt
@@ -1518,6 +1547,7 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "PolyHistory.add_generated(_,_)") == 0) return w_PolyHistory_add_generated;
     if (strcmp(signature, "PolyHistory.add_deleted(_)") == 0) return w_PolyHistory_add_deleted;
     if (strcmp(signature, "PolyHistory.add_modified(_,_)") == 0) return w_PolyHistory_add_modified;
+    if (strcmp(signature, "PolyHistory.add_io_list(_,_)") == 0) return w_PolyHistory_add_io_list;
 
     return nullptr;
 }
