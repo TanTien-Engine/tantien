@@ -4,11 +4,10 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
 import "blueprint.variant_helper" for VariantHelper
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_HIST, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "geograph.brush" for Brush
 import "geometry" for Polytope
 import "vm" for CodeTools
-import "geometry" for PolyHistory
 
 class Boolean is Node
 {
@@ -19,57 +18,28 @@ class Boolean is Node
 		this.imports = [
 			Pin(this, "a", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
 			Pin(this, "b", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "hist", VAR_TYPE_HIST),
 		]
 		this.exports = [
 			Pin(this, "geo", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
-			Pin(this, "hist", VAR_TYPE_HIST),
 		]
 
 		this.params.add(NodeParam("operator", "intersect", { "combo" : [ "union", "intersect", "subtract" ] }))
 
 		this.layout()
-
-		this.brushes = nil
-		this.hist = nil
-	}
-	
-	on_node_dirty() 
-	{
-		super.on_node_dirty()
-
-		this.brushes = nil
-		this.hist = nil
-	}
-	
-	on_pin_dirty(pin, type, msg)
-	{
-		super.on_pin_dirty(pin, type, msg)
-
-		this.brushes = nil
-		this.hist = nil
 	}
 
 	calc_value(idx)
 	{
-		if (!this.brushes)
-		{
-			this.calc_value_impl()
-		}
-
 		if (idx == 0)
 		{
-			if (this.brushes.isEmpty) {
+			var brushes = this.calc_value_impl()
+			if (brushes.isEmpty) {
 				return nil
-			} else if (this.brushes.count == 1) {
-				return this.brushes[0]
+			} else if (brushes.count == 1) {
+				return brushes[0]
 			} else {
-				return Variant(this.brushes)
+				return Variant(brushes)
 			}
-		}
-		else if (idx == 1)
-		{
-			return Variant(VAR_TYPE_HIST, this.hist)
 		}
 
 		import "logger.logger" for Logger
@@ -109,43 +79,15 @@ class Boolean is Node
 			return nil
 		}
 
-		var v_hist = Blueprint.calc_input_value(this, 2)
-		if (v_hist) {
-			this.hist = PolyHistory.init(v_hist.value)
-		} else {
-			this.hist = PolyHistory.init()
-		}
-
 		var b = []
 		this.get_polys(b, v_b)
 
 		var operator = this.query_param("operator").value
 
-		this.brushes = []
-		this.boolean_impl(this.brushes, v_a, b, operator)
+		var brushes = []
+		this.boolean_impl(brushes, v_a, b, operator)
 
-		if (operator == "subtract")
-		{
-			var src = []
-			var dst = []			
-
-			var src_geos = VariantHelper.flatten_values(v_a, VAR_TYPE_GEO)
-			for (var geo in src_geos) 
-			{
-				for (var poly in geo.shape.polys) {
-					src.add(poly)
-				}
-			}
-
-			for (var v_brush in this.brushes)
-			{
-				for (var poly in v_brush.value.shape.polys) {
-					dst.add(poly)
-				}
-			}
-
-			this.hist.add_io_list(src, dst)
-		}
+		return brushes
 	}
 
 	get_polys(dst, src)

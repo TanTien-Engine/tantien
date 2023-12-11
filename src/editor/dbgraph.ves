@@ -23,6 +23,11 @@ class Dbgraph is Editor
 			super.add_popup_node(node)
 		}
 
+		import "editor.regennodes" for REGEN_NODES
+		for (var node in REGEN_NODES) {
+			super.add_popup_node(node)
+		}
+
 		import "editor.dbnodes" for DB_NODES
 		for (var node in DB_NODES) {
 			super.add_popup_node(node)

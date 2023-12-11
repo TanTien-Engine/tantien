@@ -3,10 +3,10 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER3
 import "blueprint.node_param" for NodeParam
 import "blueprint.blueprint" for Blueprint
-import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VAR_TYPE_HIST, VarGeo
+import "geograph.variant" for VAR_TYPE_GEO, VAR_TYPE_CUBE, VarGeo
 import "geograph.brush" for Brush
 import "geograph.compiler" for PolytopeBuilder
-import "geometry" for PolyFace, Polytope, PolyHistory
+import "geometry" for PolyFace, Polytope
 import "maths.vector" for Vector3
 import "maths.cube" for Cube
 import "maths.compiler" for Compiler as maths_Compiler
@@ -25,7 +25,6 @@ class Box is Node
 		this.exports = [
 			Pin(this, "geo",  VAR_TYPE_GEO),
 			Pin(this, "cube", VAR_TYPE_CUBE),
-			Pin(this, "hist", VAR_TYPE_HIST),
 		]
 
 		this.params.add(NodeParam("size", Vector3(1, 1, 1), { "region" : 1 }))
@@ -36,50 +35,19 @@ class Box is Node
 		this.params.add(NodeParam("offset_z", false))
 
 		this.layout()
-
-		this.poly = nil
-		this.hist = nil
-	}
-
-	on_node_dirty() 
-	{
-		super.on_node_dirty()
-
-		this.poly = nil
-		this.hist = nil
-	}
-
-	on_pin_dirty(pin, type, msg)
-	{
-		super.on_pin_dirty(pin, type, msg)
-
-		this.poly = nil
-		this.hist = nil
 	}
 
 	calc_value(idx)
 	{
 		if (idx == 0) 
 		{
-			if (!this.poly) {
-				this.calc_value_impl()
-			}
-
 			var geo = VarGeo()
-			geo.shape = Brush([ this.poly ])
+			geo.shape = Brush([ this.calc_out_poly() ])
 			return Variant(VAR_TYPE_GEO, geo)
 		} 
 		else if (idx == 1) 
 		{
 			return this.calc_out_cube()
-		}
-		else if (idx == 2)
-		{
-			if (!this.hist) {
-				this.calc_value_impl()
-			}
-
-			return Variant(VAR_TYPE_HIST, this.hist)
 		}
 
 		import "logger.logger" for Logger
@@ -318,14 +286,6 @@ class Box is Node
 		}
 
 		return nil
-	}
-
-	calc_value_impl()
-	{
-		this.poly = this.calc_out_poly()
-
-		this.hist = PolyHistory.init()
-		this.hist.add_generated(nil, this.poly)
 	}
 
 	calc_in_size()

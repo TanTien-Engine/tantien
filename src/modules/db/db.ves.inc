@@ -12,7 +12,7 @@ foreign class RTree
 	foreign query(key)
 	foreign delete(key)
 
-	foreign update(hist)
+	foreign update(diff)
 
 	foreign insert_with_time(poly, time)
 	foreign query_with_time(key, tmin, tmax)

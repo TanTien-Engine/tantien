@@ -1,0 +1,80 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_ARRAY
+import "blueprint.blueprint" for Blueprint
+import "blueprint.variant_helper" for VariantHelper
+import "geograph.variant" for VAR_TYPE_GEO
+import "regengraph.variant" for VAR_TYPE_POLY_DIFF
+import "regen" for PolyDiff as tt_PolyDiff
+
+class PolyDiff is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "in",  [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+			Pin(this, "out", [ VAR_TYPE_GEO, VAR_TYPE_ARRAY ]),
+		]
+		this.exports = [
+			Pin(this, "diff", VAR_TYPE_POLY_DIFF),
+		]
+
+		this.layout()
+
+		this.diff = nil
+	}
+
+	on_node_dirty() 
+	{
+		super.on_node_dirty()
+
+		this.diff = nil
+	}
+	
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.diff = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.diff) {
+			this.calc_value_impl()
+		}
+
+		return Variant(VAR_TYPE_POLY_DIFF, this.diff)
+	}
+
+	calc_value_impl()
+	{
+		this.diff = tt_PolyDiff.init()
+
+		var v_in  = Blueprint.calc_input_value(this, 0)
+		var v_out = Blueprint.calc_input_value(this, 1)
+
+		var in_geos  = VariantHelper.flatten_values(v_in,  VAR_TYPE_GEO)
+		var out_geos = VariantHelper.flatten_values(v_out, VAR_TYPE_GEO)
+
+		var in_polys = []
+		for (var geo in in_geos) 
+		{
+			for (var poly in geo.shape.polys) {
+				in_polys.add(poly)
+			}
+		}
+
+		var out_polys = []
+		for (var geo in out_geos) 
+		{
+			for (var poly in geo.shape.polys) {
+				out_polys.add(poly)
+			}
+		}
+		
+		this.diff.build(in_polys, out_polys)
+	}
+}

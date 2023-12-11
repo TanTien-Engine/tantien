@@ -5,8 +5,8 @@
 #include "PickVisitor.h"
 #include "RTreeBuilder.h"
 #include "DB.h"
-#include "modules/geometry/PolyHistory.h"
 #include "modules/script/TransHelper.h"
+#include "modules/regen/PolyDiff.h"
 
 #include <brepdb/RTree.h>
 #include <brepdb/Region.h>
@@ -247,7 +247,7 @@ void w_RTree_delete()
 void w_RTree_update()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
-    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(1))->obj;
+    auto diff = ((tt::Proxy<tt::PolyDiff>*)ves_toforeign(1))->obj;
 
     // clear exist
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();
@@ -259,7 +259,7 @@ void w_RTree_update()
     map.clear();
 
     // add_list
-    auto& add_list = hist->GetAddList();
+    auto& add_list = diff->GetAddList();
     for (auto add_pair : add_list)
     {
         auto key = insert_poly(rtree, add_pair.second);
@@ -267,7 +267,7 @@ void w_RTree_update()
     }
 
     // del_list
-    auto& del_list = hist->GetDelList();
+    auto& del_list = diff->GetDelList();
     for (auto del : del_list)
     {
         auto itr = map.find(del);
@@ -281,7 +281,7 @@ void w_RTree_update()
     }
 
     // mod_list
-    auto& mod_list = hist->GetModList();
+    auto& mod_list = diff->GetModList();
     for (auto mod_pair : mod_list)
     {
         auto itr = map.find(mod_pair.first);

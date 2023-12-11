@@ -1,0 +1,21 @@
+import "editor.editor" for Editor
+
+class Regengraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		this.clear_popup_nodes()
+
+		import "editor.regennodes" for REGEN_NODES
+		for (var node in REGEN_NODES) {
+			super.add_popup_node(node)
+		}
+	}
+}

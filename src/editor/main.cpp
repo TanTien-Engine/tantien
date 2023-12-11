@@ -35,6 +35,8 @@
 #include "modules/db/DB.ves.inc"
 #include "modules/om/wrap_OM.h"
 #include "modules/om/OM.ves.inc"
+#include "modules/regen/wrap_Regen.h"
+#include "modules/regen/regen.ves.inc"
 
 // fixme
 #include "archgen/wrap_ArchGen.h"
@@ -138,6 +140,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "vm") == 0 &&
         !strcmp(module, "db") == 0 &&
         !strcmp(module, "om") == 0 &&
+        !strcmp(module, "regen") == 0 &&
         !strcmp(module, "archgen") == 0 &&
         !strcmp(module, "citygen") == 0 &&
         !strcmp(module, "globegen") == 0 &&
@@ -190,6 +193,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = dbModuleSource;
     } else if (strcmp(module, "om") == 0) {
         source = omModuleSource;
+    } else if (strcmp(module, "regen") == 0) {
+        source = regenModuleSource;
     } else if (strcmp(module, "archgen") == 0) {
         source = archgenModuleSource;
     } else if (strcmp(module, "citygen") == 0) {
@@ -351,6 +356,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::OmBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    tt::RegenBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     archgen::ArchGenBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -448,6 +456,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = tt::OmBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = tt::RegenBindMethod(fullName);
     if (method != NULL) return method;
 
     method = archgen::ArchGenBindMethod(fullName);

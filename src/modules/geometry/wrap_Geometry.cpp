@@ -1,6 +1,5 @@
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/ShapeMaths.h"
-#include "modules/geometry/PolyHistory.h"
 #include "modules/script/TransHelper.h"
 #include "modules/script/Proxy.h"
 
@@ -1141,17 +1140,18 @@ void w_Polytope_boolean()
     tt::list_to_foreigns(2, a);
     tt::list_to_foreigns(3, b);
 
+    std::vector<std::pair<pm3::PolytopePtr, pm3::PolytopePtr>> hist;
     if (strcmp(op, "union") == 0) 
     {
-        polytopes = pm3::PolytopeAlgos::Union(a, b);
+        polytopes = pm3::PolytopeAlgos::Union(a, b, hist);
     }
     else if (strcmp(op, "intersect") == 0)
     {
-        polytopes = pm3::PolytopeAlgos::Intersect(a, b);
+        polytopes = pm3::PolytopeAlgos::Intersect(a, b, hist);
     }
     else if (strcmp(op, "subtract") == 0)
     {
-        polytopes = pm3::PolytopeAlgos::Subtract(a, b);
+        polytopes = pm3::PolytopeAlgos::Subtract(a, b, hist);
     }
 
     tt::return_poly_list(polytopes);
@@ -1346,91 +1346,6 @@ void w_ShapeMaths_merge()
     return_shapes(merged);
 }
 
-void w_PolyHistory_allocate()
-{
-    auto proxy = (tt::Proxy<tt::PolyHistory>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::PolyHistory>));
-
-    auto num = ves_argnum();
-    if (num == 2)
-    {
-        auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(1))->obj;
-        proxy->obj = std::make_shared<tt::PolyHistory>(*hist);
-    }
-    else
-    {
-        proxy->obj = std::make_shared<tt::PolyHistory>();
-    }
-}
-
-int w_PolyHistory_finalize(void* data)
-{
-    auto proxy = (tt::Proxy<tt::PolyHistory>*)(data);
-    proxy->~Proxy();
-    return sizeof(tt::Proxy<tt::PolyHistory>);
-}
-
-void w_PolyHistory_add_generated()
-{
-    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
-    
-    std::shared_ptr<pm3::Polytope> init = nullptr;
-    if (void* param = ves_toforeign(1)) {
-        init = ((tt::Proxy<pm3::Polytope>*)param)->obj;
-    }
-
-    auto generated = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
-
-    hist->AddGenerated(init, generated);
-}
-
-void w_PolyHistory_add_deleted()
-{
-    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
-
-    auto deleted = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
-
-    hist->AddDeleted(deleted);
-}
-
-void w_PolyHistory_add_modified()
-{
-    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
-
-    auto init = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
-    auto mod = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(2))->obj;
-
-    hist->AddModified(init, mod);
-}
-
-void w_PolyHistory_add_io_list()
-{
-    auto hist = ((tt::Proxy<tt::PolyHistory>*)ves_toforeign(0))->obj;
-
-    std::vector<std::shared_ptr<pm3::Polytope>> src, dst;
-    tt::list_to_foreigns(1, src);
-    tt::list_to_foreigns(2, dst);
-
-    std::set<std::shared_ptr<pm3::Polytope>> src_set, dst_set;
-    for (auto poly : src) {
-        src_set.insert(poly);
-    }
-    for (auto poly : dst) {
-        dst_set.insert(poly);
-    }
-
-    for (auto poly : src) {
-        if (dst_set.find(poly) == dst_set.end()) {
-            hist->AddDeleted(poly);
-        }
-    }
-
-    for (auto poly : dst) {
-        if (src_set.find(poly) == src_set.end()) {
-            hist->AddGenerated(nullptr, poly);
-        }
-    }
-}
-
 }
 
 namespace tt
@@ -1543,11 +1458,6 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
     if (strcmp(signature, "static ShapeMaths.extrude(_,_)") == 0) return w_ShapeMaths_extrude;
     if (strcmp(signature, "static ShapeMaths.merge(_)") == 0) return w_ShapeMaths_merge;
-
-    if (strcmp(signature, "PolyHistory.add_generated(_,_)") == 0) return w_PolyHistory_add_generated;
-    if (strcmp(signature, "PolyHistory.add_deleted(_)") == 0) return w_PolyHistory_add_deleted;
-    if (strcmp(signature, "PolyHistory.add_modified(_,_)") == 0) return w_PolyHistory_add_modified;
-    if (strcmp(signature, "PolyHistory.add_io_list(_,_)") == 0) return w_PolyHistory_add_io_list;
 
     return nullptr;
 }
@@ -1691,13 +1601,6 @@ void GeometryBindClass(const char* class_name, VesselForeignClassMethods* method
     {
         methods->allocate = w_Ellipsoid_allocate;
         methods->finalize = w_Ellipsoid_finalize;
-        return;
-    }
-
-    if (strcmp(class_name, "PolyHistory") == 0)
-    {
-        methods->allocate = w_PolyHistory_allocate;
-        methods->finalize = w_PolyHistory_finalize;
         return;
     }
 }

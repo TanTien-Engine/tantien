@@ -12,11 +12,11 @@ using PolyPtr = std::shared_ptr<pm3::Polytope>;
 namespace tt
 {
 
-class PolyHistory
+class PolyDiff
 {
 public:
-	PolyHistory() {}
-	PolyHistory(const PolyHistory& hist);
+	PolyDiff() {}
+	PolyDiff(const PolyDiff& diff);
 
 	void AddGenerated(const PolyPtr& initial, const PolyPtr& generated);
 	void AddDeleted(const PolyPtr& poly);
@@ -31,6 +31,6 @@ private:
 	std::set<PolyPtr> m_del_list;
 	std::map<PolyPtr, PolyPtr> m_mod_list;
 
-}; // PolyHistory
+}; // PolyDiff
 
 }
