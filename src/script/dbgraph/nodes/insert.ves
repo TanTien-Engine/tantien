@@ -20,6 +20,7 @@ class Insert is Node
 		]
 		this.exports = [
 			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "key", VAR_TYPE_RKEY),
 		]
 
 		this.params.add(NodeParam("b_time", false))
@@ -27,6 +28,7 @@ class Insert is Node
 		this.layout()
 
 		this.v_rtree = nil
+		this.v_rkey = nil
 	}
 
 	on_pin_dirty(pin, type, msg)
@@ -34,6 +36,7 @@ class Insert is Node
 		super.on_pin_dirty(pin, type, msg)
 
 		this.v_rtree = nil
+		this.v_rkey = nil
 	}
 
 	calc_value(idx)
@@ -98,7 +101,7 @@ class Insert is Node
 	{
 		var polys = geo.shape.polys
 		for (var poly in polys) {
-			rtree.insert(poly)
+			var rkey = rtree.insert(poly)
 		}
 	}
 

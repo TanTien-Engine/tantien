@@ -1,0 +1,54 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "dbgraph.variant" for VAR_TYPE_RTREE, VAR_TYPE_RKEY
+import "geograph.variant" for VAR_TYPE_GEO
+import "logger.logger" for Logger
+import "db" for RKey
+
+class Delete is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "key", [ VAR_TYPE_RKEY, VAR_TYPE_GEO ]),
+		]
+		this.exports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_key = Blueprint.calc_input_value(this, 1)
+		if (!v_key) {
+			return v_tree
+		}
+
+		Logger.info("dbgraph delete")		
+
+		var key = nil
+		if (v_key.type == VAR_TYPE_RKEY) {
+			key = v_key.value
+		} else if (v_key.type == VAR_TYPE_GEO) {
+			key = RKey.init(v_key.value.shape)
+		}
+		if (!key) {
+			return nil
+		}
+		
+		v_tree.value.delete(key)
+
+		return v_tree
+	}
+}
