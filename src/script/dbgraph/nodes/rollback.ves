@@ -5,7 +5,7 @@ import "dbgraph.variant" for VAR_TYPE_RTREE
 import "logger.logger" for Logger
 import "regengraph.variant" for VAR_TYPE_POLY_DIFF
 
-class Update is Node
+class Rollback is Node
 {
 	init()
 	{
@@ -24,7 +24,7 @@ class Update is Node
 
 	calc_value(idx)
 	{
-		Logger.info("dbgraph update")
+		Logger.info("dbgraph rollback")
 
 		var v_tree = Blueprint.calc_input_value(this, 0)
 		if (!v_tree) {
@@ -36,7 +36,7 @@ class Update is Node
 			return nil
 		}
 
-		v_tree.value.update(v_diff.value)
+		v_tree.value.rollback(v_diff.value)
 
 		return v_tree
 	}

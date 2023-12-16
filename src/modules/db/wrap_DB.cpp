@@ -1,10 +1,11 @@
 #include "wrap_DB.h"
-#include "BrepSerialize.h"
 #include "BRepKey.h"
 #include "RegionVisitor.h"
 #include "PickVisitor.h"
 #include "RTreeBuilder.h"
 #include "DB.h"
+#include "RTreeUpdate.h"
+#include "BrepSerialize.h"
 #include "modules/script/TransHelper.h"
 #include "modules/regen/PolyDiff.h"
 
@@ -22,8 +23,6 @@
 
 namespace
 {
-
-brepdb::id_type NEXT_ID = 0;
 
 sm::cube region_to_cube(const brepdb::Region& r)
 {
@@ -59,52 +58,6 @@ void return_regions(const std::vector<brepdb::Region>& regions)
         ves_seti(-2, i);
         ves_pop(1);
     }
-}
-
-std::shared_ptr<tt::BRepKey> 
-insert_poly(const std::shared_ptr<brepdb::RTree>& rtree, const std::shared_ptr<pm3::Polytope>& poly)
-{
-    brepdb::id_type id;
-
-    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
-    auto itr = map.find(poly);
-    if (itr != map.end())
-    {
-        auto& key = itr->second;
-        rtree->DeleteData(key->r, key->id);
-
-        id = key->id;
-
-        map.erase(itr);
-    }
-    else
-    {
-        id = NEXT_ID++;
-    }
-
-    uint8_t* data = nullptr;
-    uint32_t length = 0;
-    tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
-
-    brepdb::Region aabb;
-    auto& pts = poly->Points();
-    for (auto& p : pts)
-    {
-        auto src = p->pos.xyz;
-        const double dst[4] = { src[0], src[1], src[2], 0 };
-        aabb.Combine(brepdb::Point(dst));
-    }
-
-    rtree->InsertData(length, data, aabb, id);
-    delete[] data;
-
-    auto rkey = std::make_shared<tt::BRepKey>();
-    rkey->r = aabb;
-    rkey->id = id;
-
-    map.insert({ poly, rkey });
-
-    return rkey;
 }
 
 void w_RTree_allocate()
@@ -145,7 +98,7 @@ void w_RTree_insert()
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
 
-    auto rkey = insert_poly(rtree, poly);
+    auto rkey = tt::RTreeUpdate::Insert(rtree, poly);
 
     ves_pop(ves_argnum());
 
@@ -244,58 +197,24 @@ void w_RTree_delete()
     }
 }
 
-void w_RTree_update()
+void w_RTree_clear()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    tt::RTreeUpdate::Clear(rtree);
+}
+
+void w_RTree_rollforward()
 {
     auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
     auto diff = ((tt::Proxy<tt::PolyDiff>*)ves_toforeign(1))->obj;
+    tt::RTreeUpdate::RollForward(rtree, diff);
+}
 
-    // clear exist
-    auto& map = tt::DB::Instance()->GetPoly2KeyMap();
-    for (auto& itr : map)
-    {
-        auto& key = itr.second;
-        rtree->DeleteData(key->r, key->id);
-    }
-    map.clear();
-
-    // add_list
-    auto& add_list = diff->GetAddList();
-    for (auto add_pair : add_list)
-    {
-        auto key = insert_poly(rtree, add_pair.second);
-        map.insert({ add_pair.second, key });
-    }
-
-    // del_list
-    auto& del_list = diff->GetDelList();
-    for (auto del : del_list)
-    {
-        auto itr = map.find(del);
-        if (itr != map.end())
-        {
-            auto& key = itr->second;
-            rtree->DeleteData(key->r, key->id);
-
-            map.erase(itr);
-        }
-    }
-
-    // mod_list
-    auto& mod_list = diff->GetModList();
-    for (auto mod_pair : mod_list)
-    {
-        auto itr = map.find(mod_pair.first);
-        if (itr != map.end())
-        {
-            auto& key = itr->second;
-            rtree->DeleteData(key->r, key->id);
-
-            map.erase(itr);
-        }
-
-        auto key = insert_poly(rtree, mod_pair.second);
-        map.insert({ mod_pair.second, key });
-    }
+void w_RTree_rollback()
+{
+    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto diff = ((tt::Proxy<tt::PolyDiff>*)ves_toforeign(1))->obj;
+    tt::RTreeUpdate::RollBack(rtree, diff);
 }
 
 void w_RTree_query_with_time()
@@ -465,7 +384,9 @@ VesselForeignMethodFn DbBindMethod(const char* signature)
     if (strcmp(signature, "RTree.insert(_)") == 0) return w_RTree_insert;
     if (strcmp(signature, "RTree.query(_)") == 0) return w_RTree_query;
     if (strcmp(signature, "RTree.delete(_)") == 0) return w_RTree_delete;
-    if (strcmp(signature, "RTree.update(_)") == 0) return w_RTree_update;
+    if (strcmp(signature, "RTree.clear()") == 0) return w_RTree_clear;
+    if (strcmp(signature, "RTree.rollforward(_)") == 0) return w_RTree_rollforward;
+    if (strcmp(signature, "RTree.rollback(_)") == 0) return w_RTree_rollback;
     if (strcmp(signature, "RTree.insert_with_time(_,_)") == 0) return w_RTree_insert_with_time;
     if (strcmp(signature, "RTree.query_with_time(_,_,_)") == 0) return w_RTree_query_with_time;
     if (strcmp(signature, "RTree.get_all_leaves()") == 0) return w_RTree_get_all_leaves;

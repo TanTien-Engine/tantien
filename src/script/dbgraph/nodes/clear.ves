@@ -1,0 +1,36 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "dbgraph.variant" for VAR_TYPE_RTREE
+import "logger.logger" for Logger
+
+class Clear is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+		this.exports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		Logger.info("dbgraph clear")
+
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		v_tree.value.clear()
+
+		return v_tree
+	}
+}

@@ -5,9 +5,9 @@ _editor.add_node(node0, 527.4098633734, -240.05878342975)
 
 var node1 = ::blueprint::nodes::camera3d::Camera3d()
 
-node1.cam.position.set(2.7243195389858, 1.8884647370447, 1.841986951458)
-node1.cam.yaw = -499.3
-node1.cam.pitch = -35.2
+node1.cam.position.set(1.5661443474556, 0.53399792149925, 0.77392796594469)
+node1.cam.yaw = -505.8
+node1.cam.pitch = -18.8
 node1.cam.zoom = 45
 node1.cam.update_vectors()
 node1.speed = 0.30714285373688
@@ -16,7 +16,7 @@ _editor.add_node(node1, 267.17568291811, -205.307858)
 
 var node2 = ::dbgraph::nodes::rtree::Rtree()
 
-_editor.add_node(node2, -819.9222125115, -227.51932236043)
+_editor.add_node(node2, -1599.2767579661, 141.21042970569)
 
 var node3 = ::dbgraph::nodes::insert::Insert()
 node3.query_param("b_time").value = false
@@ -87,81 +87,110 @@ node15.query_param("disable").value = false
 
 _editor.add_node(node15, -966.06003417969, 257.53529052734)
 
-var node16 = ::dbgraph::nodes::update::Update()
+var node16 = ::geograph::nodes::translate_f::TranslateF()
 
-_editor.add_node(node16, -665.27527300781, -237.82448049805)
+_editor.add_node(node16, -1095.0787879387, -643.75568486986)
 
-var node17 = ::geograph::nodes::translate_f::TranslateF()
+var node17 = ::blueprint::nodes::number3::Number3()
 
-_editor.add_node(node17, -1095.0787879387, -643.75568486986)
+node17.value.set(0, 0.61735159158707, 0)
 
-var node18 = ::blueprint::nodes::number3::Number3()
+_editor.add_node(node17, -1247.5616630509, -732.24213662336)
 
-node18.value.set(0, 0.68401825428009, 0)
+var node18 = ::geograph::nodes::boolean::Boolean()
+node18.query_param("operator").value = "subtract"
 
-_editor.add_node(node18, -1247.5616630509, -732.24213662336)
+_editor.add_node(node18, -1380.2150683755, -302.71399147122)
 
-var node19 = ::geograph::nodes::boolean::Boolean()
-node19.query_param("operator").value = "subtract"
+var node19 = ::geograph::nodes::box::Box()
+node19.query_param("size").value.set(0.8247789144516, 1, 0.54314368963242)
+node19.query_param("pos").value.set(0.26536592841148, 0, 0)
+node19.query_param("offset_x").value = false
+node19.query_param("offset_y").value = false
+node19.query_param("offset_z").value = false
 
-_editor.add_node(node19, -1380.2150683755, -302.71399147122)
+_editor.add_node(node19, -1626.2300927896, -492.61799757474)
 
-var node20 = ::geograph::nodes::box::Box()
-node20.query_param("size").value.set(0.8247789144516, 1, 0.54314368963242)
-node20.query_param("pos").value.set(0.26536592841148, 0, 0)
-node20.query_param("offset_x").value = false
-node20.query_param("offset_y").value = false
-node20.query_param("offset_z").value = false
+var node20 = ::geograph::nodes::boolean::Boolean()
+node20.query_param("operator").value = "subtract"
 
-_editor.add_node(node20, -1626.2300927896, -492.61799757474)
+_editor.add_node(node20, -1136.0525891012, -416.58562173134)
 
-var node21 = ::geograph::nodes::boolean::Boolean()
-node21.query_param("operator").value = "subtract"
+var node21 = ::geograph::nodes::box::Box()
+node21.query_param("size").value.set(1, 0.2067369222641, 1)
+node21.query_param("pos").value.set(0, 0, 0)
+node21.query_param("offset_x").value = false
+node21.query_param("offset_y").value = false
+node21.query_param("offset_z").value = false
 
-_editor.add_node(node21, -1212.9616800103, -371.94925809498)
+_editor.add_node(node21, -1382.6062859149, -519.40378740799)
 
-var node22 = ::geograph::nodes::box::Box()
-node22.query_param("size").value.set(1, 0.17340359091759, 1)
-node22.query_param("pos").value.set(0, 0, 0)
-node22.query_param("offset_x").value = false
-node22.query_param("offset_y").value = false
-node22.query_param("offset_z").value = false
+var node22 = ::regengraph::nodes::poly_diff::PolyDiff()
 
-_editor.add_node(node22, -1382.6062859149, -519.40378740799)
+_editor.add_node(node22, -841.85803727783, -262.51282611513)
 
 var node23 = ::regengraph::nodes::poly_diff::PolyDiff()
 
-_editor.add_node(node23, -1034.7864612926, -123.08623790394)
+_editor.add_node(node23, -950.79970687111, -581.84496061469)
 
 var node24 = ::regengraph::nodes::poly_diff::PolyDiff()
 
-_editor.add_node(node24, -1015.821700962, -297.17316352378)
+_editor.add_node(node24, -994.94768279385, -225.24457941067)
 
-var node25 = ::regengraph::nodes::poly_diff::PolyDiff()
+var node25 = ::dbgraph::nodes::rollback::Rollback()
 
-_editor.add_node(node25, -949.89061596202, -572.75405152378)
+_editor.add_node(node25, -473.75598300444, -224.40399165337)
 
-Blueprint.connect(node12, "geo", node19, "a")
-Blueprint.connect(node20, "geo", node19, "b")
+var node26 = ::dbgraph::nodes::clear::Clear()
+
+_editor.add_node(node26, -1377.4180908203, 182.32655029297)
+
+var node27 = ::dbgraph::nodes::rollforward::Rollforward()
+
+_editor.add_node(node27, -829.8710419922, -22.65844360352)
+
+var node28 = ::dbgraph::nodes::rollforward::Rollforward()
+
+_editor.add_node(node28, -617.92199761451, -77.190377605999)
+
+var node29 = ::blueprint::nodes::cache::Cache()
+node29.query_param("disable").value = false
+
+_editor.add_node(node29, -1148.2166992187, -281.03278808594)
+
+var node30 = ::blueprint::nodes::cache::Cache()
+node30.query_param("disable").value = false
+
+_editor.add_node(node30, -940.9318444118, -398.2394859377)
+
+Blueprint.connect(node12, "geo", node18, "a")
+Blueprint.connect(node19, "geo", node18, "b")
+Blueprint.connect(node18, "geo", node29, "var")
+Blueprint.connect(node12, "geo", node24, "in")
+Blueprint.connect(node29, "var", node24, "out")
+Blueprint.connect(node18, "geo", node20, "a")
+Blueprint.connect(node21, "geo", node20, "b")
+Blueprint.connect(node20, "geo", node30, "var")
+Blueprint.connect(node29, "var", node22, "in")
+Blueprint.connect(node30, "var", node22, "out")
+Blueprint.connect(node12, "geo", node16, "geo")
+Blueprint.connect(node17, "v3", node16, "xyz")
 Blueprint.connect(node12, "geo", node23, "in")
-Blueprint.connect(node19, "geo", node23, "out")
-Blueprint.connect(node19, "geo", node21, "a")
-Blueprint.connect(node22, "geo", node21, "b")
-Blueprint.connect(node19, "geo", node24, "in")
-Blueprint.connect(node21, "geo", node24, "out")
-Blueprint.connect(node12, "geo", node17, "geo")
-Blueprint.connect(node18, "v3", node17, "xyz")
-Blueprint.connect(node12, "geo", node25, "in")
-Blueprint.connect(node17, "geo", node25, "out")
+Blueprint.connect(node16, "geo", node23, "out")
 Blueprint.connect(node12, "geo", node15, "var")
 Blueprint.connect(node15, "var", node3, "geo")
 Blueprint.connect(node12, "geo", node13, "geo")
 Blueprint.connect(node14, "v3", node13, "xyz")
 Blueprint.connect(node3, "tree", node10, "tree")
 Blueprint.connect(node11, "aabb", node10, "key")
-Blueprint.connect(node2, "tree", node16, "tree")
-Blueprint.connect(node24, "diff", node16, "diff")
-Blueprint.connect(node16, "tree", node4, "var")
+Blueprint.connect(node2, "tree", node26, "tree")
+Blueprint.connect(node26, "tree", node27, "tree")
+Blueprint.connect(node24, "diff", node27, "diff")
+Blueprint.connect(node27, "tree", node28, "tree")
+Blueprint.connect(node22, "diff", node28, "diff")
+Blueprint.connect(node28, "tree", node25, "tree")
+Blueprint.connect(node22, "diff", node25, "diff")
+Blueprint.connect(node25, "tree", node4, "var")
 Blueprint.connect(node4, "var", node8, "tree")
 Blueprint.connect(node8, "leaves", node9, "in1")
 Blueprint.connect(node4, "var", node5, "tree")

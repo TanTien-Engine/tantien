@@ -1,0 +1,43 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.blueprint" for Blueprint
+import "dbgraph.variant" for VAR_TYPE_RTREE
+import "logger.logger" for Logger
+import "regengraph.variant" for VAR_TYPE_POLY_DIFF
+
+class Rollforward is Node
+{
+	init()
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+			Pin(this, "diff", VAR_TYPE_POLY_DIFF),
+		]
+		this.exports = [
+			Pin(this, "tree", VAR_TYPE_RTREE),
+		]
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		Logger.info("dbgraph rollforward")
+
+		var v_tree = Blueprint.calc_input_value(this, 0)
+		if (!v_tree) {
+			return nil
+		}
+
+		var v_diff = Blueprint.calc_input_value(this, 1)
+		if (!v_diff) {
+			return nil
+		}
+
+		v_tree.value.rollforward(v_diff.value)
+
+		return v_tree
+	}
+}
