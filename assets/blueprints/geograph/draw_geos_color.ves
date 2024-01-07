@@ -6,12 +6,12 @@ _editor.add_node(node0, -20.676023581753, -291.10174525378)
 var node1 = ::blueprint::nodes::fetch::Fetch()
 node1.index = "node0"
 
-_editor.add_node(node1, 384.76483479879, -331.68694907861)
+_editor.add_node(node1, 356.86483479879, -474.88694907861)
 
 var node2 = ::blueprint::nodes::fetch::Fetch()
 node2.index = "va"
 
-_editor.add_node(node2, 589.87377684355, -330.18435483226)
+_editor.add_node(node2, 591.97377684355, -478.38435483226)
 
 var node3 = ::blueprint::nodes::input::Input()
 
@@ -23,10 +23,10 @@ _editor.add_node(node3, 595.46840404795, 245.77793726673)
 var node4 = ::rendergraph::nodes::draw::Draw()
 
 node4.set_prim_type("triangles")
-node4.render_state = { "stencil_test" : false, "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "lequal", "clip_plane" : false }
+node4.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "lequal", "clip_plane" : false }
 node4.skip = false
 
-_editor.add_node(node4, 784.30380359571, -191.81447758435)
+_editor.add_node(node4, 811.40380359571, -312.01447758435)
 
 var node5 = ::rendergraph::nodes::shader::Shader()
 node5.query_param("inc_dir").value = ""
@@ -97,7 +97,7 @@ void main()
 node5.cs = ""
 node5.render_gen()
 
-_editor.add_node(node5, 595.83667455228, -102.3677095474)
+_editor.add_node(node5, 602.43667455228, -169.4677095474)
 
 var node6 = ::blueprint::nodes::perspective::Perspective()
 
@@ -158,11 +158,127 @@ node16.var_type = "num3"
 
 _editor.add_node(node16, 196.35289695046, -57.101640181109)
 
+var node17 = ::blueprint::nodes::fetch::Fetch()
+node17.index = "node1"
+
+_editor.add_node(node17, 849.80643479879, -628.79997907861)
+
+var node18 = ::blueprint::nodes::fetch::Fetch()
+node18.index = "va"
+
+_editor.add_node(node18, 1066.2153768436, -628.99738483226)
+
+var node19 = ::rendergraph::nodes::draw::Draw()
+
+node19.set_prim_type("lines")
+node19.render_state = { "stencil_test" : false, "rasterization" : "fill", "stencil_func" : "always", "stencil_mask" : 255, "cull" : "disable", "blend" : false, "stencil_ref" : 0, "depth_test" : true, "depth_func" : "lequal", "clip_plane" : false }
+node19.skip = false
+
+_editor.add_node(node19, 1275.6454035957, -676.62750758435)
+
+var node20 = ::rendergraph::nodes::shader::Shader()
+node20.query_param("inc_dir").value = ""
+
+node20.vs = "
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+out VS_OUT {
+    vec3 frag_pos;
+} vs_out;
+
+uniform UBO
+{
+	mat4 model;
+	mat4 view;
+	mat4 projection;
+};
+
+void main()
+{
+	vs_out.frag_pos = vec3(model * vec4(aPos, 1.0));
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+"
+node20.tcs = ""
+node20.tes = ""
+node20.gs = "
+#version 330 core
+
+layout (lines) in;                              // now we can access 2 vertices
+layout (triangle_strip, max_vertices = 4) out;  // always (for now) producing 2 triangles (so 4 vertices)
+
+uniform UBO
+{
+    vec2  viewport_size;
+    float thickness;
+};
+
+void main()
+{
+    vec4 p1 = gl_in[0].gl_Position;
+    vec4 p2 = gl_in[1].gl_Position;
+
+    vec2 dir    = normalize((p2.xy/p2.w - p1.xy/p1.w) * viewport_size);
+    vec2 offset = vec2(-dir.y, dir.x) * thickness / viewport_size;
+
+    gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
+    EmitVertex();
+    gl_Position = p1 - vec4(offset.xy * p1.w, 0.0, 0.0);
+    EmitVertex();
+    gl_Position = p2 + vec4(offset.xy * p2.w, 0.0, 0.0);
+    EmitVertex();
+    gl_Position = p2 - vec4(offset.xy * p2.w, 0.0, 0.0);
+    EmitVertex();
+
+    EndPrimitive();
+}
+"
+node20.fs = "
+#version 330 core
+out vec4 FragColor;
+
+uniform UBO
+{
+    vec3 line_color;
+};
+
+void main()
+{
+    FragColor = vec4(line_color, 1.0); 
+}
+"
+node20.cs = ""
+node20.render_gen()
+
+_editor.add_node(node20, 1075.1314388523, -319.0427549474)
+
+var node21 = ::blueprint::nodes::viewport::Viewport()
+
+_editor.add_node(node21, 856.35450601119, -99.975903894771)
+
+var node22 = ::blueprint::nodes::number::Number()
+
+node22.value = 4
+
+_editor.add_node(node22, 887.09005012145, -177.15644749819)
+
+var node23 = ::blueprint::nodes::number3::Number3()
+
+node23.value.set(0, 0, 0)
+
+_editor.add_node(node23, 1184.8839203458, -5.7200558067516)
+
 Blueprint.connect(node15, "var", node9, "in")
 Blueprint.connect(node11, "next", node9, "do")
 Blueprint.connect(node9, "out", node12, "geos")
 Blueprint.connect(node7, "mat", node12, "cam_mat")
 Blueprint.connect(node7, "zoom", node6, "fovy")
+Blueprint.connect(node7, "mat", node20, "view")
+Blueprint.connect(node6, "mat", node20, "projection")
+Blueprint.connect(node21, "size", node20, "viewport_size")
+Blueprint.connect(node22, "v", node20, "thickness")
+Blueprint.connect(node23, "v3", node20, "line_color")
 Blueprint.connect(node6, "mat", node13, "a")
 Blueprint.connect(node7, "mat", node13, "b")
 Blueprint.connect(node7, "mat", node5, "view")
@@ -173,11 +289,16 @@ Blueprint.connect(node7, "pos", node5, "cam_pos")
 Blueprint.connect(node3, "var", node14, "list")
 Blueprint.connect(node14, "list", node15, "var")
 Blueprint.connect(node9, "out", node0, "brush")
+Blueprint.connect(node0, "gltf", node17, "items")
+Blueprint.connect(node17, "item", node18, "items")
 Blueprint.connect(node0, "gltf", node10, "in")
 Blueprint.connect(node10, "out", node11, "cond")
 Blueprint.connect(node12, "next", node11, "true")
-Blueprint.connect(node4, "next", node11, "false")
+Blueprint.connect(node19, "next", node11, "false")
 Blueprint.connect(node0, "gltf", node1, "items")
 Blueprint.connect(node1, "item", node2, "items")
 Blueprint.connect(node5, "out", node4, "shader")
 Blueprint.connect(node2, "item", node4, "va")
+Blueprint.connect(node4, "next", node19, "prev")
+Blueprint.connect(node20, "out", node19, "shader")
+Blueprint.connect(node18, "item", node19, "va")
