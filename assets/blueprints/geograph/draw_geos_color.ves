@@ -263,11 +263,12 @@ node22.value = 4
 
 _editor.add_node(node22, 887.09005012145, -177.15644749819)
 
-var node23 = ::blueprint::nodes::number3::Number3()
+var node23 = ::blueprint::nodes::input::Input()
 
-node23.value.set(0, 0, 0)
+node23.var_name = "line_color"
+node23.var_type = "num3"
 
-_editor.add_node(node23, 1184.8839203458, -5.7200558067516)
+_editor.add_node(node23, 846.49091796875, -505.39866333008)
 
 Blueprint.connect(node15, "var", node9, "in")
 Blueprint.connect(node11, "next", node9, "do")
@@ -278,7 +279,7 @@ Blueprint.connect(node7, "mat", node20, "view")
 Blueprint.connect(node6, "mat", node20, "projection")
 Blueprint.connect(node21, "size", node20, "viewport_size")
 Blueprint.connect(node22, "v", node20, "thickness")
-Blueprint.connect(node23, "v3", node20, "line_color")
+Blueprint.connect(node23, "var", node20, "line_color")
 Blueprint.connect(node6, "mat", node13, "a")
 Blueprint.connect(node7, "mat", node13, "b")
 Blueprint.connect(node7, "mat", node5, "view")

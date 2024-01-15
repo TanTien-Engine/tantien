@@ -4,10 +4,13 @@ import "blueprint.variant" for Variant, VAR_TYPE_ARRAY, VAR_TYPE_NODE
 import "blueprint.blueprint" for Blueprint
 import "blueprint.blackboard" for BLACKBOARD
 import "blueprint.dirty_types" for DIRTY_EDITOR
+import "blueprint.node_param" for NodeParam
 import "scenegraph.variant" for VAR_TYPE_SCENE_TREE
+import "geograph.brush" for Brush
 import "geograph.variant" for VAR_TYPE_GEO, VarGeo
 import "maths.vector" for Vector2
 import "graphics" for Graphics
+import "geometry" for PolytopeMaths
 
 class Pick is Node
 {
@@ -21,13 +24,13 @@ class Pick is Node
 		]
 		this.exports = [
 			Pin(this, "selected", VAR_TYPE_ARRAY),
-			Pin(this, "unselected", VAR_TYPE_ARRAY),
 		]
+
+		this.params.add(NodeParam("type", "poly", { "combo" : [ "poly", "face", "edge" ] }))
 
 		this.layout()
 
 		this.sel_list = []
-		this.unsel_list = []
 	}
 
 	calc_value(idx)
@@ -35,17 +38,6 @@ class Pick is Node
 		if (idx == 0) 
 		{
 			return Variant(this.sel_list)
-		} 
-		else if (idx == 1) 
-		{
-			var v_geo = Blueprint.calc_input_value(this, 0)
-			if (v_geo and this.unsel_list.isEmpty)
-			{
-				for (var geo in v_geo.value) {
-					this.unsel_list.add(geo)
-				}
-			}
-			return Variant(this.unsel_list)
 		} 
 		else 
 		{
@@ -56,10 +48,8 @@ class Pick is Node
 	on_mouse_pressed(x, y, btn) 
 	{
 		Blueprint.send_pin_dirty_root(this.exports[0], DIRTY_EDITOR)
-		Blueprint.send_pin_dirty_root(this.exports[1], DIRTY_EDITOR)
 
 		this.sel_list.clear()
-		this.unsel_list.clear()
 
 		var v_geo = Blueprint.calc_input_value(this, 0)
 		var v_cam = Blueprint.calc_input_value(this, 1)
@@ -75,26 +65,31 @@ class Pick is Node
 		var dir = cam.screen2dir(screen_pos)
 		var pos = cam.position
 
+		var polys = []
 		for (var geo in v_geo.value)
 		{
 			var brush = geo.value.shape
-			if (this.is_brush_intersect(brush, pos, dir)) {
-				this.sel_list.add(geo)
-			} else {
-				this.unsel_list.add(geo)
-			}
-		}
-	}
-
-	is_brush_intersect(brush, pos, dir)
-	{
-		for (var poly in brush.polys)
-		{
-			if (poly.is_ray_intersect(pos, dir)) 
+			for (var poly in brush.polys)
 			{
-				return true
+				polys.add(poly)
 			}
 		}
-		return false
+
+		var selected = nil
+
+		var type = this.query_param("type").value
+		if (type == "poly")
+			selected = PolytopeMaths.pick_poly(polys, pos, dir)
+		else if (type == "face")
+			selected = PolytopeMaths.pick_face(polys, pos, dir)
+		else if (type == "edge")
+			selected = PolytopeMaths.pick_edge(polys, pos, dir)
+
+		if (selected)
+		{
+			var geo = VarGeo()
+			geo.shape = Brush([ selected ])
+			this.sel_list.add(Variant(VAR_TYPE_GEO, geo))
+		}
 	}
 }

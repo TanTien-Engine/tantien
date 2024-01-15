@@ -46,13 +46,21 @@ var node7 = ::blueprint::nodes::number3::Number3()
 
 node7.value.set(1, 1, 1)
 
-_editor.add_node(node7, -311.33728797295, -169.26797687196)
+_editor.add_node(node7, -319.60175078287, -118.17857041065)
+
+var node8 = ::blueprint::nodes::number3::Number3()
+
+node8.value.set(0, 0, 0)
+
+_editor.add_node(node8, -319.7933912614, -226.76032802201)
 
 Blueprint.connect(node2, "next", node0, "prev")
 Blueprint.connect(node1, "var", node0, "geos")
 Blueprint.connect(node3, "var", node0, "view_cam")
 Blueprint.connect(node7, "v3", node0, "light_col")
+Blueprint.connect(node8, "v3", node0, "line_color")
 Blueprint.connect(node0, "next", node4, "prev")
 Blueprint.connect(node5, "var", node4, "geos")
 Blueprint.connect(node3, "var", node4, "view_cam")
 Blueprint.connect(node6, "v3", node4, "light_col")
+Blueprint.connect(node6, "v3", node4, "line_color")
