@@ -8,6 +8,7 @@ import "blueprint.nodes.output" for Output
 import "blueprint.nodes.property" for Property
 import "blueprint.nodes.proxy" for Proxy
 import "blueprint.nodes.camera3d" for Camera3d
+import "blueprint.nodes.camera2d" for Camera2d
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.execute_list" for ExecuteList
@@ -423,9 +424,10 @@ class Subgraph is Node
 
 		//this.render_gen()
 
-		for (var item in this.all_items) {
+		for (var item in this.all_items) 
+		{
 			var node = item[0]
-			if (node is Camera3d) {
+			if (node is Camera3d or node is Camera2d) {
 				this.op_node = node
 			}
 		}
