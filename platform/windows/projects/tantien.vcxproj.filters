@@ -136,9 +136,6 @@
     <Filter Include="modules\3rd\analy\codegraph">
       <UniqueIdentifier>{2b1b3688-75d6-4b6b-bf83-39e4ffe7a8f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\analy\codegraph\script">
-      <UniqueIdentifier>{e246ce9e-19dd-47c8-9e8f-c25b821fe695}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\3rd\analy\codegraph\tools">
       <UniqueIdentifier>{17b35094-488c-458b-8aca-6c02aab137cb}</UniqueIdentifier>
     </Filter>
@@ -156,9 +153,6 @@
     </Filter>
     <Filter Include="modules\3rd\analy\loggraph\data">
       <UniqueIdentifier>{9a66c5dd-8e7d-4a84-9e17-19dc9ac57f97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\analy\loggraph\edit">
-      <UniqueIdentifier>{f2e6c970-6ebf-4930-bb09-3dc5b3e76d50}</UniqueIdentifier>
     </Filter>
     <Filter Include="modules\3rd\sim">
       <UniqueIdentifier>{d4ceb54a-a772-478c-824a-336c79e91208}</UniqueIdentifier>
@@ -208,9 +202,6 @@
     <Filter Include="modules\db">
       <UniqueIdentifier>{b2b88c7a-526a-4d69-a7e3-c2c8397e503a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\db\dataset">
-      <UniqueIdentifier>{fa353617-ef27-44ed-84b9-ec4b9ccc37ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\db\tools">
       <UniqueIdentifier>{bd19dcf0-3c9c-4bff-93d4-e273eb0552fb}</UniqueIdentifier>
     </Filter>
@@ -222,6 +213,24 @@
     </Filter>
     <Filter Include="modules\regen">
       <UniqueIdentifier>{75a852c0-d436-446e-93a0-d4eca8b9e184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\db\history">
+      <UniqueIdentifier>{c8f75f41-9f07-4787-8032-2ceea6fb02e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\db\entity">
+      <UniqueIdentifier>{9df0df46-32a1-4425-bde2-3efeb645e5fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\db\visitor">
+      <UniqueIdentifier>{fa353617-ef27-44ed-84b9-ec4b9ccc37ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\analy\loggraph\data\edit">
+      <UniqueIdentifier>{f2e6c970-6ebf-4930-bb09-3dc5b3e76d50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\analy\codegraph\script">
+      <UniqueIdentifier>{e246ce9e-19dd-47c8-9e8f-c25b821fe695}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\analy\loggraph\tools">
+      <UniqueIdentifier>{dcda5eec-5727-42a2-aaa7-97633cb66c80}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -490,10 +499,10 @@
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Diff.cpp">
-      <Filter>modules\3rd\analy\loggraph\edit</Filter>
+      <Filter>modules\3rd\analy\loggraph\data\edit</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\Regex.cpp">
-      <Filter>modules\3rd\analy\loggraph\edit</Filter>
+      <Filter>modules\3rd\analy\loggraph\data\edit</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\tt\analysis\codegraph_c\BBlockTools.cpp">
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
@@ -531,15 +540,6 @@
     <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoAdapter.cpp">
       <Filter>modules\3rd\cax\breptopo\tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\breptopo_c\Graph.cpp">
-      <Filter>modules\3rd\cax\breptopo\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\breptopo_c\Node.cpp">
-      <Filter>modules\3rd\cax\breptopo\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\breptopo_c\GraphTools.cpp">
-      <Filter>modules\3rd\cax\breptopo\tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\TransHelper.cpp">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </ClCompile>
@@ -565,10 +565,10 @@
       <Filter>modules\scene</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\modules\db\RegionVisitor.cpp">
-      <Filter>modules\db\dataset</Filter>
+      <Filter>modules\db\visitor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\modules\db\PickVisitor.cpp">
-      <Filter>modules\db\dataset</Filter>
+      <Filter>modules\db\visitor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\modules\db\DB.cpp">
       <Filter>modules\db</Filter>
@@ -581,6 +581,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\modules\db\RTreeUpdate.cpp">
       <Filter>modules\db\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\modules\db\BRepDiff.cpp">
+      <Filter>modules\db\history</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\modules\db\EntityMap.cpp">
+      <Filter>modules\db\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\tt\analysis\loggraph_c\NodeAdapter.cpp">
+      <Filter>modules\3rd\analy\loggraph\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -870,10 +879,10 @@
       <Filter>modules\3rd\analy\codegraph\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Diff.h">
-      <Filter>modules\3rd\analy\loggraph\edit</Filter>
+      <Filter>modules\3rd\analy\loggraph\data\edit</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\Regex.h">
-      <Filter>modules\3rd\analy\loggraph\edit</Filter>
+      <Filter>modules\3rd\analy\loggraph\data\edit</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\tt\analysis\codegraph_c\FuncContext.h">
       <Filter>modules\3rd\analy\codegraph\ast</Filter>
@@ -914,9 +923,6 @@
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepHistory.h">
       <Filter>modules\3rd\cax\partgraph\brep</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\Edge.h">
-      <Filter>modules\3rd\cax\breptopo\data</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\Graph.h">
       <Filter>modules\3rd\cax\breptopo\data</Filter>
     </ClInclude>
@@ -929,9 +935,6 @@
     <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoAdapter.h">
       <Filter>modules\3rd\cax\breptopo\tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphTools.h">
-      <Filter>modules\3rd\cax\breptopo\tools</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TransHelper.h">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </ClInclude>
@@ -941,11 +944,8 @@
     <ClInclude Include="..\..\..\src\modules\system\wrap_System.h">
       <Filter>modules\system</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\modules\db\BRepKey.h">
-      <Filter>modules\db\dataset</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\modules\db\RegionVisitor.h">
-      <Filter>modules\db\dataset</Filter>
+      <Filter>modules\db\visitor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\modules\db\wrap_DB.h">
       <Filter>modules\db</Filter>
@@ -966,7 +966,7 @@
       <Filter>modules\scene</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\modules\db\PickVisitor.h">
-      <Filter>modules\db\dataset</Filter>
+      <Filter>modules\db\visitor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\modules\db\DB.h">
       <Filter>modules\db</Filter>
@@ -979,6 +979,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\modules\db\RTreeUpdate.h">
       <Filter>modules\db\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\modules\db\BRepDiff.h">
+      <Filter>modules\db\history</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\modules\db\EntityMap.h">
+      <Filter>modules\db\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\modules\db\BRepKey.h">
+      <Filter>modules\db\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\modules\db\EntityID.h">
+      <Filter>modules\db\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\tt\analysis\loggraph_c\NodeAdapter.h">
+      <Filter>modules\3rd\analy\loggraph\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
