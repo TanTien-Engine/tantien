@@ -102,7 +102,7 @@ void return_list2(const std::vector<std::vector<T>>& vals)
     ves_newlist(num0);
     for (int i = 0; i < num0; ++i)
     {
-        const int num1 = vals[i].size();
+        const int num1 = static_cast<int>(vals[i].size());
         ves_newlist(num1);
 
         for (int j = 0; j < num1; ++j)
