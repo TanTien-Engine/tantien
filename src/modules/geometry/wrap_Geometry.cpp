@@ -1115,23 +1115,6 @@ void w_Polytope_is_face_inside()
     ves_set_boolean(0, is_inside);
 }
 
-void w_Polytope_is_ray_intersect()
-{
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto pos = tt::map_to_vec3(1);
-    auto dir = tt::map_to_vec3(2);
-
-    sm::Ray ray(pos, dir);
-
-    sm::cube aabb;
-    for (auto& p : poly->Points()) {
-        aabb.Combine(p->pos);
-    }
-
-    bool is_intersect = sm::ray_aabb_intersect(aabb, ray, nullptr);
-    ves_set_boolean(0, is_intersect);
-}
-
 void w_Polytope_boolean()
 {
     auto op = ves_tostring(1);
@@ -1346,6 +1329,190 @@ void w_ShapeMaths_merge()
     return_shapes(merged);
 }
 
+void w_PolytopeMaths_pick_poly()
+{
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
+
+    auto pos = tt::map_to_vec3(2);
+    auto dir = tt::map_to_vec3(3);
+
+    sm::Ray ray(pos, dir);
+
+    std::shared_ptr<pm3::Polytope> selected = nullptr;
+    float min_dist = std::numeric_limits<float>::max();
+
+    for (auto poly : polys)
+    {
+        sm::cube aabb;
+        for (auto& p : poly->Points()) {
+            aabb.Combine(p->pos);
+        }
+
+        sm::vec3 cross;
+        bool is_intersect = sm::ray_aabb_intersect(aabb, ray, &cross);
+        if (is_intersect)
+        {
+            float dist = sm::dis_pos3_to_pos3(pos, cross);
+            if (!selected || dist < min_dist)
+            {
+                selected = poly;
+                min_dist = dist;
+            }
+        }
+    }
+
+    if (selected) {
+        tt::return_poly(selected);
+    } else {
+        ves_set_nil(0);
+    }
+}
+
+void w_PolytopeMaths_pick_face()
+{
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
+
+    auto pos = tt::map_to_vec3(2);
+    auto dir = tt::map_to_vec3(3);
+
+    sm::Ray ray(pos, dir);
+
+    std::shared_ptr<pm3::Polytope::Face> selected = nullptr;
+    float min_dist = std::numeric_limits<float>::max();
+    std::shared_ptr<pm3::Polytope> selected_poly = nullptr;
+
+    for (auto poly : polys)
+    {
+        auto& pts = poly->Points();
+
+        sm::cube aabb;
+        for (auto& p : poly->Points()) {
+            aabb.Combine(p->pos);
+        }
+
+        sm::vec3 cross;
+        bool is_intersect = sm::ray_aabb_intersect(aabb, ray, &cross);
+        if (!is_intersect)
+            continue;
+
+        float dist = sm::dis_pos3_to_pos3(pos, cross);
+        if (dist > min_dist + SM_LARGE_EPSILON)
+            continue;
+
+        for (auto& f : poly->Faces())
+        {
+            std::vector<sm::vec3> border;
+            for (auto& i : f->border) {
+                border.push_back(pts[i]->pos);
+            }
+
+            sm::vec3 cross;
+            bool is_intersect = sm::ray_polygon_intersect({}, border.data(), border.size(), ray, &cross);
+            if (is_intersect)
+            {
+                float dist = sm::dis_pos3_to_pos3(pos, cross);
+                if (!selected || dist < min_dist)
+                {
+                    selected = f;
+                    min_dist = dist;
+                    selected_poly = poly;
+                }
+            }
+        }
+    }
+    
+    if (!selected)
+    {
+        ves_set_nil(0);
+        return;
+    }
+
+    auto& pts = selected_poly->Points();
+
+    std::vector<pm3::Polytope::PointPtr> points;
+    for (auto idx : selected->border) {
+        points.push_back(pts[idx]);
+    }
+    std::vector<pm3::Polytope::FacePtr> faces({ selected });
+
+    auto ret = std::make_shared<pm3::Polytope>(/*points*/pts, faces);
+    tt::return_poly(ret);
+}
+
+void w_PolytopeMaths_pick_edge()
+{
+    std::vector<std::shared_ptr<pm3::Polytope>> polys;
+    tt::list_to_foreigns(1, polys);
+
+    auto pos = tt::map_to_vec3(2);
+    auto dir = tt::map_to_vec3(3);
+
+    sm::Ray ray(pos, dir);
+
+    std::pair<sm::vec3, sm::vec3> selected;
+    float min_dist = std::numeric_limits<float>::max();
+
+    for (auto poly : polys)
+    {
+        auto& pts = poly->Points();
+
+        //sm::cube aabb;
+        //for (auto& p : poly->Points()) {
+        //    aabb.Combine(p->pos);
+        //}
+
+        //sm::vec3 cross;
+        //bool is_intersect = sm::ray_aabb_intersect(aabb, ray, &cross);
+        //if (!is_intersect)
+        //    continue;
+
+        //float dist = sm::dis_pos3_to_pos3(pos, cross);
+        //if (dist > min_dist + SM_LARGE_EPSILON)
+        //    continue;
+
+        for (auto& f : poly->Faces())
+        {
+            for (size_t i = 0, n = f->border.size(); i < n; ++i)
+            {
+                auto& p0 = pts[f->border[i]]->pos;
+                auto& p1 = pts[f->border[(i + 1) % n]]->pos;
+
+                sm::vec3 cross;
+                bool is_intersect = sm::ray_line_intersect(ray, p0, p1, &cross);
+                if (is_intersect)
+                {
+                    float dist = sm::dis_pos3_to_pos3(pos, cross);
+                    if (dist < min_dist)
+                    {
+                        selected = std::make_pair(p0, p1);
+                        min_dist = dist;
+                    }
+                }
+            }
+        }
+    }
+
+    if (min_dist == std::numeric_limits<float>::max())
+    {
+        ves_set_nil(0);
+        return;
+    }
+
+    std::vector<pm3::Polytope::PointPtr> points;
+    points.push_back(std::make_shared<pm3::Polytope::Point>(selected.first));
+    points.push_back(std::make_shared<pm3::Polytope::Point>(selected.second));
+
+    std::vector<pm3::Polytope::FacePtr> faces;
+    auto face = std::make_shared<pm3::Polytope::Face>();
+    face->border = { 0, 1 };
+    faces.push_back(face);
+
+    auto ret = std::make_shared<pm3::Polytope>(points, faces);
+    tt::return_poly(ret);
+}
+
 }
 
 namespace tt
@@ -1447,7 +1614,6 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Polytope.set_topo_dirty()") == 0) return w_Polytope_set_topo_dirty;
     if (strcmp(signature, "Polytope.is_contain(_)") == 0) return w_Polytope_is_contain;
     if (strcmp(signature, "Polytope.is_face_inside(_)") == 0) return w_Polytope_is_face_inside;
-    if (strcmp(signature, "Polytope.is_ray_intersect(_,_)") == 0) return w_Polytope_is_ray_intersect;
     if (strcmp(signature, "static Polytope.boolean(_,_,_)") == 0) return w_Polytope_boolean;
 
     if (strcmp(signature, "Sphere.clone()") == 0) return w_Sphere_clone;
@@ -1458,6 +1624,10 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "static ShapeMaths.expand(_,_)") == 0) return w_ShapeMaths_expand;
     if (strcmp(signature, "static ShapeMaths.extrude(_,_)") == 0) return w_ShapeMaths_extrude;
     if (strcmp(signature, "static ShapeMaths.merge(_)") == 0) return w_ShapeMaths_merge;
+
+    if (strcmp(signature, "static PolytopeMaths.pick_poly(_,_,_)") == 0) return w_PolytopeMaths_pick_poly;
+    if (strcmp(signature, "static PolytopeMaths.pick_face(_,_,_)") == 0) return w_PolytopeMaths_pick_face;
+    if (strcmp(signature, "static PolytopeMaths.pick_edge(_,_,_)") == 0) return w_PolytopeMaths_pick_edge;
 
     return nullptr;
 }
