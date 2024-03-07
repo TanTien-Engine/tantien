@@ -1,0 +1,201 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_style" for TB_TITLE
+import "blueprint.nodes.camera2d" for Camera2d
+import "blueprint.blackboard" for BLACKBOARD
+import "geograph.config" for POINT_RADIUS
+import "maths.vector" for Vector2
+import "maths.calc" for Calc
+import "graph.variant" for VAR_TYPE_GRAPH
+import "loggraph" for NodeAdapter
+import "graphics" for Graphics, Painter
+import "maths" for Float3
+
+class Draw is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "graph", VAR_TYPE_GRAPH),
+		]
+
+		this.layout()
+
+		this.graph = nil
+
+		// editor
+		this.editor_cam = Camera2d()
+		this.editor_sel = []
+		this.last_pos = nil
+	}
+
+	on_pin_dirty(pin, type, msg)
+	{
+		super.on_pin_dirty(pin, type, msg)
+
+		this.graph = nil
+	}
+
+	draw(mt, cam_mt)
+	{
+		super.draw(mt, cam_mt)
+
+		Graphics.flush()
+
+		Graphics.on_cam_update(0, 0, 1)
+
+		this.draw_editor()
+
+		Graphics.flush()
+
+		var cam = BLACKBOARD.editor_cam
+		Graphics.on_cam_update(cam.pos.x, cam.pos.y, cam.scale)
+	}
+
+	draw_editor() 
+	{
+		var v_mat = Blueprint.calc_output_value(this.editor_cam, "mat")
+		var mat = v_mat.value
+
+		this.draw_graph(mat, this.editor_cam.scale)
+	}
+
+	draw_graph(mat, scale)
+	{
+		if (!this.graph)
+		{
+			var v_graph = Blueprint.calc_input_value(this, 0)
+			if (v_graph) {
+				this.graph = v_graph.value
+			}
+		}
+		if (!this.graph) {
+			return
+		}
+
+		var pt = Painter.init()
+
+		var nodes = this.graph.get_nodes()
+		for (var node in nodes)
+		{
+			var pos = this.node_pos_to_world(node.get_pos())
+
+			pt.add_circle(mat, pos.x, pos.y, POINT_RADIUS, [0, 0, 0, 255], 2.0, 24)
+
+			var p = Float3.init(pos.x, pos.y, 0)
+			p.transform(mat)
+			Graphics.draw_text("%(pos.x)", p.x(), p.y(), 0.5, TB_TITLE)
+		}
+
+		var edges = this.graph.get_edges()
+		for (var i in 0 .. edges.count / 2) 
+		{
+			var f = nodes[edges[i * 2]].get_pos()
+			var t = nodes[edges[i * 2 + 1]].get_pos()
+			f = this.node_pos_to_world(Vector2(f["x"], f["y"]))
+			t = this.node_pos_to_world(Vector2(t["x"], t["y"]))
+
+			var dist = Calc.dis_pos_to_pos(t, f)
+
+			var p = POINT_RADIUS / dist * scale
+
+			var dx = t.x - f.x
+			var dy = t.y - f.y
+
+			f.x = f.x + dx * p
+			f.y = f.y + dy * p
+			t.x = t.x - dx * p
+			t.y = t.y - dy * p
+
+			pt.add_line(mat, [ f.x, f.y, t.x, t.y ], [0, 0, 0, 255], 2)
+
+			// draw arrow
+			var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
+			var p0 = Calc.rotate_vec2(c, 0.5)
+			var p1 = Calc.rotate_vec2(c, -0.5)
+			pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], [0, 0, 0, 255], 2)
+			pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], [0, 0, 0, 255], 2)			
+		}
+
+		Graphics.draw_painter(pt)
+	}
+
+	on_mouse_pressed(x, y, btn) 
+	{
+		this.editor_cam.on_mouse_pressed(x, y, btn)
+
+		var v_mat = Blueprint.calc_output_value(this.editor_cam, "mat")
+		var mat = v_mat.value
+
+		var curr_pos = this.editor_cam.screen2world(Vector2(x, y))
+		this.last_pos = curr_pos
+
+		this.editor_sel.clear()
+
+		var nodes = this.graph.get_nodes()
+		for (var node in nodes)
+		{
+			var pos = this.node_pos_to_world(node.get_pos())
+			var dist = Calc.dis_pos_to_pos(pos, curr_pos)
+			if (dist < POINT_RADIUS * this.editor_cam.scale) {
+				this.editor_sel.add(node)
+			}
+		}
+	}
+
+	on_mouse_dragged(x, y, btn) 
+	{
+		this.editor_cam.on_mouse_dragged(x, y, btn) 
+
+		var curr_pos = this.editor_cam.screen2world(Vector2(x, y))
+
+		var dx = curr_pos.x - this.last_pos.x
+		var dy = curr_pos.y - this.last_pos.y
+
+		for (var node in this.editor_sel)
+		{
+			var p = node.get_pos()
+			p = this.node_pos_to_world(Vector2(p["x"], p["y"]))
+			p.x = p.x + dx
+			p.y = p.y + dy
+			p = this.node_pos_to_local(p)
+			node.set_pos(p.x, p.y)
+		}
+
+		//this.graph = nil
+
+		this.last_pos = curr_pos
+	}
+
+	on_mouse_scrolled(x, y, dx, dy) 
+	{
+		this.editor_cam.on_mouse_scrolled(x, y, dx, dy) 
+	}
+
+	on_key_pressed(key)
+	{
+		this.editor_cam.on_key_pressed(key)
+	}
+
+	node_pos_to_world(local)
+	{
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+		var x = (local["x"] - 0.5) * w
+		var y = (local["y"] - 0.5) * h
+		return Vector2(x, y)
+	}
+
+	node_pos_to_local(world)
+	{
+		var w = Graphics.get_width()
+		var h = Graphics.get_height()
+		var x = world["x"] / w + 0.5
+		var y = world["y"] / h + 0.5
+		return Vector2(x, y)
+	}
+}

@@ -1,0 +1,15 @@
+var node0 = ::graph::nodes::graph::Graph()
+
+_editor.add_node(node0, -294.0260552, 27.218225399999)
+
+var node1 = ::graph::nodes::draw::Draw()
+
+_editor.add_node(node1, 18, 30.5)
+
+var node2 = ::graph::nodes::layout::Layout()
+node2.query_param("method").value = "stress_mini"
+
+_editor.add_node(node2, -146, 17.5)
+
+Blueprint.connect(node0, "graph", node2, "graph")
+Blueprint.connect(node2, "graph", node1, "graph")

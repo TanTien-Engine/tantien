@@ -1,0 +1,27 @@
+import "editor.editor" for Editor
+
+class Graphgraph is Editor
+{
+	load()
+	{
+		super.load()
+
+		this.prepare_nodes()
+	}
+
+	prepare_nodes()
+	{
+		this.clear_popup_nodes()
+
+		import "editor.bpnodes" for BP_NODES
+		for (var node in BP_NODES) {
+			super.add_popup_node(node)
+		}
+		
+		import "editor.graphnodes" for GRAPH_NODES
+		for (var node in GRAPH_NODES) {
+			super.add_popup_node(node)
+		}
+
+	}
+}

@@ -1,0 +1,31 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "graph.variant" for VAR_TYPE_GRAPH
+import "graph" for GraphTools
+
+class Graph is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "graph", VAR_TYPE_GRAPH),
+		]
+
+		this.layout()
+
+		this.desc = ""
+
+		this.graph = nil
+	}
+
+	calc_value(idx)
+	{
+		if (!this.graph) {
+			this.graph = GraphTools.load_graph(this.desc)
+		}
+		return Variant(VAR_TYPE_GRAPH, this.graph)
+	}
+}

@@ -1,0 +1,35 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "blueprint.blueprint" for Blueprint
+import "blueprint.node_param" for NodeParam
+import "graph.variant" for VAR_TYPE_GRAPH
+import "graph" for GraphTools
+
+class Layout is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.imports = [
+			Pin(this, "graph", VAR_TYPE_GRAPH),
+		]
+		this.exports = [
+			Pin(this, "graph", VAR_TYPE_GRAPH),
+		]
+
+		this.params.add(NodeParam("method", "stress_mini", { "combo" : [ "stress_mini", "hierarchy" ] }))
+
+		this.layout()
+	}
+
+	calc_value(idx)
+	{
+		var v_graph = Blueprint.calc_input_value(this, 0)
+
+		GraphTools.layout(v_graph.value, this.query_param("method").value)
+
+		return v_graph
+	}
+}

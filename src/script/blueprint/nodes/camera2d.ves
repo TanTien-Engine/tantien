@@ -3,6 +3,7 @@ import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "maths.vector" for Vector2
+import "graphics.camera2d" for Camera2D
 import "gui" for GUI, MOUSE_RIGHT
 import "maths" for Matrix44
 import "graphics" for Graphics
@@ -35,6 +36,16 @@ class Camera2d is Node
 		mat.scale(s, s, s)
 		mat.translate(-this.x, -this.y, 0)
 		return Variant(VAR_TYPE_MATRIX4, mat)
+	}
+
+	screen2world(screen)
+	{
+		return Camera2D.screen2world(screen, Graphics.get_width(), Graphics.get_height(), this.scale, this.scale, this.x * this.scale, this.y * this.scale)
+	}
+
+	world2screen(world)
+	{
+		return Camera2D.world2screen(world, Graphics.get_width(), Graphics.get_height(), this.scale, this.scale, this.x / this.scale, this.y / this.scale)
 	}
 
 	layout() 

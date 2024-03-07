@@ -1,5 +1,6 @@
 import "math" for Math
 import "maths" for Matrix44
+import "maths.vector" for Vector2
 
 class Calc
 {
@@ -8,6 +9,15 @@ class Calc
 		var dx = p0.x - p1.x
 		var dy = p0.y - p1.y
 		return Math.sqrt(dx * dx + dy * dy)
+	}
+
+	static rotate_vec2(v, rad)
+	{
+		var s = Math.sin(rad)
+		var c = Math.cos(rad)
+		var x = v.x * c - v.y * s
+		var y = v.x * s + v.y * c
+		return Vector2(x, y)
 	}
 
 	static transform_mat(v_scale, v_rotate, v_translate)
