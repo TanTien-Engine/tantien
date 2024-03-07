@@ -2,7 +2,7 @@ import "blueprint.node" for Node
 import "blueprint.pin" for Pin
 import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
 import "blueprint.blueprint" for Blueprint
-import "blueprint.node_style" for TB_TITLE
+import "blueprint.node_style" for TB_TITLE, COL_PANEL_BG
 import "blueprint.nodes.camera2d" for Camera2d
 import "blueprint.blackboard" for BLACKBOARD
 import "geograph.config" for POINT_RADIUS
@@ -79,18 +79,17 @@ class Draw is Node
 
 		var pt = Painter.init()
 
+		// nodes
 		var nodes = this.graph.get_nodes()
 		for (var node in nodes)
 		{
 			var pos = this.node_pos_to_world(node.get_pos())
 
-			pt.add_circle(mat, pos.x, pos.y, POINT_RADIUS, [0, 0, 0, 255], 2.0, 24)
-
-			var p = Float3.init(pos.x, pos.y, 0)
-			p.transform(mat)
-			Graphics.draw_text("%(pos.x)", p.x(), p.y(), 0.5, TB_TITLE)
+			//pt.add_circle(mat, pos.x, pos.y, POINT_RADIUS, COL_PANEL_BG, 2.0, 24)
+			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, COL_PANEL_BG, 24)
 		}
 
+		// edges
 		var edges = this.graph.get_edges()
 		for (var i in 0 .. edges.count / 2) 
 		{
@@ -111,17 +110,33 @@ class Draw is Node
 			t.x = t.x - dx * p
 			t.y = t.y - dy * p
 
-			pt.add_line(mat, [ f.x, f.y, t.x, t.y ], [0, 0, 0, 255], 2)
+			pt.add_line(mat, [ f.x, f.y, t.x, t.y ], COL_PANEL_BG, 2)
 
-			// draw arrow
-			var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
-			var p0 = Calc.rotate_vec2(c, 0.5)
-			var p1 = Calc.rotate_vec2(c, -0.5)
-			pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], [0, 0, 0, 255], 2)
-			pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], [0, 0, 0, 255], 2)			
+			// arrow
+			if (scale < 1.2)
+			{
+				var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
+				var p0 = Calc.rotate_vec2(c, 0.5)
+				var p1 = Calc.rotate_vec2(c, -0.5)
+				pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], COL_PANEL_BG, 2)
+				pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], COL_PANEL_BG, 2)
+			}
 		}
 
 		Graphics.draw_painter(pt)
+
+		// text
+		if (scale < 1.5)
+		{
+			for (var node in nodes)
+			{
+				var pos = this.node_pos_to_world(node.get_pos())
+
+				var p = Float3.init(pos.x, pos.y, 0)
+				p.transform(mat)
+				Graphics.draw_text("%(node.get_id())", p.x(), p.y(), 0.5, TB_TITLE)
+			}
+		}
 	}
 
 	on_mouse_pressed(x, y, btn) 

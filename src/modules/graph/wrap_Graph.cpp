@@ -94,6 +94,12 @@ int w_Node_finalize(void* data)
     return sizeof(tt::Proxy<graph::Node>);
 }
 
+void w_Node_get_id()
+{
+    auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
+    ves_set_number(0, node->GetId());
+}
+
 void w_Node_get_pos()
 {
     auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
@@ -158,6 +164,7 @@ VesselForeignMethodFn GraphBindMethod(const char* signature)
     if (strcmp(signature, "Graph.get_nodes()") == 0) return w_Graph_get_nodes;
     if (strcmp(signature, "Graph.get_edges()") == 0) return w_Graph_get_edges;
 
+    if (strcmp(signature, "Node.get_id()") == 0) return w_Node_get_id;
     if (strcmp(signature, "Node.get_pos()") == 0) return w_Node_get_pos;
     if (strcmp(signature, "Node.set_pos(_,_)") == 0) return w_Node_set_pos;
 
