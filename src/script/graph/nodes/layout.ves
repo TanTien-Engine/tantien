@@ -19,7 +19,9 @@ class Layout is Node
 			Pin(this, "graph", VAR_TYPE_GRAPH),
 		]
 
-		this.params.add(NodeParam("method", "stress_mini", { "combo" : [ "stress_mini", "hierarchy" ] }))
+		this.params.add(NodeParam("method", "stress_mini", { "combo" : 
+			[ "stress_mini", "hierarchy", "hierarchy_rank" ] 
+		}))
 
 		this.layout()
 	}

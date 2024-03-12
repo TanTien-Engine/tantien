@@ -148,10 +148,13 @@ void w_GraphTools_layout()
     auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(1))->obj;
     std::string method = ves_tostring(2);
 
-    if (method == "stress_mini")
+    if (method == "stress_mini") {
         graph::GraphLayout::StressMinimization(*graph);
-    else if (method == "hierarchy")
+    } else if (method == "hierarchy") {
         graph::GraphLayout::OptimalHierarchy(*graph);
+    } else if (method == "hierarchy_rank") {
+        graph::GraphLayout::HierarchyRanking(*graph);
+    }
 }
 
 }
