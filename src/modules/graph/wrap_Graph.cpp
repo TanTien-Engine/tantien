@@ -1,4 +1,5 @@
 #include "modules/graph/wrap_Graph.h"
+#include "modules/graph/Graph.h"
 #include "modules/script/TransHelper.h"
 
 #include <graph/Graph.h>
@@ -81,6 +82,12 @@ void w_Graph_get_edges()
     tt::return_list(list);
 }
 
+void w_Graph_is_directed()
+{
+    auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, graph->IsDirected());
+}
+
 void w_Node_allocate()
 {
     auto proxy = (tt::Proxy<graph::Node>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<graph::Node>));
@@ -114,6 +121,21 @@ void w_Node_set_pos()
     float y = (float)ves_tonumber(2);
 
     node->SetPos({ x, y });
+}
+
+void w_Node_get_component()
+{
+    auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
+
+    std::string key = ves_tostring(1);
+
+    if (key == "topo_shape")
+    {
+        auto func = tt::Graph::Instance()->GetRegNodeGetCompCB("topo_shape");
+        if (func) {
+            func(*node);
+        }
+    }
 }
 
 void w_GraphTools_load_graph()
@@ -166,10 +188,12 @@ VesselForeignMethodFn GraphBindMethod(const char* signature)
 {
     if (strcmp(signature, "Graph.get_nodes()") == 0) return w_Graph_get_nodes;
     if (strcmp(signature, "Graph.get_edges()") == 0) return w_Graph_get_edges;
+    if (strcmp(signature, "Graph.is_directed()") == 0) return w_Graph_is_directed;
 
     if (strcmp(signature, "Node.get_id()") == 0) return w_Node_get_id;
     if (strcmp(signature, "Node.get_pos()") == 0) return w_Node_get_pos;
     if (strcmp(signature, "Node.set_pos(_,_)") == 0) return w_Node_set_pos;
+    if (strcmp(signature, "Node.get_component(_)") == 0) return w_Node_get_component;
 
     if (strcmp(signature, "static GraphTools.load_graph(_)") == 0) return w_GraphTools_load_graph;
     if (strcmp(signature, "static GraphTools.layout(_,_)") == 0) return w_GraphTools_layout;

@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER2, VAR_TYPE_ARRAY
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_style" for TB_TITLE, COL_PANEL_BG
 import "blueprint.nodes.camera2d" for Camera2d
@@ -8,7 +8,7 @@ import "blueprint.blackboard" for BLACKBOARD
 import "geograph.config" for POINT_RADIUS
 import "maths.vector" for Vector2
 import "maths.calc" for Calc
-import "graph.variant" for VAR_TYPE_GRAPH
+import "graph.variant" for VAR_TYPE_GRAPH, VAR_TYPE_GRAPH_NODE
 import "loggraph" for NodeAdapter
 import "graphics" for Graphics, Painter
 import "maths" for Float3
@@ -21,6 +21,9 @@ class Draw is Node
 
 		this.imports = [
 			Pin(this, "graph", VAR_TYPE_GRAPH),
+		]
+		this.exports = [
+			Pin(this, "selected", VAR_TYPE_ARRAY),
 		]
 
 		this.layout()
@@ -40,10 +43,29 @@ class Draw is Node
 		this.graph = nil
 	}
 
+	calc_value(idx)
+	{
+		if (idx == 0)
+		{
+			var nodes = []
+			for (var node in this.editor_sel) {
+				nodes.add(Variant(VAR_TYPE_GRAPH_NODE, node))
+			}
+			return Variant(nodes)
+		}
+
+		return nil
+	}
+
 	draw(mt, cam_mt)
 	{
 		super.draw(mt, cam_mt)
 
+		this.draw_preview()
+	}
+
+	draw_preview()
+	{
 		Graphics.flush()
 
 		Graphics.on_cam_update(0, 0, 1)
@@ -64,15 +86,21 @@ class Draw is Node
 		this.draw_graph(mat, this.editor_cam.scale)
 	}
 
+	prepare_graph()
+	{
+		if (this.graph) {
+			return
+		}
+
+		var v_graph = Blueprint.calc_input_value(this, 0)
+		if (v_graph) {
+			this.graph = v_graph.value
+		}
+	}
+
 	draw_graph(mat, scale)
 	{
-		if (!this.graph)
-		{
-			var v_graph = Blueprint.calc_input_value(this, 0)
-			if (v_graph) {
-				this.graph = v_graph.value
-			}
-		}
+		this.prepare_graph()
 		if (!this.graph) {
 			return
 		}
@@ -84,12 +112,16 @@ class Draw is Node
 		for (var node in nodes)
 		{
 			var pos = this.node_pos_to_world(node.get_pos())
-
-			//pt.add_circle(mat, pos.x, pos.y, POINT_RADIUS, COL_PANEL_BG, 2.0, 24)
 			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, COL_PANEL_BG, 24)
+		}
+		for (var node in this.editor_sel)
+		{
+			var pos = this.node_pos_to_world(node.get_pos())
+			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, [177, 75, 0], 24)
 		}
 
 		// edges
+		var draw_array = this.graph.is_directed()
 		var edges = this.graph.get_edges()
 		for (var i in 0 .. edges.count / 2) 
 		{
@@ -113,7 +145,7 @@ class Draw is Node
 			pt.add_line(mat, [ f.x, f.y, t.x, t.y ], COL_PANEL_BG, 2)
 
 			// arrow
-			if (scale < 1.2)
+			if (draw_array and scale < 1.2)
 			{
 				var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
 				var p0 = Calc.rotate_vec2(c, 0.5)

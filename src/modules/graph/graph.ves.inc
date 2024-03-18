@@ -7,6 +7,8 @@ foreign class Graph
 
 	foreign get_nodes()
 	foreign get_edges()
+
+	foreign is_directed()
 }
 
 foreign class Node
@@ -17,6 +19,8 @@ foreign class Node
 
 	foreign get_pos()
 	foreign set_pos(x, y)
+
+	foreign get_component(key)
 }
 
 foreign class GraphTools

@@ -58,6 +58,7 @@
 #include "partgraph_c/partgraph.ves.inc"
 #include "breptopo_c/wrap_BrepTopo.h"
 #include "breptopo_c/breptopo.ves.inc"
+#include "breptopo_c/BrepTopo.h"
 #endif // _NO_OCCT_
 #include "loggraph_c/wrap_LogGraph.h"
 #include "loggraph_c/loggraph.ves.inc"
@@ -848,6 +849,8 @@ int main(int argc, char* argv[])
             glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
     };
     tt::Keyboard::RegisterCallback(keyboard_cb);
+
+    breptopo::init_cb();
 
     ves_init_vm();
 
