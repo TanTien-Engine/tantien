@@ -187,9 +187,6 @@
     <Filter Include="modules\3rd\cax\breptopo\script">
       <UniqueIdentifier>{df7e0de7-4101-4ee0-9c92-36194564b745}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\cax\breptopo\tools">
-      <UniqueIdentifier>{c2dd390c-ec0d-41b5-9e74-90b880a58200}</UniqueIdentifier>
-    </Filter>
     <Filter Include="modules\vm">
       <UniqueIdentifier>{257c372b-84d7-4e22-b82f-6ecc9634f57f}</UniqueIdentifier>
     </Filter>
@@ -234,6 +231,12 @@
     </Filter>
     <Filter Include="modules\3rd\cax\breptopo\topo">
       <UniqueIdentifier>{6cafee18-33ab-44aa-aeaf-dd82b333eb74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\hist">
+      <UniqueIdentifier>{8ecf6394-4168-4ba0-84a1-4996c41d7240}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\comp">
+      <UniqueIdentifier>{0ea3006e-ecc0-4760-8ddd-30f97c04d643}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -540,9 +543,6 @@
     <ClCompile Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.cpp">
       <Filter>modules\3rd\cax\breptopo\script</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoAdapter.cpp">
-      <Filter>modules\3rd\cax\breptopo\tools</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cax\partgraph_c\TransHelper.cpp">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
     </ClCompile>
@@ -602,6 +602,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\breptopo_c\BrepTopo.cpp">
       <Filter>modules\3rd\cax\breptopo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraph.cpp">
+      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\HistGraph.cpp">
+      <Filter>modules\3rd\cax\breptopo\hist</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.cpp">
+      <Filter>modules\3rd\cax\breptopo\topo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -935,17 +944,8 @@
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepHistory.h">
       <Filter>modules\3rd\cax\partgraph\brep</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraphShape.h">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoNodeShape.h">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.h">
       <Filter>modules\3rd\cax\breptopo\script</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoAdapter.h">
-      <Filter>modules\3rd\cax\breptopo\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\partgraph_c\TransHelper.h">
       <Filter>modules\3rd\cax\partgraph\script</Filter>
@@ -1015,6 +1015,27 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\BrepTopo.h">
       <Filter>modules\3rd\cax\breptopo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraph.h">
+      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\HistGraph.h">
+      <Filter>modules\3rd\cax\breptopo\hist</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphShape.h">
+      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeShape.h">
+      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.h">
+      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeId.h">
+      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeFlags.h">
+      <Filter>modules\3rd\cax\breptopo\comp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

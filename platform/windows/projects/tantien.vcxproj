@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cax\breptopo_c\BrepTopo.cpp" />
-    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoAdapter.cpp">
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\HistGraph.cpp" />
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\breptopo\</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\breptopo\</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraph.cpp" />
     <ClCompile Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.cpp" />
     <ClCompile Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.cpp" />
     <ClCompile Include="..\..\..\..\cax\partgraph_c\BRepBuilder.cpp">
@@ -177,9 +179,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\BrepTopo.h" />
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraphShape.h" />
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoNodeShape.h" />
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoAdapter.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\HistGraph.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeFlags.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeId.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraph.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphShape.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeShape.h" />
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.h" />
     <ClInclude Include="..\..\..\..\cax\breptopo_c\wrap_BrepTopo.h" />
     <ClInclude Include="..\..\..\..\cax\nurbslib\wrap_NurbsLib.h" />
     <ClInclude Include="..\..\..\..\cax\partgraph_c\BRepBuilder.h" />
