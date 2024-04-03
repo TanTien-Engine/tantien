@@ -51,29 +51,8 @@ void w_Graph_get_edges()
 {
     auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
 
-    auto& nodes = graph->GetNodes();
-
-    std::map<std::shared_ptr<graph::Node>, size_t> node2idx;
-    for (size_t i = 0, n = nodes.size(); i < n; ++i) {
-        node2idx.insert({ nodes[i], i });
-    }
-
-    std::set<std::pair<size_t, size_t>> edges;
-    for (auto& node : nodes)
-    {
-        size_t i0 = node2idx.find(node)->second;
-        for (auto& conn : node->GetConnects())
-        {
-            size_t i1 = node2idx.find(conn)->second;
-            if (i0 < i1)
-                edges.insert({ i0, i1 });
-            else
-                edges.insert({ i1, i0 });
-        }
-    }
-
     std::vector<sm::ivec2> list;
-    for (auto& edge : edges)
+    for (auto& edge : graph->GetEdges())
     {
         int n0 = static_cast<int>(edge.first);
         int n1 = static_cast<int>(edge.second);
