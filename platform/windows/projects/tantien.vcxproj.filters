@@ -229,14 +229,29 @@
     <Filter Include="modules\graph">
       <UniqueIdentifier>{c224afed-b15f-4366-a632-6fec2dbf96f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\cax\breptopo\topo">
-      <UniqueIdentifier>{6cafee18-33ab-44aa-aeaf-dd82b333eb74}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="modules\3rd\cax\breptopo\hist">
+    <Filter Include="modules\3rd\cax\breptopo\history">
       <UniqueIdentifier>{8ecf6394-4168-4ba0-84a1-4996c41d7240}</UniqueIdentifier>
     </Filter>
-    <Filter Include="modules\3rd\cax\breptopo\comp">
+    <Filter Include="modules\3rd\cax\breptopo\topology">
+      <UniqueIdentifier>{6cafee18-33ab-44aa-aeaf-dd82b333eb74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\computation">
+      <UniqueIdentifier>{1a735948-b026-45aa-b0fa-88c9a413e69a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\topology\comp">
+      <UniqueIdentifier>{2159ebd7-090d-425e-b4b7-cc8028f228ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\history\comp">
+      <UniqueIdentifier>{ae767b8b-da0d-4240-9e9e-a53f0c2041b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\tools">
       <UniqueIdentifier>{0ea3006e-ecc0-4760-8ddd-30f97c04d643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\tools\comp">
+      <UniqueIdentifier>{7162c399-175d-4bd3-80b2-fdef7fcd40d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\3rd\cax\breptopo\computation\comp">
+      <UniqueIdentifier>{faf2762c-684f-44b4-a91e-cc8e8b4aaa04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -604,13 +619,19 @@
       <Filter>modules\3rd\cax\breptopo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraph.cpp">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+      <Filter>modules\3rd\cax\breptopo\topology</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\breptopo_c\HistGraph.cpp">
-      <Filter>modules\3rd\cax\breptopo\hist</Filter>
+      <Filter>modules\3rd\cax\breptopo\history</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.cpp">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+      <Filter>modules\3rd\cax\breptopo\topology</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\CompGraph.cpp">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\cax\breptopo_c\comp_nodes.cpp">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1017,25 +1038,43 @@
       <Filter>modules\3rd\cax\breptopo</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraph.h">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+      <Filter>modules\3rd\cax\breptopo\topology</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\HistGraph.h">
-      <Filter>modules\3rd\cax\breptopo\hist</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphShape.h">
-      <Filter>modules\3rd\cax\breptopo\comp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeShape.h">
-      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+      <Filter>modules\3rd\cax\breptopo\history</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\TopoGraphBuilder.h">
-      <Filter>modules\3rd\cax\breptopo\topo</Filter>
+      <Filter>modules\3rd\cax\breptopo\topology</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\CompGraph.h">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\GraphShape.h">
+      <Filter>modules\3rd\cax\breptopo\topology\comp</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeId.h">
-      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+      <Filter>modules\3rd\cax\breptopo\history\comp</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeFlags.h">
-      <Filter>modules\3rd\cax\breptopo\comp</Filter>
+      <Filter>modules\3rd\cax\breptopo\history\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeShape.h">
+      <Filter>modules\3rd\cax\breptopo\tools\comp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\comp_nodes.h">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\CompNode.h">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\CompVariant.h">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\comp_variants.h">
+      <Filter>modules\3rd\cax\breptopo\computation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\cax\breptopo_c\NodeComp.h">
+      <Filter>modules\3rd\cax\breptopo\computation\comp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
