@@ -80,10 +80,21 @@ int w_Node_finalize(void* data)
     return sizeof(tt::Proxy<graph::Node>);
 }
 
-void w_Node_get_id()
+void w_Node_get_title()
 {
     auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
-    ves_set_number(0, node->GetId());
+
+    auto& name = node->GetName();
+    if (name.empty())
+    {
+        auto val = node->GetValue();
+        auto str = std::to_string(val);
+        ves_set_lstring(0, str.c_str(), str.size());
+    }
+    else
+    {
+        ves_set_lstring(0, name.c_str(), name.size());
+    }
 }
 
 void w_Node_get_pos()
@@ -123,11 +134,12 @@ void w_GraphTools_load_graph()
 
     auto graph = std::make_shared<graph::Graph>();
 
-    graph->AddNode(std::make_shared<graph::Node>(0));
-    graph->AddNode(std::make_shared<graph::Node>(1));
-    graph->AddNode(std::make_shared<graph::Node>(2));
-    graph->AddNode(std::make_shared<graph::Node>(3));
-    graph->AddNode(std::make_shared<graph::Node>(4));
+    for (int i = 0; i < 5; ++i)
+    {
+        auto node = std::make_shared<graph::Node>();
+        node->SetValue(i);
+        graph->AddNode(node);
+    }
 
     graph->AddEdge(0, 1);
     graph->AddEdge(1, 2);
@@ -169,7 +181,8 @@ VesselForeignMethodFn GraphBindMethod(const char* signature)
     if (strcmp(signature, "Graph.get_edges()") == 0) return w_Graph_get_edges;
     if (strcmp(signature, "Graph.is_directed()") == 0) return w_Graph_is_directed;
 
-    if (strcmp(signature, "Node.get_id()") == 0) return w_Node_get_id;
+    if (strcmp(signature, "Node.is_valid()") == 0) return w_Node_is_valid;
+    if (strcmp(signature, "Node.get_title()") == 0) return w_Node_get_title;
     if (strcmp(signature, "Node.get_pos()") == 0) return w_Node_get_pos;
     if (strcmp(signature, "Node.set_pos(_,_)") == 0) return w_Node_set_pos;
     if (strcmp(signature, "Node.get_component(_)") == 0) return w_Node_get_component;

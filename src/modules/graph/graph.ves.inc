@@ -15,7 +15,9 @@ foreign class Node
 {
 	init() {}
 
-	foreign get_id()
+	foreign is_valid()
+
+	foreign get_title()
 
 	foreign get_pos()
 	foreign set_pos(x, y)
