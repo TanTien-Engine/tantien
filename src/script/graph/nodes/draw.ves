@@ -109,50 +109,17 @@ class Draw is Node
 
 		// nodes
 		var nodes = this.graph.get_nodes()
-		for (var node in nodes)
-		{
-			var pos = this.node_pos_to_world(node.get_pos())
-			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, COL_PANEL_BG, 24)
+		for (var node in nodes) {
+			this.draw_node(pt, mat, node, COL_PANEL_BG)
 		}
-		for (var node in this.editor_sel)
-		{
-			var pos = this.node_pos_to_world(node.get_pos())
-			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, [177, 75, 0], 24)
+		for (var node in this.editor_sel) {
+			this.draw_node(pt, mat, node, [177, 75, 0])
 		}
 
 		// edges
-		var draw_array = this.graph.is_directed()
 		var edges = this.graph.get_edges()
-		for (var i in 0 .. edges.count / 2) 
-		{
-			var f = nodes[edges[i * 2]].get_pos()
-			var t = nodes[edges[i * 2 + 1]].get_pos()
-			f = this.node_pos_to_world(Vector2(f["x"], f["y"]))
-			t = this.node_pos_to_world(Vector2(t["x"], t["y"]))
-
-			var dist = Calc.dis_pos_to_pos(t, f)
-
-			var p = POINT_RADIUS / dist * scale
-
-			var dx = t.x - f.x
-			var dy = t.y - f.y
-
-			f.x = f.x + dx * p
-			f.y = f.y + dy * p
-			t.x = t.x - dx * p
-			t.y = t.y - dy * p
-
-			pt.add_line(mat, [ f.x, f.y, t.x, t.y ], COL_PANEL_BG, 2)
-
-			// arrow
-			if (draw_array and scale < 1.2)
-			{
-				var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
-				var p0 = Calc.rotate_vec2(c, 0.5)
-				var p1 = Calc.rotate_vec2(c, -0.5)
-				pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], COL_PANEL_BG, 2)
-				pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], COL_PANEL_BG, 2)
-			}
+		for (var i in 0 .. edges.count / 2) {
+			this.draw_edge(pt, mat, scale, edges[i * 2], edges[i * 2 + 1])
 		}
 
 		Graphics.draw_painter(pt)
@@ -160,15 +127,80 @@ class Draw is Node
 		// text
 		if (scale < 1.5)
 		{
-			for (var node in nodes)
-			{
-				var pos = this.node_pos_to_world(node.get_pos())
-
-				var p = Float3.init(pos.x, pos.y, 0)
-				p.transform(mat)
-				Graphics.draw_text("%(node.get_id())", p.x(), p.y(), 0.5, TB_TITLE)
+			for (var node in nodes) {
+				this.draw_text(node, mat)
 			}
 		}
+	}
+
+	draw_node(pt, mat, node, color)
+	{
+		if (!node.is_valid()) {		
+			return
+		}
+
+		var pos = this.node_pos_to_world(node.get_pos())
+		if (node.has_name())
+		{
+			pt.add_capsule_filled(mat, [pos.x - POINT_RADIUS * 2, pos.y - POINT_RADIUS, POINT_RADIUS * 4, POINT_RADIUS * 2], color, true)		
+		}
+		else
+		{
+			pt.add_circle_filled(mat, pos.x, pos.y, POINT_RADIUS, color, 24)		
+		}
+	}
+
+	draw_edge(pt, mat, scale, n0, n1)
+	{
+		var nodes = this.graph.get_nodes()
+
+		if (!nodes[n0].is_valid() or !nodes[n1].is_valid()) {
+			return
+		}
+
+		var f = nodes[n0].get_pos()
+		var t = nodes[n1].get_pos()
+		f = this.node_pos_to_world(Vector2(f["x"], f["y"]))
+		t = this.node_pos_to_world(Vector2(t["x"], t["y"]))
+
+		var dist = Calc.dis_pos_to_pos(t, f)
+
+		var p = POINT_RADIUS / dist * scale
+
+		var dx = t.x - f.x
+		var dy = t.y - f.y
+
+		f.x = f.x + dx * p
+		f.y = f.y + dy * p
+		t.x = t.x - dx * p
+		t.y = t.y - dy * p
+
+		pt.add_line(mat, [ f.x, f.y, t.x, t.y ], COL_PANEL_BG, 2)
+
+		// arrow
+		var draw_array = this.graph.is_directed()
+		if (draw_array and scale < 1.2)
+		{
+			var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
+			var p0 = Calc.rotate_vec2(c, 0.5)
+			var p1 = Calc.rotate_vec2(c, -0.5)
+			pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], COL_PANEL_BG, 2)
+			pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], COL_PANEL_BG, 2)
+		}
+	}
+
+	draw_text(node, mat)
+	{
+		if (!node.is_valid()) {
+			return
+		}
+
+		var pos = this.node_pos_to_world(node.get_pos())
+
+		var p = Float3.init(pos.x, pos.y, 0)
+		p.transform(mat)
+
+		Graphics.draw_text(node.get_title(), p.x(), p.y(), 0.5, TB_TITLE)
 	}
 
 	on_mouse_pressed(x, y, btn) 
@@ -186,10 +218,13 @@ class Draw is Node
 		var nodes = this.graph.get_nodes()
 		for (var node in nodes)
 		{
-			var pos = this.node_pos_to_world(node.get_pos())
-			var dist = Calc.dis_pos_to_pos(pos, curr_pos)
-			if (dist < POINT_RADIUS * this.editor_cam.scale) {
-				this.editor_sel.add(node)
+			if (node.is_valid())
+			{
+				var pos = this.node_pos_to_world(node.get_pos())
+				var dist = Calc.dis_pos_to_pos(pos, curr_pos)
+				if (dist < POINT_RADIUS * this.editor_cam.scale) {
+					this.editor_sel.add(node)
+				}
 			}
 		}
 	}

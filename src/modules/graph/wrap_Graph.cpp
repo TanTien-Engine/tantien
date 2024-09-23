@@ -97,6 +97,12 @@ void w_Node_get_title()
     }
 }
 
+void w_Node_has_name()
+{
+    auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, !node->GetName().empty());
+}
+
 void w_Node_get_pos()
 {
     auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
@@ -183,6 +189,7 @@ VesselForeignMethodFn GraphBindMethod(const char* signature)
 
     if (strcmp(signature, "Node.is_valid()") == 0) return w_Node_is_valid;
     if (strcmp(signature, "Node.get_title()") == 0) return w_Node_get_title;
+    if (strcmp(signature, "Node.has_name()") == 0) return w_Node_has_name;
     if (strcmp(signature, "Node.get_pos()") == 0) return w_Node_get_pos;
     if (strcmp(signature, "Node.set_pos(_,_)") == 0) return w_Node_set_pos;
     if (strcmp(signature, "Node.get_component(_)") == 0) return w_Node_get_component;

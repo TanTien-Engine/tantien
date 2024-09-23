@@ -18,6 +18,7 @@ foreign class Node
 	foreign is_valid()
 
 	foreign get_title()
+	foreign has_name()
 
 	foreign get_pos()
 	foreign set_pos(x, y)
