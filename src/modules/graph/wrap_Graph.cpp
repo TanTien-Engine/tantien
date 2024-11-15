@@ -4,8 +4,12 @@
 
 #include <graph/Graph.h>
 #include <graph/Node.h>
+#include <graph/Edge.h>
 #include <graph/GraphTools.h>
 #include <graph/GraphLayout.h>
+#include <graph/NodePos.h>
+#include <graph/NodeColor.h>
+#include <graph/EdgeStyle.h>
 
 #include <set>
 
@@ -29,18 +33,16 @@ void w_Graph_get_nodes()
 {
     auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
 
-    auto& nodes = graph->GetNodes();
-
     ves_pop(ves_argnum());
 
-    const int num = (int)(nodes.size());
+    const int num = (int)(graph->GetNodesNum());
     ves_newlist(num);
     for (int i = 0; i < num; ++i)
     {
         ves_pushnil();
         ves_import_class("graph", "Node");
         auto proxy = (tt::Proxy<graph::Node>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<graph::Node>));
-        proxy->obj = std::static_pointer_cast<graph::Node>(nodes[i]);
+        proxy->obj = graph->GetNode(i);
         ves_pop(1);
         ves_seti(-2, i);
         ves_pop(1);
@@ -51,20 +53,35 @@ void w_Graph_get_edges()
 {
     auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
 
-    std::vector<sm::ivec2> list;
-    for (auto& edge : graph->GetEdges())
+    ves_pop(ves_argnum());
+
+    auto& edges = graph->GetEdges();
+    ves_newlist(edges.size());
+    int i = 0;
+    for (auto& pair : edges)
     {
-        int n0 = static_cast<int>(edge.first);
-        int n1 = static_cast<int>(edge.second);
-        list.push_back({ n0, n1 });
+        ves_pushnil();
+        ves_import_class("graph", "Edge");
+        auto proxy = (tt::Proxy<graph::Edge>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<graph::Edge>));
+        proxy->obj = pair.second;
+        ves_pop(1);
+        ves_seti(-2, i);
+        ves_pop(1);
+        ++i;
     }
-    tt::return_list(list);
 }
 
 void w_Graph_is_directed()
 {
     auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
     ves_set_boolean(0, graph->IsDirected());
+}
+
+void w_Graph_clear_edges()
+{
+    auto graph = ((tt::Proxy<graph::Graph>*)ves_toforeign(0))->obj;
+    int node_idx = (int)ves_tonumber(1);
+    graph->ClearEdges(node_idx);
 }
 
 void w_Node_allocate()
@@ -78,6 +95,12 @@ int w_Node_finalize(void* data)
     auto proxy = (tt::Proxy<graph::Node>*)(data);
     proxy->~Proxy();
     return sizeof(tt::Proxy<graph::Node>);
+}
+
+void w_Node_is_valid()
+{
+    auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
+    ves_set_boolean(0, node != nullptr);
 }
 
 void w_Node_get_title()
@@ -106,7 +129,7 @@ void w_Node_has_name()
 void w_Node_get_pos()
 {
     auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
-    tt::return_vec(node->GetPos());
+    tt::return_vec(node->GetComponent<graph::NodePos>().GetPos());
 }
 
 void w_Node_set_pos()
@@ -116,7 +139,16 @@ void w_Node_set_pos()
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
 
-    node->SetPos({ x, y });
+    node->GetComponent<graph::NodePos>().SetPos({ x, y });
+}
+
+void w_Node_get_color()
+{
+    auto node = ((tt::Proxy<graph::Node>*)ves_toforeign(0))->obj;
+    if (node->HasComponent<graph::NodeColor>())
+        tt::return_vec(node->GetComponent<graph::NodeColor>().GetColor());
+    else
+        ves_set_nil(0);
 }
 
 void w_Node_get_component()
@@ -125,13 +157,46 @@ void w_Node_get_component()
 
     std::string key = ves_tostring(1);
 
-    if (key == "topo_shape")
-    {
-        auto func = tt::Graph::Instance()->GetRegNodeGetCompCB("topo_shape");
-        if (func) {
-            func(*node);
-        }
+    auto func = tt::Graph::Instance()->GetRegNodeGetCompCB(key);
+    if (func) {
+        func(*node);
     }
+}
+
+void w_Edge_allocate()
+{
+    auto proxy = (tt::Proxy<graph::Edge>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<graph::Edge>));
+    proxy->obj = std::make_shared<graph::Edge>();
+}
+
+int w_Edge_finalize(void* data)
+{
+    auto proxy = (tt::Proxy<graph::Edge>*)(data);
+    proxy->~Proxy();
+    return sizeof(tt::Proxy<graph::Edge>);
+}
+
+void w_Edge_get_fpos()
+{
+    auto edge = ((tt::Proxy<graph::Edge>*)ves_toforeign(0))->obj;
+    auto node = edge->GetFromNode();
+    tt::return_vec(node->GetComponent<graph::NodePos>().GetPos());
+}
+
+void w_Edge_get_tpos()
+{
+    auto edge = ((tt::Proxy<graph::Edge>*)ves_toforeign(0))->obj;
+    auto node = edge->GetToNode();
+    tt::return_vec(node->GetComponent<graph::NodePos>().GetPos());
+}
+
+void w_Edge_get_color()
+{
+    auto edge = ((tt::Proxy<graph::Edge>*)ves_toforeign(0))->obj;
+    if (edge->HasComponent<graph::EdgeStyle>())
+        tt::return_vec(edge->GetComponent<graph::EdgeStyle>().GetColor());
+    else
+        ves_set_nil(0);
 }
 
 void w_GraphTools_load_graph()
@@ -186,13 +251,19 @@ VesselForeignMethodFn GraphBindMethod(const char* signature)
     if (strcmp(signature, "Graph.get_nodes()") == 0) return w_Graph_get_nodes;
     if (strcmp(signature, "Graph.get_edges()") == 0) return w_Graph_get_edges;
     if (strcmp(signature, "Graph.is_directed()") == 0) return w_Graph_is_directed;
+    if (strcmp(signature, "Graph.clear_edges(_)") == 0) return w_Graph_clear_edges;
 
     if (strcmp(signature, "Node.is_valid()") == 0) return w_Node_is_valid;
     if (strcmp(signature, "Node.get_title()") == 0) return w_Node_get_title;
     if (strcmp(signature, "Node.has_name()") == 0) return w_Node_has_name;
     if (strcmp(signature, "Node.get_pos()") == 0) return w_Node_get_pos;
     if (strcmp(signature, "Node.set_pos(_,_)") == 0) return w_Node_set_pos;
+    if (strcmp(signature, "Node.get_color()") == 0) return w_Node_get_color;
     if (strcmp(signature, "Node.get_component(_)") == 0) return w_Node_get_component;
+
+    if (strcmp(signature, "Edge.get_fpos()") == 0) return w_Edge_get_fpos;
+    if (strcmp(signature, "Edge.get_tpos()") == 0) return w_Edge_get_tpos;
+    if (strcmp(signature, "Edge.get_color()") == 0) return w_Edge_get_color;
 
     if (strcmp(signature, "static GraphTools.load_graph(_)") == 0) return w_GraphTools_load_graph;
     if (strcmp(signature, "static GraphTools.layout(_,_)") == 0) return w_GraphTools_layout;
@@ -213,6 +284,13 @@ void GraphBindClass(const char* class_name, VesselForeignClassMethods* methods)
     {
         methods->allocate = w_Node_allocate;
         methods->finalize = w_Node_finalize;
+        return;
+    }
+
+    if (strcmp(class_name, "Edge") == 0)
+    {
+        methods->allocate = w_Edge_allocate;
+        methods->finalize = w_Edge_finalize;
         return;
     }
 }

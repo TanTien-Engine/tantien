@@ -109,17 +109,27 @@ class Draw is Node
 
 		// nodes
 		var nodes = this.graph.get_nodes()
-		for (var node in nodes) {
-			this.draw_node(pt, mat, node, COL_PANEL_BG)
+		for (var node in nodes) 
+		{
+			var color = [ COL_PANEL_BG[0], COL_PANEL_BG[1], COL_PANEL_BG[2], COL_PANEL_BG[3] ]
+			var attr_col = node.get_color()
+			if (attr_col)
+			{
+				color[0] = attr_col["x"] * 255
+				color[1] = attr_col["y"] * 255
+				color[2] = attr_col["z"] * 255
+			}
+			this.draw_node(pt, mat, node, color)
 		}
-		for (var node in this.editor_sel) {
+		for (var node in this.editor_sel) 
+		{
 			this.draw_node(pt, mat, node, [177, 75, 0])
 		}
 
 		// edges
 		var edges = this.graph.get_edges()
-		for (var i in 0 .. edges.count / 2) {
-			this.draw_edge(pt, mat, scale, edges[i * 2], edges[i * 2 + 1])
+		for (var edge in edges) {
+			this.draw_edge(pt, mat, scale, edge)
 		}
 
 		Graphics.draw_painter(pt)
@@ -150,16 +160,10 @@ class Draw is Node
 		}
 	}
 
-	draw_edge(pt, mat, scale, n0, n1)
+	draw_edge(pt, mat, scale, edge)
 	{
-		var nodes = this.graph.get_nodes()
-
-		if (!nodes[n0].is_valid() or !nodes[n1].is_valid()) {
-			return
-		}
-
-		var f = nodes[n0].get_pos()
-		var t = nodes[n1].get_pos()
+		var f = edge.get_fpos()
+		var t = edge.get_tpos()		
 		f = this.node_pos_to_world(Vector2(f["x"], f["y"]))
 		t = this.node_pos_to_world(Vector2(t["x"], t["y"]))
 
@@ -175,7 +179,16 @@ class Draw is Node
 		t.x = t.x - dx * p
 		t.y = t.y - dy * p
 
-		pt.add_line(mat, [ f.x, f.y, t.x, t.y ], COL_PANEL_BG, 2)
+		var color = [ COL_PANEL_BG[0], COL_PANEL_BG[1], COL_PANEL_BG[2], COL_PANEL_BG[3] ]
+		var attr_col = edge.get_color()
+		if (attr_col)
+		{
+			color[0] = attr_col["x"] * 255
+			color[1] = attr_col["y"] * 255
+			color[2] = attr_col["z"] * 255
+		}
+
+		pt.add_line(mat, [ f.x, f.y, t.x, t.y ], color, 2)
 
 		// arrow
 		var draw_array = this.graph.is_directed()
@@ -184,8 +197,8 @@ class Draw is Node
 			var c = Vector2(- dx / dist * POINT_RADIUS * scale, - dy / dist * POINT_RADIUS * scale)
 			var p0 = Calc.rotate_vec2(c, 0.5)
 			var p1 = Calc.rotate_vec2(c, -0.5)
-			pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], COL_PANEL_BG, 2)
-			pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], COL_PANEL_BG, 2)
+			pt.add_line(mat, [ t.x, t.y, t.x + p0.x, t.y + p0.y ], color, 2)
+			pt.add_line(mat, [ t.x, t.y, t.x + p1.x, t.y + p1.y ], color, 2)
 		}
 	}
 
