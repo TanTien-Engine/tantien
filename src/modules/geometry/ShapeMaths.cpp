@@ -9,10 +9,11 @@
 #include <SM_DouglasPeucker.h>
 
 // fixme
-#include "../../../../littleworld/citygen/Extrude.h"
+//#include "../../../../littleworld/citygen/Extrude.h"
 
 #include <iterator>
 #include <set>
+#include <map>
 
 namespace
 {
@@ -303,7 +304,7 @@ ShapeMaths::Extrude(const std::shared_ptr<gs::Shape2D>& shape, float dist)
 		}
 		poly->SetHoles(holes);
 
-		ret = citygen::Extrude::Face(poly, dist);
+		//ret = citygen::Extrude::Face(poly, dist);
 	}
 		break;
 	}

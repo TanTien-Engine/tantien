@@ -1,0 +1,55 @@
+var node0 = ::geograph::nodes::box::Box()
+node0.query_param("size").value.set(1, 1, 1)
+node0.query_param("pos").value.set(0, 0, 0)
+node0.query_param("offset_x").value = false
+node0.query_param("offset_y").value = false
+node0.query_param("offset_z").value = false
+
+_editor.add_node(node0, -70, -30)
+
+var node1 = ::dbgraph::nodes::insert::Insert()
+node1.query_param("b_time").value = false
+
+_editor.add_node(node1, 83, 88.5)
+
+var node2 = ::blueprint::nodes::input::Input()
+
+node2.var_name = "tree"
+node2.var_type = "rtree"
+
+_editor.add_node(node2, -70, 131.5)
+
+var node3 = ::blueprint::nodes::output::Output()
+
+node3.var_name = "tree"
+node3.var_type = "rtree"
+
+_editor.add_node(node3, 218, 141.5)
+
+var node4 = ::blueprint::nodes::output::Output()
+
+node4.var_name = "key"
+node4.var_type = "rkey"
+
+_editor.add_node(node4, 219, 90.5)
+
+var node5 = ::blueprint::nodes::input::Input()
+
+node5.var_name = "size"
+node5.var_type = "num3"
+
+_editor.add_node(node5, -226, 80.5)
+
+var node6 = ::blueprint::nodes::input::Input()
+
+node6.var_name = "pos"
+node6.var_type = "num3"
+
+_editor.add_node(node6, -227, 14.5)
+
+Blueprint.connect(node5, "var", node0, "size")
+Blueprint.connect(node6, "var", node0, "pos")
+Blueprint.connect(node2, "var", node1, "tree")
+Blueprint.connect(node0, "geo", node1, "geo")
+Blueprint.connect(node1, "key", node4, "var")
+Blueprint.connect(node1, "tree", node3, "var")

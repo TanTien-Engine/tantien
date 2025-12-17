@@ -6,7 +6,7 @@
 #include <brepdb/Region.h>
 #include <brepdb/Point.h>
 
-//#define TINYOBJLOADER_IMPLEMENTATION
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 #include <filesystem>
@@ -36,7 +36,7 @@ void RTreeBuilder::FromModeling(brepdb::RTree& rtree, const char* filepath)
 
     std::string warn, err;
     auto dir = std::filesystem::path(filepath).parent_path().string() + "/";
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath, dir.c_str(), false);
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath, dir.c_str(), false);
 
     if (!err.empty()) {
         std::cerr << err << std::endl;
@@ -75,10 +75,8 @@ void RTreeBuilder::FromModeling(brepdb::RTree& rtree, const char* filepath)
 
 					map_vert_idx.insert({ idx.vertex_index, points.size() });
 
-					tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
-					tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
-					tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
-					points.emplace_back(sm::vec3(vx, vy, vz) * 0.01f);
+					const tinyobj::vec3_t& v = attrib.vertices[idx.vertex_index];
+					points.emplace_back(sm::vec3(v.x, v.y, v.z) * 0.01f);
 				}
 				else
 				{

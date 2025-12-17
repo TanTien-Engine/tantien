@@ -22,8 +22,8 @@
 #include "modules/system/system.ves.inc"
 #include "modules/shader/wrap_Shader.h"
 #include "modules/shader/shader.ves.inc"
-#include "modules/physics/wrap_Physics.h"
-#include "modules/physics/physics.ves.inc"
+//#include "modules/physics/wrap_Physics.h"
+//#include "modules/physics/physics.ves.inc"
 #include "modules/io/wrap_Keyboard.h"
 #include "modules/io/Keyboard.h"
 #include "modules/io/keyboard.ves.inc"
@@ -40,30 +40,30 @@
 #include "modules/graph/wrap_Graph.h"
 #include "modules/graph/graph.ves.inc"
 
-// fixme
-#include "archgen/wrap_ArchGen.h"
-#include "archgen/archgen.ves.inc"
-#include "citygen/wrap_CityGen.h"
-#include "citygen/citygen.ves.inc"
-#include "globegen/wrap_GlobeGen.h"
-#include "globegen/globegen.ves.inc"
-#include "pathtracer/src/wrap_PathTracer.h"
-#include "pathtracer/src/pathtracer.ves.inc"
-#include "sketchlib/wrap_SketchLib.h"
-#include "sketchlib/sketchlib.ves.inc"
-#include "nurbslib/wrap_NurbsLib.h"
-#include "nurbslib/nurbslib.ves.inc"
-#ifndef _NO_OCCT_
-#include "partgraph_c/wrap_PartGraph.h"
-#include "partgraph_c/partgraph.ves.inc"
-#include "breptopo_c/wrap_BrepTopo.h"
-#include "breptopo_c/breptopo.ves.inc"
-#include "breptopo_c/BrepTopo.h"
-#endif // _NO_OCCT_
-#include "loggraph_c/wrap_LogGraph.h"
-#include "loggraph_c/loggraph.ves.inc"
-#include "codegraph_c/wrap_CodeGraph.h"
-#include "codegraph_c/codegraph.ves.inc"
+//// fixme
+//#include "archgen/wrap_ArchGen.h"
+//#include "archgen/archgen.ves.inc"
+//#include "citygen/wrap_CityGen.h"
+//#include "citygen/citygen.ves.inc"
+//#include "globegen/wrap_GlobeGen.h"
+//#include "globegen/globegen.ves.inc"
+//#include "pathtracer/src/wrap_PathTracer.h"
+//#include "pathtracer/src/pathtracer.ves.inc"
+//#include "sketchlib/wrap_SketchLib.h"
+//#include "sketchlib/sketchlib.ves.inc"
+//#include "nurbslib/wrap_NurbsLib.h"
+//#include "nurbslib/nurbslib.ves.inc"
+//#ifndef _NO_OCCT_
+//#include "partgraph_c/wrap_PartGraph.h"
+//#include "partgraph_c/partgraph.ves.inc"
+//#include "breptopo_c/wrap_BrepTopo.h"
+//#include "breptopo_c/breptopo.ves.inc"
+//#include "breptopo_c/BrepTopo.h"
+//#endif // _NO_OCCT_
+//#include "loggraph_c/wrap_LogGraph.h"
+//#include "loggraph_c/loggraph.ves.inc"
+//#include "codegraph_c/wrap_CodeGraph.h"
+//#include "codegraph_c/codegraph.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -137,7 +137,7 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "model") == 0 &&
         !strcmp(module, "system") == 0 &&
         !strcmp(module, "shader") == 0 &&
-        !strcmp(module, "physics") == 0 &&
+        //!strcmp(module, "physics") == 0 &&
         !strcmp(module, "keyboard") == 0 &&
         !strcmp(module, "scene") == 0 &&
         !strcmp(module, "vm") == 0 &&
@@ -185,8 +185,8 @@ VesselLoadModuleResult read_module(const char* module)
         source = systemModuleSource;
     } else if (strcmp(module, "shader") == 0) {
         source = shaderModuleSource;
-    } else if (strcmp(module, "physics") == 0) {
-        source = physicsModuleSource;
+    //} else if (strcmp(module, "physics") == 0) {
+    //    source = physicsModuleSource;
     } else if (strcmp(module, "keyboard") == 0) {
         source = keyboardModuleSource;
     } else if (strcmp(module, "scene") == 0) {
@@ -201,29 +201,33 @@ VesselLoadModuleResult read_module(const char* module)
         source = regenModuleSource;
     } else if (strcmp(module, "graph") == 0) {
         source = graphModuleSource;
-    } else if (strcmp(module, "archgen") == 0) {
-        source = archgenModuleSource;
-    } else if (strcmp(module, "citygen") == 0) {
-        source = citygenModuleSource;
-    } else if (strcmp(module, "globegen") == 0) {
-        source = globegenModuleSource;
-    } else if (strcmp(module, "pathtracer") == 0) {
-        source = pathtracerModuleSource;
-    } else if (strcmp(module, "sketchlib") == 0) {
-        source = sketchlibModuleSource;
-    } else if (strcmp(module, "nurbslib") == 0) {
-        source = nurbslibModuleSource;
-#ifndef _NO_OCCT_
-    } else if (strcmp(module, "partgraph") == 0) {
-        source = partgraphModuleSource;
-    } else if (strcmp(module, "breptopo") == 0) {
-        source = breptopoModuleSource;
-#endif // _NO_OCCT_
-    } else if (strcmp(module, "loggraph") == 0) {
-        source = loggraphModuleSource;
-    } else if (strcmp(module, "codegraph") == 0) {
-        source = codegraphModuleSource;
-    } else {
+    } 
+    
+//    else if (strcmp(module, "archgen") == 0) {
+//        source = archgenModuleSource;
+//    } else if (strcmp(module, "citygen") == 0) {
+//        source = citygenModuleSource;
+//    } else if (strcmp(module, "globegen") == 0) {
+//        source = globegenModuleSource;
+//    } else if (strcmp(module, "pathtracer") == 0) {
+//        source = pathtracerModuleSource;
+//    } else if (strcmp(module, "sketchlib") == 0) {
+//        source = sketchlibModuleSource;
+//    } else if (strcmp(module, "nurbslib") == 0) {
+//        source = nurbslibModuleSource;
+//#ifndef _NO_OCCT_
+//    } else if (strcmp(module, "partgraph") == 0) {
+//        source = partgraphModuleSource;
+//    } else if (strcmp(module, "breptopo") == 0) {
+//        source = breptopoModuleSource;
+//#endif // _NO_OCCT_
+//    } else if (strcmp(module, "loggraph") == 0) {
+//        source = loggraphModuleSource;
+//    } else if (strcmp(module, "codegraph") == 0) {
+//        source = codegraphModuleSource;
+//    } 
+    
+    else {
         source = file_search(module, "src/script/");
         if (!source) {
             source = file_search(module, "src/modules/");
@@ -344,8 +348,8 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::ShaderBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    tt::PhysicsBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    //tt::PhysicsBindClass(className, &methods);
+    //if (methods.allocate != NULL) return methods;
 
     tt::KeyboardBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
@@ -368,40 +372,40 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::GraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    archgen::ArchGenBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    //archgen::ArchGenBindClass(className, &methods);
+    //if (methods.allocate != NULL) return methods;
 
-    citygen::CityGenBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    //citygen::CityGenBindClass(className, &methods);
+    //if (methods.allocate != NULL) return methods;
 
-    globegen::GlobeGenBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    //globegen::GlobeGenBindClass(className, &methods);
+    //if (methods.allocate != NULL) return methods;
 
-    pathtracer::PathTracerBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    sketchlib::SketchLibBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    nurbslib::NurbsLibBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-#ifndef _NO_OCCT_
-    partgraph::PartGraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-    breptopo::BrepTopoBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-#endif // _NO_OCCT_
-
-    if (strcmp(module, "loggraph") == 0) {
-        loggraph::LogGraphBindClass(className, &methods);
-        if (methods.allocate != NULL) return methods;
-    }
-
-    if (strcmp(module, "codegraph") == 0) {
-        codegraph::CodeGraphBindClass(className, &methods);
-        if (methods.allocate != NULL) return methods;
-    }
+//    pathtracer::PathTracerBindClass(className, &methods);
+//    if (methods.allocate != NULL) return methods;
+//
+//    sketchlib::SketchLibBindClass(className, &methods);
+//    if (methods.allocate != NULL) return methods;
+//
+//    nurbslib::NurbsLibBindClass(className, &methods);
+//    if (methods.allocate != NULL) return methods;
+//
+//#ifndef _NO_OCCT_
+//    partgraph::PartGraphBindClass(className, &methods);
+//    if (methods.allocate != NULL) return methods;
+//    breptopo::BrepTopoBindClass(className, &methods);
+//    if (methods.allocate != NULL) return methods;
+//#endif // _NO_OCCT_
+//
+//    if (strcmp(module, "loggraph") == 0) {
+//        loggraph::LogGraphBindClass(className, &methods);
+//        if (methods.allocate != NULL) return methods;
+//    }
+//
+//    if (strcmp(module, "codegraph") == 0) {
+//        codegraph::CodeGraphBindClass(className, &methods);
+//        if (methods.allocate != NULL) return methods;
+//    }
 
     return methods;
 }
@@ -449,8 +453,8 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::ShaderBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = tt::PhysicsBindMethod(fullName);
-    if (method != NULL) return method;
+    //method = tt::PhysicsBindMethod(fullName);
+    //if (method != NULL) return method;
 
     method = tt::KeyboardBindMethod(fullName);
     if (method != NULL) return method;
@@ -474,40 +478,40 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) 
         return method;
 
-    method = archgen::ArchGenBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = citygen::CityGenBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = globegen::GlobeGenBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = pathtracer::PathTracerBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = sketchlib::SketchLibBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = nurbslib::NurbsLibBindMethod(fullName);
-    if (method != NULL) return method;
-
-#ifndef _NO_OCCT_
-    method = partgraph::PartGraphBindMethod(fullName);
-    if (method != NULL) return method;
-    method = breptopo::BrepTopoBindMethod(fullName);
-    if (method != NULL) return method;
-#endif // _NO_OCCT_
-
-    if (strcmp(module, "loggraph") == 0) {
-        method = loggraph::LogGraphBindMethod(fullName);
-        if (method != NULL) return method;
-    }
-
-    if (strcmp(module, "codegraph") == 0) {
-        method = codegraph::CodeGraphBindMethod(fullName);
-        if (method != NULL) return method;
-    }
+//    method = archgen::ArchGenBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//    method = citygen::CityGenBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//    method = globegen::GlobeGenBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//    method = pathtracer::PathTracerBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//    method = sketchlib::SketchLibBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//    method = nurbslib::NurbsLibBindMethod(fullName);
+//    if (method != NULL) return method;
+//
+//#ifndef _NO_OCCT_
+//    method = partgraph::PartGraphBindMethod(fullName);
+//    if (method != NULL) return method;
+//    method = breptopo::BrepTopoBindMethod(fullName);
+//    if (method != NULL) return method;
+//#endif // _NO_OCCT_
+//
+//    if (strcmp(module, "loggraph") == 0) {
+//        method = loggraph::LogGraphBindMethod(fullName);
+//        if (method != NULL) return method;
+//    }
+//
+//    if (strcmp(module, "codegraph") == 0) {
+//        method = codegraph::CodeGraphBindMethod(fullName);
+//        if (method != NULL) return method;
+//    }
 
     return NULL;
 }
@@ -834,8 +838,8 @@ int main(int argc, char* argv[])
     }
 
     // Enable debug output
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    //glEnable(GL_DEBUG_OUTPUT);
+    //glDebugMessageCallback(MessageCallback, 0);
 
     tt::Keyboard::Funs keyboard_cb;
     keyboard_cb.is_ctrl_pressed = [&]()->bool {
@@ -850,11 +854,12 @@ int main(int argc, char* argv[])
     };
     tt::Keyboard::RegisterCallback(keyboard_cb);
 
-    breptopo::init_cb();
+    //breptopo::init_cb();
 
     ves_init_vm();
 
     tt::System::Instance()->SetWindow(window);
+
     tt_enable_dtex();
 
     VesselConfiguration cfg;
