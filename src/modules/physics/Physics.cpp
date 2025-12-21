@@ -1,12 +1,12 @@
 #include "modules/physics/Physics.h"
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/SpriteRenderer.h"
-#include "modules/script/Proxy.h"
 
 #include <uniphysics/rigid/Factory.h>
 #include <uniphysics/rigid/DebugDraw.h>
 #include <uniphysics/rigid/box2d/World.h>
 #include <uniphysics/rigid/box2d/Body.h>
+#include <wrapper/TransHelper.h>
 
 #include <vessel.h>
 
@@ -21,9 +21,9 @@ auto begin_contact = [](const std::shared_ptr<up::rigid::box2d::Body>& a, const 
 	ves_pushnil();
 	ves_import_class("physics", "Body");
 
-	auto proxy_a = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(offset + 0, offset + 2, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+	auto proxy_a = (wrapper::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(offset + 0, offset + 2, sizeof(wrapper::Proxy<up::rigid::box2d::Body>));
 	proxy_a->obj = a;
-	auto proxy_b = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(offset + 1, offset + 2, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+	auto proxy_b = (wrapper::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(offset + 1, offset + 2, sizeof(wrapper::Proxy<up::rigid::box2d::Body>));
 	proxy_b->obj = b;
 
 	ves_pop(1);

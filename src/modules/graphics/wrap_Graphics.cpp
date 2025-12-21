@@ -4,8 +4,6 @@
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/SpriteRenderer.h"
 #include "modules/graphics/Viewport.h"
-#include "modules/script/TransHelper.h"
-#include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
 
 #include <tessellation/Painter.h>
@@ -15,26 +13,28 @@
 #include <unirender/Factory.h>
 #include <guard/check.h>
 #include <SM_Calc.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 namespace
 {
 
 void w_Viewport_allocate()
 {
-    auto proxy = (tt::Proxy<tt::Viewport>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::Viewport>));
+    auto proxy = (wrapper::Proxy<tt::Viewport>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<tt::Viewport>));
     proxy->obj = std::make_shared<tt::Viewport>();
 }
 
 int w_Viewport_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<tt::Viewport>*)(data);
+    auto proxy = (wrapper::Proxy<tt::Viewport>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<tt::Viewport>);
+    return sizeof(wrapper::Proxy<tt::Viewport>);
 }
 
 void w_Viewport_set_size()
 {
-    auto vp = ((tt::Proxy<tt::Viewport>*)ves_toforeign(0))->obj;
+    auto vp = ((wrapper::Proxy<tt::Viewport>*)ves_toforeign(0))->obj;
 
     float w = (float)ves_tonumber(1);
     float h = (float)ves_tonumber(2);
@@ -47,29 +47,29 @@ void w_Painter_allocate()
     auto pt = std::make_shared<tess::Painter>();
     pt->SetPalette(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
 
-    auto proxy = (tt::Proxy<tess::Painter>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tess::Painter>));
+    auto proxy = (wrapper::Proxy<tess::Painter>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<tess::Painter>));
     proxy->obj = pt;
 }
 
 int w_Painter_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<tess::Painter>*)(data);
+    auto proxy = (wrapper::Proxy<tess::Painter>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<tess::Painter>);
+    return sizeof(wrapper::Proxy<tess::Painter>);
 }
 
 void w_Painter_add_line()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto pos2 = tt::list_to_array<float>(2);
+    auto pos2 = wrapper::list_to_array<float>(2);
     auto x0 = pos2[0];
     auto y0 = pos2[1];
     auto x1 = pos2[2];
     auto y1 = pos2[3];
 
-    const uint32_t col = tt::list_to_abgr(3);
+    const uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     sm::vec2 p0(x0, y0);
@@ -83,10 +83,10 @@ void w_Painter_add_line()
 
 void w_Painter_add_rect()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto xywh = tt::list_to_array<float>(2);
+    auto xywh = wrapper::list_to_array<float>(2);
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -95,7 +95,7 @@ void w_Painter_add_rect()
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(3);
+    const uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     sm::vec2 p0(x, y);
@@ -109,10 +109,10 @@ void w_Painter_add_rect()
 
 void w_Painter_add_rect_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto xywh = tt::list_to_array<float>(2);
+    auto xywh = wrapper::list_to_array<float>(2);
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -121,7 +121,7 @@ void w_Painter_add_rect_filled()
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(3);
+    const uint32_t col = wrapper::list_to_abgr(3);
 
     sm::vec2 p0(x, y);
     sm::vec2 p1(x + w, y + h);
@@ -134,16 +134,16 @@ void w_Painter_add_rect_filled()
 
 void w_Painter_add_capsule_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto rect = tt::list_to_array<float>(2);
+    auto rect = wrapper::list_to_array<float>(2);
     GD_ASSERT(rect.size() == 4, "error number");
     if (rect[2] <= 0 || rect[3] <= 0) {
         return;
     }
 
-    const uint32_t col = tt::list_to_abgr(3);
+    const uint32_t col = wrapper::list_to_abgr(3);
 
     auto hori = ves_toboolean(4);
 
@@ -166,17 +166,17 @@ void w_Painter_add_capsule_filled()
 
 void w_Painter_add_polygon()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(2);
+    auto vertices = wrapper::list_to_vec2_array(2);
     if (mat) {
         for (auto& v : vertices) {
             v = *mat * v;
         }
     }
 
-    uint32_t col = tt::list_to_abgr(3);
+    uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     pt->AddPolygon(vertices.data(), vertices.size(), col, width);
@@ -184,34 +184,34 @@ void w_Painter_add_polygon()
 
 void w_Painter_add_polygon_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(2);
+    auto vertices = wrapper::list_to_vec2_array(2);
     if (mat) {
         for (auto& v : vertices) {
             v = *mat * v;
         }
     }
 
-    uint32_t col = tt::list_to_abgr(3);
+    uint32_t col = wrapper::list_to_abgr(3);
 
     pt->AddPolygonFilled(vertices.data(), vertices.size(), col);
 }
 
 void w_Painter_add_polyline()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec2_array(2);
+    auto vertices = wrapper::list_to_vec2_array(2);
     if (mat) {
         for (auto& v : vertices) {
             v = *mat * v;
         }
     }
 
-    uint32_t col = tt::list_to_abgr(3);
+    uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     pt->AddPolyline(vertices.data(), vertices.size(), col, width);
@@ -219,13 +219,13 @@ void w_Painter_add_polyline()
 
 void w_Painter_add_triangles_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     pt->SetAntiAliased(false);
 
-    auto vertices = tt::list_to_vec2_array(2);
-    uint32_t col = tt::list_to_abgr(3);
+    auto vertices = wrapper::list_to_vec2_array(2);
+    uint32_t col = wrapper::list_to_abgr(3);
 
     if (mat)
     {
@@ -253,13 +253,13 @@ void w_Painter_add_triangles_filled()
 
 void w_Painter_add_circle()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     const float x = (float)ves_tonumber(2);
     const float y = (float)ves_tonumber(3);
     const float r = (float)ves_tonumber(4);
-    uint32_t col = tt::list_to_abgr(5);
+    uint32_t col = wrapper::list_to_abgr(5);
     const float width = (float)ves_tonumber(6);
     const uint32_t seg = (uint32_t)ves_tonumber(7);
 
@@ -273,13 +273,13 @@ void w_Painter_add_circle()
 
 void w_Painter_add_circle_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     const float x = (float)ves_tonumber(2);
     const float y = (float)ves_tonumber(3);
     const float r = (float)ves_tonumber(4);
-    uint32_t col = tt::list_to_abgr(5);
+    uint32_t col = wrapper::list_to_abgr(5);
     const uint32_t seg = (uint32_t)ves_tonumber(6);
 
     sm::vec2 center(x, y);
@@ -292,7 +292,7 @@ void w_Painter_add_circle_filled()
 
 void w_Painter_add_arc()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     const float x = (float)ves_tonumber(2);
@@ -300,7 +300,7 @@ void w_Painter_add_arc()
     const float r = (float)ves_tonumber(4);
     const float s = (float)ves_tonumber(5);
     const float e = (float)ves_tonumber(6);
-    uint32_t col = tt::list_to_abgr(7);
+    uint32_t col = wrapper::list_to_abgr(7);
     const float width = (float)ves_tonumber(8);
     const uint32_t seg = (uint32_t)ves_tonumber(9);
 
@@ -319,11 +319,11 @@ void w_Painter_add_arc()
 
 void w_Painter_add_bezier()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     auto mat = (sm::mat4*)ves_toforeign(1);
 
-    auto bezier = ((tt::Proxy<gs::Bezier>*)ves_toforeign(2))->obj;
-    uint32_t col = tt::list_to_abgr(3);
+    auto bezier = ((wrapper::Proxy<gs::Bezier>*)ves_toforeign(2))->obj;
+    uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     auto& vertices = bezier->GetVertices();
@@ -356,12 +356,12 @@ auto trans3d = [&](const sm::vec3& pos3)->sm::vec2
 
 void w_Painter_add_point3d()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     CAM_MAT = (sm::mat4*)ves_toforeign(1);
 
-    auto p = tt::list_to_vec3(2);
+    auto p = wrapper::list_to_vec3(2);
 
-    uint32_t col = tt::list_to_abgr(3);
+    uint32_t col = wrapper::list_to_abgr(3);
 
     auto size = ves_tonumber(4);
 
@@ -370,13 +370,13 @@ void w_Painter_add_point3d()
 
 void w_Painter_add_line3d()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     CAM_MAT = (sm::mat4*)ves_toforeign(1);
 
-    auto p0 = tt::list_to_vec3(2);
-    auto p1 = tt::list_to_vec3(3);
+    auto p0 = wrapper::list_to_vec3(2);
+    auto p1 = wrapper::list_to_vec3(3);
 
-    uint32_t col = tt::list_to_abgr(4);
+    uint32_t col = wrapper::list_to_abgr(4);
     const float width = (float)ves_tonumber(5);
 
     pt->AddLine3D(p0, p1, trans3d, col, width);
@@ -384,13 +384,13 @@ void w_Painter_add_line3d()
 
 void w_Painter_add_cube()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     CAM_MAT = (sm::mat4*)ves_toforeign(1);
 
-    auto min = tt::list_to_vec3(2);
-    auto max = tt::list_to_vec3(3);
+    auto min = wrapper::list_to_vec3(2);
+    auto max = wrapper::list_to_vec3(3);
 
-    uint32_t col = tt::list_to_abgr(4);
+    uint32_t col = wrapper::list_to_abgr(4);
     const float width = (float)ves_tonumber(5);
 
     pt->AddCube(sm::cube(min, max), trans3d, col, width);
@@ -398,11 +398,11 @@ void w_Painter_add_cube()
 
 void w_Painter_add_polyline3d()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     CAM_MAT = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec3_array(2);
-    uint32_t col = tt::list_to_abgr(3);
+    auto vertices = wrapper::list_to_vec3_array(2);
+    uint32_t col = wrapper::list_to_abgr(3);
     const float width = (float)ves_tonumber(4);
 
     pt->AddPolyline3D(vertices.data(), vertices.size(), trans3d, col, width);
@@ -410,11 +410,11 @@ void w_Painter_add_polyline3d()
 
 void w_Painter_add_polygon3d_filled()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(0))->obj;
     CAM_MAT = (sm::mat4*)ves_toforeign(1);
 
-    auto vertices = tt::list_to_vec3_array(2);
-    uint32_t col = tt::list_to_abgr(3);
+    auto vertices = wrapper::list_to_vec3_array(2);
+    uint32_t col = wrapper::list_to_abgr(3);
 
     pt->AddPolygonFilled3D(vertices.data(), vertices.size(), trans3d, col);
 }
@@ -436,14 +436,14 @@ void w_Graphics_on_cam_update()
 
 void w_Graphics_draw_painter()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
     tt::Graphics::Instance()->DrawPainter(*pt);
 }
 
 void w_Graphics_draw_painter_regional()
 {
-    auto pt = ((tt::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
-    auto region = tt::list_to_array<float>(2);
+    auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
+    auto region = wrapper::list_to_array<float>(2);
 
     float x = region[0];
     float y = region[1];
@@ -489,7 +489,7 @@ void w_Graphics_draw_text()
     ves_pop(1);
     if (ves_getfield(5, "font_color") == VES_TYPE_LIST) {
         st.gs.font_color.mode_type = 0;
-        st.gs.font_color.mode.ONE.color.integer = tt::list_to_rgba(-1);
+        st.gs.font_color.mode.ONE.color.integer = wrapper::list_to_rgba(-1);
     }
     ves_pop(1);
     if (ves_getfield(5, "font_size") == VES_TYPE_NUM) {
@@ -608,12 +608,12 @@ void draw_texture(const ur::TexturePtr& tex, const sm::Matrix2D& mat)
 
 void w_Graphics_draw_texture()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
 
-    auto  pos    = tt::list_to_vec2(2);
+    auto  pos    = wrapper::list_to_vec2(2);
     float angle  = (float)ves_tonumber(3);
-    auto  scale  = tt::list_to_vec2(4);
-    auto  offset = tt::list_to_vec2(5);
+    auto  scale  = wrapper::list_to_vec2(4);
+    auto  offset = wrapper::list_to_vec2(5);
 
     sm::Matrix2D mat;
     auto center = pos + sm::rotate_vector(-offset, angle) + offset;
@@ -624,7 +624,7 @@ void w_Graphics_draw_texture()
 
 void w_Graphics_draw_texture2()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
     sm::Matrix2D* mat = (sm::Matrix2D*)ves_toforeign(2);
     if (mat) {
         draw_texture(tex, *mat);

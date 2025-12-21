@@ -1,6 +1,7 @@
 #include "modules/filesystem/wrap_Filesystem.h"
 #include "modules/filesystem/Filesystem.h"
-#include "modules/script/TransHelper.h"
+
+#include <wrapper/TransHelper.h>
 
 #include <filesystem>
 #include <cstdio>
@@ -94,7 +95,7 @@ void w_Filesystem_get_directory_files()
     for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) {
         files.push_back(std::filesystem::absolute(p).string());
     }
-    tt::return_list(files);
+    wrapper::return_list(files);
 }
 
 void w_Filesystem_remove_file()

@@ -2,8 +2,6 @@
 #include "modules/render/Render.h"
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
-#include "modules/script/Proxy.h"
-#include "modules/script/TransHelper.h"
 #include "modules/maths/float16.h"
 
 #include <unirender/Device.h>
@@ -36,6 +34,8 @@
 #include <gimg_typedef.h>
 #include <guard/check.h>
 #include <model/Model.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <array>
 
@@ -56,7 +56,7 @@ void read_shader(std::vector<unsigned int>& dst, int src, const char* inc_dir, s
     } 
     else 
     {
-        auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(src))->obj;
+        auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(src))->obj;
         dst = builder->Link();
     }
 }
@@ -108,15 +108,15 @@ void w_Shader_allocate()
         }
     }
 
-    auto proxy = (tt::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ShaderProgram>));
+    auto proxy = (wrapper::Proxy<ur::ShaderProgram>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::ShaderProgram>));
     proxy->obj = prog;
 }
 
 int w_Shader_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::ShaderProgram>*)(data);
+    auto proxy = (wrapper::Proxy<ur::ShaderProgram>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::ShaderProgram>);
+    return sizeof(wrapper::Proxy<ur::ShaderProgram>);
 }
 
 int get_value_number_size(shadertrans::ShaderReflection::VarType type)
@@ -324,7 +324,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
             {
                 ves_geti(-1, 0);
                 if (ves_type(-1) != VES_TYPE_NULL) {
-                    tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+                    tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
                 }
                 ves_pop(1);
             }
@@ -334,7 +334,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
             {
                 ves_geti(-1, 1);
                 if (ves_type(-1) != VES_TYPE_NULL) {
-                    sampler = ((tt::Proxy<ur::TextureSampler>*)ves_toforeign(-1))->obj;
+                    sampler = ((wrapper::Proxy<ur::TextureSampler>*)ves_toforeign(-1))->obj;
                 }
                 ves_pop(1);
             }
@@ -355,7 +355,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
                 ves_geti(-1, 0);
                 if (ves_type(-1) != VES_TYPE_NULL)
                 {
-                    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+                    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
                     if (slot >= 0) {
                         auto ctx = tt::Render::Instance()->Context();
                         ctx->SetImage(slot, tex, ur::AccessType::WriteOnly);
@@ -386,7 +386,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
         {
             ves_geti(-1, 0);
             if (ves_type(-1) != VES_TYPE_NULL) {
-                auto ssbo = ((tt::Proxy<ur::StorageBuffer>*)ves_toforeign(-1))->obj;
+                auto ssbo = ((wrapper::Proxy<ur::StorageBuffer>*)ves_toforeign(-1))->obj;
                 prog->BindSSBO(name, binding, ssbo);
             }
             ves_pop(1);
@@ -434,7 +434,7 @@ void set_uniform_value(const std::shared_ptr<ur::ShaderProgram>& prog, const cha
 
 void w_Shader_set_uniform_value()
 {
-    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
+    auto prog = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(0))->obj;
     if (!prog) {
         return;
     }
@@ -597,15 +597,15 @@ void w_VertexArray_allocate()
         }
     }
 
-    auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::VertexArray>));
+    auto proxy = (wrapper::Proxy<ur::VertexArray>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::VertexArray>));
     proxy->obj = va;
 }
 
 int w_VertexArray_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::VertexArray>*)(data);
+    auto proxy = (wrapper::Proxy<ur::VertexArray>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::VertexArray>);
+    return sizeof(wrapper::Proxy<ur::VertexArray>);
 }
 
 ur::TextureFormat str_to_tex_format(const char* format)
@@ -710,7 +710,7 @@ void w_Texture2D_allocate()
         for (int i = 0; i < 6; ++i)
         {
             ves_geti(1, i);
-            textures[i] = ((tt::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
+            textures[i] = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(-1))->obj;
             ves_pop(1);
         }
 
@@ -733,26 +733,26 @@ void w_Texture2D_allocate()
         tex = tt::Render::Instance()->Device()->CreateTexture(desc, nullptr);
     }
 
-    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    auto proxy = (wrapper::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::Texture>));
     proxy->obj = tex;
 }
 
 int w_Texture2D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    auto proxy = (wrapper::Proxy<ur::Texture>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::Texture>);
+    return sizeof(wrapper::Proxy<ur::Texture>);
 }
 
 void w_Texture2D_get_width()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetWidth());
 }
 
 void w_Texture2D_get_height()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
 }
 
@@ -786,7 +786,7 @@ void texture2d_upload(ur::Texture& tex, int num, int x, int y, int w, int h)
 
 void w_Texture2D_upload()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     auto fmt = tex->GetFormat();
 
     GD_ASSERT(ves_type(1) == VES_TYPE_LIST, "pixels should be list");
@@ -824,7 +824,7 @@ void w_Texture2D_upload()
 
 void w_Texture2D_download()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     auto img = (tt::ImageData*)ves_toforeign(1);
 
     img->width = tex->GetWidth();
@@ -852,7 +852,7 @@ void w_Texture2D_download()
 
 void w_Texture2D_max_pixel_val()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
 
     float max_val = -std::numeric_limits<float>::max();
 
@@ -889,44 +889,44 @@ void w_Texture3D_allocate()
 
     tex = tt::Render::Instance()->Device()->CreateTexture3D(width, height, depth, tf, nullptr, 0);
 
-    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    auto proxy = (wrapper::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::Texture>));
     proxy->obj = tex;
 }
 
 int w_Texture3D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    auto proxy = (wrapper::Proxy<ur::Texture>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::Texture>);
+    return sizeof(wrapper::Proxy<ur::Texture>);
 }
 
 void w_Texture3D_get_width()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetWidth());
 }
 
 void w_Texture3D_get_height()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
 }
 
 void w_Texture3D_get_depth()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetDepth());
 }
 
 void w_Cubemap_get_width()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetWidth());
 }
 
 void w_Cubemap_get_height()
 {
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
     ves_set_number(0, (double)tex->GetHeight());
 }
 
@@ -946,7 +946,7 @@ void w_Cubemap_allocate()
             if (!f) {
                 fail = true;
             } else {
-                textures[i] = ((tt::Proxy<ur::Texture>*)f)->obj;
+                textures[i] = ((wrapper::Proxy<ur::Texture>*)f)->obj;
             }
             ves_pop(1);
         }
@@ -989,15 +989,15 @@ void w_Cubemap_allocate()
         tex = tt::Render::Instance()->Device()->CreateTexture(desc);
     }
 
-    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Texture>));
+    auto proxy = (wrapper::Proxy<ur::Texture>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::Texture>));
     proxy->obj = tex;
 }
 
 int w_Cubemap_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::Texture>*)(data);
+    auto proxy = (wrapper::Proxy<ur::Texture>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::Texture>);
+    return sizeof(wrapper::Proxy<ur::Texture>);
 }
 
 void w_TextureSampler_allocate()
@@ -1020,30 +1020,30 @@ void w_TextureSampler_allocate()
         sampler = dev->GetTextureSampler(ur::Device::TextureSamplerType::LinearRepeatMipmap);
     }
 
-    auto proxy = (tt::Proxy<ur::TextureSampler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::TextureSampler>));
+    auto proxy = (wrapper::Proxy<ur::TextureSampler>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::TextureSampler>));
     proxy->obj = sampler;
 }
 
 int w_TextureSampler_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::TextureSampler>*)(data);
+    auto proxy = (wrapper::Proxy<ur::TextureSampler>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::TextureSampler>);
+    return sizeof(wrapper::Proxy<ur::TextureSampler>);
 }
 
 void w_Framebuffer_allocate()
 {
     auto fbo = tt::Render::Instance()->Device()->CreateFramebuffer();
 
-    auto proxy = (tt::Proxy<ur::Framebuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::Framebuffer>));
+    auto proxy = (wrapper::Proxy<ur::Framebuffer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::Framebuffer>));
     proxy->obj = fbo;
 }
 
 int w_Framebuffer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::Framebuffer>*)(data);
+    auto proxy = (wrapper::Proxy<ur::Framebuffer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::Framebuffer>);
+    return sizeof(wrapper::Proxy<ur::Framebuffer>);
 }
 
 void w_ComputeBuffer_allocate()
@@ -1072,79 +1072,79 @@ void w_ComputeBuffer_allocate()
         }
         buf = tt::Render::Instance()->Device()->CreateComputeBuffer(data.data(), sizeof(float) * data.size(), id);
     }
-    auto proxy = (tt::Proxy<ur::ComputeBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::ComputeBuffer>));
+    auto proxy = (wrapper::Proxy<ur::ComputeBuffer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::ComputeBuffer>));
     proxy->obj = buf;
 }
 
 int w_ComputeBuffer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::ComputeBuffer>*)(data);
+    auto proxy = (wrapper::Proxy<ur::ComputeBuffer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::ComputeBuffer>);
+    return sizeof(wrapper::Proxy<ur::ComputeBuffer>);
 }
 
 void w_ComputeBuffer_download()
 {
-    auto buf = ((tt::Proxy<ur::ComputeBuffer>*)ves_toforeign(0))->obj;
+    auto buf = ((wrapper::Proxy<ur::ComputeBuffer>*)ves_toforeign(0))->obj;
     const char* type = ves_tostring(1);
     const size_t size = (size_t)ves_tonumber(2);
     if (strcmp(type, "int") == 0)
     {
         std::vector<int> data(size);
         buf->GetComputeBufferData(data.data(), sizeof(data) * size);
-        tt::return_list(data);
+        wrapper::return_list(data);
     }
     else if (strcmp(type, "float") == 0)
     {
         std::vector<float> data(size);
         buf->GetComputeBufferData(data.data(), sizeof(float) * size);
-        tt::return_list(data);
+        wrapper::return_list(data);
     }
 }
 
 void w_StorageBuffer_allocate()
 {
     // todo: force int here
-    auto data = tt::list_to_array<int>(1);
+    auto data = wrapper::list_to_array<int>(1);
     auto sbuf_sz = sizeof(int) * data.size();
     auto dev = tt::Render::Instance()->Device();
     auto sbuf = dev->CreateStorageBuffer(ur::BufferUsageHint::StreamCopy, static_cast<int>(sbuf_sz));
     sbuf->ReadFromMemory(data.data(), static_cast<int>(sbuf_sz), 0);
 
-    auto proxy = (tt::Proxy<ur::StorageBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::StorageBuffer>));
+    auto proxy = (wrapper::Proxy<ur::StorageBuffer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::StorageBuffer>));
     proxy->obj = sbuf;
 }
 
 int w_StorageBuffer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::StorageBuffer>*)(data);
+    auto proxy = (wrapper::Proxy<ur::StorageBuffer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::StorageBuffer>);
+    return sizeof(wrapper::Proxy<ur::StorageBuffer>);
 }
 
 void w_TextureBuffer_allocate()
 {
-    auto proxy = (tt::Proxy<ur::TextureBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::TextureBuffer>));
+    auto proxy = (wrapper::Proxy<ur::TextureBuffer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::TextureBuffer>));
     proxy->obj = nullptr;
 }
 
 int w_TextureBuffer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::TextureBuffer>*)(data);
+    auto proxy = (wrapper::Proxy<ur::TextureBuffer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::TextureBuffer>);
+    return sizeof(wrapper::Proxy<ur::TextureBuffer>);
 }
 
 void w_TextureBuffer_get_texture()
 {
-    auto tbo = ((tt::Proxy<ur::TextureBuffer>*)ves_toforeign(0))->obj;
+    auto tbo = ((wrapper::Proxy<ur::TextureBuffer>*)ves_toforeign(0))->obj;
     auto tex = tbo->GetTexture();
 
     ves_pop(ves_argnum());
 
     ves_pushnil();
     ves_import_class("render", "Texture2D");
-    auto proxy = (tt::Proxy<ur::Texture>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<ur::Texture>));
+    auto proxy = (wrapper::Proxy<ur::Texture>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<ur::Texture>));
     proxy->obj = tex;
     ves_pop(1);
 }
@@ -1169,8 +1169,8 @@ ur::AttachmentType string2attachment(const std::string& str)
 
 void w_Framebuffer_attach_tex()
 {
-    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
-    auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
+    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
     auto atta_type = string2attachment(ves_tostring(2));
 
     const char* target = ves_tostring(3);
@@ -1199,8 +1199,8 @@ void w_Framebuffer_attach_tex()
 
 void w_Framebuffer_attach_rbo()
 {
-    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
-    auto rbo = ((tt::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
+    auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
+    auto rbo = ((wrapper::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
     auto atta_type = string2attachment(ves_tostring(2));
     fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
 }
@@ -1228,29 +1228,29 @@ void w_RenderBuffer_allocate()
 
     auto rbo = tt::Render::Instance()->Device()->CreateRenderBuffer(width, height, format);
 
-    auto proxy = (tt::Proxy<ur::RenderBuffer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::RenderBuffer>));
+    auto proxy = (wrapper::Proxy<ur::RenderBuffer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::RenderBuffer>));
     proxy->obj = rbo;
 }
 
 int w_RenderBuffer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::RenderBuffer>*)(data);
+    auto proxy = (wrapper::Proxy<ur::RenderBuffer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::RenderBuffer>);
+    return sizeof(wrapper::Proxy<ur::RenderBuffer>);
 }
 
 void w_RenderState_allocate()
 {
     auto rs = std::make_shared<ur::RenderState>();
-    auto proxy = (tt::Proxy<ur::RenderState>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<ur::RenderState>));
+    auto proxy = (wrapper::Proxy<ur::RenderState>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::RenderState>));
     proxy->obj = rs;
 }
 
 int w_RenderState_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<ur::RenderState>*)(data);
+    auto proxy = (wrapper::Proxy<ur::RenderState>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<ur::RenderState>);
+    return sizeof(wrapper::Proxy<ur::RenderState>);
 }
 
 ur::StencilOperation string2stencilop(const std::string& str)
@@ -1280,7 +1280,7 @@ ur::StencilOperation string2stencilop(const std::string& str)
 
 void w_RenderState_stencil_test()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
 
     rs->stencil_test.enabled = true;
 
@@ -1328,13 +1328,13 @@ void w_RenderState_stencil_test()
 
 void w_RenderState_z_write()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->depth_mask = ves_toboolean(1); 
 }
 
 void w_RenderState_z_test()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->depth_test.enabled = ves_toboolean(1);
 
     auto func = ur::DepthTestFunc::Less;
@@ -1366,7 +1366,7 @@ void w_RenderState_z_test()
 
 void w_RenderState_face_culling()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
 
     const char* s_type = ves_tostring(1);
     if (strcmp(s_type, "disable") == 0) {
@@ -1385,7 +1385,7 @@ void w_RenderState_face_culling()
 
 void w_RenderState_rasterization_mode()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
 
     const char* s_mode = ves_tostring(1);
     if (strcmp(s_mode, "point") == 0) {
@@ -1399,7 +1399,7 @@ void w_RenderState_rasterization_mode()
 
 void w_RenderState_clip_plane()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->clip_plane = ves_toboolean(1);
 }
 
@@ -1422,7 +1422,7 @@ ur::BlendingFactor str_to_blending_factor(const char* str)
 
 void w_RenderState_blending()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->blending.enabled = ves_toboolean(1);
 
     if (rs->blending.enabled)
@@ -1437,7 +1437,7 @@ void w_RenderState_blending()
 
 void w_RenderState_prim_restart()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->prim_restart.enabled = ves_toboolean(1);
     if (rs->prim_restart.enabled) {
         rs->prim_restart.index = 0xffff;
@@ -1446,7 +1446,7 @@ void w_RenderState_prim_restart()
 
 void w_RenderState_depth_clamp()
 {
-    auto rs = ((tt::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
+    auto rs = ((wrapper::Proxy<ur::RenderState>*)ves_toforeign(0))->obj;
     rs->depth_clamp = ves_toboolean(1);
 }
 
@@ -1480,9 +1480,9 @@ void w_Render_draw()
     const char* prim_type_str = ves_tostring(1);
     auto prim_type = get_prim_type(prim_type_str);
 
-    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
-    ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
-    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
+    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
+    ds.vertex_array = ((wrapper::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
+    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1494,14 +1494,14 @@ void w_Render_draw_instanced()
     const char* prim_type_str = ves_tostring(1);
     auto prim_type = get_prim_type(prim_type_str);
 
-    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
-    ds.vertex_array = ((tt::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
+    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
+    ds.vertex_array = ((wrapper::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
 
     std::vector<sm::mat4> mats;
-    tt::list_to_foreigns(5, mats);
+    wrapper::list_to_foreigns(5, mats);
     ds.num_instances = mats.size();
 
-    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
+    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1562,16 +1562,16 @@ void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model:
 
 void w_Render_draw_model()
 {
-    auto prog = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    auto prog = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
     if (!prog) {
         return;
     }
 
     ur::DrawState ds;
     ds.program = prog;
-    ds.render_state = *((tt::Proxy<ur::RenderState>*)ves_toforeign(3))->obj;
+    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(3))->obj;
 
-    auto model = ((tt::Proxy<model::Model>*)ves_toforeign(2))->obj;
+    auto model = ((wrapper::Proxy<model::Model>*)ves_toforeign(2))->obj;
     if (!model->nodes.empty()) 
     {
         for (auto& node : model->nodes) {
@@ -1590,7 +1590,7 @@ void w_Render_compute()
 {
     ur::DrawState ds;
 
-    ds.program = ((tt::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
 
     int x = (int)ves_tonumber(2);
     int y = (int)ves_tonumber(3);
@@ -1667,7 +1667,7 @@ void w_Render_get_fbo()
 
 void w_Render_set_fbo()
 {
-    auto fbo = ((tt::Proxy<ur::Framebuffer>*)ves_toforeign(1))->obj;
+    auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(1))->obj;
     tt::Render::Instance()->Context()->SetFramebuffer(fbo);
 }
 
@@ -1675,7 +1675,7 @@ void w_Render_get_viewport()
 {
     int x, y, w, h;
     tt::Render::Instance()->Context()->GetViewport(x, y, w, h);
-    tt::return_list(std::vector<int>{ x, y, w, h });
+    wrapper::return_list(std::vector<int>{ x, y, w, h });
 }
 
 void w_Render_set_viewport()

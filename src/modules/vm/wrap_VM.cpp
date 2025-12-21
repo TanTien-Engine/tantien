@@ -1,5 +1,4 @@
 #include "wrap_VM.h"
-#include "modules/script/TransHelper.h"
 
 #include <SM_Plane.h>
 #include <polymesh3/Polytope.h>
@@ -18,6 +17,7 @@
 #include <brepvm/Compiler.h>
 #include <brepvm/ValueType.h>
 #include <brepvm/Profiler.h>
+#include <wrapper/TransHelper.h>
 
 #include <string>
 
@@ -26,7 +26,7 @@ namespace
 
 void bytecodes_write(uint8_t op, int num)
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -44,20 +44,20 @@ void bytecodes_write(uint8_t op, int num)
 
 void w_Bytecodes_allocate()
 {
-    auto proxy = (tt::Proxy<brepvm::Bytecodes>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvm::Bytecodes>));
+    auto proxy = (wrapper::Proxy<brepvm::Bytecodes>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepvm::Bytecodes>));
     proxy->obj = std::make_shared<brepvm::Bytecodes>();
 }
 
 int w_Bytecodes_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<brepvm::Bytecodes>*)(data);
+    auto proxy = (wrapper::Proxy<brepvm::Bytecodes>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<brepvm::Bytecodes>);
+    return sizeof(wrapper::Proxy<brepvm::Bytecodes>);
 }
 
 void w_Bytecodes_comments()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -84,7 +84,7 @@ void w_Bytecodes_move_val()
 
 void w_Bytecodes_store_bool()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -105,7 +105,7 @@ void w_Bytecodes_or_bool()
 
 void w_Bytecodes_store_num()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -175,7 +175,7 @@ void w_Bytecodes_less_num()
 
 void w_Bytecodes_jump()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -185,7 +185,7 @@ void w_Bytecodes_jump()
 
 void w_Bytecodes_jump_if()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -196,7 +196,7 @@ void w_Bytecodes_jump_if()
 
 void w_Bytecodes_jump_if_not()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -207,7 +207,7 @@ void w_Bytecodes_jump_if_not()
 
 void w_Bytecodes_vec2_create_i()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -224,7 +224,7 @@ void w_Bytecodes_vec3_create_r()
 
 void w_Bytecodes_vec3_create_i()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -259,7 +259,7 @@ void w_Bytecodes_vec3_transform()
 
 void w_Bytecodes_vec4_create_i()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(0))->obj;
 
     brepvm::CodesBuilder builder(code, brepvm::VM::Instance()->GetOpFields());
 
@@ -440,13 +440,13 @@ void w_Bytecodes_transform()
 
 void w_CodeTools_get_size()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
     ves_set_number(0, static_cast<double>(code->GetCode().size()));
 }
 
 void w_CodeTools_decompiler()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
     int begin = (int)ves_tonumber(2);
     int end = (int)ves_tonumber(3);
@@ -461,7 +461,7 @@ void w_CodeTools_decompiler()
 
 void w_CodeTools_hash()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
     int begin = (int)ves_tonumber(2);
     int end = (int)ves_tonumber(3);
@@ -479,7 +479,7 @@ void w_CodeTools_hash()
 
 void w_CodeRegen_write_int()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
     int pos = (int)ves_tonumber(2);
     int i = (int)ves_tonumber(3);
 
@@ -490,7 +490,7 @@ void w_CodeRegen_write_int()
 
 void w_CodeRegen_write_num()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
     int pos = (int)ves_tonumber(2);
     float f = (float)ves_tonumber(3);
 
@@ -499,20 +499,20 @@ void w_CodeRegen_write_num()
 
 void w_Compiler_allocate()
 {
-    auto proxy = (tt::Proxy<brepvm::Compiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvm::Compiler>));
+    auto proxy = (wrapper::Proxy<brepvm::Compiler>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepvm::Compiler>));
     proxy->obj = std::make_shared<brepvm::Compiler>();
 }
 
 int w_Compiler_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<brepvm::Compiler>*)(data);
+    auto proxy = (wrapper::Proxy<brepvm::Compiler>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<brepvm::Compiler>);
+    return sizeof(wrapper::Proxy<brepvm::Compiler>);
 }
 
 void w_Compiler_new_reg()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
     int reg = c->NewRegister();
     if (reg >= 0) {
         ves_set_number(0, reg);
@@ -523,7 +523,7 @@ void w_Compiler_new_reg()
 
 void w_Compiler_free_reg()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
     if (ves_type(1) == VES_TYPE_NUM)
     {
         int reg = (int)ves_tonumber(1);
@@ -533,7 +533,7 @@ void w_Compiler_free_reg()
 
 void w_Compiler_keep_reg()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
     int reg = (int)ves_tonumber(1);
     bool keep = ves_toboolean(2);
     if (reg >= 0) {
@@ -543,45 +543,45 @@ void w_Compiler_keep_reg()
 
 void w_Compiler_expect_reg_free()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
     c->ExpectRegFree();
 }
 
 void w_Compiler_is_precomp_cond_branch()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
     ves_set_boolean(0, c->IsPrecompCondBranch());
 }
 
 void w_Compiler_get_profiler()
 {
-    auto c = ((tt::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<brepvm::Compiler>*)ves_toforeign(0))->obj;
 
     ves_pop(ves_argnum());
 
     ves_pushnil();
     ves_import_class("vm", "Profiler");
-    auto proxy = (tt::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepvm::Profiler>));
+    auto proxy = (wrapper::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<brepvm::Profiler>));
     proxy->obj = c->GetProfiler();
     ves_pop(1);
 }
 
 void w_Profiler_allocate()
 {
-    auto proxy = (tt::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvm::Profiler>));
+    auto proxy = (wrapper::Proxy<brepvm::Profiler>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepvm::Profiler>));
     proxy->obj = std::make_shared<brepvm::Profiler>();
 }
 
 int w_Profiler_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<brepvm::Profiler>*)(data);
+    auto proxy = (wrapper::Proxy<brepvm::Profiler>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<brepvm::Profiler>);
+    return sizeof(wrapper::Proxy<brepvm::Profiler>);
 }
 
 void w_Profiler_push_block()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     const char* name = ves_tostring(1);
     size_t pos = (size_t)ves_tonumber(2);
 
@@ -590,7 +590,7 @@ void w_Profiler_push_block()
 
 void w_Profiler_pop_block()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     size_t pos = (size_t)ves_tonumber(1);
     int reg = (int)ves_tonumber(2);
 
@@ -599,52 +599,52 @@ void w_Profiler_pop_block()
 
 void w_Profiler_print_block_tree()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     prof->PrintBlockTree();
 }
 
 void w_Profiler_stat_call()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     const char* name = ves_tostring(1);
     prof->StatCall(name);
 }
 
 void w_Profiler_add_cost()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     int cost = (int)ves_tonumber(1);
     prof->AddCost(cost);
 }
 
 void w_Profiler_get_cost()
 {
-    auto prof = ((tt::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
+    auto prof = ((wrapper::Proxy<brepvm::Profiler>*)ves_toforeign(0))->obj;
     ves_set_number(0, prof->GetCost());
 }
 
 void w_Optimizer_allocate()
 {
-    auto code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
-    auto proxy = (tt::Proxy<brepvm::Optimizer>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<brepvm::Optimizer>));
+    auto proxy = (wrapper::Proxy<brepvm::Optimizer>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepvm::Optimizer>));
     proxy->obj = std::make_shared<brepvm::Optimizer>(code);
 }
 
 int w_Optimizer_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<brepvm::Optimizer>*)(data);
+    auto proxy = (wrapper::Proxy<brepvm::Optimizer>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<brepvm::Optimizer>);
+    return sizeof(wrapper::Proxy<brepvm::Optimizer>);
 }
 
 void w_Optimizer_optimize()
 {
-    auto optim = ((tt::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
+    auto optim = ((wrapper::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
 
     std::shared_ptr<brepvm::Profiler> profiler = nullptr;
     if (void* param = ves_toforeign(1)) {
-        profiler = ((tt::Proxy<brepvm::Profiler>*)param)->obj;
+        profiler = ((wrapper::Proxy<brepvm::Profiler>*)param)->obj;
     }
 
     optim->Optimize(profiler);
@@ -652,7 +652,7 @@ void w_Optimizer_optimize()
 
 void w_Optimizer_write_num()
 {
-    auto optim = ((tt::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
+    auto optim = ((wrapper::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
     int pos = (int)ves_tonumber(1);
     float num = (float)ves_tonumber(2);
 
@@ -661,13 +661,13 @@ void w_Optimizer_write_num()
 
 void w_Optimizer_flush()
 {
-    auto optim = ((tt::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
+    auto optim = ((wrapper::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
     optim->FlushCache();
 }
 
 void w_Optimizer_get_codes()
 {
-    auto optim = ((tt::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
+    auto optim = ((wrapper::Proxy<brepvm::Optimizer>*)ves_toforeign(0))->obj;
 
     auto new_code = optim->GetNewCodes();
     if (new_code)
@@ -676,7 +676,7 @@ void w_Optimizer_get_codes()
 
         ves_pushnil();
         ves_import_class("vm", "Bytecodes");
-        auto proxy = (tt::Proxy<brepvm::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<brepvm::Bytecodes>));
+        auto proxy = (wrapper::Proxy<brepvm::Bytecodes>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<brepvm::Bytecodes>));
         proxy->obj = new_code;
         ves_pop(1);
     }
@@ -688,23 +688,23 @@ void w_Optimizer_get_codes()
 
 void w_VM_allocate()
 {
-    auto b_code = ((tt::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
+    auto b_code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
-    auto proxy = (tt::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<evm::VM>));
+    auto proxy = (wrapper::Proxy<evm::VM>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<evm::VM>));
     auto& code = b_code->GetCode();
     proxy->obj = brepvm::VM::Instance()->CreateVM(code);
 }
 
 int w_VM_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<evm::VM>*)(data);
+    auto proxy = (wrapper::Proxy<evm::VM>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<evm::VM>);
+    return sizeof(wrapper::Proxy<evm::VM>);
 }
 
 void w_VM_run()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     vm->Run();
 
     brepvm::VM::Instance()->GetCache()->Update();
@@ -712,7 +712,7 @@ void w_VM_run()
 
 void w_VM_load_boolean()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
     if (reg == 0xff) {
         ves_set_nil(0);
@@ -723,7 +723,7 @@ void w_VM_load_boolean()
 
 void w_VM_load_number()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
     if (reg == 0xff) {
         ves_set_nil(0);
@@ -734,7 +734,7 @@ void w_VM_load_number()
 
 void w_VM_load_string()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
     if (reg == 0xff) {
         ves_set_nil(0);
@@ -746,7 +746,7 @@ void w_VM_load_string()
 
 void w_VM_load_plane()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
 
     uint8_t reg = (uint8_t)ves_tonumber(1);
     if (reg == 0xff) {
@@ -764,14 +764,14 @@ void w_VM_load_plane()
 
     ves_pushnil();
     ves_import_class("maths", "Plane");
-    auto proxy = (tt::Proxy<sm::Plane>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<sm::Plane>));
+    auto proxy = (wrapper::Proxy<sm::Plane>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<sm::Plane>));
     proxy->obj = evm::VMHelper::GetHandleValue<sm::Plane>(val);
     ves_pop(1);
 }
 
 void w_VM_load_polyface()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
 
     uint8_t reg = (uint8_t)ves_tonumber(1);
     if (reg == 0xff) {
@@ -789,25 +789,25 @@ void w_VM_load_polyface()
 
     ves_pushnil();
     ves_import_class("geometry", "PolyFace");
-    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<pm3::Polytope::Face>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<pm3::Polytope::Face>));
     proxy->obj = evm::VMHelper::GetHandleValue<pm3::Polytope::Face>(val);
     ves_pop(1);
 }
 
 void w_VM_load_polytope()
 {
-    auto vm = ((tt::Proxy<evm::VM>*)ves_toforeign(0))->obj;
+    auto vm = ((wrapper::Proxy<evm::VM>*)ves_toforeign(0))->obj;
     uint8_t reg = (uint8_t)ves_tonumber(1);
 
     auto polys = brepvm::VMHelper::LoadPolys(vm.get(), reg);
-    tt::return_poly_list(polys);
+    wrapper::return_foreign_list(polys, "geometry", "Polytope");
 }
 
 void w_ValueCache_fetch()
 {
     uint8_t idx = (uint8_t)ves_tonumber(1);
     auto polys = brepvm::VMHelper::LoadPolysFromCache(idx);
-    tt::return_poly_list(polys);
+    wrapper::return_foreign_list(polys, "geometry", "Polytope");
 }
 
 }

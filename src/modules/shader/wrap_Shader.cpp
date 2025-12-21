@@ -1,6 +1,4 @@
 #include "modules/shader/wrap_Shader.h"
-#include "modules/script/Proxy.h"
-#include "modules/script/TransHelper.h"
 
 #include <shadertrans/ShaderStage.h>
 #include <shadertrans/ShaderTrans.h>
@@ -12,6 +10,8 @@
 #include <shadertrans/ShaderPreprocess.h>
 #include <vessel/src/value.h>
 #include <guard/check.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <vector>
 
@@ -114,7 +114,7 @@ void w_ShaderTools_code2spirv()
         shadertrans::ShaderTrans::HLSL2SpirV(stage, code_str, "main", spirv);
     }
 
-    tt::return_list(spirv);
+    wrapper::return_list(spirv);
 }
 
 void w_ShaderTools_disassemble()
@@ -384,7 +384,7 @@ void w_ShaderFunc_get_args()
 
     std::vector<std::string> names;
     shadertrans::SpirvGenTwo::GetFuncParamNames(func, names);
-    tt::return_list(names);
+    wrapper::return_list(names);
 }
 
 void w_ShaderFunc_call()
@@ -790,15 +790,15 @@ void w_ShaderInst_get_vector_num()
 void w_ShaderGen_allocate()
 {
     auto builder = std::make_shared<shadertrans::ShaderBuilder>();
-    auto proxy = (tt::Proxy<shadertrans::ShaderBuilder>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<shadertrans::ShaderBuilder>));
+    auto proxy = (wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<shadertrans::ShaderBuilder>));
     proxy->obj = builder;
 }
 
 int w_ShaderGen_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<shadertrans::ShaderBuilder>*)(data);
+    auto proxy = (wrapper::Proxy<shadertrans::ShaderBuilder>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<shadertrans::ShaderBuilder>);
+    return sizeof(wrapper::Proxy<shadertrans::ShaderBuilder>);
 }
 
 void w_ShaderGen_add_input()
@@ -806,7 +806,7 @@ void w_ShaderGen_add_input()
     const char* name = ves_tostring(1);
     const char* type = ves_tostring(2);
 
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto input = builder->AddInput(name, type);
     return_inst(input);
 }
@@ -816,7 +816,7 @@ void w_ShaderGen_add_output()
     const char* name = ves_tostring(1);
     const char* type = ves_tostring(2);
 
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto output = builder->AddOutput(name, type);
     return_inst(output);
 }
@@ -827,7 +827,7 @@ void w_ShaderGen_add_uniform()
     const char* name = ves_tostring(2);
     const char* type = ves_tostring(3);
 
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto unif = builder->AddUniform(module, name, type);
     return_inst(unif);
 }
@@ -836,7 +836,7 @@ void w_ShaderGen_query_unif_name()
 {
     spvgentwo::Instruction* unif = to_inst(1);
 
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     auto name = builder->QueryUniformName(unif);
     ves_set_lstring(0, name, strlen(name));
 }
@@ -851,14 +851,14 @@ void w_ShaderGen_add_module()
 
     auto stage = to_shader_stage(stage_str);
 
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Module* module = builder->AddModule(stage, code_str, lang_str, name, enter_point)->impl.get();
     return_module(module);
 }
 
 void w_ShaderGen_func_replace()
 {
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Function* from = *(spvgentwo::Function**)ves_toforeign(1);
     spvgentwo::Function* to = *(spvgentwo::Function**)ves_toforeign(2);
 
@@ -867,21 +867,21 @@ void w_ShaderGen_func_replace()
 
 void w_ShaderGen_get_main_module()
 {
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Module* module = builder->GetMainModule();
     return_module(module);
 }
 
 void w_ShaderGen_get_main_func()
 {
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Function* func = builder->GetMainFunc();
     return_func(func);
 }
 
 void w_ShaderGen_add_link_decl()
 {
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(1);
     const char* name = ves_tostring(2);
     bool is_export = ves_toboolean(3);
@@ -891,7 +891,7 @@ void w_ShaderGen_add_link_decl()
 
 void w_ShaderGen_connect_cs_main()
 {
-    auto builder = ((tt::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
+    auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
     const char* main_glsl = ves_tostring(1);
     auto glsl = builder->ConnectCSMain(main_glsl);
     if (glsl.empty()) {

@@ -1,7 +1,8 @@
 #include "modules/regen/wrap_Regen.h"
 #include "modules/regen/PolyDiff.h"
-#include "modules/script/TransHelper.h"
-#include "modules/script/Proxy.h"
+
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <string>
 
@@ -10,24 +11,24 @@ namespace
 
 void w_PolyDiff_allocate()
 {
-    auto proxy = (tt::Proxy<tt::PolyDiff>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::PolyDiff>));
+    auto proxy = (wrapper::Proxy<tt::PolyDiff>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<tt::PolyDiff>));
     proxy->obj = std::make_shared<tt::PolyDiff>();
 }
 
 int w_PolyDiff_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<tt::PolyDiff>*)(data);
+    auto proxy = (wrapper::Proxy<tt::PolyDiff>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<tt::PolyDiff>);
+    return sizeof(wrapper::Proxy<tt::PolyDiff>);
 }
 
 void w_PolyDiff_build()
 {
-    auto diff = ((tt::Proxy<tt::PolyDiff>*)ves_toforeign(0))->obj;
+    auto diff = ((wrapper::Proxy<tt::PolyDiff>*)ves_toforeign(0))->obj;
 
     std::vector<std::shared_ptr<pm3::Polytope>> src, dst;
-    tt::list_to_foreigns(1, src);
-    tt::list_to_foreigns(2, dst);
+    wrapper::list_to_foreigns(1, src);
+    wrapper::list_to_foreigns(2, dst);
 
     std::set<std::shared_ptr<pm3::Polytope>> src_set, dst_set;
     for (auto poly : src) {

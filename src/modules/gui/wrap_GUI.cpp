@@ -3,8 +3,6 @@
 #include "modules/render/Render.h"
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/SpriteRenderer.h"
-#include "modules/script/Proxy.h"
-#include "modules/script/TransHelper.h"
 
 #include <easygui/Context.h>
 #include <easygui/ImGui.h>
@@ -12,6 +10,8 @@
 #include <tessellation/Palette.h>
 #include <unirender/Context.h>
 #include <guard/check.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <string>
 
@@ -21,20 +21,20 @@ namespace
 void w_Context_allocate()
 {
 	auto ctx = std::make_shared<egui::Context>(tt::Graphics::Instance()->GetSpriteRenderer()->GetPalette());
-	auto proxy = (tt::Proxy<egui::Context>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<egui::Context>));
+	auto proxy = (wrapper::Proxy<egui::Context>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<egui::Context>));
 	proxy->obj = ctx;
 }
 
 int w_Context_finalize(void* data)
 {
-	auto proxy = (tt::Proxy<egui::Context>*)(data);
+	auto proxy = (wrapper::Proxy<egui::Context>*)(data);
 	proxy->~Proxy();
-	return sizeof(tt::Proxy<egui::Context>);
+	return sizeof(wrapper::Proxy<egui::Context>);
 }
 
 void w_GUI_begin()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 
 	tt::GUI::Instance()->ResetUID();
 
@@ -43,7 +43,7 @@ void w_GUI_begin()
 
 void w_GUI_end()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	ctx->EndDraw(
 		*tt::Render::Instance()->Device(),
 		*tt::Render::Instance()->Context(),
@@ -53,13 +53,13 @@ void w_GUI_end()
 
 void w_GUI_update()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	ctx->Update(0.03f);
 }
 
 void w_GUI_rebuild()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	ctx->rbuf.Rebuild();
 }
 
@@ -79,7 +79,7 @@ void w_GUI_trans_scr_pos_to_proj()
 	const float cam_scale = (float)ves_tonumber(5);
 	auto proj = tt::GUI::Instance()->TransScreenToProj({ x, y }, { cam_x, cam_y }, cam_scale);
 
-	tt::return_list(std::vector<float>{ proj.x, proj.y });
+	wrapper::return_list(std::vector<float>{ proj.x, proj.y });
 }
 
 enum MouseButton
@@ -99,7 +99,7 @@ enum MouseAction
 
 void w_GUI_mouse_input()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const int btn = (int)ves_tonumber(2);
 	const int action = (int)ves_tonumber(3);
 	const float x = (float)ves_tonumber(4);
@@ -166,7 +166,7 @@ void w_GUI_mouse_input()
 
 void w_GUI_frame()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const float x = (float)ves_tonumber(2);
 	const float y = (float)ves_tonumber(3);
 	const float w = (float)ves_tonumber(4);
@@ -177,7 +177,7 @@ void w_GUI_frame()
 
 void w_GUI_button()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label = ves_tostring(2);
 	const float x = (float)ves_tonumber(3);
 	const float y = (float)ves_tonumber(4);
@@ -189,7 +189,7 @@ void w_GUI_button()
 
 void w_GUI_slider()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label   = ves_tostring(2);
 	const float val     = (float)ves_tonumber(3);
 	const float x       = (float)ves_tonumber(4);
@@ -213,7 +213,7 @@ void w_GUI_slider()
 
 void w_GUI_label()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* text = ves_tostring(2);
 	const float x = (float)ves_tonumber(3);
 	const float y = (float)ves_tonumber(4);
@@ -223,7 +223,7 @@ void w_GUI_label()
 
 void w_GUI_checkbox()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label = ves_tostring(2);
 	const bool  val   = ves_toboolean(3);
 	const float x     = (float)ves_tonumber(4);
@@ -238,7 +238,7 @@ void w_GUI_checkbox()
 
 void w_GUI_radio_button()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label = ves_tostring(2);
 	const bool  val   = ves_toboolean(3);
 	const float x     = (float)ves_tonumber(4);
@@ -258,7 +258,7 @@ enum ArrowDir
 
 void w_GUI_arrow_button()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const ArrowDir dir    = (ArrowDir)ves_tonumber(2);
 	const float    x      = (float)ves_tonumber(3);
 	const float    y      = (float)ves_tonumber(4);
@@ -270,7 +270,7 @@ void w_GUI_arrow_button()
 
 void w_GUI_selectable()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label  = ves_tostring(2);
 	const bool  val    = ves_toboolean(3);
 	const float x      = (float)ves_tonumber(4);
@@ -286,7 +286,7 @@ void w_GUI_selectable()
 
 void w_GUI_combo()
 {
-	auto ctx = ((tt::Proxy<egui::Context>*)ves_toforeign(1))->obj;
+	auto ctx = ((wrapper::Proxy<egui::Context>*)ves_toforeign(1))->obj;
 	const char* label     = ves_tostring(2);
 	const int   curr_item = (int)ves_tonumber(3);
 	const float x         = (float)ves_tonumber(5);

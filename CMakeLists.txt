@@ -189,14 +189,6 @@ set(modules__scene
 )
 source_group("modules\\scene" FILES ${modules__scene})
 
-set(modules__script
-    "src/modules/script/Proxy.h"
-    "src/modules/script/TransHelper.cpp"
-    "src/modules/script/TransHelper.h"
-    "src/modules/script/TransHelper.inl"
-)
-source_group("modules\\script" FILES ${modules__script})
-
 set(modules__shader
     "src/modules/shader/shader.ves.inc"
     "src/modules/shader/wrap_Shader.cpp"
@@ -241,7 +233,6 @@ set(ALL_FILES
     ${modules__regen}
     ${modules__render}
     ${modules__scene}
-    ${modules__script}
     ${modules__shader}
     ${modules__system}
     ${modules__vm}
@@ -282,6 +273,7 @@ thirdparty/easyvm/include
 thirdparty/brepvm/include
 thirdparty/glfw/include
 thirdparty/tinyobjloader
+thirdparty/wrapper/include
 )
 
 set(EDITOR_FILES
@@ -317,6 +309,7 @@ add_subdirectory(thirdparty/brepdb)
 add_subdirectory(thirdparty/objcomp)
 add_subdirectory(thirdparty/brepom)
 add_subdirectory(thirdparty/graph)
+add_subdirectory(thirdparty/wrapper)
 
 add_subdirectory(thirdparty/shadertrans/external/SPIRV-Cross)
 add_subdirectory(thirdparty/shadertrans/external/glslang)
@@ -330,8 +323,8 @@ add_executable(editor ${EDITOR_FILES})
 set(FBX_SDK_DIR "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.7")
 set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/arm64/debug")
 
-target_include_directories(editor PRIVATE src include thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include )
+target_include_directories(editor PRIVATE src include thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 
-target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm brepdb objcomp brepom graph freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib")
+target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm brepdb objcomp brepom graph wrapper freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib")
 
 target_link_options(editor PRIVATE "/FORCE:MULTIPLE")

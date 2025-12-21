@@ -1,8 +1,6 @@
 #include "modules/physics/wrap_Physics.h"
 #include "modules/physics/Physics.h"
-#include "modules/script/Proxy.h"
 #include "modules/graphics/Graphics.h"
-#include "modules/script/TransHelper.h"
 
 #include <uniphysics/rigid/DebugDraw.h>
 #include <uniphysics/rigid/box2d/World.h>
@@ -16,6 +14,8 @@
 #include <geoshape/Polyline2D.h>
 #include <geoshape/Polygon2D.h>
 #include <sm/SM_Calc.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <string>
 
@@ -29,26 +29,26 @@ void w_World_allocate()
     auto draw = tt::Physics::Instance()->GetDebugDraw();
     world->SetDebugDraw(*draw);
 
-    auto proxy = (tt::Proxy<up::rigid::box2d::World>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::World>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::World>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::World>));
     proxy->obj = world;
 }
 
 int w_World_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::World>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::World>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::World>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::World>);
 }
 
 void w_World_update()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
     world->StepSimulation(1.0f / 60);
 }
 
 void w_World_debug_draw()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
     world->DebugDraw();
 
     auto draw = tt::Physics::Instance()->GetDebugDraw();
@@ -59,36 +59,36 @@ void w_World_debug_draw()
 
 void w_World_add_body()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
     world->AddBody(body);
 }
 
 void w_World_remove_body()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
     world->RemoveBody(body);
 }
 
 void w_World_add_joint()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
-    auto joint = ((tt::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
     world->AddJoint(joint);
 }
 
 void w_World_remove_joint()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
-    auto joint = ((tt::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::Joint>*)ves_toforeign(1))->obj;
     world->RemoveJoint(joint);
 }
 
 void w_World_query_by_pos()
 {
-    auto world = ((tt::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
-    auto pos = tt::list_to_vec2(1);
+    auto world = ((wrapper::Proxy<up::rigid::box2d::World>*)ves_toforeign(0))->obj;
+    auto pos = wrapper::list_to_vec2(1);
     auto body = world->QueryByPos(pos);
     if (body) 
     {
@@ -96,7 +96,7 @@ void w_World_query_by_pos()
 
         ves_pushnil();
         ves_import_class("physics", "Body");
-        auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+        auto proxy = (wrapper::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<up::rigid::box2d::Body>));
         proxy->obj = body;
         ves_pop(1);
     } 
@@ -112,24 +112,24 @@ void w_Body_allocate()
     int flag = (int)ves_optnumber(2, -1);
     auto body = std::make_shared<up::rigid::box2d::Body>(type, flag);
 
-    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::Body>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::Body>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::Body>));
     proxy->obj = body;
 }
 
 int w_Body_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::Body>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::Body>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::Body>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::Body>);
 }
 
 void w_Body_add_fixture()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
-    auto shape = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto shape = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto filled = ves_optboolean(2, false);
     auto mt = (sm::Matrix2D*)ves_toforeign(3);
-    auto filter = tt::list_to_array<int>(4);
+    auto filter = wrapper::list_to_array<int>(4);
 
     auto phy_shape = std::make_shared<up::rigid::box2d::Shape>();
 
@@ -230,66 +230,66 @@ void w_Body_add_fixture()
 
 void w_Body_set_gravity_scale()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float gravity = (float)ves_tonumber(1);
     body->SetGravityScale(gravity);
 }
 
 void w_Body_set_density()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float density = (float)ves_tonumber(1);
     body->SetDensity(density);
 }
 
 void w_Body_set_restitution()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float restitution = (float)ves_tonumber(1);
     body->SetRestitution(restitution);
 }
 
 void w_Body_set_friction()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float friction = (float)ves_tonumber(1);
     body->SetFriction(friction);
 }
 
 void w_Body_apply_force()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
-    auto force = tt::list_to_vec2(1);
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto force = wrapper::list_to_vec2(1);
     body->ApplyForce(force);
 }
 
 void w_Body_apply_torque()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float torque = (float)ves_tonumber(1);
     body->ApplyTorque(torque);
 }
 
 void w_Body_apply_linear_impulse()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
-    auto impulse = tt::list_to_vec2(1);
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto impulse = wrapper::list_to_vec2(1);
     body->ApplyLinearImpulse(impulse);
 }
 
 void w_Body_apply_angular_impulse()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float impulse = (float)ves_tonumber(1);
     body->ApplyAngularImpulse(impulse);
 }
 
 void w_Body_get_pos()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto pos = body->GetPosition();
 
-    tt::return_list(std::vector<float>{
+    wrapper::return_list(std::vector<float>{
         pos.x * up::rigid::box2d::SCALE_FACTOR,
         pos.y * up::rigid::box2d::SCALE_FACTOR
     });
@@ -297,14 +297,14 @@ void w_Body_get_pos()
 
 void w_Body_get_angle()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     ves_set_number(0, body->GetAngle());
 }
 
 void w_Body_set_transform()
 {
-    auto body  = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
-    auto pos   = tt::list_to_vec2(1) / up::rigid::box2d::SCALE_FACTOR;
+    auto body  = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto pos   = wrapper::list_to_vec2(1) / up::rigid::box2d::SCALE_FACTOR;
     auto angle = (float)ves_tonumber(2);
 
     body->SetTransform(pos, angle);
@@ -312,20 +312,20 @@ void w_Body_set_transform()
 
 void w_Body_get_type()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto& type = body->GetType();
     ves_set_lstring(0, type.c_str(), type.size());
 }
 
 void w_Body_get_flag()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     ves_set_number(0, body->GetFlag());
 }
 
 void w_Body_set_linear_velocity()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
     body->SetLinearVelocity({ x, y });
@@ -333,44 +333,44 @@ void w_Body_set_linear_velocity()
 
 void w_Body_get_linear_velocity()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     auto velocity = body->GetLinearVelocity();
-    tt::return_list(std::vector<float>{ velocity.x, velocity.y });
+    wrapper::return_list(std::vector<float>{ velocity.x, velocity.y });
 }
 
 void w_Body_is_valid()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     ves_set_boolean(0, body->GetImpl() != nullptr);
 }
 
 void w_Body_get_mass()
 {
-    auto body = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
+    auto body = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(0))->obj;
     ves_set_number(0, body->GetMass());
 }
 
 void w_RevoluteJoint_allocate()
 {
-    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
-    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto body_a = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor = wrapper::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
 
     auto joint = std::make_shared<up::rigid::box2d::RevoluteJoint>(body_a, body_b, anchor);
-    auto proxy = (tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::RevoluteJoint>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::RevoluteJoint>));
     proxy->obj = joint;
 }
 
 int w_RevoluteJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::RevoluteJoint>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::RevoluteJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::RevoluteJoint>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::RevoluteJoint>);
 }
 
 void w_RevoluteJoint_set_angle_limit()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
     auto enable_limit = ves_toboolean(1);
     auto lower = (float)ves_tonumber(2);
     auto upper = (float)ves_tonumber(3);
@@ -379,7 +379,7 @@ void w_RevoluteJoint_set_angle_limit()
 
 void w_RevoluteJoint_set_motor()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::RevoluteJoint>*)ves_toforeign(0))->obj;
     auto enable_motor = ves_toboolean(1);
     auto max_torque = (float)ves_tonumber(2);
     auto speed = (float)ves_tonumber(3);
@@ -388,26 +388,26 @@ void w_RevoluteJoint_set_motor()
 
 void w_PrismaticJoint_allocate()
 {
-    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
-    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
-    auto axis   = tt::list_to_vec2(4);
+    auto body_a = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor = wrapper::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto axis   = wrapper::list_to_vec2(4);
 
     auto joint = std::make_shared<up::rigid::box2d::PrismaticJoint>(body_a, body_b, anchor, axis);
-    auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::PrismaticJoint>));
     proxy->obj = joint;
 }
 
 int w_PrismaticJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::PrismaticJoint>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::PrismaticJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::PrismaticJoint>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::PrismaticJoint>);
 }
 
 void w_PrismaticJoint_set_translate_limit()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
     auto enable_limit = ves_toboolean(1);
     auto lower = (float)ves_tonumber(2);
     auto upper = (float)ves_tonumber(3);
@@ -416,7 +416,7 @@ void w_PrismaticJoint_set_translate_limit()
 
 void w_PrismaticJoint_set_motor()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::PrismaticJoint>*)ves_toforeign(0))->obj;
     auto enable_motor = ves_toboolean(1);
     auto max_torque = (float)ves_tonumber(2);
     auto speed = (float)ves_tonumber(3);
@@ -425,26 +425,26 @@ void w_PrismaticJoint_set_motor()
 
 void w_DistanceJoint_allocate()
 {
-    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
-    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto anchor_a = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
-    auto anchor_b = tt::list_to_vec2(4) / up::rigid::box2d::SCALE_FACTOR;
+    auto body_a = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor_a = wrapper::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto anchor_b = wrapper::list_to_vec2(4) / up::rigid::box2d::SCALE_FACTOR;
 
     auto joint = std::make_shared<up::rigid::box2d::DistanceJoint>(body_a, body_b, anchor_a, anchor_b);
-    auto proxy = (tt::Proxy<up::rigid::box2d::DistanceJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::DistanceJoint>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::DistanceJoint>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::DistanceJoint>));
     proxy->obj = joint;
 }
 
 int w_DistanceJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::DistanceJoint>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::DistanceJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::DistanceJoint>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::DistanceJoint>);
 }
 
 void w_DistanceJoint_set_length()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::DistanceJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::DistanceJoint>*)ves_toforeign(0))->obj;
     auto min = (float)ves_tonumber(1) / up::rigid::box2d::SCALE_FACTOR;
     auto max = (float)ves_tonumber(2) / up::rigid::box2d::SCALE_FACTOR;
     joint->SetLength(min, max);
@@ -452,52 +452,52 @@ void w_DistanceJoint_set_length()
 
 void w_MouseJoint_allocate()
 {
-    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
-    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto target = tt::list_to_vec2(3);
+    auto body_a = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto target = wrapper::list_to_vec2(3);
     auto max_force = (float)ves_tonumber(4);
 
     auto joint = std::make_shared<up::rigid::box2d::MouseJoint>(body_a, body_b, target, max_force);
-    auto proxy = (tt::Proxy<up::rigid::box2d::MouseJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::MouseJoint>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::MouseJoint>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::MouseJoint>));
     proxy->obj = joint;
 }
 
 int w_MouseJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::MouseJoint>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::MouseJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::MouseJoint>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::MouseJoint>);
 }
 
 void w_MouseJoint_set_target()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::MouseJoint>*)ves_toforeign(0))->obj;
-    auto target = tt::list_to_vec2(1);
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::MouseJoint>*)ves_toforeign(0))->obj;
+    auto target = wrapper::list_to_vec2(1);
     joint->SetTarget(target);
 }
 
 void w_WheelJoint_allocate()
 {
-    auto body_a = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
-    auto body_b = ((tt::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
-    auto anchor = tt::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
-    auto axis   = tt::list_to_vec2(4);
+    auto body_a = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(1))->obj;
+    auto body_b = ((wrapper::Proxy<up::rigid::box2d::Body>*)ves_toforeign(2))->obj;
+    auto anchor = wrapper::list_to_vec2(3) / up::rigid::box2d::SCALE_FACTOR;
+    auto axis   = wrapper::list_to_vec2(4);
 
     auto joint = std::make_shared<up::rigid::box2d::WheelJoint>(body_a, body_b, anchor, axis);
-    auto proxy = (tt::Proxy<up::rigid::box2d::WheelJoint>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<up::rigid::box2d::WheelJoint>));
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::WheelJoint>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<up::rigid::box2d::WheelJoint>));
     proxy->obj = joint;
 }
 
 int w_WheelJoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<up::rigid::box2d::WheelJoint>*)(data);
+    auto proxy = (wrapper::Proxy<up::rigid::box2d::WheelJoint>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<up::rigid::box2d::WheelJoint>);
+    return sizeof(wrapper::Proxy<up::rigid::box2d::WheelJoint>);
 }
 
 void w_WheelJoint_set_translate_limit()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
     auto enable_limit = ves_toboolean(1);
     auto lower = (float)ves_tonumber(2);
     auto upper = (float)ves_tonumber(3);
@@ -506,7 +506,7 @@ void w_WheelJoint_set_translate_limit()
 
 void w_WheelJoint_set_motor()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
     auto enable_motor = ves_toboolean(1);
     auto max_torque = (float)ves_tonumber(2);
     auto speed = (float)ves_tonumber(3);
@@ -515,7 +515,7 @@ void w_WheelJoint_set_motor()
 
 void w_WheelJoint_set_suspension()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
     auto stiffness = (float)ves_tonumber(1);
     auto damping = (float)ves_tonumber(2);
     joint->SetSuspension(stiffness, damping);
@@ -523,7 +523,7 @@ void w_WheelJoint_set_suspension()
 
 void w_WheelJoint_set_motor_speed()
 {
-    auto joint = ((tt::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
+    auto joint = ((wrapper::Proxy<up::rigid::box2d::WheelJoint>*)ves_toforeign(0))->obj;
     auto speed = (float)ves_tonumber(1);
     joint->SetMotorSpeed(speed);
 }

@@ -1,8 +1,8 @@
 #include "wrap_Scene.h"
-#include "modules/script/TransHelper.h"
 #include "modules/scene/SceneTree.h"
 
 #include <brepdb/RTree.h>
+#include <wrapper/TransHelper.h>
 
 #include <queue>
 
@@ -13,27 +13,27 @@ namespace
 
 void w_SceneTree_allocate()
 {
-    auto proxy = (tt::Proxy<tt::SceneTree>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<tt::SceneTree>));
+    auto proxy = (wrapper::Proxy<tt::SceneTree>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<tt::SceneTree>));
     proxy->obj = std::make_shared<tt::SceneTree>();
 }
 
 int w_SceneTree_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<tt::SceneTree>*)(data);
+    auto proxy = (wrapper::Proxy<tt::SceneTree>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<tt::SceneTree>);
+    return sizeof(wrapper::Proxy<tt::SceneTree>);
 }
 
 void w_SceneTree_build_tree()
 {
-    auto stree = ((tt::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
-    auto rtree = ((tt::Proxy<brepdb::RTree>*)ves_toforeign(1))->obj;
+    auto stree = ((wrapper::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(1))->obj;
     stree->Build(*rtree);
 }
 
 void w_SceneTree_get_all_vao()
 {
-    auto stree = ((tt::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
+    auto stree = ((wrapper::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
 
     auto root = stree->GetRoot();
     if (!root) 
@@ -67,7 +67,7 @@ void w_SceneTree_get_all_vao()
     {
         ves_pushnil();
         ves_import_class("render", "VertexArray");
-        auto proxy = (tt::Proxy<ur::VertexArray>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<ur::VertexArray>));
+        auto proxy = (wrapper::Proxy<ur::VertexArray>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<ur::VertexArray>));
         proxy->obj = vao_list[i];
         ves_pop(1);
         ves_seti(-2, i);

@@ -1,7 +1,6 @@
 #include "modules/image/wrap_Image.h"
 #include "modules/image/ImageData.h"
 #include "modules/filesystem/Filesystem.h"
-#include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
 #include "modules/maths/float16.h"
 
@@ -13,6 +12,7 @@
 #include <unirender/TextureUtility.h>
 #include <unirender/Device.h>
 #include <guard/check.h>
+#include <wrapper/TransHelper.h>
 
 #include <string>
 #include <algorithm>
@@ -80,7 +80,7 @@ void w_ImageData_allocate()
     }
     else if (ves_type(1) == VES_TYPE_FOREIGN)
     {
-        auto tex = ((tt::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+        auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
         const auto w = tex->GetWidth();
         const auto h = tex->GetHeight();
         const auto fmt = tex->GetFormat();

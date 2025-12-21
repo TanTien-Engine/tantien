@@ -1,5 +1,4 @@
 #include "modules/maths/wrap_Maths.h"
-#include "modules/script/TransHelper.h"
 #include "modules/graphics/Graphics.h"
 
 #include <SM_Matrix2D.h>
@@ -8,6 +7,7 @@
 #include <SM_Plane.h>
 #include <SM_Calc.h>
 #include <SM_Cube.h>
+#include <wrapper/TransHelper.h>
 
 #include <string.h>
 
@@ -227,7 +227,7 @@ void w_Matrix2D_decompose()
     float r = 0.0f;
     mt->Decompose(s, r, t);
 
-    tt::return_list(std::vector<float>{ s.x, s.y, r, t.x, t.y });
+    wrapper::return_list(std::vector<float>{ s.x, s.y, r, t.x, t.y });
 }
 
 void w_Matrix44_clone()
@@ -416,8 +416,8 @@ void w_Matrix44_from_vectors()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
 
-    auto f = tt::list_to_vec3(1);
-    auto t = tt::list_to_vec3(2);
+    auto f = wrapper::list_to_vec3(1);
+    auto t = wrapper::list_to_vec3(2);
 
     auto quat = sm::Quaternion::CreateFromVectors(f, t);
     *mt = sm::mat4(quat);
@@ -440,7 +440,7 @@ void w_Matrix44_transform_mat4()
 void w_Matrix44_get_scale()
 {
     sm::mat4* mt = (sm::mat4*)ves_toforeign(0);
-    tt::return_list(std::vector<float>{ mt->c[0][0], mt->c[1][1], mt->c[2][2] });
+    wrapper::return_list(std::vector<float>{ mt->c[0][0], mt->c[1][1], mt->c[2][2] });
 }
 
 void w_Matrix44_inverse()
@@ -456,7 +456,7 @@ void w_Matrix44_decompose()
     sm::vec3 s, r, t;
     mt->Decompose(t, r, s);
 
-    tt::return_list(std::vector<float>{ s.x, s.y, s.z, r.x, r.y, r.z, t.x, t.y, t.z });
+    wrapper::return_list(std::vector<float>{ s.x, s.y, s.z, r.x, r.y, r.z, t.x, t.y, t.z });
 }
 
 void w_Plane_allocate()
@@ -466,16 +466,16 @@ void w_Plane_allocate()
     int num = ves_argnum();
     if (num == 4)
     {
-        auto p0 = tt::list_to_vec3(1);
-        auto p1 = tt::list_to_vec3(2);
-        auto p2 = tt::list_to_vec3(3);
+        auto p0 = wrapper::list_to_vec3(1);
+        auto p1 = wrapper::list_to_vec3(2);
+        auto p2 = wrapper::list_to_vec3(3);
 
         plane->Build(p0, p1, p2);
     }
     else if (num == 3)
     {
-        auto ori = tt::list_to_vec3(1);
-        auto dir = tt::list_to_vec3(2);
+        auto ori = wrapper::list_to_vec3(1);
+        auto dir = wrapper::list_to_vec3(2);
 
         plane->Build(dir, ori);
     }
@@ -514,28 +514,28 @@ void w_Cube_get_center()
 {
     sm::cube* cube = (sm::cube*)ves_toforeign(0);
     auto p = cube->Center();
-    tt::return_list(std::vector<float>{ p.x, p.y, p.z });
+    wrapper::return_list(std::vector<float>{ p.x, p.y, p.z });
 }
 
 void w_Cube_get_size()
 {
     sm::cube* cube = (sm::cube*)ves_toforeign(0);
     auto sz = cube->Size();
-    tt::return_list(std::vector<float>{ sz.x, sz.y, sz.z });
+    wrapper::return_list(std::vector<float>{ sz.x, sz.y, sz.z });
 }
 
 void w_Maths_is_convex_intersect_convex()
 {
-    auto c0 = tt::list_to_vec2_array(1);
-    auto c1 = tt::list_to_vec2_array(2);
+    auto c0 = wrapper::list_to_vec2_array(1);
+    auto c1 = wrapper::list_to_vec2_array(2);
     bool ret = sm::is_convex_intersect_convex(c0, c1);
     ves_set_boolean(0, ret);
 }
 
 void w_Maths_get_line_intersect_line()
 {
-    auto l0 = tt::list_to_vec2_array(1);
-    auto l1 = tt::list_to_vec2_array(2);
+    auto l0 = wrapper::list_to_vec2_array(1);
+    auto l1 = wrapper::list_to_vec2_array(2);
 
     bool is_seg = ves_toboolean(3);
 
@@ -547,7 +547,7 @@ void w_Maths_get_line_intersect_line()
         succ = sm::intersect_line_line(l0[0], l0[1], l1[0], l1[1], &cross);
     }
     if (succ) {
-        tt::return_list(std::vector<float>{ cross.x, cross.y });
+        wrapper::return_list(std::vector<float>{ cross.x, cross.y });
     } else {
         ves_set_nil(0);
     }
@@ -555,8 +555,8 @@ void w_Maths_get_line_intersect_line()
 
 void w_Maths_calc_rot_mat()
 {
-    auto f = tt::list_to_vec3(1);
-    auto t = tt::list_to_vec3(2);
+    auto f = wrapper::list_to_vec3(1);
+    auto t = wrapper::list_to_vec3(2);
 
     auto q = sm::Quaternion::CreateFromVectors(f, t);
 
@@ -571,9 +571,9 @@ void w_Maths_calc_rot_mat()
 
 void w_Maths_calc_angle()
 {
-    auto c = tt::list_to_vec3(1);
-    auto s = tt::list_to_vec3(2);
-    auto e = tt::list_to_vec3(3);
+    auto c = wrapper::list_to_vec3(1);
+    auto s = wrapper::list_to_vec3(2);
+    auto e = wrapper::list_to_vec3(3);
     
     auto angle = sm::get_angle(c, s, e);
     ves_set_number(0, angle);
@@ -581,7 +581,7 @@ void w_Maths_calc_angle()
 
 void w_Maths_is_pos_above_plane()
 {
-    auto pos = tt::list_to_vec3(1);
+    auto pos = wrapper::list_to_vec3(1);
     auto plane = (sm::Plane*)ves_toforeign(2);
     bool ret = plane->GetDistance(pos) > 0;
     ves_set_boolean(0, ret);

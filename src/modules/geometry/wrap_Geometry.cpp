@@ -1,7 +1,5 @@
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/ShapeMaths.h"
-#include "modules/script/TransHelper.h"
-#include "modules/script/Proxy.h"
 
 #include <geoshape/Point2D.h>
 #include <geoshape/Line2D.h>
@@ -26,6 +24,8 @@
 #include <SM_Calc.h>
 #include <SM_Ray.h>
 #include <SM_RayIntersect.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <iterator>
 #include <string>
@@ -36,7 +36,7 @@ namespace
 
 void w_Shape2D_is_contain()
 {
-    auto l = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
 
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
@@ -46,7 +46,7 @@ void w_Shape2D_is_contain()
 
 void w_Shape2D_is_intersect()
 {
-    auto l = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
 
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
@@ -58,7 +58,7 @@ void w_Shape2D_is_intersect()
 
 void w_Shape2D_translate()
 {
-    auto l = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(0))->obj;
 
     float dx = (float)ves_tonumber(1);
     float dy = (float)ves_tonumber(2);
@@ -68,31 +68,31 @@ void w_Shape2D_translate()
 
 void w_Point_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Point2D>));
+    auto proxy = (wrapper::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Point2D>));
     proxy->obj = std::make_shared<gs::Point2D>();
 }
 
 int w_Point_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Point2D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Point2D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Point2D>);
+    return sizeof(wrapper::Proxy<gs::Point2D>);
 }
 
 void w_Point_clone()
 {
-    auto src = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Point2D>(src->GetPos());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Point2D>));
+    auto proxy = (wrapper::Proxy<gs::Point2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Point2D>));
     proxy->obj = dst;
 }
 
 void w_Point_get()
 {
-    auto p = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
-    tt::return_list(std::vector<float>{ 
+    auto p = ((wrapper::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+    wrapper::return_list(std::vector<float>{ 
         p->GetPos().x, 
         p->GetPos().y
     });
@@ -100,7 +100,7 @@ void w_Point_get()
 
 void w_Point_set()
 {
-    auto p = ((tt::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
+    auto p = ((wrapper::Proxy<gs::Point2D>*)ves_toforeign(0))->obj;
 
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
@@ -110,31 +110,31 @@ void w_Point_set()
 
 void w_Line_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
+    auto proxy = (wrapper::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Line2D>));
     proxy->obj = std::make_shared<gs::Line2D>();
 }
 
 int w_Line_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Line2D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Line2D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Line2D>);
+    return sizeof(wrapper::Proxy<gs::Line2D>);
 }
 
 void w_Line_clone()
 {
-    auto src = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Line2D>(src->GetStart(), src->GetEnd());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line2D>));
+    auto proxy = (wrapper::Proxy<gs::Line2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Line2D>));
     proxy->obj = dst;
 }
 
 void w_Line_get()
 {
-    auto l = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
-    tt::return_list(std::vector<float>{ 
+    auto l = ((wrapper::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
+    wrapper::return_list(std::vector<float>{ 
         l->GetStart().x, 
         l->GetStart().y,
         l->GetEnd().x,
@@ -144,7 +144,7 @@ void w_Line_get()
 
 void w_Line_set()
 {
-    auto l = ((tt::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Line2D>*)ves_toforeign(0))->obj;
 
     float x0 = (float)ves_tonumber(1);
     float y0 = (float)ves_tonumber(2);
@@ -157,33 +157,33 @@ void w_Line_set()
 
 void w_Rect_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Rect>));
+    auto proxy = (wrapper::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Rect>));
     proxy->obj = std::make_shared<gs::Rect>();
 }
 
 int w_Rect_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Rect>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Rect>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Rect>);
+    return sizeof(wrapper::Proxy<gs::Rect>);
 }
 
 void w_Rect_clone()
 {
-    auto src = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Rect>(src->GetRect());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Rect>));
+    auto proxy = (wrapper::Proxy<gs::Rect>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Rect>));
     proxy->obj = dst;
 }
 
 void w_Rect_get()
 {
-    auto r = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
+    auto r = ((wrapper::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
 
     auto& rect = r->GetRect();
-    tt::return_list(std::vector<float>{
+    wrapper::return_list(std::vector<float>{
         rect.xmin,
         rect.ymin,
         rect.Width(),
@@ -193,7 +193,7 @@ void w_Rect_get()
 
 void w_Rect_set()
 {
-    auto r = ((tt::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
+    auto r = ((wrapper::Proxy<gs::Rect>*)ves_toforeign(0))->obj;
 
     float x = (float)ves_tonumber(1);
     float y = (float)ves_tonumber(2);
@@ -205,31 +205,31 @@ void w_Rect_set()
 
 void w_Circle_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Circle>));
+    auto proxy = (wrapper::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Circle>));
     proxy->obj = std::make_shared<gs::Circle>();
 }
 
 int w_Circle_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Circle>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Circle>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Circle>);
+    return sizeof(wrapper::Proxy<gs::Circle>);
 }
 
 void w_Circle_clone()
 {
-    auto src = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Circle>(src->GetCenter(), src->GetRadius());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Circle>));
+    auto proxy = (wrapper::Proxy<gs::Circle>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Circle>));
     proxy->obj = dst;
 }
 
 void w_Circle_get()
 {
-    auto c = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
-    tt::return_list(std::vector<float>{
+    auto c = ((wrapper::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
+    wrapper::return_list(std::vector<float>{
         c->GetCenter().x,
         c->GetCenter().y,
         c->GetRadius()
@@ -238,7 +238,7 @@ void w_Circle_get()
 
 void w_Circle_set()
 {
-    auto c = ((tt::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
+    auto c = ((wrapper::Proxy<gs::Circle>*)ves_toforeign(0))->obj;
 
     float cx = (float)ves_tonumber(1);
     float cy = (float)ves_tonumber(2);
@@ -250,20 +250,20 @@ void w_Circle_set()
 
 void w_Arc_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc>));
+    auto proxy = (wrapper::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Arc>));
     proxy->obj = std::make_shared<gs::Arc>();
 }
 
 int w_Arc_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Arc>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Arc>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Arc>);
+    return sizeof(wrapper::Proxy<gs::Arc>);
 }
 
 void w_Arc_clone()
 {
-    auto src = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
 
     float start_angle, end_angle;
     src->GetAngles(start_angle, end_angle);
@@ -271,18 +271,18 @@ void w_Arc_clone()
     auto dst = std::make_shared<gs::Arc>(src->GetCenter(), src->GetRadius(), start_angle, end_angle);
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc>));
+    auto proxy = (wrapper::Proxy<gs::Arc>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Arc>));
     proxy->obj = dst;
 }
 
 void w_Arc_get()
 {
-    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+    auto a = ((wrapper::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
 
     float start_angle, end_angle;
     a->GetAngles(start_angle, end_angle);
 
-    tt::return_list(std::vector<float>{
+    wrapper::return_list(std::vector<float>{
         a->GetCenter().x,
         a->GetCenter().y,
         a->GetRadius(),
@@ -293,7 +293,7 @@ void w_Arc_get()
 
 void w_Arc_set()
 {
-    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+    auto a = ((wrapper::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
 
     float cx = (float)ves_tonumber(1);
     float cy = (float)ves_tonumber(2);
@@ -308,44 +308,44 @@ void w_Arc_set()
 
 void w_Arc_get_vertices()
 {
-    auto a = ((tt::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
+    auto a = ((wrapper::Proxy<gs::Arc>*)ves_toforeign(0))->obj;
     auto& vertices = a->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Ellipse_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Ellipse>));
+    auto proxy = (wrapper::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Ellipse>));
     proxy->obj = std::make_shared<gs::Ellipse>();
 }
 
 int w_Ellipse_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Ellipse>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Ellipse>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Ellipse>);
+    return sizeof(wrapper::Proxy<gs::Ellipse>);
 }
 
 void w_Ellipse_clone()
 {
-    auto src = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
     float rx, ry;
     src->GetRadius(rx, ry);
     auto dst = std::make_shared<gs::Ellipse>(src->GetCenter(), rx, ry);
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Ellipse>));
+    auto proxy = (wrapper::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Ellipse>));
     proxy->obj = dst;
 }
 
 void w_Ellipse_get()
 {
-    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
 
     float rx, ry;
     e->GetRadius(rx, ry);
 
-    tt::return_list(std::vector<float>{
+    wrapper::return_list(std::vector<float>{
         e->GetCenter().x,
         e->GetCenter().y,
         rx,
@@ -355,7 +355,7 @@ void w_Ellipse_get()
 
 void w_Ellipse_set()
 {
-    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
 
     float cx = (float)ves_tonumber(1);
     float cy = (float)ves_tonumber(2);
@@ -368,72 +368,72 @@ void w_Ellipse_set()
 
 void w_Ellipse_get_vertices()
 {
-    auto e = ((tt::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
     auto& vertices = e->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Polyline_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
+    auto proxy = (wrapper::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polyline2D>));
     proxy->obj = std::make_shared<gs::Polyline2D>();
 }
 
 int w_Polyline_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Polyline2D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Polyline2D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Polyline2D>);
+    return sizeof(wrapper::Proxy<gs::Polyline2D>);
 }
 
 void w_Polyline_clone()
 {
-    auto src = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Polyline2D>(src->GetVertices(), src->GetClosed());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline2D>));
+    auto proxy = (wrapper::Proxy<gs::Polyline2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polyline2D>));
     proxy->obj = dst;
 }
 
 void w_Polyline_get_vertices()
 {
-    auto pl = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto pl = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Polyline_set_vertices()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
-    auto vertices = tt::list_to_vec2_array(1);
+    auto polyline = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto vertices = wrapper::list_to_vec2_array(1);
     polyline->SetVertices(vertices);
 }
 
 void w_Polyline_get_closed()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     ves_set_boolean(0, polyline->GetClosed());
 }
 
 void w_Polyline_set_closed()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     bool is_closed = ves_toboolean(1);
     polyline->SetClosed(is_closed);
 }
 
 void w_Polyline_resample()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
     float length = (float)ves_tonumber(1);
     auto pts = polyline->Resample(length);
-    tt::return_list(pts);
+    wrapper::return_list(pts);
 }
 
 void w_Polyline_calc_length()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline2D>*)ves_toforeign(0))->obj;
 
     float len = 0;
 
@@ -450,347 +450,347 @@ void w_Polyline_calc_length()
 
 void w_Polygon_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
+    auto proxy = (wrapper::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polygon2D>));
     proxy->obj = std::make_shared<gs::Polygon2D>();
 }
 
 int w_Polygon_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Polygon2D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Polygon2D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Polygon2D>);
+    return sizeof(wrapper::Proxy<gs::Polygon2D>);
 }
 
 void w_Polygon_clone()
 {
-    auto src = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Polygon2D>(src->GetVertices());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon2D>));
+    auto proxy = (wrapper::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polygon2D>));
     proxy->obj = dst;
 }
 
 void w_Polygon_get_vertices()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto& vertices = poly->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Polygon_set_vertices()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
-    auto vertices = tt::list_to_vec2_array(1);
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto vertices = wrapper::list_to_vec2_array(1);
     poly->SetVertices(vertices);
 }
 
 void w_Polygon_add_hole()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
-    auto hole = tt::list_to_vec2_array(1);
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto hole = wrapper::list_to_vec2_array(1);
     poly->AddHole(hole);
 }
 
 void w_Polygon_get_holes()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto& holes = poly->GetHoles();
-    tt::return_list(holes);
+    wrapper::return_list(holes);
 }
 
 void w_Polygon_get_tris()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto& tris = poly->GetTris();
-    tt::return_list(tris);
+    wrapper::return_list(tris);
 }
 
 void w_Polygon_calc_area()
 {
-    auto poly = ((tt::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<gs::Polygon2D>*)ves_toforeign(0))->obj;
     auto area = sm::get_polygon_area(poly->GetVertices());
     ves_set_number(0, area);
 }
 
 void w_Bezier_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
+    auto proxy = (wrapper::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Bezier>));
     proxy->obj = std::make_shared<gs::Bezier>();
 }
 
 int w_Bezier_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Bezier>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Bezier>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Bezier>);
+    return sizeof(wrapper::Proxy<gs::Bezier>);
 }
 
 void w_Bezier_clone()
 {
-    auto src = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<gs::Bezier>(src->GetCtrlPos());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Bezier>));
+    auto proxy = (wrapper::Proxy<gs::Bezier>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Bezier>));
     proxy->obj = dst;
 }
 
 void w_Bezier_set_ctrl_pos()
 {
-    auto b = ((tt::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
-    auto vertices = tt::list_to_vec2_array(1);
+    auto b = ((wrapper::Proxy<gs::Bezier>*)ves_toforeign(0))->obj;
+    auto vertices = wrapper::list_to_vec2_array(1);
     GD_ASSERT(vertices.size() == 4, "error number");
     b->SetCtrlPos({ vertices[0], vertices[1], vertices[2], vertices[3] });
 }
 
 void w_Line3D_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Line3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Line3D>));
+    auto proxy = (wrapper::Proxy<gs::Line3D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Line3D>));
     proxy->obj = std::make_shared<gs::Line3D>();
 }
 
 int w_Line3D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Line3D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Line3D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Line3D>);
+    return sizeof(wrapper::Proxy<gs::Line3D>);
 }
 
 void w_Line3D_get_p0()
 {
-    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
 
     auto p0 = l->GetStart();
-    tt::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
+    wrapper::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
 }
 
 void w_Line3D_set_p0()
 {
-    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
-    auto p0 = tt::list_to_vec3(1);
+    auto l = ((wrapper::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto p0 = wrapper::list_to_vec3(1);
 
     l->SetStart(p0);
 }
 
 void w_Line3D_get_p1()
 {
-    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto l = ((wrapper::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
 
     auto p1 = l->GetEnd();
-    tt::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
+    wrapper::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
 }
 
 void w_Line3D_set_p1()
 {
-    auto l = ((tt::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
-    auto p1 = tt::list_to_vec3(1);
+    auto l = ((wrapper::Proxy<gs::Line3D>*)ves_toforeign(0))->obj;
+    auto p1 = wrapper::list_to_vec3(1);
 
     l->SetEnd(p1);
 }
 
 void w_Arc3D_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Arc3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Arc3D>));
+    auto proxy = (wrapper::Proxy<gs::Arc3D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Arc3D>));
     proxy->obj = std::make_shared<gs::Arc3D>();
 }
 
 int w_Arc3D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Arc3D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Arc3D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Arc3D>);
+    return sizeof(wrapper::Proxy<gs::Arc3D>);
 }
 
 void w_Arc3D_get_p0()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
 
     auto p0 = arc->GetStart();
-    tt::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
+    wrapper::return_list(std::vector<float>{ p0.x, p0.y, p0.z });
 }
 
 void w_Arc3D_set_p0()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
-    auto p0 = tt::list_to_vec3(1);
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p0 = wrapper::list_to_vec3(1);
 
     arc->SetStart(p0);
 }
 
 void w_Arc3D_get_p1()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
 
     auto p1 = arc->GetMiddle();
-    tt::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
+    wrapper::return_list(std::vector<float>{ p1.x, p1.y, p1.z });
 }
 
 void w_Arc3D_set_p1()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
-    auto p1 = tt::list_to_vec3(1);
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p1 = wrapper::list_to_vec3(1);
 
     arc->SetMiddle(p1);
 }
 
 void w_Arc3D_get_p2()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
 
     auto p2 = arc->GetEnd();
-    tt::return_list(std::vector<float>{ p2.x, p2.y, p2.z });
+    wrapper::return_list(std::vector<float>{ p2.x, p2.y, p2.z });
 }
 
 void w_Arc3D_set_p2()
 {
-    auto arc = ((tt::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
-    auto p2 = tt::list_to_vec3(1);
+    auto arc = ((wrapper::Proxy<gs::Arc3D>*)ves_toforeign(0))->obj;
+    auto p2 = wrapper::list_to_vec3(1);
 
     arc->SetEnd(p2);
 }
 
 void w_Box_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Box>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Box>));
+    auto proxy = (wrapper::Proxy<gs::Box>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Box>));
     proxy->obj = std::make_shared<gs::Box>();
 }
 
 int w_Box_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Box>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Box>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Box>);
+    return sizeof(wrapper::Proxy<gs::Box>);
 }
 
 void w_Box_get_min()
 {
-    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+    auto b = ((wrapper::Proxy<gs::Box>*)ves_toforeign(0))->obj;
 
     auto min = b->GetCube().Min();
-    tt::return_list(std::vector<float>{ min[0], min[1], min[2] });
+    wrapper::return_list(std::vector<float>{ min[0], min[1], min[2] });
 }
 
 void w_Box_get_max()
 {
-    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+    auto b = ((wrapper::Proxy<gs::Box>*)ves_toforeign(0))->obj;
 
     auto max = b->GetCube().Max();
-    tt::return_list(std::vector<float>{ max[0], max[1], max[2] });
+    wrapper::return_list(std::vector<float>{ max[0], max[1], max[2] });
 }
 
 void w_Box_set_size()
 {
-    auto b = ((tt::Proxy<gs::Box>*)ves_toforeign(0))->obj;
-    auto min = tt::list_to_vec3(1);
-    auto max = tt::list_to_vec3(2);
+    auto b = ((wrapper::Proxy<gs::Box>*)ves_toforeign(0))->obj;
+    auto min = wrapper::list_to_vec3(1);
+    auto max = wrapper::list_to_vec3(2);
 
     b->SetCube(sm::cube(min, max));
 }
 
 void w_Polyline3D_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Polyline3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polyline3D>));
+    auto proxy = (wrapper::Proxy<gs::Polyline3D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polyline3D>));
     proxy->obj = std::make_shared<gs::Polyline3D>();
 }
 
 int w_Polyline3D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Polyline3D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Polyline3D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Polyline3D>);
+    return sizeof(wrapper::Proxy<gs::Polyline3D>);
 }
 
 void w_Polyline3D_get_vertices()
 {
-    auto pl = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto pl = ((wrapper::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Polyline3D_set_vertices()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
-    auto vertices = tt::list_to_vec3_array(1);
+    auto polyline = ((wrapper::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto vertices = wrapper::list_to_vec3_array(1);
     polyline->SetVertices(vertices);
 }
 
 void w_Polyline3D_get_closed()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
     ves_set_boolean(0, polyline->GetClosed());
 }
 
 void w_Polyline3D_set_closed()
 {
-    auto polyline = ((tt::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
+    auto polyline = ((wrapper::Proxy<gs::Polyline3D>*)ves_toforeign(0))->obj;
     bool is_closed = ves_toboolean(1);
     polyline->SetClosed(is_closed);
 }
 
 void w_Polygon3D_allocate()
 {
-    auto proxy = (tt::Proxy<gs::Polygon3D>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<gs::Polygon3D>));
+    auto proxy = (wrapper::Proxy<gs::Polygon3D>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Polygon3D>));
     proxy->obj = std::make_shared<gs::Polygon3D>();
 }
 
 int w_Polygon3D_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<gs::Polygon3D>*)(data);
+    auto proxy = (wrapper::Proxy<gs::Polygon3D>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<gs::Polygon3D>);
+    return sizeof(wrapper::Proxy<gs::Polygon3D>);
 }
 
 void w_Polygon3D_get_vertices()
 {
-    auto pl = ((tt::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
+    auto pl = ((wrapper::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
     auto& vertices = pl->GetVertices();
-    tt::return_list(vertices);
+    wrapper::return_list(vertices);
 }
 
 void w_Polygon3D_set_vertices()
 {
-    auto polyline = ((tt::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
-    auto vertices = tt::list_to_vec3_array(1);
+    auto polyline = ((wrapper::Proxy<gs::Polygon3D>*)ves_toforeign(0))->obj;
+    auto vertices = wrapper::list_to_vec3_array(1);
     polyline->SetVertices(vertices);
 }
 
 void w_PolyPoint_allocate()
 {
-    auto pos = tt::list_to_vec3(1);
+    auto pos = wrapper::list_to_vec3(1);
     auto p = std::make_shared<pm3::Polytope::Point>(pos);
 
-    auto proxy = (tt::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Point>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope::Point>));
     proxy->obj = p;
 }
 
 int w_PolyPoint_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<pm3::Polytope::Point>*)(data);
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Point>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<pm3::Polytope::Point>);
+    return sizeof(wrapper::Proxy<pm3::Polytope::Point>);
 }
 
 void w_PolyPoint_clone()
 {
-    auto src = ((tt::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<pm3::Polytope::Point>(*src);
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Point>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope::Point>));
     proxy->obj = dst;
 }
 
 void w_PolyPoint_get_pos()
 {
-    auto p = ((tt::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
-    tt::return_list(std::vector<float>{ p->pos.x, p->pos.y, p->pos.z });
+    auto p = ((wrapper::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
+    wrapper::return_list(std::vector<float>{ p->pos.x, p->pos.y, p->pos.z });
 }
 
 void w_PolyPoint_set_pos()
 {
-    auto p = ((tt::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
-    auto pos = tt::list_to_vec3(1);
+    auto p = ((wrapper::Proxy<pm3::Polytope::Point>*)ves_toforeign(0))->obj;
+    auto pos = wrapper::list_to_vec3(1);
     p->pos = pos;
 }
 
@@ -805,49 +805,49 @@ void w_PolyFace_allocate()
     }
     else if (num == 3)
     {
-        auto border = tt::list_to_array<int>(1);
+        auto border = wrapper::list_to_array<int>(1);
         std::copy(border.begin(), border.end(), std::back_inserter(face->border));
 
-        face->holes = tt::list_to_array2<size_t>(2);
+        face->holes = wrapper::list_to_array2<size_t>(2);
     }
 
-    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Face>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope::Face>));
     proxy->obj = face;
 }
 
 int w_PolyFace_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)(data);
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Face>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<pm3::Polytope::Face>);
+    return sizeof(wrapper::Proxy<pm3::Polytope::Face>);
 }
 
 void w_PolyFace_clone()
 {
-    auto src = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<pm3::Polytope::Face>(*src);
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope::Face>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope::Face>));
     proxy->obj = dst;
 }
 
 void w_PolyFace_get_normal()
 {
-    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
-    tt::return_list(std::vector<float>{ f->plane.normal.x, f->plane.normal.y, f->plane.normal.z });
+    auto f = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    wrapper::return_list(std::vector<float>{ f->plane.normal.x, f->plane.normal.y, f->plane.normal.z });
 }
 
 void w_PolyFace_get_border()
 {
-    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
-    tt::return_list(f->border);
+    auto f = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    wrapper::return_list(f->border);
 }
 
 void w_PolyFace_get_holes()
 {
-    auto f = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
-    tt::return_list2(f->holes);
+    auto f = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(0))->obj;
+    wrapper::return_list2(f->holes);
 }
 
 void w_Polytope_allocate()
@@ -858,53 +858,53 @@ void w_Polytope_allocate()
     if (argnum == 2)
     {
         std::vector<pm3::Polytope::FacePtr> faces;
-        tt::list_to_foreigns(1, faces);
+        wrapper::list_to_foreigns(1, faces);
 
         poly = std::make_shared<pm3::Polytope>(faces);
     }
     else if (argnum == 3)
     {
         std::vector<pm3::Polytope::PointPtr> points;
-        tt::list_to_foreigns(1, points);
+        wrapper::list_to_foreigns(1, points);
 
         std::vector<pm3::Polytope::FacePtr> faces;
-        tt::list_to_foreigns(2, faces);
+        wrapper::list_to_foreigns(2, faces);
 
         poly = std::make_shared<pm3::Polytope>(points, faces);
     }
 
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope>));
     proxy->obj = poly;
 }
 
 int w_Polytope_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<pm3::Polytope>*)(data);
+    auto proxy = (wrapper::Proxy<pm3::Polytope>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<pm3::Polytope>);
+    return sizeof(wrapper::Proxy<pm3::Polytope>);
 }
 
 void w_Polytope_clone()
 {
-    auto src = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<pm3::Polytope>();
     *dst = *src;
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope>));
     proxy->obj = dst;
 }
 
 void w_Polytope_extrude()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     auto dist = (float)ves_tonumber(1);
     pm3::PolytopeAlgos::Extrude(poly, dist);
 }
 
 void w_Polytope_offset()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     auto selector = ves_tostring(1);
     auto dist = (float)ves_tonumber(2);
 
@@ -917,13 +917,13 @@ void w_Polytope_offset()
         keep = he::Polygon::KeepType::KeepBorder;
     }
 
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope>));
     proxy->obj = pm3::PolytopeAlgos::Offset(poly, (int)keep, dist);
 }
 
 void w_Polytope_transform()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
 
     sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
 
@@ -937,7 +937,7 @@ void w_Polytope_transform()
 
 void w_Polytope_mirror()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
 
     float len_s = plane->normal.LengthSquared();
@@ -965,7 +965,7 @@ void w_Polytope_mirror()
 
 void w_Polytope_clip()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
 
     auto keep_str = ves_tostring(2);
@@ -989,7 +989,7 @@ void w_Polytope_clip()
 
 void w_Polytope_fork()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
 
     auto new_topo = poly->GetTopoPoly()->Fork(*plane);
@@ -998,14 +998,14 @@ void w_Polytope_fork()
     auto new_poly = std::make_shared<pm3::Polytope>(new_topo);
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<pm3::Polytope>));
+    auto proxy = (wrapper::Proxy<pm3::Polytope>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<pm3::Polytope>));
     proxy->obj = new_poly;
 }
 
 void w_Polytope_join()
 {
-    auto poly  = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto other = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    auto poly  = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto other = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
 
     poly->GetTopoPoly()->Join(other->GetTopoPoly());
     poly->BuildFromTopo();
@@ -1013,7 +1013,7 @@ void w_Polytope_join()
 
 void w_Polytope_get_points()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
 
     auto& points = poly->Points();
     
@@ -1025,7 +1025,7 @@ void w_Polytope_get_points()
     {
         ves_pushnil();
         ves_import_class("geometry", "PolyPoint");
-        auto proxy = (tt::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope::Point>));
+        auto proxy = (wrapper::Proxy<pm3::Polytope::Point>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<pm3::Polytope::Point>));
         proxy->obj = points[i];
         ves_pop(1);
         ves_seti(-2, i);
@@ -1035,7 +1035,7 @@ void w_Polytope_get_points()
 
 void w_Polytope_get_faces()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
 
     auto& faces = poly->Faces();
     
@@ -1047,7 +1047,7 @@ void w_Polytope_get_faces()
     {
         ves_pushnil();
         ves_import_class("geometry", "PolyFace");
-        auto proxy = (tt::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<pm3::Polytope::Face>));
+        auto proxy = (wrapper::Proxy<pm3::Polytope::Face>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<pm3::Polytope::Face>));
         proxy->obj = faces[i];
         ves_pop(1);
         ves_seti(-2, i);
@@ -1057,14 +1057,14 @@ void w_Polytope_get_faces()
 
 void w_Polytope_set_topo_dirty()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
     poly->SetTopoDirty();
 }
 
 void w_Polytope_is_contain()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto pos = tt::list_to_vec3(1);
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto pos = wrapper::list_to_vec3(1);
 
     bool is_contain = true;
 
@@ -1090,8 +1090,8 @@ void w_Polytope_is_contain()
 
 void w_Polytope_is_face_inside()
 {
-    auto poly = ((tt::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto face = ((tt::Proxy<pm3::Polytope::Face>*)ves_toforeign(1))->obj;
+    auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
+    auto face = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(1))->obj;
 
     sm::vec3 normal;
     if (!poly->CalcFaceNormal(*face, normal)) {
@@ -1120,8 +1120,8 @@ void w_Polytope_boolean()
     auto op = ves_tostring(1);
 
     std::vector<std::shared_ptr<pm3::Polytope>> a, b, polytopes;
-    tt::list_to_foreigns(2, a);
-    tt::list_to_foreigns(3, b);
+    wrapper::list_to_foreigns(2, a);
+    wrapper::list_to_foreigns(3, b);
 
     std::vector<std::pair<pm3::PolytopePtr, pm3::PolytopePtr>> hist;
     if (strcmp(op, "union") == 0) 
@@ -1137,54 +1137,54 @@ void w_Polytope_boolean()
         polytopes = pm3::PolytopeAlgos::Subtract(a, b, hist);
     }
 
-    tt::return_poly_list(polytopes);
+    wrapper::return_foreign_list(polytopes, "geometry", "Polytope");
 }
 
 void w_Sphere_allocate()
 {
     auto radius = ves_tonumber(1);
-    auto proxy = (tt::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Sphere>));
+    auto proxy = (wrapper::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Sphere>));
     proxy->obj = std::make_shared<model::Sphere>((float)radius);
 }
 
 int w_Sphere_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<model::Sphere>*)(data);
+    auto proxy = (wrapper::Proxy<model::Sphere>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<model::Sphere>);
+    return sizeof(wrapper::Proxy<model::Sphere>);
 }
 
 void w_Sphere_clone()
 {
-    auto src = ((tt::Proxy<model::Sphere>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<model::Sphere>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<model::Sphere>(src->GetRadius());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Sphere>));
+    auto proxy = (wrapper::Proxy<model::Sphere>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Sphere>));
     proxy->obj = dst;
 }
 
 void w_Ellipsoid_allocate()
 {
-    auto radius = tt::list_to_vec3(1);
-    auto proxy = (tt::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Ellipsoid>));
+    auto radius = wrapper::list_to_vec3(1);
+    auto proxy = (wrapper::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Ellipsoid>));
     proxy->obj = std::make_shared<model::Ellipsoid>(radius);
 }
 
 int w_Ellipsoid_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<model::Ellipsoid>*)(data);
+    auto proxy = (wrapper::Proxy<model::Ellipsoid>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<model::Ellipsoid>);
+    return sizeof(wrapper::Proxy<model::Ellipsoid>);
 }
 
 void w_Ellipsoid_clone()
 {
-    auto src = ((tt::Proxy<model::Ellipsoid>*)ves_toforeign(0))->obj;
+    auto src = ((wrapper::Proxy<model::Ellipsoid>*)ves_toforeign(0))->obj;
     auto dst = std::make_shared<model::Ellipsoid>(src->GetRadius());
 
     ves_pop(ves_argnum());
-    auto proxy = (tt::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Ellipsoid>));
+    auto proxy = (wrapper::Proxy<model::Ellipsoid>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Ellipsoid>));
     proxy->obj = dst;
 }
 
@@ -1204,7 +1204,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Point:
         {
             ves_import_class("geometry", "Point");
-            auto proxy = (tt::Proxy<gs::Point2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Point2D>));
+            auto proxy = (wrapper::Proxy<gs::Point2D>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Point2D>));
             proxy->obj = std::static_pointer_cast<gs::Point2D>(dst);
             ves_pop(1);
         }
@@ -1212,7 +1212,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Line:
         {
             ves_import_class("geometry", "Line");
-            auto proxy = (tt::Proxy<gs::Line2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Line2D>));
+            auto proxy = (wrapper::Proxy<gs::Line2D>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Line2D>));
             proxy->obj = std::static_pointer_cast<gs::Line2D>(dst);
             ves_pop(1);
         }
@@ -1220,7 +1220,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Rect:
         {
             ves_import_class("geometry", "Rect");
-            auto proxy = (tt::Proxy<gs::Rect>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Rect>));
+            auto proxy = (wrapper::Proxy<gs::Rect>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Rect>));
             proxy->obj = std::static_pointer_cast<gs::Rect>(dst);
             ves_pop(1);
         }
@@ -1228,7 +1228,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Circle:
         {
             ves_import_class("geometry", "Circle");
-            auto proxy = (tt::Proxy<gs::Circle>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Circle>));
+            auto proxy = (wrapper::Proxy<gs::Circle>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Circle>));
             proxy->obj = std::static_pointer_cast<gs::Circle>(dst);
             ves_pop(1);
         }
@@ -1236,7 +1236,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Arc:
         {
             ves_import_class("geometry", "Arc");
-            auto proxy = (tt::Proxy<gs::Arc>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Arc>));
+            auto proxy = (wrapper::Proxy<gs::Arc>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Arc>));
             proxy->obj = std::static_pointer_cast<gs::Arc>(dst);
             ves_pop(1);
         }
@@ -1244,7 +1244,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Ellipse:
         {
             ves_import_class("geometry", "Ellipse");
-            auto proxy = (tt::Proxy<gs::Ellipse>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Ellipse>));
+            auto proxy = (wrapper::Proxy<gs::Ellipse>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Ellipse>));
             proxy->obj = std::static_pointer_cast<gs::Ellipse>(dst);
             ves_pop(1);
         }
@@ -1252,7 +1252,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Polyline:
         {
             ves_import_class("geometry", "Polyline");
-            auto proxy = (tt::Proxy<gs::Polyline2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polyline2D>));
+            auto proxy = (wrapper::Proxy<gs::Polyline2D>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Polyline2D>));
             proxy->obj = std::static_pointer_cast<gs::Polyline2D>(dst);
             ves_pop(1);
         }
@@ -1260,7 +1260,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Polygon:
         {
             ves_import_class("geometry", "Polygon");
-            auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Polygon2D>));
+            auto proxy = (wrapper::Proxy<gs::Polygon2D>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Polygon2D>));
             proxy->obj = std::static_pointer_cast<gs::Polygon2D>(dst);
             ves_pop(1);
         }
@@ -1268,7 +1268,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
         case gs::ShapeType2D::Bezier:
         {
             ves_import_class("geometry", "Bezier");
-            auto proxy = (tt::Proxy<gs::Bezier>*)ves_set_newforeign(1, 2, sizeof(tt::Proxy<gs::Bezier>));
+            auto proxy = (wrapper::Proxy<gs::Bezier>*)ves_set_newforeign(1, 2, sizeof(wrapper::Proxy<gs::Bezier>));
             proxy->obj = std::static_pointer_cast<gs::Bezier>(dst);
             ves_pop(1);
         }
@@ -1284,8 +1284,8 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
 
 void w_ShapeMaths_scissor()
 {
-    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
-    auto rect = tt::list_to_array<float>(2);
+    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto rect = wrapper::list_to_array<float>(2);
 
     auto shapes = tt::ShapeMaths::Scissor(src, sm::rect(rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]));
     return_shapes(shapes);
@@ -1293,7 +1293,7 @@ void w_ShapeMaths_scissor()
 
 void w_ShapeMaths_expand()
 {
-    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto dist = (float)ves_tonumber(2);
 
     auto shape = tt::ShapeMaths::Expand(src, dist);
@@ -1303,7 +1303,7 @@ void w_ShapeMaths_expand()
 
         ves_pushnil();
         ves_import_class("geometry", "Polygon");
-        auto proxy = (tt::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 1, sizeof(tt::Proxy<gs::Polygon2D>));
+        auto proxy = (wrapper::Proxy<gs::Polygon2D>*)ves_set_newforeign(0, 1, sizeof(wrapper::Proxy<gs::Polygon2D>));
         proxy->obj = std::static_pointer_cast<gs::Polygon2D>(shape);
         ves_pop(1);
     }
@@ -1315,15 +1315,15 @@ void w_ShapeMaths_expand()
 
 void w_ShapeMaths_extrude()
 {
-    auto src = ((tt::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
     auto dist = (float)ves_tonumber(2);
-    tt::return_poly(tt::ShapeMaths::Extrude(src, dist));
+    wrapper::return_foreign(tt::ShapeMaths::Extrude(src, dist), "geometry", "Polytope");
 }
 
 void w_ShapeMaths_merge()
 {
     std::vector<std::shared_ptr<gs::Shape2D>> shapes;
-    tt::list_to_foreigns(1, shapes);
+    wrapper::list_to_foreigns(1, shapes);
 
     auto merged = tt::ShapeMaths::Merge(shapes);
     return_shapes(merged);
@@ -1332,10 +1332,10 @@ void w_ShapeMaths_merge()
 void w_PolytopeMaths_pick_poly()
 {
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
 
-    auto pos = tt::map_to_vec3(2);
-    auto dir = tt::map_to_vec3(3);
+    auto pos = wrapper::map_to_vec3(2);
+    auto dir = wrapper::map_to_vec3(3);
 
     sm::Ray ray(pos, dir);
 
@@ -1363,7 +1363,7 @@ void w_PolytopeMaths_pick_poly()
     }
 
     if (selected) {
-        tt::return_poly(selected);
+        wrapper::return_foreign(selected, "geometry", "Polytope");
     } else {
         ves_set_nil(0);
     }
@@ -1372,10 +1372,10 @@ void w_PolytopeMaths_pick_poly()
 void w_PolytopeMaths_pick_face()
 {
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
 
-    auto pos = tt::map_to_vec3(2);
-    auto dir = tt::map_to_vec3(3);
+    auto pos = wrapper::map_to_vec3(2);
+    auto dir = wrapper::map_to_vec3(3);
 
     sm::Ray ray(pos, dir);
 
@@ -1438,16 +1438,16 @@ void w_PolytopeMaths_pick_face()
     std::vector<pm3::Polytope::FacePtr> faces({ selected });
 
     auto ret = std::make_shared<pm3::Polytope>(/*points*/pts, faces);
-    tt::return_poly(ret);
+    wrapper::return_foreign(ret, "geometry", "Polytope");
 }
 
 void w_PolytopeMaths_pick_edge()
 {
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
 
-    auto pos = tt::map_to_vec3(2);
-    auto dir = tt::map_to_vec3(3);
+    auto pos = wrapper::map_to_vec3(2);
+    auto dir = wrapper::map_to_vec3(3);
 
     sm::Ray ray(pos, dir);
 
@@ -1510,7 +1510,7 @@ void w_PolytopeMaths_pick_edge()
     faces.push_back(face);
 
     auto ret = std::make_shared<pm3::Polytope>(points, faces);
-    tt::return_poly(ret);
+    wrapper::return_foreign(ret, "geometry", "Polytope");
 }
 
 }

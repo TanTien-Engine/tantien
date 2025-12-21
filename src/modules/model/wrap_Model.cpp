@@ -1,8 +1,6 @@
 #include "modules/model/wrap_Model.h"
-#include "modules/script/Proxy.h"
 #include "modules/render/Render.h"
 #include "modules/filesystem/Filesystem.h"
-#include "modules/script/TransHelper.h"
 
 #include <model/ParametricEquations.h>
 #include <model/Model.h>
@@ -16,6 +14,8 @@
 #include <unirender/VertexArray.h>
 #include <unirender/VertexInputAttribute.h>
 #include <polymesh3/Polytope.h>
+#include <wrapper/TransHelper.h>
+#include <wrapper/Proxy.h>
 
 #include <memory>
 #include <array>
@@ -40,15 +40,15 @@ void w_Model_allocate()
         }
     }    
 
-    auto proxy = (tt::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Model>));
+    auto proxy = (wrapper::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Model>));
     proxy->obj = model;
 }
 
 int w_Model_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<model::Model>*)(data);
+    auto proxy = (wrapper::Proxy<model::Model>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<model::Model>);
+    return sizeof(wrapper::Proxy<model::Model>);
 }
 
 void w_Model_create_from_polytope()
@@ -56,7 +56,7 @@ void w_Model_create_from_polytope()
     std::vector<model::BrushModel::Brush> brushes;
 
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
     for (auto& poly : polys)
     {
         model::BrushModel::Brush brush;
@@ -75,7 +75,7 @@ void w_Model_create_from_polytope()
     auto dev = tt::Render::Instance()->Device();
     std::shared_ptr<model::Model> model = model::BrushBuilder::PolymeshFromBrushPN(*dev, *brush_model);
 
-    auto proxy = (tt::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::Model>));
+    auto proxy = (wrapper::Proxy<model::Model>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::Model>));
     proxy->obj = model;
 }
 
@@ -84,7 +84,7 @@ void w_Model_calc_brush_aabb()
     sm::cube aabb;
 
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
     for (auto& poly : polys) {
         for (auto& p : poly->Points()) {
             aabb.Combine(p->pos);
@@ -94,7 +94,7 @@ void w_Model_calc_brush_aabb()
     auto& min = aabb.min;
     auto& max = aabb.max;
 
-    tt::return_list(std::vector<float>{
+    wrapper::return_list(std::vector<float>{
         min[0], min[1], min[2],
         max[0], max[1], max[2],
     });
@@ -115,15 +115,15 @@ void w_glTF_allocate()
         }
     }
 
-    auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
+    auto proxy = (wrapper::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::gltf::Model>));
     proxy->obj = model;
 }
 
 int w_glTF_finalize(void* data)
 {
-    auto proxy = (tt::Proxy<model::gltf::Model>*)(data);
+    auto proxy = (wrapper::Proxy<model::gltf::Model>*)(data);
     proxy->~Proxy();
-    return sizeof(tt::Proxy<model::gltf::Model>);
+    return sizeof(wrapper::Proxy<model::gltf::Model>);
 }
 
 void load_tex_trans(const model::gltf::Texture::Transform& trans, int slot)
@@ -193,7 +193,7 @@ void load_texture(const model::gltf::Texture& texture, int slot, int tex_coord =
 
 void w_glTF_get_desc()
 {
-    auto model = ((tt::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
+    auto model = ((wrapper::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
     if (!model->scene) {
         ves_set_nil(0);
         return;
@@ -450,14 +450,14 @@ void w_glTF_get_desc()
 
 void w_glTF_set_instanced_mats()
 {
-    auto model = ((tt::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
+    auto model = ((wrapper::Proxy<model::gltf::Model>*)ves_toforeign(0))->obj;
     if (!model->scene) {
         ves_set_nil(0);
         return;
     }
 
     std::vector<sm::mat4> mats;
-    tt::list_to_foreigns(1, mats);
+    wrapper::list_to_foreigns(1, mats);
 
     auto dev = tt::Render::Instance()->Device();
     auto inst_buf = dev->CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, sizeof(sm::mat4) * mats.size());
@@ -492,19 +492,19 @@ void w_glTF_set_instanced_mats()
 void w_glTF_create_from_polytope()
 {
     std::vector<std::shared_ptr<pm3::Polytope>> polys;
-    tt::list_to_foreigns(1, polys);
+    wrapper::list_to_foreigns(1, polys);
 
-    auto materials = tt::list_to_array<int>(2);
+    auto materials = wrapper::list_to_array<int>(2);
     if (polys.size() != materials.size()) {
         materials.resize(polys.size(), 0);
     }
 
-    auto offsets = tt::list_to_array<float>(3);
+    auto offsets = wrapper::list_to_array<float>(3);
     if (polys.size() != offsets.size()) {
         offsets.resize(polys.size(), 0);
     }
 
-    auto colors = tt::list_to_array<int>(4);
+    auto colors = wrapper::list_to_array<int>(4);
     if (polys.size() != materials.size()) {
         colors.resize(polys.size(), 0);
     }
@@ -515,19 +515,19 @@ void w_glTF_create_from_polytope()
     auto model = std::make_shared<model::gltf::Model>();
     model::BrushBuilder::PolymeshFromBrush(*dev, polys, materials, offsets, colors, adjacencies, *model);
 
-    auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
+    auto proxy = (wrapper::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::gltf::Model>));
     proxy->obj = model;
 }
 
 void w_glTF_create_from_surface()
 {
-    auto surface = ((tt::Proxy<model::Surface>*)ves_toforeign(1))->obj;
+    auto surface = ((wrapper::Proxy<model::Surface>*)ves_toforeign(1))->obj;
 
     auto dev = tt::Render::Instance()->Device();
     auto model = std::make_shared<model::gltf::Model>();
     model::SurfaceLoader::BuildPolymesh(*dev, *surface, *model);
 
-    auto proxy = (tt::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(tt::Proxy<model::gltf::Model>));
+    auto proxy = (wrapper::Proxy<model::gltf::Model>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<model::gltf::Model>));
     proxy->obj = model;
 }
 
