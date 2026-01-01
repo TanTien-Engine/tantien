@@ -61,6 +61,19 @@ void read_shader(std::vector<unsigned int>& dst, int src, const char* inc_dir, s
     }
 }
 
+void w_Device_allocate()
+{
+    auto proxy = (wrapper::Proxy<ur::Device>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<ur::Device>));
+    proxy->obj = tt::Render::Instance()->Device();
+}
+
+int w_Device_finalize(void* data)
+{
+    auto proxy = (wrapper::Proxy<ur::Device>*)(data);
+    proxy->~Proxy();
+    return sizeof(wrapper::Proxy<ur::Device>);
+}
+
 void w_Shader_allocate()
 {
     std::shared_ptr<ur::ShaderProgram> prog = nullptr;
@@ -1938,6 +1951,13 @@ VesselForeignMethodFn RenderBindMethod(const char* signature)
 
 void RenderBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
+    if (strcmp(class_name, "Device") == 0)
+    {
+        methods->allocate = w_Device_allocate;
+        methods->finalize = w_Device_finalize;
+        return;
+    }
+
     if (strcmp(class_name, "Shader") == 0)
     {
         methods->allocate = w_Shader_allocate;

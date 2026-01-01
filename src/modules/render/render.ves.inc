@@ -1,6 +1,11 @@
 #define QUOTE(...) #__VA_ARGS__
 static const char* renderModuleSource = QUOTE(
 
+foreign class Device
+{
+	init() {}
+}
+
 foreign class Shader
 {
 	init(vs, tcs, tes, gs, fs, inc_dir) {}
