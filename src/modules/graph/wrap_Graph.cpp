@@ -1,5 +1,4 @@
 #include "modules/graph/wrap_Graph.h"
-#include "modules/graph/Graph.h"
 
 #include <graph/Graph.h>
 #include <graph/Node.h>
@@ -10,6 +9,7 @@
 #include <graph/NodeColor.h>
 #include <graph/EdgeStyle.h>
 #include <wrapper/TransHelper.h>
+#include <wrapper/Graph.h>
 
 #include <set>
 
@@ -156,8 +156,7 @@ void w_Node_get_component()
     auto node = ((wrapper::Proxy<graph::Node>*)ves_toforeign(0))->obj;
 
     std::string key = ves_tostring(1);
-
-    auto func = tt::Graph::Instance()->GetRegNodeGetCompCB(key);
+    auto func = wrapper::Graph::Instance()->GetRegNodeGetCompCB(key);
     if (func) {
         func(*node);
     }

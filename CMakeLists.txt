@@ -74,8 +74,6 @@ set(modules__geometry
 source_group("modules\\geometry" FILES ${modules__geometry})
 
 set(modules__graph
-    "src/modules/graph/Graph.cpp"
-    "src/modules/graph/Graph.h"
     "src/modules/graph/graph.ves.inc"
     "src/modules/graph/wrap_Graph.cpp"
     "src/modules/graph/wrap_Graph.h"
