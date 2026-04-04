@@ -108,7 +108,7 @@ class Draw is Node
 
 		// nodes
 		var nodes = this.graph.get_nodes()
-		for (var node in nodes) 
+		for (var node in nodes)
 		{
 			var color = [ COL_PANEL_BG[0], COL_PANEL_BG[1], COL_PANEL_BG[2], COL_PANEL_BG[3] ]
 			var attr_col = node.get_color()
@@ -147,8 +147,11 @@ class Draw is Node
 		if (!node.is_valid()) {		
 			return
 		}
-
-		var pos = this.node_pos_to_world(node.get_pos())
+		var node_pos = node.get_pos()
+		if (!node_pos) {
+			return
+		}
+		var pos = this.node_pos_to_world(node_pos)
 		if (node.has_name())
 		{
 			pt.add_capsule_filled(mat, [pos.x - POINT_RADIUS * 2, pos.y - POINT_RADIUS, POINT_RADIUS * 4, POINT_RADIUS * 2], color, true)		
@@ -206,8 +209,11 @@ class Draw is Node
 		if (!node.is_valid()) {
 			return
 		}
-
-		var pos = this.node_pos_to_world(node.get_pos())
+		var node_pos = node.get_pos()
+		if (!node_pos) {
+			return
+		}
+		var pos = this.node_pos_to_world(node_pos)
 
 		var p = Float3.init(pos.x, pos.y, 0)
 		p.transform(mat)

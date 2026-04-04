@@ -129,7 +129,10 @@ void w_Node_has_name()
 void w_Node_get_pos()
 {
     auto node = ((wrapper::Proxy<graph::Node>*)ves_toforeign(0))->obj;
-    wrapper::return_vec(node->GetComponent<graph::NodePos>().GetPos());
+    if (node->HasComponent<graph::NodePos>())
+        wrapper::return_vec(node->GetComponent<graph::NodePos>().GetPos());
+    else
+        ves_set_nil(0);
 }
 
 void w_Node_set_pos()
