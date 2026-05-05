@@ -43,6 +43,10 @@
 #include "cax/breptopo_c/wrap_BrepTopo.h"
 #include "cax/breptopo_c/breptopo.ves.inc"
 #include "cax/breptopo_c/BrepTopo.h"
+#include "cax/brepir_c/wrap_BrepIR.h"
+#include "cax/brepir_c/brepir.ves.inc"
+#include "cax/brepdb_c/wrap_BrepDB.h"
+#include "cax/brepdb_c/brepdb.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -132,6 +136,8 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "nurbslib") == 0 &&
         !strcmp(module, "partgraph") == 0 &&
         !strcmp(module, "breptopo") == 0 &&
+        !strcmp(module, "brepir") == 0 &&
+        !strcmp(module, "brepdb") == 0 &&
         !strcmp(module, "loggraph") == 0 &&
         !strcmp(module, "codegraph") == 0) {
         free((void*)result.source);
@@ -182,7 +188,11 @@ VesselLoadModuleResult read_module(const char* module)
         source = partgraphModuleSource;
     } else if (strcmp(module, "breptopo") == 0) {
         source = breptopoModuleSource;
-    } 
+    } else if (strcmp(module, "brepir") == 0) {
+        source = brepirModuleSource;
+    } else if (strcmp(module, "brepdb") == 0) {
+        source = brepdbModuleSource;
+    }
     
     else {
         source = file_search(module, "src/script/");
@@ -331,7 +341,14 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
 
     partgraph::PartGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
+
     breptopo::BrepTopoBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    brepir::BrepIRBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    brepdb::BrepDBBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     return methods;
@@ -408,6 +425,12 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = breptopo::BrepTopoBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = brepir::BrepIRBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = brepdb::BrepDBBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
