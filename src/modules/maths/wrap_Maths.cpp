@@ -502,7 +502,16 @@ void w_Plane_transform()
 
 void w_Cube_allocate()
 {
-    (sm::cube*)ves_set_newforeign(0, 0, sizeof(sm::cube));
+    sm::cube* cube = (sm::cube*)ves_set_newforeign(0, 0, sizeof(sm::cube));
+
+    int num = ves_argnum();
+    if (num == 3)
+    {
+        auto min = wrapper::map_to_vec3(1);
+        auto max = wrapper::map_to_vec3(2);
+        cube->Combine(min);
+        cube->Combine(max);
+    }
 }
 
 int w_Cube_finalize(void* data)

@@ -1,0 +1,46 @@
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant, VAR_TYPE_CUBE, VAR_TYPE_NUMBER3
+import "blueprint.node_param" for NodeParam
+import "maths" for Cube as tt_Cube
+import "maths.vector" for Vector3
+
+class Cube is Node
+{
+	init() 
+	{
+		super.init()
+
+		this.exports = [
+			Pin(this, "cube", VAR_TYPE_CUBE),
+			Pin(this, "min",  VAR_TYPE_NUMBER3),
+			Pin(this, "max",  VAR_TYPE_NUMBER3),
+		]
+
+		this.params.add(NodeParam("min", Vector3(0, 0, 0), { "min" : -1, "max" : 1 }))
+		this.params.add(NodeParam("max", Vector3(1, 1, 1), { "min" : -1, "max" : 1 }))
+
+		this.layout()
+	}
+
+	calc_value(idx) 
+	{
+		if (idx == 0)
+		{
+			var min = this.query_param("min").value
+			var max = this.query_param("max").value
+			var cube = tt_Cube.init(min, max)
+			return Variant(cube)
+		}
+		else if (idx == 1)
+		{
+			return Variant(this.query_param("min").value)
+		}
+		else if (idx == 2)
+		{
+			return Variant(this.query_param("max").value)
+		}
+
+		return nil
+	}
+}

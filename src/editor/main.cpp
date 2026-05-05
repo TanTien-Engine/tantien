@@ -699,8 +699,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int width = 1024;
-    int height = 768;
+    int width = 1024 * 2;
+    int height = 768 * 2;
 
     glfwSetErrorCallback(error_callback);
 

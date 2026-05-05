@@ -133,6 +133,7 @@ foreign class Plane
 foreign class Cube
 {
 	init() {}
+	init(min, max) {}
 
 	foreign get_center()
 	foreign get_size()
