@@ -1,11 +1,11 @@
 #pragma once
 
-#include <brepdb/typedef.h>
+#include <spatialdb/typedef.h>
 
 #include <vector>
 #include <memory>
 
-namespace brepdb { class ISpatialIndex; }
+namespace spatialdb { class ISpatialIndex; }
 namespace ur { class VertexArray; }
 
 namespace tt
@@ -13,7 +13,7 @@ namespace tt
 
 struct SceneNode
 {
-	brepdb::id_type id;
+	spatialdb::id_type id;
 
 	std::shared_ptr<ur::VertexArray> vao = nullptr;
 
@@ -26,7 +26,7 @@ class SceneTree
 public:
 	SceneTree() {}
 
-	void Build(brepdb::ISpatialIndex& si);
+	void Build(spatialdb::ISpatialIndex& si);
 
 	auto GetRoot() const { return m_root; }
 

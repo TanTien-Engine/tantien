@@ -4,19 +4,19 @@
 #include "BrepSerialize.h"
 #include "modules/regen/PolyDiff.h"
 
-#include <brepdb/RTree.h>
-#include <brepdb/Point.h>
+#include <spatialdb/RTree.h>
+#include <spatialdb/Point.h>
 #include <polymesh3/Polytope.h>
 
 namespace tt
 {
 
-brepdb::id_type NEXT_ID = 0;
+spatialdb::id_type NEXT_ID = 0;
 
 std::shared_ptr<tt::BRepKey> RTreeUpdate::
-Insert(const std::shared_ptr<brepdb::RTree>& rtree, const std::shared_ptr<pm3::Polytope>& poly)
+Insert(const std::shared_ptr<spatialdb::RTree>& rtree, const std::shared_ptr<pm3::Polytope>& poly)
 {
-    brepdb::id_type id;
+    spatialdb::id_type id;
 
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();
     auto itr = map.find(poly);
@@ -38,13 +38,13 @@ Insert(const std::shared_ptr<brepdb::RTree>& rtree, const std::shared_ptr<pm3::P
     uint32_t length = 0;
     tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
 
-    brepdb::Region aabb;
+    spatialdb::Region aabb;
     auto& pts = poly->Points();
     for (auto& p : pts)
     {
         auto src = p->pos.xyz;
         const double dst[4] = { src[0], src[1], src[2], 0 };
-        aabb.Combine(brepdb::Point(dst));
+        aabb.Combine(spatialdb::Point(dst));
     }
 
     rtree->InsertData(length, data, aabb, id);
@@ -59,7 +59,7 @@ Insert(const std::shared_ptr<brepdb::RTree>& rtree, const std::shared_ptr<pm3::P
     return rkey;
 }
 
-void RTreeUpdate::Clear(std::shared_ptr<brepdb::RTree>& rtree)
+void RTreeUpdate::Clear(std::shared_ptr<spatialdb::RTree>& rtree)
 {
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();
     for (auto& itr : map)
@@ -70,7 +70,7 @@ void RTreeUpdate::Clear(std::shared_ptr<brepdb::RTree>& rtree)
     map.clear();
 }
 
-void RTreeUpdate::RollForward(std::shared_ptr<brepdb::RTree>& rtree,
+void RTreeUpdate::RollForward(std::shared_ptr<spatialdb::RTree>& rtree,
                               const std::shared_ptr<tt::PolyDiff>& diff)
 {
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();
@@ -115,7 +115,7 @@ void RTreeUpdate::RollForward(std::shared_ptr<brepdb::RTree>& rtree,
     }
 }
 
-void RTreeUpdate::RollBack(std::shared_ptr<brepdb::RTree>& rtree, 
+void RTreeUpdate::RollBack(std::shared_ptr<spatialdb::RTree>& rtree, 
                            const std::shared_ptr<tt::PolyDiff>& diff)
 {
     auto& map = tt::DB::Instance()->GetPoly2KeyMap();

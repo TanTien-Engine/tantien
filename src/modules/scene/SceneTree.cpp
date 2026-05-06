@@ -2,8 +2,8 @@
 #include "modules/db/BrepSerialize.h"
 #include "modules/render/Render.h"
 
-#include <brepdb/SpatialIndex.h>
-#include <brepdb/Node.h>
+#include <spatialdb/SpatialIndex.h>
+#include <spatialdb/Node.h>
 #include <polymesh3/Polytope.h>
 #include <model/BrushBuilder.h>
 #include <unirender/Device.h>
@@ -29,12 +29,12 @@ struct Vertex
     float offset = 0;
 };
 
-class BuildTreeVisitor : public brepdb::IVisitor
+class BuildTreeVisitor : public spatialdb::IVisitor
 {
 public:
     BuildTreeVisitor() {}
 
-    virtual brepdb::VisitorStatus VisitNode(const brepdb::INode& src) override
+    virtual spatialdb::VisitorStatus VisitNode(const spatialdb::INode& src) override
     {
         auto dst = std::make_shared<tt::SceneNode>();
 
@@ -66,17 +66,17 @@ public:
             dst->vao = BuildVAO(src);
         }
 
-        return brepdb::VisitorStatus::Continue;
+        return spatialdb::VisitorStatus::Continue;
     }
 
-    virtual void VisitData(const brepdb::IData& d) override {}
-    virtual void VisitData(std::vector<const brepdb::IData*>& v) override {}
+    virtual void VisitData(const spatialdb::IData& d) override {}
+    virtual void VisitData(std::vector<const spatialdb::IData*>& v) override {}
 
     auto GetRoot() const { return m_root; }
 
 private:
     static std::shared_ptr<ur::VertexArray>
-        BuildVAO(const brepdb::INode& src)
+        BuildVAO(const spatialdb::INode& src)
     {
         if (src.GetChildrenCount() == 0) {
             return nullptr;
@@ -192,7 +192,7 @@ private:
 private:
     std::shared_ptr<tt::SceneNode> m_root = nullptr;
 
-    std::map<brepdb::id_type, std::shared_ptr<tt::SceneNode>> m_child2parent;
+    std::map<spatialdb::id_type, std::shared_ptr<tt::SceneNode>> m_child2parent;
 
 }; // BuildTreeVisitor
 
@@ -201,7 +201,7 @@ private:
 namespace tt
 {
 
-void SceneTree::Build(brepdb::ISpatialIndex& si)
+void SceneTree::Build(spatialdb::ISpatialIndex& si)
 {
     BuildTreeVisitor visitor;
     si.LevelTraversal(visitor);

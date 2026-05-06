@@ -2,15 +2,15 @@
 #include "BRepSerialize.h"
 
 #include <polymesh3/Polytope.h>
-#include <brepdb/Node.h>
+#include <spatialdb/Node.h>
 #include <SM_RayIntersect.h>
 
 namespace tt
 {
 
-brepdb::VisitorStatus PickVisitor::VisitNode(const brepdb::INode& n)
+spatialdb::VisitorStatus PickVisitor::VisitNode(const spatialdb::INode& n)
 {
-    auto& r = dynamic_cast<const brepdb::Node&>(n).GetRegion();
+    auto& r = dynamic_cast<const spatialdb::Node&>(n).GetRegion();
 
     sm::cube aabb;
     for (int i = 0; i < 3; ++i)
@@ -23,20 +23,20 @@ brepdb::VisitorStatus PickVisitor::VisitNode(const brepdb::INode& n)
 
     if (is_intersect && n.IsLeaf() && n.GetChildrenCount() > 0)
     {
-        auto& node = dynamic_cast<const brepdb::Node&>(n);
+        auto& node = dynamic_cast<const spatialdb::Node&>(n);
         m_regions.push_back(node.GetRegion());
 
         PickPoly(n);
     }
 
     if (is_intersect) {
-        return brepdb::VisitorStatus::Continue;
+        return spatialdb::VisitorStatus::Continue;
     } else {
-        return brepdb::VisitorStatus::Skip;
+        return spatialdb::VisitorStatus::Skip;
     }
 }
 
-void PickVisitor::PickPoly(const brepdb::INode& node)
+void PickVisitor::PickPoly(const spatialdb::INode& node)
 {
     if (!node.IsLeaf() || node.GetChildrenCount() == 0) {
         return;

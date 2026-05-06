@@ -1,6 +1,6 @@
 #pragma once
 
-#include <brepdb/Region.h>
+#include <spatialdb/Region.h>
 
 namespace tt
 {
@@ -8,7 +8,7 @@ namespace tt
 class BRepKey
 {
 public:
-	brepdb::Region r;
+	spatialdb::Region r;
 	int64_t id = -1;
 
 }; // BRepKey

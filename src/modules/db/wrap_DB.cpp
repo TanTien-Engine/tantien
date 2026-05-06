@@ -8,12 +8,12 @@
 #include "BrepSerialize.h"
 #include "modules/regen/PolyDiff.h"
 
-#include <brepdb/RTree.h>
-#include <brepdb/Region.h>
-#include <brepdb/Point.h>
-#include <brepdb/MemoryStorageManager.h>
-#include <brepdb/DiskStorageManager.h>
-#include <brepdb/ObjVisitor.h>
+#include <spatialdb/RTree.h>
+#include <spatialdb/Region.h>
+#include <spatialdb/Point.h>
+#include <spatialdb/MemoryStorageManager.h>
+#include <spatialdb/DiskStorageManager.h>
+#include <spatialdb/ObjVisitor.h>
 #include <polymesh3/Polytope.h>
 #include <geoshape/Box.h>
 #include <SM_Cube.h>
@@ -24,7 +24,7 @@
 namespace
 {
 
-sm::cube region_to_cube(const brepdb::Region& r)
+sm::cube region_to_cube(const spatialdb::Region& r)
 {
     const auto l = r.GetLow();
     const auto h = r.GetHigh();
@@ -40,7 +40,7 @@ sm::cube region_to_cube(const brepdb::Region& r)
     return sm::cube(min, max);
 }
 
-void return_regions(const std::vector<brepdb::Region>& regions)
+void return_regions(const std::vector<spatialdb::Region>& regions)
 {
     ves_pop(ves_argnum());
 
@@ -62,32 +62,32 @@ void return_regions(const std::vector<brepdb::Region>& regions)
 
 void w_RTree_allocate()
 {
-    auto proxy = (wrapper::Proxy<brepdb::RTree>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepdb::RTree>));
+    auto proxy = (wrapper::Proxy<spatialdb::RTree>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<spatialdb::RTree>));
 
     auto num = ves_argnum();
     if (num == 2)
     {
-        auto sm = ((wrapper::Proxy<brepdb::DiskStorageManager>*)ves_toforeign(1))->obj;
-        proxy->obj = std::make_shared<brepdb::RTree>(sm, false);
+        auto sm = ((wrapper::Proxy<spatialdb::DiskStorageManager>*)ves_toforeign(1))->obj;
+        proxy->obj = std::make_shared<spatialdb::RTree>(sm, false);
     }
     else
     {
-//        auto sm = std::make_shared<brepdb::MemoryStorageManager>();
-        auto sm = std::make_shared<brepdb::DiskStorageManager>("test_db");
-        proxy->obj = std::make_shared<brepdb::RTree>(sm, true);
+//        auto sm = std::make_shared<spatialdb::MemoryStorageManager>();
+        auto sm = std::make_shared<spatialdb::DiskStorageManager>("test_db");
+        proxy->obj = std::make_shared<spatialdb::RTree>(sm, true);
     }
 }
 
 int w_RTree_finalize(void* data)
 {
-    auto proxy = (wrapper::Proxy<brepdb::RTree>*)(data);
+    auto proxy = (wrapper::Proxy<spatialdb::RTree>*)(data);
     proxy->~Proxy();
-    return sizeof(wrapper::Proxy<brepdb::RTree>);
+    return sizeof(wrapper::Proxy<spatialdb::RTree>);
 }
 
 void w_RTree_load_from_file()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto filepath = ves_tostring(1);
 
     tt::RTreeBuilder::FromModeling(*rtree, filepath);
@@ -95,7 +95,7 @@ void w_RTree_load_from_file()
 
 void w_RTree_insert()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
 
     auto rkey = tt::RTreeUpdate::Insert(rtree, poly);
@@ -111,7 +111,7 @@ void w_RTree_insert()
 
 void w_RTree_insert_with_time()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
     double time = ves_tonumber(2);
 
@@ -119,15 +119,15 @@ void w_RTree_insert_with_time()
     uint32_t length = 0;
     tt::BrepSerialize::BRepToByteArray(*poly, &data, length);
 
-    brepdb::id_type id = 0;
+    spatialdb::id_type id = 0;
 
-    brepdb::Region aabb;
+    spatialdb::Region aabb;
     auto& pts = poly->Points();
     for (auto& p : pts) 
     {
         auto src = p->pos.xyz;
         const double dst[4] = { src[0], src[1], src[2], time };
-        aabb.Combine(brepdb::Point(dst));
+        aabb.Combine(spatialdb::Point(dst));
     }
 
     rtree->InsertData(length, data, aabb, id);
@@ -148,10 +148,10 @@ void w_RTree_insert_with_time()
 
 void w_RTree_query()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto key = ((wrapper::Proxy<tt::BRepKey>*)ves_toforeign(1))->obj;
     
-    auto visitor = std::make_unique<brepdb::ObjVisitor>();
+    auto visitor = std::make_unique<spatialdb::ObjVisitor>();
     rtree->IntersectsWithQuery(key->r, *visitor);
 
     std::vector<pm3::PolytopePtr> polys;
@@ -174,18 +174,18 @@ void w_RTree_query()
 
 void w_RTree_delete()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto key = ((wrapper::Proxy<tt::BRepKey>*)ves_toforeign(1))->obj;
 
     if (key->id < 0)
     {
-        auto visitor = std::make_unique<brepdb::ObjVisitor>();
+        auto visitor = std::make_unique<spatialdb::ObjVisitor>();
         rtree->IntersectsWithQuery(key->r, *visitor);
 
         auto& items = visitor->GetResults();
         for (auto item : items)
         {
-            brepdb::IShape* shape;
+            spatialdb::IShape* shape;
             item->GetShape(&shape);
             rtree->DeleteData(*shape, item->GetIdentifier());
             delete shape;
@@ -199,37 +199,37 @@ void w_RTree_delete()
 
 void w_RTree_clear()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     tt::RTreeUpdate::Clear(rtree);
 }
 
 void w_RTree_rollforward()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto diff = ((wrapper::Proxy<tt::PolyDiff>*)ves_toforeign(1))->obj;
     tt::RTreeUpdate::RollForward(rtree, diff);
 }
 
 void w_RTree_rollback()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto diff = ((wrapper::Proxy<tt::PolyDiff>*)ves_toforeign(1))->obj;
     tt::RTreeUpdate::RollBack(rtree, diff);
 }
 
 void w_RTree_query_with_time()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto key = ((wrapper::Proxy<tt::BRepKey>*)ves_toforeign(1))->obj;
 
     double tmin = ves_tonumber(2);
     double tmax = ves_tonumber(3);
 
-    brepdb::Region r = key->r;
+    spatialdb::Region r = key->r;
     const_cast<double&>(r.GetLow()[3]) = tmin;
     const_cast<double&>(r.GetHigh()[3]) = tmax;
 
-    auto visitor = std::make_unique<brepdb::ObjVisitor>();
+    auto visitor = std::make_unique<spatialdb::ObjVisitor>();
     rtree->IntersectsWithQuery(r, *visitor);
 
     std::vector<pm3::PolytopePtr> polys;
@@ -252,7 +252,7 @@ void w_RTree_query_with_time()
 
 void w_RTree_get_all_leaves()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
 
     tt::RegionVisitor visitor;
     rtree->LevelTraversal(visitor);
@@ -263,13 +263,13 @@ void w_RTree_get_all_leaves()
 
 void w_RTree_query_leaves()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto box = ((wrapper::Proxy<gs::Box>*)ves_toforeign(1))->obj;
 
     const auto& c = box->GetCube();
     const double min[] = { c.xmin, c.ymin, c.zmin, 0 };
     const double max[] = { c.xmax, c.ymax, c.zmax, 0 };
-    brepdb::Region region(min, max);
+    spatialdb::Region region(min, max);
 
     tt::RegionVisitor visitor;
     rtree->ContainsWhatQuery(region, visitor);
@@ -280,7 +280,7 @@ void w_RTree_query_leaves()
 
 void w_RTree_pick_aabbs()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto pos = wrapper::map_to_vec3(1);
     auto dir = wrapper::map_to_vec3(2);
 
@@ -293,7 +293,7 @@ void w_RTree_pick_aabbs()
 
 void w_RTree_pick_polys()
 {
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(0))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto pos = wrapper::map_to_vec3(1);
     auto dir = wrapper::map_to_vec3(2);
 
@@ -314,8 +314,8 @@ void w_RKey_allocate()
         sm::cube cube = ((wrapper::Proxy<gs::Box>*)ves_toforeign(1))->obj->GetCube();
         const double min[4] = { cube.xmin, cube.ymin, cube.zmin, 0 };
         const double max[4] = { cube.xmax, cube.ymax, cube.zmax, 0 };
-        key->r.Combine(brepdb::Point(min));
-        key->r.Combine(brepdb::Point(max));
+        key->r.Combine(spatialdb::Point(min));
+        key->r.Combine(spatialdb::Point(max));
     }
 
     auto proxy = (wrapper::Proxy<tt::BRepKey>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<tt::BRepKey>));
@@ -362,15 +362,15 @@ void w_RKey_id()
 void w_RFile_allocate()
 {
     const char* filename = ves_tostring(1);
-    auto proxy = (wrapper::Proxy<brepdb::DiskStorageManager>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepdb::DiskStorageManager>));
-    proxy->obj = std::make_shared<brepdb::DiskStorageManager>(filename, false);
+    auto proxy = (wrapper::Proxy<spatialdb::DiskStorageManager>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<spatialdb::DiskStorageManager>));
+    proxy->obj = std::make_shared<spatialdb::DiskStorageManager>(filename, false);
 }
 
 int w_RFile_finalize(void* data)
 {
-    auto proxy = (wrapper::Proxy<brepdb::DiskStorageManager>*)(data);
+    auto proxy = (wrapper::Proxy<spatialdb::DiskStorageManager>*)(data);
     proxy->~Proxy();
-    return sizeof(wrapper::Proxy<brepdb::DiskStorageManager>);
+    return sizeof(wrapper::Proxy<spatialdb::DiskStorageManager>);
 }
 
 }

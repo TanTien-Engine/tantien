@@ -1,25 +1,25 @@
 #pragma once
 
-#include <brepdb/SpatialIndex.h>
+#include <spatialdb/SpatialIndex.h>
 
-namespace brepdb { class Region; }
+namespace spatialdb { class Region; }
 
 namespace tt
 {
 
-class RegionVisitor : public brepdb::IVisitor
+class RegionVisitor : public spatialdb::IVisitor
 {
 public:
     RegionVisitor() {}
 
-    virtual brepdb::VisitorStatus VisitNode(const brepdb::INode& n) override;
-    virtual void VisitData(const brepdb::IData& d) override {}
-    virtual void VisitData(std::vector<const brepdb::IData*>& v) override {}
+    virtual spatialdb::VisitorStatus VisitNode(const spatialdb::INode& n) override;
+    virtual void VisitData(const spatialdb::IData& d) override {}
+    virtual void VisitData(std::vector<const spatialdb::IData*>& v) override {}
 
     auto& GetRegions() const { return m_regions; }
     
 private:
-    std::vector<brepdb::Region> m_regions;
+    std::vector<spatialdb::Region> m_regions;
 
 }; // RegionVisitor
 

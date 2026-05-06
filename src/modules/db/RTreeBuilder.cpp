@@ -2,9 +2,9 @@
 #include "BrepSerialize.h"
 
 #include <SM_Vector.h>
-#include <brepdb/RTree.h>
-#include <brepdb/Region.h>
-#include <brepdb/Point.h>
+#include <spatialdb/RTree.h>
+#include <spatialdb/Region.h>
+#include <spatialdb/Point.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -28,7 +28,7 @@ struct Vertex
 namespace tt
 {
 
-void RTreeBuilder::FromModeling(brepdb::RTree& rtree, const char* filepath)
+void RTreeBuilder::FromModeling(spatialdb::RTree& rtree, const char* filepath)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -94,14 +94,14 @@ void RTreeBuilder::FromModeling(brepdb::RTree& rtree, const char* filepath)
 		uint32_t length = 0;
 		BrepSerialize::BRepToByteArray(points, faces, &data, length);
 
-		brepdb::id_type id = 0;
+		spatialdb::id_type id = 0;
 
-		brepdb::Region aabb;
+		spatialdb::Region aabb;
 		for (auto& p : points)
 		{
 			auto src = p.xyz;
 			const double dst[4] = { src[0], src[1], src[2], 0 };
-			aabb.Combine(brepdb::Point(dst));
+			aabb.Combine(spatialdb::Point(dst));
 		}
 
 		rtree.InsertData(length, data, aabb, id);

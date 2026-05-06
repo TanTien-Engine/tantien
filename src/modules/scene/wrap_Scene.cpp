@@ -1,7 +1,7 @@
 #include "wrap_Scene.h"
 #include "modules/scene/SceneTree.h"
 
-#include <brepdb/RTree.h>
+#include <spatialdb/RTree.h>
 #include <wrapper/TransHelper.h>
 
 #include <queue>
@@ -27,7 +27,7 @@ int w_SceneTree_finalize(void* data)
 void w_SceneTree_build_tree()
 {
     auto stree = ((wrapper::Proxy<tt::SceneTree>*)ves_toforeign(0))->obj;
-    auto rtree = ((wrapper::Proxy<brepdb::RTree>*)ves_toforeign(1))->obj;
+    auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(1))->obj;
     stree->Build(*rtree);
 }
 
