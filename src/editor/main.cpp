@@ -43,10 +43,9 @@
 #include "cax/breptopo_c/wrap_BrepTopo.h"
 #include "cax/breptopo_c/breptopo.ves.inc"
 #include "cax/breptopo_c/BrepTopo.h"
-#include "cax/brepir_c/wrap_BrepIR.h"
-#include "cax/brepir_c/brepir.ves.inc"
 #include "cax/brepdb_c/wrap_BrepDB.h"
 #include "cax/brepdb_c/brepdb.ves.inc"
+#include "cax/brepdb_c/BrepDBInit.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -188,8 +187,6 @@ VesselLoadModuleResult read_module(const char* module)
         source = partgraphModuleSource;
     } else if (strcmp(module, "breptopo") == 0) {
         source = breptopoModuleSource;
-    } else if (strcmp(module, "brepir") == 0) {
-        source = brepirModuleSource;
     } else if (strcmp(module, "brepdb") == 0) {
         source = brepdbModuleSource;
     }
@@ -345,9 +342,6 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     breptopo::BrepTopoBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    brepir::BrepIRBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
     brepdb::BrepDBBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
@@ -425,9 +419,6 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = breptopo::BrepTopoBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepir::BrepIRBindMethod(fullName);
     if (method != NULL) return method;
 
     method = brepdb::BrepDBBindMethod(fullName);
@@ -775,6 +766,7 @@ int main(int argc, char* argv[])
     tt::Keyboard::RegisterCallback(keyboard_cb);
 
     breptopo::init_cb();
+    brepdb::init_cb();
 
     ves_init_vm();
 
