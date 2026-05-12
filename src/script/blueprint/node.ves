@@ -3,6 +3,7 @@ import "maths.vector" for Vector2
 import "maths" for Float2
 import "blueprint.blueprint" for Blueprint
 import "blueprint.node_render" for NodeRender
+import "blueprint.dirty_types" for DIRTY_CONNECTION
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "blueprint.node_param" for NodeParam
 import "blueprint.pin_color_map" for PIN_COLOR_MAP
@@ -164,10 +165,14 @@ class Node
 	on_mouse_clicked(x, y, btn) {}
 	on_mouse_scrolled(x, y, dx, dy) {}
 
-	on_pin_dirty(pin, type, msg) 
+	on_pin_dirty(pin, type, msg)
 	{
+		if (type == DIRTY_CONNECTION and pin.is_input) {
+			this.on_connection_dirty()
+		}
+
 		var t = pin.dirty_timestamp
-		if (pin.is_input) 
+		if (pin.is_input)
 		{
 			// one-way
 			for (var p in this.imports) {
@@ -182,12 +187,13 @@ class Node
 			// one-way
 			for (var p in this.exports) {
 				p.dirty_timestamp = Math.max(p.dirty_timestamp, t)
-			}		
+			}
 			for (var pin in this.imports) {
 				Blueprint.send_pin_dirty(pin, type, msg)
 			}
 		}
 	}
+	on_connection_dirty() {}
 	on_node_dirty() {}
 
 	on_param_dirty()

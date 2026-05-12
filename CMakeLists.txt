@@ -328,7 +328,7 @@ set(OCCT_DIR "Y:/OCCT/install")
 list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
 find_package(OpenCASCADE REQUIRED)
 link_directories("Y:/OCCT/install/win64/vc14/libd")
-set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset)
+set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset TKDESTEP TKDE TKXSBase TKXCAF TKLCAF TKCDF)
 
 message(STATUS "OCCT Libs to link: ${OpenCASCADE_LIBRARIES}")
 
