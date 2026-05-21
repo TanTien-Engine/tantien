@@ -38,14 +38,18 @@
 #include "modules/graph/wrap_Graph.h"
 #include "modules/graph/graph.ves.inc"
 
-#include "cax/partgraph_c/wrap_PartGraph.h"
-#include "cax/partgraph_c/partgraph.ves.inc"
-#include "cax/breptopo_c/wrap_BrepTopo.h"
-#include "cax/breptopo_c/breptopo.ves.inc"
-#include "cax/breptopo_c/BrepTopo.h"
+#include "cax/brepkit_c/wrap_BrepKit.h"
+#include "cax/brepkit_c/brepkit.ves.inc"
+#include "cax/brepgraph_c/script/wrap_BrepGraph.h"
+#include "cax/brepgraph_c/script/brepgraph.ves.inc"
+#include "cax/brepgraph_c/BrepGraph.h"
 #include "cax/brepdb_c/wrap_BrepDB.h"
 #include "cax/brepdb_c/brepdb.ves.inc"
 #include "cax/brepdb_c/BrepDBInit.h"
+#include "cax/deepbrep_c/wrap_DeepBrep.h"
+#include "cax/deepbrep_c/deepbrep.ves.inc"
+#include "cax/cadcvt_c/wrap_CadCvt.h"
+#include "cax/cadcvt_c/cadcvt.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -127,18 +131,16 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "om") == 0 &&
         !strcmp(module, "regen") == 0 &&
         !strcmp(module, "graph") == 0 &&
-        !strcmp(module, "archgen") == 0 &&
-        !strcmp(module, "citygen") == 0 &&
-        !strcmp(module, "globegen") == 0 &&
-        !strcmp(module, "pathtracer") == 0 &&
+
+        // cad
         !strcmp(module, "sketchlib") == 0 &&
         !strcmp(module, "nurbslib") == 0 &&
-        !strcmp(module, "partgraph") == 0 &&
-        !strcmp(module, "breptopo") == 0 &&
-        !strcmp(module, "brepir") == 0 &&
+        !strcmp(module, "brepkit") == 0 &&
+        !strcmp(module, "brepgraph") == 0 &&
         !strcmp(module, "brepdb") == 0 &&
-        !strcmp(module, "loggraph") == 0 &&
-        !strcmp(module, "codegraph") == 0) {
+        !strcmp(module, "deepbrep") == 0 &&
+        !strcmp(module, "cadcvt") == 0)    
+    {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -183,12 +185,16 @@ VesselLoadModuleResult read_module(const char* module)
         source = regenModuleSource;
     } else if (strcmp(module, "graph") == 0) {
         source = graphModuleSource;
-    } else if (strcmp(module, "partgraph") == 0) {
-        source = partgraphModuleSource;
-    } else if (strcmp(module, "breptopo") == 0) {
-        source = breptopoModuleSource;
+    } else if (strcmp(module, "brepkit") == 0) {
+        source = brepkitModuleSource;
+    } else if (strcmp(module, "brepgraph") == 0) {
+        source = brepgraphModuleSource;
     } else if (strcmp(module, "brepdb") == 0) {
         source = brepdbModuleSource;
+    } else if (strcmp(module, "deepbrep") == 0) {
+        source = deepbrepModuleSource;
+    } else if (strcmp(module, "cadcvt") == 0) {
+        source = cadcvtModuleSource;
     }
     
     else {
@@ -336,13 +342,19 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     tt::GraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    partgraph::PartGraphBindClass(className, &methods);
+    brepkit::BrepKitBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
-    breptopo::BrepTopoBindClass(className, &methods);
+    brepgraph::BrepGraphBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     brepdb::BrepDBBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    deepbrep::DeepBrepBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
+    cadcvt::CadCvtBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
     return methods;
@@ -415,13 +427,19 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     method = tt::GraphBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = partgraph::PartGraphBindMethod(fullName);
+    method = brepkit::BrepKitBindMethod(fullName);
     if (method != NULL) return method;
 
-    method = breptopo::BrepTopoBindMethod(fullName);
+    method = brepgraph::BrepGraphBindMethod(fullName);
     if (method != NULL) return method;
 
     method = brepdb::BrepDBBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = deepbrep::DeepBrepBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = cadcvt::CadCvtBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
@@ -713,8 +731,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    int width = 1024 * 2;
-    int height = 768 * 2;
+    int width = 1024;
+    int height = 768;
 
     glfwSetErrorCallback(error_callback);
 
@@ -765,7 +783,7 @@ int main(int argc, char* argv[])
     };
     tt::Keyboard::RegisterCallback(keyboard_cb);
 
-    breptopo::init_cb();
+    brepgraph::init_cb();
     brepdb::init_cb();
 
     ves_init_vm();

@@ -74,15 +74,19 @@ class Editor
 //d:\projects\tt_sim\fluid\assets\scripts\fluideditor.ves
 //d:\projects\tt_sim\pathtracer\assets\scripts\pteditor.ves
 
-//		this.filepath = "../cax/test/partgraph/samples/bottle.ves"
-//		this.filepath = "thirdparty/cax/test/partgraph/nodes/chamfer.ves"
-//		this.filepath = "thirdparty/cax/test/breptopo/nodes/hist_graph.ves"
-//		this.filepath = "thirdparty/cax/test/breptopo/nodes/topo_graph.ves"
-//		this.filepath = "thirdparty/cax/test/breptopo/nodes/labeling.ves"
-//		this.filepath = "thirdparty/cax/test/breptopo/nodes/merge.ves"
-//		this.filepath = "thirdparty/cax/test/breptopo/nodes/compute_inc.ves"
-		this.filepath = "thirdparty/cax/test/brepdb/nodes/load_step.ves"
+//		this.filepath = "../cax/test/brepkit/samples/bottle.ves"
+//		this.filepath = "thirdparty/cax/test/brepkit/nodes/chamfer.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/nodes/hist_graph.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/nodes/topo_graph.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/nodes/labeling.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/nodes/merge.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/nodes/compute_inc.ves"
+//		this.filepath = "thirdparty/cax/test/brepgraph/compute_load.ves"
+//		this.filepath = "thirdparty/cax/test/brepdb/nodes/load_step.ves"
 //		this.filepath = "thirdparty/cax/test/brepdb/nodes/version.ves"
+//		this.filepath = "thirdparty/cax/test/deepbrep/data_gen.ves"
+//		this.filepath = "thirdparty/cax/test/deepbrep/predict.ves"
+		this.filepath = "thirdparty/cax/test/cadcvt/freecad_example.ves"
 
 //		this.filepath = "samples/geograph/nodes/poly_expand.ves"
 //		this.filepath = "samples/geograph/nodes/knife.ves"
@@ -1342,6 +1346,7 @@ import \"editor\" for _editor
 		if (this.scene_stack.bp_dirty or !this.exe_list) {
 			this.exe_list = ExecuteList(bp_nodes)
 			this.trigger_list.run(EVENT_BLUEPRINT_CHANGED)
+			this.exe_list.run()
 		}
 	}
 
