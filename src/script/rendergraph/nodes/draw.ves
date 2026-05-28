@@ -163,7 +163,20 @@ class Draw is Node
 				rs.clip_plane(val)
 			} else if (key == "prim_restart") {
 				rs.prim_restart(val)
-			} 
+			} else if (key == "blend") {
+				// Standard src-alpha over blend. Only act when enabled;
+				// RenderState defaults to blending off, so opaque draws
+				// that omit the key (or set false) keep prior behaviour.
+				if (val) {
+					rs.blending(true, "src_alpha", "one_minus_src_alpha")
+				}
+			} else if (key == "depth_mask") {
+				// Depth write toggle. Transparent passes set false so a
+				// nearer translucent fragment doesn't occlude geometry
+				// behind it in the depth buffer. Default true matches
+				// RenderState.init(), so absent key = unchanged.
+				rs.z_write(val)
+			}
 		}
 
 		return rs
