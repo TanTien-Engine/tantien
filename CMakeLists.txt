@@ -320,18 +320,44 @@ add_subdirectory(thirdparty/model/external/assimp)
 add_executable(editor ${EDITOR_FILES})
 
 set(FBX_SDK_DIR "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.7")
-set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/arm64/debug")
+# FBX: Debug -> debug/, Release(and other) -> release/  (genexpr resolved per config)
+set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/arm64/$<IF:$<CONFIG:Debug>,debug,release>")
 
 target_include_directories(editor PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 
 set(OCCT_DIR "Y:/OCCT/install") 
 list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
 find_package(OpenCASCADE REQUIRED)
-link_directories("Y:/OCCT/install/win64/vc14/libd")
+# OCCT: Debug -> libd/, Release(and other) -> lib/  (target-scoped, genexpr per config)
+target_link_directories(editor PRIVATE
+    $<$<CONFIG:Debug>:Y:/OCCT/install/win64/vc14/libd>
+    $<$<NOT:$<CONFIG:Debug>>:Y:/OCCT/install/win64/vc14/lib>)
 set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset TKDESTEP TKDE TKXSBase TKXCAF TKLCAF TKCDF)
 
 message(STATUS "OCCT Libs to link: ${OpenCASCADE_LIBRARIES}")
 
-target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm spatialdb objcomp brepom graph wrapper cax freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib" ${OpenCASCADE_LIBRARIES})
+target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm spatialdb objcomp brepom graph wrapper cax freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib
+    # --- external prebuilt libs (each built out-of-tree in its own out_arm dir) ---
+    # These are NOT part of the editor solution, so they do not follow the active
+    # config automatically: build their Release configs manually before a Release
+    # link (e.g. cmake --build <dep>/out_arm --config Release). Pick the matching
+    # Debug/Release variant per config via the debug/optimized keywords below.
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Release/SPIRV-Tools.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Release/SPIRV-Tools-link.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Release/SPIRV-Tools-opt.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Release/lib/LLVMDxcSupport.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Release/zs.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Release/libpng18_static.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Release/turbojpeg-static.lib
+    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib
+    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Release/tiff.lib
+    "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib" ${OpenCASCADE_LIBRARIES})
 
 target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
