@@ -50,6 +50,8 @@
 #include "cax/deepbrep_c/deepbrep.ves.inc"
 #include "cax/cadcvt_c/wrap_CadCvt.h"
 #include "cax/cadcvt_c/cadcvt.ves.inc"
+#include "cax/sketchlib/wrap_SketchLib.h"
+#include "cax/sketchlib/sketchlib.ves.inc"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -195,8 +197,10 @@ VesselLoadModuleResult read_module(const char* module)
         source = deepbrepModuleSource;
     } else if (strcmp(module, "cadcvt") == 0) {
         source = cadcvtModuleSource;
+    } else if (strcmp(module, "sketchlib") == 0) {
+        source = sketchlibModuleSource;
     }
-    
+
     else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -357,6 +361,9 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
     cadcvt::CadCvtBindClass(className, &methods);
     if (methods.allocate != NULL) return methods;
 
+    sketchlib::SketchLibBindClass(className, &methods);
+    if (methods.allocate != NULL) return methods;
+
     return methods;
 }
 
@@ -440,6 +447,9 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     if (method != NULL) return method;
 
     method = cadcvt::CadCvtBindMethod(fullName);
+    if (method != NULL) return method;
+
+    method = sketchlib::SketchLibBindMethod(fullName);
     if (method != NULL) return method;
 
     return NULL;
