@@ -48,10 +48,10 @@
 #include "cax/brepdb_c/BrepDBInit.h"
 #include "cax/deepbrep_c/wrap_DeepBrep.h"
 #include "cax/deepbrep_c/deepbrep.ves.inc"
-#include "cax/cadcvt_c/wrap_CadCvt.h"
 #include "cax/cadcvt_c/cadcvt.ves.inc"
 #include "cax/sketchlib/wrap_SketchLib.h"
 #include "cax/sketchlib/sketchlib.ves.inc"
+#include "cax/cadcvt_c/wrap_CadCvt.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -133,16 +133,20 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         !strcmp(module, "om") == 0 &&
         !strcmp(module, "regen") == 0 &&
         !strcmp(module, "graph") == 0 &&
-
-        // cad
+        !strcmp(module, "archgen") == 0 &&
+        !strcmp(module, "citygen") == 0 &&
+        !strcmp(module, "globegen") == 0 &&
+        !strcmp(module, "pathtracer") == 0 &&
         !strcmp(module, "sketchlib") == 0 &&
         !strcmp(module, "nurbslib") == 0 &&
         !strcmp(module, "brepkit") == 0 &&
         !strcmp(module, "brepgraph") == 0 &&
+        !strcmp(module, "brepir") == 0 &&
         !strcmp(module, "brepdb") == 0 &&
         !strcmp(module, "deepbrep") == 0 &&
-        !strcmp(module, "cadcvt") == 0)    
-    {
+        !strcmp(module, "cadcvt") == 0 &&
+        !strcmp(module, "loggraph") == 0 &&
+        !strcmp(module, "codegraph") == 0) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -195,7 +199,7 @@ VesselLoadModuleResult read_module(const char* module)
         source = brepdbModuleSource;
     } else if (strcmp(module, "deepbrep") == 0) {
         source = deepbrepModuleSource;
-    } else if (strcmp(module, "cadcvt") == 0) {
+    }  else if (strcmp(module, "cadcvt") == 0) {
         source = cadcvtModuleSource;
     } else if (strcmp(module, "sketchlib") == 0) {
         source = sketchlibModuleSource;
