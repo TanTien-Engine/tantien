@@ -236,6 +236,13 @@ set(ALL_FILES
     ${modules__vm}
 )
 
+if(APPLE)
+    # Physics depends on uniphysics + Box2D, which are not built or linked on macOS
+    # (uniphysics is disabled via add_subdirectory below, and the editor's Physics
+    # bindings are already commented out). Exclude the module from the macOS build.
+    list(REMOVE_ITEM ALL_FILES ${modules__physics})
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
@@ -277,8 +284,44 @@ thirdparty/wrapper/include
 set(EDITOR_FILES
     "src/editor/main.cpp"
 )
+if(APPLE)
+    # Obj-C++ helper to bridge the GLFW window to an NSView for the Metal surface.
+    list(APPEND EDITOR_FILES "src/editor/metal_view_mac.mm")
+endif()
 
 add_subdirectory(thirdparty/glfw)
+
+# gl3w generates its loader (gl3w.c / gl3w.h) at configure time from two Khronos
+# headers that gl3w_gen.py downloads via Python's urllib. On macOS that download
+# fails (the local proxy resets Python's TLS handshake), so pre-seed the headers
+# into gl3w's build dir using CMake's libcurl-based file(DOWNLOAD), which honours
+# the proxy env. gl3w_gen.py then reuses the existing files instead of downloading.
+# gl3w is a git submodule, so the fix lives here rather than in the submodule.
+if(APPLE)
+    # Fetch via curl (reliable through the local proxy; both Python urllib and
+    # CMake's own file(DOWNLOAD) hit intermittent TLS resets here). Only fetch when
+    # the target is missing or empty -- a failed download can leave a 0-byte file
+    # that would later break compilation of gl3w.h (which includes khrplatform.h).
+    macro(tt_prefetch url dst)
+        set(_sz 0)
+        if(EXISTS "${dst}")
+            file(SIZE "${dst}" _sz)
+        endif()
+        if(_sz EQUAL 0)
+            get_filename_component(_dir "${dst}" DIRECTORY)
+            file(MAKE_DIRECTORY "${_dir}")
+            execute_process(
+                COMMAND curl -fsSL --retry 3 --retry-delay 1 -o "${dst}" "${url}"
+                RESULT_VARIABLE _rc)
+            if(NOT _rc EQUAL 0)
+                message(FATAL_ERROR "gl3w prefetch failed: ${url} (curl rc=${_rc})")
+            endif()
+        endif()
+    endmacro()
+    set(_gl3w_inc "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/gl3w/include")
+    tt_prefetch("https://registry.khronos.org/OpenGL/api/GL/glcorearb.h"  "${_gl3w_inc}/GL/glcorearb.h")
+    tt_prefetch("https://registry.khronos.org/EGL/api/KHR/khrplatform.h" "${_gl3w_inc}/KHR/khrplatform.h")
+endif()
 add_subdirectory(thirdparty/gl3w)
 add_subdirectory(thirdparty/sm)
 add_subdirectory(thirdparty/unirender)
@@ -314,6 +357,15 @@ add_subdirectory(thirdparty/cax)
 add_subdirectory(thirdparty/shadertrans/external/SPIRV-Cross)
 add_subdirectory(thirdparty/shadertrans/external/glslang)
 add_subdirectory(thirdparty/shadertrans/external/SpvGenTwo)
+
+if(APPLE)
+    # Build SPIRV-Tools from source for arm64 macOS (Windows links prebuilt out_arm libs).
+    set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
+    set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+    set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
+    add_subdirectory(thirdparty/shadertrans/external/SPIRV-Tools)
+endif()
+
 add_subdirectory(thirdparty/model/external/tinyobjloader)
 add_subdirectory(thirdparty/model/external/assimp)
 
@@ -325,39 +377,70 @@ set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/arm64/$<IF:$<CONFIG:Debug>,debug,release>")
 
 target_include_directories(editor PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 
-set(OCCT_DIR "Y:/OCCT/install") 
-list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
+# OCCT (OpenCASCADE). On Windows it is a prebuilt install on the Y: drive; on
+# macOS it comes from Homebrew, located by find_package via the default prefixes.
+if(WIN32)
+    set(OCCT_DIR "Y:/OCCT/install")
+    list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
+endif()
 find_package(OpenCASCADE REQUIRED)
-# OCCT: Debug -> libd/, Release(and other) -> lib/  (target-scoped, genexpr per config)
-target_link_directories(editor PRIVATE
-    $<$<CONFIG:Debug>:Y:/OCCT/install/win64/vc14/libd>
-    $<$<NOT:$<CONFIG:Debug>>:Y:/OCCT/install/win64/vc14/lib>)
+if(WIN32)
+    # OCCT: Debug -> libd/, Release(and other) -> lib/  (target-scoped, genexpr per config)
+    target_link_directories(editor PRIVATE
+        $<$<CONFIG:Debug>:Y:/OCCT/install/win64/vc14/libd>
+        $<$<NOT:$<CONFIG:Debug>>:Y:/OCCT/install/win64/vc14/lib>)
+else()
+    # macOS/Homebrew: single lib + include dir from the OCCT config (no per-config split)
+    target_link_directories(editor PRIVATE ${OpenCASCADE_LIBRARY_DIR})
+    target_include_directories(editor PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+endif()
 set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset TKDESTEP TKDE TKXSBase TKXCAF TKLCAF TKCDF)
 
 message(STATUS "OCCT Libs to link: ${OpenCASCADE_LIBRARIES}")
 
-target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm spatialdb objcomp brepom graph wrapper cax freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib
-    # --- external prebuilt libs (each built out-of-tree in its own out_arm dir) ---
-    # These are NOT part of the editor solution, so they do not follow the active
-    # config automatically: build their Release configs manually before a Release
-    # link (e.g. cmake --build <dep>/out_arm --config Release). Pick the matching
-    # Debug/Release variant per config via the debug/optimized keywords below.
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Release/SPIRV-Tools.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Release/SPIRV-Tools-link.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Release/SPIRV-Tools-opt.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Release/lib/LLVMDxcSupport.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Release/zs.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Release/libpng18_static.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Release/turbojpeg-static.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Release/tiff.lib
-    "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib" ${OpenCASCADE_LIBRARIES})
+# Common in-tree library targets (built on every platform).
+target_link_libraries(editor
+    glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3
+    geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger
+    easyvm brepvm spatialdb objcomp brepom graph wrapper cax freetype
+    spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV
+    SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF
+    ${OpenCASCADE_LIBRARIES})
 
-target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
+if(WIN32)
+    target_link_libraries(editor C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib
+        # --- external prebuilt libs (each built out-of-tree in its own out_arm dir) ---
+        # These are NOT part of the editor solution, so they do not follow the active
+        # config automatically: build their Release configs manually before a Release
+        # link (e.g. cmake --build <dep>/out_arm --config Release). Pick the matching
+        # Debug/Release variant per config via the debug/optimized keywords below.
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Release/SPIRV-Tools.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Release/SPIRV-Tools-link.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Release/SPIRV-Tools-opt.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Release/lib/LLVMDxcSupport.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Release/zs.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Release/libpng18_static.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Release/turbojpeg-static.lib
+        debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib
+        optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Release/tiff.lib
+        "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib")
+    target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
+elseif(APPLE)
+    # SPIRV-Tools built from source above (replaces the Windows out_arm prebuilts).
+    target_link_libraries(editor SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
+    # Image codecs from Homebrew (replace the Windows out_arm zlib/png/jpeg/tiff).
+    target_link_directories(editor PRIVATE /opt/homebrew/lib)
+    target_link_libraries(editor png turbojpeg tiff z)
+    # Frameworks for the Metal backend + glfw (Cocoa) windowing.
+    target_link_libraries(editor
+        "-framework Metal" "-framework Foundation" "-framework QuartzCore"
+        "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework CoreFoundation")
+    # NOTE: FBX is stubbed on macOS (no SDK); DXC's libdxcompiler is dlopen'd at runtime.
+endif()

@@ -7,6 +7,7 @@
 #include <cstdio>
 
 #include <string.h>
+#include <sys/stat.h> // struct stat / stat() (not pulled in transitively on macOS)
 
 namespace
 {

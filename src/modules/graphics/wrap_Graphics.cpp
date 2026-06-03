@@ -344,7 +344,7 @@ void w_Painter_add_bezier()
 sm::mat4* CAM_MAT = nullptr;
 bool CAM_ORTHO = false;
 
-auto trans3d = [&](const sm::vec3& pos3)->sm::vec2 
+auto trans3d = [](const sm::vec3& pos3)->sm::vec2
 {
     auto vp = tt::Graphics::Instance()->GetViewport();
     if (CAM_MAT) {
