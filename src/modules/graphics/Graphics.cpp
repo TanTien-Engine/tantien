@@ -25,7 +25,7 @@ Graphics::Graphics()
     auto dev = tt::Render::Instance()->Device();
     GTxt::Instance()->Init(*dev);
 
-    auto filtpath = "assets\\fonts\\default2.ttf";
+    auto filtpath = "assets/fonts/default2.ttf";
     GTxt::Instance()->LoadFonts({ { "default", filtpath } }, { {} });
 
     m_viewport = std::make_shared<tt::Viewport>();
