@@ -1,10 +1,11 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
 import "blueprint.blueprint" for Blueprint
+import "math" for Math
 
 class Perspective is Node
 {
@@ -13,7 +14,14 @@ class Perspective is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "fovy", VAR_TYPE_NUMBER),
+			Pin(this, "fovy",    VAR_TYPE_NUMBER),
+			// Optional: when cam_pos + bb_min + bb_max are all wired, znear/
+			// zfar are computed to hug the model's bounding sphere instead of
+			// using the fixed znear/zfar fields. Lets the view stay z-fight
+			// free at any model scale (e.g. ZW3D mm imports with unit_scale=1).
+			Pin(this, "cam_pos", VAR_TYPE_NUMBER3),
+			Pin(this, "bb_min",  VAR_TYPE_NUMBER3),
+			Pin(this, "bb_max",  VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "mat",   VAR_TYPE_MATRIX4),
@@ -29,7 +37,7 @@ class Perspective is Node
 		this.zfar   = 100
 	}
 
-	calc_value(idx) 
+	calc_value(idx)
 	{
 		if (idx == 0)
 		{
@@ -38,18 +46,99 @@ class Perspective is Node
 				this.fovy = fovy.value
 			}
 
+			var clip = this.calc_clip()
+
 			var mat = Matrix44.init()
-			mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
+			mat.perspective(this.fovy, this.aspect, clip[0], clip[1])
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 1)
 		{
-			return Variant(this.znear)
+			var clip = this.calc_clip()
+			return Variant(clip[0])
 		}
 		else if (idx == 2)
 		{
-			return Variant(this.zfar)
+			var clip = this.calc_clip()
+			return Variant(clip[1])
 		}
+	}
+
+	// Returns [znear, zfar], fitted to the model's bounding box so the view
+	// is z-fight free at any model scale. zfar = distance to the farthest
+	// bbox corner. znear = distance to the NEAREST POINT ON the bbox (the
+	// camera clamped into the box) -- NOT the nearest corner: when the
+	// camera moves close to a face, or inside the box, the nearest corner is
+	// still far away, so a corner-based near plane would clip the model. The
+	// clamp gives the true near distance (0 when inside). 0.9 / 1.1 are
+	// safety margins; the floor just keeps znear positive. Falls back to the
+	// manual znear / zfar fields when the inputs are not connected.
+	calc_clip()
+	{
+		var v_cam = Blueprint.calc_input_value(this, 1)
+		var v_min = Blueprint.calc_input_value(this, 2)
+		var v_max = Blueprint.calc_input_value(this, 3)
+
+		if (v_cam and v_min and v_max)
+		{
+			var cam = v_cam.value
+			var mn = v_min.value
+			var mx = v_max.value
+
+			// zfar: the farthest point of an AABB is always a corner.
+			var xs = [mn.x, mx.x]
+			var ys = [mn.y, mx.y]
+			var zs = [mn.z, mx.z]
+			var far = 0
+			for (var cx in xs) {
+				for (var cy in ys) {
+					for (var cz in zs) {
+						var dx = cx - cam.x
+						var dy = cy - cam.y
+						var dz = cz - cam.z
+						var d = Math.sqrt(dx * dx + dy * dy + dz * dz)
+						if (d > far) {
+							far = d
+						}
+					}
+				}
+			}
+
+			// znear: nearest point on the box = the camera clamped into it.
+			var qx = cam.x
+			if (qx < mn.x) {
+				qx = mn.x
+			} else if (qx > mx.x) {
+				qx = mx.x
+			}
+			var qy = cam.y
+			if (qy < mn.y) {
+				qy = mn.y
+			} else if (qy > mx.y) {
+				qy = mx.y
+			}
+			var qz = cam.z
+			if (qz < mn.z) {
+				qz = mn.z
+			} else if (qz > mx.z) {
+				qz = mx.z
+			}
+			var nx = cam.x - qx
+			var ny = cam.y - qy
+			var nz = cam.z - qz
+			var near = Math.sqrt(nx * nx + ny * ny + nz * nz)
+
+			far = far * 1.1
+			near = near * 0.9
+			var floor = far * 0.0001
+			if (near < floor) {
+				near = floor
+			}
+
+			return [near, far]
+		}
+
+		return [this.znear, this.zfar]
 	}
 
 	layout() 
