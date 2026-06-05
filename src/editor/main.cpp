@@ -772,6 +772,9 @@ int main(int argc, char* argv[])
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Metal: no OpenGL context on this window
+    // Keep the framebuffer 1:1 with the window: the editor works in logical points,
+    // but a Retina drawable would be 2x the size -> content rendered into a quarter.
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
 #else
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

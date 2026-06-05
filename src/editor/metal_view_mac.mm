@@ -10,10 +10,13 @@
 
 void* tt_get_metal_view(GLFWwindow* window, uint32_t* out_w, uint32_t* out_h)
 {
-    int fw = 0, fh = 0;
-    glfwGetFramebufferSize(window, &fw, &fh);
-    if (out_w) { *out_w = static_cast<uint32_t>(fw); }
-    if (out_h) { *out_h = static_cast<uint32_t>(fh); }
+    // Logical (point) size, NOT the framebuffer pixel size: the editor works in
+    // points and the Metal layer's contentsScale is forced to 1, so the drawable
+    // must be the point size or content lands in a sub-region on Retina displays.
+    int ww = 0, wh = 0;
+    glfwGetWindowSize(window, &ww, &wh);
+    if (out_w) { *out_w = static_cast<uint32_t>(ww); }
+    if (out_h) { *out_h = static_cast<uint32_t>(wh); }
 
     NSWindow* nswin = glfwGetCocoaWindow(window);
     if (!nswin) { return nullptr; }

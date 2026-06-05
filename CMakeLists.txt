@@ -435,6 +435,10 @@ if(WIN32)
 elseif(APPLE)
     # SPIRV-Tools built from source above (replaces the Windows out_arm prebuilts).
     target_link_libraries(editor SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
+    # The Metal backend cross-compiles SPIR-V -> MSL via SPIRV-Cross's MSL module.
+    target_link_libraries(editor spirv-cross-msl)
+    target_include_directories(unirender PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Cross)
     # Image codecs from Homebrew (replace the Windows out_arm zlib/png/jpeg/tiff).
     target_link_directories(editor PRIVATE /opt/homebrew/lib)
     target_link_libraries(editor png turbojpeg tiff z)
