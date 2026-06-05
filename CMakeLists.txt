@@ -2,6 +2,21 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tantien)
 
+# macOS: ad-hoc sign every product at LINK time. ld64 automatically adds an
+# ad-hoc signature to arm64 output UNLESS Xcode injects -no_adhoc_codesign,
+# which it does whenever CODE_SIGNING_ALLOWED=YES (the default) -- planning to
+# run a separate CodeSign phase later. But that phase runs AFTER POST_BUILD
+# steps, so the binary is still unsigned when Catch2's catch_discover_tests
+# POST_BUILD runs the freshly-linked test exe to enumerate cases -> the arm64
+# kernel SIGKILLs the unsigned exe (exit 137, empty output) -> the whole build
+# fails. Setting CODE_SIGNING_ALLOWED=NO drops -no_adhoc_codesign, so ld signs
+# each exe/dylib the moment it is linked, before any POST_BUILD step. These
+# CMAKE_XCODE_ATTRIBUTE_* vars are read only by the Xcode generator, so the
+# Windows/MSVC build is unaffected (also guarded by APPLE for clarity).
+if(APPLE)
+    set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO")
+endif()
+
 add_definitions(
     -DNO_RTTR
     -DNO_BOOST
