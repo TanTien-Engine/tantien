@@ -43,6 +43,11 @@ class Node
 
 		this.selected = false
 
+		// Optional per-instance display name. nil = fall back to the class
+		// name (see get_title). Must be initialised here: Vessel raises on
+		// reading an unset field, and get_title reads it for every node.
+		this.title = nil
+
 		this.dirty_timestamp = 0
 		this.msg_timestamp = 0
 
@@ -124,11 +129,14 @@ class Node
 		}
 	}
 
-	to_string(name) 
+	to_string(name)
 	{
 		var ret = ""
 		for (var p in this.params) {
 			ret = ret + p.to_string(name)
+		}
+		if (this.title and this.title != "") {
+			ret = ret + "%(name).title = \"%(this.title)\"\n"
 		}
 		return ret
 	}
@@ -247,6 +255,9 @@ class Node
 
 	get_title()
 	{
+		if (this.title and this.title != "") {
+			return this.title
+		}
 		return this.get_class().name
 	}
 

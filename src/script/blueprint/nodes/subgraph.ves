@@ -266,6 +266,10 @@ class Subgraph is Node
 			ret = ret + this.op_node.to_string(op_name)
 		}
 
+		if (this.title and this.title != "") {
+			ret = ret + "%(name).title = \"%(this.title)\"\n"
+		}
+
 		return ret
 	}
 
