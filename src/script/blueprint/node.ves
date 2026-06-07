@@ -41,6 +41,11 @@ class Node
 
 		this.dummy = false
 
+		// false = the editor skips drawing this node (and its incoming wire).
+		// Used for pure-plumbing nodes (e.g. the rebuild's Cache wrappers) that
+		// must exist for evaluation but should not clutter the graph.
+		this.visible = true
+
 		this.selected = false
 
 		// Optional per-instance display name. nil = fall back to the class
@@ -78,8 +83,34 @@ class Node
 		for (var p in this.exports) {
 			for (var c in p.conns) {
 				c.update()
+				// A hidden pass-through (a parked Cache) owns the DRAWN wire from
+				// itself onward, but that wire is only recomputed when the cache or
+				// its consumer moves -- never when THIS producer moves. So refresh
+				// the hidden node's outgoing wires too; their start resolves back to
+				// this producer's live pin (Connecting.resolve_from), so the drawn
+				// link tracks the producer as it is dragged. No-op for visible
+				// targets (ordinary graphs).
+				if (!c.to.node.visible) {
+					c.to.node.update_hidden_out()
+				}
 			}
-		}		
+		}
+	}
+
+	// Recompute the outgoing (drawn) wires of a hidden pass-through node and any
+	// hidden nodes chained after it. Called from a visible producer's update so a
+	// parked Cache's wire follows the producer (see update). The chain ends once a
+	// visible consumer is reached.
+	update_hidden_out()
+	{
+		for (var p in this.exports) {
+			for (var c in p.conns) {
+				c.update()
+				if (!c.to.node.visible) {
+					c.to.node.update_hidden_out()
+				}
+			}
+		}
 	}
 
 	draw(mt, cam_mt)

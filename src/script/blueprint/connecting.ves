@@ -20,9 +20,39 @@ class Connecting
 
 	update_curve()
 	{
-		var f_pos = NodeLayout.calc_pin_pos(this.from)
+		var f_pos = NodeLayout.calc_pin_pos(this.resolve_from(this.from))
 		var t_pos = NodeLayout.calc_pin_pos(this.to)
 		Connecting.build_curve(f_pos, t_pos, this.curve)
+	}
+
+	// Resolve a wire's START pin through any HIDDEN pass-through nodes (e.g. the
+	// history-rebuild's parked Cache wrappers) up to the first VISIBLE producer's
+	// export pin. A hidden node owns the DRAWN outgoing wire but is parked once on
+	// its producer and never moves with it; anchoring the wire's start to the live
+	// producer pin keeps the link glued to the producer when it is later dragged.
+	// A visible from-pin returns unchanged (the loop never runs), so this is a
+	// no-op for ordinary graphs.
+	resolve_from(pin)
+	{
+		var guard = 0
+		while (pin and !pin.node.visible) {
+			var up = nil
+			for (var p in pin.node.imports) {
+				if (!p.conns.isEmpty) {
+					up = p.conns.front().from
+					break
+				}
+			}
+			if (!up) {
+				break
+			}
+			pin = up
+			guard = guard + 1
+			if (guard > 128) {
+				break
+			}
+		}
+		return pin
 	}
 
 	static build_curve(p0, p1, curve)
