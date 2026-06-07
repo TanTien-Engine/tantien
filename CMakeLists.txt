@@ -461,5 +461,16 @@ elseif(APPLE)
     target_link_libraries(editor
         "-framework Metal" "-framework Foundation" "-framework QuartzCore"
         "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework CoreFoundation")
+    # Vulkan loader for the Vulkan-on-MoltenVK backend. Metal stays the default; opt in
+    # at runtime with TT_RENDER_API=vulkan. The loader + MoltenVK ICD ship in
+    # /usr/local/lib (already on the editor's DYLD_LIBRARY_PATH) and in the Vulkan SDK.
+    find_library(VULKAN_LOADER_LIB NAMES vulkan vulkan.1
+        PATHS /usr/local/lib $ENV{HOME}/VulkanSDK/1.3.283.0/macOS/lib)
+    if(VULKAN_LOADER_LIB)
+        message(STATUS "Vulkan loader (MoltenVK backend): ${VULKAN_LOADER_LIB}")
+        target_link_libraries(editor ${VULKAN_LOADER_LIB})
+    else()
+        message(WARNING "Vulkan loader not found; the Vulkan-on-MoltenVK backend will not link.")
+    endif()
     # NOTE: FBX is stubbed on macOS (no SDK); DXC's libdxcompiler is dlopen'd at runtime.
 endif()
