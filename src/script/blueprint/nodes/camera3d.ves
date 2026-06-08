@@ -5,9 +5,11 @@ import "blueprint.dirty_types" for DIRTY_EDITOR
 import "blueprint.variant" for Variant, VAR_TYPE_NODE, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
+import "graphics" for Graphics
 import "maths" for Matrix44
 import "maths.vector" for Vector2, Vector3
 import "graphics.camera3d" for Camera3D as tt_Camera3D
+import "math" for Math
 
 class Camera3d is Node
 {
@@ -38,6 +40,14 @@ class Camera3d is Node
 		this.last_pos = nil
 
 		this.speed = 0.01
+
+		// Orbit/zoom rig: the camera turns and zooms around `pivot`, staying
+		// `radius` away from it. Derived lazily from the authored eye on the
+		// first interaction -- the scene script sets position/yaw/pitch
+		// directly, not a pivot (see ensure_orbit).
+		this.pivot      = nil
+		this.radius     = 0.0
+		this.orbit_init = false
 	}
 
 	calc_value(idx) 
@@ -156,7 +166,7 @@ class Camera3d is Node
 		{
 			this.cam.move(this.cam.right.x * this.speed, this.cam.right.y * this.speed, this.cam.right.z * this.speed)
 		} 
-		else if (key == "escape") 
+		else if (key == "escape")
 		{
 			this.cam.position = Vector3(0, 0, 3)
 		    this.cam.yaw   = -90.0
@@ -164,11 +174,57 @@ class Camera3d is Node
 			this.cam.zoom = 45.0
 			this.cam.update_vectors()
 		}
+
+		// W/A/S/D and escape move (or reset) the eye outside the orbit rig, so
+		// the stored pivot/radius are stale -- re-derive them from the new eye on
+		// the next orbit or zoom.
+		if (key == "w" or key == "s" or key == "a" or key == "d" or key == "escape") {
+			this.orbit_init = false
+		}
 	}
 
-	on_mouse_pressed(x, y, btn) 
+	// Rotate vector v around the unit axis k by `angle` radians (Rodrigues).
+	rotate_axis(v, k, angle)
 	{
-		this.last_pos = Vector2(x, y) 
+		var c = Math.cos(angle)
+		var s = Math.sin(angle)
+		var cross = k.cross(v)
+		var d = k.dot(v) * (1 - c)
+		return v.mul(c).add(cross.mul(s)).add(k.mul(d))
+	}
+
+	// Lazily derive the orbit pivot from the authored camera. The scene script
+	// positions the eye and aims it (yaw/pitch) at roughly the model centre, so
+	// the look-at point sits one eye-distance ahead along the view ray; we orbit
+	// and zoom about that point thereafter.
+	ensure_orbit()
+	{
+		if (this.orbit_init) {
+			return
+		}
+		this.cam.update_vectors()
+		var r = this.cam.position.length()
+		if (r < 0.0001) {
+			r = 1.0
+		}
+		this.radius = r
+		this.pivot  = this.cam.position.add(this.cam.front.mul(r))
+		this.orbit_init = true
+	}
+
+	// World-space ray direction through the cursor. on_mouse_* delivers raw
+	// top-left pixel (x, y); the 1-arg screen2dir wants CENTRE-origin, Y-up
+	// coords (same recentre as scenegraph/pick), so the ray points at the cursor.
+	screen_dir(x, y)
+	{
+		var cx = x - Graphics.get_width() * 0.5
+		var cy = Graphics.get_height() * 0.5 - y
+		return this.cam.screen2dir(Vector2(cx, cy))
+	}
+
+	on_mouse_pressed(x, y, btn)
+	{
+		this.last_pos = Vector2(x, y)
 	}
 
 	on_mouse_released(x, y, btn) 
@@ -176,26 +232,67 @@ class Camera3d is Node
 		this.last_pos = nil 
 	}
 
-	on_mouse_dragged(x, y, btn) 
-	{		
+	on_mouse_dragged(x, y, btn)
+	{
+		this.ensure_orbit()
+
 		var dx = x - this.last_pos.x
 		var dy = this.last_pos.y - y
 		this.last_pos.set(x, y)
 
-		var SENSITIVITY = 0.1
-		dx = dx * SENSITIVITY
-		dy = dy * SENSITIVITY
-		this.cam.yaw = this.cam.yaw + dx
-		this.cam.pitch = this.cam.pitch + dy
+		var SENS = 0.25 * Math.pi() / 180.0   // radians per pixel
+		var az = -dx * SENS                   // horizontal: turn about world up
+		var el =  dy * SENS                   // vertical:   tilt about view-right
 
-		if (this.cam.pitch > 89) {
-			this.cam.pitch = 89
-		}
-		if (this.cam.pitch < -89) {
-			this.cam.pitch = -89
+		// World up axis the model stands on. These CAD scenes are Z-up, so a
+		// horizontal drag must orbit about world Z (the visible vertical axis).
+		// The old code yawed about world Y, which tumbled the model about a
+		// tilted axis -- that was the "wrong axis" on horizontal drags. (If a
+		// scene is Y-up instead, change this to Vector3(0, 1, 0).)
+		var up_axis = Vector3(0, 0, 1)
+
+		// offset = eye relative to pivot (length == radius, preserved by rotation)
+		var offset = this.cam.position.sub(this.pivot)
+
+		// 1) horizontal: orbit the eye about the world up axis.
+		offset = this.rotate_axis(offset, up_axis, az)
+
+		// 2) vertical: tilt about the current screen-horizontal axis
+		//    (view x up_axis), but skip it near the poles so the view can't
+		//    flip over the top/bottom.
+		var view = offset.mul(-1)
+		view.normalize()
+		var right = view.cross(up_axis)
+		if (right.length() > 0.0001) {
+			right.normalize()
+			var tilted = this.rotate_axis(offset, right, el)
+			var tv = tilted.mul(-1)
+			tv.normalize()
+			var dot = tv.dot(up_axis)
+			if (dot < 0.999 and dot > -0.999) {
+				offset = tilted
+			}
 		}
 
-		this.cam.update_vectors()
+		// Place the eye and build a roll-free basis aligned to up_axis, so the
+		// horizon stays level and the model spins in place about its vertical.
+		this.cam.position = this.pivot.add(offset)
+		var front = offset.mul(-1)
+		front.normalize()
+		var r2 = front.cross(up_axis)
+		r2.normalize()
+		var up2 = r2.cross(front)
+		up2.normalize()
+		this.cam.front = front
+		this.cam.right = r2
+		this.cam.up    = up2
+
+		// Keep the Y-up yaw/pitch state (used by to_string and W/A/S/D) roughly
+		// in sync with the new view direction.
+		var horiz   = Math.sqrt(front.x * front.x + front.z * front.z)
+		var rad2deg = 180.0 / Math.pi()
+		this.cam.pitch = Math.atan2(front.y, horiz)   * rad2deg
+		this.cam.yaw   = Math.atan2(front.z, front.x) * rad2deg
 
 		for (var pin in this.exports) {
 			Blueprint.send_pin_dirty_root(pin, DIRTY_EDITOR)
@@ -204,12 +301,42 @@ class Camera3d is Node
 	
 	on_mouse_scrolled(x, y, dx, dy)
 	{
-		this.cam.zoom = this.cam.zoom - dy
-		if (this.cam.zoom < 1.0) {
-			this.cam.zoom = 1.0
+		// Wheel zoom toward the cursor: scale the eye-to-pivot distance by a
+		// fixed factor per notch (so it feels the same at any scale -- mm-scale
+		// CAD imports through metre-scale parts), and slide the pivot toward the
+		// world point under the cursor so that point keeps its pixel -- the
+		// standard CAD "zoom where I'm pointing". dy > 0 (wheel forward) = in.
+		if (dy == 0) {
+			return
 		}
-		if (this.cam.zoom > 45.0) {
-			this.cam.zoom = 45.0 
+
+		this.ensure_orbit()
+
+		var f = 1.0 / 0.9          // wheel back -> zoom out
+		if (dy > 0) {
+			f = 0.9                // wheel forward -> zoom in
+		}
+
+		// World point under the cursor, taken on the focal plane through the
+		// pivot (perpendicular to the view axis): P = eye + dir * t, chosen so
+		// (P - eye) . front == (pivot - eye) . front == radius.
+		var dir   = this.screen_dir(x, y)
+		var denom = dir.dot(this.cam.front)
+		if (denom < 0.0001) {
+			return                 // cursor ray grazes the view plane
+		}
+		var eye = this.cam.position
+		var t   = this.radius / denom
+		var p   = eye.add(dir.mul(t))
+
+		// Move eye + pivot toward P by the same factor f: orientation is left
+		// untouched, the eye-pivot distance scales by f, and P keeps its pixel.
+		this.radius = this.radius * f
+		this.pivot  = p.add(this.pivot.sub(p).mul(f))
+		this.cam.position = this.pivot.sub(this.cam.front.mul(this.radius))
+
+		for (var pin in this.exports) {
+			Blueprint.send_pin_dirty_root(pin, DIRTY_EDITOR)
 		}
 	}
 }
