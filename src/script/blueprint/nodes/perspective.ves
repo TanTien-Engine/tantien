@@ -1,6 +1,6 @@
 import "blueprint.node" for Node
 import "blueprint.pin" for Pin
-import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_MATRIX4
+import "blueprint.variant" for Variant, VAR_TYPE_NUMBER, VAR_TYPE_NUMBER3, VAR_TYPE_MATRIX4
 import "blueprint.node_layout" for DEFAULT_HEIGHT
 import "gui" for GUI
 import "maths" for Matrix44
@@ -13,7 +13,10 @@ class Perspective is Node
 		super.init()
 
 		this.imports = [
-			Pin(this, "fovy", VAR_TYPE_NUMBER),
+			Pin(this, "fovy",    VAR_TYPE_NUMBER),
+			Pin(this, "cam_pos", VAR_TYPE_NUMBER3),
+			Pin(this, "bb_min",  VAR_TYPE_NUMBER3),
+			Pin(this, "bb_max",  VAR_TYPE_NUMBER3),
 		]
 		this.exports = [
 			Pin(this, "mat",   VAR_TYPE_MATRIX4),
@@ -29,7 +32,7 @@ class Perspective is Node
 		this.zfar   = 100
 	}
 
-	calc_value(idx) 
+	calc_value(idx)
 	{
 		if (idx == 0)
 		{
@@ -38,18 +41,49 @@ class Perspective is Node
 				this.fovy = fovy.value
 			}
 
+			var nf = this.calc_near_far()
+
 			var mat = Matrix44.init()
-			mat.perspective(this.fovy, this.aspect, this.znear, this.zfar)
+			mat.perspective(this.fovy, this.aspect, nf[0], nf[1])
 			return Variant(VAR_TYPE_MATRIX4, mat)
 		}
 		else if (idx == 1)
 		{
-			return Variant(this.znear)
+			return Variant(this.calc_near_far()[0])
 		}
 		else if (idx == 2)
 		{
-			return Variant(this.zfar)
+			return Variant(this.calc_near_far()[1])
 		}
+	}
+
+	// fit znear/zfar to the scene when cam_pos / bb_min / bb_max are all
+	// connected, so the depth range tracks the model scale; otherwise fall
+	// back to the node's fixed znear / zfar fields
+	calc_near_far()
+	{
+		var v_pos = Blueprint.calc_input_value(this, 1)
+		var v_min = Blueprint.calc_input_value(this, 2)
+		var v_max = Blueprint.calc_input_value(this, 3)
+		if (!v_pos or !v_min or !v_max) {
+			return [ this.znear, this.zfar ]
+		}
+
+		var center = v_min.value.add(v_max.value).mul(0.5)
+		var radius = v_max.value.sub(v_min.value).length() * 0.5
+		if (radius <= 0) {
+			return [ this.znear, this.zfar ]
+		}
+
+		var dist = v_pos.value.sub(center).length()
+		var zfar = (dist + radius) * 1.5
+		var znear = (dist - radius) * 0.5
+		// keep near/far ratio bounded so depth precision stays usable
+		var min_near = zfar * 0.0001
+		if (znear < min_near) {
+			znear = min_near
+		}
+		return [ znear, zfar ]
 	}
 
 	layout() 
