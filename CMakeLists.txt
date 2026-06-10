@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
+if(NOT CMAKE_POLICY_VERSION_MINIMUM)
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeLocal.cmake" OPTIONAL)
+
 project(tantien)
 
 add_definitions(
@@ -278,6 +284,83 @@ set(EDITOR_FILES
     "src/editor/main.cpp"
 )
 
+# ----------------------------------------------------------------------------
+# External dependencies
+#
+# Order matters: externals must be add_subdirectory'd BEFORE their consumers
+# so that if(TARGET ...) checks in consumer CMakeLists succeed and their
+# generated headers (e.g. assimp/config.h, ogdf/.../config_autogen.h,
+# core_tables_header.inc) are exposed via the target's INTERFACE properties.
+#
+# C libraries (zlib, libpng, libjpeg-turbo, tiff) come from vcpkg — see
+# vcpkg.json. Their vendored copies under thirdparty/gimg/external/ are no
+# longer built. CMakeLocal.cmake must set CMAKE_TOOLCHAIN_FILE to the vcpkg
+# toolchain for find_package to discover them.
+# ----------------------------------------------------------------------------
+
+find_package(ZLIB REQUIRED)
+find_package(PNG  REQUIRED)
+find_package(JPEG REQUIRED)
+find_package(TIFF REQUIRED)
+# Vulkan loader (vulkan-1.lib) — unirender's Vulkan backend calls these APIs.
+find_package(Vulkan REQUIRED)
+
+# DirectXShaderCompiler is too heavy to add_subdirectory (it's project(LLVM)).
+# shadertrans only needs dxc/config.h to be present on the include path;
+# the editor links against prebuilt DXC libs. The template has two
+# #cmakedefine directives, both off — produce a stub config.h in the build dir.
+set(_dxc_config_in  "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/include/dxc/config.h.cmake")
+set(_dxc_config_out "${CMAKE_BINARY_DIR}/generated/dxc/include/dxc/config.h")
+configure_file("${_dxc_config_in}" "${_dxc_config_out}" @ONLY)
+
+# Disable SPIRV-Tools tests/executables (we only need the libraries).
+# SPIRV_SKIP_EXECUTABLES implies SPIRV_SKIP_TESTS.
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+
+# Disable assimp install step. With find_package(ZLIB) already cached above,
+# assimp's "INSTALL TARGETS zlib zlibstatic" branch at CMakeLists.txt:559
+# would otherwise fire — but those targets don't exist (vcpkg gives us the
+# ZLIB::ZLIB imported target, not a plain zlib/zlibstatic target).
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+# Use the system (vcpkg) zlib rather than assimp's bundled copy.
+set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "" FORCE)
+
+# Vendored externals first — they must precede their consumers so the
+# consumers' if(TARGET ...) checks pick up the targets and their generated
+# header dirs (e.g. assimp/config.h, ogdf/.../config_autogen.h,
+# core_tables_header.inc) propagate via INTERFACE properties.
+add_subdirectory(thirdparty/shadertrans/external/SPIRV-Headers)
+add_subdirectory(thirdparty/shadertrans/external/SPIRV-Tools)
+add_subdirectory(thirdparty/shadertrans/external/SPIRV-Cross)
+add_subdirectory(thirdparty/shadertrans/external/glslang)
+# glslang's own CMakeLists set FOLDER="glslang" on every sub-target, including
+# the target literally named "glslang". VS Solution Explorer can't host a
+# folder and a project with the same name at the same level -- the .sln fails
+# to load with "solution already contains an item named 'glslang'". Rename the
+# folder to "glslang_libs" here (post-add_subdirectory) so we don't have to
+# patch the submodule. Same pattern can be applied if other vendored trees
+# trip the same VS rule.
+foreach(_glslang_tgt
+        glslang
+        GenericCodeGen
+        MachineIndependent
+        OGLCompiler
+        OSDependent
+        SPIRV
+        SPVRemapper
+        glslang-default-resource-limits)
+    if(TARGET ${_glslang_tgt})
+        set_target_properties(${_glslang_tgt} PROPERTIES FOLDER "glslang_libs")
+    endif()
+endforeach()
+
+add_subdirectory(thirdparty/shadertrans/external/SpvGenTwo)
+add_subdirectory(thirdparty/model/external/tinyobjloader)
+add_subdirectory(thirdparty/model/external/assimp)
+add_subdirectory(thirdparty/graph/external/ogdf)
+
+# Internal libs — order matches the original (intentionally unchanged)
+# so existing inter-lib if(TARGET ...) relationships continue to hold.
 add_subdirectory(thirdparty/glfw)
 add_subdirectory(thirdparty/gl3w)
 add_subdirectory(thirdparty/sm)
@@ -306,58 +389,139 @@ add_subdirectory(thirdparty/brepvm)
 add_subdirectory(thirdparty/spatialdb)
 add_subdirectory(thirdparty/objcomp)
 add_subdirectory(thirdparty/brepom)
-add_subdirectory(thirdparty/graph/external/ogdf)
 add_subdirectory(thirdparty/graph)
 add_subdirectory(thirdparty/wrapper)
 add_subdirectory(thirdparty/cax)
 
-add_subdirectory(thirdparty/shadertrans/external/SPIRV-Cross)
-add_subdirectory(thirdparty/shadertrans/external/glslang)
-add_subdirectory(thirdparty/shadertrans/external/SpvGenTwo)
-add_subdirectory(thirdparty/model/external/tinyobjloader)
-add_subdirectory(thirdparty/model/external/assimp)
+# OGDF (thirdparty/graph/external/ogdf/CMakeLists.txt) force-pins
+# CMAKE_CONFIGURATION_TYPES to "Debug;Release" via a cached FORCE set during its
+# add_subdirectory, which drops RelWithDebInfo. Re-assert the full set here (after
+# all subdirectories) so the optimized + PDB RelWithDebInfo config is available
+# again -- used to profile the editor's own first-party code (no PDB in Release).
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 
 add_executable(editor ${EDITOR_FILES})
 
-set(FBX_SDK_DIR "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.7")
-# FBX: Debug -> debug/, Release(and other) -> release/  (genexpr resolved per config)
-set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/arm64/$<IF:$<CONFIG:Debug>,debug,release>")
+# Per-machine SDK locations come from CMakeLocal.cmake (gitignored).
+# Required variables (see CMakeLocal.cmake.example for the full list):
+#   FBX_SDK_DIR, FBX_LIB_DIR, OCCT_DIR, OCCT_LIB_DIR,
+#   VULKAN_LIBRARY, DXC_LIBRARY
+if(NOT DEFINED FBX_SDK_DIR)
+    message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
+endif()
+if(NOT DEFINED FBX_LIB_DIR)
+    set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+endif()
 
 target_include_directories(editor PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 
-set(OCCT_DIR "Y:/OCCT/install") 
 list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
 find_package(OpenCASCADE REQUIRED)
-# OCCT: Debug -> libd/, Release(and other) -> lib/  (target-scoped, genexpr per config)
-target_link_directories(editor PRIVATE
-    $<$<CONFIG:Debug>:Y:/OCCT/install/win64/vc14/libd>
-    $<$<NOT:$<CONFIG:Debug>>:Y:/OCCT/install/win64/vc14/lib>)
+if(DEFINED OCCT_LIB_DIR)
+    link_directories("${OCCT_LIB_DIR}")
+endif()
 set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset TKDESTEP TKDE TKXSBase TKXCAF TKLCAF TKCDF)
 
 message(STATUS "OCCT Libs to link: ${OpenCASCADE_LIBRARIES}")
 
-target_link_libraries(editor glfw gl3w tantien sm vessel unirender shadertrans guard tessellation polymesh3 geoshape halfedge dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm spatialdb objcomp brepom graph wrapper cax freetype spirv-cross-core spirv-cross-glsl spirv-cross-util glslang SPIRV SpvGenTwoCommon SpvGenTwoLib tinyobjloader assimp OGDF C:/VulkanSDK/1.4.335.0/Lib/vulkan-1.lib
-    # --- external prebuilt libs (each built out-of-tree in its own out_arm dir) ---
-    # These are NOT part of the editor solution, so they do not follow the active
-    # config automatically: build their Release configs manually before a Release
-    # link (e.g. cmake --build <dep>/out_arm --config Release). Pick the matching
-    # Debug/Release variant per config via the debug/optimized keywords below.
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Debug/SPIRV-Tools.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/Release/SPIRV-Tools.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Debug/SPIRV-Tools-link.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/link/Release/SPIRV-Tools-link.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Debug/SPIRV-Tools-opt.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Tools/out_arm/source/opt/Release/SPIRV-Tools-opt.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Debug/lib/LLVMDxcSupport.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/out_arm/Release/lib/LLVMDxcSupport.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Debug/zsd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/zlib/out_arm/Release/zs.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Debug/libpng18_staticd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libpng/out_arm/Release/libpng18_static.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Debug/turbojpeg-static.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libjpeg-turbo/out_arm/Release/turbojpeg-static.lib
-    debug     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Debug/tiffd.lib
-    optimized ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gimg/external/libtiff/out_arm/libtiff/Release/tiff.lib
-    "${FBX_LIB_DIR}/libfbxsdk-md.lib" "${FBX_LIB_DIR}/libxml2-md.lib" ${OpenCASCADE_LIBRARIES})
+target_link_libraries(editor
+    # First-party
+    tantien cax
+    # Foundation libs
+    glfw gl3w sm vessel unirender guard tessellation polymesh3 geoshape halfedge
+    dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm
+    spatialdb objcomp brepom graph wrapper freetype
+    # Shader / SPIRV stack (all in-tree via add_subdirectory)
+    shadertrans
+    spirv-cross-core spirv-cross-glsl spirv-cross-util
+    glslang SPIRV
+    SpvGenTwoCommon SpvGenTwoLib
+    SPIRV-Tools SPIRV-Tools-link SPIRV-Tools-opt
+    # Geometry / model deps (in-tree)
+    tinyobjloader assimp OGDF
+    # System C libs via vcpkg
+    ZLIB::ZLIB PNG::PNG JPEG::JPEG TIFF::TIFF
+    # Vulkan loader via vcpkg
+    Vulkan::Vulkan
+    # OCCT
+    ${OpenCASCADE_LIBRARIES}
+)
+
+# Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
+# /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
+# externals still surface at runtime if the corresponding feature is used.
+foreach(_opt_lib IN ITEMS
+    "${DXC_LIBRARY}"
+    "${FBX_LIB_DIR}/libfbxsdk-md.lib"
+    "${FBX_LIB_DIR}/libxml2-md.lib"
+)
+    if(_opt_lib AND EXISTS "${_opt_lib}")
+        target_link_libraries(editor "${_opt_lib}")
+    elseif(_opt_lib)
+        message(WARNING "Optional SDK lib not found, skipping link: ${_opt_lib}")
+    endif()
+endforeach()
+
+# When real LLVMDxcSupport.lib is linked, it already provides
+# Unicode::UTF8ToWideString / WideToUTF8String — suppress our local stubs in
+# shadertrans/source/ShaderTrans.cpp to avoid the inline-vs-extern collision.
+if(DXC_LIBRARY AND EXISTS "${DXC_LIBRARY}")
+    target_compile_definitions(shadertrans PRIVATE HAVE_DXC_UNICODE)
+endif()
 
 target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
+
+# main.cpp's read_module() resolves vessel imports like "editor.editor" via
+# paths relative to CWD (src/script/, src/modules/, src/). Pin the VS debug
+# CWD to the project root so F5 works without manually running from a shell.
+set_target_properties(editor PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+# Editor loads resources (fonts, scripts, etc.) via relative paths like
+# "assets/fonts/default2.ttf" and "src/script/...". So CWD must be the repo
+# root, NOT the build output dir. Set VS debugger to launch with that CWD,
+# and require a real argv[1] (editor name like "trackgraph"/"trackeditor").
+set_target_properties(editor PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    VS_DEBUGGER_COMMAND_ARGUMENTS "trackeditor")
+
+# Stage a SPIR-V-enabled dxcompiler.dll next to editor.exe so shadertrans's
+# CompilerDX (which LoadLibrary's "dxcompiler.dll" at runtime) picks up the
+# right one, not Windows' D3D-only copy from System32.
+#
+# Resolution order:
+#   1. DXC_DLL set in CMakeLocal.cmake (explicit override)
+#   2. ${VULKAN_SDK}/Bin/dxcompiler.dll  (from the Vulkan SDK install env var)
+#   3. CMake-installed Vulkan_INCLUDE_DIR/../Bin/dxcompiler.dll
+# If none is found, print a warning — editor builds but HLSL paths will fail
+# at runtime with "SPIR-V CodeGen not available".
+if(WIN32)
+    if(NOT DXC_DLL)
+        if(DEFINED ENV{VULKAN_SDK} AND EXISTS "$ENV{VULKAN_SDK}/Bin/dxcompiler.dll")
+            set(DXC_DLL "$ENV{VULKAN_SDK}/Bin/dxcompiler.dll")
+        elseif(Vulkan_INCLUDE_DIR AND EXISTS "${Vulkan_INCLUDE_DIR}/../Bin/dxcompiler.dll")
+            set(DXC_DLL "${Vulkan_INCLUDE_DIR}/../Bin/dxcompiler.dll")
+        endif()
+    endif()
+    if(DXC_DLL AND EXISTS "${DXC_DLL}")
+        message(STATUS "Will stage dxcompiler.dll from: ${DXC_DLL}")
+        add_custom_command(TARGET editor POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${DXC_DLL}" "$<TARGET_FILE_DIR:editor>/dxcompiler.dll"
+            COMMENT "Staging SPIR-V-enabled dxcompiler.dll next to editor.exe")
+        # dxil.dll is the signing helper DXC loads alongside dxcompiler.dll.
+        get_filename_component(_dxc_dll_dir "${DXC_DLL}" DIRECTORY)
+        if(EXISTS "${_dxc_dll_dir}/dxil.dll")
+            add_custom_command(TARGET editor POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${_dxc_dll_dir}/dxil.dll" "$<TARGET_FILE_DIR:editor>/dxil.dll")
+        endif()
+    else()
+        message(WARNING
+            "Could not locate a SPIR-V-enabled dxcompiler.dll. "
+            "Install the LunarG Vulkan SDK (https://vulkan.lunarg.com/sdk/home) "
+            "or set DXC_DLL in CMakeLocal.cmake to its full path. "
+            "Otherwise the editor will fail at runtime with "
+            "\"SPIR-V CodeGen not available\" when HLSL→SPIR-V is exercised.")
+    endif()
+endif()
