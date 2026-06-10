@@ -8,6 +8,21 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeLocal.cmake" OPTIONAL)
 
 project(tantien)
 
+# macOS: ad-hoc sign every product at LINK time. ld64 automatically adds an
+# ad-hoc signature to arm64 output UNLESS Xcode injects -no_adhoc_codesign,
+# which it does whenever CODE_SIGNING_ALLOWED=YES (the default) -- planning to
+# run a separate CodeSign phase later. But that phase runs AFTER POST_BUILD
+# steps, so the binary is still unsigned when Catch2's catch_discover_tests
+# POST_BUILD runs the freshly-linked test exe to enumerate cases -> the arm64
+# kernel SIGKILLs the unsigned exe (exit 137, empty output) -> the whole build
+# fails. Setting CODE_SIGNING_ALLOWED=NO drops -no_adhoc_codesign, so ld signs
+# each exe/dylib the moment it is linked, before any POST_BUILD step. These
+# CMAKE_XCODE_ATTRIBUTE_* vars are read only by the Xcode generator, so the
+# Windows/MSVC build is unaffected (also guarded by APPLE for clarity).
+if(APPLE)
+    set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO")
+endif()
+
 add_definitions(
     -DNO_RTTR
     -DNO_BOOST
@@ -242,6 +257,13 @@ set(ALL_FILES
     ${modules__vm}
 )
 
+if(APPLE)
+    # Physics depends on uniphysics + Box2D, which are not built or linked on macOS
+    # (uniphysics is disabled via add_subdirectory below, and the editor's Physics
+    # bindings are already commented out). Exclude the module from the macOS build.
+    list(REMOVE_ITEM ALL_FILES ${modules__physics})
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
@@ -283,6 +305,10 @@ thirdparty/wrapper/include
 set(EDITOR_FILES
     "src/editor/main.cpp"
 )
+if(APPLE)
+    # Obj-C++ helper to bridge the GLFW window to an NSView for the Metal surface.
+    list(APPEND EDITOR_FILES "src/editor/metal_view_mac.mm")
+endif()
 
 # ----------------------------------------------------------------------------
 # External dependencies
@@ -298,12 +324,16 @@ set(EDITOR_FILES
 # toolchain for find_package to discover them.
 # ----------------------------------------------------------------------------
 
-find_package(ZLIB REQUIRED)
-find_package(PNG  REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(TIFF REQUIRED)
-# Vulkan loader (vulkan-1.lib) — unirender's Vulkan backend calls these APIs.
-find_package(Vulkan REQUIRED)
+if(WIN32)
+    # vcpkg-provided C libs (macOS links these from Homebrew in the editor
+    # link section instead, and finds its Vulkan loader via find_library).
+    find_package(ZLIB REQUIRED)
+    find_package(PNG  REQUIRED)
+    find_package(JPEG REQUIRED)
+    find_package(TIFF REQUIRED)
+    # Vulkan loader (vulkan-1.lib) — unirender's Vulkan backend calls these APIs.
+    find_package(Vulkan REQUIRED)
+endif()
 
 # DirectXShaderCompiler is too heavy to add_subdirectory (it's project(LLVM)).
 # shadertrans only needs dxc/config.h to be present on the include path;
@@ -316,6 +346,8 @@ configure_file("${_dxc_config_in}" "${_dxc_config_out}" @ONLY)
 # Disable SPIRV-Tools tests/executables (we only need the libraries).
 # SPIRV_SKIP_EXECUTABLES implies SPIRV_SKIP_TESTS.
 set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+# clang promotes more SPIRV-Tools warnings to errors than MSVC; don't -Werror.
+set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
 
 # Disable assimp install step. With find_package(ZLIB) already cached above,
 # assimp's "INSTALL TARGETS zlib zlibstatic" branch at CMakeLists.txt:559
@@ -362,6 +394,38 @@ add_subdirectory(thirdparty/graph/external/ogdf)
 # Internal libs — order matches the original (intentionally unchanged)
 # so existing inter-lib if(TARGET ...) relationships continue to hold.
 add_subdirectory(thirdparty/glfw)
+
+# gl3w generates its loader (gl3w.c / gl3w.h) at configure time from two Khronos
+# headers that gl3w_gen.py downloads via Python's urllib. On macOS that download
+# fails (the local proxy resets Python's TLS handshake), so pre-seed the headers
+# into gl3w's build dir using CMake's libcurl-based file(DOWNLOAD), which honours
+# the proxy env. gl3w_gen.py then reuses the existing files instead of downloading.
+# gl3w is a git submodule, so the fix lives here rather than in the submodule.
+if(APPLE)
+    # Fetch via curl (reliable through the local proxy; both Python urllib and
+    # CMake's own file(DOWNLOAD) hit intermittent TLS resets here). Only fetch when
+    # the target is missing or empty -- a failed download can leave a 0-byte file
+    # that would later break compilation of gl3w.h (which includes khrplatform.h).
+    macro(tt_prefetch url dst)
+        set(_sz 0)
+        if(EXISTS "${dst}")
+            file(SIZE "${dst}" _sz)
+        endif()
+        if(_sz EQUAL 0)
+            get_filename_component(_dir "${dst}" DIRECTORY)
+            file(MAKE_DIRECTORY "${_dir}")
+            execute_process(
+                COMMAND curl -fsSL --retry 3 --retry-delay 1 -o "${dst}" "${url}"
+                RESULT_VARIABLE _rc)
+            if(NOT _rc EQUAL 0)
+                message(FATAL_ERROR "gl3w prefetch failed: ${url} (curl rc=${_rc})")
+            endif()
+        endif()
+    endmacro()
+    set(_gl3w_inc "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/gl3w/include")
+    tt_prefetch("https://registry.khronos.org/OpenGL/api/GL/glcorearb.h"  "${_gl3w_inc}/GL/glcorearb.h")
+    tt_prefetch("https://registry.khronos.org/EGL/api/KHR/khrplatform.h" "${_gl3w_inc}/KHR/khrplatform.h")
+endif()
 add_subdirectory(thirdparty/gl3w)
 add_subdirectory(thirdparty/sm)
 add_subdirectory(thirdparty/unirender)
@@ -393,6 +457,13 @@ add_subdirectory(thirdparty/graph)
 add_subdirectory(thirdparty/wrapper)
 add_subdirectory(thirdparty/cax)
 
+# Both render backends include SPIRV-Cross headers directly: the Vulkan backend for
+# SPIR-V reflection (<spirv_cross.hpp>) and the Metal backend for SPIR-V -> MSL
+# (<spirv_msl.hpp>). shadertrans vendors SPIRV-Cross but only on its PRIVATE include
+# path, so unirender needs this dir on every platform (not just Apple).
+target_include_directories(unirender PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Cross)
+
 # OGDF (thirdparty/graph/external/ogdf/CMakeLists.txt) force-pins
 # CMAKE_CONFIGURATION_TYPES to "Debug;Release" via a cached FORCE set during its
 # add_subdirectory, which drops RelWithDebInfo. Re-assert the full set here (after
@@ -406,24 +477,39 @@ add_executable(editor ${EDITOR_FILES})
 # Required variables (see CMakeLocal.cmake.example for the full list):
 #   FBX_SDK_DIR, FBX_LIB_DIR, OCCT_DIR, OCCT_LIB_DIR,
 #   VULKAN_LIBRARY, DXC_LIBRARY
-if(NOT DEFINED FBX_SDK_DIR)
-    message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
-endif()
-if(NOT DEFINED FBX_LIB_DIR)
-    set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+# FBX is Windows-only (stubbed on macOS — no SDK there).
+if(WIN32)
+    if(NOT DEFINED FBX_SDK_DIR)
+        message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
+    endif()
+    if(NOT DEFINED FBX_LIB_DIR)
+        set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+    endif()
 endif()
 
 target_include_directories(editor PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 
-list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
+# OCCT (OpenCASCADE). On Windows the install lives at a per-machine path that
+# CMakeLocal.cmake provides via OCCT_DIR / OCCT_LIB_DIR; on macOS it comes from
+# Homebrew, located by find_package via the default prefixes.
+if(DEFINED OCCT_DIR)
+    list(APPEND CMAKE_PREFIX_PATH "${OCCT_DIR}")
+endif()
 find_package(OpenCASCADE REQUIRED)
-if(DEFINED OCCT_LIB_DIR)
-    link_directories("${OCCT_LIB_DIR}")
+if(WIN32)
+    if(DEFINED OCCT_LIB_DIR)
+        target_link_directories(editor PRIVATE "${OCCT_LIB_DIR}")
+    endif()
+else()
+    # macOS/Homebrew: single lib + include dir from the OCCT config (no per-config split)
+    target_link_directories(editor PRIVATE ${OpenCASCADE_LIBRARY_DIR})
+    target_include_directories(editor PRIVATE ${OpenCASCADE_INCLUDE_DIR})
 endif()
 set(OpenCASCADE_LIBRARIES TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKTopAlgo TKMesh TKPrim TKOffset TKDESTEP TKDE TKXSBase TKXCAF TKLCAF TKCDF)
 
 message(STATUS "OCCT Libs to link: ${OpenCASCADE_LIBRARIES}")
 
+# Common in-tree library targets (built on every platform).
 target_link_libraries(editor
     # First-party
     tantien cax
@@ -436,40 +522,70 @@ target_link_libraries(editor
     spirv-cross-core spirv-cross-glsl spirv-cross-util
     glslang SPIRV
     SpvGenTwoCommon SpvGenTwoLib
-    SPIRV-Tools SPIRV-Tools-link SPIRV-Tools-opt
     # Geometry / model deps (in-tree)
     tinyobjloader assimp OGDF
-    # System C libs via vcpkg
-    ZLIB::ZLIB PNG::PNG JPEG::JPEG TIFF::TIFF
-    # Vulkan loader via vcpkg
-    Vulkan::Vulkan
     # OCCT
     ${OpenCASCADE_LIBRARIES}
 )
 
-# Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
-# /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
-# externals still surface at runtime if the corresponding feature is used.
-foreach(_opt_lib IN ITEMS
-    "${DXC_LIBRARY}"
-    "${FBX_LIB_DIR}/libfbxsdk-md.lib"
-    "${FBX_LIB_DIR}/libxml2-md.lib"
-)
-    if(_opt_lib AND EXISTS "${_opt_lib}")
-        target_link_libraries(editor "${_opt_lib}")
-    elseif(_opt_lib)
-        message(WARNING "Optional SDK lib not found, skipping link: ${_opt_lib}")
+if(WIN32)
+    target_link_libraries(editor
+        # In-tree SPIRV-Tools (macOS links the -static spellings below)
+        SPIRV-Tools SPIRV-Tools-link SPIRV-Tools-opt
+        # System C libs via vcpkg
+        ZLIB::ZLIB PNG::PNG JPEG::JPEG TIFF::TIFF
+        # Vulkan loader via vcpkg
+        Vulkan::Vulkan)
+
+    # Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
+    # /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
+    # externals still surface at runtime if the corresponding feature is used.
+    foreach(_opt_lib IN ITEMS
+        "${DXC_LIBRARY}"
+        "${FBX_LIB_DIR}/libfbxsdk-md.lib"
+        "${FBX_LIB_DIR}/libxml2-md.lib"
+    )
+        if(_opt_lib AND EXISTS "${_opt_lib}")
+            target_link_libraries(editor "${_opt_lib}")
+        elseif(_opt_lib)
+            message(WARNING "Optional SDK lib not found, skipping link: ${_opt_lib}")
+        endif()
+    endforeach()
+
+    # When real LLVMDxcSupport.lib is linked, it already provides
+    # Unicode::UTF8ToWideString / WideToUTF8String — suppress our local stubs in
+    # shadertrans/source/ShaderTrans.cpp to avoid the inline-vs-extern collision.
+    if(DXC_LIBRARY AND EXISTS "${DXC_LIBRARY}")
+        target_compile_definitions(shadertrans PRIVATE HAVE_DXC_UNICODE)
     endif()
-endforeach()
 
-# When real LLVMDxcSupport.lib is linked, it already provides
-# Unicode::UTF8ToWideString / WideToUTF8String — suppress our local stubs in
-# shadertrans/source/ShaderTrans.cpp to avoid the inline-vs-extern collision.
-if(DXC_LIBRARY AND EXISTS "${DXC_LIBRARY}")
-    target_compile_definitions(shadertrans PRIVATE HAVE_DXC_UNICODE)
+    target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
+elseif(APPLE)
+    # SPIRV-Tools built from source above (same in-tree build as Windows).
+    target_link_libraries(editor SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
+    # The Metal backend cross-compiles SPIR-V -> MSL via SPIRV-Cross's MSL module.
+    # (The SPIRV-Cross include dir for unirender is set unconditionally above.)
+    target_link_libraries(editor spirv-cross-msl)
+    # Image codecs from Homebrew (replace the vcpkg zlib/png/jpeg/tiff used on Windows).
+    target_link_directories(editor PRIVATE /opt/homebrew/lib)
+    target_link_libraries(editor png turbojpeg tiff z)
+    # Frameworks for the Metal backend + glfw (Cocoa) windowing.
+    target_link_libraries(editor
+        "-framework Metal" "-framework Foundation" "-framework QuartzCore"
+        "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework CoreFoundation")
+    # Vulkan loader for the Vulkan-on-MoltenVK backend. Metal stays the default; opt in
+    # at runtime with TT_RENDER_API=vulkan. The loader + MoltenVK ICD ship in
+    # /usr/local/lib (already on the editor's DYLD_LIBRARY_PATH) and in the Vulkan SDK.
+    find_library(VULKAN_LOADER_LIB NAMES vulkan vulkan.1
+        PATHS /usr/local/lib $ENV{HOME}/VulkanSDK/1.3.283.0/macOS/lib)
+    if(VULKAN_LOADER_LIB)
+        message(STATUS "Vulkan loader (MoltenVK backend): ${VULKAN_LOADER_LIB}")
+        target_link_libraries(editor ${VULKAN_LOADER_LIB})
+    else()
+        message(WARNING "Vulkan loader not found; the Vulkan-on-MoltenVK backend will not link.")
+    endif()
+    # NOTE: FBX is stubbed on macOS (no SDK); DXC's libdxcompiler is dlopen'd at runtime.
 endif()
-
-target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
 
 # main.cpp's read_module() resolves vessel imports like "editor.editor" via
 # paths relative to CWD (src/script/, src/modules/, src/). Pin the VS debug

@@ -1,6 +1,21 @@
 ﻿#include "tantien.h"
+
+// macOS/POSIX shims for a couple of Win32-isms used below (VM/Windows build unaffected).
+#ifndef _WIN32
+#include <unistd.h> // usleep
+#define _strdup strdup
+#define Sleep(ms) ::usleep(static_cast<useconds_t>(ms) * 1000) // Win32 Sleep takes ms
+// shadertrans's DXC WinAdapter (CHandle::~CHandle) references CloseHandle; the DXC
+// WinFunctions.cpp that defines it drags in unbuilt LLVM headers, so stub the one
+// symbol here (BOOL=bool, HANDLE=void* per dxc/WinAdapter.h). Never exercised on macOS.
+bool CloseHandle(void*) { return true; }
+#endif
 #include "modules/render/wrap_Render.h"
 #include "modules/render/render.ves.inc"
+#ifdef __APPLE__
+#include "modules/render/Render.h"  // Render::Instance()->Context() for the Metal present
+#include <unirender/Context.h>
+#endif
 #include "modules/graphics/wrap_Graphics.h"
 #include "modules/graphics/graphics.ves.inc"
 #include "modules/maths/wrap_Maths.h"
@@ -49,15 +64,9 @@
 #include "cax/deepbrep_c/wrap_DeepBrep.h"
 #include "cax/deepbrep_c/deepbrep.ves.inc"
 #include "cax/cadcvt_c/cadcvt.ves.inc"
-#include "cax/cadcvt_c/wrap_CadCvt.h"
-// sketchlib is a native module imported by the sketch-solver chain
-// (sketchgraph.solver -> import "sketchlib"), which the cadcvt nodes
-// pull in eagerly via `import "cadcvt.nodes.*"`. The editor's
-// read_module() listed it as embedded (don't-free set) but never
-// wired the source, so `import "sketchlib"` failed with
-// "Could not load module sketchlib". Mirror test/screen_shot.cpp.
-#include "cax/sketchlib/sketchlib.ves.inc"
 #include "cax/sketchlib/wrap_SketchLib.h"
+#include "cax/sketchlib/sketchlib.ves.inc"
+#include "cax/cadcvt_c/wrap_CadCvt.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -761,9 +770,16 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Metal: no OpenGL context on this window
+    // Keep the framebuffer 1:1 with the window: the editor works in logical points,
+    // but a Retina drawable would be 2x the size -> content rendered into a quarter.
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+#else
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif
 
     GLFWwindow *window;
     if((window = glfwCreateWindow(width, height, argv[1], 0, 0)) == 0) {
@@ -772,19 +788,23 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    glfwMakeContextCurrent(window);
+#ifndef __APPLE__
+    glfwMakeContextCurrent(window); // Metal has no GL context to make current
+#endif
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_press_callback);
     glfwSetDropCallback(window, drop_callback);
 
+#ifndef __APPLE__ // gl3w loads OpenGL entry points; the macOS build uses Metal
     if(gl3wInit()) {
         std::cerr << "failed to init GL3W" << std::endl;
         glfwDestroyWindow(window);
         glfwTerminate();
         return 1;
     }
+#endif
 
     // Enable debug output
     //glEnable(GL_DEBUG_OUTPUT);
@@ -869,7 +889,13 @@ int main(int argc, char* argv[])
         ves_pushstring("draw()");
         ves_call(0, 0);
 
+#ifdef __APPLE__
+        // Metal present: EndFrame() presents the drawable + commits the command buffer
+        // (the GL path's glfwSwapBuffers has no equivalent without a GL context).
+        if (auto ctx = tt::Render::Instance()->Context()) { ctx->Flush(); }
+#else
         glfwSwapBuffers(window);
+#endif
         glfwPollEvents();
 
         //show_fps(window);

@@ -39,11 +39,11 @@ public:
 private:
 	bool m_inited = false;
 
-    std::unique_ptr<dtex::TextureBuffer> m_texture_buffer = nullptr;
+    std::unique_ptr<dtex::TextureBuffer> m_texture_buffer;
 	bool m_c2_enable = true;
 
-    std::unique_ptr<dtex::PixelBuffer> m_glyph_buffer = nullptr;
-    std::unique_ptr<dtex::TexRenderer> m_tex_renderer = nullptr;
+    std::unique_ptr<dtex::PixelBuffer> m_glyph_buffer;
+    std::unique_ptr<dtex::TexRenderer> m_tex_renderer;
 
     std::shared_ptr<ur::ShaderProgram> m_debug_shader = nullptr;
     std::shared_ptr<ur::VertexArray>   m_debug_va = nullptr;
