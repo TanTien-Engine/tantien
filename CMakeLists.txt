@@ -373,6 +373,13 @@ add_subdirectory(thirdparty/shadertrans/external/SPIRV-Cross)
 add_subdirectory(thirdparty/shadertrans/external/glslang)
 add_subdirectory(thirdparty/shadertrans/external/SpvGenTwo)
 
+# Both render backends include SPIRV-Cross headers directly: the Vulkan backend for
+# SPIR-V reflection (<spirv_cross.hpp>) and the Metal backend for SPIR-V -> MSL
+# (<spirv_msl.hpp>). shadertrans vendors SPIRV-Cross but only on its PRIVATE include
+# path, so unirender needs this dir on every platform (not just Apple).
+target_include_directories(unirender PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Cross)
+
 if(APPLE)
     # Build SPIRV-Tools from source for arm64 macOS (Windows links prebuilt out_arm libs).
     set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
@@ -451,9 +458,8 @@ elseif(APPLE)
     # SPIRV-Tools built from source above (replaces the Windows out_arm prebuilts).
     target_link_libraries(editor SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
     # The Metal backend cross-compiles SPIR-V -> MSL via SPIRV-Cross's MSL module.
+    # (The SPIRV-Cross include dir for unirender is set unconditionally above.)
     target_link_libraries(editor spirv-cross-msl)
-    target_include_directories(unirender PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/SPIRV-Cross)
     # Image codecs from Homebrew (replace the Windows out_arm zlib/png/jpeg/tiff).
     target_link_directories(editor PRIVATE /opt/homebrew/lib)
     target_link_libraries(editor png turbojpeg tiff z)
