@@ -1,0 +1,79 @@
+# ----------------------------------------------------------------------------
+# CMakeLocal.cmake.example
+#
+# Per-machine build configuration template. Copy this file to CMakeLocal.cmake
+# in the repo root (next to the top-level CMakeLists.txt) and edit the paths
+# to match your machine. CMakeLocal.cmake is gitignored -- each machine keeps
+# its own copy and it is never committed.
+#
+#     copy CMakeLocal.cmake.example CMakeLocal.cmake     (Windows)
+#     cp CMakeLocal.cmake.example CMakeLocal.cmake       (macOS / Linux)
+#
+# The top-level CMakeLists.txt include()s CMakeLocal.cmake BEFORE project(),
+# so a plain set() here is early enough for CMAKE_TOOLCHAIN_FILE to take
+# effect. NOTE: after creating or changing this file, delete the build
+# directory (or at least CMakeCache.txt) and re-run CMake -- a toolchain
+# change does not take effect on an existing cache.
+#
+# macOS: most of this file is unnecessary. The image codecs (zlib / libpng /
+# libjpeg-turbo / tiff) and OCCT come from Homebrew and are found
+# automatically, and FBX is stubbed out (no SDK for macOS). Only create a
+# CMakeLocal.cmake on macOS if you need to override something.
+# ----------------------------------------------------------------------------
+
+# ---- vcpkg toolchain (Windows: REQUIRED) ------------------------------------
+# On Windows the C image libraries come from vcpkg; the vendored copies under
+# thirdparty/gimg/external/ are no longer built. Without this, configure
+# fails at find_package(ZLIB REQUIRED) with "missing: ZLIB_LIBRARY".
+#
+# Install the ports first (classic mode):
+#
+#     vcpkg install zlib libpng libjpeg-turbo tiff vulkan --triplet x64-windows
+#
+# CACHE STRING matches how a toolchain file is normally passed on the command
+# line; a plain set() also works because this file is included before
+# project().
+set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+
+# ---- Autodesk FBX SDK (Windows: REQUIRED) -----------------------------------
+# Configure stops with FATAL_ERROR if FBX_SDK_DIR is unset on Windows.
+# Download: https://aps.autodesk.com/developer/overview/fbx-sdk
+set(FBX_SDK_DIR "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.7")
+
+# Directory holding libfbxsdk-md.lib / libxml2-md.lib. Defaults to the VS2022
+# x64 debug layout below; point it at .../release for Release builds. The
+# libs are linked only if the files actually exist (missing ones just warn).
+#set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+
+# ---- OpenCASCADE / OCCT (Windows: REQUIRED) ---------------------------------
+# OCCT_DIR is added to CMAKE_PREFIX_PATH so find_package(OpenCASCADE) can
+# locate the install; OCCT_LIB_DIR is the editor's link directory.
+# On macOS both come from Homebrew automatically -- leave them unset.
+set(OCCT_DIR     "C:/OpenCASCADE/occt-7.9.0")
+set(OCCT_LIB_DIR "${OCCT_DIR}/win64/vc14/libd")   # libd = Debug, lib = Release
+
+# ---- Vulkan loader (usually nothing to set) ---------------------------------
+# find_package(Vulkan REQUIRED) resolves vulkan-1.lib through the vcpkg
+# toolchain (the "vulkan" port above) or through a LunarG Vulkan SDK install
+# (VULKAN_SDK environment variable). To force a specific loader, override
+# CMake's FindVulkan cache variable -- note the spelling: it is
+# Vulkan_LIBRARY; the all-caps VULKAN_LIBRARY mentioned in older comments is
+# not read by anything.
+#set(Vulkan_LIBRARY "C:/VulkanSDK/1.3.283.0/Lib/vulkan-1.lib" CACHE FILEPATH "")
+
+# ---- DirectXShaderCompiler (optional) ---------------------------------------
+# DXC_LIBRARY: full path to LLVMDxcSupport.lib from a DXC build. If set and
+# the file exists it is linked into the editor, and shadertrans is compiled
+# with HAVE_DXC_UNICODE (DXC's real UTF8<->wide helpers instead of the local
+# stubs).
+#set(DXC_LIBRARY "D:/src/DirectXShaderCompiler/build/lib/LLVMDxcSupport.lib")
+
+# DXC_DLL: explicit path to a SPIR-V-enabled dxcompiler.dll, staged next to
+# editor.exe after each build. Only needed when auto-detection fails; the
+# search order is:
+#   1. this variable
+#   2. $ENV{VULKAN_SDK}/Bin/dxcompiler.dll
+#   3. <Vulkan include dir>/../Bin/dxcompiler.dll
+# Without it the editor still builds, but HLSL -> SPIR-V fails at runtime
+# with "SPIR-V CodeGen not available".
+#set(DXC_DLL "C:/VulkanSDK/1.3.283.0/Bin/dxcompiler.dll")
