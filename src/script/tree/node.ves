@@ -20,9 +20,15 @@ class Node
 		this.params = []
 
 		this.selected = false
+
+		// Shared with blueprint/network nodes via components["bp"]: the editor's
+		// draw / aabb loops read these on every scene node regardless of family,
+		// so keep the field set uniform (Vessel raises on reading an unset field).
+		this.visible = true
+		this.aabb_dirty = false
 	}
 
-	get_size() 
+	get_size()
 	{
 		return NodeShape.calc_aabb(this)
 	}

@@ -9,11 +9,19 @@ class NodeRender
 {
 	static draw_node(node)
 	{
-		this.draw_node_panel(node)
+		if (node.visible) {
+			this.draw_node_panel(node)
+		}
 
 		if (BLACKBOARD.editor_cam.scale < 2) {
-			this.draw_node_pins(node)
-			this.draw_node_conns(node)			
+			if (node.visible) {
+				this.draw_node_pins(node)
+			}
+			// Draw outgoing wires even for a hidden node: a connection is only
+			// ever drawn by its SOURCE node, so a parked Cache wrapper must still
+			// emit its cache -> consumer wire (its incoming wire is suppressed by
+			// is_conn_visible) -- otherwise the consumer reads as disconnected.
+			this.draw_node_conns(node)
 		}
 	}
 
@@ -106,6 +114,13 @@ class NodeRender
 	static is_conn_visible(conn)
 	{
 		if (conn.to.node.dummy) {
+			return false
+		}
+
+		// Hidden node (e.g. a rebuild Cache wrapper): drop its incoming wire so
+		// only its outgoing wire shows -- parked on its producer, that reads as a
+		// single straight producer -> consumer link.
+		if (!conn.to.node.visible) {
 			return false
 		}
 

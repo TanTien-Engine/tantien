@@ -23,6 +23,12 @@ class Vertex
 
 		this.selected = false
 
+		// Shared with blueprint/tree nodes via components["bp"]: the editor's
+		// draw / aabb loops read these on every scene node regardless of family,
+		// so keep the field set uniform (Vessel raises on reading an unset field).
+		this.visible = true
+		this.aabb_dirty = false
+
 		this.flag = nil
 
 		// fixme: update aabb
