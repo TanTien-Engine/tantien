@@ -554,11 +554,16 @@ if(WIN32)
         endif()
     endforeach()
 
-    # When real LLVMDxcSupport.lib is linked, it already provides
-    # Unicode::UTF8ToWideString / WideToUTF8String — suppress our local stubs in
-    # shadertrans/source/ShaderTrans.cpp to avoid the inline-vs-extern collision.
+    # shadertrans calls Unicode::UTF8ToWideString / WideToUTF8String from DXC's
+    # DxcSupport. With a prebuilt LLVMDxcSupport.lib (DXC_LIBRARY) they come from
+    # there; otherwise compile the vendored Unicode.cpp into shadertrans so the
+    # editor link resolves (it is self-contained on Windows: WinAPI conversions
+    # plus header-only DXC support headers).
     if(DXC_LIBRARY AND EXISTS "${DXC_LIBRARY}")
         target_compile_definitions(shadertrans PRIVATE HAVE_DXC_UNICODE)
+    else()
+        target_sources(shadertrans PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/shadertrans/external/DirectXShaderCompiler/lib/DxcSupport/Unicode.cpp")
     endif()
 
     target_link_options(editor PRIVATE "/FORCE:MULTIPLE")
