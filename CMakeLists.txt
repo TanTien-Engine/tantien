@@ -318,10 +318,12 @@ endif()
 # generated headers (e.g. assimp/config.h, ogdf/.../config_autogen.h,
 # core_tables_header.inc) are exposed via the target's INTERFACE properties.
 #
-# C libraries (zlib, libpng, libjpeg-turbo, tiff) come from vcpkg — see
-# vcpkg.json. Their vendored copies under thirdparty/gimg/external/ are no
-# longer built. CMakeLocal.cmake must set CMAKE_TOOLCHAIN_FILE to the vcpkg
-# toolchain for find_package to discover them.
+# C libraries (zlib, libpng, libjpeg-turbo, tiff) and boost-graph (cax's
+# find_package(Boost COMPONENTS graph) — macOS uses Homebrew instead) come
+# from vcpkg — see vcpkg.json. Their vendored copies under
+# thirdparty/gimg/external/ are no longer built. CMakeLocal.cmake must set
+# CMAKE_TOOLCHAIN_FILE to the vcpkg toolchain for find_package to discover
+# them.
 # ----------------------------------------------------------------------------
 
 if(WIN32)
