@@ -485,7 +485,7 @@ if(WIN32)
         message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
     endif()
     if(NOT DEFINED FBX_LIB_DIR)
-        set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+        set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64")
     endif()
 endif()
 
@@ -540,17 +540,23 @@ if(WIN32)
         Vulkan::Vulkan)
 
     # Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
-    # /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
-    # externals still surface at runtime if the corresponding feature is used.
-    foreach(_opt_lib IN ITEMS
-        "${DXC_LIBRARY}"
-        "${FBX_LIB_DIR}/libfbxsdk-md.lib"
-        "${FBX_LIB_DIR}/libxml2-md.lib"
-    )
-        if(_opt_lib AND EXISTS "${_opt_lib}")
-            target_link_libraries(editor "${_opt_lib}")
-        elseif(_opt_lib)
-            message(WARNING "Optional SDK lib not found, skipping link: ${_opt_lib}")
+    if(DEFINED DXC_LIBRARY AND DXC_LIBRARY)
+        if(EXISTS "${DXC_LIBRARY}")
+            target_link_libraries(editor "${DXC_LIBRARY}")
+        else()
+            message(WARNING "Optional SDK lib not found, skipping link: ${DXC_LIBRARY}")
+        endif()
+    endif()
+
+    # FBX SDK: debug/ and release/ subdirs hold the same filenames linked against
+    # different CRT flavors (MDd vs MD). Pick the right subdir via generator expression.
+    foreach(_fbx_name IN ITEMS libfbxsdk-md.lib libxml2-md.lib)
+        set(_fbx_d "${FBX_LIB_DIR}/debug/${_fbx_name}")
+        set(_fbx_r "${FBX_LIB_DIR}/release/${_fbx_name}")
+        if(EXISTS "${_fbx_d}" OR EXISTS "${_fbx_r}")
+            target_link_libraries(editor "$<IF:$<CONFIG:Debug>,${_fbx_d},${_fbx_r}>")
+        else()
+            message(WARNING "FBX SDK lib not found under ${FBX_LIB_DIR}/debug or .../release, skipping: ${_fbx_name}")
         endif()
     endforeach()
 

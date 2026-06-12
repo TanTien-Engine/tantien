@@ -40,10 +40,10 @@ set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRIN
 # Download: https://aps.autodesk.com/developer/overview/fbx-sdk
 set(FBX_SDK_DIR "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.7")
 
-# Directory holding libfbxsdk-md.lib / libxml2-md.lib. Defaults to the VS2022
-# x64 debug layout below; point it at .../release for Release builds. The
-# libs are linked only if the files actually exist (missing ones just warn).
-#set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
+# Base directory containing debug/ and release/ subdirs with libfbxsdk-md.lib etc.
+# CMakeLists.txt appends debug/ or release/ automatically based on the build config.
+# Defaults to the VS2022 x64 layout; override for other compilers/architectures.
+#set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64")
 
 # ---- OpenCASCADE / OCCT (Windows: REQUIRED) ---------------------------------
 # OCCT_DIR is added to CMAKE_PREFIX_PATH so find_package(OpenCASCADE) can
