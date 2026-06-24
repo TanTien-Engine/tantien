@@ -304,12 +304,13 @@ void SpriteRenderer::DrawPainter(ur::Context& ctx, const ur::RenderState& rs,
 	if (auto palette = pt.GetPalette())
 	{
 		auto relocated_tex = palette->GetRelocatedTex();
-		if (relocated_tex) 
+		if (relocated_tex)
 		{
 			if (m_tex != relocated_tex) {
 				Flush(ctx);
 				m_tex = relocated_tex;
 			}
+			FlushIfPainterOverflows(ctx, pt);
 			CopyVertexBuffer(mat, pt.GetBuffer());
 		}
 		else
@@ -319,8 +320,28 @@ void SpriteRenderer::DrawPainter(ur::Context& ctx, const ur::RenderState& rs,
 				Flush(ctx);
 				m_tex = tex;
 			}
+			FlushIfPainterOverflows(ctx, pt);
 			CopyVertexBuffer(mat, pt.GetBuffer());
 		}
+	}
+}
+
+// The batch index buffer is 16-bit (RenderBuffer curr_index is unsigned short,
+// MAX_VERTEX_NUM = 0xffff). DrawQuad already flushes before it can overflow, but
+// DrawPainter accumulated painters without that guard: a graph with hundreds of
+// nodes (each a small per-node painter) pushed m_buf past 65535 verts, wrapping
+// curr_index to 0 so indices pointed at wrong vertices -> garbage triangles
+// across the whole canvas (RebuildHistory on a 667-node ZW part). Flush the
+// accumulated batch before appending a painter that would cross the limit, so
+// every draw stays within the 16-bit index range. (A single painter larger than
+// MAX_VERTEX_NUM would still overflow, but per-node/per-wire/per-label painters
+// are far below it; the bug was purely cross-painter accumulation.)
+void SpriteRenderer::FlushIfPainterOverflows(ur::Context& ctx, const tess::Painter& pt)
+{
+	const size_t add = pt.GetBuffer().vertices.size();
+	if (!m_buf.vertices.empty() &&
+		m_buf.vertices.size() + add >= RenderBuffer<SpriteVertex, unsigned short>::MAX_VERTEX_NUM) {
+		Flush(ctx);
 	}
 }
 
