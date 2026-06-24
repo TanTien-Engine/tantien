@@ -158,6 +158,13 @@ class Blueprint
 		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
 		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
 
+		// Render cache: a connect changes the source's owned wire and BOTH pins'
+		// fill (outline<->filled, pin.conns.isEmpty). Set render_dirty directly
+		// here so it can't be bypassed by a node whose on_pin_dirty override drops
+		// the super call (Subgraph/Input/Output/ForEach/Function/Print/ListAdd).
+		conn.from.node.render_dirty = true
+		conn.to.node.render_dirty = true
+
 		return conn
 	}
 
@@ -205,6 +212,12 @@ class Blueprint
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
 		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
 		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
+
+		// Render cache: a disconnect drops the source's owned wire and empties the
+		// input pin (filled->outline). Bypass-proof against on_pin_dirty overrides
+		// that drop super (see connect()).
+		conn.from.node.render_dirty = true
+		conn.to.node.render_dirty = true
 	}
 
 	static get_input_pin(curr_node, input_slot)

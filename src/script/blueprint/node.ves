@@ -58,7 +58,17 @@ class Node
 
 		// debug
 		this.calc_times = 0
-		this.render_times = 0		
+		this.render_times = 0
+
+		// --- render cache (consumed by NodeRender) ---
+		// The canvas replays these built Painters/text every frame and only
+		// rebuilds them when render_dirty is set, killing the per-frame
+		// Painter.init() GC churn. render_dirty starts true so the first draw
+		// builds; render_lod tracks the scale<2 LOD band the cache was built for.
+		this.render_dirty = true
+		this.render_lod = nil
+		this.cache_painters = nil
+		this.cache_texts = nil
 	}
 
 	get_size() {
@@ -74,6 +84,12 @@ class Node
 		}
 		this.pos.x = pos.x()
 		this.pos.y = pos.y()
+
+		// Moved -> this node's panel/pins/own-wires are stale (early-out above
+		// means this only fires on a real move, not every frame). Incident wires
+		// owned by OTHER nodes are refreshed via the c.update() calls below, which
+		// dirty their owner in Connecting.update.
+		this.render_dirty = true
 
 		for (var p in this.imports) {
 			for (var c in p.conns) {
@@ -133,6 +149,9 @@ class Node
 		}
 
 		this.aabb_dirty = true
+		// Size / pin-set / pin-color all changed here (construction, dynamic-pin
+		// rebuilds, Commentary resize) -> the cached panel/pins go stale.
+		this.render_dirty = true
 
 		for (var p in this.params) {
 			this.style.height = this.style.height + DEFAULT_HEIGHT * p.gui_height()
@@ -144,6 +163,27 @@ class Node
 		}
 		for (var p in this.exports) {
 			this.init_pin_color(p)
+		}
+
+		// A re-layout (dynamic pin add/remove, or a height change) moves this
+		// node's pin positions WITHOUT moving the node, so every wire touching it
+		// now has a stale endpoint -- and a wire's curve is cached on the source
+		// node, not recomputed at draw. Refresh every incident wire (mirrors what
+		// update() does on a move): c.update() rebuilds the Bezier against the new
+		// positions AND dirties each wire's owning source node via Connecting.update.
+		// No-op at construction (pins have no conns yet).
+		for (var p in this.imports) {
+			for (var c in p.conns) {
+				c.update()
+			}
+		}
+		for (var p in this.exports) {
+			for (var c in p.conns) {
+				c.update()
+				if (!c.to.node.visible) {
+					c.to.node.update_hidden_out()
+				}
+			}
 		}
 	}
 
@@ -189,8 +229,32 @@ class Node
 		return dirty
 	}
 
-	on_selected() { this.selected = true }
-	on_deselected() { this.selected = false }
+	on_selected()
+	{
+		this.selected = true
+		this.on_render_select_changed()
+	}
+
+	on_deselected()
+	{
+		this.selected = false
+		this.on_render_select_changed()
+	}
+
+	// Selecting a node flips its own pin visibility (is_pin_visible) AND the
+	// visibility of every wire touching it (is_conn_visible fires when EITHER
+	// endpoint is selected). A wire is drawn by its SOURCE node, so the outgoing
+	// wires this node owns are covered by dirtying self; its INCOMING wires are
+	// owned by their producers, so dirty those producers too.
+	on_render_select_changed()
+	{
+		this.render_dirty = true
+		for (var p in this.imports) {
+			for (var c in p.conns) {
+				c.from.node.render_dirty = true
+			}
+		}
+	}
 
 	on_connected(pin) {}
 	on_disconnected(pin) {}
@@ -206,6 +270,13 @@ class Node
 
 	on_pin_dirty(pin, type, msg)
 	{
+		if (type == DIRTY_CONNECTION) {
+			// A wire added/removed here changes this node's drawn pin fill
+			// (outline vs filled, pin.conns.isEmpty) and wire set. This is
+			// broadcast to every affected pin's node, so both endpoints rebuild.
+			this.render_dirty = true
+		}
+
 		if (type == DIRTY_CONNECTION and pin.is_input) {
 			this.on_connection_dirty()
 		}
@@ -237,6 +308,12 @@ class Node
 
 	on_param_dirty()
 	{
+		// Conservative: a param edit is event-scoped (fires only when a widget
+		// actually changes a value, not per frame). Param widgets are drawn by the
+		// GUI layer, not the cached Painter, so this rarely changes the cache; mark
+		// dirty anyway so any param that does affect the panel stays correct.
+		this.render_dirty = true
+
 		// todo: only use pin_dirty ?
 		Blueprint.send_node_dirty_root(this)
 		for (var pin in this.exports) {
