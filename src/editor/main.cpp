@@ -474,6 +474,20 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     return NULL;
 }
 
+// --- render-on-demand ---
+// The main loop skips draw()+present on idle frames to cut idle CPU/GPU. Any
+// real input (detected in process_input + the GLFW callbacks below) requests a
+// short BURST of redraws: >=2 refills BOTH double buffers (we render straight to
+// the default framebuffer and swap, so one redraw fills only one buffer) and
+// lets the immediate-mode GUI settle before going idle. Starts >0 so the
+// startup/load frames draw. NOTE: purely data-driven animation with no input (a
+// GlobalTicker or a Time node wired into the graph -- absent from the CAD
+// graphs) would need an explicit request_redraw() hook; add one if such a graph
+// is ever loaded.
+const int REDRAW_BURST = 3;
+int g_redraw_frames = 8;
+void request_redraw() { if (g_redraw_frames < REDRAW_BURST) { g_redraw_frames = REDRAW_BURST; } }
+
 void call_sizechanged(int w, int h)
 {
     ves_pushnumber(w);
@@ -484,11 +498,14 @@ void call_sizechanged(int w, int h)
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
+    request_redraw();
     call_sizechanged(width, height);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    request_redraw();
+
     double x, y;
     glfwGetCursorPos(window, &x, &y);
 
@@ -516,6 +533,8 @@ void call_keyreleased(const char* str)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    request_redraw();
+
     const bool ctrl_pressed =
         glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
@@ -552,8 +571,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_press_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    request_redraw();
+
     // double click
-    if (action == GLFW_RELEASE) 
+    if (action == GLFW_RELEASE)
     {
         static auto before = std::chrono::system_clock::now();
         auto now = std::chrono::system_clock::now();
@@ -578,6 +599,8 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
     if (count == 0) {
         return;
     }
+
+    request_redraw();
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
@@ -657,36 +680,59 @@ MouseStatus mouse_status = MouseStatus::Default;
 
 void process_input(GLFWwindow *window)
 {
+    bool active = false;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         call_keypressed("w");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         call_keypressed("s");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         call_keypressed("a");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         call_keypressed("d");
+        active = true;
     }
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
+
+    // Real cursor movement is activity. process_input synthesizes a mousemoved
+    // every frame even when the cursor is still, so compare against the last pos
+    // rather than treating "the callback ran" as a change.
+    static double last_x = 0, last_y = 0;
+    static bool have_last = false;
+    if (!have_last || x != last_x || y != last_y) {
+        active = true;
+    }
+    last_x = x;
+    last_y = y;
+    have_last = true;
+
     switch (mouse_status)
     {
     case MouseStatus::Default:
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             mouse_status = MouseStatus::LeftPressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
+            active = true;
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
             mouse_status = MouseStatus::RightPressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Right));
+            active = true;
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
             mouse_status = MouseStatus::MiddlePressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Middle));
+            active = true;
         } else {
             call_mousemoved(x, y, static_cast<int>(MouseButton::None));
         }
         break;
     case MouseStatus::LeftPressed:
+        active = true;   // dragging or releasing is activity
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Left));
@@ -695,6 +741,7 @@ void process_input(GLFWwindow *window)
         }
         break;
     case MouseStatus::RightPressed:
+        active = true;
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Right));
@@ -703,6 +750,7 @@ void process_input(GLFWwindow *window)
         }
         break;
     case MouseStatus::MiddlePressed:
+        active = true;
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Middle));
@@ -712,6 +760,10 @@ void process_input(GLFWwindow *window)
         break;
     default:
         assert(0);
+    }
+
+    if (active) {
+        request_redraw();
     }
 }
 
@@ -796,6 +848,10 @@ int main(int argc, char* argv[])
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_press_callback);
     glfwSetDropCallback(window, drop_callback);
+    // Render-on-demand: OS-driven repaint (uncover/restore, window move with no
+    // resize, RDP/odd-driver surface loss) carries no input event, so request a
+    // redraw burst here too. Cheap insurance; DWM already survives most occlusion.
+    glfwSetWindowRefreshCallback(window, [](GLFWwindow*){ request_redraw(); });
 
 #ifndef __APPLE__ // gl3w loads OpenGL entry points; the macOS build uses Metal
     if(gl3wInit()) {
@@ -879,24 +935,61 @@ int main(int argc, char* argv[])
         ves_call(1, 0);
     }
 
+    // render-on-demand frame stats (probe): prints drawn vs skipped frames + the
+    // last draw's wall time every ~2s so the idle skipping and the per-draw cost
+    // are measurable. Idle should show skipped >> drawn; a draw shows the ms we save.
+    double stat_t0 = glfwGetTime();
+    int stat_drawn = 0;
+    int stat_skipped = 0;
+    double stat_last_draw_ms = 0.0;
+
     while(!glfwWindowShouldClose(window))
     {
+        // process_input + the GLFW callbacks raise g_redraw_frames on real input.
+        // Poll first so a callback-driven event counts toward THIS frame's decision.
         process_input(window);
+        glfwPollEvents();
 
+        // update() is cheap and must run every frame (scene/GUI/tickers advance and
+        // it is where input-driven dirties are set); only the expensive draw()+present
+        // is gated by render-on-demand.
         ves_pushstring("update()");
         ves_call(0, 0);
 
-        ves_pushstring("draw()");
-        ves_call(0, 0);
+        if (g_redraw_frames > 0)
+        {
+            --g_redraw_frames;
+
+            double draw_t0 = glfwGetTime();
+
+            ves_pushstring("draw()");
+            ves_call(0, 0);
 
 #ifdef __APPLE__
-        // Metal present: EndFrame() presents the drawable + commits the command buffer
-        // (the GL path's glfwSwapBuffers has no equivalent without a GL context).
-        if (auto ctx = tt::Render::Instance()->Context()) { ctx->Flush(); }
+            // Metal present: EndFrame() presents the drawable + commits the command buffer
+            // (the GL path's glfwSwapBuffers has no equivalent without a GL context).
+            if (auto ctx = tt::Render::Instance()->Context()) { ctx->Flush(); }
 #else
-        glfwSwapBuffers(window);
+            glfwSwapBuffers(window);
 #endif
-        glfwPollEvents();
+            stat_last_draw_ms = (glfwGetTime() - draw_t0) * 1000.0;
+            ++stat_drawn;
+        }
+        else
+        {
+            ++stat_skipped;
+        }
+
+        double stat_now = glfwGetTime();
+        if (stat_now - stat_t0 >= 2.0)
+        {
+            std::cout << "[render-on-demand] drew " << stat_drawn << " skipped " << stat_skipped
+                      << " in " << (stat_now - stat_t0) << "s, last draw " << stat_last_draw_ms << "ms"
+                      << std::endl;
+            stat_drawn = 0;
+            stat_skipped = 0;
+            stat_t0 = stat_now;
+        }
 
         //show_fps(window);
         limit_fps(60);
