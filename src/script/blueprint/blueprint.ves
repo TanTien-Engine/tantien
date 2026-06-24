@@ -79,7 +79,14 @@ class Blueprint
 			var n = buf[buf.count - 1]
 			buf.removeAt(buf.count - 1)
 
-			nodes.add(n)
+			// Skip already-visited nodes. Set.add returns false when the value
+			// is already present; without this guard a node reachable by many
+			// paths (a running-body cache feeding hundreds of edge selectors in
+			// a decompiled history) is re-expanded once PER PATH -> exponential
+			// blow-up that hangs the editor on large dressup-heavy graphs.
+			if (!nodes.add(n)) {
+				continue
+			}
 			for (var pin in n.imports) {
 				if (!pin.stop_port_pass) {
 					for (var conn in pin.conns) {
@@ -103,7 +110,12 @@ class Blueprint
 			var n = buf[buf.count - 1]
 			buf.removeAt(buf.count - 1)
 
-			nodes.add(n)
+			// Visited-guard (see get_precursor_nodes): skip re-expanding a node
+			// reached by many paths, else a high-fan-out graph blows up
+			// exponentially.
+			if (!nodes.add(n)) {
+				continue
+			}
 			for (var pin in n.exports) {
 				if (!pin.stop_port_pass) {
 					for (var conn in pin.conns) {
