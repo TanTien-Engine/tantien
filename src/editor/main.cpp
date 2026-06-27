@@ -391,11 +391,7 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     // For convenience, concatenate all of the method qualifiers into a single
     // signature string.
     char fullName[256];
-    fullName[0] = '\0';
-    if (isStatic) strcat(fullName, "static ");
-    strcat(fullName, className);
-    strcat(fullName, ".");
-    strcat(fullName, signature);
+    snprintf(fullName, sizeof(fullName), "%s%s.%s", isStatic ? "static " : "", className, signature);
 
     VesselForeignMethodFn method = NULL;
 
@@ -909,7 +905,7 @@ int main(int argc, char* argv[])
         cls_name[0] = std::toupper(cls_name[0]);
 
         char code[255];
-        sprintf(code, "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
+        snprintf(code, sizeof(code), "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
 
         ves_interpret("editor", code);
     }
@@ -919,7 +915,7 @@ int main(int argc, char* argv[])
         cls_name[0] = std::toupper(cls_name[0]);
 
         char code[255];
-        sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
+        snprintf(code, sizeof(code), "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
         ves_interpret("editor", code);
     }
 

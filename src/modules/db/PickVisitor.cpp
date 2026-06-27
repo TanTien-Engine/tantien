@@ -48,8 +48,11 @@ void PickVisitor::PickPoly(const spatialdb::INode& node)
         uint8_t* data = nullptr;
         node.GetChildData(i, len, &data);
 
-        auto poly = tt::BrepSerialize::BRepFromByteArray(data);
-        
+        auto poly = tt::BrepSerialize::BRepFromByteArray(data, len);
+        if (!poly) {
+            continue;
+        }
+
         sm::cube aabb;
         for (auto& p : poly->Points()) {
             aabb.Combine(p->pos);

@@ -25,15 +25,33 @@ void BrepSerialize::BRepToByteArray(const pm3::Polytope& brep, uint8_t** data, u
 	BRepToByteArray(points, faces, data, length);
 }
 
-pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data)
+pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data, size_t size)
 {
+	if (!data || size < sizeof(uint32_t)) {
+		return nullptr;
+	}
+
 	auto ptr = data;
+	const uint8_t* const end = data + size;
+
+	// True only if `n` more bytes can be read without running past `end`. Counts
+	// in size_t so a hostile 32-bit count can't wrap the comparison.
+	auto can_read = [&](size_t n) -> bool {
+		return n <= static_cast<size_t>(end - ptr);
+	};
 
 	std::vector<pm3::Polytope::PointPtr> points;
 
 	uint32_t p_num;
+	if (!can_read(sizeof(uint32_t))) {
+		return nullptr;
+	}
 	memcpy(&p_num, ptr, sizeof(uint32_t));
 	ptr += sizeof(uint32_t);
+
+	if (!can_read(static_cast<size_t>(p_num) * 3 * sizeof(float))) {
+		return nullptr;
+	}
 	points.reserve(p_num);
 	for (uint32_t i = 0; i < p_num; ++i)
 	{
@@ -49,6 +67,9 @@ pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data)
 	std::vector<pm3::Polytope::FacePtr> faces;
 
 	uint32_t f_num;
+	if (!can_read(sizeof(uint32_t))) {
+		return nullptr;
+	}
 	memcpy(&f_num, ptr, sizeof(uint32_t));
 	ptr += sizeof(uint32_t);
 	faces.reserve(f_num);
@@ -57,10 +78,16 @@ pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data)
 		auto face = std::make_shared<pm3::Polytope::Face>();
 
 		uint32_t v_num;
+		if (!can_read(sizeof(uint32_t))) {
+			return nullptr;
+		}
 		memcpy(&v_num, ptr, sizeof(uint32_t));
 		ptr += sizeof(uint32_t);
-		face->border.reserve(v_num);
 
+		if (!can_read(static_cast<size_t>(v_num) * sizeof(uint32_t))) {
+			return nullptr;
+		}
+		face->border.reserve(v_num);
 		for (uint32_t j = 0; j < v_num; ++j)
 		{
 			uint32_t idx;

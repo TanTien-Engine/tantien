@@ -398,6 +398,12 @@ void SpriteRenderer::DrawQuad(ur::Context& ctx, const ur::RenderState& rs, const
 
 void SpriteRenderer::Flush(ur::Context& ctx)
 {
+	// Nothing batched -> bail before touching any context state. Doing this after
+	// SetFramebuffer(m_fbo) used to leave the context bound to a stale framebuffer.
+	if (m_buf.indices.empty()) {
+		return;
+	}
+
 	// ubo
 	if (m_uniform_buf) {
 		m_uniform_buf->Update(&ubo_vs, sizeof(ubo_vs));
@@ -408,10 +414,6 @@ void SpriteRenderer::Flush(ur::Context& ctx)
 
     auto fbo = ctx.GetFramebuffer();
     ctx.SetFramebuffer(m_fbo);
-
-	if (m_buf.indices.empty()) {
-		return;
-	}
 
     auto ibuf = m_va->GetIndexBuffer();
     if (ibuf)

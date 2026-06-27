@@ -1104,7 +1104,7 @@ void w_ComputeBuffer_download()
     if (strcmp(type, "int") == 0)
     {
         std::vector<int> data(size);
-        buf->GetComputeBufferData(data.data(), sizeof(data) * size);
+        buf->GetComputeBufferData(data.data(), sizeof(int) * size);
         wrapper::return_list(data);
     }
     else if (strcmp(type, "float") == 0)

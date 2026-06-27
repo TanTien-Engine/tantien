@@ -381,13 +381,36 @@ VesselForeignMethodFn OmBindMethod(const char* signature)
 
     if (strcmp(signature, "Label.build_vao()") == 0) return w_Label_build_vao;
 
-    if (strcmp(signature, "Label.build_vao()") == 0) return w_Label_build_vao;
-
 	return nullptr;
+}
+
+// TopoShape foreigns are produced host-side (BRepAlgos.clip / PrimBuilder.box /
+// Label.get_shape) via ves_set_newforeign, but the class had no finalize
+// registered, so the held shared_ptr<TopoShape> (and its BRep/GPU data) was
+// never released -> unbounded growth in the edit loop. allocate is provided for
+// completeness (script never constructs one); finalize destructs the proxy.
+void w_TopoShape_allocate()
+{
+    auto proxy = (wrapper::Proxy<brepom::TopoShape>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<brepom::TopoShape>));
+    proxy->obj = nullptr;
+}
+
+int w_TopoShape_finalize(void* data)
+{
+    auto proxy = (wrapper::Proxy<brepom::TopoShape>*)(data);
+    proxy->~Proxy();
+    return sizeof(wrapper::Proxy<brepom::TopoShape>);
 }
 
 void OmBindClass(const char* class_name, VesselForeignClassMethods* methods)
 {
+    if (strcmp(class_name, "TopoShape") == 0)
+    {
+        methods->allocate = w_TopoShape_allocate;
+        methods->finalize = w_TopoShape_finalize;
+        return;
+    }
+
     if (strcmp(class_name, "Label") == 0)
     {
         methods->allocate = w_Label_allocate;
