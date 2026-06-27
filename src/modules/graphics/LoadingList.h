@@ -9,6 +9,7 @@
 #include <unirender/noncopyable.h>
 
 #include <map>
+#include <set>
 
 namespace ur { class Context; }
 
@@ -44,6 +45,10 @@ private:
 private:
 	std::map<UID, Glyph> m_glyphs;
 	std::map<UID, Symbol> m_symbols;
+
+	// Glyphs that produced no bitmap (permanently missing). Without this they were
+	// re-queued and re-rasterized by freetype every single frame, forever.
+	std::set<UID> m_failed_glyphs;
 
 	TT_SINGLETON_DECLARATION(LoadingList)
 

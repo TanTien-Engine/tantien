@@ -19,6 +19,10 @@ LoadingList::LoadingList()
 
 void LoadingList::AddGlyph(UID uid, int unicode, float line_x, const gtxt_glyph_style& gs)
 {
+	// Already known to have no bitmap -> don't re-queue it for rasterization.
+	if (m_failed_glyphs.find(uid) != m_failed_glyphs.end()) {
+		return;
+	}
 	auto itr = m_glyphs.find(uid);
 	if (itr == m_glyphs.end()) {
 		m_glyphs.insert({ uid,{ unicode, line_x, gs } });
@@ -60,6 +64,9 @@ bool LoadingList::FlushGlyphs(ur::Context& ctx)
 		struct gtxt_glyph_layout layout;
 		uint32_t* bmp = gtxt_glyph_get_bitmap(g.unicode, g.line_x, &g.gs, &layout);
 		if (!bmp) {
+			// No bitmap for this glyph: remember it so AddGlyph stops re-queuing it
+			// every frame (freetype rasterize attempt per frame, forever).
+			m_failed_glyphs.insert(itr.first);
 			continue;
 		}
 		int w = static_cast<int>(layout.sizer.width);

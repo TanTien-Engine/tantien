@@ -56,6 +56,11 @@ class Node
 		this.dirty_timestamp = 0
 		this.msg_timestamp = 0
 
+		// Scratch slot used by Blueprint.topo_sort to map a node back to its index
+		// in the sorted set in O(1) (Vessel Map only takes string keys, so the
+		// index lives on the node, like calc_times). -1 = not in any current sort.
+		this.sort_idx = -1
+
 		// debug
 		this.calc_times = 0
 		this.render_times = 0
