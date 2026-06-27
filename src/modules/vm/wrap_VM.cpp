@@ -448,12 +448,16 @@ void w_CodeTools_decompiler()
 {
     auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
+    const int size = static_cast<int>(code->GetCode().size());
     int begin = (int)ves_tonumber(2);
     int end = (int)ves_tonumber(3);
     if (begin == 0 && end == 0) {
-        begin = 0;
-        end = static_cast<int>(code->GetCode().size());
+        end = size;
     }
+    // Clamp into [0, size] so a bad script range can't walk the decompiler off the buffer.
+    if (begin < 0) begin = 0;
+    if (end > size) end = size;
+    if (begin > end) begin = end;
 
     brepvm::Decompiler dc(code, brepvm::VM::Instance()->GetOpFields());
     dc.Print(begin, end);
@@ -463,12 +467,16 @@ void w_CodeTools_hash()
 {
     auto code = ((wrapper::Proxy<brepvm::Bytecodes>*)ves_toforeign(1))->obj;
 
+    const int size = static_cast<int>(code->GetCode().size());
     int begin = (int)ves_tonumber(2);
     int end = (int)ves_tonumber(3);
     if (begin == 0 && end == 0) {
-        begin = 0;
-        end = static_cast<int>(code->GetCode().size());
+        end = size;
     }
+    // Clamp into [0, size] so a bad script range can't walk the decompiler off the buffer.
+    if (begin < 0) begin = 0;
+    if (end > size) end = size;
+    if (begin > end) begin = end;
 
     brepvm::Decompiler dc(code, brepvm::VM::Instance()->GetOpFields());
     size_t hash = dc.Hash(begin, end);
@@ -484,7 +492,7 @@ void w_CodeRegen_write_int()
     int i = (int)ves_tonumber(3);
 
     code->SetCurrPos(pos);
-    code->Write(reinterpret_cast<const char*>(&i), sizeof(float));
+    code->Write(reinterpret_cast<const char*>(&i), sizeof(int));
     code->SetCurrPos(-1);
 }
 

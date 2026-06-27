@@ -4,6 +4,8 @@
 #include "modules/model/Model.h"
 #include "modules/maths/float16.h"
 
+#include <cstdlib> // free() for releasing an ImageData's prior (possibly malloc'd) buffer
+
 #include <unirender/Device.h>
 #include <unirender/Context.h>
 #include <unirender/VertexArray.h>
@@ -859,8 +861,18 @@ void w_Texture2D_download()
         return;
     }
 
+    // Release any buffer this ImageData already owned, else download leaks it.
+    if (img->pixels) {
+        if (img->pixels_malloc) {
+            free(img->pixels);
+        } else {
+            delete[] img->pixels;
+        }
+    }
+
     size_t sz = ur::TextureUtility::RequiredSizeInBytes(tex->GetWidth(), tex->GetHeight(), tex->GetFormat(), 4);
-    img->pixels = (uint8_t*)tex->WriteToMemory(sz);
+    img->pixels = (uint8_t*)tex->WriteToMemory(sz); // WriteToMemory returns new[] (freed via delete[])
+    img->pixels_malloc = false;
 }
 
 void w_Texture2D_max_pixel_val()

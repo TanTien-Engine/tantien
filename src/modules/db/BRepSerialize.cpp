@@ -114,6 +114,14 @@ void BrepSerialize::BRepToByteArray(const std::vector<sm::vec3>& points,
 		sz += f.size() * sizeof(uint32_t);
 	}
 
+	// length is a uint32_t; a >4GB serialized mesh would truncate it and then the
+	// memcpy loop below would overrun the (smaller) allocation. Refuse instead.
+	if (sz > UINT32_MAX) {
+		*data = nullptr;
+		length = 0;
+		return;
+	}
+
 	length = static_cast<uint32_t>(sz);
 	*data = new uint8_t[length];
 	uint8_t* ptr = *data;

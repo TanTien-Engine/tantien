@@ -81,7 +81,9 @@ spvgentwo::Instruction* to_inst(int idx)
 
 shadertrans::ShaderStage to_shader_stage(const char* str)
 {
-    shadertrans::ShaderStage stage;
+    // Default for an unknown/empty stage string, so the value is never read
+    // uninitialized (it used to flow garbage into shader compilation).
+    shadertrans::ShaderStage stage = shadertrans::ShaderStage::VertexShader;
     if (strcmp(str, "vertex") == 0) {
         stage = shadertrans::ShaderStage::VertexShader;
     } else if (strcmp(str, "tess_ctrl") == 0) {

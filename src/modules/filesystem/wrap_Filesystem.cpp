@@ -93,7 +93,11 @@ void w_Filesystem_get_directory_files()
     std::vector<std::string> files;
 
     const char* dir_path = ves_tostring(1);
-    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path)) {
+    // error_code overload: a missing/inaccessible dir yields an end iterator
+    // instead of throwing a filesystem_error across the VM's C callback boundary
+    // (an uncaught C++ exception there is undefined behaviour / abort).
+    std::error_code ec;
+    for (auto& p : std::filesystem::recursive_directory_iterator(dir_path, ec)) {
         files.push_back(std::filesystem::absolute(p).string());
     }
     wrapper::return_list(files);
