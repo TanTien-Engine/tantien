@@ -158,7 +158,11 @@ void w_Node_get_component()
 {
     auto node = ((wrapper::Proxy<graph::Node>*)ves_toforeign(0))->obj;
 
-    std::string key = ves_tostring(1);
+    const char* key_str = ves_tostring(1);
+    if (!key_str) {
+        return;
+    }
+    std::string key = key_str;
     auto func = wrapper::Graph::Instance()->GetRegNodeGetCompCB(key);
     if (func) {
         func(*node);
@@ -232,7 +236,11 @@ void w_GraphTools_load_graph()
 void w_GraphTools_layout()
 {
     auto graph = ((wrapper::Proxy<graph::Graph>*)ves_toforeign(1))->obj;
-    std::string method = ves_tostring(2);
+    const char* method_str = ves_tostring(2);
+    if (!method_str) {
+        return;
+    }
+    std::string method = method_str;
 
     if (method == "stress_mini") {
         graph::GraphLayout::StressMinimization(*graph);

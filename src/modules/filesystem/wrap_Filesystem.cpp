@@ -12,9 +12,18 @@
 namespace
 {
 
+// A non-string script arg makes ves_tostring return null; these are path
+// utilities, so treat that as an empty path instead of crashing in
+// std::string/std::filesystem::path construction.
+const char* arg_str(int idx)
+{
+    const char* s = ves_tostring(idx);
+    return s ? s : "";
+}
+
 void w_Filesystem_get_file_dir()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     std::string filename(path);
 
     std::string directory;
@@ -33,7 +42,7 @@ void w_Filesystem_get_file_dir()
 
 void w_Filesystem_set_asset_base_dir()
 {
-    const char* directory = ves_tostring(1);
+    const char* directory = arg_str(1);
     tt::Filesystem::Instance()->SetAssetBaseDir(directory);
 }
 
@@ -45,19 +54,22 @@ void w_Filesystem_get_asset_base_dir()
 
 void w_Filesystem_get_absolute_path()
 {
-    const char* path = ves_tostring(1);
-    if (std::filesystem::exists(std::filesystem::path(path))) {
-        auto absolute = std::filesystem::weakly_canonical(path).string();
+    // error_code overloads throughout: a throwing std::filesystem call would
+    // unwind across the VM's C callback boundary (UB/abort).
+    const char* path = arg_str(1);
+    std::error_code ec;
+    if (std::filesystem::exists(std::filesystem::path(path), ec)) {
+        auto absolute = std::filesystem::weakly_canonical(path, ec).string();
         ves_set_lstring(0, absolute.c_str(), absolute.size());
     } else {
         auto& base_dir = tt::Filesystem::Instance()->GetAssetBaseDir();
         if (base_dir.empty()) {
-            auto absolute = std::filesystem::weakly_canonical(path).string();
+            auto absolute = std::filesystem::weakly_canonical(path, ec).string();
             ves_set_lstring(0, absolute.c_str(), absolute.size());
         } else {
             const auto& dir_path = std::filesystem::path(base_dir);
             auto full_path = std::filesystem::path(dir_path) / path;
-            auto absolute = std::filesystem::weakly_canonical(full_path).string();
+            auto absolute = std::filesystem::weakly_canonical(full_path, ec).string();
             ves_set_lstring(0, absolute.c_str(), absolute.size());
         }
     }
@@ -65,9 +77,10 @@ void w_Filesystem_get_absolute_path()
 
 void w_Filesystem_get_relative_path()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     auto& dir = tt::Filesystem::Instance()->GetAssetBaseDir();
-    auto relative = std::filesystem::relative(path, dir);
+    std::error_code ec;
+    auto relative = std::filesystem::relative(path, dir, ec);
 
     std::string formated = relative.string();
     std::replace(formated.begin(), formated.end(), '\\', '/');
@@ -76,14 +89,14 @@ void w_Filesystem_get_relative_path()
 
 void w_Filesystem_get_filename()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     auto filename = std::filesystem::path(path).stem().string();
     ves_set_lstring(0, filename.c_str(), filename.size());
 }
 
 void w_Filesystem_get_directory()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     auto directory = std::filesystem::path(path).parent_path().string();
     ves_set_lstring(0, directory.c_str(), directory.size());
 }
@@ -92,36 +105,41 @@ void w_Filesystem_get_directory_files()
 {
     std::vector<std::string> files;
 
-    const char* dir_path = ves_tostring(1);
+    const char* dir_path = arg_str(1);
     // error_code overload: a missing/inaccessible dir yields an end iterator
     // instead of throwing a filesystem_error across the VM's C callback boundary
     // (an uncaught C++ exception there is undefined behaviour / abort).
     std::error_code ec;
     for (auto& p : std::filesystem::recursive_directory_iterator(dir_path, ec)) {
-        files.push_back(std::filesystem::absolute(p).string());
+        std::error_code abs_ec;
+        files.push_back(std::filesystem::absolute(p, abs_ec).string());
     }
     wrapper::return_list(files);
 }
 
 void w_Filesystem_remove_file()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     int ret = remove(path);
     ves_set_boolean(0, ret == 0);
 }
 
 void w_Filesystem_is_file_exists()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     auto exists = tt::Filesystem::IsExists(path);
     ves_set_boolean(0, exists);
 }
 
 void w_Filesystem_get_file_last_write_time()
 {
-    const char* path = ves_tostring(1);
+    const char* path = arg_str(1);
     struct stat attr;
-    stat(path, &attr);
+    if (stat(path, &attr) != 0) {
+        // missing file: 0 instead of reading uninitialized attr.st_mtime
+        ves_set_number(0, 0);
+        return;
+    }
     ves_set_number(0, attr.st_mtime);
 }
 

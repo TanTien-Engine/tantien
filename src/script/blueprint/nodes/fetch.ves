@@ -86,7 +86,10 @@ class Fetch is Node
 			    index = Math.floor(v_index.value)
 			}
 		} else {
-			index = this.query_param("index").value
+			// No NodeParam named "index" is ever registered — the value lives in
+			// the this.index field (set by init and by saved-file restore); the
+			// old query_param("index").value was a guaranteed nil deref here.
+			index = this.index
 		}
 
 		if (index < array.count and index >= 0) {

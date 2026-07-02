@@ -83,10 +83,15 @@ void w_BRepTools_shape2vao()
 
 void w_BRepAlgos_clip()
 {
-    auto shape = ((wrapper::Proxy<brepom::TopoShape>*)ves_toforeign(1))->obj;
+    auto shape_proxy = (wrapper::Proxy<brepom::TopoShape>*)ves_toforeign(1);
     sm::Plane* plane = (sm::Plane*)ves_toforeign(2);
-
     auto keep_str = ves_tostring(3);
+    if (!shape_proxy || !shape_proxy->obj || !plane || !keep_str) {
+        ves_set_nil(0);
+        return;
+    }
+    auto shape = shape_proxy->obj;
+
     auto keep = he::Polyhedron::KeepType::KeepAbove;
     if (strcmp(keep_str, "above") == 0) {
         keep = he::Polyhedron::KeepType::KeepAbove;

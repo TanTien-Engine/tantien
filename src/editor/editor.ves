@@ -159,11 +159,15 @@ class Editor
 		Rendergraph.regist()
 	}
 
+	// A second, EMPTY clear_popup_nodes below used to shadow this one (later
+	// method wins in Vessel), so prepare_nodes' clear-then-add re-added the whole
+	// node set on every nav-bar return to root — the popup grew a duplicate set
+	// per navigation. The shadow is removed and the propup_ typo fixed.
 	clear_popup_nodes()
 	{
 		this.popup_nodes.clear()
 		this.popup_name2node.clear()
-		this.propup_subgraphs.clear()
+		this.popup_subgraphs.clear()
 	}
 
 	update()
@@ -794,11 +798,6 @@ class Editor
 		}
 	}
 
-	clear_popup_nodes()
-	{
-			
-	}
-
 	add_popup_node(node)
 	{
 		if (node is Subgraph)
@@ -952,9 +951,35 @@ import \"editor\" for _editor
 		this.scene_stack.bp_dirty = true
 	}
 
+	// Stamp every scene node's position into its bp component's sort_idx so
+	// query_node_idx resolves in O(1). Call AFTER any Blueprint.topo_sort in the
+	// same flow: topo_sort reuses sort_idx as scratch (indices into ITS node set),
+	// which this pass overwrites with scene.nodes positions.
+	index_scene_nodes(nodes)
+	{
+		for (var i = 0; i < nodes.count; i = i + 1) {
+			var bp = nodes[i].components["bp"]
+			if (bp is BP_Node or bp is NW_Vertex or bp is TR_Node) {
+				bp.sort_idx = i
+			}
+		}
+	}
+
 	query_node_idx(node_set, bp_node)
 	{
-		for (var i in 0..node_set.count) {
+		// Fast path via the sort_idx stamped by index_scene_nodes. The identity
+		// check rejects a stale index (sort_idx doubles as topo_sort scratch), in
+		// which case we fall back to the original linear scan — behaviour is
+		// identical either way, just O(1) when the stamp is fresh.
+		if (bp_node is BP_Node or bp_node is NW_Vertex or bp_node is TR_Node) {
+			var i = bp_node.sort_idx
+			if (i >= 0 and i < node_set.count and node_set[i].components["bp"] == bp_node) {
+				return i
+			}
+		}
+		// (Vessel `..` is exclusive of the end — `..=` is the inclusive form —
+		// so the old `0..node_set.count` loop was equivalent to this one.)
+		for (var i = 0; i < node_set.count; i = i + 1) {
 			if (node_set[i].components["bp"] == bp_node) {
 				return i
 			}
@@ -1023,9 +1048,12 @@ import \"editor\" for _editor
 			}
 		}
 
+		// O(1) name lookups for every loop below (topo_sort scrambles sort_idx,
+		// so stamp after it).
 		if (!bp_nodes.isEmpty)
 		{
 			var sorted_nodes = Blueprint.topo_sort(bp_nodes)
+			this.index_scene_nodes(scene.nodes)
 			for (var t_node in sorted_nodes)
 			{
 				var t_name = nil
@@ -1040,11 +1068,9 @@ import \"editor\" for _editor
 						if (!t_conn.from.node.dummy)
 						{
 							var f_name = nil
-							for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
-								var f_bp = scene.nodes[f_idx].components["bp"]
-								if (f_bp == t_conn.from.node) {
-									f_name = "node%(f_idx)"
-								}
+							var f_idx = this.query_node_idx(scene.nodes, t_conn.from.node)
+							if (f_idx) {
+								f_name = "node%(f_idx)"
 							}
 							if (f_name) {
 								file.write("Blueprint.connect(%(f_name), \"%(t_conn.from.name)\", %(t_name), \"%(t_conn.to.name)\")\n")						
@@ -1055,7 +1081,12 @@ import \"editor\" for _editor
 			}
 		}
 
-		if (!nw_nodes.isEmpty)		
+		// Ensure the stamp exists for NW/TR-only graphs (no bp branch above).
+		if (!nw_nodes.isEmpty or !tr_nodes.isEmpty) {
+			this.index_scene_nodes(scene.nodes)
+		}
+
+		if (!nw_nodes.isEmpty)
 		{
 			for (var node in nw_nodes)
 			{
@@ -1071,13 +1102,11 @@ import \"editor\" for _editor
 						if (edge.pin0 == pin)
 						{
 							var t_name = nil
-							for (var f_idx = 0; f_idx < scene.nodes.count; f_idx = f_idx + 1) {
-								var f_bp = scene.nodes[f_idx].components["bp"]
-								if (f_bp == edge.pin1.vert) {
-									t_name = "node%(f_idx)"
-								}
+							var t_idx = this.query_node_idx(scene.nodes, edge.pin1.vert)
+							if (t_idx) {
+								t_name = "node%(t_idx)"
 							}
-							if (t_name) 
+							if (t_name)
 							{
 								var f_pin = VertexShape.get_pin_name(edge.pin0)
 								var t_pin = VertexShape.get_pin_name(edge.pin1)
@@ -1102,11 +1131,9 @@ import \"editor\" for _editor
 				{
 					var edge = c_pin.edge
 					var c_name = nil
-					for (var c_idx = 0; c_idx < scene.nodes.count; c_idx = c_idx + 1) {
-						var c_node = scene.nodes[c_idx].components["bp"]
-						if (c_node == edge.pin1.node) {
-							c_name = "node%(c_idx)"
-						}
+					var c_idx = this.query_node_idx(scene.nodes, edge.pin1.node)
+					if (c_idx) {
+						c_name = "node%(c_idx)"
 					}
 					if (c_name) {
 						file.write("Tree.connect(%(p_name), \"%(edge.pin0.name)\", %(c_name), \"%(edge.pin1.name)\")\n")
@@ -1135,8 +1162,11 @@ import \"editor\" for _editor
 
 		var scene = this.scene_stack.top()
 
+		// O(1) query_node_idx for the loops below.
+		this.index_scene_nodes(scene.nodes)
+
 		// nodes
-		for (var node in scene.selection) 
+		for (var node in scene.selection)
 		{
 			var bp = node.components["bp"]
 			var index = this.query_node_idx(scene.nodes, bp)
@@ -1166,7 +1196,9 @@ _editor.scene_stack.top().selection_add(_editor.add_node(%(name), %(trans.positi
 			}
 		}
 		var sorted_nodes = Blueprint.topo_sort(bp_nodes)
-		for (var t_node in sorted_nodes) 
+		// topo_sort scrambled sort_idx — re-stamp before the lookups below.
+		this.index_scene_nodes(scene.nodes)
+		for (var t_node in sorted_nodes)
 		{
 			var t_name = nil
 			var t_idx = this.query_node_idx(scene.nodes, t_node)

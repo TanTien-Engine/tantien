@@ -64,7 +64,7 @@ void w_Bytecodes_comments()
     builder.WriteType(evm::OP_COMMENTS);
 
     const char* str = ves_tostring(1);
-    builder.WriteString(str);
+    builder.WriteString(str ? str : "");
 }
 
 void w_Bytecodes_set_nil()

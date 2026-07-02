@@ -124,44 +124,36 @@ const char* file_search(const char* module, const char* dir)
     return ret;
 }
 
+// Module sources served statically by read_module below — those must never be
+// freed (they're static arrays). Anything else was strdup'd by file_search and
+// must be freed here. Keep this list in sync with read_module's static branches;
+// the old inline condition had drifted to include 8 modules read_module does NOT
+// serve statically (archgen/citygen/globegen/pathtracer/nurbslib/brepir/
+// loggraph/codegraph), leaking their file-loaded sources.
+const char* const STATIC_MODULES[] = {
+    "render", "graphics", "maths", "geometry", "gui", "image", "filesystem",
+    "model", "system", "shader", /*"physics",*/ "keyboard", "scene", "vm",
+    "db", "om", "regen", "graph", "brepkit", "brepgraph", "brepdb",
+    "deepbrep", "cadcvt", "sketchlib",
+};
+
+bool is_static_module(const char* module)
+{
+    for (auto name : STATIC_MODULES) {
+        if (strcmp(module, name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void read_module_complete(const char* module, VesselLoadModuleResult result)
 {
     if (!result.source) {
         return;
     }
 
-    if (!strcmp(module, "render") == 0 &&
-        !strcmp(module, "graphics") == 0 &&
-        !strcmp(module, "maths") == 0 &&
-        !strcmp(module, "geometry") == 0 &&
-        !strcmp(module, "gui") == 0 &&
-        !strcmp(module, "image") == 0 &&
-        !strcmp(module, "filesystem") == 0 &&
-        !strcmp(module, "model") == 0 &&
-        !strcmp(module, "system") == 0 &&
-        !strcmp(module, "shader") == 0 &&
-        //!strcmp(module, "physics") == 0 &&
-        !strcmp(module, "keyboard") == 0 &&
-        !strcmp(module, "scene") == 0 &&
-        !strcmp(module, "vm") == 0 &&
-        !strcmp(module, "db") == 0 &&
-        !strcmp(module, "om") == 0 &&
-        !strcmp(module, "regen") == 0 &&
-        !strcmp(module, "graph") == 0 &&
-        !strcmp(module, "archgen") == 0 &&
-        !strcmp(module, "citygen") == 0 &&
-        !strcmp(module, "globegen") == 0 &&
-        !strcmp(module, "pathtracer") == 0 &&
-        !strcmp(module, "sketchlib") == 0 &&
-        !strcmp(module, "nurbslib") == 0 &&
-        !strcmp(module, "brepkit") == 0 &&
-        !strcmp(module, "brepgraph") == 0 &&
-        !strcmp(module, "brepir") == 0 &&
-        !strcmp(module, "brepdb") == 0 &&
-        !strcmp(module, "deepbrep") == 0 &&
-        !strcmp(module, "cadcvt") == 0 &&
-        !strcmp(module, "loggraph") == 0 &&
-        !strcmp(module, "codegraph") == 0) {
+    if (!is_static_module(module)) {
         free((void*)result.source);
         result.source = NULL;
     }

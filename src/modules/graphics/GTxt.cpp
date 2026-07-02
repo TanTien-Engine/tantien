@@ -140,10 +140,21 @@ has_rotated_gradient_color(const gtxt_glyph_color& col)
 
 int NEXT_GLPHY_ID = 0;
 
-static const int GLPHY_HASH_CAP = 197;
-std::vector<std::pair<gtxt_glyph_style, int>> GLYPH_HASH[GLPHY_HASH_CAP];
+// line_x participates in the glyph's rendered bitmap for rotated-gradient text,
+// so it must be part of the cache identity. It used to be hashed but NOT
+// compared, so two styles differing only in line_x that landed in the same
+// bucket shared one (wrong) id -> stale gradient phase from the atlas.
+struct GlyphStyleEntry
+{
+	gtxt_glyph_style style;
+	float line_x = 0;
+	int   id = -1; // -1 = invalid (empty GLYPH_LAST before the first query)
+};
 
-std::pair<gtxt_glyph_style, int> GLYPH_LAST;
+static const int GLPHY_HASH_CAP = 197;
+std::vector<GlyphStyleEntry> GLYPH_HASH[GLPHY_HASH_CAP];
+
+GlyphStyleEntry GLYPH_LAST;
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v)
@@ -196,25 +207,29 @@ bool glyph_style_eq(const gtxt_glyph_style& s0, const gtxt_glyph_style& s1)
 
 int gen_glyph_style_id(const gtxt_glyph_style& style, float line_x)
 {
-	if (glyph_style_eq(style, GLYPH_LAST.first)) {
-		return GLYPH_LAST.second;
+	if (GLYPH_LAST.id >= 0 && GLYPH_LAST.line_x == line_x &&
+		glyph_style_eq(style, GLYPH_LAST.style)) {
+		return GLYPH_LAST.id;
 	}
 
-	int hash = hash_glyph_style(style, line_x) % GLPHY_HASH_CAP;
+	size_t hash = hash_glyph_style(style, line_x) % GLPHY_HASH_CAP;
 	auto& list = GLYPH_HASH[hash];
-	for (int i = 0, n = list.size(); i < n; ++i) {
-		if (glyph_style_eq(list[i].first, style)) {
+	for (size_t i = 0, n = list.size(); i < n; ++i) {
+		if (list[i].line_x == line_x && glyph_style_eq(list[i].style, style)) {
 			GLYPH_LAST = list[i];
-			return list[i].second;
+			return list[i].id;
 		}
 	}
 
 	int id = NEXT_GLPHY_ID++;
 
-	list.push_back(std::make_pair(style, id));
+	GlyphStyleEntry entry;
+	entry.style = style;
+	entry.line_x = line_x;
+	entry.id = id;
+	list.push_back(entry);
 
-	GLYPH_LAST.first = style;
-	GLYPH_LAST.second = id;
+	GLYPH_LAST = entry;
 
 	return id;
 }

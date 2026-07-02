@@ -184,7 +184,13 @@ class Subgraph is Node
 			var name = this.imports[i].name
 			for (var node in this.proxy_nodes) {
 				if (node.real_name == name) {
-					node.real_node = Blueprint.calc_input_value(this, i).value
+					// calc_input_value returns nil for an unconnected pin — a
+					// freshly cache-loaded subgraph has NO external wires, so
+					// this was a guaranteed raise for any subgraph with a Proxy.
+					var v = Blueprint.calc_input_value(this, i)
+					if (v) {
+						node.real_node = v.value
+					}
 				}
 				// todo break
 			}
@@ -569,7 +575,10 @@ class Subgraph is Node
 			for (var i in 0..this.out_nodes.count) {
 				if (this.out_nodes[i] == node) {
 					this.out_nodes.removeAt(i)
-					this.exports.removeAt(i)
+					// exports[0] is the "next" port pin (see init/add_node):
+					// out_nodes[i] maps to exports[i + 1], so removing exports[i]
+					// used to delete the port pin / a neighbouring output.
+					this.exports.removeAt(i + 1)
 					return true
 				}
 			}
@@ -588,6 +597,10 @@ class Subgraph is Node
 			for (var i in 0..this.proxy_nodes.count) {
 				if (this.proxy_nodes[i] == node) {
 					this.proxy_nodes.removeAt(i)
+					// The range end was fixed before the removal; without the
+					// break the loop's last iteration indexes past the shrunken
+					// list and raises.
+					break
 				}
 			}
 			for (var i in 0..this.imports.count) {

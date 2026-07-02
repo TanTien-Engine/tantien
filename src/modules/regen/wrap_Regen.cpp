@@ -26,6 +26,12 @@ void w_PolyDiff_build()
 {
     auto diff = ((wrapper::Proxy<tt::PolyDiff>*)ves_toforeign(0))->obj;
 
+    // list_to_foreigns (unlike list_to_array) has no list-type guard and derefs
+    // each element's foreign pointer — a non-list arg crashes inside it.
+    if (ves_type(1) != VES_TYPE_LIST || ves_type(2) != VES_TYPE_LIST) {
+        return;
+    }
+
     std::vector<std::shared_ptr<pm3::Polytope>> src, dst;
     wrapper::list_to_foreigns(1, src);
     wrapper::list_to_foreigns(2, dst);

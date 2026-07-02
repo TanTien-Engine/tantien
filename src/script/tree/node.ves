@@ -26,6 +26,13 @@ class Node
 		// so keep the field set uniform (Vessel raises on reading an unset field).
 		this.visible = true
 		this.aabb_dirty = false
+
+		// Scene-position stamp for editor.query_node_idx (see blueprint Node).
+		this.sort_idx = -1
+
+		// Reused across update() calls so the per-frame move check doesn't
+		// allocate a foreign Float2 per node per frame (GC churn).
+		this.pos_probe = Float2.init()
 	}
 
 	get_size()
@@ -35,7 +42,11 @@ class Node
 
 	update(mt)
 	{
-		var pos = Float2.init()
+		// transform() applies mt to the CURRENT value, so reset to origin first;
+		// mt * (0,0) = mt's translation, same as a fresh Float2.
+		var pos = this.pos_probe
+		pos.set_x(0)
+		pos.set_y(0)
 		pos.transform(mt)
 		if (this.pos.x == pos.x() and this.pos.y == pos.y()) {
 			return

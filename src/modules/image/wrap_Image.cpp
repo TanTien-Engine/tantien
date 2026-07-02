@@ -107,6 +107,10 @@ void w_ImageData_allocate()
         img->width  = (int)ves_tonumber(1);
         img->height = (int)ves_tonumber(2);
         const char* format = ves_tostring(3);
+        if (!format || img->width <= 0 || img->height <= 0) {
+            GD_REPORT_ASSERT("bad args.");
+            return;
+        }
         if (strcmp(format, "rgb") == 0) {
             img->format = GPF_RGB;
         } else if (strcmp(format, "rgba") == 0) {
@@ -118,8 +122,13 @@ void w_ImageData_allocate()
             return;
         }
 
-        const int channels = get_format_channels(img->format);
-        const int size = img->width * img->height * channels;
+        // Bytes per pixel, not channel count: R16 is one channel but two bytes,
+        // so sizing by channels under-allocated r16f buffers by half.
+        int bpp = get_format_channels(img->format);
+        if (img->format == GPF_R16) {
+            bpp *= 2;
+        }
+        const size_t size = static_cast<size_t>(img->width) * img->height * bpp;
         img->pixels = new uint8_t[size];
         memset(img->pixels, 0, size);
     }

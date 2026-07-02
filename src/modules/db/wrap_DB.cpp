@@ -89,6 +89,9 @@ void w_RTree_load_from_file()
 {
     auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto filepath = ves_tostring(1);
+    if (!filepath) {
+        return;
+    }
 
     tt::RTreeBuilder::FromModeling(*rtree, filepath);
 }
