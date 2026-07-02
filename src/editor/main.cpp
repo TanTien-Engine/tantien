@@ -873,6 +873,9 @@ int main(int argc, char* argv[])
     ves_init_vm();
 
     tt::System::Instance()->SetWindow(window);
+    // Let script-side pollers (e.g. LoadZw converting on a worker thread)
+    // keep the render-on-demand loop pumping while they wait.
+    tt::System::Instance()->SetRedrawRequester([]() { request_redraw(); });
 
     tt_enable_dtex();
 
