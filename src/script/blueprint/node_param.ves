@@ -47,6 +47,9 @@ class NodeParam
 				return "%(name).query_param(\"%(this.name)\").value = %(this.value)\n"
 			}
 		}
+		// serialize == false: Node.to_string concatenates this return value, and
+		// `"" + nil` raises — return an empty string, not the implicit nil.
+		return ""
 	}
 
 	gui_height()

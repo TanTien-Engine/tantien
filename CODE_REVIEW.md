@@ -19,6 +19,14 @@ static-lib + `editor` targets):
 | `80957dff` | HIGH + safe MED | 15 |
 | `b41ca290` | remaining MED | 5 |
 | `7eee568e` | performance | 4 |
+| `0d603437` | round 2 (2026-07-02): script-layer bugs from a vessel-source-verified agent sweep (fetch index nil-deref, subgraph remove_node wrong-pin/overrun, render_gen nil, input/output parent_node nil, editor popup shadow+typo), O(1) save/copy lookups, per-frame Float2 alloc removal, GTxt line_x cache identity, r16f under-allocation, STATIC_MODULES table, targeted arg null-guards | 19 |
+| round 3 (2026-07-02): topo_sort no longer silently drops cycle members (savetofile data loss), Tree.build recursion-path cycle guard, Custom-node shared script_stack corruption + nil guard, misc guards (trigger_list before first draw, right_press_pos, MemFile root ud, empty shader-args, NodeParam serialize=false nil, drag-wire render_dirty), ud truthiness | 9 |
+
+**Vessel semantics (round-2 correction):** `..` is EXCLUSIVE of its end and `..=`
+is the inclusive form — opposite of Wren. `for (var i in 0..list.count)` is the
+correct full-list idiom; the real trap is `0..count-1` on an EMPTY list (`0..-1`
+iterates downward, yielding index 0). Also: 0 is truthy; a later duplicate method
+definition silently shadows the earlier one.
 
 `✅ Fixed` = landed in one of the above. `⏳ Pending` = analysed, intentionally not
 changed yet (see *Pending* at the end for why).

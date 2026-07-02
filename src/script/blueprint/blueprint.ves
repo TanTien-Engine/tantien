@@ -74,6 +74,20 @@ class Blueprint
 			}
 		}
 
+		// Nodes on a connection cycle never reach in-degree 0, so Kahn's loop
+		// silently DROPPED them — and savetofile/copy iterate this list, so a
+		// cyclic graph saved with those nodes' connections missing (data loss
+		// discovered only on reload). Append the remnants in input order: the
+		// order within a cycle is arbitrary anyway, but nothing is lost.
+		if (ret.count < nodes.count)
+		{
+			for (var i = 0; i < nodes.count; i = i + 1) {
+				if (in_deg[i] > 0) {
+					ret.add(nodes[i])
+				}
+			}
+		}
+
 		return ret
 	}
 

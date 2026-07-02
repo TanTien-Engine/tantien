@@ -16,8 +16,10 @@ class TreeNode
 
 	find_value(key)
 	{
+		// != nil, not truthiness: a stored `false` is a present value and must
+		// not fall through to an ancestor scope.
 		var v = this.ud[key]
-		if (v) {
+		if (v != nil) {
 			return v
 		}
 
@@ -28,10 +30,10 @@ class TreeNode
 		}
 	}
 
-	change_value(key, val)	
+	change_value(key, val)
 	{
 		var v = this.ud[key]
-		if (v) {
+		if (v != nil) {
 			this.ud[key] = val
 			return true
 		} else if (this.parent) {
@@ -67,6 +69,12 @@ class Tree
 	{
 		this.all_nodes = []
 
+		// Nodes on the CURRENT recursion path; a connection cycle used to
+		// recurse forever (stack overflow). Path-scoped (added on entry,
+		// removed on exit) so a diamond — the same node reached via two
+		// separate branches — still builds a subtree per path as before.
+		this.build_path = Set.new()
+
 		this.root = this.build(root, -1, nil, this)
 
 		this.ud = {}
@@ -77,6 +85,17 @@ class Tree
 	}
 
 	build(graph_node, graph_port, parent, tree)
+	{
+		// Cycle: this node is already being expanded higher up this path.
+		if (!this.build_path.add(graph_node)) {
+			return nil
+		}
+		var ret = this.build_impl(graph_node, graph_port, parent, tree)
+		this.build_path.remove(graph_node)
+		return ret
+	}
+
+	build_impl(graph_node, graph_port, parent, tree)
 	{
 		import "blueprint.nodes.input" for Input
 		import "blueprint.nodes.subgraph" for Subgraph

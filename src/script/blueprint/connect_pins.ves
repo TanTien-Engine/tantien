@@ -97,6 +97,10 @@ class ConnectPins is EditOP
 			for (var conn in this.selected_pin.conns) {
 				var f_pos = NodeLayout.calc_pin_pos(conn.from)
 				Connecting.build_curve(f_pos, p, conn.curve)
+				// The wire is drawn from its source node's render cache; without
+				// this the dragged curve doesn't follow the mouse (and a stale
+				// endpoint could linger after an aborted drag).
+				conn.from.node.render_dirty = true
 			}
 		}
 	}

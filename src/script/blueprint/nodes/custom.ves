@@ -43,10 +43,24 @@ class Custom is Node
 		}
 
 		import "editor" for _editor
-		_editor.script_stack.clear()
+
+		// Evaluate ALL inputs before touching the shared script_stack: an
+		// upstream Custom evaluated by calc_input_value clears/refills the very
+		// same stack, so interleaving eval with pushes corrupted the params of
+		// chained Custom nodes. Also guard nil (unconnected pin).
+		var inputs = []
 		for (var i in 1..this.imports.count) {
 			var v = Blueprint.calc_input_value(this, i)
-			_editor.script_stack.add(v.value)
+			if (v) {
+				inputs.add(v.value)
+			} else {
+				inputs.add(nil)
+			}
+		}
+
+		_editor.script_stack.clear()
+		for (var v in inputs) {
+			_editor.script_stack.add(v)
 		}
 		var code = "import \"editor\" for _editor\n" + this.code
 		Basic.loadstring("temp", code)

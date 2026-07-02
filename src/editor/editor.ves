@@ -261,9 +261,14 @@ class Editor
 		else if (key == "space") 
 		{
 			this.editor_mode = !this.editor_mode
-			if (this.editor_mode) 
+			if (this.editor_mode)
 			{
-				this.trigger_list.run(EVENT_ENTER_RUNTIME_MODE)
+				// trigger_list is created lazily in draw_preview — guard every
+				// use reachable before the first draw (a key event can arrive
+				// first and raised on nil).
+				if (this.trigger_list) {
+					this.trigger_list.run(EVENT_ENTER_RUNTIME_MODE)
+				}
 
 				this.editop = this.preview_op
 
@@ -272,23 +277,29 @@ class Editor
 					this.node_editor_mode = node.bind_editor()
 				}
 			} 
-			else 
+			else
 			{
-				this.trigger_list.run(EVENT_LEAVE_RUNTIME_MODE)
-			
+				if (this.trigger_list) {
+					this.trigger_list.run(EVENT_LEAVE_RUNTIME_MODE)
+				}
+
 				this.editop = this.nodes_op
 				this.node_editor_mode = false
 			}
 		}
 
-		this.trigger_list.run(EVENT_KEY_PRESSED + "_" + key)
+		if (this.trigger_list) {
+			this.trigger_list.run(EVENT_KEY_PRESSED + "_" + key)
+		}
 	}
 
 	keyreleased(key)
 	{
 		this.editop.on_key_released(key)
 
-		this.trigger_list.run(EVENT_KEY_RELEASED + "_" + key)
+		if (this.trigger_list) {
+			this.trigger_list.run(EVENT_KEY_RELEASED + "_" + key)
+		}
 	}
 
 	mousemoved(x, y, btn)
@@ -353,7 +364,9 @@ class Editor
 		GUI.mouse_input(this.gui_top, btn, MOUSE_UP, x, y, 0, 0, 1)
 		GUI.mouse_input(this.gui_nodes, btn, MOUSE_UP, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
-		if (btn == MOUSE_RIGHT and this.right_press_pos.x == x and this.right_press_pos.y == y) {
+		// right_press_pos can be nil on a release with no matching press in this
+		// window (press landed elsewhere / event loss) — guard before deref.
+		if (btn == MOUSE_RIGHT and this.right_press_pos and this.right_press_pos.x == x and this.right_press_pos.y == y) {
 			this.right_press_pos = nil
 			if (!this.editor_mode) {
 				this.popup_pos = Vector2(x, y)			
@@ -1007,7 +1020,12 @@ import \"editor\" for _editor
 		// header
 		if (file is MemFile) {
 			var scene = this.scene_stack.top()
-			file.write(scene.ud.import_files_header())
+			// scene.ud is only set for subgraph scenes (enter_subgraph); at the
+			// root scene a failed IO.open used to raise on nil here instead of
+			// degrading to a headerless in-memory save.
+			if (scene.ud) {
+				file.write(scene.ud.import_files_header())
+			}
 		} else {
 			//file.write(this.load_file_imports())
 		}
