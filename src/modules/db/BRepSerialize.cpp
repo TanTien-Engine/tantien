@@ -25,6 +25,20 @@ void BrepSerialize::BRepToByteArray(const pm3::Polytope& brep, uint8_t** data, u
 	BRepToByteArray(points, faces, data, length);
 }
 
+namespace
+{
+
+// B-rep byte-stream header. Legacy blobs (everything written before the header
+// existed, including records already inside on-disk RTree files) start directly
+// with the point count, so the reader accepts both: MAGIC present -> versioned
+// parse, absent -> legacy parse. MAGIC as a point count would mean ~1.4e9
+// points (needs a ~17 GB buffer), which the bounds check rejects anyway, so a
+// legacy blob can't be misread as versioned in practice.
+const uint32_t BREP_MAGIC   = 0x54544252; // "RBTT" little-endian
+const uint32_t BREP_VERSION = 1;
+
+}
+
 pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data, size_t size)
 {
 	if (!data || size < sizeof(uint32_t)) {
@@ -33,6 +47,23 @@ pm3::PolytopePtr BrepSerialize::BRepFromByteArray(const uint8_t* data, size_t si
 
 	auto ptr = data;
 	const uint8_t* const end = data + size;
+
+	// Header (see BREP_MAGIC above): consume it if present; reject unknown
+	// future versions instead of misparsing them.
+	uint32_t head;
+	memcpy(&head, ptr, sizeof(uint32_t));
+	if (head == BREP_MAGIC)
+	{
+		if (size < 2 * sizeof(uint32_t)) {
+			return nullptr;
+		}
+		uint32_t version;
+		memcpy(&version, ptr + sizeof(uint32_t), sizeof(uint32_t));
+		if (version != BREP_VERSION) {
+			return nullptr;
+		}
+		ptr += 2 * sizeof(uint32_t);
+	}
 
 	// True only if `n` more bytes can be read without running past `end`. Counts
 	// in size_t so a hostile 32-bit count can't wrap the comparison.
@@ -107,6 +138,7 @@ void BrepSerialize::BRepToByteArray(const std::vector<sm::vec3>& points,
 	                                uint8_t** data, uint32_t& length)
 {
 	size_t sz = 0;
+	sz += 2 * sizeof(uint32_t); // header: magic + version
 	sz += sizeof(uint32_t);
 	sz += points.size() * 3 * sizeof(float);
 	sz += sizeof(uint32_t) + sizeof(uint32_t) * faces.size();
@@ -126,6 +158,11 @@ void BrepSerialize::BRepToByteArray(const std::vector<sm::vec3>& points,
 	*data = new uint8_t[length];
 	uint8_t* ptr = *data;
 
+	memcpy(ptr, &BREP_MAGIC, sizeof(uint32_t));
+	ptr += sizeof(uint32_t);
+	memcpy(ptr, &BREP_VERSION, sizeof(uint32_t));
+	ptr += sizeof(uint32_t);
+
 	const uint32_t p_num = static_cast<uint32_t>(points.size());
 	memcpy(ptr, &p_num, sizeof(uint32_t));
 	ptr += sizeof(uint32_t);
@@ -134,7 +171,7 @@ void BrepSerialize::BRepToByteArray(const std::vector<sm::vec3>& points,
 		for (int i = 0; i < 3; ++i)
 		{
 			const float coords = p.xyz[i];
-			memcpy(ptr, &coords, sizeof(uint32_t));
+			memcpy(ptr, &coords, sizeof(float));
 			ptr += sizeof(float);
 		}
 	}

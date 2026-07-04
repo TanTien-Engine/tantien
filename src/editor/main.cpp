@@ -124,27 +124,61 @@ const char* file_search(const char* module, const char* dir)
     return ret;
 }
 
-// Module sources served statically by read_module below — those must never be
-// freed (they're static arrays). Anything else was strdup'd by file_search and
-// must be freed here. Keep this list in sync with read_module's static branches;
-// the old inline condition had drifted to include 8 modules read_module does NOT
-// serve statically (archgen/citygen/globegen/pathtracer/nurbslib/brepir/
-// loggraph/codegraph), leaking their file-loaded sources.
-const char* const STATIC_MODULES[] = {
-    "render", "graphics", "maths", "geometry", "gui", "image", "filesystem",
-    "model", "system", "shader", /*"physics",*/ "keyboard", "scene", "vm",
-    "db", "om", "regen", "graph", "brepkit", "brepgraph", "brepdb",
-    "deepbrep", "cadcvt", "sketchlib",
+// ---- module registry --------------------------------------------------------
+// Single source of truth for every statically linked script module: its
+// compiled-in .ves source and its foreign class/method binders. read_module,
+// read_module_complete, bind_foreign_class and bind_foreign_method used to keep
+// four hand-written copies of this list, and they drifted (stale entries in the
+// don't-free list leaked every file-loaded source). Register new modules HERE
+// and nowhere else. Entry order = the old binder chain order: bind_foreign_class
+// takes the FIRST binder that claims a class name, so order is load-bearing if
+// two modules ever expose the same class name.
+typedef void (*BindClassFn)(const char*, VesselForeignClassMethods*);
+typedef VesselForeignMethodFn (*BindMethodFn)(const char*);
+
+struct ModuleEntry
+{
+    const char*  name;
+    const char*  source;      // compiled-in module source; never freed
+    BindClassFn  bind_class;
+    BindMethodFn bind_method;
 };
 
-bool is_static_module(const char* module)
+const ModuleEntry MODULE_REGISTRY[] = {
+    { "render",     renderModuleSource,     tt::RenderBindClass,           tt::RenderBindMethod },
+    { "graphics",   graphicsModuleSource,   tt::GraphicsBindClass,         tt::GraphicsBindMethod },
+    { "maths",      mathsModuleSource,      tt::MathsBindClass,            tt::MathsBindMethod },
+    { "geometry",   geometryModuleSource,   tt::GeometryBindClass,         tt::GeometryBindMethod },
+    { "gui",        guiModuleSource,        tt::GUIBindClass,              tt::GUIBindMethod },
+    { "image",      imageModuleSource,      tt::ImageBindClass,            tt::ImageBindMethod },
+    { "filesystem", filesystemModuleSource, tt::FilesystemBindClass,       tt::FilesystemBindMethod },
+    { "model",      modelModuleSource,      tt::ModelBindClass,            tt::ModelBindMethod },
+    { "system",     systemModuleSource,     tt::SystemBindClass,           tt::SystemBindMethod },
+    { "shader",     shaderModuleSource,     tt::ShaderBindClass,           tt::ShaderBindMethod },
+    //{ "physics",  physicsModuleSource,    tt::PhysicsBindClass,          tt::PhysicsBindMethod },
+    { "keyboard",   keyboardModuleSource,   tt::KeyboardBindClass,         tt::KeyboardBindMethod },
+    { "scene",      sceneModuleSource,      tt::SceneBindClass,            tt::SceneBindMethod },
+    { "vm",         vmModuleSource,         tt::VmBindClass,               tt::VmBindMethod },
+    { "db",         dbModuleSource,         tt::DbBindClass,               tt::DbBindMethod },
+    { "om",         omModuleSource,         tt::OmBindClass,               tt::OmBindMethod },
+    { "regen",      regenModuleSource,      tt::RegenBindClass,            tt::RegenBindMethod },
+    { "graph",      graphModuleSource,      tt::GraphBindClass,            tt::GraphBindMethod },
+    { "brepkit",    brepkitModuleSource,    brepkit::BrepKitBindClass,     brepkit::BrepKitBindMethod },
+    { "brepgraph",  brepgraphModuleSource,  brepgraph::BrepGraphBindClass, brepgraph::BrepGraphBindMethod },
+    { "brepdb",     brepdbModuleSource,     brepdb::BrepDBBindClass,       brepdb::BrepDBBindMethod },
+    { "deepbrep",   deepbrepModuleSource,   deepbrep::DeepBrepBindClass,   deepbrep::DeepBrepBindMethod },
+    { "cadcvt",     cadcvtModuleSource,     cadcvt::CadCvtBindClass,       cadcvt::CadCvtBindMethod },
+    { "sketchlib",  sketchlibModuleSource,  sketchlib::SketchLibBindClass, sketchlib::SketchLibBindMethod },
+};
+
+const ModuleEntry* find_module(const char* module)
 {
-    for (auto name : STATIC_MODULES) {
-        if (strcmp(module, name) == 0) {
-            return true;
+    for (auto& m : MODULE_REGISTRY) {
+        if (strcmp(module, m.name) == 0) {
+            return &m;
         }
     }
-    return false;
+    return nullptr;
 }
 
 void read_module_complete(const char* module, VesselLoadModuleResult result)
@@ -153,7 +187,9 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
         return;
     }
 
-    if (!is_static_module(module)) {
+    // Registry sources are compiled-in arrays; everything else came from
+    // file_search's strdup and must be freed.
+    if (!find_module(module)) {
         free((void*)result.source);
         result.source = NULL;
     }
@@ -162,56 +198,9 @@ void read_module_complete(const char* module, VesselLoadModuleResult result)
 VesselLoadModuleResult read_module(const char* module)
 {
     const char* source = nullptr;
-    if (strcmp(module, "render") == 0) {
-        source = renderModuleSource;
-    } else if (strcmp(module, "graphics") == 0) {
-        source = graphicsModuleSource;
-    } else if (strcmp(module, "maths") == 0) {
-        source = mathsModuleSource;
-    } else if (strcmp(module, "geometry") == 0) {
-        source = geometryModuleSource;
-    } else if (strcmp(module, "gui") == 0) {
-        source = guiModuleSource;
-    } else if (strcmp(module, "image") == 0) {
-        source = imageModuleSource;
-    } else if (strcmp(module, "filesystem") == 0) {
-        source = filesystemModuleSource;
-    } else if (strcmp(module, "model") == 0) {
-        source = modelModuleSource;
-    } else if (strcmp(module, "system") == 0) {
-        source = systemModuleSource;
-    } else if (strcmp(module, "shader") == 0) {
-        source = shaderModuleSource;
-    //} else if (strcmp(module, "physics") == 0) {
-    //    source = physicsModuleSource;
-    } else if (strcmp(module, "keyboard") == 0) {
-        source = keyboardModuleSource;
-    } else if (strcmp(module, "scene") == 0) {
-        source = sceneModuleSource;
-    } else if (strcmp(module, "vm") == 0) {
-        source = vmModuleSource;
-    } else if (strcmp(module, "db") == 0) {
-        source = dbModuleSource;
-    } else if (strcmp(module, "om") == 0) {
-        source = omModuleSource;
-    } else if (strcmp(module, "regen") == 0) {
-        source = regenModuleSource;
-    } else if (strcmp(module, "graph") == 0) {
-        source = graphModuleSource;
-    } else if (strcmp(module, "brepkit") == 0) {
-        source = brepkitModuleSource;
-    } else if (strcmp(module, "brepgraph") == 0) {
-        source = brepgraphModuleSource;
-    } else if (strcmp(module, "brepdb") == 0) {
-        source = brepdbModuleSource;
-    } else if (strcmp(module, "deepbrep") == 0) {
-        source = deepbrepModuleSource;
-    }  else if (strcmp(module, "cadcvt") == 0) {
-        source = cadcvtModuleSource;
-    } else if (strcmp(module, "sketchlib") == 0) {
-        source = sketchlibModuleSource;
+    if (auto m = find_module(module)) {
+        source = m->source;
     }
-
     else {
         source = file_search(module, "src/script/");
         if (!source) {
@@ -303,77 +292,16 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
 {
     VesselForeignClassMethods methods = { NULL, NULL };
 
-    tt::RenderBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GraphicsBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::MathsBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GeometryBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GUIBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ImageBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::FilesystemBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ModelBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::SystemBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ShaderBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    //tt::PhysicsBindClass(className, &methods);
-    //if (methods.allocate != NULL) return methods;
-
-    tt::KeyboardBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::SceneBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::VmBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::DbBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::OmBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::RegenBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepkit::BrepKitBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepgraph::BrepGraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepdb::BrepDBBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    deepbrep::DeepBrepBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    cadcvt::CadCvtBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    sketchlib::SketchLibBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
+    for (auto& m : MODULE_REGISTRY)
+    {
+        if (!m.bind_class) {
+            continue;
+        }
+        m.bind_class(className, &methods);
+        if (methods.allocate != NULL) {
+            return methods;
+        }
+    }
 
     return methods;
 }
@@ -385,79 +313,16 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     char fullName[256];
     snprintf(fullName, sizeof(fullName), "%s%s.%s", isStatic ? "static " : "", className, signature);
 
-    VesselForeignMethodFn method = NULL;
-
-    method = tt::RenderBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GraphicsBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::MathsBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GeometryBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GUIBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ImageBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::FilesystemBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ModelBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::SystemBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ShaderBindMethod(fullName);
-    if (method != NULL) return method;
-
-    //method = tt::PhysicsBindMethod(fullName);
-    //if (method != NULL) return method;
-
-    method = tt::KeyboardBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::SceneBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::VmBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::DbBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::OmBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::RegenBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GraphBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepkit::BrepKitBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepgraph::BrepGraphBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepdb::BrepDBBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = deepbrep::DeepBrepBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = cadcvt::CadCvtBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = sketchlib::SketchLibBindMethod(fullName);
-    if (method != NULL) return method;
+    for (auto& m : MODULE_REGISTRY)
+    {
+        if (!m.bind_method) {
+            continue;
+        }
+        VesselForeignMethodFn method = m.bind_method(fullName);
+        if (method != NULL) {
+            return method;
+        }
+    }
 
     return NULL;
 }
