@@ -426,35 +426,46 @@ if(APPLE)
     tt_prefetch("https://registry.khronos.org/OpenGL/api/GL/glcorearb.h"  "${_gl3w_inc}/GL/glcorearb.h")
     tt_prefetch("https://registry.khronos.org/EGL/api/KHR/khrplatform.h" "${_gl3w_inc}/KHR/khrplatform.h")
 endif()
+# Topologically ordered: each lib's in-tree dependencies are add_subdirectory'd
+# BEFORE it, so its `if(TARGET dep)` checks succeed and it links the in-tree
+# target (picking up that target's PUBLIC include dirs) instead of falling back
+# to an uninitialized nested external/<dep> submodule. Edited so the tree builds
+# without a full `--recursive` submodule checkout. A few libs still hardcode
+# nested externals unconditionally (unirender→external/Vulkan-Headers,
+# model→external/tinygltf, cax→thirdparty/{eigen,nurbs,...}); those submodules
+# are initialized separately.
+# Leaf libs (no in-tree deps) first.
 add_subdirectory(thirdparty/gl3w)
 add_subdirectory(thirdparty/sm)
-add_subdirectory(thirdparty/unirender)
 add_subdirectory(thirdparty/vessel)
 add_subdirectory(thirdparty/shadertrans)
-add_subdirectory(thirdparty/guard)
-add_subdirectory(thirdparty/tessellation)
-add_subdirectory(thirdparty/polymesh3)
-add_subdirectory(thirdparty/geoshape)
-add_subdirectory(thirdparty/halfedge)
-add_subdirectory(thirdparty/dtex)
-add_subdirectory(thirdparty/model)
-add_subdirectory(thirdparty/easygui)
-add_subdirectory(thirdparty/gtxt)
-add_subdirectory(thirdparty/gimg)
-add_subdirectory(thirdparty/primitive)
 add_subdirectory(thirdparty/texpack)
 add_subdirectory(thirdparty/ds)
 add_subdirectory(thirdparty/fs)
 add_subdirectory(thirdparty/logger)
-add_subdirectory(thirdparty/freetype)
-#add_subdirectory(thirdparty/uniphysics)
 add_subdirectory(thirdparty/easyvm)
-add_subdirectory(thirdparty/brepvm)
 add_subdirectory(thirdparty/spatialdb)
+add_subdirectory(thirdparty/freetype)
+# Depend only on the leaves above.
+add_subdirectory(thirdparty/primitive)
+add_subdirectory(thirdparty/halfedge)
+add_subdirectory(thirdparty/guard)
+add_subdirectory(thirdparty/unirender)
+add_subdirectory(thirdparty/gimg)
+add_subdirectory(thirdparty/gtxt)
 add_subdirectory(thirdparty/objcomp)
-add_subdirectory(thirdparty/brepom)
-add_subdirectory(thirdparty/graph)
+# Higher-level consumers.
+add_subdirectory(thirdparty/geoshape)
+add_subdirectory(thirdparty/polymesh3)
+add_subdirectory(thirdparty/tessellation)
+add_subdirectory(thirdparty/dtex)
 add_subdirectory(thirdparty/wrapper)
+add_subdirectory(thirdparty/easygui)
+add_subdirectory(thirdparty/graph)
+add_subdirectory(thirdparty/brepvm)
+add_subdirectory(thirdparty/brepom)
+add_subdirectory(thirdparty/model)
+#add_subdirectory(thirdparty/uniphysics)
 add_subdirectory(thirdparty/cax)
 
 # Both render backends include SPIRV-Cross headers directly: the Vulkan backend for
@@ -477,10 +488,14 @@ add_executable(editor ${EDITOR_FILES})
 # Required variables (see CMakeLocal.cmake.example for the full list):
 #   FBX_SDK_DIR, FBX_LIB_DIR, OCCT_DIR, OCCT_LIB_DIR,
 #   VULKAN_LIBRARY, DXC_LIBRARY
-# FBX is Windows-only (stubbed on macOS — no SDK there).
-if(WIN32)
+# FBX is optional: USE_FBX_SDK (defined by thirdparty/model, default ON on
+# Windows / OFF on macOS) gates it. Set USE_FBX_SDK=OFF — e.g. in
+# CMakeLocal.cmake — to build without the Autodesk FBX SDK: the FBX loader is
+# compiled out (-DNO_FBX) and assimp still handles .fbx meshes (only FBX
+# blendshape import is unavailable). FBX_SDK_DIR is only required when enabled.
+if(WIN32 AND USE_FBX_SDK)
     if(NOT DEFINED FBX_SDK_DIR)
-        message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
+        message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example. Or set USE_FBX_SDK=OFF to build without FBX.")
     endif()
     if(NOT DEFINED FBX_LIB_DIR)
         set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64/debug")
@@ -540,11 +555,13 @@ if(WIN32)
     # Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
     # /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
     # externals still surface at runtime if the corresponding feature is used.
-    foreach(_opt_lib IN ITEMS
-        "${DXC_LIBRARY}"
-        "${FBX_LIB_DIR}/libfbxsdk-md.lib"
-        "${FBX_LIB_DIR}/libxml2-md.lib"
-    )
+    set(_opt_libs "${DXC_LIBRARY}")
+    if(USE_FBX_SDK)
+        list(APPEND _opt_libs
+            "${FBX_LIB_DIR}/libfbxsdk-md.lib"
+            "${FBX_LIB_DIR}/libxml2-md.lib")
+    endif()
+    foreach(_opt_lib IN LISTS _opt_libs)
         if(_opt_lib AND EXISTS "${_opt_lib}")
             target_link_libraries(editor "${_opt_lib}")
         elseif(_opt_lib)
