@@ -259,7 +259,9 @@ SpriteRenderer::SpriteRenderer()
 	InitShader(*dev);
 	InitRenderer(*dev, *ctx);
 
-	OnCameraUpdate(sm::vec2(0, 0), 1.0f);
+	if (m_shader) {
+		OnCameraUpdate(sm::vec2(0, 0), 1.0f);
+	}
 }
 
 SpriteRenderer::~SpriteRenderer()
@@ -268,6 +270,9 @@ SpriteRenderer::~SpriteRenderer()
 
 void SpriteRenderer::OnSize(float width, float height)
 {
+	if (!m_shader) {
+		return;
+	}
 	auto proj_updater = m_shader->QueryUniformUpdater(ur::GetUpdaterTypeID<ProjectMatUpdater>());
 	if (proj_updater) {
 		std::static_pointer_cast<ProjectMatUpdater>(proj_updater)->Update(width, height);
@@ -276,6 +281,9 @@ void SpriteRenderer::OnSize(float width, float height)
 
 void SpriteRenderer::OnCameraUpdate(const sm::vec2& offset, float scale)
 {
+	if (!m_shader) {
+		return;
+	}
 	auto view_updater = m_shader->QueryUniformUpdater(ur::GetUpdaterTypeID<ViewMatUpdater>());
 	if (view_updater) {
 		std::static_pointer_cast<ViewMatUpdater>(view_updater)->Update(offset, scale);
@@ -404,6 +412,13 @@ void SpriteRenderer::Flush(ur::Context& ctx)
 		return;
 	}
 
+	// Shader (and thus m_pipeline) failed to initialize, e.g. dxcompiler.dll
+	// missing at startup -> drop the batch instead of dereferencing a null shader.
+	if (!m_shader) {
+		m_buf.Clear();
+		return;
+	}
+
 	// ubo
 	if (m_uniform_buf) {
 		m_uniform_buf->Update(&ubo_vs, sizeof(ubo_vs));
@@ -449,6 +464,9 @@ void SpriteRenderer::Flush(ur::Context& ctx)
 
 void SpriteRenderer::SetIntense(float intense)
 {
+	if (!m_shader) {
+		return;
+	}
 	auto u_intense = m_shader->QueryUniform("u_fs.intense");
 	assert(u_intense);
 	u_intense->SetValue(&intense, 1);
@@ -473,6 +491,8 @@ void SpriteRenderer::InitShader(const ur::Device& dev)
 
 	if (_vs.empty() || _fs.empty())
 	{
+		std::cerr << "SpriteRenderer::InitShader: HLSL->SPIR-V compilation produced no bytecode; "
+		             "sprite rendering will be disabled." << std::endl;
 		m_shader = nullptr;
 		return;
 	}
@@ -511,8 +531,10 @@ void SpriteRenderer::InitRenderer(const ur::Device& dev, const ur::Context& ctx)
 		std::make_shared<ur::VertexInputAttribute>(2, ur::ComponentDataType::UnsignedByte, 4, 16, 20)		// color
     });
 
-	m_pipeline_layout = dev.GetPipelineLayout("single_ubo_single_img");
-	m_pipeline = ctx.CreatePipeline(false, true, *m_pipeline_layout, *vert_buf, *m_shader);
+	if (m_shader) {
+		m_pipeline_layout = dev.GetPipelineLayout("single_ubo_single_img");
+		m_pipeline = ctx.CreatePipeline(false, true, *m_pipeline_layout, *vert_buf, *m_shader);
+	}
 }
 
 void SpriteRenderer::CopyVertexBuffer(const sm::mat4& mat, const tess::Painter::Buffer& src)
