@@ -100,10 +100,15 @@ foreign class Ellipse is Shape2D
 {
 	init() {}
 	init(x, y, rx, ry) { this.set(x, y, rx, ry) }
+	// rot: CCW angle (radians) of the rx axis from sketch X. 0 = axis-aligned.
+	init(x, y, rx, ry, rot) {
+		this.set(x, y, rx, ry)
+		this.set_rotation(rot)
+	}
 
 	toString() {
 		var params = this.get()
-		return "::geometry::Ellipse.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]))"
+		return "::geometry::Ellipse.init(%(params[0]), %(params[1]), %(params[2]), %(params[3]), %(this.get_rotation()))"
 	}
 
 	foreign clone()
@@ -111,6 +116,9 @@ foreign class Ellipse is Shape2D
 	// [x, y, rx, ry]
 	foreign get()
 	foreign set(x, y, rx, ry)
+
+	foreign set_rotation(rot)
+	foreign get_rotation()
 
 	foreign get_vertices()
 }

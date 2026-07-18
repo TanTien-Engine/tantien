@@ -331,7 +331,7 @@ void w_Ellipse_clone()
     auto src = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
     float rx, ry;
     src->GetRadius(rx, ry);
-    auto dst = std::make_shared<gs::Ellipse>(src->GetCenter(), rx, ry);
+    auto dst = std::make_shared<gs::Ellipse>(src->GetCenter(), rx, ry, src->GetRotation());
 
     ves_pop(ves_argnum());
     auto proxy = (wrapper::Proxy<gs::Ellipse>*)ves_set_newforeign(0, 0, sizeof(wrapper::Proxy<gs::Ellipse>));
@@ -371,6 +371,18 @@ void w_Ellipse_get_vertices()
     auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
     auto& vertices = e->GetVertices();
     wrapper::return_list(vertices);
+}
+
+void w_Ellipse_set_rotation()
+{
+    auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    e->SetRotation((float)ves_tonumber(1));
+}
+
+void w_Ellipse_get_rotation()
+{
+    auto e = ((wrapper::Proxy<gs::Ellipse>*)ves_toforeign(0))->obj;
+    ves_set_number(0, e->GetRotation());
 }
 
 void w_Polyline_allocate()
@@ -1548,6 +1560,8 @@ VesselForeignMethodFn GeometryBindMethod(const char* signature)
     if (strcmp(signature, "Ellipse.clone()") == 0) return w_Ellipse_clone;
     if (strcmp(signature, "Ellipse.get()") == 0) return w_Ellipse_get;
     if (strcmp(signature, "Ellipse.set(_,_,_,_)") == 0) return w_Ellipse_set;
+    if (strcmp(signature, "Ellipse.set_rotation(_)") == 0) return w_Ellipse_set_rotation;
+    if (strcmp(signature, "Ellipse.get_rotation()") == 0) return w_Ellipse_get_rotation;
     if (strcmp(signature, "Ellipse.get_vertices()") == 0) return w_Ellipse_get_vertices;
 
     if (strcmp(signature, "Polyline.clone()") == 0) return w_Polyline_clone;
