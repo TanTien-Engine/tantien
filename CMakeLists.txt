@@ -304,6 +304,7 @@ thirdparty/wrapper/include
 
 set(EDITOR_FILES
     "src/editor/main.cpp"
+    "src/editor/ves_host.cpp"   # module registry + loader, shared with ves_test
 )
 if(APPLE)
     # Obj-C++ helper to bridge the GLFW window to an NSView for the Metal surface.
@@ -657,4 +658,77 @@ if(WIN32)
             "Otherwise the editor will fail at runtime with "
             "\"SPIR-V CodeGen not available\" when HLSL→SPIR-V is exercised.")
     endif()
+endif()
+
+# ----------------------------------------------------------------------------
+# ves_test: headless .ves test harness
+#
+# Same first-party + foundation + OCCT/SPIRV link set as `editor` (it links
+# tantien/cax, which reference those symbols), but with no GLFW window / GL
+# context: it just runs a .ves driver and returns a pass/fail exit code. Shares
+# src/editor/ves_host.cpp with the editor for the module registry + loader.
+# The link set is mirrored from the editor target above; the vars it reuses
+# (OpenCASCADE_LIBRARIES, _opt_libs, VULKAN_LOADER_LIB) are already computed.
+# ----------------------------------------------------------------------------
+option(TT_BUILD_VES_TEST "Build the headless .ves test harness (ves_test)" ON)
+if(TT_BUILD_VES_TEST)
+    add_executable(ves_test
+        "src/editor/ves_test_main.cpp"
+        "src/editor/ves_host.cpp")
+
+    target_include_directories(ves_test PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
+
+    if(WIN32)
+        if(DEFINED OCCT_LIB_DIR)
+            target_link_directories(ves_test PRIVATE "${OCCT_LIB_DIR}")
+        endif()
+    else()
+        target_link_directories(ves_test PRIVATE ${OpenCASCADE_LIBRARY_DIR})
+        target_include_directories(ves_test PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+    endif()
+
+    target_link_libraries(ves_test
+        tantien cax
+        glfw gl3w sm vessel unirender guard tessellation polymesh3 geoshape halfedge
+        dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm
+        spatialdb objcomp brepom graph wrapper freetype
+        shadertrans
+        spirv-cross-core spirv-cross-glsl spirv-cross-util
+        glslang SPIRV
+        SpvGenTwoCommon SpvGenTwoLib
+        tinyobjloader assimp OGDF
+        ${OpenCASCADE_LIBRARIES}
+    )
+
+    if(WIN32)
+        target_link_libraries(ves_test
+            SPIRV-Tools SPIRV-Tools-link SPIRV-Tools-opt
+            ZLIB::ZLIB PNG::PNG JPEG::JPEG TIFF::TIFF
+            Vulkan::Vulkan)
+        # Reuse the optional FBX/DXC libs computed for the editor target above.
+        foreach(_opt_lib IN LISTS _opt_libs)
+            if(_opt_lib AND EXISTS "${_opt_lib}")
+                target_link_libraries(ves_test "${_opt_lib}")
+            endif()
+        endforeach()
+        target_link_options(ves_test PRIVATE "/FORCE:MULTIPLE")
+    elseif(APPLE)
+        target_link_libraries(ves_test SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
+        target_link_libraries(ves_test spirv-cross-msl)
+        target_link_directories(ves_test PRIVATE /opt/homebrew/lib)
+        target_link_libraries(ves_test png turbojpeg tiff z)
+        target_link_libraries(ves_test
+            "-framework Metal" "-framework Foundation" "-framework QuartzCore"
+            "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework CoreFoundation")
+        if(VULKAN_LOADER_LIB)
+            target_link_libraries(ves_test ${VULKAN_LOADER_LIB})
+        endif()
+    endif()
+
+    # The loader resolves .ves imports via paths relative to CWD (src/script/,
+    # test/ves/, ...), so run from the repo root. Pin the VS debug CWD + a
+    # default driver so F5 works.
+    set_target_properties(ves_test PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        VS_DEBUGGER_COMMAND_ARGUMENTS "test_topo_sort test_reachability test_tree_build")
 endif()

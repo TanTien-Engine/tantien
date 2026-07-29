@@ -1,0 +1,56 @@
+// Runtime-verify Tree.build recursion-path cycle guard (blueprint/tree.ves).
+//
+// The code-review fix: Tree.build tracks the nodes on the CURRENT recursion path
+// in a Set (build_path); a connection cycle used to recurse forever (stack
+// overflow). The guard is path-scoped (added on entry, removed on exit) so a
+// diamond still builds a subtree per path. test_cycle_terminates proves the
+// guard: reaching the assertion at all means no infinite recursion.
+
+import "harness" for Test
+import "mock_graph" for Graph
+import "blueprint.tree" for Tree
+
+class Main
+{
+	static run()
+	{
+		var t = Test()
+		Main.test_linear(t)
+		Main.test_cycle_terminates(t)
+		return t.report("tree_build")
+	}
+
+	static test_linear(t)
+	{
+		// C consumes B consumes A. Root = C; Tree walks imports upstream:
+		// C -> B -> A.
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+
+		var tree = Tree(c)
+		t.truthy(tree.root != nil, "linear: tree built")
+		t.eq(tree.root.graph_node, c, "linear: root is C")
+		t.eq(tree.root.children.count, 1, "linear: C has one child")
+		t.truthy(tree.root.children[0] != nil, "linear: child present")
+		t.eq(tree.root.children[0].graph_node, b, "linear: child is B")
+	}
+
+	static test_cycle_terminates(t)
+	{
+		// A -> B -> C -> A. Root = A. Without the guard this recurses forever.
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+		g.connect(c, a)
+
+		var tree = Tree(a)
+		t.truthy(tree.root != nil, "cycle: tree built without hanging")
+	}
+}

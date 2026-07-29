@@ -1,0 +1,102 @@
+// Runtime-verify Blueprint.get_precursor_nodes / get_successor_nodes
+// (blueprint/blueprint.ves).
+//
+// The code-review fix: both BFS walks now guard with a visited Set (Set.add
+// returns false when already present). Without it, a node reachable by many
+// paths is re-expanded once PER PATH — exponential blow-up that hangs the editor
+// on large graphs, and an outright infinite loop on a connection cycle. The
+// cycle cases below terminate ONLY because the guard is present.
+
+import "harness" for Test
+import "mock_graph" for Graph
+import "blueprint.blueprint" for Blueprint
+
+class Main
+{
+	static run()
+	{
+		var t = Test()
+		Main.test_precursor_diamond(t)
+		Main.test_successor_diamond(t)
+		Main.test_precursor_cycle_terminates(t)
+		Main.test_successor_cycle_terminates(t)
+		return t.report("reachability")
+	}
+
+	// {names present in a node Set}, via iteration (Set is iterable).
+	static has(set, node)
+	{
+		for (var n in set) {
+			if (n == node) {
+				return true
+			}
+		}
+		return false
+	}
+
+	static test_precursor_diamond(t)
+	{
+		// A -> B, A -> C, B -> D, C -> D. precursor(D) = {D, B, C, A}.
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		var d = g.node("D")
+		g.connect(a, b)
+		g.connect(a, c)
+		g.connect(b, d)
+		g.connect(c, d)
+
+		var set = Blueprint.get_precursor_nodes(d)
+		t.eq(set.count, 4, "precursor(D): 4 nodes (A reached once, not twice)")
+		t.truthy(Main.has(set, a), "precursor(D): contains A")
+		t.truthy(Main.has(set, d), "precursor(D): contains D (root)")
+	}
+
+	static test_successor_diamond(t)
+	{
+		// successor(A) = {A, B, C, D}.
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		var d = g.node("D")
+		g.connect(a, b)
+		g.connect(a, c)
+		g.connect(b, d)
+		g.connect(c, d)
+
+		var set = Blueprint.get_successor_nodes(a)
+		t.eq(set.count, 4, "successor(A): 4 nodes (D reached once, not twice)")
+		t.truthy(Main.has(set, d), "successor(A): contains D")
+	}
+
+	static test_precursor_cycle_terminates(t)
+	{
+		// A -> B -> C -> A. precursor(A) = {A, C, B}. Terminates only via guard.
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+		g.connect(c, a)
+
+		var set = Blueprint.get_precursor_nodes(a)
+		t.eq(set.count, 3, "precursor cycle: 3 nodes, no infinite loop")
+	}
+
+	static test_successor_cycle_terminates(t)
+	{
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+		g.connect(c, a)
+
+		var set = Blueprint.get_successor_nodes(a)
+		t.eq(set.count, 3, "successor cycle: 3 nodes, no infinite loop")
+	}
+}
