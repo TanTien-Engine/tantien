@@ -1,4 +1,5 @@
 #include "modules/shader/wrap_Shader.h"
+#include "modules/vm/ves_guard.h"
 
 #include <shadertrans/ShaderStage.h>
 #include <shadertrans/ShaderTrans.h>
@@ -285,7 +286,7 @@ void w_ShaderModule_query_func()
 void w_ShaderModule_create_decl_func()
 {
     spvgentwo::Module* module = *(spvgentwo::Module**)ves_toforeign(0);
-    spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(1);
+    TT_ARG_PP(spvgentwo::Function, func, 1);
 
     spvgentwo::Function* decl_func = shadertrans::SpirvGenTwo::CreateDeclFunc(module, func);
     return_func(decl_func);
@@ -395,7 +396,7 @@ void w_ShaderFunc_get_args()
 void w_ShaderFunc_call()
 {
     spvgentwo::Function* caller = *(spvgentwo::Function**)ves_toforeign(0);
-    spvgentwo::Function* callee = *(spvgentwo::Function**)ves_toforeign(1);
+    TT_ARG_PP(spvgentwo::Function, callee, 1);
 
     const int len = ves_len(2);
     std::vector<spvgentwo::Instruction*> args(len);
@@ -749,9 +750,9 @@ void w_ShaderBlock_branch_if()
 {
     spvgentwo::BasicBlock* bb = *(spvgentwo::BasicBlock**)ves_toforeign(0);
     spvgentwo::Instruction* cond = to_inst(1);
-    spvgentwo::BasicBlock* true_bb  = *(spvgentwo::BasicBlock**)ves_toforeign(2);
-    spvgentwo::BasicBlock* false_bb = *(spvgentwo::BasicBlock**)ves_toforeign(3);
-    spvgentwo::BasicBlock* merge_bb = *(spvgentwo::BasicBlock**)ves_toforeign(4);
+    TT_ARG_PP(spvgentwo::BasicBlock, true_bb, 2);
+    TT_ARG_PP(spvgentwo::BasicBlock, false_bb, 3);
+    TT_ARG_PP(spvgentwo::BasicBlock, merge_bb, 4);
 
     merge_bb = shadertrans::SpirvGenTwo::If(bb, cond, true_bb, false_bb, merge_bb);
     return_block(merge_bb);
@@ -828,7 +829,7 @@ void w_ShaderGen_add_output()
 
 void w_ShaderGen_add_uniform()
 {
-    spvgentwo::Module* module = *(spvgentwo::Module**)ves_toforeign(1);
+    TT_ARG_PP(spvgentwo::Module, module, 1);
     const char* name = ves_tostring(2);
     const char* type = ves_tostring(3);
 
@@ -864,8 +865,8 @@ void w_ShaderGen_add_module()
 void w_ShaderGen_func_replace()
 {
     auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    spvgentwo::Function* from = *(spvgentwo::Function**)ves_toforeign(1);
-    spvgentwo::Function* to = *(spvgentwo::Function**)ves_toforeign(2);
+    TT_ARG_PP(spvgentwo::Function, from, 1);
+    TT_ARG_PP(spvgentwo::Function, to, 2);
 
     builder->ReplaceFunc(from, to);
 }
@@ -887,7 +888,7 @@ void w_ShaderGen_get_main_func()
 void w_ShaderGen_add_link_decl()
 {
     auto builder = ((wrapper::Proxy<shadertrans::ShaderBuilder>*)ves_toforeign(0))->obj;
-    spvgentwo::Function* func = *(spvgentwo::Function**)ves_toforeign(1);
+    TT_ARG_PP(spvgentwo::Function, func, 1);
     const char* name = ves_tostring(2);
     bool is_export = ves_toboolean(3);
 

@@ -1,5 +1,6 @@
 #include "modules/geometry/wrap_Geometry.h"
 #include "modules/geometry/ShapeMaths.h"
+#include "modules/vm/ves_guard.h"
 
 #include <geoshape/Point2D.h>
 #include <geoshape/Line2D.h>
@@ -813,7 +814,11 @@ void w_PolyFace_allocate()
     auto num = ves_argnum();
     if (num == 2)
     {
-        face->plane = *(sm::Plane*)ves_toforeign(1);
+        // Allocator: skip the optional plane arg if it wasn't passed as a
+        // foreign (leave face->plane default) rather than dereferencing NULL.
+        if (void* pf = ves_toforeign(1)) {
+            face->plane = *(sm::Plane*)pf;
+        }
     }
     else if (num == 3)
     {
@@ -937,7 +942,7 @@ void w_Polytope_transform()
 {
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
 
-    sm::mat4* mt = (sm::mat4*)ves_toforeign(1);
+    TT_ARG_PTR(sm::mat4, mt, 1);
 
     auto& pts = poly->Points();
     for (auto& p : pts) {
@@ -950,7 +955,7 @@ void w_Polytope_transform()
 void w_Polytope_mirror()
 {
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+    TT_ARG_PTR(sm::Plane, plane, 1);
 
     float len_s = plane->normal.LengthSquared();
 
@@ -978,7 +983,7 @@ void w_Polytope_mirror()
 void w_Polytope_clip()
 {
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+    TT_ARG_PTR(sm::Plane, plane, 1);
 
     auto keep_str = ves_tostring(2);
     auto keep = he::Polyhedron::KeepType::KeepAbove;
@@ -1002,7 +1007,7 @@ void w_Polytope_clip()
 void w_Polytope_fork()
 {
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    sm::Plane* plane = (sm::Plane*)ves_toforeign(1);
+    TT_ARG_PTR(sm::Plane, plane, 1);
 
     auto new_topo = poly->GetTopoPoly()->Fork(*plane);
     poly->BuildFromTopo();
@@ -1017,7 +1022,7 @@ void w_Polytope_fork()
 void w_Polytope_join()
 {
     auto poly  = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto other = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(pm3::Polytope, other, 1);
 
     poly->GetTopoPoly()->Join(other->GetTopoPoly());
     poly->BuildFromTopo();
@@ -1103,7 +1108,7 @@ void w_Polytope_is_contain()
 void w_Polytope_is_face_inside()
 {
     auto poly = ((wrapper::Proxy<pm3::Polytope>*)ves_toforeign(0))->obj;
-    auto face = ((wrapper::Proxy<pm3::Polytope::Face>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(pm3::Polytope::Face, face, 1);
 
     sm::vec3 normal;
     if (!poly->CalcFaceNormal(*face, normal)) {
@@ -1296,7 +1301,7 @@ void return_shapes(const std::vector<std::shared_ptr<gs::Shape2D>>& shapes)
 
 void w_ShapeMaths_scissor()
 {
-    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(gs::Shape2D, src, 1);
     auto rect = wrapper::list_to_array<float>(2);
 
     auto shapes = tt::ShapeMaths::Scissor(src, sm::rect(rect[0], rect[1], rect[0] + rect[2], rect[1] + rect[3]));
@@ -1305,7 +1310,7 @@ void w_ShapeMaths_scissor()
 
 void w_ShapeMaths_expand()
 {
-    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(gs::Shape2D, src, 1);
     auto dist = (float)ves_tonumber(2);
 
     auto shape = tt::ShapeMaths::Expand(src, dist);
@@ -1327,7 +1332,7 @@ void w_ShapeMaths_expand()
 
 void w_ShapeMaths_extrude()
 {
-    auto src = ((wrapper::Proxy<gs::Shape2D>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(gs::Shape2D, src, 1);
     auto dist = (float)ves_tonumber(2);
     wrapper::return_foreign(tt::ShapeMaths::Extrude(src, dist), "geometry", "Polytope");
 }

@@ -1,4 +1,5 @@
 #include "modules/render/wrap_Render.h"
+#include "modules/vm/ves_guard.h"
 #include "modules/render/Render.h"
 #include "modules/image/ImageData.h"
 #include "modules/model/Model.h"
@@ -840,7 +841,7 @@ void w_Texture2D_upload()
 void w_Texture2D_download()
 {
     auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(0))->obj;
-    auto img = (tt::ImageData*)ves_toforeign(1);
+    TT_ARG_PTR(tt::ImageData, img, 1);
 
     img->width = tex->GetWidth();
     img->height = tex->GetHeight();
@@ -1195,7 +1196,7 @@ ur::AttachmentType string2attachment(const std::string& str)
 void w_Framebuffer_attach_tex()
 {
     auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
-    auto tex = ((wrapper::Proxy<ur::Texture>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(ur::Texture, tex, 1);
     auto atta_type = string2attachment(ves_tostring(2));
 
     const char* target = ves_tostring(3);
@@ -1225,7 +1226,7 @@ void w_Framebuffer_attach_tex()
 void w_Framebuffer_attach_rbo()
 {
     auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(0))->obj;
-    auto rbo = ((wrapper::Proxy<ur::RenderBuffer>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(ur::RenderBuffer, rbo, 1);
     auto atta_type = string2attachment(ves_tostring(2));
     fbo->SetAttachment(atta_type, ur::TextureTarget::Texture2D, nullptr, rbo);
 }
@@ -1505,9 +1506,12 @@ void w_Render_draw()
     const char* prim_type_str = ves_tostring(1);
     auto prim_type = get_prim_type(prim_type_str);
 
-    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
-    ds.vertex_array = ((wrapper::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
-    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
+    TT_ARG_OBJ(ur::ShaderProgram, prog, 2);
+    TT_ARG_OBJ(ur::VertexArray, va, 3);
+    TT_ARG_OBJ(ur::RenderState, rs, 4);
+    ds.program = prog;
+    ds.vertex_array = va;
+    ds.render_state = *rs;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1519,14 +1523,17 @@ void w_Render_draw_instanced()
     const char* prim_type_str = ves_tostring(1);
     auto prim_type = get_prim_type(prim_type_str);
 
-    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(2))->obj;
-    ds.vertex_array = ((wrapper::Proxy<ur::VertexArray>*)ves_toforeign(3))->obj;
+    TT_ARG_OBJ(ur::ShaderProgram, prog, 2);
+    TT_ARG_OBJ(ur::VertexArray, va, 3);
+    ds.program = prog;
+    ds.vertex_array = va;
 
     std::vector<sm::mat4> mats;
     wrapper::list_to_foreigns(5, mats);
     ds.num_instances = mats.size();
 
-    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(4))->obj;
+    TT_ARG_OBJ(ur::RenderState, rs, 4);
+    ds.render_state = *rs;
 
     tt::Render::Instance()->Context()->Draw(prim_type, ds, nullptr);
 }
@@ -1587,17 +1594,18 @@ void draw_mesh(ur::DrawState& ds, const model::Model& model, const model::Model:
 
 void w_Render_draw_model()
 {
-    auto prog = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(ur::ShaderProgram, prog, 1);
     if (!prog) {
         return;
     }
 
     ur::DrawState ds;
     ds.program = prog;
-    ds.render_state = *((wrapper::Proxy<ur::RenderState>*)ves_toforeign(3))->obj;
+    TT_ARG_OBJ(ur::RenderState, rs, 3);
+    ds.render_state = *rs;
 
-    auto model = ((wrapper::Proxy<model::Model>*)ves_toforeign(2))->obj;
-    if (!model->nodes.empty()) 
+    TT_ARG_OBJ(model::Model, model, 2);
+    if (!model->nodes.empty())
     {
         for (auto& node : model->nodes) {
             draw_mesh(ds, *model, *model->meshes[node->mesh]);
@@ -1615,7 +1623,8 @@ void w_Render_compute()
 {
     ur::DrawState ds;
 
-    ds.program = ((wrapper::Proxy<ur::ShaderProgram>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(ur::ShaderProgram, prog, 1);
+    ds.program = prog;
 
     int x = (int)ves_tonumber(2);
     int y = (int)ves_tonumber(3);
@@ -1692,7 +1701,7 @@ void w_Render_get_fbo()
 
 void w_Render_set_fbo()
 {
-    auto fbo = ((wrapper::Proxy<ur::Framebuffer>*)ves_toforeign(1))->obj;
+    TT_ARG_OBJ(ur::Framebuffer, fbo, 1);
     tt::Render::Instance()->Context()->SetFramebuffer(fbo);
 }
 
