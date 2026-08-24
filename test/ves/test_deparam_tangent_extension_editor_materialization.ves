@@ -103,6 +103,8 @@ class Main
 			"status distinguishes the four locally editable R5 bands from static semantic contracts")
 		t.eq(status.value["r45_support_contract_count"], 4,
 			"status identifies the four persisted R45 support contracts behind the downgrade")
+		t.eq(status.value["r45_rolling_sheet_dependency_count"], 4,
+			"status distinguishes four explicit rolling-sheet-to-R45 graph dependencies from static support data")
 		t.eq(status.value["recovery_gap"], "R45_SUPPORT_SEMANTIC_EDIT_PENDING",
 			"status separates verified R45 solid sewing from still-unproved cross-face support edits")
         t.eq(envelope, 1, "editor materializes one named TangentExtension envelope")
