@@ -1,0 +1,70 @@
+// Real PR-10005 FaceFillet regression.  Four source-free local bands should
+// replay their measured faces, then follow one shared R5 radius input.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "cadcvt.nodes.face_fillet_control" for FaceFilletControl
+import "cadcvt.nodes.face_fillet_band" for FaceFilletBand
+import "brepkit" for ShapeTools
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var inverse = DeparamSolid()
+        var evidence = source ? inverse.tangent_extension_evidence(source) : nil
+        var contracts = evidence ? evidence["face_fillet_contracts"] : nil
+        var source_faces = source ? ShapeTools.map_faces(source) : []
+        t.eq(contracts ? contracts.count : 0, 4,
+            "probe obtains four source-free R5 FaceFillet contracts")
+        var original_bands = 0
+        var edited_bands = 0
+        var changed_bands = 0
+        var shared_control_bands = 0
+        if (contracts and contracts.count == 4) {
+            var control = FaceFilletControl()
+            control.set_radius(contracts[0]["data"][6])
+            var bands = []
+            for (var item in contracts) {
+                var band = FaceFilletBand()
+                if (!band.set_contract(item["data"])) { continue }
+                Blueprint.connect(control, "radius", band, "radius")
+                var original = Blueprint.calc_output_value(band, "shape")
+                if (original and item["patch_index"] < source_faces.count and
+                    ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], original.value)) {
+                    original_bands = original_bands + 1
+                }
+                bands.add([item, band])
+            }
+            control.query_param("radius").value = contracts[0]["data"][6] * 1.01
+            for (var record in bands) {
+                var item = record[0]
+                var band = record[1]
+                var edited = Blueprint.calc_output_value(band, "shape")
+                if (edited) {
+                    edited_bands = edited_bands + 1
+                    shared_control_bands = shared_control_bands + 1
+                }
+                if (edited and item["patch_index"] < source_faces.count and
+                    !ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], edited.value)) {
+                    changed_bands = changed_bands + 1
+                }
+            }
+        }
+        t.eq(original_bands, 4, "saved FaceFillet contracts exactly replay all four source bands")
+        t.eq(edited_bands, 4, "one shared R5 radius edit rebuilds all four local bands")
+        t.eq(shared_control_bands, 4, "the shared R5 controller has a live numeric edge into every band")
+        t.eq(changed_bands, 4, "the four rebuilt FaceFillet bands differ from their source patches")
+        return t.report("deparam_face_fillet_editability_probe")
+    }
+}
