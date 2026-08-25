@@ -60,6 +60,7 @@ class Main
             full_inverse.verify_exact(source, native_desc) : false
         var four_boundary_bspline = 0
         var exact_coons = 0
+        var coons_contracts = []
         for (var i in 0 .. faces.count) {
             var info = ShapeTools.face_info(faces[i])
             if (!info or info[0] != 5) { continue }
@@ -68,7 +69,11 @@ class Main
             four_boundary_bspline = four_boundary_bspline + 1
             var inverse = DeparamSolid()
             var recovered = inverse.recover_coons_patch(faces[i])
-            if (recovered) { exact_coons = exact_coons + 1 }
+            if (recovered) {
+                exact_coons = exact_coons + 1
+                coons_contracts.add({ "patch_index": i,
+                    "boundaries": recovered["desc"]["boundaries"] })
+            }
             System.print("real_fillet_coons face=%(i) boundaries=%(boundaries.count) " +
                 "strict_coons=%(recovered != nil)")
         }
@@ -82,10 +87,20 @@ class Main
             "both measured B-spline transitions have finite four-boundary loops")
         t.eq(exact_coons, 2,
             "both finite transitions pass strict source-free Coons replay")
+        var coons_native_desc = exact_patches ? { "kind": "exact_surface_solid",
+            "patches": exact_patches, "prefer_native": true,
+            "coons_patch_contracts": coons_contracts } : nil
+        var coons_native_replay = coons_native_desc ?
+            full_inverse.build_shape(coons_native_desc) : nil
+        var coons_native_exact = coons_native_replay ?
+            full_inverse.verify_exact(source, coons_native_desc) : false
+        t.truthy(coons_native_replay != nil and coons_native_exact,
+            "both local Coons contracts re-sew into an exactly matching terminal body")
         var history = Blueprint.calc_output_value(full_inverse, "history")
         var status_value = Blueprint.calc_output_value(full_inverse, "status")
         var status = status_value ? status_value.value : nil
         System.print("real_fillet_coons whole_history=%(history != nil) " +
+			"history_coons=%(history and history.value["program"]["coons_patch_contracts"] ? history.value["program"]["coons_patch_contracts"].count : 0) " +
             "valid=%(status ? status["input_brep_valid"] : nil) " +
             "decision=%(status ? status["delivery_decision"] : nil) " +
             "reason=%(status ? status["reason"] : nil) shells=%(shells ? shells.count : -1) " +
@@ -94,6 +109,8 @@ class Main
             "pcurve_exact=%(pcurve_exact) " +
             "native_valid=%(native_replay ? ShapeTools.is_valid(native_replay) : false) " +
             "native_exact=%(native_exact) " +
+            "coons_native_valid=%(coons_native_replay ? ShapeTools.is_valid(coons_native_replay) : false) " +
+            "coons_native_exact=%(coons_native_exact) " +
             "exact_surface_reason=%(status ? status["exact_surface_reason"] : nil)")
         t.truthy(history != nil,
             "a strictly replayed native face graph preserves the whole terminal body")
@@ -103,6 +120,17 @@ class Main
             "production policy admits only the full exact replay as preservation")
         t.eq(status ? status["confidence"] : nil, "exact_preservation",
             "terminal face preservation is distinct from recovered author intent")
+        t.eq(history ? history.value["program"]["coons_patch_contracts"].count : 0, 2,
+            "history records the two strictly replayed local Coons contracts")
+        t.eq(status ? status["semantic_coverage"] : nil,
+            "partial_semantic_exact_preservation",
+            "status distinguishes local Coons semantics from the exact envelope")
+        t.eq(status ? status["semantic_face_count"] : nil, 2,
+            "status counts only the two locally proven Coons faces as semantic")
+        t.eq(status ? status["exact_preservation_face_count"] : nil, 42,
+            "the remaining faces stay explicitly native exact preservation")
+        t.eq(status ? status["recovery_gap"] : nil, "COONS_WHOLE_BODY_EDIT_PENDING",
+            "the graph does not claim a complete editable solid constructor")
         t.eq(status ? status["editable_history"] : nil, false,
             "local Coons witnesses do not turn the native terminal graph into editable history")
         t.eq(status ? status["reason"] : nil, nil,
@@ -113,6 +141,7 @@ class Main
         full_inverse.on_param_dirty()
         var exact_envelopes = 0
         var native_faces = 0
+        var coons_faces = 0
         for (var node in editor.nodes) {
             if (node.title == "sew exact trimmed surfaces (closed surface offset)") {
                 exact_envelopes = exact_envelopes + 1
@@ -122,11 +151,17 @@ class Main
                     native_faces = native_faces + 1
                 }
             }
+            if (node.title == "strict Coons patch 22 — locally proven exact preservation" or
+                node.title == "strict Coons patch 23 — locally proven exact preservation") {
+                coons_faces = coons_faces + 1
+            }
         }
         t.eq(exact_envelopes, 1,
             "editor materializes one exact multi-shell sewing node")
-        t.eq(native_faces, 44,
-            "editor materializes every one of 44 owned faces as native exact topology")
+        t.eq(native_faces, 42,
+            "editor materializes the 42 non-Coons faces as native exact topology")
+        t.eq(coons_faces, 2,
+            "editor materializes both strictly proven local Coons patches")
         t.truthy(editor.scene_stack.bp_dirty,
             "materializing the verified exact graph marks the blueprint dirty")
         return t.report("deparam_real_fillet_coons_contract")
