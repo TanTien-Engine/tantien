@@ -7,6 +7,29 @@ import "brepdb.nodes.import_step" for ImportStep
 import "brepdb.nodes.deserialize" for Deserialize
 import "brepkit" for ShapeTools
 import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "editor.node_cache" for NODE_CACHE
+
+class MockSceneStack
+{
+    init()
+    {
+        this.bp_dirty = false
+        this.nodes = []
+    }
+
+    top() { return this }
+}
+
+class MockEditor
+{
+    init()
+    {
+        this.nodes = []
+        this.scene_stack = MockSceneStack()
+    }
+
+    add_node(node, x, y) { this.nodes.add(node) }
+}
 
 class Main
 {
@@ -48,6 +71,28 @@ class Main
             "delivery remains exact preservation without an inferred SurfaceLip feature")
         t.eq(status ? status["editable_history"] : nil, false,
             "local witnesses do not upgrade the heterogeneous body to editable history")
+        var editor = MockEditor()
+        NODE_CACHE.set_editor(editor)
+        inverse.query_param("generate_history").value = true
+        inverse.on_param_dirty()
+        var envelopes = 0
+        var exact_faces = 0
+        for (var node in editor.nodes) {
+            if (node.title == "sew exact trimmed surfaces (closed surface offset)") {
+                envelopes = envelopes + 1
+            }
+            for (var i in 1 .. 34) {
+                if (node.title == "exact surface %(i) — exact topology") {
+                    exact_faces = exact_faces + 1
+                }
+            }
+        }
+        t.eq(envelopes, 1,
+            "editor materializes one exact sewing node for the heterogeneous body")
+        t.eq(exact_faces, 33,
+            "editor materializes all 33 owned faces without a fabricated SurfaceLip node")
+        t.truthy(editor.scene_stack.bp_dirty,
+            "exact-preservation materialization marks the blueprint dirty")
         return t.report("deparam_surface_lip_exact_graph")
     }
 }
