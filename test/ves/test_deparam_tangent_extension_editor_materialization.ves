@@ -52,6 +52,7 @@ class Main
 		var semantic_caps = 0
 		var face_fillet_bands = 0
 		var r45_supports = 0
+		var rolling_controls = 0
         for (var node in editor.nodes) {
             if (node.title == "FaceFillet/TangentExtension envelope (exact preservation)") {
                 envelope = envelope + 1
@@ -76,6 +77,9 @@ class Main
 				node.title == "R45 support patch 8 — linked rolling-sheet local co-edit contract" or
 				node.title == "R45 support patch 9 — linked rolling-sheet local co-edit contract") {
 				r45_supports = r45_supports + 1
+			}
+			if (node.title == "TangentExtension rolling radius — shared local co-edit control") {
+				rolling_controls = rolling_controls + 1
 			}
 			if (node.title == "TangentExtension guide edge 1 — evidence" or
 				node.title == "TangentExtension guide edge 2 — evidence" or
@@ -112,6 +116,7 @@ class Main
 		t.eq(semantic_caps, 1, "editor wires the source-free NURBS planar cap into the final solid")
 		t.eq(face_fillet_bands, 4, "editor wires all four verified R5 FaceFillet bands into the final solid")
 		t.eq(r45_supports, 4, "editor materializes all four R45 supports with their rolling-sheet dependency")
+		t.eq(rolling_controls, 1, "editor materializes one shared TangentExtension rolling-radius control")
 		t.eq(guides, 8, "editor shows all eight measured TangentExtension guide edges as evidence")
 		t.eq(verified_sheets, 0,
 			"editor does not leave duplicate unassembled TangentExtension sheet nodes")

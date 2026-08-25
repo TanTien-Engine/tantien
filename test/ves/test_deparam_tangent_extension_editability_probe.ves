@@ -6,6 +6,7 @@ import "blueprint.blueprint" for Blueprint
 import "brepdb.nodes.import_step" for ImportStep
 import "brepdb.nodes.deserialize" for Deserialize
 import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "cadcvt.nodes.tangent_extension_control" for TangentExtensionControl
 import "cadcvt.nodes.tangent_extension_sheet" for TangentExtensionSheet
 import "cadcvt.nodes.r45_support_patch" for R45SupportPatch
 import "brepkit" for ShapeTools
@@ -36,26 +37,37 @@ class Main
         var radius_edited_sheets = 0
         var changed_sheets = 0
         var radius_edited_supports = 0
-        if (guides and contracts) {
+        var shared_control_sheets = 0
+        if (guides and contracts and contracts.count == 4) {
+            var control = TangentExtensionControl()
+            control.set_radius(contracts[0]["data"][10])
+            var sheets = []
             for (var item in contracts) {
                 var guide_index = item["guide_index"]
                 var data = item["data"]
                 var node = TangentExtensionSheet()
                 if (!node.set_contract(guides[guide_index], data)) { continue }
+                Blueprint.connect(control, "ball_radius", node, "ball_radius")
                 var original = Blueprint.calc_output_value(node, "shape")
                 if (original and item["patch_index"] < source_faces.count and
                     ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], original.value)) {
                     original_sheets = original_sheets + 1
                 }
-                node.query_param("ball_radius").value = data[10] * 1.01
+                sheets.add([item, node])
+            }
+            control.query_param("ball_radius").value = contracts[0]["data"][10] * 1.01
+            for (var sheet_record in sheets) {
+                var item = sheet_record[0]
+                var node = sheet_record[1]
                 var edited = Blueprint.calc_output_value(node, "shape")
                 if (edited) { radius_edited_sheets = radius_edited_sheets + 1 }
                 if (edited and item["patch_index"] < source_faces.count and
                     !ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], edited.value)) {
                     changed_sheets = changed_sheets + 1
                 }
+                if (edited) { shared_control_sheets = shared_control_sheets + 1 }
                 if (r45_contracts) for (var support_contract in r45_contracts) {
-                    if (support_contract["sheet_contract_index"] != guide_index) { continue }
+                    if (support_contract["sheet_contract_index"] != item["guide_index"]) { continue }
                     var support = R45SupportPatch()
                     if (!support.set_contract(support_contract["data"],
                         support_contract["rim_curve"], support_contract["base_curve"])) { continue }
@@ -67,7 +79,9 @@ class Main
         }
         t.eq(original_sheets, 4, "saved sheet contracts still exactly replay the four source patches")
         t.eq(radius_edited_sheets, 4,
-            "a one-percent rolling-radius edit re-solves all four owned cap guides")
+            "one shared rolling-radius edit re-solves all four owned cap guides")
+        t.eq(shared_control_sheets, 4,
+            "the one shared control has a live numeric edge into all four rolling sheets")
         t.eq(changed_sheets, 4,
             "the re-solved sheets are geometrically distinct from the original patches")
         t.eq(radius_edited_supports, 4,
