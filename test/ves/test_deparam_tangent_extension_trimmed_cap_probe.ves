@@ -30,6 +30,7 @@ class Main
         var evidence = source ? DeparamSolid().tangent_extension_evidence(source) : nil
         var linked_fillet_count = 0
         var support_contact_count = 0
+		var support_rim_anchor_count = 0
         if (evidence and evidence["face_fillet_contracts"]) {
             for (var contract in evidence["face_fillet_contracts"])
                 if (contract["cap_guide_index"] != nil) { linked_fillet_count = linked_fillet_count + 1 }
@@ -39,11 +40,17 @@ class Main
                 if (contract["r5_contacts"] and contract["r5_contacts"].count == 2) {
                     support_contact_count = support_contact_count + 1
                 }
+			for (var contract in evidence["r45_support_contracts"])
+				if (contract["rim_endpoints"] and contract["rim_endpoints"].count == 6) {
+					support_rim_anchor_count = support_rim_anchor_count + 1
+				}
         }
         t.eq(linked_fillet_count, 4,
             "each R5 band owns exactly one semantic cap-loop boundary")
         t.eq(support_contact_count, 4,
             "each R45 support declares its two exact adjacent R5 contacts")
+		t.eq(support_rim_anchor_count, 4,
+			"each R45 support persists its two source-free rim endpoint anchors")
         var live = evidence ? evidence["guide_edges"] : nil
         if (live) {
             var guides = []
