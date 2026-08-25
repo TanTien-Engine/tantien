@@ -7,6 +7,29 @@ import "brepdb.nodes.import_step" for ImportStep
 import "brepdb.nodes.deserialize" for Deserialize
 import "brepkit" for ShapeTools
 import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "editor.node_cache" for NODE_CACHE
+
+class MockSceneStack
+{
+    init()
+    {
+        this.bp_dirty = false
+        this.nodes = []
+    }
+
+    top() { return this }
+}
+
+class MockEditor
+{
+    init()
+    {
+        this.nodes = []
+        this.scene_stack = MockSceneStack()
+    }
+
+    add_node(node, x, y) { this.nodes.add(node) }
+}
 
 class Main
 {
@@ -23,6 +46,18 @@ class Main
         var full_inverse = DeparamSolid()
         Blueprint.connect(deserialize, "shape", full_inverse, "shape")
         var faces = source ? ShapeTools.map_faces(source) : []
+        var shells = source ? ShapeTools.map_shells(source) : []
+        var exact_patches = source ? ShapeTools.exact_face_patches(source) : nil
+        var pcurve_desc = exact_patches ? { "kind": "exact_surface_solid",
+            "patches": exact_patches } : nil
+        var native_desc = exact_patches ? { "kind": "exact_surface_solid",
+            "patches": exact_patches, "prefer_native": true } : nil
+        var pcurve_replay = pcurve_desc ? full_inverse.build_shape(pcurve_desc) : nil
+        var native_replay = native_desc ? full_inverse.build_shape(native_desc) : nil
+        var pcurve_exact = pcurve_replay ?
+            full_inverse.verify_exact(source, pcurve_desc) : false
+        var native_exact = native_replay ?
+            full_inverse.verify_exact(source, native_desc) : false
         var four_boundary_bspline = 0
         var exact_coons = 0
         for (var i in 0 .. faces.count) {
@@ -39,6 +74,10 @@ class Main
         }
         t.truthy(source != nil and ShapeTools.is_valid(source),
             "PR-15925 S50 remains a valid terminal-BRep candidate")
+        t.eq(shells ? shells.count : 0, 2,
+            "the valid terminal body has an outer and a cavity shell")
+        t.eq(exact_patches ? exact_patches.count : 0, faces.count,
+            "all faces export self-contained exact records across both shells")
         t.eq(four_boundary_bspline, 2,
             "both measured B-spline transitions have finite four-boundary loops")
         t.eq(exact_coons, 2,
@@ -49,15 +88,47 @@ class Main
         System.print("real_fillet_coons whole_history=%(history != nil) " +
             "valid=%(status ? status["input_brep_valid"] : nil) " +
             "decision=%(status ? status["delivery_decision"] : nil) " +
-            "reason=%(status ? status["reason"] : nil)")
-        t.truthy(history == nil,
-            "local Coons witnesses are not promoted until the entire terminal body can replay")
+            "reason=%(status ? status["reason"] : nil) shells=%(shells ? shells.count : -1) " +
+            "exact_patches=%(exact_patches ? exact_patches.count : 0) " +
+            "pcurve_valid=%(pcurve_replay ? ShapeTools.is_valid(pcurve_replay) : false) " +
+            "pcurve_exact=%(pcurve_exact) " +
+            "native_valid=%(native_replay ? ShapeTools.is_valid(native_replay) : false) " +
+            "native_exact=%(native_exact) " +
+            "exact_surface_reason=%(status ? status["exact_surface_reason"] : nil)")
+        t.truthy(history != nil,
+            "a strictly replayed native face graph preserves the whole terminal body")
         t.truthy(status != nil and status["input_brep_valid"] == true,
-            "the missing whole-body certificate is distinct from invalid-input refusal")
-        t.eq(status ? status["delivery_decision"] : nil, "REFUSE_UNSUPPORTED",
-            "production policy refuses an unproved whole-body composition")
-        t.eq(status ? status["reason"] : nil, "PLANAR_FREEFORM_NO_REPEATED_GRAMMAR",
-            "refusal identifies the missing repeated whole-body grammar")
+            "the preservation certificate starts from a valid submitted body")
+        t.eq(status ? status["delivery_decision"] : nil, "DELIVER_EXACT_PRESERVATION",
+            "production policy admits only the full exact replay as preservation")
+        t.eq(status ? status["confidence"] : nil, "exact_preservation",
+            "terminal face preservation is distinct from recovered author intent")
+        t.eq(status ? status["editable_history"] : nil, false,
+            "local Coons witnesses do not turn the native terminal graph into editable history")
+        t.eq(status ? status["reason"] : nil, nil,
+            "a certified preservation graph carries no unsupported-grammar refusal")
+        var editor = MockEditor()
+        NODE_CACHE.set_editor(editor)
+        full_inverse.query_param("generate_history").value = true
+        full_inverse.on_param_dirty()
+        var exact_envelopes = 0
+        var native_faces = 0
+        for (var node in editor.nodes) {
+            if (node.title == "sew exact trimmed surfaces (closed surface offset)") {
+                exact_envelopes = exact_envelopes + 1
+            }
+            for (var i in 1 .. 45) {
+                if (node.title == "exact surface %(i) — exact topology") {
+                    native_faces = native_faces + 1
+                }
+            }
+        }
+        t.eq(exact_envelopes, 1,
+            "editor materializes one exact multi-shell sewing node")
+        t.eq(native_faces, 44,
+            "editor materializes every one of 44 owned faces as native exact topology")
+        t.truthy(editor.scene_stack.bp_dirty,
+            "materializing the verified exact graph marks the blueprint dirty")
         return t.report("deparam_real_fillet_coons_contract")
     }
 }
