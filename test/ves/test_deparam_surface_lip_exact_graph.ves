@@ -1,0 +1,53 @@
+// A real valid freeform body is eligible for exact preservation only when its
+// owned face graph replays.  This intentionally does not infer a SurfaceLip
+// feature from the report name or from a four-edge B-spline alone.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-11299/曲面唇缘.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var inverse = DeparamSolid()
+        Blueprint.connect(deserialize, "shape", inverse, "shape")
+        var faces = source ? ShapeTools.map_faces(source) : []
+        var patches = source ? ShapeTools.exact_face_patches(source) : nil
+        var history = Blueprint.calc_output_value(inverse, "history")
+        var status_value = Blueprint.calc_output_value(inverse, "status")
+        var status = status_value ? status_value.value : nil
+        var program = history ? history.value["program"] : nil
+        System.print("surface_lip_exact valid=%(source and ShapeTools.is_valid(source)) " +
+            "faces=%(faces.count) patches=%(patches ? patches.count : 0) " +
+            "history=%(history != nil) " +
+            "kind=%(status ? status["kind"] : nil) " +
+            "decision=%(status ? status["delivery_decision"] : nil) " +
+            "coverage=%(status ? status["semantic_coverage"] : nil) " +
+            "coons_contracts=%(program and program["coons_patch_contracts"] ?
+                program["coons_patch_contracts"].count : 0)")
+        t.truthy(source != nil and ShapeTools.is_valid(source),
+            "PR-11299 remains a valid terminal-BRep input")
+        t.eq(faces.count, 33, "the surface-lip terminal BRep has its measured 33 faces")
+        t.eq(patches ? patches.count : 0, faces.count,
+            "every valid terminal face exports an owned exact record")
+        t.truthy(history != nil,
+            "the whole body admits a strictly replayed graph before delivery")
+        t.eq(status ? status["delivery_decision"] : nil,
+            "DELIVER_EXACT_PRESERVATION",
+            "delivery remains exact preservation without an inferred SurfaceLip feature")
+        t.eq(status ? status["editable_history"] : nil, false,
+            "local witnesses do not upgrade the heterogeneous body to editable history")
+        return t.report("deparam_surface_lip_exact_graph")
+    }
+}
