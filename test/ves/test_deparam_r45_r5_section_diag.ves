@@ -1,0 +1,82 @@
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools, TopoAlgo
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static fillet_for(contracts, guide_index)
+    {
+        for (var contract in contracts) {
+            var index = contract["patch_index"] - 6
+            if (index >= 8) { index = index - 8 }
+            if (index == guide_index) { return contract["data"] }
+        }
+        return nil
+    }
+
+    static support_carrier(data)
+    {
+        var nx = data[10]
+        var ny = data[11]
+        var nz = data[12]
+        var signed = -((data[7] - data[0]) * nx + (data[8] - data[1]) * ny +
+            (data[9] - data[2]) * nz)
+        if (signed == 0) { return nil }
+        var rx = nx * signed
+        var ry = ny * signed
+        var rz = nz * signed
+        var mag = signed < 0 ? -signed : signed
+        var n1x = data[16]
+        var n1y = data[17]
+        var n1z = data[18]
+        var signed1 = -((data[13] - data[0]) * n1x + (data[14] - data[1]) * n1y +
+            (data[15] - data[2]) * n1z)
+        if (signed1 == 0) { return nil }
+        var r1x = n1x * signed1
+        var r1y = n1y * signed1
+        var r1z = n1z * signed1
+        var turn = data[3] * (ry * r1z - rz * r1y) +
+            data[4] * (rz * r1x - rx * r1z) + data[5] * (rx * r1y - ry * r1x)
+        if (turn < 0) {
+            rx = r1x
+            ry = r1y
+            rz = r1z
+            mag = signed1 < 0 ? -signed1 : signed1
+        }
+        return TopoAlgo.analytic_patch([1, data[0], data[1], data[2],
+            rx / mag, ry / mag, rz / mag, data[3], data[4], data[5], data[6],
+            0, 6.283185307179586, -3000, 3000])
+    }
+
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var evidence = source ? DeparamSolid().tangent_extension_evidence(source) : nil
+        var intersections = 0
+        if (evidence) for (var support in evidence["r45_support_contracts"]) {
+            var carrier = Main.support_carrier(support["data"])
+            var gi = support["sheet_contract_index"]
+            for (var adjacent in [gi == 0 ? 7 : gi - 1, gi == 7 ? 0 : gi + 1]) {
+                var fd = Main.fillet_for(evidence["face_fillet_contracts"], adjacent)
+                var band = fd ? TopoAlgo.face_fillet_band(fd) : nil
+                var section = carrier and band ? TopoAlgo.section(carrier, band, 7000) : nil
+                var edge_count = section ? ShapeTools.map_edges(section).count : -1
+                System.print("r45_r5_section guide=%(gi) adjacent=%(adjacent) edges=%(edge_count)")
+                if (edge_count == 1) { intersections = intersections + 1 }
+            }
+        }
+        t.truthy(evidence != nil, "extracts the R45/R5 contracts")
+        t.eq(intersections, 8, "every R45/R5 pair has one finite section curve")
+        return t.report("deparam_r45_r5_section_diag")
+    }
+}
