@@ -1,0 +1,53 @@
+// The R5 contract must retain exact cylinder-V end parameters.  A surface-only
+// replay hides sub-tolerance endpoint drift, while this cap loop requires all
+// eight rebuilt boundary curves to close as one finite planar face.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools, TopoAlgo
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var inverse = DeparamSolid()
+        var evidence = source ? inverse.tangent_extension_evidence(source) : nil
+        var guides = evidence ? evidence["guide_edges"] : nil
+        if (guides and evidence["contracts"] and evidence["face_fillet_contracts"]) {
+            var live = []
+            for (var guide in guides) { live.add(guide) }
+            for (var contract in evidence["contracts"]) {
+                var data = []
+                for (var value in contract["data"]) { data.add(value) }
+                // Retain the measured radius as the explicit rebase reference.
+                data.add(contract["data"][10])
+                var sheet = TopoAlgo.tangent_extension_sheet(
+                    guides[contract["guide_index"]], data)
+                var guide = sheet ? TopoAlgo.tangent_extension_cap_guide(sheet) : nil
+                if (guide) { live[contract["guide_index"]] = guide }
+            }
+            for (var contract in evidence["face_fillet_contracts"]) {
+                var guide_index = contract["patch_index"] - 6
+                if (guide_index >= 8) { guide_index = guide_index - 8 }
+                var guide = TopoAlgo.face_fillet_cap_guide(contract["data"], false)
+                if (guide) { live[guide_index] = guide }
+            }
+            var cap = TopoAlgo.planar_face_from_nurbs_texts(live)
+            t.truthy(cap != nil and ShapeTools.is_valid(cap),
+                "exact R5 V intervals close the eight-edge semantic cap loop")
+        } else {
+            t.truthy(false, "PR-10005 provides TangentExtension and FaceFillet contracts")
+        }
+        return t.report("deparam_tangent_extension_cap_loop_probe")
+    }
+}
