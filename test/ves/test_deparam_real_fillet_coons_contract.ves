@@ -1,0 +1,63 @@
+// Probe whether the two finite B-spline transitions in a valid real final
+// BRep have a source-free four-boundary Coons explanation.  This is a strict
+// per-face test; a four-edge loop alone never qualifies a face.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-15925/GL_SheetTortureTest_fillet.Z3#S50.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var full_inverse = DeparamSolid()
+        Blueprint.connect(deserialize, "shape", full_inverse, "shape")
+        var faces = source ? ShapeTools.map_faces(source) : []
+        var four_boundary_bspline = 0
+        var exact_coons = 0
+        for (var i in 0 .. faces.count) {
+            var info = ShapeTools.face_info(faces[i])
+            if (!info or info[0] != 5) { continue }
+            var boundaries = ShapeTools.face_oriented_outer_nurbs_wires(faces[i])
+            if (!boundaries or boundaries.count != 4) { continue }
+            four_boundary_bspline = four_boundary_bspline + 1
+            var inverse = DeparamSolid()
+            var recovered = inverse.recover_coons_patch(faces[i])
+            if (recovered) { exact_coons = exact_coons + 1 }
+            System.print("real_fillet_coons face=%(i) boundaries=%(boundaries.count) " +
+                "strict_coons=%(recovered != nil)")
+        }
+        t.truthy(source != nil and ShapeTools.is_valid(source),
+            "PR-15925 S50 remains a valid terminal-BRep candidate")
+        t.eq(four_boundary_bspline, 2,
+            "both measured B-spline transitions have finite four-boundary loops")
+        t.eq(exact_coons, 2,
+            "both finite transitions pass strict source-free Coons replay")
+        var history = Blueprint.calc_output_value(full_inverse, "history")
+        var status_value = Blueprint.calc_output_value(full_inverse, "status")
+        var status = status_value ? status_value.value : nil
+        System.print("real_fillet_coons whole_history=%(history != nil) " +
+            "valid=%(status ? status["input_brep_valid"] : nil) " +
+            "decision=%(status ? status["delivery_decision"] : nil) " +
+            "reason=%(status ? status["reason"] : nil)")
+        t.truthy(history == nil,
+            "local Coons witnesses are not promoted until the entire terminal body can replay")
+        t.truthy(status != nil and status["input_brep_valid"] == true,
+            "the missing whole-body certificate is distinct from invalid-input refusal")
+        t.eq(status ? status["delivery_decision"] : nil, "REFUSE_UNSUPPORTED",
+            "production policy refuses an unproved whole-body composition")
+        t.eq(status ? status["reason"] : nil, "PLANAR_FREEFORM_NO_REPEATED_GRAMMAR",
+            "refusal identifies the missing repeated whole-body grammar")
+        return t.report("deparam_real_fillet_coons_contract")
+    }
+}
