@@ -103,6 +103,10 @@ class Main
 			"history carries four boundary-assisted R45 cylinder/plane/curve contracts")
 		t.eq(status.value["semantic_coverage"], "partial_semantic_exact_preservation",
 			"status labels the mixed semantic/exact graph without claiming full history")
+		t.eq(status.value["confidence"], "exact_preservation",
+			"production confidence records an exact-preservation proof, not an inferred author history")
+		t.eq(status.value["delivery_decision"], "DELIVER_EXACT_PRESERVATION",
+			"production policy delivers this exact graph as preservation rather than an editable solid")
 		t.eq(status.value["semantic_face_count"], 13,
 			"status counts four rolling sheets, four R5 bands, four R45 supports, and the semantic cap")
 		t.eq(status.value["exact_preservation_face_count"], 10,
