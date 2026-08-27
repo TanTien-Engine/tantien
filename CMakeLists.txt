@@ -13,7 +13,10 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
 
     add_library(voxel_runtime STATIC
         "src/voxel_game/runtime/FrameClock.cpp"
-        "src/voxel_game/runtime/InputState.cpp")
+        "src/voxel_game/runtime/InputState.cpp"
+        "src/voxel_game/runtime/FpsCamera.cpp"
+        "src/voxel_game/voxel/Section.cpp"
+        "src/voxel_game/voxel/VisibleFaceMesher.cpp")
     target_include_directories(voxel_runtime PUBLIC src)
     target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
@@ -782,7 +785,10 @@ endif()
 # ----------------------------------------------------------------------------
 add_library(voxel_runtime STATIC
     "src/voxel_game/runtime/FrameClock.cpp"
-    "src/voxel_game/runtime/InputState.cpp")
+    "src/voxel_game/runtime/InputState.cpp"
+    "src/voxel_game/runtime/FpsCamera.cpp"
+    "src/voxel_game/voxel/Section.cpp"
+    "src/voxel_game/voxel/VisibleFaceMesher.cpp")
 target_include_directories(voxel_runtime PUBLIC src)
 target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
@@ -798,7 +804,8 @@ endif()
 
 if(TT_BUILD_VOXEL_GAME)
     add_executable(voxel_game
-        "src/voxel_game/main.cpp")
+        "src/voxel_game/main.cpp"
+        "src/voxel_game/render/VoxelGpuMesh.cpp")
     target_include_directories(voxel_game PRIVATE
         src
         thirdparty/gl/include
