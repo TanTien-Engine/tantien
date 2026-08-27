@@ -4,9 +4,44 @@ if(NOT CMAKE_POLICY_VERSION_MINIMUM)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 endif()
 
+option(TT_BUILD_VOXEL_RUNTIME_ONLY
+       "Configure only the pure voxel runtime tests without the engine dependency graph" OFF)
+
+if(TT_BUILD_VOXEL_RUNTIME_ONLY)
+    project(tantien_voxel_runtime LANGUAGES CXX)
+    include(CTest)
+
+    add_library(voxel_runtime STATIC
+        "src/voxel_game/runtime/FrameClock.cpp"
+        "src/voxel_game/runtime/InputState.cpp")
+    target_include_directories(voxel_runtime PUBLIC src)
+    target_compile_features(voxel_runtime PUBLIC cxx_std_17)
+
+    add_executable(voxel_runtime_tests "test/voxel_game/runtime_tests.cpp")
+    target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
+    target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
+    if(BUILD_TESTING)
+        add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
+    endif()
+    return()
+endif()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeLocal.cmake" OPTIONAL)
 
+option(TT_DISABLE_CAX_TESTS
+       "Skip CAX's optional Catch2 subproject when configuring non-CAX targets" OFF)
+if(TT_DISABLE_CAX_TESTS)
+    set(CAX_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+endif()
+
 project(tantien)
+
+include(CTest)
+
+option(TT_BUILD_CAX "Build the CAX integration target" ON)
+option(TT_BUILD_EDITOR "Build the CAD editor executable" ON)
+option(TT_BUILD_VOXEL_GAME "Build the standalone voxel game runtime host" ON)
+option(TT_BUILD_VOXEL_RUNTIME_TESTS "Build the voxel runtime unit tests" ON)
 
 # macOS: ad-hoc sign every product at LINK time. ld64 automatically adds an
 # ad-hoc signature to arm64 output UNLESS Xcode injects -no_adhoc_codesign,
@@ -467,7 +502,9 @@ add_subdirectory(thirdparty/brepvm)
 add_subdirectory(thirdparty/brepom)
 add_subdirectory(thirdparty/model)
 #add_subdirectory(thirdparty/uniphysics)
-add_subdirectory(thirdparty/cax)
+if(TT_BUILD_CAX)
+    add_subdirectory(thirdparty/cax)
+endif()
 
 # Both render backends include SPIRV-Cross headers directly: the Vulkan backend for
 # SPIR-V reflection (<spirv_cross.hpp>) and the Metal backend for SPIR-V -> MSL
@@ -483,6 +520,7 @@ target_include_directories(unirender PRIVATE
 # again -- used to profile the editor's own first-party code (no PDB in Release).
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 
+if(TT_BUILD_EDITOR)
 add_executable(editor ${EDITOR_FILES})
 
 # Per-machine SDK locations come from CMakeLocal.cmake (gitignored).
@@ -660,6 +698,8 @@ if(WIN32)
     endif()
 endif()
 
+endif()
+
 # ----------------------------------------------------------------------------
 # ves_test: headless .ves test harness
 #
@@ -671,7 +711,7 @@ endif()
 # (OpenCASCADE_LIBRARIES, _opt_libs, VULKAN_LOADER_LIB) are already computed.
 # ----------------------------------------------------------------------------
 option(TT_BUILD_VES_TEST "Build the headless .ves test harness (ves_test)" ON)
-if(TT_BUILD_VES_TEST)
+if(TT_BUILD_VES_TEST AND TT_BUILD_CAX AND TT_BUILD_EDITOR)
     add_executable(ves_test
         "src/editor/ves_test_main.cpp"
         "src/editor/ves_host.cpp")
@@ -731,4 +771,56 @@ if(TT_BUILD_VES_TEST)
     set_target_properties(ves_test PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         VS_DEBUGGER_COMMAND_ARGUMENTS "test_topo_sort test_reachability test_tree_build")
+endif()
+
+# ----------------------------------------------------------------------------
+# voxel_game: a continuous, CAD-independent OpenGL game loop.
+#
+# This target deliberately depends only on GLFW, GL3W and UniRender. It must
+# stay independent of tantien/cax/OpenCASCADE so later voxel runtime work does
+# not inherit the editor's CAD process and render-on-demand lifetime rules.
+# ----------------------------------------------------------------------------
+add_library(voxel_runtime STATIC
+    "src/voxel_game/runtime/FrameClock.cpp"
+    "src/voxel_game/runtime/InputState.cpp")
+target_include_directories(voxel_runtime PUBLIC src)
+target_compile_features(voxel_runtime PUBLIC cxx_std_17)
+
+if(TT_BUILD_VOXEL_RUNTIME_TESTS)
+    add_executable(voxel_runtime_tests
+        "test/voxel_game/runtime_tests.cpp")
+    target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
+    target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
+    if(BUILD_TESTING)
+        add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
+    endif()
+endif()
+
+if(TT_BUILD_VOXEL_GAME)
+    add_executable(voxel_game
+        "src/voxel_game/main.cpp")
+    target_include_directories(voxel_game PRIVATE
+        src
+        thirdparty/gl/include
+        thirdparty/glfw/include)
+    target_link_libraries(voxel_game PRIVATE
+        voxel_runtime
+        unirender
+        glfw
+        gl3w
+        shadertrans
+        spirv-cross-core
+        spirv-cross-glsl
+        spirv-cross-util
+        glslang
+        SPIRV
+        SpvGenTwoCommon
+        SpvGenTwoLib
+        SPIRV-Tools
+        SPIRV-Tools-link
+        SPIRV-Tools-opt
+        Vulkan::Vulkan)
+    target_compile_features(voxel_game PRIVATE cxx_std_17)
+    set_target_properties(voxel_game PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
