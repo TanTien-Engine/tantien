@@ -40,7 +40,7 @@ void require_throws(Callable callable, const char* message)
 
 std::uint64_t stable_section_hash(const Section& section)
 {
-    std::uint64_t hash = UINT64_C(1469598103934665603);
+    std::uint64_t hash = UINT64_C(14695981039346656037);
     for (int y = 0; y < Section::Size; ++y)
     {
         for (int z = 0; z < Section::Size; ++z)
@@ -140,8 +140,10 @@ void test_negative_boundaries_and_section_equivalence()
             }
         }
     }
-    require(generator.height_at(-1, -1) == generator.height_at(-1, -1),
-            "negative coordinate sample must be repeatable");
+    const int expected_negative_height = generator.height_at(-1, -1);
+    const TerrainGenerator repeated(golden_config());
+    require(repeated.height_at(-1, -1) == expected_negative_height,
+            "negative coordinate sample must be repeatable across generators");
 }
 
 void test_layering()
@@ -181,15 +183,21 @@ void test_invalid_config_and_extrema()
     const TerrainGenerator generator(golden_config());
     const int min_value = (std::numeric_limits<int>::min)();
     const int max_value = (std::numeric_limits<int>::max)();
-    require(generator.height_at(min_value, max_value) == generator.height_at(min_value, max_value),
-            "INT_MIN/INT_MAX height sample must be repeatable");
-    require(generator.block_at({min_value, min_value, max_value}) ==
-                generator.block_at({min_value, min_value, max_value}),
-            "INT_MIN/INT_MAX block sample must be repeatable");
+    const int expected_extreme_height = generator.height_at(min_value, max_value);
+    const BlockState expected_extreme_block = generator.block_at({min_value, min_value, max_value});
+    const TerrainGenerator repeated(golden_config());
+    require(repeated.height_at(min_value, max_value) == expected_extreme_height,
+            "INT_MIN/INT_MAX height sample must be repeatable across generators");
+    require(repeated.block_at({min_value, min_value, max_value}) == expected_extreme_block,
+            "INT_MIN/INT_MAX block sample must be repeatable across generators");
     require_throws<std::out_of_range>([&generator]
     {
         generator.generate_section({(std::numeric_limits<int>::max)(), 0, 0});
     }, "unrepresentable extreme SectionCoord must reject");
+    require_throws<std::out_of_range>([&generator]
+    {
+        generator.generate_section({(std::numeric_limits<int>::min)(), 0, 0});
+    }, "unrepresentable negative extreme SectionCoord must reject");
 }
 
 void test_golden()
@@ -198,7 +206,7 @@ void test_golden()
     require(generator.height_at(-37, 19) == 12, "golden height -37,19");
     require(generator.height_at(0, 0) == 9, "golden height 0,0");
     require(generator.height_at(48, -64) == 11, "golden height 48,-64");
-    require(stable_section_hash(generator.generate_section({-1, 0, 1})) == UINT64_C(10335942788010201761),
+    require(stable_section_hash(generator.generate_section({-1, 0, 1})) == UINT64_C(14417118128185748471),
             "golden section hash");
 }
 
