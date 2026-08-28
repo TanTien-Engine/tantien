@@ -1,5 +1,7 @@
 #include "voxel_game/voxel/VoxelRaycast.h"
 
+#include "voxel_game/voxel/BlockRegistry.h"
+
 #include <cmath>
 #include <limits>
 

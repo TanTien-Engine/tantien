@@ -16,12 +16,14 @@ struct VoxelVertex
     std::array<float, 3> position{};
     std::array<float, 3> normal{};
     std::array<float, 4> color{};
+    std::array<float, 2> uv{};
 
     bool operator==(const VoxelVertex& other) const
     {
         return position == other.position &&
                normal == other.normal &&
-               color == other.color;
+               color == other.color &&
+               uv == other.uv;
     }
 };
 

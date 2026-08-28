@@ -4,6 +4,7 @@
 #include "voxel_game/runtime/InputState.h"
 #include "voxel_game/runtime/PlayerController.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
+#include "voxel_game/voxel/BlockAtlas.h"
 #include "voxel_game/voxel/World.h"
 
 #include <GL/gl3w.h>
@@ -11,6 +12,8 @@
 
 #include <unirender/Context.h>
 #include <unirender/Device.h>
+#include <unirender/TextureDescription.h>
+#include <unirender/Texture.h>
 #include <unirender/opengl/Context.h>
 #include <unirender/opengl/Device.h>
 
@@ -27,6 +30,7 @@ namespace
 {
 
 using tt::voxel_game::BlockCoord;
+using tt::voxel_game::BlockAtlas;
 using tt::voxel_game::BlockState;
 using tt::voxel_game::ButtonAction;
 using tt::voxel_game::FpsCamera;
@@ -134,6 +138,7 @@ World make_playable_world()
     {
         for (int x = -10; x <= 25; ++x)
         {
+            world.set({x, -1, z}, BlockState::Dirt);
             world.set({x, 0, z}, BlockState::Grass);
         }
     }
@@ -141,7 +146,7 @@ World make_playable_world()
     {
         for (int x = 3; x <= 9; ++x)
         {
-            world.set({x, 1, z}, BlockState::Stone);
+            world.set({x, 1, z}, (x + z) % 3 == 0 ? BlockState::Clay : BlockState::Stone);
         }
     }
     for (int y = 1; y <= 4; ++y)
@@ -150,6 +155,14 @@ World make_playable_world()
         world.set({0, y, 4}, BlockState::Clay);
         world.set({15, y, 1}, BlockState::Stone);
         world.set({16, y, 1}, BlockState::Stone);
+    }
+    for (int z = -2; z <= 1; ++z)
+    {
+        for (int x = 8; x <= 12; ++x)
+        {
+            world.set({x, 1, z}, BlockState::Dirt);
+            world.set({x, 2, z}, BlockState::Grass);
+        }
     }
     return world;
 }
@@ -240,27 +253,39 @@ bool create_program(GLuint& program, std::string& error)
         layout(location = 0) in vec3 a_position;
         layout(location = 1) in vec3 a_normal;
         layout(location = 2) in vec4 a_color;
+        layout(location = 3) in vec2 a_uv;
         uniform mat4 u_mvp;
         uniform mat4 u_model;
         out vec3 v_normal;
         out vec4 v_color;
+        out vec2 v_uv;
         void main()
         {
             gl_Position = u_mvp * u_model * vec4(a_position, 1.0);
             v_normal = a_normal;
             v_color = a_color;
+            v_uv = a_uv;
         }
     )";
     constexpr const char* FragmentSource = R"(
         #version 330 core
         in vec3 v_normal;
         in vec4 v_color;
+        in vec2 v_uv;
+        uniform sampler2D u_atlas;
+        uniform bool u_selection;
         out vec4 out_color;
         void main()
         {
+            if (u_selection)
+            {
+                out_color = vec4(1.0, 0.93, 0.18, 1.0);
+                return;
+            }
             vec3 light_direction = normalize(vec3(0.45, 0.80, 0.35));
             float brightness = 0.30 + 0.70 * max(dot(normalize(v_normal), light_direction), 0.0);
-            out_color = vec4(v_color.rgb * brightness, v_color.a);
+            vec4 texel = texture(u_atlas, v_uv);
+            out_color = vec4(texel.rgb * v_color.rgb * brightness, texel.a * v_color.a);
         }
     )";
     const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -473,6 +498,43 @@ bool run_smoke_world_edits(World& world, std::vector<SectionCoord>& initial_rebu
     return true;
 }
 
+bool mesh_uses_tile(const OpaqueMesh& mesh, const BlockAtlas& atlas, tt::voxel_game::AtlasTile tile)
+{
+    const auto bounds = atlas.uv_bounds(tile);
+    for (const auto& vertex : mesh.vertices)
+    {
+        if (vertex.uv[0] >= bounds.minimum_u && vertex.uv[0] <= bounds.maximum_u &&
+            vertex.uv[1] >= bounds.minimum_v && vertex.uv[1] <= bounds.maximum_v)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool smoke_scene_has_multiple_visible_tiles(const World& world, const BlockAtlas& atlas)
+{
+    std::size_t tiles = 0;
+    for (std::size_t index = 0; index < BlockAtlas::TileCount; ++index)
+    {
+        bool found = false;
+        for (int z = -1; z <= 0 && !found; ++z)
+        {
+            for (int x = 0; x <= 1 && !found; ++x)
+            {
+                const OpaqueMesh* mesh = world.find_mesh({x, 0, z});
+                found = mesh != nullptr && mesh_uses_tile(
+                    *mesh, atlas, static_cast<tt::voxel_game::AtlasTile>(index));
+            }
+        }
+        tiles += found ? 1U : 0U;
+    }
+    std::cout << "smoke atlas: size=" << BlockAtlas::Width << "x" << BlockAtlas::Height
+              << " tiles=" << BlockAtlas::TileCount << " hash=" << atlas.hash()
+              << " mesh_tiles=" << tiles << " mipmaps=disabled" << std::endl;
+    return tiles >= 2;
+}
+
 bool run_smoke_physics_script()
 {
     World world = make_smoke_physics_world();
@@ -549,6 +611,17 @@ int run(bool smoke)
         glfwTerminate();
         return 1;
     }
+    const BlockAtlas atlas;
+    if (!atlas.gutters_are_extruded() || atlas.pixels().size() !=
+        static_cast<std::size_t>(BlockAtlas::Width * BlockAtlas::Height * 4))
+    {
+        std::cerr << "generated block atlas failed its CPU invariants" << std::endl;
+        context.reset();
+        device.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
     const auto mesh_start = std::chrono::steady_clock::now();
     World world = smoke ? make_smoke_world() : make_playable_world();
     std::vector<SectionCoord> rebuilt;
@@ -572,7 +645,19 @@ int run(bool smoke)
             glfwTerminate();
             return 1;
         }
-        rebuilt = {{0, 0, -1}, {0, 0, 0}, {1, 0, 0}};
+        world.set({14, 1, 0}, BlockState::Grass);
+        world.set({14, 1, 1}, BlockState::Dirt);
+        world.set({14, 2, 0}, BlockState::Clay);
+        rebuilt = world.rebuild_dirty_meshes();
+        if (!smoke_scene_has_multiple_visible_tiles(world, atlas))
+        {
+            std::cerr << "smoke scene did not mesh multiple atlas tiles" << std::endl;
+            context.reset();
+            device.reset();
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            return 1;
+        }
     }
     else
     {
@@ -621,9 +706,54 @@ int run(bool smoke)
     }
     const GLint mvp_location = glGetUniformLocation(program, "u_mvp");
     const GLint model_location = glGetUniformLocation(program, "u_model");
-    if (mvp_location < 0 || model_location < 0)
+    const GLint atlas_location = glGetUniformLocation(program, "u_atlas");
+    const GLint selection_location = glGetUniformLocation(program, "u_selection");
+    if (mvp_location < 0 || model_location < 0 || atlas_location < 0 || selection_location < 0)
     {
         std::cerr << "voxel shader is missing a transform uniform" << std::endl;
+        glDeleteProgram(program);
+        selection_mesh.reset();
+        context.reset();
+        device.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
+    ur::TextureDescription atlas_description;
+    atlas_description.width = BlockAtlas::Width;
+    atlas_description.height = BlockAtlas::Height;
+    atlas_description.format = ur::TextureFormat::RGBA8;
+    atlas_description.sampler_type = ur::Device::TextureSamplerType::NearestClamp;
+    atlas_description.gen_mipmaps = false;
+    const auto atlas_texture = device->CreateTexture(atlas_description, atlas.pixels().data());
+    const auto atlas_sampler = device->GetTextureSampler(ur::Device::TextureSamplerType::NearestClamp);
+    if (!atlas_texture || atlas_texture->GetTexID() <= 0 || !atlas_sampler)
+    {
+        std::cerr << "failed to create nearest-filtered UniRender block atlas" << std::endl;
+        glDeleteProgram(program);
+        selection_mesh.reset();
+        context.reset();
+        device.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
+    context->SetTexture(0, atlas_texture);
+    context->SetTextureSampler(0, atlas_sampler);
+    // This host uses direct OpenGL draw calls for the voxel VAOs. UniRender's
+    // Context queues texture-unit changes until Context::Draw/Compute, so make
+    // the equivalent backend bind immediate for this raw-draw boundary.
+    GLint active_texture = GL_TEXTURE0;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &active_texture);
+    atlas_texture->ApplySampler(atlas_sampler);
+    glActiveTexture(GL_TEXTURE0);
+    atlas_texture->Bind();
+    glActiveTexture(static_cast<GLenum>(active_texture));
+    glUseProgram(program);
+    glUniform1i(atlas_location, 0);
+    if (glGetError() != GL_NO_ERROR)
+    {
+        std::cerr << "OpenGL error while creating or binding the block atlas" << std::endl;
         glDeleteProgram(program);
         selection_mesh.reset();
         context.reset();
@@ -714,6 +844,8 @@ int run(bool smoke)
         const Mat4 mvp = multiply(perspective(65.0F, aspect_ratio, 0.1F, 100.0F),
                                   look_at(as_float3(player_eye), camera.forward()));
         glUseProgram(program);
+        glUniform1i(atlas_location, 0);
+        glUniform1i(selection_location, GL_FALSE);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.values.data());
         for (const auto& pair : gpu_meshes)
         {
@@ -725,13 +857,23 @@ int run(bool smoke)
         {
             const Mat4 model = translation(selection->block);
             glUniformMatrix4fv(model_location, 1, GL_FALSE, model.values.data());
+            GLboolean cull_was_enabled = glIsEnabled(GL_CULL_FACE);
+            GLint polygon_mode = GL_FILL;
+            GLfloat line_width = 1.0F;
+            glGetIntegerv(GL_POLYGON_MODE, &polygon_mode);
+            glGetFloatv(GL_LINE_WIDTH, &line_width);
+            glUniform1i(selection_location, GL_TRUE);
             glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glLineWidth(2.0F);
             selection_mesh.draw();
-            glLineWidth(1.0F);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glEnable(GL_CULL_FACE);
+            glLineWidth(line_width);
+            glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
+            if (cull_was_enabled)
+            {
+                glEnable(GL_CULL_FACE);
+            }
+            glUniform1i(selection_location, GL_FALSE);
         }
         if (smoke && rendered_frames == 2)
         {
@@ -743,9 +885,11 @@ int run(bool smoke)
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
         }
-        if (glGetError() != GL_NO_ERROR)
+        const GLenum draw_error = glGetError();
+        if (draw_error != GL_NO_ERROR)
         {
-            std::cerr << "OpenGL error while drawing voxel mesh" << std::endl;
+            std::cerr << "OpenGL error while drawing voxel mesh: 0x" << std::hex
+                      << static_cast<unsigned int>(draw_error) << std::dec << std::endl;
             draw_failed = true;
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }

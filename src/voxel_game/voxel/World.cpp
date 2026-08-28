@@ -1,5 +1,7 @@
 #include "voxel_game/voxel/World.h"
 
+#include "voxel_game/voxel/BlockRegistry.h"
+
 #include <algorithm>
 #include <functional>
 #include <limits>
@@ -62,6 +64,10 @@ BlockState World::get(BlockCoord world_coordinate) const
 
 bool World::set(BlockCoord world_coordinate, BlockState state)
 {
+    if (!is_valid_block_state(state))
+    {
+        throw std::invalid_argument("World::set rejects an unknown BlockState before mutating sections");
+    }
     const WorldBlockLocation location = locate_world_block(world_coordinate);
     auto found = m_sections.find(location.section);
     if (found == m_sections.end())

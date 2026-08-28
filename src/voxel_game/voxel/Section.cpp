@@ -1,5 +1,7 @@
 #include "voxel_game/voxel/Section.h"
 
+#include "voxel_game/voxel/BlockRegistry.h"
+
 #include <stdexcept>
 
 namespace tt::voxel_game
@@ -41,11 +43,19 @@ BlockState Section::get_or_air(BlockCoord coordinate) const
 
 void Section::set(BlockCoord coordinate, BlockState state)
 {
+    if (!is_valid_block_state(state))
+    {
+        throw std::invalid_argument("Section::set rejects an unknown BlockState");
+    }
     m_blocks[index_of(coordinate)] = state;
 }
 
 void Section::fill(BlockState state)
 {
+    if (!is_valid_block_state(state))
+    {
+        throw std::invalid_argument("Section::fill rejects an unknown BlockState");
+    }
     m_blocks.fill(state);
 }
 

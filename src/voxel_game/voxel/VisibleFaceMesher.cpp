@@ -1,5 +1,8 @@
 #include "voxel_game/voxel/VisibleFaceMesher.h"
 
+#include "voxel_game/voxel/BlockAtlas.h"
+#include "voxel_game/voxel/BlockRegistry.h"
+
 #include <array>
 
 namespace tt::voxel_game
@@ -9,51 +12,42 @@ namespace
 
 struct FaceDefinition
 {
+    BlockFace face;
     BlockCoord neighbor_offset;
     std::array<float, 3> normal;
     std::array<std::array<float, 3>, 4> corners;
 };
 
 constexpr std::array<FaceDefinition, 6> Faces = {{
-    {{-1, 0, 0}, {-1.0F, 0.0F, 0.0F}, {{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 1.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 0.0F}}}},
-    {{1, 0, 0}, {1.0F, 0.0F, 0.0F}, {{{1.0F, 0.0F, 0.0F}, {1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}}}},
-    {{0, -1, 0}, {0.0F, -1.0F, 0.0F}, {{{0.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 1.0F}, {0.0F, 0.0F, 1.0F}}}},
-    {{0, 1, 0}, {0.0F, 1.0F, 0.0F}, {{{0.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 0.0F}, {0.0F, 1.0F, 0.0F}}}},
-    {{0, 0, -1}, {0.0F, 0.0F, -1.0F}, {{{1.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}}},
-    {{0, 0, 1}, {0.0F, 0.0F, 1.0F}, {{{0.0F, 0.0F, 1.0F}, {1.0F, 0.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {0.0F, 1.0F, 1.0F}}}},
+    {BlockFace::NegativeX, {-1, 0, 0}, {-1.0F, 0.0F, 0.0F}, {{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 1.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 0.0F}}}},
+    {BlockFace::PositiveX, {1, 0, 0}, {1.0F, 0.0F, 0.0F}, {{{1.0F, 0.0F, 0.0F}, {1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}}}},
+    {BlockFace::NegativeY, {0, -1, 0}, {0.0F, -1.0F, 0.0F}, {{{0.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 1.0F}, {0.0F, 0.0F, 1.0F}}}},
+    {BlockFace::PositiveY, {0, 1, 0}, {0.0F, 1.0F, 0.0F}, {{{0.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 0.0F}, {0.0F, 1.0F, 0.0F}}}},
+    {BlockFace::NegativeZ, {0, 0, -1}, {0.0F, 0.0F, -1.0F}, {{{1.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}}},
+    {BlockFace::PositiveZ, {0, 0, 1}, {0.0F, 0.0F, 1.0F}, {{{0.0F, 0.0F, 1.0F}, {1.0F, 0.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {0.0F, 1.0F, 1.0F}}}},
 }};
-
-std::array<float, 4> color_for(BlockState state)
-{
-    switch (state)
-    {
-    case BlockState::Grass:
-        return {0.31F, 0.72F, 0.28F, 1.0F};
-    case BlockState::Clay:
-        return {0.70F, 0.34F, 0.20F, 1.0F};
-    case BlockState::Stone:
-        return {0.52F, 0.55F, 0.60F, 1.0F};
-    case BlockState::Air:
-        break;
-    }
-    return {1.0F, 0.0F, 1.0F, 1.0F};
-}
 
 void append_face(OpaqueMesh& mesh,
                  BlockCoord coordinate,
-                 BlockState state,
+                 const BlockDefinition& definition,
                  const FaceDefinition& face)
 {
     const std::uint32_t base_index = static_cast<std::uint32_t>(mesh.vertices.size());
-    const std::array<float, 4> color = color_for(state);
-    for (const auto& corner : face.corners)
+    const AtlasUvBounds bounds = BlockAtlas::uv_bounds(definition.tile_for(face.face));
+    constexpr std::array<std::array<float, 2>, 4> Uvs = {{{{0.0F, 0.0F}}, {{1.0F, 0.0F}},
+                                                            {{1.0F, 1.0F}}, {{0.0F, 1.0F}}}};
+    for (std::size_t corner_index = 0; corner_index < face.corners.size(); ++corner_index)
     {
+        const auto& corner = face.corners[corner_index];
+        const auto& normalized_uv = Uvs[corner_index];
         mesh.vertices.push_back(VoxelVertex{
             {static_cast<float>(coordinate.x) + corner[0],
              static_cast<float>(coordinate.y) + corner[1],
              static_cast<float>(coordinate.z) + corner[2]},
             face.normal,
-            color,
+            {1.0F, 1.0F, 1.0F, 1.0F},
+            {bounds.minimum_u + (bounds.maximum_u - bounds.minimum_u) * normalized_uv[0],
+             bounds.minimum_v + (bounds.maximum_v - bounds.minimum_v) * normalized_uv[1]},
         });
     }
 
@@ -78,7 +72,9 @@ OpaqueMesh mesh_opaque_visible_faces(const Section& section,
             {
                 const BlockCoord coordinate{x, y, z};
                 const BlockState state = section.get(coordinate);
-                if (!is_opaque(state) || render_bucket(state) != RenderBucket::Opaque)
+                const BlockDefinition* definition = find_block_definition(state);
+                if (definition == nullptr || !definition->occludes ||
+                    definition->bucket != RenderBucket::Opaque)
                 {
                     continue;
                 }
@@ -93,9 +89,9 @@ OpaqueMesh mesh_opaque_visible_faces(const Section& section,
                     const BlockState neighbor_state = Section::contains(neighbor)
                         ? section.get(neighbor)
                         : (block_lookup ? block_lookup(neighbor) : BlockState::Air);
-                    if (!is_opaque(neighbor_state))
+                    if (!block_definition_or_air(neighbor_state).occludes)
                     {
-                        append_face(mesh, coordinate, state, face);
+                        append_face(mesh, coordinate, *definition, face);
                     }
                 }
             }

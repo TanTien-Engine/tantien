@@ -75,6 +75,9 @@ bool VoxelGpuMesh::upload(const ur::Device& device, const OpaqueMesh& mesh, std:
         std::make_shared<ur::VertexInputAttribute>(
             2, ur::ComponentDataType::Float, 4,
             static_cast<int>(offsetof(VoxelVertex, color)), static_cast<int>(sizeof(VoxelVertex))),
+        std::make_shared<ur::VertexInputAttribute>(
+            3, ur::ComponentDataType::Float, 2,
+            static_cast<int>(offsetof(VoxelVertex, uv)), static_cast<int>(sizeof(VoxelVertex))),
     });
 
     const auto gl_vertex_array = std::static_pointer_cast<ur::opengl::VertexArray>(vertex_array);

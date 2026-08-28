@@ -1,4 +1,5 @@
 #include "voxel_game/runtime/PlayerController.h"
+#include "voxel_game/voxel/BlockRegistry.h"
 
 #include <algorithm>
 #include <cmath>
@@ -64,7 +65,7 @@ bool finite_state(const PlayerState& state)
 
 bool solid(const World& world, BlockCoord coordinate)
 {
-    return world.get(coordinate) != BlockState::Air;
+    return is_collidable(world.get(coordinate));
 }
 
 } // namespace

@@ -13,6 +13,7 @@ enum class BlockState : std::uint16_t
     Grass = 1,
     Stone = 2,
     Clay = 3,
+    Dirt = 4,
 };
 
 enum class RenderBucket : std::uint8_t
@@ -21,15 +22,5 @@ enum class RenderBucket : std::uint8_t
     Cutout,
     Translucent,
 };
-
-inline bool is_opaque(BlockState state)
-{
-    return state != BlockState::Air;
-}
-
-inline RenderBucket render_bucket(BlockState)
-{
-    return RenderBucket::Opaque;
-}
 
 } // namespace tt::voxel_game

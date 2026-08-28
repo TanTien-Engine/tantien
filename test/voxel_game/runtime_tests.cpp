@@ -2,6 +2,8 @@
 #include "voxel_game/runtime/FrameClock.h"
 #include "voxel_game/runtime/InputState.h"
 #include "voxel_game/runtime/PlayerController.h"
+#include "voxel_game/voxel/BlockAtlas.h"
+#include "voxel_game/voxel/BlockRegistry.h"
 #include "voxel_game/voxel/Section.h"
 #include "voxel_game/voxel/VisibleFaceMesher.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
@@ -9,6 +11,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <exception>
 #include <iostream>
 #include <limits>
@@ -190,6 +193,164 @@ void test_section_coordinates()
         threw = true;
     }
     require(threw, "strict get rejects invalid coordinate");
+
+    bool rejected_unknown_state = false;
+    try
+    {
+        section.set({0, 0, 0}, static_cast<BlockState>(99));
+    }
+    catch (const std::invalid_argument&)
+    {
+        rejected_unknown_state = true;
+    }
+    require(rejected_unknown_state, "section mutation strictly rejects an unknown block state");
+
+    tt::voxel_game::World world;
+    bool world_rejected_unknown_state = false;
+    try
+    {
+        world.set({0, 0, 0}, static_cast<BlockState>(99));
+    }
+    catch (const std::invalid_argument&)
+    {
+        world_rejected_unknown_state = true;
+    }
+    require(world_rejected_unknown_state && world.section_count() == 0,
+            "world strictly rejects unknown state without loading a section");
+}
+
+void test_block_registry()
+{
+    using tt::voxel_game::AtlasTile;
+    using tt::voxel_game::BlockFace;
+    using tt::voxel_game::BlockState;
+    using tt::voxel_game::RenderBucket;
+    using tt::voxel_game::block_definition_or_air;
+    using tt::voxel_game::find_block_definition;
+    using tt::voxel_game::is_collidable;
+    using tt::voxel_game::is_opaque;
+    using tt::voxel_game::is_valid_block_state;
+
+    constexpr std::array<BlockState, 5> States = {
+        BlockState::Air, BlockState::Grass, BlockState::Stone, BlockState::Clay, BlockState::Dirt};
+    for (BlockState state : States)
+    {
+        const auto* definition = find_block_definition(state);
+        require(definition != nullptr, "every declared BlockState has a registry definition");
+        require(definition->name[0] != '\0', "registered BlockState has a name");
+        require(definition->bucket == RenderBucket::Opaque, "M2C registry uses opaque bucket only");
+        require(is_valid_block_state(state), "registered BlockState validates");
+    }
+    require(!is_opaque(BlockState::Air) && !is_collidable(BlockState::Air), "air does not block mesh or player");
+    require(is_opaque(BlockState::Stone) && is_collidable(BlockState::Stone), "stone blocks mesh and player");
+    const auto* grass = find_block_definition(BlockState::Grass);
+    require(grass->tile_for(BlockFace::PositiveY) == AtlasTile::GrassTop, "grass top tile");
+    require(grass->tile_for(BlockFace::NegativeY) == AtlasTile::Dirt, "grass bottom tile");
+    require(grass->tile_for(BlockFace::NegativeX) == AtlasTile::GrassSide &&
+            grass->tile_for(BlockFace::PositiveX) == AtlasTile::GrassSide &&
+            grass->tile_for(BlockFace::NegativeZ) == AtlasTile::GrassSide &&
+            grass->tile_for(BlockFace::PositiveZ) == AtlasTile::GrassSide,
+            "grass four side faces share grass-side tile");
+    const BlockState invalid = static_cast<BlockState>(99);
+    require(find_block_definition(invalid) == nullptr && !is_valid_block_state(invalid),
+            "unknown BlockState has explicit strict-rejection identity");
+    require(&block_definition_or_air(invalid) == &block_definition_or_air(BlockState::Air),
+            "read-only unknown BlockState safely falls back to air");
+    bool rejected_unknown_face = false;
+    try
+    {
+        static_cast<void>(grass->tile_for(static_cast<BlockFace>(42)));
+    }
+    catch (const std::out_of_range&)
+    {
+        rejected_unknown_face = true;
+    }
+    require(rejected_unknown_face, "registry strictly rejects an unknown face enum");
+}
+
+void test_block_atlas()
+{
+    using tt::voxel_game::AtlasTile;
+    using tt::voxel_game::BlockAtlas;
+
+    const BlockAtlas first;
+    const BlockAtlas second;
+    require(first.pixels().size() == static_cast<std::size_t>(BlockAtlas::Width * BlockAtlas::Height * 4),
+            "atlas is exactly RGBA8 dimensions");
+    require(first.hash() == second.hash(), "atlas hash is deterministic");
+    require(first.gutters_are_extruded(), "every atlas tile has 1px edge extrusion");
+    require(first.pixel(1, 1) == second.pixel(1, 1), "atlas exact sample is deterministic");
+    for (std::size_t left = 0; left < BlockAtlas::TileCount; ++left)
+    {
+        const auto left_bounds = first.uv_bounds(static_cast<AtlasTile>(left));
+        require(left_bounds.minimum_u < left_bounds.maximum_u && left_bounds.minimum_v < left_bounds.maximum_v,
+                "tile UVs cover their content region");
+        for (std::size_t right = left + 1; right < BlockAtlas::TileCount; ++right)
+        {
+            const auto right_bounds = first.uv_bounds(static_cast<AtlasTile>(right));
+            require(left_bounds.maximum_u < right_bounds.minimum_u || right_bounds.maximum_u < left_bounds.minimum_u ||
+                    left_bounds.maximum_v < right_bounds.minimum_v || right_bounds.maximum_v < left_bounds.minimum_v,
+                    "content UV regions do not overlap");
+        }
+    }
+    bool rejected_unknown_tile = false;
+    try
+    {
+        static_cast<void>(BlockAtlas::uv_bounds(AtlasTile::Count));
+    }
+    catch (const std::invalid_argument&)
+    {
+        rejected_unknown_tile = true;
+    }
+    require(rejected_unknown_tile, "atlas metadata strictly rejects the Count sentinel");
+    const auto grass_side_origin = BlockAtlas::content_origin(AtlasTile::GrassSide);
+    const auto grass_side_bottom = first.pixel(grass_side_origin[0] + 8, grass_side_origin[1]);
+    const auto grass_side_top = first.pixel(grass_side_origin[0] + 8,
+                                            grass_side_origin[1] + BlockAtlas::ContentSize - 1);
+    require(grass_side_bottom[0] > grass_side_bottom[1] && grass_side_top[1] > grass_side_top[0],
+            "GrassSide v_min bottom is dirt while v_max top is grass");
+}
+
+void test_mesher_uvs_and_vertex_layout()
+{
+    using tt::voxel_game::AtlasTile;
+    using tt::voxel_game::BlockAtlas;
+    using tt::voxel_game::BlockState;
+    using tt::voxel_game::Section;
+    using tt::voxel_game::VoxelVertex;
+    using tt::voxel_game::mesh_opaque_visible_faces;
+
+    const BlockAtlas atlas;
+    Section section;
+    section.set({0, 0, 0}, BlockState::Grass);
+    const auto mesh = mesh_opaque_visible_faces(section);
+    require_mesh_shape(mesh, 6, "grass block meshes six faces");
+    constexpr std::array<AtlasTile, 6> ExpectedTiles = {
+        AtlasTile::GrassSide, AtlasTile::GrassSide, AtlasTile::Dirt,
+        AtlasTile::GrassTop, AtlasTile::GrassSide, AtlasTile::GrassSide};
+    for (std::size_t face = 0; face < ExpectedTiles.size(); ++face)
+    {
+        const auto bounds = atlas.uv_bounds(ExpectedTiles[face]);
+        for (std::size_t vertex = 0; vertex < 4; ++vertex)
+        {
+            const auto& uv = mesh.vertices[face * 4 + vertex].uv;
+            require(uv[0] >= bounds.minimum_u && uv[0] <= bounds.maximum_u &&
+                    uv[1] >= bounds.minimum_v && uv[1] <= bounds.maximum_v,
+                    "mesher UV remains inside registry tile content");
+        }
+        require(mesh.vertices[face * 4].uv == std::array<float, 2>{bounds.minimum_u, bounds.minimum_v} &&
+                mesh.vertices[face * 4 + 1].uv == std::array<float, 2>{bounds.maximum_u, bounds.minimum_v} &&
+                mesh.vertices[face * 4 + 2].uv == std::array<float, 2>{bounds.maximum_u, bounds.maximum_v} &&
+                mesh.vertices[face * 4 + 3].uv == std::array<float, 2>{bounds.minimum_u, bounds.maximum_v},
+                "all face definitions use the locked consistent quad UV winding");
+    }
+    require_positive_triangle_winding(mesh);
+    require(sizeof(VoxelVertex) <= static_cast<std::size_t>((std::numeric_limits<int>::max)()) &&
+            offsetof(VoxelVertex, position) <= static_cast<std::size_t>((std::numeric_limits<int>::max)()) &&
+            offsetof(VoxelVertex, normal) <= static_cast<std::size_t>((std::numeric_limits<int>::max)()) &&
+            offsetof(VoxelVertex, color) <= static_cast<std::size_t>((std::numeric_limits<int>::max)()) &&
+            offsetof(VoxelVertex, uv) <= static_cast<std::size_t>((std::numeric_limits<int>::max)()),
+            "VoxelVertex layout can safely narrow to UniRender int attributes");
 }
 
 void test_visible_face_mesher()
@@ -545,7 +706,10 @@ int main()
         test_fixed_tick_accumulator();
         test_input_transitions();
         test_section_coordinates();
+        test_block_registry();
+        test_block_atlas();
         test_visible_face_mesher();
+        test_mesher_uvs_and_vertex_layout();
         test_neighbor_lookup_boundary();
         test_world_coordinates_and_dirty_meshes();
         test_voxel_raycast();
