@@ -14,7 +14,13 @@ namespace tt::voxel_game
 class VoxelSessionRegistry
 {
 public:
-    VoxelSessionHandle create();
+    explicit VoxelSessionRegistry(std::uint64_t owner);
+
+    // Reservation is not live. It lets the facade complete all potentially
+    // throwing storage preparation before activating a visible handle.
+    std::optional<VoxelSessionHandle> reserve();
+    bool activate(VoxelSessionHandle handle) noexcept;
+    void abandon(VoxelSessionHandle handle) noexcept;
     bool destroy(VoxelSessionHandle handle);
     std::optional<VoxelSessionHandle> reload(VoxelSessionHandle handle);
     bool is_live(VoxelSessionHandle handle) const;
@@ -28,6 +34,7 @@ private:
     };
 
     std::vector<Slot> m_slots;
+    std::uint64_t m_owner = 0;
 };
 
 } // namespace tt::voxel_game

@@ -21,27 +21,55 @@ bool advance_generation(std::uint32_t& generation)
 
 } // namespace
 
-VoxelSessionHandle VoxelSessionRegistry::create()
+VoxelSessionRegistry::VoxelSessionRegistry(std::uint64_t owner)
+    : m_owner(owner)
+{
+}
+
+std::optional<VoxelSessionHandle> VoxelSessionRegistry::reserve()
 {
     for (std::size_t index = 0; index < m_slots.size(); ++index)
     {
         Slot& slot = m_slots[index];
         if (!slot.live && !slot.retired)
         {
-            slot.live = true;
-            return {static_cast<std::uint32_t>(index), slot.generation};
+            return VoxelSessionHandle{m_owner, static_cast<std::uint32_t>(index), slot.generation};
         }
     }
 
     if (m_slots.size() >= (std::numeric_limits<std::uint32_t>::max)())
     {
-        return {};
+        return std::nullopt;
     }
 
     m_slots.push_back({});
     const std::size_t index = m_slots.size() - 1;
-    m_slots[index].live = true;
-    return {static_cast<std::uint32_t>(index), m_slots[index].generation};
+    return VoxelSessionHandle{m_owner, static_cast<std::uint32_t>(index), m_slots[index].generation};
+}
+
+bool VoxelSessionRegistry::activate(VoxelSessionHandle handle) noexcept
+{
+    if (handle.owner != m_owner || !handle.is_valid() || handle.slot >= m_slots.size())
+    {
+        return false;
+    }
+
+    Slot& slot = m_slots[handle.slot];
+    if (slot.live || slot.retired || slot.generation != handle.generation)
+    {
+        return false;
+    }
+
+    slot.live = true;
+    return true;
+}
+
+void VoxelSessionRegistry::abandon(VoxelSessionHandle handle) noexcept
+{
+    // reserve() deliberately leaves the slot non-live, so abandoning a
+    // reservation has no mutating rollback step and can never throw. A later
+    // reserve() will reuse this exact inactive generation.
+    (void)handle;
 }
 
 bool VoxelSessionRegistry::destroy(VoxelSessionHandle handle)
@@ -80,12 +108,12 @@ std::optional<VoxelSessionHandle> VoxelSessionRegistry::reload(VoxelSessionHandl
         return std::nullopt;
     }
 
-    return VoxelSessionHandle{handle.slot, slot.generation};
+    return VoxelSessionHandle{m_owner, handle.slot, slot.generation};
 }
 
 bool VoxelSessionRegistry::is_live(VoxelSessionHandle handle) const
 {
-    return handle.is_valid() && handle.slot < m_slots.size() &&
+    return handle.owner == m_owner && handle.is_valid() && handle.slot < m_slots.size() &&
            m_slots[handle.slot].live && m_slots[handle.slot].generation == handle.generation;
 }
 

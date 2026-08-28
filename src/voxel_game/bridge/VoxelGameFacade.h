@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace tt::voxel_game
@@ -26,7 +27,10 @@ struct VoxelDrainResult
 
 // Future VES/Blueprint code should own one opaque VoxelGame instance backed by
 // this facade. It can enqueue gameplay intent and consume coarse events, but
-// cannot access World, Sections, renderer resources, or a VM callback.
+// cannot access World, Sections, renderer resources, or a VM callback. A
+// facade is single-threaded: all calls belong to one game update/render control
+// thread. Concurrent calls are not supported. Adapter execution is a strict
+// non-reentrant boundary for every mutating facade operation.
 class VoxelGameFacade
 {
 public:
@@ -35,11 +39,13 @@ public:
     explicit VoxelGameFacade(VoxelBridgeConfig config = {});
     ~VoxelGameFacade();
 
-    VoxelSessionHandle create_session(CommandAdapter adapter);
+    VoxelSessionHandle create_session(const CommandAdapter& adapter);
     VoxelBridgeStatus create_status() const;
+    VoxelBridgeStatus last_facade_status() const;
     VoxelBridgeStatus destroy_session(VoxelSessionHandle handle);
     std::optional<VoxelSessionHandle> reload_session(VoxelSessionHandle handle);
     bool is_session_live(VoxelSessionHandle handle) const;
+    bool is_owner_thread() const;
 
     // Queueing is the only command submission path. The adapter is called only
     // from drain_fixed_tick(), never from this method.
@@ -59,14 +65,20 @@ private:
 
     SessionState* find_state(VoxelSessionHandle handle);
     const SessionState* find_state(VoxelSessionHandle handle) const;
+    bool on_owner_thread() const;
+    bool reject_reentrant_mutation(SessionState* state);
     VoxelBridgeStatus push_event(SessionState& state, VoxelEvent event);
     static bool command_is_valid(const VoxelCommand& command);
     static bool action_is_valid(VoxelAction action);
 
     VoxelBridgeConfig m_config;
+    std::uint64_t m_owner = 0;
+    std::thread::id m_owner_thread;
     VoxelSessionRegistry m_sessions;
     std::vector<std::unique_ptr<SessionState>> m_states;
     VoxelBridgeStatus m_create_status = VoxelBridgeStatus::Ok;
+    VoxelBridgeStatus m_last_facade_status = VoxelBridgeStatus::Ok;
+    bool m_adapter_invoking = false;
 };
 
 } // namespace tt::voxel_game

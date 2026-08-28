@@ -10,17 +10,18 @@ namespace tt::voxel_game
 // Neither field is a pointer or a reference to a World or renderer object.
 struct VoxelSessionHandle
 {
+    std::uint64_t owner = 0;
     std::uint32_t slot = 0;
     std::uint32_t generation = 0;
 
     bool operator==(const VoxelSessionHandle& other) const
     {
-        return slot == other.slot && generation == other.generation;
+        return owner == other.owner && slot == other.slot && generation == other.generation;
     }
 
     bool is_valid() const
     {
-        return generation != 0;
+        return owner != 0 && generation != 0;
     }
 };
 
@@ -31,6 +32,9 @@ enum class VoxelBridgeStatus
     InvalidInput,
     CommandQueueFull,
     EventQueueFull,
+    ReentrantCall,
+    WrongThread,
+    StorageFailure,
     CallbackMissing,
     AdapterRejected,
     AdapterException,
@@ -98,6 +102,8 @@ struct VoxelEvent
     VoxelAction action = VoxelAction::Primary;
     VoxelTargetSnapshot target;
     VoxelBridgeStatus status = VoxelBridgeStatus::Ok;
+    std::size_t discarded_command_count = 0;
+    std::size_t discarded_event_count = 0;
 };
 
 struct VoxelCommandResult

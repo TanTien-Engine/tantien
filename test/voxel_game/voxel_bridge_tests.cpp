@@ -18,6 +18,7 @@ using tt::voxel_game::VoxelEvent;
 using tt::voxel_game::VoxelEventType;
 using tt::voxel_game::VoxelGameFacade;
 using tt::voxel_game::VoxelRuleFlag;
+using tt::voxel_game::VoxelSessionHandle;
 using tt::voxel_game::VoxelTargetSnapshot;
 
 void require(bool condition, const char* message)
@@ -34,6 +35,21 @@ VoxelCommand command(VoxelCommandType type)
     value.type = type;
     return value;
 }
+
+struct ThrowingAdapterCopy
+{
+    ThrowingAdapterCopy() = default;
+    ThrowingAdapterCopy(const ThrowingAdapterCopy&)
+    {
+        throw std::runtime_error("adapter copy failure");
+    }
+    ThrowingAdapterCopy(ThrowingAdapterCopy&&) noexcept = default;
+
+    VoxelCommandResult operator()(const VoxelCommand&) const
+    {
+        return VoxelCommandResult::accept();
+    }
+};
 
 void test_handle_generation_destroy_reuse_and_reload()
 {
@@ -65,6 +81,55 @@ void test_handle_generation_destroy_reuse_and_reload()
     require(facade.try_pop_event(*replacement, event), "replacement session must receive reload event");
     require(event.type == VoxelEventType::WorldReloaded, "reload event type must be explicit");
     require(!facade.try_pop_event(*replacement, event), "reload event must be consumed exactly once");
+}
+
+void test_facade_ownership_and_create_exception_safety()
+{
+    VoxelGameFacade facade;
+    std::function<VoxelCommandResult(const VoxelCommand&)> throwing_adapter{ThrowingAdapterCopy{}};
+    require(!facade.create_session(throwing_adapter).is_valid(),
+            "adapter copy failure must fail closed without creating a live session");
+    require(facade.create_status() == VoxelBridgeStatus::StorageFailure,
+            "adapter copy failure must expose storage status");
+
+    const auto accepted_adapter = [](const VoxelCommand&) { return VoxelCommandResult::accept(); };
+    const auto first = facade.create_session(accepted_adapter);
+    require(first.is_valid() && first.slot == 0 && first.generation == 1,
+            "failed creation must leave no ghost registry slot");
+
+    VoxelGameFacade other_facade;
+    const auto other = other_facade.create_session(accepted_adapter);
+    require(other.is_valid() && other.slot == first.slot && other.generation == first.generation,
+            "separate facades may reuse local slot and generation values");
+    require(other.owner != first.owner, "facade identity must distinguish otherwise equal local handles");
+    require(facade.enqueue_command(other, command(VoxelCommandType::BreakCurrentTarget)) ==
+                VoxelBridgeStatus::InvalidHandle,
+            "foreign facade handle must never be accepted");
+    require(!facade.is_session_live(other), "foreign facade handle must fail closed for read queries");
+    require(facade.is_owner_thread(), "construction thread must be the owner thread");
+}
+
+void test_reload_discards_queues_and_reports_counts()
+{
+    VoxelGameFacade facade({3, 3});
+    const auto adapter = [](const VoxelCommand&) { return VoxelCommandResult::accept(); };
+    const auto session = facade.create_session(adapter);
+    require(facade.enqueue_command(session, command(VoxelCommandType::BreakCurrentTarget)) == VoxelBridgeStatus::Ok,
+            "pending command must queue before reload");
+    require(facade.enqueue_command(session, command(VoxelCommandType::PlaceSelectedBlock)) == VoxelBridgeStatus::Ok,
+            "second pending command must queue before reload");
+    require(facade.publish_action_pressed(session, VoxelAction::Primary) == VoxelBridgeStatus::Ok,
+            "pending event must queue before reload");
+    const auto replacement = facade.reload_session(session);
+    require(replacement.has_value(), "reload must create replacement after preallocating state");
+    require(!facade.is_session_live(session), "reload must invalidate old handle after commit");
+    const auto stats = facade.queue_stats(*replacement);
+    require(stats.has_value() && stats->command_count == 0 && stats->event_count == 1,
+            "replacement must discard old queues and retain only reload report");
+    VoxelEvent event;
+    require(facade.try_pop_event(*replacement, event) && event.type == VoxelEventType::WorldReloaded &&
+                event.discarded_command_count == 2 && event.discarded_event_count == 1,
+            "reload event must report exactly which pending work was discarded");
 }
 
 void test_command_and_event_fifo_at_fixed_tick_boundary()
@@ -194,6 +259,55 @@ void test_result_observability_and_rejection_normalization()
             "rejected adapter result with Ok status must normalize to AdapterRejected");
 }
 
+void test_adapter_reentrancy_is_strictly_rejected()
+{
+    VoxelGameFacade facade({2, 1});
+    VoxelSessionHandle session;
+    std::vector<VoxelBridgeStatus> statuses;
+    bool reload_returned_handle = true;
+    bool pop_returned_event = true;
+    const auto adapter = [&facade, &session, &statuses, &reload_returned_handle, &pop_returned_event](
+                             const VoxelCommand&) {
+        statuses.push_back(facade.destroy_session(session));
+        reload_returned_handle = facade.reload_session(session).has_value();
+        statuses.push_back(facade.last_status(session));
+        const auto recursive_drain = facade.drain_fixed_tick(session, 1);
+        statuses.push_back(recursive_drain.status);
+        VoxelCommand nested = command(VoxelCommandType::SetSelectedBlock);
+        nested.selected_block = 2;
+        statuses.push_back(facade.enqueue_command(session, nested));
+        statuses.push_back(facade.publish_action_pressed(session, VoxelAction::Secondary));
+        VoxelEvent ignored;
+        pop_returned_event = facade.try_pop_event(session, ignored);
+        statuses.push_back(facade.last_status(session));
+        return VoxelCommandResult::accept();
+    };
+    session = facade.create_session(adapter);
+
+    require(facade.enqueue_command(session, command(VoxelCommandType::BreakCurrentTarget)) == VoxelBridgeStatus::Ok,
+            "outer command must queue before adapter reentrancy test");
+    const auto outer_drain = facade.drain_fixed_tick(session, 1);
+    require(outer_drain.status == VoxelBridgeStatus::Ok && outer_drain.consumed == 1,
+            "outer drain must complete despite rejected adapter reentrancy");
+    require(statuses.size() == 6, "every nested mutation must report an explicit status");
+    for (VoxelBridgeStatus status : statuses)
+    {
+        require(status == VoxelBridgeStatus::ReentrantCall,
+                "adapter mutation must be rejected by the non-reentrant boundary");
+    }
+    require(!reload_returned_handle, "adapter reload must not replace the active session");
+    require(!pop_returned_event, "adapter pop must not remove a reserved result slot");
+    require(facade.is_session_live(session), "rejected adapter destroy must leave outer session live");
+    const auto stats = facade.queue_stats(session);
+    require(stats.has_value() && stats->command_count == 0 && stats->event_count == 1 &&
+                stats->event_overflow_count == 0,
+            "adapter reentrancy must neither reorder queues nor consume result capacity");
+    VoxelEvent event;
+    require(facade.try_pop_event(session, event) && event.type == VoxelEventType::EditAccepted &&
+                event.command == VoxelCommandType::BreakCurrentTarget,
+            "outer command must retain its observable result event in FIFO order");
+}
+
 void test_strict_rejections_and_exception_recovery()
 {
     VoxelGameFacade invalid_config({0, 1});
@@ -220,6 +334,15 @@ void test_strict_rejections_and_exception_recovery()
             "invalid target face must be strictly rejected");
     require(facade.last_status(session) == VoxelBridgeStatus::InvalidInput,
             "invalid target must update observable last status");
+    require(facade.publish_target_changed(session, {0, 0, 0, -1, true}) == VoxelBridgeStatus::InvalidInput,
+            "present target must carry a concrete face");
+    require(facade.publish_target_changed(session, {0, 0, 0, 0, false}) == VoxelBridgeStatus::InvalidInput,
+            "absent target must carry only face -1");
+    require(facade.publish_target_changed(session, {0, 0, 0, -1, false}) == VoxelBridgeStatus::Ok,
+            "absent target with face -1 must remain representable");
+    VoxelEvent target_event;
+    require(facade.try_pop_event(session, target_event) && target_event.type == VoxelEventType::TargetChanged,
+            "valid absent target must publish its normal coarse event");
     require(facade.publish_action_pressed(session, static_cast<VoxelAction>(99)) == VoxelBridgeStatus::InvalidInput,
             "unknown action enum must be strictly rejected");
     require(facade.last_status(session) == VoxelBridgeStatus::InvalidInput,
@@ -233,6 +356,10 @@ void test_strict_rejections_and_exception_recovery()
     require(facade.try_pop_event(session, event) && event.type == VoxelEventType::EditRejected &&
                 event.status == VoxelBridgeStatus::AdapterException,
             "exception recovery must expose a reject event rather than throw across boundary");
+    require(facade.enqueue_command(session, command(VoxelCommandType::PlaceSelectedBlock)) == VoxelBridgeStatus::Ok,
+            "exception must restore the adapter guard for subsequent fixed ticks");
+    require(facade.drain_fixed_tick(session, 1).status == VoxelBridgeStatus::AdapterException,
+            "restored guard must permit subsequent adapter invocation");
 }
 
 } // namespace
@@ -242,9 +369,12 @@ int main()
     try
     {
         test_handle_generation_destroy_reuse_and_reload();
+        test_facade_ownership_and_create_exception_safety();
+        test_reload_discards_queues_and_reports_counts();
         test_command_and_event_fifo_at_fixed_tick_boundary();
         test_bounded_queues_and_result_events();
         test_result_observability_and_rejection_normalization();
+        test_adapter_reentrancy_is_strictly_rejected();
         test_strict_rejections_and_exception_recovery();
         std::cout << "voxel_bridge_tests: PASS" << std::endl;
         return 0;
