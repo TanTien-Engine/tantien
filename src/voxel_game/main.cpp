@@ -19,6 +19,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -66,6 +67,10 @@ void apply_cursor_mode(GLFWwindow* window, const InputState& input)
     if (input.mouse_captured() && glfwRawMouseMotionSupported())
     {
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+    else if (glfwRawMouseMotionSupported())
+    {
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
     }
 }
 
@@ -304,6 +309,45 @@ Mat4 multiply(const Mat4& left, const Mat4& right)
     return result;
 }
 
+bool smoke_framebuffer_has_voxel_pixels(int width, int height)
+{
+    if (width <= 0 || height <= 0)
+    {
+        return false;
+    }
+
+    const std::size_t pixel_count = static_cast<std::size_t>(width) *
+                                    static_cast<std::size_t>(height);
+    std::vector<unsigned char> colors(pixel_count * 4);
+    std::vector<float> depths(pixel_count);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, colors.data());
+    glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depths.data());
+
+    constexpr int ClearRed = 20;
+    constexpr int ClearGreen = 31;
+    constexpr int ClearBlue = 46;
+    bool has_non_clear_color = false;
+    bool has_depth_written = false;
+    for (std::size_t pixel = 0; pixel < pixel_count; ++pixel)
+    {
+        const std::size_t color_offset = pixel * 4;
+        const int red = colors[color_offset];
+        const int green = colors[color_offset + 1];
+        const int blue = colors[color_offset + 2];
+        if (std::abs(red - ClearRed) > 1 ||
+            std::abs(green - ClearGreen) > 1 ||
+            std::abs(blue - ClearBlue) > 1)
+        {
+            has_non_clear_color = true;
+        }
+        if (depths[pixel] < 0.99999F)
+        {
+            has_depth_written = true;
+        }
+    }
+    return has_non_clear_color && has_depth_written;
+}
+
 int run(bool smoke)
 {
     if (glfwInit() == GLFW_FALSE)
@@ -416,6 +460,7 @@ int run(bool smoke)
     FixedStepAccumulator fixed_tick;
     std::size_t rendered_frames = 0;
     bool draw_failed = false;
+    bool smoke_pixels_verified = false;
     while (!glfwWindowShouldClose(window))
     {
         input.begin_frame();
@@ -442,6 +487,16 @@ int run(bool smoke)
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.values.data());
         gpu_mesh.draw();
+        if (smoke && rendered_frames == 2)
+        {
+            smoke_pixels_verified = smoke_framebuffer_has_voxel_pixels(width, height);
+            if (!smoke_pixels_verified)
+            {
+                std::cerr << "smoke framebuffer readback found no visible voxel pixels" << std::endl;
+                draw_failed = true;
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+        }
         if (glGetError() != GL_NO_ERROR)
         {
             std::cerr << "OpenGL error while drawing voxel mesh" << std::endl;
@@ -463,7 +518,7 @@ int run(bool smoke)
     device.reset();
     glfwDestroyWindow(window);
     glfwTerminate();
-    return draw_failed ? 1 : 0;
+    return draw_failed || (smoke && !smoke_pixels_verified) ? 1 : 0;
 }
 
 } // namespace

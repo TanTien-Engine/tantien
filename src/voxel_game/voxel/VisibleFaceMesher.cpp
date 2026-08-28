@@ -15,8 +15,8 @@ struct FaceDefinition
 };
 
 constexpr std::array<FaceDefinition, 6> Faces = {{
-    {{-1, 0, 0}, {-1.0F, 0.0F, 0.0F}, {{{0.0F, 0.0F, 1.0F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 1.0F, 1.0F}}}},
-    {{1, 0, 0}, {1.0F, 0.0F, 0.0F}, {{{1.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 0.0F}}}},
+    {{-1, 0, 0}, {-1.0F, 0.0F, 0.0F}, {{{0.0F, 0.0F, 1.0F}, {0.0F, 1.0F, 1.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F, 0.0F}}}},
+    {{1, 0, 0}, {1.0F, 0.0F, 0.0F}, {{{1.0F, 0.0F, 0.0F}, {1.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 0.0F, 1.0F}}}},
     {{0, -1, 0}, {0.0F, -1.0F, 0.0F}, {{{0.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F, 1.0F}, {0.0F, 0.0F, 1.0F}}}},
     {{0, 1, 0}, {0.0F, 1.0F, 0.0F}, {{{0.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F, 0.0F}, {0.0F, 1.0F, 0.0F}}}},
     {{0, 0, -1}, {0.0F, 0.0F, -1.0F}, {{{1.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F}, {0.0F, 1.0F, 0.0F}, {1.0F, 1.0F, 0.0F}}}},
@@ -70,10 +70,6 @@ OpaqueMesh mesh_opaque_visible_faces(const Section& section,
                                      const BlockLookup& block_lookup)
 {
     OpaqueMesh mesh;
-    const BlockLookup lookup = block_lookup
-        ? block_lookup
-        : [&section](BlockCoord coordinate) { return section.get_or_air(coordinate); };
-
     for (int y = 0; y < Section::Size; ++y)
     {
         for (int z = 0; z < Section::Size; ++z)
@@ -94,7 +90,10 @@ OpaqueMesh mesh_opaque_visible_faces(const Section& section,
                         y + face.neighbor_offset.y,
                         z + face.neighbor_offset.z,
                     };
-                    if (!is_opaque(lookup(neighbor)))
+                    const BlockState neighbor_state = Section::contains(neighbor)
+                        ? section.get(neighbor)
+                        : (block_lookup ? block_lookup(neighbor) : BlockState::Air);
+                    if (!is_opaque(neighbor_state))
                     {
                         append_face(mesh, coordinate, state, face);
                     }

@@ -32,9 +32,11 @@ struct OpaqueMesh
     std::size_t face_count = 0;
 };
 
-// Coordinates presented to this callback are Section-local and may be one
-// block outside [0, 16). A future World can resolve them to neighboring
-// Sections without changing the mesher or its opaque/cutout/translucent split.
+// This callback is invoked only for a one-block-outside Section-local
+// coordinate. Coordinates inside [0, 16) always resolve from the supplied
+// Section; without a callback, out-of-bounds neighbors are Air. A future World
+// can resolve the callback coordinates to neighboring Sections without changing
+// the mesher or its opaque/cutout/translucent split.
 using BlockLookup = std::function<BlockState(BlockCoord)>;
 
 OpaqueMesh mesh_opaque_visible_faces(const Section& section,

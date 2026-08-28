@@ -98,6 +98,51 @@ void require_mesh_shape(const tt::voxel_game::OpaqueMesh& mesh,
     }
 }
 
+std::array<float, 3> subtract(const std::array<float, 3>& left,
+                              const std::array<float, 3>& right)
+{
+    return {left[0] - right[0], left[1] - right[1], left[2] - right[2]};
+}
+
+std::array<float, 3> cross(const std::array<float, 3>& left,
+                           const std::array<float, 3>& right)
+{
+    return {
+        left[1] * right[2] - left[2] * right[1],
+        left[2] * right[0] - left[0] * right[2],
+        left[0] * right[1] - left[1] * right[0],
+    };
+}
+
+float dot(const std::array<float, 3>& left, const std::array<float, 3>& right)
+{
+    return left[0] * right[0] + left[1] * right[1] + left[2] * right[2];
+}
+
+void require_positive_triangle_winding(const tt::voxel_game::OpaqueMesh& mesh)
+{
+    require(mesh.indices.size() == mesh.face_count * 6, "mesh contains two triangles per face");
+    for (std::size_t face = 0; face < mesh.face_count; ++face)
+    {
+        const std::size_t index_offset = face * 6;
+        const std::uint32_t index0 = mesh.indices[index_offset];
+        const std::uint32_t index1 = mesh.indices[index_offset + 1];
+        const std::uint32_t index2 = mesh.indices[index_offset + 2];
+        const std::uint32_t index3 = mesh.indices[index_offset + 5];
+        const auto& normal = mesh.vertices[index0].normal;
+        const float first_winding = dot(
+            cross(subtract(mesh.vertices[index1].position, mesh.vertices[index0].position),
+                  subtract(mesh.vertices[index2].position, mesh.vertices[index0].position)),
+            normal);
+        const float second_winding = dot(
+            cross(subtract(mesh.vertices[index2].position, mesh.vertices[index0].position),
+                  subtract(mesh.vertices[index3].position, mesh.vertices[index0].position)),
+            normal);
+        require(first_winding > 0.0F, "first quad triangle must wind toward its normal");
+        require(second_winding > 0.0F, "second quad triangle must wind toward its normal");
+    }
+}
+
 void test_section_coordinates()
 {
     using tt::voxel_game::BlockCoord;
@@ -142,15 +187,18 @@ void test_visible_face_mesher()
     section.set({0, 0, 0}, BlockState::Stone);
     const auto single_block_mesh = mesh_opaque_visible_faces(section);
     require_mesh_shape(single_block_mesh, 6, "one solid block has six visible faces");
+    require_positive_triangle_winding(single_block_mesh);
 
     section.set({1, 0, 0}, BlockState::Grass);
     const auto paired_block_mesh = mesh_opaque_visible_faces(section);
     require_mesh_shape(paired_block_mesh, 10, "two adjacent blocks hide their shared face");
+    require_positive_triangle_winding(paired_block_mesh);
 
     section.fill(BlockState::Stone);
     const auto solid_mesh = mesh_opaque_visible_faces(section);
     require_mesh_shape(solid_mesh, 6 * Section::Size * Section::Size,
                        "solid 16 cubed section has only exterior faces");
+    require_positive_triangle_winding(solid_mesh);
 
     const auto repeat_mesh = mesh_opaque_visible_faces(section);
     require(repeat_mesh.vertices == solid_mesh.vertices, "mesher vertices are deterministic");
@@ -165,6 +213,7 @@ void test_neighbor_lookup_boundary()
     using tt::voxel_game::mesh_opaque_visible_faces;
 
     Section section;
+    section.set({14, 0, 0}, BlockState::Stone);
     section.set({15, 0, 0}, BlockState::Stone);
     const auto boundary_mesh = mesh_opaque_visible_faces(
         section,
@@ -174,7 +223,9 @@ void test_neighbor_lookup_boundary()
                 ? BlockState::Stone
                 : BlockState::Air;
         });
-    require_mesh_shape(boundary_mesh, 5, "neighbor callback can hide a boundary face");
+    require_mesh_shape(boundary_mesh, 9,
+                       "neighbor callback hides external face without exposing internal face");
+    require_positive_triangle_winding(boundary_mesh);
 }
 
 void test_fps_camera_actions()
