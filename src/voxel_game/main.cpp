@@ -162,7 +162,16 @@ OpaqueMesh make_selection_mesh()
 {
     Section section;
     section.set({0, 0, 0}, BlockState::Clay);
-    return tt::voxel_game::mesh_opaque_visible_faces(section);
+    OpaqueMesh mesh = tt::voxel_game::mesh_opaque_visible_faces(section);
+    constexpr float OutlineExpansion = 0.015F;
+    for (auto& vertex : mesh.vertices)
+    {
+        for (float& component : vertex.position)
+        {
+            component += component < 0.5F ? -OutlineExpansion : OutlineExpansion;
+        }
+    }
+    return mesh;
 }
 
 bool shader_log(GLuint shader, std::string& error)
@@ -552,6 +561,7 @@ int run(bool smoke)
     std::size_t rendered_frames = 0;
     bool draw_failed = false;
     bool smoke_pixels_verified = false;
+    bool smoke_selection_verified = false;
     while (!glfwWindowShouldClose(window))
     {
         input.begin_frame();
@@ -560,9 +570,12 @@ int run(bool smoke)
         const double frame_delta_seconds = frame_clock.sample();
         fixed_tick.advance(frame_delta_seconds, [](double) {});
         camera.update(input, frame_delta_seconds);
-        const auto selection = tt::voxel_game::raycast_voxels(
-            world, {camera.position()[0], camera.position()[1], camera.position()[2]},
-            {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
+        const auto selection = smoke
+            ? tt::voxel_game::raycast_voxels(world, {15.5, 1.5, -2.0}, {0.0, 0.0, 1.0}, EditReach)
+            : tt::voxel_game::raycast_voxels(
+                world, {camera.position()[0], camera.position()[1], camera.position()[2]},
+                {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
+        smoke_selection_verified = smoke_selection_verified || selection.has_value();
         if (!smoke && was_mouse_captured && selection)
         {
             bool edited = false;
@@ -644,7 +657,7 @@ int run(bool smoke)
     device.reset();
     glfwDestroyWindow(window);
     glfwTerminate();
-    return draw_failed || (smoke && !smoke_pixels_verified) ? 1 : 0;
+    return draw_failed || (smoke && (!smoke_pixels_verified || !smoke_selection_verified)) ? 1 : 0;
 }
 
 } // namespace

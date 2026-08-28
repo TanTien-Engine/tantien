@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 
 namespace tt::voxel_game
 {
@@ -62,7 +63,17 @@ BlockState World::get(BlockCoord world_coordinate) const
 bool World::set(BlockCoord world_coordinate, BlockState state)
 {
     const WorldBlockLocation location = locate_world_block(world_coordinate);
-    LoadedSection& section = m_sections[location.section];
+    auto found = m_sections.find(location.section);
+    if (found == m_sections.end())
+    {
+        if (state == BlockState::Air)
+        {
+            return false;
+        }
+        found = m_sections.emplace(location.section, LoadedSection{}).first;
+    }
+
+    LoadedSection& section = found->second;
     const BlockState previous = section.blocks.get(location.local);
     if (previous == state)
     {
@@ -120,17 +131,27 @@ std::vector<SectionCoord> World::rebuild_dirty_meshes()
     for (const SectionCoord coordinate : rebuilt)
     {
         LoadedSection& section = m_sections.at(coordinate);
-        const BlockCoord origin{
-            coordinate.x * Section::Size,
-            coordinate.y * Section::Size,
-            coordinate.z * Section::Size,
-        };
+        const std::int64_t origin_x = static_cast<std::int64_t>(coordinate.x) * Section::Size;
+        const std::int64_t origin_y = static_cast<std::int64_t>(coordinate.y) * Section::Size;
+        const std::int64_t origin_z = static_cast<std::int64_t>(coordinate.z) * Section::Size;
         section.mesh = mesh_opaque_visible_faces(section.blocks,
-            [this, origin](BlockCoord local_neighbor)
+            [this, origin_x, origin_y, origin_z](BlockCoord local_neighbor)
             {
-                return get({origin.x + local_neighbor.x,
-                            origin.y + local_neighbor.y,
-                            origin.z + local_neighbor.z});
+                const std::int64_t world_x = origin_x + local_neighbor.x;
+                const std::int64_t world_y = origin_y + local_neighbor.y;
+                const std::int64_t world_z = origin_z + local_neighbor.z;
+                if (world_x < (std::numeric_limits<int>::min)() ||
+                    world_x > (std::numeric_limits<int>::max)() ||
+                    world_y < (std::numeric_limits<int>::min)() ||
+                    world_y > (std::numeric_limits<int>::max)() ||
+                    world_z < (std::numeric_limits<int>::min)() ||
+                    world_z > (std::numeric_limits<int>::max)())
+                {
+                    return BlockState::Air;
+                }
+                return get({static_cast<int>(world_x),
+                            static_cast<int>(world_y),
+                            static_cast<int>(world_z)});
             });
         ++section.mesh_revision;
         section.dirty = false;

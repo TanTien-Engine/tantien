@@ -53,8 +53,10 @@ struct WorldBlockLocation
 WorldBlockLocation locate_world_block(BlockCoord world_coordinate);
 
 // Owns loaded 16^3 Sections and their deterministic CPU mesh revisions.
-// Missing Sections read as Air. set() lazily loads the addressed Section; a
-// changed boundary block marks any loaded face-neighbor Section dirty too.
+// Missing Sections read as Air. A non-Air set() lazily loads the addressed
+// Section, while setting Air in a missing Section is a no-op. Empty loaded
+// Sections remain loaded after deletion. A changed boundary block marks any
+// loaded face-neighbor Section dirty too.
 class World
 {
 public:

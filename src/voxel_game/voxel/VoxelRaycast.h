@@ -25,6 +25,8 @@ struct VoxelRaycastHit
 // first; if it is air, a negative direction may cross into its neighbor at 0.
 // Exact simultaneous grid-plane crossings use a deterministic X, then Y, then
 // Z tie priority, visiting one face-neighbor per iteration.
+// The complete finite ray segment must map to BlockCoord's int domain; rays
+// outside that domain are rejected instead of narrowing or overflowing.
 std::optional<VoxelRaycastHit> raycast_voxels(const World& world,
                                               std::array<double, 3> origin,
                                               std::array<double, 3> direction,

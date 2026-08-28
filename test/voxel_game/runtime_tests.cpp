@@ -10,6 +10,7 @@
 #include <cmath>
 #include <exception>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 namespace
@@ -263,6 +264,9 @@ void test_world_coordinates_and_dirty_meshes()
 
     World world;
     require(world.get({-1, 0, 0}) == BlockState::Air, "missing world section reads as air");
+    require(!world.set({32, 0, 0}, BlockState::Air), "missing-section air set is a no-op");
+    require(world.section_count() == 0, "missing-section air set does not load a section");
+    require(world.rebuild_dirty_meshes().empty(), "missing-section air set creates no dirty mesh");
     require(world.set({15, 0, 0}, BlockState::Stone), "world set creates first section");
     require(world.set({16, 0, 0}, BlockState::Stone), "world set creates neighbor section");
     require(world.section_count() == 2, "cross-boundary writes load two sections");
@@ -283,6 +287,19 @@ void test_world_coordinates_and_dirty_meshes()
             "boundary deletion reveals neighbor face");
     require(world.mesh_revision(left) == 2 && world.mesh_revision(right) == 2,
             "only dirty sections advance mesh revisions");
+
+    World extrema_world;
+    const int minimum = (std::numeric_limits<int>::min)();
+    const int maximum = (std::numeric_limits<int>::max)();
+    require(extrema_world.set({minimum, 0, 0}, BlockState::Stone), "minimum coordinate write");
+    require(extrema_world.set({maximum, 0, 0}, BlockState::Stone), "maximum coordinate write");
+    const auto extrema_rebuilt = extrema_world.rebuild_dirty_meshes();
+    require(extrema_rebuilt.size() == 2, "coordinate extrema rebuild two sections");
+    for (const SectionCoord coordinate : extrema_rebuilt)
+    {
+        require(extrema_world.find_mesh(coordinate)->face_count == 6,
+                "out-of-domain mesh neighbor is treated as air");
+    }
 }
 
 void test_voxel_raycast()
@@ -312,8 +329,19 @@ void test_voxel_raycast()
             "starting in solid block is a distance-zero hit without placement cell");
     require(!raycast_voxels(axis_world, {NAN, 0.0, 0.0}, {1.0, 0.0, 0.0}, 1.0),
             "nonfinite ray origin is rejected");
+    require(!raycast_voxels(axis_world, {1.0e100, 0.0, 0.0}, {1.0, 0.0, 0.0}, 1.0),
+            "finite origin outside BlockCoord domain is rejected");
     require(!raycast_voxels(axis_world, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 1.0),
             "zero direction is rejected");
+
+    World maximum_world;
+    const int maximum = (std::numeric_limits<int>::max)();
+    maximum_world.set({maximum, 0, 0}, BlockState::Stone);
+    require(!raycast_voxels(maximum_world,
+                            {static_cast<double>(maximum) + 0.5, 0.5, 0.5},
+                            {1.0, 0.0, 0.0},
+                            0.5),
+            "ray segment leaving BlockCoord domain is rejected before narrowing");
 
     World tie_world;
     tie_world.set({1, 0, 0}, BlockState::Stone);

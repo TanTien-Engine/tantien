@@ -13,6 +13,19 @@ int sign_of(double value)
     return value > 0.0 ? 1 : (value < 0.0 ? -1 : 0);
 }
 
+bool maps_to_block_coordinate(double value)
+{
+    return value >= static_cast<double>((std::numeric_limits<int>::min)()) &&
+           value < static_cast<double>((std::numeric_limits<int>::max)()) + 1.0;
+}
+
+bool can_step(BlockCoord coordinate, int axis, int step)
+{
+    const int value = axis == 0 ? coordinate.x : (axis == 1 ? coordinate.y : coordinate.z);
+    return !(step > 0 && value == (std::numeric_limits<int>::max)()) &&
+           !(step < 0 && value == (std::numeric_limits<int>::min)());
+}
+
 } // namespace
 
 std::optional<VoxelRaycastHit> raycast_voxels(const World& world,
@@ -32,6 +45,17 @@ std::optional<VoxelRaycastHit> raycast_voxels(const World& world,
     for (double& component : direction)
     {
         component /= length;
+    }
+
+    std::array<double, 3> segment_end{};
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        segment_end[axis] = origin[axis] + direction[axis] * max_distance;
+        if (!std::isfinite(segment_end[axis]) || !maps_to_block_coordinate(origin[axis]) ||
+            !maps_to_block_coordinate(segment_end[axis]))
+        {
+            return std::nullopt;
+        }
     }
 
     BlockCoord current{
@@ -82,6 +106,10 @@ std::optional<VoxelRaycastHit> raycast_voxels(const World& world,
         }
 
         const BlockCoord previous = current;
+        if (!can_step(current, axis, step[axis]))
+        {
+            return std::nullopt;
+        }
         if (axis == 0)
         {
             current.x += step[axis];
