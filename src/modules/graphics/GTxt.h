@@ -24,19 +24,21 @@ public:
 	void LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
 		const std::vector<std::pair<std::string, std::string>>& user_fonts);
 
-	static void Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
+	// true: owner-thread and GTxt::Init gates passed; not glyph upload or visibility
+	static bool Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
 		uint32_t mul, uint32_t add, int time, bool richtext, tess::Painter* pt = nullptr, bool texcoords_relocate = true);
 
 	static sm::vec2 CalcLabelSize(const std::string& text, const gtxt_label_style& style);
 
 	static void InitLabelStype(gtxt_label_style& st);
+	bool LoadFont(const std::string& name, const std::string& filepath);
 
 private:
-	void LoadFont(const std::string& name, const std::string& filepath);
 	void LoadUserFont(const std::string& name, const std::string& filepath);
 	void LoadUserFontChar(const std::string& str, const std::string& pkg, const std::string& node);
 
 private:
+	static bool m_ready;
 	static int m_cap_bitmap, m_cap_layout;
 
 	std::set<std::string> m_fonts;

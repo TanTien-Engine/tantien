@@ -2,6 +2,7 @@
 
 #include "core/macro.h"
 #include "modules/filesystem/ResourceUID.h"
+#include "modules/graphics/DTex.h"
 
 #include <SM_Rect.h>
 #include <gtxt_glyph.h>
@@ -22,11 +23,11 @@ public:
 	void AddGlyph(UID uid, int unicode, float line_x, const gtxt_glyph_style& gs);
 	void AddSymbol(UID uid, const ur::TexturePtr& tex, const sm::irect& region);
 
-	bool Flush(ur::Context& ctx);
+	DTexFlushResult Flush(ur::Context& ctx);
 
 private:
 	bool FlushGlyphs(ur::Context& ctx);
-	bool FlushSymbols(ur::Context& ctx);
+	DTexFlushResult FlushSymbols(ur::Context& ctx);
 
 private:
 	struct Glyph

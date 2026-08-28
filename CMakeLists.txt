@@ -202,6 +202,8 @@ set(modules__graphics
     "src/modules/graphics/graphics.ves.inc"
     "src/modules/graphics/GTxt.cpp"
     "src/modules/graphics/GTxt.h"
+    "src/modules/graphics/GtxtCore.cpp"
+    "src/modules/graphics/GtxtCore.h"
     "src/modules/graphics/LoadingList.cpp"
     "src/modules/graphics/LoadingList.h"
     "src/modules/graphics/RenderBuffer.h"

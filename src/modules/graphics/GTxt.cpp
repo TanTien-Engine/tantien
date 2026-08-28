@@ -1,4 +1,5 @@
 #include "modules/graphics/GTxt.h"
+#include "modules/graphics/GtxtCore.h"
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/LoadingList.h"
@@ -13,8 +14,6 @@
 
 namespace
 {
-
-const ur::Device* UR_DEV = nullptr;
 
 /************************************************************************/
 /* render                                                               */
@@ -345,6 +344,7 @@ namespace tt
 
 TT_SINGLETON_DEFINITION(GTxt)
 
+bool GTxt::m_ready = false;
 int GTxt::m_cap_bitmap = 50;
 int GTxt::m_cap_layout = 500;
 
@@ -354,20 +354,30 @@ GTxt::GTxt()
 
 void GTxt::Init(const ur::Device& dev)
 {
-    UR_DEV = &dev;
+    (void)dev;
 
-    gtxt_label_cb_init(draw_glyph);
-
-    gtxt_ft_create();
-
-    gtxt_glyph_create(m_cap_bitmap, m_cap_layout, nullptr, get_uf_layout);
+    if (!GtxtCore::Ensure()) {
+        return;
+    }
+    GtxtCore::SetProcessLabelCallback(draw_glyph);
 
     gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
+    m_ready = true;
 }
 
-void GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
+bool GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
 	            uint32_t mul, uint32_t add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
+	if (!GtxtCore::OnOwnerThread()) {
+		return false;
+	}
+	if (!GtxtCore::ready()) {
+		return false;
+	}
+	if (!m_ready) {
+		return false;
+	}
+
 	render_params rp;
 	rp.mt  = &mat;
 	rp.mul = mul;
@@ -381,6 +391,7 @@ void GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_styl
 	} else {
 		gtxt_label_draw(text.c_str(), &style, (void*)&rp);
 	}
+	return true;
 }
 
 sm::vec2 GTxt::CalcLabelSize(const std::string& text, const gtxt_label_style& style)
@@ -417,15 +428,13 @@ void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fon
 	}
 }
 
-void GTxt::LoadFont(const std::string& name, const std::string& filepath)
+bool GTxt::LoadFont(const std::string& name, const std::string& filepath)
 {
-	auto itr = m_fonts.find(name);
-	if (itr != m_fonts.end()) {
-		return;
+	if (GtxtCore::AddFont(name.c_str(), filepath.c_str()) < 0) {
+		return false;
 	}
-
-	gtxt_ft_add_font(name.c_str(), filepath.c_str());
 	m_fonts.insert(name);
+	return true;
 }
 
 void GTxt::LoadUserFont(const std::string& name, const std::string& filepath)
