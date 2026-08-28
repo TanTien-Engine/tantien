@@ -5,6 +5,7 @@
 #include "voxel_game/runtime/ActionMap.h"
 #include "voxel_game/runtime/CreativeHotbar.h"
 #include "voxel_game/runtime/PlayerController.h"
+#include "voxel_game/worldgen/TerrainGenerator.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
 #include "voxel_game/voxel/BlockAtlas.h"
 #include "voxel_game/voxel/World.h"
@@ -22,6 +23,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -49,6 +51,8 @@ using tt::voxel_game::PlayerMoveIntent;
 using tt::voxel_game::Section;
 using tt::voxel_game::SectionCoord;
 using tt::voxel_game::SectionCoordHash;
+using tt::voxel_game::TerrainConfig;
+using tt::voxel_game::TerrainGenerator;
 using tt::voxel_game::VoxelGpuMesh;
 using tt::voxel_game::World;
 
@@ -142,37 +146,50 @@ bool initialize_unirender(std::shared_ptr<ur::Device>& device,
     return true;
 }
 
-World make_playable_world()
+TerrainConfig playable_terrain_config()
+{
+    TerrainConfig config;
+    config.seed = UINT64_C(0x4d32465f7631a9c3);
+    config.base_surface_height = 8;
+    config.height_amplitude = 4;
+    config.lattice_spacing = 32;
+    config.soil_depth = 3;
+    return config;
+}
+
+void write_generated_section(World& world, const TerrainGenerator& generator,
+                             SectionCoord coordinate)
+{
+    const Section generated = generator.generate_section(coordinate);
+    const std::int64_t base_x = static_cast<std::int64_t>(coordinate.x) * Section::Size;
+    const std::int64_t base_y = static_cast<std::int64_t>(coordinate.y) * Section::Size;
+    const std::int64_t base_z = static_cast<std::int64_t>(coordinate.z) * Section::Size;
+    for (int y = 0; y < Section::Size; ++y)
+    {
+        for (int z = 0; z < Section::Size; ++z)
+        {
+            for (int x = 0; x < Section::Size; ++x)
+            {
+                world.set({static_cast<int>(base_x + x), static_cast<int>(base_y + y),
+                           static_cast<int>(base_z + z)}, generated.get({x, y, z}));
+            }
+        }
+    }
+}
+
+World make_playable_world(const TerrainGenerator& generator)
 {
     World world;
-    for (int z = -8; z <= 17; ++z)
+    // M2F intentionally remains finite: 3x3 horizontal Sections, with two
+    // vertical Sections enough for this config's surface and stone layers.
+    for (int section_z = -1; section_z <= 1; ++section_z)
     {
-        for (int x = -10; x <= 25; ++x)
+        for (int section_x = -1; section_x <= 1; ++section_x)
         {
-            world.set({x, -1, z}, BlockState::Dirt);
-            world.set({x, 0, z}, BlockState::Grass);
-        }
-    }
-    for (int z = 3; z <= 8; ++z)
-    {
-        for (int x = 3; x <= 9; ++x)
-        {
-            world.set({x, 1, z}, (x + z) % 3 == 0 ? BlockState::Clay : BlockState::Stone);
-        }
-    }
-    for (int y = 1; y <= 4; ++y)
-    {
-        world.set({-1, y, 4}, BlockState::Clay);
-        world.set({0, y, 4}, BlockState::Clay);
-        world.set({15, y, 1}, BlockState::Stone);
-        world.set({16, y, 1}, BlockState::Stone);
-    }
-    for (int z = -2; z <= 1; ++z)
-    {
-        for (int x = 8; x <= 12; ++x)
-        {
-            world.set({x, 1, z}, BlockState::Dirt);
-            world.set({x, 2, z}, BlockState::Grass);
+            for (int section_y = -1; section_y <= 0; ++section_y)
+            {
+                write_generated_section(world, generator, {section_x, section_y, section_z});
+            }
         }
     }
     return world;
@@ -665,7 +682,8 @@ int run(bool smoke)
         return 1;
     }
     const auto mesh_start = std::chrono::steady_clock::now();
-    World world = smoke ? make_smoke_world() : make_playable_world();
+    const TerrainGenerator terrain(playable_terrain_config());
+    World world = smoke ? make_smoke_world() : make_playable_world(terrain);
     std::vector<SectionCoord> rebuilt;
     if (smoke)
     {
@@ -823,8 +841,11 @@ int run(bool smoke)
     CreativeHotbar hotbar;
     FpsCamera camera;
     PlayerController player;
+    constexpr int SpawnX = 0;
+    constexpr int SpawnZ = 0;
+    const double generated_spawn_y = static_cast<double>(terrain.height_at(SpawnX, SpawnZ)) + 1.0;
     player.state().feet_position = smoke ? std::array<double, 3>{15.5, 2.88, 8.0}
-                                         : std::array<double, 3>{8.5, 1.0, 14.5};
+                                         : std::array<double, 3>{SpawnX + 0.5, generated_spawn_y, SpawnZ + 0.5};
     if (smoke)
     {
         player.state().grounded = false;
