@@ -12,6 +12,10 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     include(CTest)
     set(VOXEL_BUILD_TESTS ON CACHE BOOL
         "Build the dependency-free voxel test suite" FORCE)
+    set(VOXEL_BUILD_UNIRENDER_BACKEND OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(thirdparty/voxel)
     return()
 endif()
@@ -768,44 +772,39 @@ if(TT_BUILD_VES_TEST AND TT_BUILD_CAX AND TT_BUILD_EDITOR)
 endif()
 
 # ----------------------------------------------------------------------------
-# voxel_game: a continuous, CAD-independent OpenGL game loop.
+# voxel_game: consume thirdparty/voxel frontend/render providers.
 #
-# This target deliberately depends only on GLFW, GL3W and UniRender. It must
-# stay independent of tantien/cax/OpenCASCADE so later voxel runtime work does
-# not inherit the editor's CAD process and render-on-demand lifetime rules.
+# Provider targets must exist before add_subdirectory(voxel) so the submodule
+# can link tantien::voxel_render_stack / tantien::voxel_hud_support instead of
+# the parent compiling VoxelGpuMesh.cpp and main.cpp by hand.
 # ----------------------------------------------------------------------------
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/VoxelProviders.cmake")
+
 set(VOXEL_BUILD_TESTS ${TT_BUILD_VOXEL_RUNTIME_TESTS} CACHE BOOL
     "Build the dependency-free voxel test suite" FORCE)
+set(VOXEL_TANTIEN_ASSET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH
+    "Tantien source root containing assets/fonts" FORCE)
+set(VOXEL_BUILD_UNIRENDER_BACKEND OFF CACHE BOOL "" FORCE)
+set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
+set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
+set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS OFF CACHE BOOL "" FORCE)
+
+if(TT_BUILD_VOXEL_GAME AND TARGET tantien::voxel_render_stack AND TARGET glfw)
+    set(VOXEL_BUILD_UNIRENDER_BACKEND ON CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_FRONTEND ON CACHE BOOL "" FORCE)
+elseif(TT_BUILD_VOXEL_GAME)
+    message(WARNING
+        "TT_BUILD_VOXEL_GAME requested but voxel render/GLFW providers are missing")
+endif()
+
+if(TT_BUILD_HOST_HUD_TESTS AND WIN32 AND
+   TARGET tantien::voxel_hud_support AND TARGET tantien::voxel_render_stack)
+    set(VOXEL_BUILD_TANTIEN_HUD ON CACHE BOOL "" FORCE)
+endif()
+
 add_subdirectory(thirdparty/voxel)
 
-if(TT_BUILD_VOXEL_GAME)
-    add_executable(voxel_game
-        "thirdparty/voxel/src/voxel_game/main.cpp"
-        "thirdparty/voxel/src/voxel_game/render/VoxelGpuMesh.cpp")
-    target_include_directories(voxel_game PRIVATE
-        src
-        thirdparty/voxel/src
-        thirdparty/gl/include
-        thirdparty/glfw/include)
-    target_link_libraries(voxel_game PRIVATE
-        voxel_runtime
-        voxel_bridge
-        unirender
-        glfw
-        gl3w
-        shadertrans
-        spirv-cross-core
-        spirv-cross-glsl
-        spirv-cross-util
-        glslang
-        SPIRV
-        SpvGenTwoCommon
-        SpvGenTwoLib
-        SPIRV-Tools
-        SPIRV-Tools-link
-        SPIRV-Tools-opt
-        Vulkan::Vulkan)
-    target_compile_features(voxel_game PRIVATE cxx_std_17)
+if(TARGET voxel_game)
     set_target_properties(voxel_game PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
