@@ -75,7 +75,7 @@ enum class WorkerFaultPoint : std::uint8_t
 //   synchronous lifecycle barrier.
 //
 // Stop barrier (Running -> Stopping -> Stopped, idempotent):
-// 1. Enter Stopping, then close result publication FIRST. Everything
+// 1. Close result publication, then publish Stopping. Everything
 //    published before this point stays drainable; anything after is
 //    dropped (dropped_closed).
 // 2. Discard unclaimed tasks (cancelled). Workers re-check the lifecycle
@@ -116,6 +116,7 @@ public:
         ThreadFactory thread_factory;       // empty -> std::thread
         // Deterministic test seams. Production leaves these empty.
         TaskMailbox::PopHook task_pop_hook;
+        ResultMailbox::PushWaitHook result_push_wait_hook;
         FaultInjector fault_injector;
         ResultCutoffHook result_cutoff_hook;
     };
@@ -132,7 +133,7 @@ public:
         : m_task_capacity(config.task_capacity),
           m_result_capacity(config.result_capacity),
           m_tasks(m_task_capacity, config.task_pop_hook),
-          m_results(m_result_capacity),
+          m_results(m_result_capacity, config.result_push_wait_hook),
           m_next_sequence(config.initial_sequence),
           m_thread_factory(config.thread_factory ? config.thread_factory : ThreadFactory{}),
           m_fault_injector(config.fault_injector ? config.fault_injector : FaultInjector{}),
@@ -156,7 +157,7 @@ public:
             try {
                 if (m_thread_factory) {
                     m_workers.push_back(
-                        m_thread_factory(id, [this](unsigned worker_id) { worker_loop(worker_id); }));
+                        make_worker(id));
                 } else {
                     m_workers.push_back(std::thread([this, id] { worker_loop(id); }));
                 }
@@ -172,6 +173,10 @@ public:
 
     ~VoxelJobQueue()
     {
+        // Queue ownership is affine: destruction on a worker can otherwise
+        // self-join while that worker still needs queue state. Fail closed
+        // rather than detach or permit a use-after-free.
+        if (std::this_thread::get_id() != m_owner) std::terminate();
         shutdown();
         join_workers();
     }
@@ -201,7 +206,7 @@ public:
         const std::uint64_t sequence = m_next_sequence.load(std::memory_order_relaxed);
         if (sequence == UINT64_MAX) return SubmitStatus::SequenceExhausted;
         SequencedKey key;
-        key.key = make_priority_key(token.coord, in_frustum, camera_section);
+        key.key = make_priority_key(token.coord(), in_frustum, camera_section);
         key.sequence = sequence;
         VoxelJob job{token, std::move(snapshot), std::move(function)};
 
@@ -276,8 +281,6 @@ public:
     // Any thread (atomics only); the mutable reference itself is for the
     // owner thread.
     const StreamingStats& stats() const { return m_stats; }
-    void note_result_accepted() { m_stats.note_result_accepted(); }
-    void note_result_stale() { m_stats.note_result_stale(); }
 
     std::size_t task_capacity() const { return m_task_capacity; }
     std::size_t result_capacity() const { return m_result_capacity; }
@@ -285,8 +288,18 @@ public:
     {
         return m_next_sequence.load(std::memory_order_relaxed);
     }
+    bool result_publication_closed_for_testing() const { return m_results.is_closed(); }
 
 private:
+    std::thread make_worker(unsigned id)
+    {
+        std::thread candidate =
+            m_thread_factory(id, [this](unsigned worker_id) { worker_loop(worker_id); });
+        if (!candidate.joinable()) {
+            throw std::invalid_argument("streaming thread_factory returned non-joinable thread");
+        }
+        return candidate;
+    }
     static void bump(std::atomic<std::uint64_t>& counter)
     {
         counter.fetch_add(1, std::memory_order_relaxed);

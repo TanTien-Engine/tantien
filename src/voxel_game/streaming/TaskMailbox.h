@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <functional>
 #include <mutex>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -37,6 +38,14 @@ public:
         SequencedKey key{};
         VoxelJob job{};
     };
+    static_assert(std::is_nothrow_move_constructible_v<VoxelJob> &&
+                      std::is_nothrow_move_assignable_v<VoxelJob> &&
+                      std::is_nothrow_swappable_v<VoxelJob>,
+                  "TaskMailbox transfers jobs while holding its mutex");
+    static_assert(std::is_nothrow_move_constructible_v<Task> &&
+                      std::is_nothrow_move_assignable_v<Task> &&
+                      std::is_nothrow_swappable_v<Task>,
+                  "TaskMailbox requires noexcept Task transfer");
 
     explicit TaskMailbox(std::size_t capacity, PopHook pop_hook = {})
         : m_capacity(capacity ? capacity : 1), m_pop_hook(std::move(pop_hook))
@@ -58,24 +67,25 @@ public:
 
     bool pop_wait(Task& out)
     {
-        // First evacuate the caller's previous task. Its callable/snapshot
-        // may own the final reference and re-enter this mailbox on
-        // destruction, so it must not be destroyed while m_mutex is held.
-        Task previous = std::move(out);
-        bool popped = false;
+        Task next{}; // known-empty before acquiring m_mutex
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_pop_cv.wait(lock, [this] { return m_closed || !m_heap.empty(); });
             if (!m_heap.empty()) {
                 if (m_pop_hook) m_pop_hook(); // deterministic test seam
                 std::pop_heap(m_heap.begin(), m_heap.end(), TaskOrder{});
-                out = std::move(m_heap.back());
+                using std::swap;
+                swap(next, m_heap.back()); // heap slot becomes known-empty
                 m_heap.pop_back();
-                popped = true;
+            } else {
+                return false;
             }
         }
-        // `previous` is intentionally destroyed after releasing m_mutex.
-        return popped;
+        // This noexcept swap puts out's old callable/snapshot in next.
+        // next is then destroyed after the mailbox lock is released.
+        using std::swap;
+        swap(out, next);
+        return true;
     }
 
     // Cancel path: close and discard every queued task; returns how many

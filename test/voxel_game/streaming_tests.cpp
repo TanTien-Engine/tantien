@@ -56,7 +56,7 @@ using Clock = std::chrono::steady_clock;
 
 namespace {
 
-constexpr auto kTestTimeout = 30s;
+constexpr auto kTestTimeout = 3s;
 
 // ---------------------------------------------------------------- harness
 
@@ -159,8 +159,10 @@ ChunkToken make_token(int x, int y, int z, std::uint64_t generation = 1,
                       std::uint64_t block_revision = 1,
                       std::uint64_t neighborhood_revision = 1)
 {
-    return ChunkToken{SectionCoord{x, y, z}, generation, block_revision,
-                      neighborhood_revision};
+    return ChunkToken(SectionCoord{x, y, z}, streaming::WorldEpoch{1},
+                      streaming::TokenRevision{generation},
+                      streaming::TokenRevision{block_revision},
+                      streaming::TokenRevision{neighborhood_revision});
 }
 
 streaming::VoxelJob empty_job(const ChunkToken& token)
@@ -228,20 +230,16 @@ void test_token_validation_pure()
     CHECK(streaming::validate_token(base, base) == TokenVerdict::Current);
     CHECK(streaming::token_is_current(base, base));
 
-    ChunkToken changed = base;
-    changed.load_generation = 6;
+    ChunkToken changed = make_token(1, 2, 3, 6, 7, 9);
     CHECK(streaming::validate_token(changed, base) == TokenVerdict::StaleGeneration);
 
-    changed = base;
-    changed.block_revision = 8;
+    changed = make_token(1, 2, 3, 5, 8, 9);
     CHECK(streaming::validate_token(changed, base) == TokenVerdict::StaleBlockRevision);
 
-    changed = base;
-    changed.neighborhood_revision = 10;
+    changed = make_token(1, 2, 3, 5, 7, 10);
     CHECK(streaming::validate_token(changed, base) == TokenVerdict::StaleNeighborhoodRevision);
 
-    changed = base;
-    changed.coord.x = 4;
+    changed = make_token(4, 2, 3, 5, 7, 9);
     CHECK(streaming::validate_token(changed, base) == TokenVerdict::StaleCoord);
     CHECK(!streaming::token_is_current(changed, base));
 
@@ -250,6 +248,18 @@ void test_token_validation_pure()
     CHECK(revision.value() == UINT64_MAX);
     CHECK(!revision.try_bump());
     CHECK(revision.value() == UINT64_MAX); // fail closed: no ABA wrap
+
+    const ChunkToken old_world(SectionCoord{1, 2, 3}, streaming::WorldEpoch{7},
+                               streaming::TokenRevision{1}, streaming::TokenRevision{1},
+                               streaming::TokenRevision{1});
+    const ChunkToken new_world(SectionCoord{1, 2, 3}, streaming::WorldEpoch{8},
+                               streaming::TokenRevision{1}, streaming::TokenRevision{1},
+                               streaming::TokenRevision{1});
+    CHECK(streaming::validate_token(old_world, new_world) == TokenVerdict::StaleWorldEpoch);
+    streaming::ChunkTokenAuthority authority(SectionCoord{1, 2, 3},
+                                             streaming::WorldEpoch{9});
+    CHECK(authority.try_bump_block_revision());
+    CHECK(authority.snapshot().block_revision().value() == 1);
 }
 
 void test_fnv1a_golden()
@@ -419,8 +429,7 @@ void test_upload_budget_reasons()
         streaming::plan_upload(budget, authoritative, result, 2, 0);
     CHECK(over_count.reject == UploadReject::FrameBudgetExhausted);
 
-    ChunkToken bumped = authoritative;
-    bumped.block_revision = 2;
+    const ChunkToken bumped = make_token(0, 0, 0, 1, 2, 1);
     const auto stale = streaming::plan_upload(budget, bumped, result, 0, 0);
     CHECK(stale.reject == UploadReject::StaleToken);
 
@@ -558,8 +567,7 @@ void test_unload_reload_rejects_old_generation()
 
     CHECK(started.wait_at_least(1, Clock::now() + kTestTimeout));
 
-    ChunkToken authoritative = submitted;
-    authoritative.load_generation = 6; // section was unloaded and reloaded
+    const ChunkToken authoritative = make_token(0, 0, 0, 6, 1, 1);
     gate.open_up();
 
     const auto results = drain_results(queue, 1);
@@ -573,8 +581,6 @@ void test_unload_reload_rejects_old_generation()
                                    results[0], 0, 0);
         CHECK(!decision.accept);
         CHECK(decision.reject == UploadReject::StaleToken);
-        queue.note_result_stale();
-        CHECK(queue.stats().snapshot().dropped_stale == 1);
     }
     CHECK(queue.stats().snapshot().pending == 0);
     CHECK(queue.stop() == StopStatus::Joined);
@@ -593,13 +599,11 @@ void test_revision_bumps_reject_old_mesh()
     CHECK(results.size() == 1);
     if (results.empty()) return;
 
-    ChunkToken block_bumped = submitted;
-    block_bumped.block_revision = 4;
+    const ChunkToken block_bumped = make_token(0, 0, 0, 5, 4, 4);
     CHECK(streaming::validate_token(results[0].token, block_bumped) ==
           TokenVerdict::StaleBlockRevision);
 
-    ChunkToken neighbor_bumped = submitted;
-    neighbor_bumped.neighborhood_revision = 5;
+    const ChunkToken neighbor_bumped = make_token(0, 0, 0, 5, 3, 5);
     CHECK(streaming::validate_token(results[0].token, neighbor_bumped) ==
           TokenVerdict::StaleNeighborhoodRevision);
     CHECK(streaming::plan_upload(UploadBudget{}, block_bumped, results[0], 0, 0)
@@ -708,8 +712,8 @@ void test_priority_end_to_end_order()
         {5, 2},  // G2: d25, later sequence
     };
     for (std::size_t i = 0; i < results.size() && i < 7; ++i) {
-        CHECK(results[i].token.coord.x == expected[i].x);
-        CHECK(results[i].token.block_revision == expected[i].revision);
+        CHECK(results[i].token.coord().x == expected[i].x);
+        CHECK(results[i].token.block_revision().value() == expected[i].revision);
     }
     CHECK(queue.stop() == StopStatus::Joined);
 }
@@ -858,7 +862,13 @@ void test_stop_barrier_semantics()
 
 void test_stop_wakes_full_result_queue_and_joins()
 {
-    VoxelJobQueue queue({16, 2, 1});
+    Signal push_wait_entered;
+    VoxelJobQueue::Config config;
+    config.task_capacity = 16;
+    config.result_capacity = 2;
+    config.worker_count = 1;
+    config.result_push_wait_hook = [&] { push_wait_entered.notify(); };
+    VoxelJobQueue queue(config);
     Signal finished_functions;
 
     for (int i = 0; i < 5; ++i) {
@@ -876,9 +886,7 @@ void test_stop_wakes_full_result_queue_and_joins()
     // Jobs 1-2 fill the result ring (capacity 2); job 3's push observes a
     // full queue and parks the worker in push_wait.
     CHECK(finished_functions.wait_at_least(3, Clock::now() + kTestTimeout));
-    CHECK(wait_until([&] {
-        return queue.stats().snapshot().result_queue_full >= 1;
-    }));
+    CHECK(push_wait_entered.wait_at_least(1, Clock::now() + kTestTimeout));
 
     // stop() must wake the parked pusher (close) and join synchronously; a
     // missed wakeup would hang here and hit the external test timeout.
@@ -1033,6 +1041,21 @@ void test_thread_factory_failure_injection()
     // and joined before the constructor rethrew.
     CHECK(entered.wait_at_least(2, Clock::now() + kTestTimeout));
     CHECK(wait_until([&] { return entered.value() == 2; }));
+
+    VoxelJobQueue::Config non_joinable;
+    non_joinable.task_capacity = 8;
+    non_joinable.result_capacity = 8;
+    non_joinable.worker_count = 1;
+    non_joinable.thread_factory = [](unsigned, VoxelJobQueue::WorkerLoop) {
+        return std::thread{};
+    };
+    threw = false;
+    try {
+        VoxelJobQueue queue(non_joinable);
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    CHECK(threw);
 }
 
 void test_callable_dtor_reentrancy_no_deadlock()
@@ -1092,7 +1115,15 @@ void test_callable_dtor_reentrancy_no_deadlock()
 
         streaming::TaskMailbox::Task task;
         CHECK(mailbox.pop_wait(task));
-        task.job.function = nullptr; // final callable reference -> re-enter
+        streaming::VoxelJob successor;
+        successor.token = make_token(1, 0, 0);
+        successor.snapshot = make_snapshot(successor.token);
+        successor.function = trivial_function();
+        CHECK(mailbox.try_submit(sequenced(1, 0, 0, false, 0, 1),
+                                 std::move(successor)) == MailboxStatus::Accepted);
+        // The second pop replaces an out holding the callable's final
+        // reference. Its destructor must run after the mailbox unlocks.
+        CHECK(mailbox.pop_wait(task));
         CHECK(reentered.load() == 1);
         mailbox.close();
     }
@@ -1371,12 +1402,20 @@ void test_result_cutoff_and_worker_fault_boundaries()
     GateReleaser release_worker{worker_gate};
     Signal worker_entered;
     Signal cutoff;
+    std::atomic<bool> cutoff_closed{false};
+    std::atomic<bool> cutoff_still_running{false};
+    VoxelJobQueue* cutoff_queue = nullptr;
     VoxelJobQueue::Config config;
     config.task_capacity = 4;
     config.result_capacity = 2;
     config.worker_count = 1;
-    config.result_cutoff_hook = [&] { cutoff.notify(); };
+    config.result_cutoff_hook = [&] {
+        cutoff_closed.store(cutoff_queue->result_publication_closed_for_testing());
+        cutoff_still_running.store(cutoff_queue->state() == Lifecycle::Running);
+        cutoff.notify();
+    };
     VoxelJobQueue queue(config);
+    cutoff_queue = &queue;
 
     const ChunkToken pre = make_token(0, 0, 0);
     CHECK(submit_bounded(queue, pre, make_snapshot(pre), trivial_function(), true,
@@ -1403,6 +1442,8 @@ void test_result_cutoff_and_worker_fault_boundaries()
     CHECK(queue.try_pop_result(result) == PopStatus::Ok); // published before cutoff drains
     CHECK(queue.try_pop_result(result) == PopStatus::Closed);
     CHECK(queue.stats().snapshot().dropped_closed == 1);
+    CHECK(cutoff_closed.load());
+    CHECK(cutoff_still_running.load());
 
     std::atomic<bool> injected{false};
     VoxelJobQueue::Config fault_config;
@@ -1431,7 +1472,8 @@ void test_result_cutoff_and_worker_fault_boundaries()
 
 void test_upload_frame_queue_retains_and_accounts_once()
 {
-    streaming::UploadFrameQueue queue({1, 520});
+    streaming::StreamingStats stats;
+    streaming::UploadFrameQueue queue({1, 520}, stats);
     MeshResult result;
     result.token = make_token(0, 0, 0);
     result.ok = true;
@@ -1442,12 +1484,17 @@ void test_upload_frame_queue_retains_and_accounts_once()
     CHECK(queue.try_take(make_token(0, 0, 0), taken) == streaming::UploadDisposition::Accepted);
     CHECK(queue.uploads_this_frame() == 1);
     CHECK(queue.bytes_this_frame() == 520);
+    CHECK(stats.snapshot().accepted == 1);
 
     queue.enqueue(std::move(taken));
     CHECK(queue.try_take(make_token(0, 0, 0), taken) ==
           streaming::UploadDisposition::FrameBudgetExhausted);
     CHECK(queue.deferred_count() == 1);
     CHECK(queue.uploads_this_frame() == 1);
+    CHECK(stats.snapshot().deferred == 1);
+    CHECK(queue.try_take(make_token(0, 0, 0), taken) ==
+          streaming::UploadDisposition::FrameBudgetExhausted);
+    CHECK(stats.snapshot().deferred == 1); // same retained result counts once
     queue.begin_frame();
     CHECK(queue.uploads_this_frame() == 0);
     CHECK(queue.bytes_this_frame() == 0);

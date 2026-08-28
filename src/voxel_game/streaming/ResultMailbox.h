@@ -4,6 +4,7 @@
 
 #include <condition_variable>
 #include <cstddef>
+#include <functional>
 #include <mutex>
 #include <type_traits>
 #include <utility>
@@ -35,9 +36,11 @@ enum class PopResult : std::uint8_t
 class ResultMailbox
 {
 public:
-    explicit ResultMailbox(std::size_t capacity)
+    using PushWaitHook = std::function<void()>;
+    explicit ResultMailbox(std::size_t capacity, PushWaitHook push_wait_hook = {})
         : m_capacity(capacity ? capacity : 1),
-          m_slots(m_capacity ? capacity : 1) // preallocated empty slots
+          m_slots(m_capacity ? capacity : 1),
+          m_push_wait_hook(std::move(push_wait_hook)) // preallocated empty slots
     {
     }
 
@@ -54,6 +57,9 @@ public:
     bool push_wait(MeshResult&& result)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
+        if (!m_closed && m_count >= m_capacity && m_push_wait_hook) {
+            m_push_wait_hook(); // deterministic: reached the wait path while full
+        }
         m_space_cv.wait(lock, [this] { return m_closed || m_count < m_capacity; });
         if (m_closed) return false;
         slot(m_count) = std::move(result);
@@ -87,6 +93,12 @@ public:
         return m_count;
     }
 
+    bool is_closed() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_closed;
+    }
+
 private:
     static_assert(std::is_nothrow_move_constructible_v<MeshResult> &&
                       std::is_nothrow_move_assignable_v<MeshResult>,
@@ -110,6 +122,7 @@ private:
     std::size_t m_head = 0;
     std::size_t m_count = 0;
     bool m_closed = false;
+    PushWaitHook m_push_wait_hook;
 };
 
 } // namespace tt::voxel_game::streaming

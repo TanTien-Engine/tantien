@@ -12,9 +12,9 @@
 快照。坐标、`FaceIndex` 与每一个 `BlockState` 都检查，未知枚举值严格拒绝。
 未检查的线性索引仅位于 `streaming::detail`，并只由已检查实现调用。
 
-`ChunkToken` 的 generation/revision 使用 64 位 `TokenRevision`；它没有 `++`，只能
-`try_bump()`。达到 `UINT64_MAX` 时返回 false 且保持原值，调用方必须把该 section
-标为不可再提交或切换 world epoch，不能静默回绕造成 ABA。
+`ChunkToken` 是不可变传输值，包含显式 `world_epoch`；可变权威状态只能由
+`ChunkTokenAuthority` 推进。generation/revision 使用 64 位 `TokenRevision`；它没有
+`++`，达到 `UINT64_MAX` 时 authority 进入 exhausted/fail-closed，不能回退或静默回绕。
 
 ## mailbox、线程与 stop cutoff
 
@@ -22,7 +22,8 @@
   `WrongThread` 且不改变状态。`stats().snapshot()` 与 `state()` 可跨线程读取。
 - `try_submit`/`try_pop_result` 只保证**不等待 mailbox mutex**：锁忙返回 `Busy`。
   参数、局部对象或被替换的 callable/snapshot 的析构由调用线程承担，不能宣传为
-  任意析构都严格非阻塞。
+  任意析构都严格非阻塞。按值参数在传入 rvalue 时会在 Busy/Full 前被消费；要重试请传
+  可复制的 lvalue 或由调用方保留自己的输入。
 - 任务 mailbox 的 pop 会在取得锁前移出旧 `out`，因此旧 callable/snapshot 的最后
   一个引用在解锁后销毁；`discard_all` 也在锁外销毁。
 - `stop()` 是同步屏障。它先封闭 result mailbox，再把 `Stopping` 置为可观察状态，
@@ -30,8 +31,9 @@
   drain；cutoff 后发布一律 `dropped_closed`。随后未领取任务取消、已领取未 admission
   的任务取消、worker join，外层返回后才置 `Stopped`。
 - stop 的 owner-thread 析构重入返回 `StopStatus::Reentrant`，不会 join、不会写
-  `Stopped`；仅最外层 stop 屏障完成后返回 `Joined`。析构函数执行同一关停与 join，
-  但没有状态码。
+  `Stopped`；仅最外层 stop 屏障完成后返回 `Joined`。queue 析构是 owner-thread
+  affine：非 owner（特别是 job capture 的最后一个 owning pointer 在 worker 释放）会
+  立即 fail-closed/terminate，而不会 detach、自 join 或假装该用法受支持。
 
 任务被 mailbox 真正 `Accepted` 后才消耗提交序号；`Busy`、`Full`、`Closed` 都不烧号。
 `Config` 仅接受 worker_count `-1`（默认）、`0`、`1..32`；其他值抛
@@ -49,7 +51,7 @@ cutoff drop 或基础设施失败恰好结算一次，因而不为负。`Streami
 relaxed 原子逐字段读取的**近似瞬时快照**，字段间不是同一线性化时刻，不能把它当成
 事务性总账。
 
-`UploadFrameQueue` 是跨帧接纳的持有位置：`enqueue()` 接收已 pop 的结果，
+`UploadFrameQueue` 必须绑定 `StreamingStats`，是跨帧接纳的持有位置：`enqueue()` 接收已 pop 的结果，
 `try_take()` 在 `FrameBudgetExhausted` 时保留队首对象，`begin_frame()` 精确清零本帧
 uploads/bytes，再次 `try_take()` 才能接纳。它对 `StaleToken`、`FailedResult`、
 `MeshTooLarge`、`SizeOverflow` 明确丢弃；对 Accepted 精确累计上传数和字节数，避免
@@ -68,7 +70,7 @@ uploads/bytes，再次 `try_take()` 才能接纳。它对 `StaleToken`、`Failed
 
 ## 测试与测试接缝
 
-根 CMake 会建立 `voxel_streaming_tests` 并注册到 CTest，设置 20 秒进程级 `TIMEOUT`。
+根 CMake 会建立 `voxel_streaming_tests` 并注册到 CTest，设置 45 秒进程级 `TIMEOUT`；
 测试只使用 CPU 与 C++17。`Config.task_pop_hook`、`result_cutoff_hook`、
 `fault_injector`、`thread_factory`、`initial_sequence` 是确定性测试/重放接缝；生产
 接线应保持为空。测试覆盖 frozen 所有权、非法 state、最后引用锁外析构、重入 stop、

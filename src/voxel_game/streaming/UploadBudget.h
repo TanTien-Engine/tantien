@@ -2,6 +2,7 @@
 
 #include "voxel_game/streaming/CpuJob.h"
 #include "voxel_game/streaming/ChunkToken.h"
+#include "voxel_game/streaming/StreamingStats.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -59,7 +60,8 @@ enum class UploadDisposition : std::uint8_t
 class UploadFrameQueue
 {
 public:
-    explicit UploadFrameQueue(UploadBudget budget) : m_budget(budget) {}
+    UploadFrameQueue(UploadBudget budget, StreamingStats& stats)
+        : m_budget(budget), m_stats(stats) {}
 
     void begin_frame() noexcept
     {
@@ -84,23 +86,37 @@ public:
             m_pending.pop_front();
             ++m_uploads_this_frame;
             m_bytes_this_frame += size.bytes; // validated non-overflow above
+            m_stats.accepted.fetch_add(1, std::memory_order_relaxed);
+            m_front_deferred = false;
             return UploadDisposition::Accepted;
         }
 
         switch (decision.reject) {
         case UploadReject::FrameBudgetExhausted:
+            if (!m_front_deferred) {
+                m_stats.deferred.fetch_add(1, std::memory_order_relaxed);
+                m_front_deferred = true;
+            }
             return UploadDisposition::FrameBudgetExhausted; // keep ownership
         case UploadReject::StaleToken:
             m_pending.pop_front();
+            m_stats.dropped_stale.fetch_add(1, std::memory_order_relaxed);
+            m_front_deferred = false;
             return UploadDisposition::StaleToken;
         case UploadReject::FailedResult:
             m_pending.pop_front();
+            m_stats.dropped_failed.fetch_add(1, std::memory_order_relaxed);
+            m_front_deferred = false;
             return UploadDisposition::FailedResult;
         case UploadReject::MeshTooLarge:
             m_pending.pop_front();
+            m_stats.dropped_too_large.fetch_add(1, std::memory_order_relaxed);
+            m_front_deferred = false;
             return UploadDisposition::MeshTooLarge;
         case UploadReject::SizeOverflow:
             m_pending.pop_front();
+            m_stats.dropped_overflow.fetch_add(1, std::memory_order_relaxed);
+            m_front_deferred = false;
             return UploadDisposition::SizeOverflow;
         case UploadReject::None:
             break;
@@ -114,9 +130,11 @@ public:
 
 private:
     UploadBudget m_budget;
+    StreamingStats& m_stats;
     std::deque<MeshResult> m_pending;
     std::uint32_t m_uploads_this_frame = 0;
     std::size_t m_bytes_this_frame = 0;
+    bool m_front_deferred = false;
 };
 
 // Pure decision core, callable with synthetic sizes so every reject reason

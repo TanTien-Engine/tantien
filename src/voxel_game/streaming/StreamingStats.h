@@ -19,6 +19,10 @@ struct StreamingStatsSnapshot
     std::uint64_t result_queue_full = 0; // detail: result pushes that observed a full result queue
     std::uint64_t dropped_stale = 0;     // results the consumer rejected via validate_token
     std::uint64_t accepted = 0;          // results the consumer kept and handed to upload
+    std::uint64_t dropped_failed = 0;    // failed worker result consumed once
+    std::uint64_t dropped_too_large = 0;
+    std::uint64_t dropped_overflow = 0;
+    std::uint64_t deferred = 0;          // unique result first retained across a frame
     std::uint64_t cancelled = 0;         // tasks discarded by stop() (mailbox discard or worker-side pre-invoke cancel)
     std::uint64_t dropped_closed = 0;    // finished results dropped because the pipeline was closing
     std::uint64_t invalid = 0;           // submits rejected for null snapshot / empty callable / token mismatch
@@ -41,22 +45,15 @@ struct StreamingStats
     std::atomic<std::uint64_t> result_queue_full{0};
     std::atomic<std::uint64_t> dropped_stale{0};
     std::atomic<std::uint64_t> accepted{0};
+    std::atomic<std::uint64_t> dropped_failed{0};
+    std::atomic<std::uint64_t> dropped_too_large{0};
+    std::atomic<std::uint64_t> dropped_overflow{0};
+    std::atomic<std::uint64_t> deferred{0};
     std::atomic<std::uint64_t> cancelled{0};
     std::atomic<std::uint64_t> dropped_closed{0};
     std::atomic<std::uint64_t> invalid{0};
     std::atomic<std::uint64_t> internal_failure{0};
     std::atomic<std::int64_t> pending{0};
-
-    // Consumer-side records for popped results, after validate_token.
-    void note_result_accepted()
-    {
-        accepted.fetch_add(1, std::memory_order_relaxed);
-    }
-
-    void note_result_stale()
-    {
-        dropped_stale.fetch_add(1, std::memory_order_relaxed);
-    }
 
     // Deliberately a per-field approximate sample; see snapshot type comment.
     StreamingStatsSnapshot snapshot() const
@@ -70,6 +67,10 @@ struct StreamingStats
         out.result_queue_full = result_queue_full.load(std::memory_order_relaxed);
         out.dropped_stale = dropped_stale.load(std::memory_order_relaxed);
         out.accepted = accepted.load(std::memory_order_relaxed);
+        out.dropped_failed = dropped_failed.load(std::memory_order_relaxed);
+        out.dropped_too_large = dropped_too_large.load(std::memory_order_relaxed);
+        out.dropped_overflow = dropped_overflow.load(std::memory_order_relaxed);
+        out.deferred = deferred.load(std::memory_order_relaxed);
         out.cancelled = cancelled.load(std::memory_order_relaxed);
         out.dropped_closed = dropped_closed.load(std::memory_order_relaxed);
         out.invalid = invalid.load(std::memory_order_relaxed);
