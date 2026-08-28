@@ -10,77 +10,9 @@ option(TT_BUILD_VOXEL_RUNTIME_ONLY
 if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     project(tantien_voxel_runtime LANGUAGES CXX)
     include(CTest)
-
-    add_library(voxel_runtime STATIC
-        "src/voxel_game/runtime/FrameClock.cpp"
-        "src/voxel_game/runtime/InputState.cpp"
-        "src/voxel_game/runtime/ActionMap.cpp"
-        "src/voxel_game/runtime/CreativeHotbar.cpp"
-        "src/voxel_game/runtime/FpsCamera.cpp"
-        "src/voxel_game/runtime/PlayerController.cpp"
-        "src/voxel_game/runtime/VoxelRuntimeAdapter.cpp"
-        "src/voxel_game/worldgen/TerrainGenerator.cpp"
-        "src/voxel_game/voxel/BlockAtlas.cpp"
-        "src/voxel_game/voxel/BlockRegistry.cpp"
-        "src/voxel_game/voxel/Section.cpp"
-        "src/voxel_game/voxel/VisibleFaceMesher.cpp"
-        "src/voxel_game/voxel/VoxelRaycast.cpp"
-        "src/voxel_game/voxel/World.cpp")
-    target_include_directories(voxel_runtime PUBLIC src)
-    target_compile_features(voxel_runtime PUBLIC cxx_std_17)
-
-    add_library(voxel_persistence STATIC
-        "src/voxel_game/persistence/WorldSnapshotCodec.cpp")
-    target_include_directories(voxel_persistence PUBLIC src)
-    target_compile_features(voxel_persistence PUBLIC cxx_std_17)
-    target_link_libraries(voxel_persistence PUBLIC voxel_runtime)
-
-    add_library(voxel_bridge STATIC
-        "src/voxel_game/bridge/VoxelGameFacade.cpp"
-        "src/voxel_game/ves/VoxelSessionRegistry.cpp")
-    target_include_directories(voxel_bridge PUBLIC src)
-    target_compile_features(voxel_bridge PUBLIC cxx_std_17)
-
-    add_executable(voxel_runtime_tests "test/voxel_game/runtime_tests.cpp")
-    target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
-    target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_bridge_tests "test/voxel_game/voxel_bridge_tests.cpp")
-    target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
-    target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
-
-    add_executable(action_map_tests "test/voxel_game/action_map_tests.cpp")
-    target_link_libraries(action_map_tests PRIVATE voxel_runtime)
-    target_compile_features(action_map_tests PRIVATE cxx_std_17)
-
-    add_executable(worldgen_tests "test/voxel_game/worldgen_tests.cpp")
-    target_link_libraries(worldgen_tests PRIVATE voxel_runtime)
-    target_compile_features(worldgen_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_runtime_adapter_tests "test/voxel_game/voxel_runtime_adapter_tests.cpp")
-    target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
-    target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
-
-    add_executable(world_snapshot_codec_tests "test/voxel_game/world_snapshot_codec_tests.cpp")
-    target_link_libraries(world_snapshot_codec_tests PRIVATE voxel_persistence)
-    target_compile_features(world_snapshot_codec_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_streaming_tests "test/voxel_game/streaming_tests.cpp")
-    target_link_libraries(voxel_streaming_tests PRIVATE voxel_runtime)
-    target_compile_features(voxel_streaming_tests PRIVATE cxx_std_17)
-    if(MSVC)
-        target_compile_options(voxel_streaming_tests PRIVATE /W4 /permissive- /utf-8)
-    endif()
-    if(BUILD_TESTING)
-        add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
-        add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
-        add_test(NAME action_map_tests COMMAND action_map_tests)
-        add_test(NAME worldgen_tests COMMAND worldgen_tests)
-        add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
-        add_test(NAME world_snapshot_codec_tests COMMAND world_snapshot_codec_tests)
-        add_test(NAME voxel_streaming_tests COMMAND voxel_streaming_tests)
-        set_tests_properties(voxel_streaming_tests PROPERTIES TIMEOUT 45)
-    endif()
+    set(VOXEL_BUILD_TESTS ON CACHE BOOL
+        "Build the dependency-free voxel test suite" FORCE)
+    add_subdirectory(thirdparty/voxel)
     return()
 endif()
 
@@ -100,6 +32,8 @@ option(TT_BUILD_CAX "Build the CAX integration target" ON)
 option(TT_BUILD_EDITOR "Build the CAD editor executable" ON)
 option(TT_BUILD_VOXEL_GAME "Build the standalone voxel game runtime host" ON)
 option(TT_BUILD_VOXEL_RUNTIME_TESTS "Build the voxel runtime unit tests" ON)
+option(TT_BUILD_HOST_HUD_TESTS
+       "Build Windows host HUD/GTxt/DTex tests (GLFW/OpenGL; off by default)" OFF)
 
 # macOS: ad-hoc sign every product at LINK time. ld64 automatically adds an
 # ad-hoc signature to arm64 output UNLESS Xcode injects -no_adhoc_codesign,
@@ -840,92 +774,17 @@ endif()
 # stay independent of tantien/cax/OpenCASCADE so later voxel runtime work does
 # not inherit the editor's CAD process and render-on-demand lifetime rules.
 # ----------------------------------------------------------------------------
-add_library(voxel_runtime STATIC
-    "src/voxel_game/runtime/FrameClock.cpp"
-    "src/voxel_game/runtime/InputState.cpp"
-    "src/voxel_game/runtime/ActionMap.cpp"
-    "src/voxel_game/runtime/CreativeHotbar.cpp"
-    "src/voxel_game/runtime/FpsCamera.cpp"
-    "src/voxel_game/runtime/PlayerController.cpp"
-    "src/voxel_game/runtime/VoxelRuntimeAdapter.cpp"
-    "src/voxel_game/worldgen/TerrainGenerator.cpp"
-    "src/voxel_game/voxel/BlockAtlas.cpp"
-    "src/voxel_game/voxel/BlockRegistry.cpp"
-    "src/voxel_game/voxel/Section.cpp"
-    "src/voxel_game/voxel/VisibleFaceMesher.cpp"
-    "src/voxel_game/voxel/VoxelRaycast.cpp"
-    "src/voxel_game/voxel/World.cpp")
-target_include_directories(voxel_runtime PUBLIC src)
-target_compile_features(voxel_runtime PUBLIC cxx_std_17)
-
-add_library(voxel_persistence STATIC
-    "src/voxel_game/persistence/WorldSnapshotCodec.cpp")
-target_include_directories(voxel_persistence PUBLIC src)
-target_compile_features(voxel_persistence PUBLIC cxx_std_17)
-target_link_libraries(voxel_persistence PUBLIC voxel_runtime)
-
-add_library(voxel_bridge STATIC
-    "src/voxel_game/bridge/VoxelGameFacade.cpp"
-    "src/voxel_game/ves/VoxelSessionRegistry.cpp")
-target_include_directories(voxel_bridge PUBLIC src)
-target_compile_features(voxel_bridge PUBLIC cxx_std_17)
-
-if(TT_BUILD_VOXEL_RUNTIME_TESTS)
-    add_executable(voxel_runtime_tests
-        "test/voxel_game/runtime_tests.cpp")
-    target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
-    target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_bridge_tests
-        "test/voxel_game/voxel_bridge_tests.cpp")
-    target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
-    target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
-
-    add_executable(action_map_tests
-        "test/voxel_game/action_map_tests.cpp")
-    target_link_libraries(action_map_tests PRIVATE voxel_runtime)
-    target_compile_features(action_map_tests PRIVATE cxx_std_17)
-
-    add_executable(worldgen_tests
-        "test/voxel_game/worldgen_tests.cpp")
-    target_link_libraries(worldgen_tests PRIVATE voxel_runtime)
-    target_compile_features(worldgen_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_runtime_adapter_tests
-        "test/voxel_game/voxel_runtime_adapter_tests.cpp")
-    target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
-    target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
-
-    add_executable(world_snapshot_codec_tests
-        "test/voxel_game/world_snapshot_codec_tests.cpp")
-    target_link_libraries(world_snapshot_codec_tests PRIVATE voxel_persistence)
-    target_compile_features(world_snapshot_codec_tests PRIVATE cxx_std_17)
-
-    add_executable(voxel_streaming_tests
-        "test/voxel_game/streaming_tests.cpp")
-    target_link_libraries(voxel_streaming_tests PRIVATE voxel_runtime)
-    target_compile_features(voxel_streaming_tests PRIVATE cxx_std_17)
-    if(MSVC)
-        target_compile_options(voxel_streaming_tests PRIVATE /W4 /permissive- /utf-8)
-    endif()
-    if(BUILD_TESTING)
-        add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
-        add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
-        add_test(NAME action_map_tests COMMAND action_map_tests)
-        add_test(NAME worldgen_tests COMMAND worldgen_tests)
-        add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
-        add_test(NAME world_snapshot_codec_tests COMMAND world_snapshot_codec_tests)
-        add_test(NAME voxel_streaming_tests COMMAND voxel_streaming_tests)
-        set_tests_properties(voxel_streaming_tests PROPERTIES TIMEOUT 45)
-    endif()
-endif()
+set(VOXEL_BUILD_TESTS ${TT_BUILD_VOXEL_RUNTIME_TESTS} CACHE BOOL
+    "Build the dependency-free voxel test suite" FORCE)
+add_subdirectory(thirdparty/voxel)
 
 if(TT_BUILD_VOXEL_GAME)
     add_executable(voxel_game
-        "src/voxel_game/main.cpp"
-        "src/voxel_game/render/VoxelGpuMesh.cpp")
+        "thirdparty/voxel/src/voxel_game/main.cpp"
+        "thirdparty/voxel/src/voxel_game/render/VoxelGpuMesh.cpp")
     target_include_directories(voxel_game PRIVATE
         src
+        thirdparty/voxel/src
         thirdparty/gl/include
         thirdparty/glfw/include)
     target_link_libraries(voxel_game PRIVATE
@@ -950,3 +809,5 @@ if(TT_BUILD_VOXEL_GAME)
     set_target_properties(voxel_game PROPERTIES
         VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/HostHudTests.cmake")
