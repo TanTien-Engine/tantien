@@ -415,6 +415,23 @@ BlockCoord section_origin(SectionCoord coordinate)
             coordinate.z * Section::Size};
 }
 
+bool is_polygon_mode(GLint mode)
+{
+    return mode == GL_POINT || mode == GL_LINE || mode == GL_FILL;
+}
+
+bool restore_polygon_modes(const std::array<GLint, 2>& polygon_modes)
+{
+    // In the requested OpenGL 3.3 core profile glPolygonMode accepts only
+    // GL_FRONT_AND_BACK, so a legal snapshot is necessarily uniform. Capture
+    // both GL_POLYGON_MODE values as required, then restore the shared mode.
+    const bool valid = is_polygon_mode(polygon_modes[0]) &&
+                       is_polygon_mode(polygon_modes[1]) &&
+                       polygon_modes[0] == polygon_modes[1];
+    glPolygonMode(GL_FRONT_AND_BACK, valid ? polygon_modes[0] : GL_FILL);
+    return valid;
+}
+
 bool smoke_framebuffer_has_voxel_pixels(int width, int height)
 {
     if (width <= 0 || height <= 0)
@@ -611,6 +628,20 @@ int run(bool smoke)
         glfwTerminate();
         return 1;
     }
+    std::shared_ptr<ur::Texture> atlas_texture;
+    std::shared_ptr<ur::TextureSampler> atlas_sampler;
+    const auto release_atlas_resources = [&context, &atlas_texture, &atlas_sampler]()
+    {
+        // Context owns its own shared references. Release those before the
+        // local references while the GLFW/OpenGL context is still current.
+        if (context)
+        {
+            context->SetTexture(0, nullptr);
+            context->SetTextureSampler(0, nullptr);
+        }
+        atlas_sampler.reset();
+        atlas_texture.reset();
+    };
     const BlockAtlas atlas;
     if (!atlas.gutters_are_extruded() || atlas.pixels().size() !=
         static_cast<std::size_t>(BlockAtlas::Width * BlockAtlas::Height * 4))
@@ -725,13 +756,14 @@ int run(bool smoke)
     atlas_description.format = ur::TextureFormat::RGBA8;
     atlas_description.sampler_type = ur::Device::TextureSamplerType::NearestClamp;
     atlas_description.gen_mipmaps = false;
-    const auto atlas_texture = device->CreateTexture(atlas_description, atlas.pixels().data());
-    const auto atlas_sampler = device->GetTextureSampler(ur::Device::TextureSamplerType::NearestClamp);
+    atlas_texture = device->CreateTexture(atlas_description, atlas.pixels().data());
+    atlas_sampler = device->GetTextureSampler(ur::Device::TextureSamplerType::NearestClamp);
     if (!atlas_texture || atlas_texture->GetTexID() <= 0 || !atlas_sampler)
     {
         std::cerr << "failed to create nearest-filtered UniRender block atlas" << std::endl;
         glDeleteProgram(program);
         selection_mesh.reset();
+        release_atlas_resources();
         context.reset();
         device.reset();
         glfwDestroyWindow(window);
@@ -756,6 +788,7 @@ int run(bool smoke)
         std::cerr << "OpenGL error while creating or binding the block atlas" << std::endl;
         glDeleteProgram(program);
         selection_mesh.reset();
+        release_atlas_resources();
         context.reset();
         device.reset();
         glfwDestroyWindow(window);
@@ -858,9 +891,10 @@ int run(bool smoke)
             const Mat4 model = translation(selection->block);
             glUniformMatrix4fv(model_location, 1, GL_FALSE, model.values.data());
             GLboolean cull_was_enabled = glIsEnabled(GL_CULL_FACE);
-            GLint polygon_mode = GL_FILL;
+            // GL_POLYGON_MODE returns two values: front, then back.
+            std::array<GLint, 2> polygon_modes = {GL_FILL, GL_FILL};
             GLfloat line_width = 1.0F;
-            glGetIntegerv(GL_POLYGON_MODE, &polygon_mode);
+            glGetIntegerv(GL_POLYGON_MODE, polygon_modes.data());
             glGetFloatv(GL_LINE_WIDTH, &line_width);
             glUniform1i(selection_location, GL_TRUE);
             glDisable(GL_CULL_FACE);
@@ -868,7 +902,12 @@ int run(bool smoke)
             glLineWidth(2.0F);
             selection_mesh.draw();
             glLineWidth(line_width);
-            glPolygonMode(GL_FRONT_AND_BACK, polygon_mode);
+            if (!restore_polygon_modes(polygon_modes))
+            {
+                std::cerr << "OpenGL returned a non-uniform polygon-mode snapshot" << std::endl;
+                draw_failed = true;
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
             if (cull_was_enabled)
             {
                 glEnable(GL_CULL_FACE);
@@ -903,6 +942,7 @@ int run(bool smoke)
     glDeleteProgram(program);
     selection_mesh.reset();
     gpu_meshes.clear();
+    release_atlas_resources();
     context.reset();
     device.reset();
     glfwDestroyWindow(window);
