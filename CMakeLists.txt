@@ -25,11 +25,22 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     target_include_directories(voxel_runtime PUBLIC src)
     target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
+    add_library(voxel_bridge STATIC
+        "src/voxel_game/bridge/VoxelGameFacade.cpp"
+        "src/voxel_game/ves/VoxelSessionRegistry.cpp")
+    target_include_directories(voxel_bridge PUBLIC src)
+    target_compile_features(voxel_bridge PUBLIC cxx_std_17)
+
     add_executable(voxel_runtime_tests "test/voxel_game/runtime_tests.cpp")
     target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
     target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
+
+    add_executable(voxel_bridge_tests "test/voxel_game/voxel_bridge_tests.cpp")
+    target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
+    target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
+        add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
     endif()
     return()
 endif()
@@ -802,13 +813,25 @@ add_library(voxel_runtime STATIC
 target_include_directories(voxel_runtime PUBLIC src)
 target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
+add_library(voxel_bridge STATIC
+    "src/voxel_game/bridge/VoxelGameFacade.cpp"
+    "src/voxel_game/ves/VoxelSessionRegistry.cpp")
+target_include_directories(voxel_bridge PUBLIC src)
+target_compile_features(voxel_bridge PUBLIC cxx_std_17)
+
 if(TT_BUILD_VOXEL_RUNTIME_TESTS)
     add_executable(voxel_runtime_tests
         "test/voxel_game/runtime_tests.cpp")
     target_link_libraries(voxel_runtime_tests PRIVATE voxel_runtime)
     target_compile_features(voxel_runtime_tests PRIVATE cxx_std_17)
+
+    add_executable(voxel_bridge_tests
+        "test/voxel_game/voxel_bridge_tests.cpp")
+    target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
+    target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
+        add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
     endif()
 endif()
 
