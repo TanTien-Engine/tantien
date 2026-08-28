@@ -14,6 +14,8 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     add_library(voxel_runtime STATIC
         "src/voxel_game/runtime/FrameClock.cpp"
         "src/voxel_game/runtime/InputState.cpp"
+        "src/voxel_game/runtime/ActionMap.cpp"
+        "src/voxel_game/runtime/CreativeHotbar.cpp"
         "src/voxel_game/runtime/FpsCamera.cpp"
         "src/voxel_game/runtime/PlayerController.cpp"
         "src/voxel_game/voxel/BlockAtlas.cpp"
@@ -38,9 +40,14 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     add_executable(voxel_bridge_tests "test/voxel_game/voxel_bridge_tests.cpp")
     target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
     target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
+
+    add_executable(action_map_tests "test/voxel_game/action_map_tests.cpp")
+    target_link_libraries(action_map_tests PRIVATE voxel_runtime)
+    target_compile_features(action_map_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
+        add_test(NAME action_map_tests COMMAND action_map_tests)
     endif()
     return()
 endif()
@@ -802,6 +809,8 @@ endif()
 add_library(voxel_runtime STATIC
     "src/voxel_game/runtime/FrameClock.cpp"
     "src/voxel_game/runtime/InputState.cpp"
+    "src/voxel_game/runtime/ActionMap.cpp"
+    "src/voxel_game/runtime/CreativeHotbar.cpp"
     "src/voxel_game/runtime/FpsCamera.cpp"
     "src/voxel_game/runtime/PlayerController.cpp"
     "src/voxel_game/voxel/BlockAtlas.cpp"
@@ -829,9 +838,15 @@ if(TT_BUILD_VOXEL_RUNTIME_TESTS)
         "test/voxel_game/voxel_bridge_tests.cpp")
     target_link_libraries(voxel_bridge_tests PRIVATE voxel_bridge)
     target_compile_features(voxel_bridge_tests PRIVATE cxx_std_17)
+
+    add_executable(action_map_tests
+        "test/voxel_game/action_map_tests.cpp")
+    target_link_libraries(action_map_tests PRIVATE voxel_runtime)
+    target_compile_features(action_map_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
+        add_test(NAME action_map_tests COMMAND action_map_tests)
     endif()
 endif()
 

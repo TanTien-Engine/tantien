@@ -2,6 +2,8 @@
 #include "voxel_game/runtime/FpsCamera.h"
 #include "voxel_game/runtime/FrameClock.h"
 #include "voxel_game/runtime/InputState.h"
+#include "voxel_game/runtime/ActionMap.h"
+#include "voxel_game/runtime/CreativeHotbar.h"
 #include "voxel_game/runtime/PlayerController.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
 #include "voxel_game/voxel/BlockAtlas.h"
@@ -33,10 +35,14 @@ using tt::voxel_game::BlockCoord;
 using tt::voxel_game::BlockAtlas;
 using tt::voxel_game::BlockState;
 using tt::voxel_game::ButtonAction;
+using tt::voxel_game::ActionFrame;
+using tt::voxel_game::ActionMap;
+using tt::voxel_game::CreativeHotbar;
 using tt::voxel_game::FpsCamera;
 using tt::voxel_game::FrameClock;
 using tt::voxel_game::FixedStepAccumulator;
 using tt::voxel_game::InputState;
+using tt::voxel_game::GameAction;
 using tt::voxel_game::OpaqueMesh;
 using tt::voxel_game::PlayerController;
 using tt::voxel_game::PlayerMoveIntent;
@@ -48,8 +54,6 @@ using tt::voxel_game::World;
 
 constexpr float DegreesToRadians = 0.01745329251994329577F;
 constexpr double EditReach = 8.0;
-constexpr int SpaceKey = 32;
-
 struct Mat4
 {
     std::array<float, 16> values{};
@@ -68,9 +72,14 @@ ButtonAction to_button_action(int glfw_action)
     return ButtonAction::Repeat;
 }
 
-InputState* input_for(GLFWwindow* window)
+struct WindowInput
 {
-    return static_cast<InputState*>(glfwGetWindowUserPointer(window));
+    InputState input;
+};
+
+WindowInput* input_for(GLFWwindow* window)
+{
+    return static_cast<WindowInput*>(glfwGetWindowUserPointer(window));
 }
 
 void apply_cursor_mode(GLFWwindow* window, const InputState& input)
@@ -86,25 +95,27 @@ void apply_cursor_mode(GLFWwindow* window, const InputState& input)
 
 void key_callback(GLFWwindow* window, int key, int, int action, int)
 {
-    InputState* input = input_for(window);
-    input->on_key(key, to_button_action(action));
-    apply_cursor_mode(window, *input);
+    WindowInput* window_input = input_for(window);
+    const ButtonAction button_action = to_button_action(action);
+    window_input->input.on_key(key, button_action);
+    apply_cursor_mode(window, window_input->input);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int)
 {
-    InputState* input = input_for(window);
-    input->on_mouse_button(button, to_button_action(action));
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !input->mouse_captured())
+    WindowInput* window_input = input_for(window);
+    const ButtonAction button_action = to_button_action(action);
+    window_input->input.on_mouse_button(button, button_action);
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !window_input->input.mouse_captured())
     {
-        input->set_mouse_captured(true);
-        apply_cursor_mode(window, *input);
+        window_input->input.set_mouse_captured(true);
+        apply_cursor_mode(window, window_input->input);
     }
 }
 
 void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
-    input_for(window)->on_cursor_position(x, y);
+    input_for(window)->input.on_cursor_position(x, y);
 }
 
 void window_size_callback(GLFWwindow*, int width, int height)
@@ -192,7 +203,7 @@ World make_smoke_physics_world()
     return world;
 }
 
-PlayerMoveIntent player_move_intent(const InputState& input, const FpsCamera& camera)
+PlayerMoveIntent player_move_intent(const ActionFrame& actions, const FpsCamera& camera)
 {
     const std::array<float, 3> view_forward = camera.forward();
     const double horizontal_length = std::sqrt(static_cast<double>(view_forward[0]) * view_forward[0] +
@@ -203,10 +214,10 @@ PlayerMoveIntent player_move_intent(const InputState& input, const FpsCamera& ca
     const double right_z = forward_x;
     double forward_axis = 0.0;
     double right_axis = 0.0;
-    if (input.held(87)) { forward_axis += 1.0; }
-    if (input.held(83)) { forward_axis -= 1.0; }
-    if (input.held(68)) { right_axis += 1.0; }
-    if (input.held(65)) { right_axis -= 1.0; }
+    if (actions.held(GameAction::MoveForward)) { forward_axis += 1.0; }
+    if (actions.held(GameAction::MoveBackward)) { forward_axis -= 1.0; }
+    if (actions.held(GameAction::MoveRight)) { right_axis += 1.0; }
+    if (actions.held(GameAction::MoveLeft)) { right_axis -= 1.0; }
     return {forward_x * forward_axis + right_x * right_axis,
             forward_z * forward_axis + right_z * right_axis};
 }
@@ -795,7 +806,21 @@ int run(bool smoke)
         glfwTerminate();
         return 1;
     }
-    InputState input;
+    WindowInput window_input;
+    InputState& input = window_input.input;
+    ActionMap action_map;
+    action_map.bind_key(GameAction::MoveForward, GLFW_KEY_W);
+    action_map.bind_key(GameAction::MoveBackward, GLFW_KEY_S);
+    action_map.bind_key(GameAction::MoveLeft, GLFW_KEY_A);
+    action_map.bind_key(GameAction::MoveRight, GLFW_KEY_D);
+    action_map.bind_key(GameAction::Jump, GLFW_KEY_SPACE);
+    action_map.bind_mouse_button(GameAction::BreakBlock, GLFW_MOUSE_BUTTON_LEFT);
+    action_map.bind_mouse_button(GameAction::PlaceBlock, GLFW_MOUSE_BUTTON_RIGHT);
+    action_map.bind_key(GameAction::SelectSlot1, GLFW_KEY_1);
+    action_map.bind_key(GameAction::SelectSlot2, GLFW_KEY_2);
+    action_map.bind_key(GameAction::SelectSlot3, GLFW_KEY_3);
+    action_map.bind_key(GameAction::SelectSlot4, GLFW_KEY_4);
+    CreativeHotbar hotbar;
     FpsCamera camera;
     PlayerController player;
     player.state().feet_position = smoke ? std::array<double, 3>{15.5, 2.88, 8.0}
@@ -804,7 +829,7 @@ int run(bool smoke)
     {
         player.state().grounded = false;
     }
-    glfwSetWindowUserPointer(window, &input);
+    glfwSetWindowUserPointer(window, &window_input);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
@@ -823,15 +848,18 @@ int run(bool smoke)
     while (!glfwWindowShouldClose(window))
     {
         input.begin_frame();
+        action_map.begin_frame();
         const bool was_mouse_captured = input.mouse_captured();
         glfwPollEvents();
+        const ActionFrame actions = action_map.sample(input);
+        hotbar.apply_slot_actions(actions);
         const double frame_delta_seconds = frame_clock.sample();
         camera.update_look(input);
-        if (input.pressed(SpaceKey))
+        if (actions.pressed(GameAction::Jump))
         {
             player.request_jump();
         }
-        const PlayerMoveIntent move_intent = player_move_intent(input, camera);
+        const PlayerMoveIntent move_intent = player_move_intent(actions, camera);
         fixed_tick.advance(frame_delta_seconds, [&world, &player, move_intent](double tick_seconds)
         {
             player.fixed_step(world, tick_seconds, move_intent);
@@ -846,15 +874,15 @@ int run(bool smoke)
         if (!smoke && was_mouse_captured && selection)
         {
             bool edited = false;
-            if (input.mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT))
+            if (actions.pressed(GameAction::BreakBlock))
             {
                 edited = world.set(selection->block, BlockState::Air);
             }
-            else if (input.mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT) && selection->has_previous_empty)
+            else if (actions.pressed(GameAction::PlaceBlock) && selection->has_previous_empty)
             {
                 edited = tt::voxel_game::player_can_place_block(
                     player.state(), selection->previous_empty, player.config()) &&
-                    world.set(selection->previous_empty, BlockState::Stone);
+                    world.set(selection->previous_empty, hotbar.selected_block());
             }
             if (edited)
             {
