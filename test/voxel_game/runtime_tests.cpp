@@ -522,9 +522,12 @@ void test_player_collision_and_fixed_step()
     bool rejected_domain_escape = false;
     try
     {
-        PlayerController extreme;
-        extreme.state().feet_position[0] = static_cast<double>((std::numeric_limits<int>::max)()) + 2.0;
-        extreme.fixed_step(falling_world, 1.0 / 60.0, {});
+        PlayerMotionConfig extreme_config;
+        extreme_config.walk_speed = 600.0;
+        PlayerController extreme(extreme_config);
+        extreme.state().feet_position = {
+            static_cast<double>((std::numeric_limits<int>::max)()) - 0.5, 1.0, 0.5};
+        extreme.fixed_step(falling_world, 1.0 / 60.0, {1.0, 0.0});
     }
     catch (const std::out_of_range&)
     {

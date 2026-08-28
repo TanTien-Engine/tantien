@@ -248,7 +248,7 @@ double PlayerController::clip_axis(const World& world, int axis, double desired_
     }
 
     double clipped_delta = desired_delta;
-    for (int moving_cell = first;
+    for (std::int64_t moving_cell = first;
          increment > 0 ? moving_cell <= last : moving_cell >= last;
          moving_cell += increment)
     {
