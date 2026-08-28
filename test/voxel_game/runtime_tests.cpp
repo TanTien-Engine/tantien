@@ -1,6 +1,7 @@
 #include "voxel_game/runtime/FpsCamera.h"
 #include "voxel_game/runtime/FrameClock.h"
 #include "voxel_game/runtime/InputState.h"
+#include "voxel_game/runtime/PlayerController.h"
 #include "voxel_game/voxel/Section.h"
 #include "voxel_game/voxel/VisibleFaceMesher.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
@@ -353,25 +354,183 @@ void test_voxel_raycast()
 
 void test_fps_camera_actions()
 {
-    using tt::voxel_game::ButtonAction;
     using tt::voxel_game::FpsCamera;
     using tt::voxel_game::InputState;
 
     InputState input;
     FpsCamera camera;
-    camera.set_position({0.0F, 0.0F, 0.0F});
-    input.begin_frame();
-    input.on_key(87, ButtonAction::Press);
-    camera.update(input, 0.5);
-    require_near(camera.position()[0], 0.0, "forward movement x component");
-    require_near(camera.position()[2], -3.5, "WASD movement uses delta time");
-
     input.set_mouse_captured(true);
     input.on_cursor_position(10.0, 10.0);
     input.on_cursor_position(20.0, 0.0);
-    camera.update(input, 0.0);
+    camera.update_look(input);
     require_near(camera.yaw_degrees(), -89.0, "mouse delta changes yaw");
     require_near(camera.pitch_degrees(), -15.0, "mouse delta changes pitch");
+    const auto forward = camera.forward();
+    require_near(forward[0], 0.016858, "view forward reflects yaw without moving player");
+    require_near(forward[1], -0.258819, "view forward reflects pitch without moving player");
+}
+
+void fill_floor(tt::voxel_game::World& world, int minimum_x, int maximum_x,
+                int minimum_z, int maximum_z)
+{
+    for (int z = minimum_z; z <= maximum_z; ++z)
+    {
+        for (int x = minimum_x; x <= maximum_x; ++x)
+        {
+            world.set({x, 0, z}, tt::voxel_game::BlockState::Grass);
+        }
+    }
+}
+
+void step_player(tt::voxel_game::PlayerController& player, const tt::voxel_game::World& world,
+                 int ticks, tt::voxel_game::PlayerMoveIntent intent = {})
+{
+    for (int tick = 0; tick < ticks; ++tick)
+    {
+        player.fixed_step(world, 1.0 / 60.0, intent);
+    }
+}
+
+void test_player_collision_and_fixed_step()
+{
+    using tt::voxel_game::BlockState;
+    using tt::voxel_game::PlayerController;
+    using tt::voxel_game::PlayerMotionConfig;
+    using tt::voxel_game::PlayerMoveIntent;
+    using tt::voxel_game::World;
+    using tt::voxel_game::player_aabb;
+    using tt::voxel_game::player_can_place_block;
+    using tt::voxel_game::player_intersects_solid_world;
+
+    World falling_world;
+    fill_floor(falling_world, -4, 4, -4, 4);
+    PlayerController falling;
+    falling.state().feet_position = {0.5, 5.0, 0.5};
+    step_player(falling, falling_world, 180);
+    require(falling.state().grounded, "falling player lands and is grounded");
+    require_near(falling.state().feet_position[1], 1.0, "falling player rests on floor");
+    require_near(falling.state().velocity[1], 0.0, "floor collision clears falling speed");
+    require(!player_intersects_solid_world(falling_world, player_aabb(falling.state(), falling.config())),
+            "landed player does not penetrate floor");
+
+    World jump_world;
+    fill_floor(jump_world, -4, 4, -4, 4);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int z = -1; z <= 1; ++z)
+        {
+            jump_world.set({x, 4, z}, BlockState::Stone);
+        }
+    }
+    PlayerController jumper;
+    jumper.state().feet_position = {0.5, 1.0, 0.5};
+    step_player(jumper, jump_world, 1);
+    require(jumper.state().grounded, "spawn settles before jump request");
+    require(jumper.request_jump() && jumper.jump_pending(), "grounded jump edge queues before a fixed tick");
+    tt::voxel_game::FixedStepAccumulator jump_ticks(1.0 / 60.0, 2);
+    const auto no_tick = jump_ticks.advance(1.0 / 120.0, [&jumper, &jump_world](double tick_seconds)
+    {
+        jumper.fixed_step(jump_world, tick_seconds, {});
+    });
+    require(no_tick.tick_count == 0 && jumper.jump_pending(),
+            "jump edge survives a render frame with no fixed tick");
+    const auto one_tick = jump_ticks.advance(1.0 / 120.0, [&jumper, &jump_world](double tick_seconds)
+    {
+        jumper.fixed_step(jump_world, tick_seconds, {});
+    });
+    require(one_tick.tick_count == 1, "second partial frame runs one fixed tick");
+    require(!jumper.jump_pending() && !jumper.state().grounded && jumper.state().velocity[1] > 0.0,
+            "next fixed tick consumes exactly one jump edge");
+    bool hit_ceiling = false;
+    for (int tick = 0; tick < 240; ++tick)
+    {
+        jumper.fixed_step(jump_world, 1.0 / 60.0, {});
+        hit_ceiling = hit_ceiling || (jumper.state().velocity[1] == 0.0 && !jumper.state().grounded &&
+                                      jumper.state().feet_position[1] <= 2.200001);
+    }
+    require(hit_ceiling, "upward sweep clips at ceiling");
+    require(jumper.state().grounded && jumper.state().feet_position[1] >= 0.999999,
+            "jump returns to grounded floor state");
+    require(jumper.request_jump(), "grounded player accepts the next distinct jump edge");
+    jumper.fixed_step(jump_world, 1.0 / 60.0, {});
+    require(!jumper.request_jump(), "airborne player cannot queue repeat jump");
+
+    World wall_world;
+    fill_floor(wall_world, -2, 5, -2, 5);
+    for (int z = -2; z <= 5; ++z)
+    {
+        for (int y = 1; y <= 3; ++y)
+        {
+            wall_world.set({2, y, z}, BlockState::Stone);
+        }
+    }
+    PlayerController slider;
+    slider.state().feet_position = {0.5, 1.0, 0.5};
+    step_player(slider, wall_world, 60, {1.0, 1.0});
+    require(slider.state().feet_position[0] <= 1.700001, "wall blocks normal movement");
+    require(slider.state().feet_position[2] > 2.0, "wall collision preserves tangential slide");
+    require(!player_intersects_solid_world(wall_world, player_aabb(slider.state(), slider.config())),
+            "wall slide leaves no penetration");
+
+    PlayerMotionConfig fast_config;
+    fast_config.walk_speed = 600.0;
+    PlayerController fast(fast_config);
+    fast.state().feet_position = {0.5, 1.0, 0.5};
+    fast.fixed_step(wall_world, 1.0 / 60.0, {1.0, 0.0});
+    require(fast.state().feet_position[0] <= 1.700001, "swept clipping prevents high-speed wall tunnelling");
+
+    World negative_world;
+    fill_floor(negative_world, -20, -10, -2, 2);
+    for (int y = 1; y <= 3; ++y)
+    {
+        negative_world.set({-15, y, 0}, BlockState::Stone);
+    }
+    require(negative_world.section_count() >= 2,
+            "negative collision fixture spans the -16 section boundary");
+    PlayerController negative;
+    negative.state().feet_position = {-17.5, 1.0, 0.5};
+    step_player(negative, negative_world, 60, {1.0, 0.0});
+    require(negative.state().feet_position[0] > -16.0 && negative.state().feet_position[0] >= -15.300001 &&
+                negative.state().feet_position[0] <= -15.299999,
+            "negative coordinates cross section boundary and stop at wall");
+    require(!player_intersects_solid_world(negative_world, player_aabb(negative.state(), negative.config())),
+            "negative-coordinate collision has no penetration");
+
+    PlayerController airborne;
+    airborne.state().feet_position = {0.5, 4.0, 0.5};
+    require(!airborne.request_jump(), "airborne player cannot queue jump");
+    PlayerController placement;
+    placement.state().feet_position = {0.5, 1.0, 0.5};
+    require(!player_can_place_block(placement.state(), {0, 1, 0}, placement.config()),
+            "placing a block inside player AABB is rejected by runtime API");
+    require(player_can_place_block(placement.state(), {0, 3, 0}, placement.config()),
+            "non-overlapping placement target remains allowed");
+
+    bool rejected_nonfinite_config = false;
+    try
+    {
+        PlayerMotionConfig invalid;
+        invalid.gravity = std::numeric_limits<double>::infinity();
+        PlayerController invalid_player(invalid);
+    }
+    catch (const std::invalid_argument&)
+    {
+        rejected_nonfinite_config = true;
+    }
+    require(rejected_nonfinite_config, "nonfinite player configuration is strictly rejected");
+
+    bool rejected_domain_escape = false;
+    try
+    {
+        PlayerController extreme;
+        extreme.state().feet_position[0] = static_cast<double>((std::numeric_limits<int>::max)()) + 2.0;
+        extreme.fixed_step(falling_world, 1.0 / 60.0, {});
+    }
+    catch (const std::out_of_range&)
+    {
+        rejected_domain_escape = true;
+    }
+    require(rejected_domain_escape, "player outside BlockCoord domain is strictly rejected");
 }
 
 } // namespace
@@ -388,6 +547,7 @@ int main()
         test_world_coordinates_and_dirty_meshes();
         test_voxel_raycast();
         test_fps_camera_actions();
+        test_player_collision_and_fixed_step();
         std::cout << "voxel_runtime_tests: PASS" << std::endl;
         return 0;
     }

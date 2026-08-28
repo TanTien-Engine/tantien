@@ -2,6 +2,7 @@
 #include "voxel_game/runtime/FpsCamera.h"
 #include "voxel_game/runtime/FrameClock.h"
 #include "voxel_game/runtime/InputState.h"
+#include "voxel_game/runtime/PlayerController.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
 #include "voxel_game/voxel/World.h"
 
@@ -33,6 +34,8 @@ using tt::voxel_game::FrameClock;
 using tt::voxel_game::FixedStepAccumulator;
 using tt::voxel_game::InputState;
 using tt::voxel_game::OpaqueMesh;
+using tt::voxel_game::PlayerController;
+using tt::voxel_game::PlayerMoveIntent;
 using tt::voxel_game::Section;
 using tt::voxel_game::SectionCoord;
 using tt::voxel_game::SectionCoordHash;
@@ -41,6 +44,7 @@ using tt::voxel_game::World;
 
 constexpr float DegreesToRadians = 0.01745329251994329577F;
 constexpr double EditReach = 8.0;
+constexpr int SpaceKey = 32;
 
 struct Mat4
 {
@@ -156,6 +160,47 @@ World make_smoke_world()
     world.set({15, 1, 0}, BlockState::Stone);
     world.set({16, 1, 0}, BlockState::Stone);
     return world;
+}
+
+World make_smoke_physics_world()
+{
+    World world;
+    for (int z = -3; z <= 3; ++z)
+    {
+        for (int x = -3; x <= 3; ++x)
+        {
+            world.set({x, 0, z}, BlockState::Grass);
+        }
+    }
+    for (int y = 1; y <= 3; ++y)
+    {
+        world.set({2, y, 0}, BlockState::Stone);
+    }
+    return world;
+}
+
+PlayerMoveIntent player_move_intent(const InputState& input, const FpsCamera& camera)
+{
+    const std::array<float, 3> view_forward = camera.forward();
+    const double horizontal_length = std::sqrt(static_cast<double>(view_forward[0]) * view_forward[0] +
+                                               static_cast<double>(view_forward[2]) * view_forward[2]);
+    const double forward_x = static_cast<double>(view_forward[0]) / horizontal_length;
+    const double forward_z = static_cast<double>(view_forward[2]) / horizontal_length;
+    const double right_x = -forward_z;
+    const double right_z = forward_x;
+    double forward_axis = 0.0;
+    double right_axis = 0.0;
+    if (input.held(87)) { forward_axis += 1.0; }
+    if (input.held(83)) { forward_axis -= 1.0; }
+    if (input.held(68)) { right_axis += 1.0; }
+    if (input.held(65)) { right_axis -= 1.0; }
+    return {forward_x * forward_axis + right_x * right_axis,
+            forward_z * forward_axis + right_z * right_axis};
+}
+
+std::array<float, 3> as_float3(const std::array<double, 3>& value)
+{
+    return {static_cast<float>(value[0]), static_cast<float>(value[1]), static_cast<float>(value[2])};
 }
 
 OpaqueMesh make_selection_mesh()
@@ -428,6 +473,44 @@ bool run_smoke_world_edits(World& world, std::vector<SectionCoord>& initial_rebu
     return true;
 }
 
+bool run_smoke_physics_script()
+{
+    World world = make_smoke_physics_world();
+    PlayerController player;
+    player.state().feet_position = {0.5, 4.0, 0.5};
+    constexpr double TickSeconds = 1.0 / 60.0;
+    std::size_t ticks = 0;
+    while (!player.state().grounded && ticks < 240)
+    {
+        player.fixed_step(world, TickSeconds, {});
+        ++ticks;
+    }
+    if (!player.state().grounded || tt::voxel_game::player_intersects_solid_world(
+                                       world, tt::voxel_game::player_aabb(player.state(), player.config())))
+    {
+        return false;
+    }
+    if (!player.request_jump() || !player.jump_pending())
+    {
+        return false;
+    }
+    bool was_airborne = false;
+    for (std::size_t step = 0; step < 240; ++step)
+    {
+        player.fixed_step(world, TickSeconds, {1.0, 0.0});
+        ++ticks;
+        was_airborne = was_airborne || !player.state().grounded;
+    }
+    const auto& state = player.state();
+    const bool valid = was_airborne && state.grounded && state.feet_position[0] <= 1.700001 &&
+                       !tt::voxel_game::player_intersects_solid_world(
+                           world, tt::voxel_game::player_aabb(state, player.config()));
+    std::cout << "smoke physics: ticks=" << ticks << " final_feet="
+              << state.feet_position[0] << "," << state.feet_position[1] << ","
+              << state.feet_position[2] << " grounded=" << (state.grounded ? 1 : 0) << std::endl;
+    return valid;
+}
+
 int run(bool smoke)
 {
     if (glfwInit() == GLFW_FALSE)
@@ -442,7 +525,7 @@ int run(bool smoke)
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Voxel Game M2", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Voxel Game M2B", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cerr << "failed to create GLFW window" << std::endl;
@@ -471,6 +554,15 @@ int run(bool smoke)
     std::vector<SectionCoord> rebuilt;
     if (smoke)
     {
+        if (!run_smoke_physics_script())
+        {
+            std::cerr << "smoke physics assertions failed" << std::endl;
+            context.reset();
+            device.reset();
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            return 1;
+        }
         if (!run_smoke_world_edits(world, rebuilt))
         {
             std::cerr << "smoke world edit assertions failed" << std::endl;
@@ -542,9 +634,12 @@ int run(bool smoke)
     }
     InputState input;
     FpsCamera camera;
+    PlayerController player;
+    player.state().feet_position = smoke ? std::array<double, 3>{15.5, 2.88, 8.0}
+                                         : std::array<double, 3>{8.5, 1.0, 14.5};
     if (smoke)
     {
-        camera.set_position({15.5F, 4.5F, 8.0F});
+        player.state().grounded = false;
     }
     glfwSetWindowUserPointer(window, &input);
     glfwSetKeyCallback(window, key_callback);
@@ -568,12 +663,21 @@ int run(bool smoke)
         const bool was_mouse_captured = input.mouse_captured();
         glfwPollEvents();
         const double frame_delta_seconds = frame_clock.sample();
-        fixed_tick.advance(frame_delta_seconds, [](double) {});
-        camera.update(input, frame_delta_seconds);
+        camera.update_look(input);
+        if (input.pressed(SpaceKey))
+        {
+            player.request_jump();
+        }
+        const PlayerMoveIntent move_intent = player_move_intent(input, camera);
+        fixed_tick.advance(frame_delta_seconds, [&world, &player, move_intent](double tick_seconds)
+        {
+            player.fixed_step(world, tick_seconds, move_intent);
+        });
+        const std::array<double, 3> player_eye = player.eye_position();
         const auto selection = smoke
             ? tt::voxel_game::raycast_voxels(world, {15.5, 1.5, -2.0}, {0.0, 0.0, 1.0}, EditReach)
             : tt::voxel_game::raycast_voxels(
-                world, {camera.position()[0], camera.position()[1], camera.position()[2]},
+                world, player_eye,
                 {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
         smoke_selection_verified = smoke_selection_verified || selection.has_value();
         if (!smoke && was_mouse_captured && selection)
@@ -585,7 +689,9 @@ int run(bool smoke)
             }
             else if (input.mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT) && selection->has_previous_empty)
             {
-                edited = world.set(selection->previous_empty, BlockState::Stone);
+                edited = tt::voxel_game::player_can_place_block(
+                    player.state(), selection->previous_empty, player.config()) &&
+                    world.set(selection->previous_empty, BlockState::Stone);
             }
             if (edited)
             {
@@ -606,7 +712,7 @@ int run(bool smoke)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float aspect_ratio = static_cast<float>(width) / static_cast<float>(height > 0 ? height : 1);
         const Mat4 mvp = multiply(perspective(65.0F, aspect_ratio, 0.1F, 100.0F),
-                                  look_at(camera.position(), camera.forward()));
+                                  look_at(as_float3(player_eye), camera.forward()));
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.values.data());
         for (const auto& pair : gpu_meshes)
