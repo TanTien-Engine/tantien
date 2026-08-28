@@ -29,6 +29,12 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     target_include_directories(voxel_runtime PUBLIC src)
     target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
+    add_library(voxel_persistence STATIC
+        "src/voxel_game/persistence/WorldSnapshotCodec.cpp")
+    target_include_directories(voxel_persistence PUBLIC src)
+    target_compile_features(voxel_persistence PUBLIC cxx_std_17)
+    target_link_libraries(voxel_persistence PUBLIC voxel_runtime)
+
     add_library(voxel_bridge STATIC
         "src/voxel_game/bridge/VoxelGameFacade.cpp"
         "src/voxel_game/ves/VoxelSessionRegistry.cpp")
@@ -54,12 +60,17 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     add_executable(voxel_runtime_adapter_tests "test/voxel_game/voxel_runtime_adapter_tests.cpp")
     target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
     target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
+
+    add_executable(world_snapshot_codec_tests "test/voxel_game/world_snapshot_codec_tests.cpp")
+    target_link_libraries(world_snapshot_codec_tests PRIVATE voxel_persistence)
+    target_compile_features(world_snapshot_codec_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
         add_test(NAME action_map_tests COMMAND action_map_tests)
         add_test(NAME worldgen_tests COMMAND worldgen_tests)
         add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
+        add_test(NAME world_snapshot_codec_tests COMMAND world_snapshot_codec_tests)
     endif()
     return()
 endif()
@@ -836,6 +847,12 @@ add_library(voxel_runtime STATIC
 target_include_directories(voxel_runtime PUBLIC src)
 target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
+add_library(voxel_persistence STATIC
+    "src/voxel_game/persistence/WorldSnapshotCodec.cpp")
+target_include_directories(voxel_persistence PUBLIC src)
+target_compile_features(voxel_persistence PUBLIC cxx_std_17)
+target_link_libraries(voxel_persistence PUBLIC voxel_runtime)
+
 add_library(voxel_bridge STATIC
     "src/voxel_game/bridge/VoxelGameFacade.cpp"
     "src/voxel_game/ves/VoxelSessionRegistry.cpp")
@@ -867,12 +884,18 @@ if(TT_BUILD_VOXEL_RUNTIME_TESTS)
         "test/voxel_game/voxel_runtime_adapter_tests.cpp")
     target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
     target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
+
+    add_executable(world_snapshot_codec_tests
+        "test/voxel_game/world_snapshot_codec_tests.cpp")
+    target_link_libraries(world_snapshot_codec_tests PRIVATE voxel_persistence)
+    target_compile_features(world_snapshot_codec_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
         add_test(NAME action_map_tests COMMAND action_map_tests)
         add_test(NAME worldgen_tests COMMAND worldgen_tests)
         add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
+        add_test(NAME world_snapshot_codec_tests COMMAND world_snapshot_codec_tests)
     endif()
 endif()
 

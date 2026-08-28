@@ -69,6 +69,11 @@ public:
     bool section_dirty(SectionCoord coordinate) const;
     std::size_t section_count() const;
 
+    // Returns a sorted snapshot of the loaded coordinates.  This is a
+    // read-only enumeration boundary: it neither exposes LoadedSection nor
+    // permits mutation of the world's storage.
+    std::vector<SectionCoord> section_coordinates() const;
+
     // Rebuilds only dirty Sections. Returned coordinates are sorted so callers
     // can make GPU upload and smoke diagnostics deterministic.
     std::vector<SectionCoord> rebuild_dirty_meshes();

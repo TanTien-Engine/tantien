@@ -121,6 +121,18 @@ std::size_t World::section_count() const
     return m_sections.size();
 }
 
+std::vector<SectionCoord> World::section_coordinates() const
+{
+    std::vector<SectionCoord> coordinates;
+    coordinates.reserve(m_sections.size());
+    for (const auto& pair : m_sections)
+    {
+        coordinates.push_back(pair.first);
+    }
+    std::sort(coordinates.begin(), coordinates.end());
+    return coordinates;
+}
+
 std::vector<SectionCoord> World::rebuild_dirty_meshes()
 {
     std::vector<SectionCoord> rebuilt;
