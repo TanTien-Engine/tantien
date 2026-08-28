@@ -5,6 +5,8 @@
 #include "voxel_game/runtime/ActionMap.h"
 #include "voxel_game/runtime/CreativeHotbar.h"
 #include "voxel_game/runtime/PlayerController.h"
+#include "voxel_game/runtime/VoxelRuntimeAdapter.h"
+#include "voxel_game/bridge/VoxelGameFacade.h"
 #include "voxel_game/worldgen/TerrainGenerator.h"
 #include "voxel_game/voxel/VoxelRaycast.h"
 #include "voxel_game/voxel/BlockAtlas.h"
@@ -48,6 +50,13 @@ using tt::voxel_game::GameAction;
 using tt::voxel_game::OpaqueMesh;
 using tt::voxel_game::PlayerController;
 using tt::voxel_game::PlayerMoveIntent;
+using tt::voxel_game::VoxelCommand;
+using tt::voxel_game::VoxelBridgeStatus;
+using tt::voxel_game::VoxelCommandType;
+using tt::voxel_game::VoxelEvent;
+using tt::voxel_game::VoxelEventType;
+using tt::voxel_game::VoxelGameFacade;
+using tt::voxel_game::VoxelRuntimeAdapter;
 using tt::voxel_game::Section;
 using tt::voxel_game::SectionCoord;
 using tt::voxel_game::SectionCoordHash;
@@ -850,6 +859,29 @@ int run(bool smoke)
     {
         player.state().grounded = false;
     }
+    // Construction order intentionally keeps World and PlayerController alive
+    // through adapter and facade destruction. The facade captures only the
+    // adapter, and never receives a World or renderer handle.
+    VoxelRuntimeAdapter runtime_adapter(world, player);
+    VoxelGameFacade facade;
+    const auto session = facade.create_session([&runtime_adapter](const VoxelCommand& command)
+    {
+        return runtime_adapter.apply(command);
+    });
+    if (!session.is_valid())
+    {
+        std::cerr << "failed to create voxel command session: "
+                  << tt::voxel_game::voxel_bridge_status_message(facade.create_status()) << std::endl;
+        glDeleteProgram(program);
+        selection_mesh.reset();
+        gpu_meshes.clear();
+        release_atlas_resources();
+        context.reset();
+        device.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
     glfwSetWindowUserPointer(window, &window_input);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -866,6 +898,7 @@ int run(bool smoke)
     bool draw_failed = false;
     bool smoke_pixels_verified = false;
     bool smoke_selection_verified = false;
+    constexpr std::size_t MaxCommandsPerRenderFrame = 2;
     while (!glfwWindowShouldClose(window))
     {
         input.begin_frame();
@@ -873,6 +906,7 @@ int run(bool smoke)
         const bool was_mouse_captured = input.mouse_captured();
         glfwPollEvents();
         const ActionFrame actions = action_map.sample(input);
+        const std::size_t previous_selected_slot = hotbar.selected_slot();
         hotbar.apply_slot_actions(actions);
         const double frame_delta_seconds = frame_clock.sample();
         camera.update_look(input);
@@ -886,36 +920,71 @@ int run(bool smoke)
             player.fixed_step(world, tick_seconds, move_intent);
         });
         const std::array<double, 3> player_eye = player.eye_position();
-        const auto selection = smoke
+        const auto queued_selection = smoke
             ? tt::voxel_game::raycast_voxels(world, {15.5, 1.5, -2.0}, {0.0, 0.0, 1.0}, EditReach)
             : tt::voxel_game::raycast_voxels(
                 world, player_eye,
                 {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
-        smoke_selection_verified = smoke_selection_verified || selection.has_value();
-        if (!smoke && was_mouse_captured && selection)
+        runtime_adapter.set_target(queued_selection);
+        bool selection_enqueue_succeeded = true;
+        if (hotbar.selected_slot() != previous_selected_slot)
         {
-            bool edited = false;
+            VoxelCommand selection_command;
+            selection_command.type = VoxelCommandType::SetSelectedBlock;
+            selection_command.selected_block = static_cast<std::uint16_t>(hotbar.selected_block());
+            selection_enqueue_succeeded = facade.enqueue_command(session, selection_command) == VoxelBridgeStatus::Ok;
+            if (!selection_enqueue_succeeded)
+            {
+                hotbar.select_slot(previous_selected_slot);
+            }
+        }
+        if (!smoke && selection_enqueue_succeeded && was_mouse_captured && queued_selection)
+        {
             if (actions.pressed(GameAction::BreakBlock))
             {
-                edited = world.set(selection->block, BlockState::Air);
-            }
-            else if (actions.pressed(GameAction::PlaceBlock) && selection->has_previous_empty)
-            {
-                edited = tt::voxel_game::player_can_place_block(
-                    player.state(), selection->previous_empty, player.config()) &&
-                    world.set(selection->previous_empty, hotbar.selected_block());
-            }
-            if (edited)
-            {
-                const std::vector<SectionCoord> changed = world.rebuild_dirty_meshes();
-                if (!upload_rebuilt_meshes(world, changed, *device, gpu_meshes, error))
+                VoxelCommand break_command;
+                break_command.type = VoxelCommandType::BreakCurrentTarget;
+                if (facade.enqueue_command(session, break_command) != VoxelBridgeStatus::Ok)
                 {
-                    std::cerr << "failed to upload edited voxel mesh: " << error << std::endl;
-                    draw_failed = true;
-                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    // Queue rejection is a deliberate no-op: no direct World mutation follows.
+                }
+            }
+            else if (actions.pressed(GameAction::PlaceBlock))
+            {
+                VoxelCommand place_command;
+                place_command.type = VoxelCommandType::PlaceSelectedBlock;
+                if (facade.enqueue_command(session, place_command) != VoxelBridgeStatus::Ok)
+                {
+                    // Queue rejection is a deliberate no-op: no direct World mutation follows.
                 }
             }
         }
+        facade.drain_fixed_tick(session, MaxCommandsPerRenderFrame);
+        bool accepted_world_edit = false;
+        VoxelEvent completion;
+        while (facade.try_pop_event(session, completion))
+        {
+            accepted_world_edit = accepted_world_edit ||
+                (completion.type == VoxelEventType::EditAccepted &&
+                 (completion.command == VoxelCommandType::BreakCurrentTarget ||
+                  completion.command == VoxelCommandType::PlaceSelectedBlock));
+        }
+        if (accepted_world_edit)
+        {
+            const std::vector<SectionCoord> changed = world.rebuild_dirty_meshes();
+            if (!upload_rebuilt_meshes(world, changed, *device, gpu_meshes, error))
+            {
+                std::cerr << "failed to upload edited voxel mesh: " << error << std::endl;
+                draw_failed = true;
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+        }
+        const auto selection = smoke
+            ? tt::voxel_game::raycast_voxels(world, {15.5, 1.5, -2.0}, {0.0, 0.0, 1.0}, EditReach)
+            : tt::voxel_game::raycast_voxels(
+                world, player.eye_position(),
+                {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
+        smoke_selection_verified = smoke_selection_verified || selection.has_value();
         int width = 0;
         int height = 0;
         glfwGetFramebufferSize(window, &width, &height);

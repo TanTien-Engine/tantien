@@ -18,6 +18,7 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
         "src/voxel_game/runtime/CreativeHotbar.cpp"
         "src/voxel_game/runtime/FpsCamera.cpp"
         "src/voxel_game/runtime/PlayerController.cpp"
+        "src/voxel_game/runtime/VoxelRuntimeAdapter.cpp"
         "src/voxel_game/worldgen/TerrainGenerator.cpp"
         "src/voxel_game/voxel/BlockAtlas.cpp"
         "src/voxel_game/voxel/BlockRegistry.cpp"
@@ -49,11 +50,16 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     add_executable(worldgen_tests "test/voxel_game/worldgen_tests.cpp")
     target_link_libraries(worldgen_tests PRIVATE voxel_runtime)
     target_compile_features(worldgen_tests PRIVATE cxx_std_17)
+
+    add_executable(voxel_runtime_adapter_tests "test/voxel_game/voxel_runtime_adapter_tests.cpp")
+    target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
+    target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
         add_test(NAME action_map_tests COMMAND action_map_tests)
         add_test(NAME worldgen_tests COMMAND worldgen_tests)
+        add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
     endif()
     return()
 endif()
@@ -819,6 +825,7 @@ add_library(voxel_runtime STATIC
     "src/voxel_game/runtime/CreativeHotbar.cpp"
     "src/voxel_game/runtime/FpsCamera.cpp"
     "src/voxel_game/runtime/PlayerController.cpp"
+    "src/voxel_game/runtime/VoxelRuntimeAdapter.cpp"
     "src/voxel_game/worldgen/TerrainGenerator.cpp"
     "src/voxel_game/voxel/BlockAtlas.cpp"
     "src/voxel_game/voxel/BlockRegistry.cpp"
@@ -855,11 +862,17 @@ if(TT_BUILD_VOXEL_RUNTIME_TESTS)
         "test/voxel_game/worldgen_tests.cpp")
     target_link_libraries(worldgen_tests PRIVATE voxel_runtime)
     target_compile_features(worldgen_tests PRIVATE cxx_std_17)
+
+    add_executable(voxel_runtime_adapter_tests
+        "test/voxel_game/voxel_runtime_adapter_tests.cpp")
+    target_link_libraries(voxel_runtime_adapter_tests PRIVATE voxel_runtime voxel_bridge)
+    target_compile_features(voxel_runtime_adapter_tests PRIVATE cxx_std_17)
     if(BUILD_TESTING)
         add_test(NAME voxel_runtime_tests COMMAND voxel_runtime_tests)
         add_test(NAME voxel_bridge_tests COMMAND voxel_bridge_tests)
         add_test(NAME action_map_tests COMMAND action_map_tests)
         add_test(NAME worldgen_tests COMMAND worldgen_tests)
+        add_test(NAME voxel_runtime_adapter_tests COMMAND voxel_runtime_adapter_tests)
     endif()
 endif()
 
@@ -873,6 +886,7 @@ if(TT_BUILD_VOXEL_GAME)
         thirdparty/glfw/include)
     target_link_libraries(voxel_game PRIVATE
         voxel_runtime
+        voxel_bridge
         unirender
         glfw
         gl3w
