@@ -29,6 +29,8 @@ const char* voxel_bridge_status_message(VoxelBridgeStatus status)
         return "facade call rejected from a non-owner thread";
     case VoxelBridgeStatus::StorageFailure:
         return "bridge storage preparation failed";
+    case VoxelBridgeStatus::GenerationExhausted:
+        return "session generation space exhausted";
     case VoxelBridgeStatus::CallbackMissing:
         return "command adapter is required";
     case VoxelBridgeStatus::AdapterRejected:
@@ -126,12 +128,14 @@ VoxelSessionHandle VoxelGameFacade::create_session(const CommandAdapter& adapter
     if (m_config.command_capacity == 0 || m_config.event_capacity == 0)
     {
         m_create_status = VoxelBridgeStatus::InvalidInput;
+        m_last_facade_status = m_create_status;
         return {};
     }
 
     if (!adapter)
     {
         m_create_status = VoxelBridgeStatus::CallbackMissing;
+        m_last_facade_status = m_create_status;
         return {};
     }
 
@@ -232,11 +236,13 @@ std::optional<VoxelSessionHandle> VoxelGameFacade::reload_session(VoxelSessionHa
     SessionState* old_state = find_state(handle);
     if (old_state == nullptr)
     {
+        record_facade_status(VoxelBridgeStatus::InvalidHandle);
         return std::nullopt;
     }
 
     if (reject_reentrant_mutation(old_state))
     {
+        record_facade_status(VoxelBridgeStatus::ReentrantCall);
         return std::nullopt;
     }
 
@@ -271,6 +277,7 @@ std::optional<VoxelSessionHandle> VoxelGameFacade::reload_session(VoxelSessionHa
     if (!replacement.has_value())
     {
         m_states[handle.slot].reset();
+        record_facade_status(VoxelBridgeStatus::GenerationExhausted);
         return std::nullopt;
     }
 
@@ -281,7 +288,14 @@ std::optional<VoxelSessionHandle> VoxelGameFacade::reload_session(VoxelSessionHa
 
 bool VoxelGameFacade::is_session_live(VoxelSessionHandle handle) const
 {
-    return on_owner_thread() && find_state(handle) != nullptr;
+    if (!on_owner_thread())
+    {
+        return false;
+    }
+
+    const bool live = find_state(handle) != nullptr;
+    record_facade_status(live ? VoxelBridgeStatus::Ok : VoxelBridgeStatus::InvalidHandle);
+    return live;
 }
 
 bool VoxelGameFacade::is_owner_thread() const
@@ -377,6 +391,7 @@ VoxelDrainResult VoxelGameFacade::drain_fixed_tick(VoxelSessionHandle handle, st
             command_result.status = VoxelBridgeStatus::Ok;
         }
 
+        *event_slot = VoxelEvent{};
         event_slot->type = command_result.accepted ? VoxelEventType::EditAccepted : VoxelEventType::EditRejected;
         event_slot->command = command.type;
         event_slot->status = command_result.accepted ? VoxelBridgeStatus::Ok : command_result.status;
@@ -459,18 +474,27 @@ bool VoxelGameFacade::try_pop_event(VoxelSessionHandle handle, VoxelEvent& event
         return false;
     }
     SessionState* state = find_state(handle);
-    if (state == nullptr || state->events.empty())
+    if (state == nullptr)
     {
+        record_facade_status(VoxelBridgeStatus::InvalidHandle);
         return false;
     }
 
     if (reject_reentrant_mutation(state))
     {
+        record_facade_status(VoxelBridgeStatus::ReentrantCall);
+        return false;
+    }
+
+    if (state->events.empty())
+    {
+        record_facade_status(VoxelBridgeStatus::Ok);
         return false;
     }
 
     event = state->events.front();
     state->events.pop_front();
+    record_facade_status(VoxelBridgeStatus::Ok);
     return true;
 }
 
@@ -483,9 +507,11 @@ std::optional<VoxelQueueStats> VoxelGameFacade::queue_stats(VoxelSessionHandle h
     const SessionState* state = find_state(handle);
     if (state == nullptr)
     {
+        record_facade_status(VoxelBridgeStatus::InvalidHandle);
         return std::nullopt;
     }
 
+    record_facade_status(VoxelBridgeStatus::Ok);
     return VoxelQueueStats{
         state->commands.size(),
         state->events.size(),
@@ -511,6 +537,11 @@ std::string VoxelGameFacade::last_error(VoxelSessionHandle handle) const
 bool VoxelGameFacade::on_owner_thread() const
 {
     return std::this_thread::get_id() == m_owner_thread;
+}
+
+void VoxelGameFacade::record_facade_status(VoxelBridgeStatus status) const
+{
+    m_last_facade_status = status;
 }
 
 VoxelGameFacade::SessionState* VoxelGameFacade::find_state(VoxelSessionHandle handle)

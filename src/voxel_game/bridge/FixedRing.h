@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 
 namespace tt::voxel_game
@@ -13,6 +14,11 @@ template <typename Value>
 class FixedRing
 {
 public:
+    static_assert(std::is_nothrow_default_constructible<Value>::value,
+                  "FixedRing values must default construct without throwing");
+    static_assert(std::is_nothrow_copy_assignable<Value>::value,
+                  "FixedRing values must copy assign without throwing");
+
     explicit FixedRing(std::size_t capacity)
         : m_storage(capacity)
     {

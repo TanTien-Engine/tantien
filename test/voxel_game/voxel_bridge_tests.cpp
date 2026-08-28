@@ -3,6 +3,7 @@
 #include <exception>
 #include <iostream>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace
@@ -20,6 +21,15 @@ using tt::voxel_game::VoxelGameFacade;
 using tt::voxel_game::VoxelRuleFlag;
 using tt::voxel_game::VoxelSessionHandle;
 using tt::voxel_game::VoxelTargetSnapshot;
+
+static_assert(std::is_nothrow_default_constructible<VoxelCommand>::value,
+              "VoxelCommand must satisfy FixedRing's no-throw storage contract");
+static_assert(std::is_nothrow_copy_assignable<VoxelCommand>::value,
+              "VoxelCommand must satisfy FixedRing's no-throw storage contract");
+static_assert(std::is_nothrow_default_constructible<VoxelEvent>::value,
+              "VoxelEvent must satisfy FixedRing's no-throw storage contract");
+static_assert(std::is_nothrow_copy_assignable<VoxelEvent>::value,
+              "VoxelEvent must satisfy FixedRing's no-throw storage contract");
 
 void require(bool condition, const char* message)
 {
@@ -266,10 +276,13 @@ void test_adapter_reentrancy_is_strictly_rejected()
     std::vector<VoxelBridgeStatus> statuses;
     bool reload_returned_handle = true;
     bool pop_returned_event = true;
-    const auto adapter = [&facade, &session, &statuses, &reload_returned_handle, &pop_returned_event](
+    VoxelBridgeStatus reload_facade_status = VoxelBridgeStatus::Ok;
+    const auto adapter = [&facade, &session, &statuses, &reload_returned_handle, &pop_returned_event,
+                          &reload_facade_status](
                              const VoxelCommand&) {
         statuses.push_back(facade.destroy_session(session));
         reload_returned_handle = facade.reload_session(session).has_value();
+        reload_facade_status = facade.last_facade_status();
         statuses.push_back(facade.last_status(session));
         const auto recursive_drain = facade.drain_fixed_tick(session, 1);
         statuses.push_back(recursive_drain.status);
@@ -296,6 +309,8 @@ void test_adapter_reentrancy_is_strictly_rejected()
                 "adapter mutation must be rejected by the non-reentrant boundary");
     }
     require(!reload_returned_handle, "adapter reload must not replace the active session");
+    require(reload_facade_status == VoxelBridgeStatus::ReentrantCall,
+            "reentrant optional reload must update facade diagnostics");
     require(!pop_returned_event, "adapter pop must not remove a reserved result slot");
     require(facade.is_session_live(session), "rejected adapter destroy must leave outer session live");
     const auto stats = facade.queue_stats(session);
@@ -315,10 +330,14 @@ void test_strict_rejections_and_exception_recovery()
             "zero queue capacity must fail closed");
     require(invalid_config.create_status() == VoxelBridgeStatus::InvalidInput,
             "invalid configuration must expose status");
+    require(invalid_config.last_facade_status() == VoxelBridgeStatus::InvalidInput,
+            "invalid handle-returning create must update facade diagnostics");
 
     VoxelGameFacade facade;
     require(!facade.create_session({}).is_valid(), "missing adapter must fail closed");
     require(facade.create_status() == VoxelBridgeStatus::CallbackMissing, "missing adapter must expose status");
+    require(facade.last_facade_status() == VoxelBridgeStatus::CallbackMissing,
+            "missing adapter create must update facade diagnostics");
 
     const auto session = facade.create_session([](const VoxelCommand&) -> VoxelCommandResult {
         throw std::runtime_error("adapter failure");
@@ -362,6 +381,40 @@ void test_strict_rejections_and_exception_recovery()
             "restored guard must permit subsequent adapter invocation");
 }
 
+void test_facade_diagnostics_and_event_slot_reset()
+{
+    VoxelGameFacade diagnostics;
+    VoxelEvent ignored;
+    require(!diagnostics.reload_session({}).has_value() &&
+                diagnostics.last_facade_status() == VoxelBridgeStatus::InvalidHandle,
+            "invalid reload must update facade diagnostics");
+    require(!diagnostics.is_session_live({}) &&
+                diagnostics.last_facade_status() == VoxelBridgeStatus::InvalidHandle,
+            "false liveness result must update facade diagnostics");
+    require(!diagnostics.try_pop_event({}, ignored) &&
+                diagnostics.last_facade_status() == VoxelBridgeStatus::InvalidHandle,
+            "false pop result from invalid handle must update facade diagnostics");
+    require(!diagnostics.queue_stats({}).has_value() &&
+                diagnostics.last_facade_status() == VoxelBridgeStatus::InvalidHandle,
+            "empty stats result must update facade diagnostics");
+
+    VoxelGameFacade facade({1, 1});
+    const auto session = facade.create_session([](const VoxelCommand&) { return VoxelCommandResult::accept(); });
+    require(facade.publish_target_changed(session, {7, 8, 9, 4, true}) == VoxelBridgeStatus::Ok,
+            "first event must populate every non-default payload field");
+    require(facade.try_pop_event(session, ignored) && ignored.type == VoxelEventType::TargetChanged,
+            "first event must release the only ring slot");
+    require(facade.enqueue_command(session, command(VoxelCommandType::BreakCurrentTarget)) == VoxelBridgeStatus::Ok,
+            "second event must reuse the released ring slot");
+    require(facade.drain_fixed_tick(session, 1).consumed == 1,
+            "fixed tick must write an accepted result into the reused slot");
+    require(facade.try_pop_event(session, ignored) && ignored.type == VoxelEventType::EditAccepted &&
+                ignored.action == VoxelAction::Primary && !ignored.target.has_target &&
+                ignored.target.face == -1 && ignored.discarded_command_count == 0 &&
+                ignored.discarded_event_count == 0,
+            "reused result slot must not retain stale target, action, or reload payload");
+}
+
 } // namespace
 
 int main()
@@ -376,6 +429,7 @@ int main()
         test_result_observability_and_rejection_normalization();
         test_adapter_reentrancy_is_strictly_rejected();
         test_strict_rejections_and_exception_recovery();
+        test_facade_diagnostics_and_event_slot_reset();
         std::cout << "voxel_bridge_tests: PASS" << std::endl;
         return 0;
     }

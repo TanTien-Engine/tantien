@@ -35,6 +35,7 @@ enum class VoxelBridgeStatus
     ReentrantCall,
     WrongThread,
     StorageFailure,
+    GenerationExhausted,
     CallbackMissing,
     AdapterRejected,
     AdapterException,

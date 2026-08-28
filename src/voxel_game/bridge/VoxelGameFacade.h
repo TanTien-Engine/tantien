@@ -41,6 +41,9 @@ public:
 
     VoxelSessionHandle create_session(const CommandAdapter& adapter);
     VoxelBridgeStatus create_status() const;
+    // Reports the most recent owner-thread result from create_session(),
+    // reload_session(), is_session_live(), try_pop_event(), or queue_stats().
+    // Calls from another thread return WrongThread without mutating this value.
     VoxelBridgeStatus last_facade_status() const;
     VoxelBridgeStatus destroy_session(VoxelSessionHandle handle);
     std::optional<VoxelSessionHandle> reload_session(VoxelSessionHandle handle);
@@ -66,6 +69,7 @@ private:
     SessionState* find_state(VoxelSessionHandle handle);
     const SessionState* find_state(VoxelSessionHandle handle) const;
     bool on_owner_thread() const;
+    void record_facade_status(VoxelBridgeStatus status) const;
     bool reject_reentrant_mutation(SessionState* state);
     VoxelBridgeStatus push_event(SessionState& state, VoxelEvent event);
     static bool command_is_valid(const VoxelCommand& command);
@@ -77,7 +81,7 @@ private:
     VoxelSessionRegistry m_sessions;
     std::vector<std::unique_ptr<SessionState>> m_states;
     VoxelBridgeStatus m_create_status = VoxelBridgeStatus::Ok;
-    VoxelBridgeStatus m_last_facade_status = VoxelBridgeStatus::Ok;
+    mutable VoxelBridgeStatus m_last_facade_status = VoxelBridgeStatus::Ok;
     bool m_adapter_invoking = false;
 };
 
