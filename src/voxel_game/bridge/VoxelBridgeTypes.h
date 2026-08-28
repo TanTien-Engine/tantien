@@ -57,6 +57,22 @@ enum class VoxelRuleFlag : std::uint8_t
     StrictPlacement,
 };
 
+// Immutable scalar edit evidence captured when a command is queued. It never
+// carries a World, a Section, or a storage reference across the bridge.
+struct VoxelEditPrecondition
+{
+    int target_x = 0;
+    int target_y = 0;
+    int target_z = 0;
+    int previous_x = 0;
+    int previous_y = 0;
+    int previous_z = 0;
+    std::uint16_t expected_target_block = 0;
+    std::uint16_t expected_previous_block = 0;
+    bool has_target = false;
+    bool has_previous_empty = false;
+};
+
 // Only scalar gameplay intent crosses this boundary. The adapter owns any
 // interpretation involving a World, player, mesh, GPU resource, or VM object.
 struct VoxelCommand
@@ -65,6 +81,7 @@ struct VoxelCommand
     std::uint16_t selected_block = 0;
     VoxelRuleFlag rule_flag = VoxelRuleFlag::AllowEdits;
     bool rule_enabled = false;
+    VoxelEditPrecondition edit;
 };
 
 enum class VoxelAction : std::uint8_t

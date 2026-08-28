@@ -595,11 +595,29 @@ VoxelBridgeStatus VoxelGameFacade::push_event(SessionState& state, VoxelEvent ev
 
 bool VoxelGameFacade::command_is_valid(const VoxelCommand& command)
 {
+    const auto edit_is_valid = [&command](bool requires_previous_empty)
+    {
+        if (!command.edit.has_target || command.edit.expected_target_block == 0)
+        {
+            return false;
+        }
+        if (!command.edit.has_previous_empty)
+        {
+            return !requires_previous_empty && command.edit.expected_previous_block == 0 &&
+                   command.edit.previous_x == 0 && command.edit.previous_y == 0 &&
+                   command.edit.previous_z == 0;
+        }
+        return command.edit.expected_previous_block == 0 &&
+               (command.edit.previous_x != command.edit.target_x ||
+                command.edit.previous_y != command.edit.target_y ||
+                command.edit.previous_z != command.edit.target_z);
+    };
     switch (command.type)
     {
     case VoxelCommandType::BreakCurrentTarget:
+        return edit_is_valid(false);
     case VoxelCommandType::PlaceSelectedBlock:
-        return true;
+        return edit_is_valid(true) && command.selected_block != 0;
     case VoxelCommandType::SetSelectedBlock:
         return command.selected_block != 0;
     case VoxelCommandType::SetRuleFlag:

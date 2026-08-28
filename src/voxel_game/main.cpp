@@ -942,18 +942,20 @@ int run(bool smoke)
         {
             if (actions.pressed(GameAction::BreakBlock))
             {
-                VoxelCommand break_command;
-                break_command.type = VoxelCommandType::BreakCurrentTarget;
-                if (facade.enqueue_command(session, break_command) != VoxelBridgeStatus::Ok)
+                const auto break_command = runtime_adapter.capture_edit_command(
+                    VoxelCommandType::BreakCurrentTarget);
+                if (break_command.has_value() &&
+                    facade.enqueue_command(session, *break_command) != VoxelBridgeStatus::Ok)
                 {
                     // Queue rejection is a deliberate no-op: no direct World mutation follows.
                 }
             }
             else if (actions.pressed(GameAction::PlaceBlock))
             {
-                VoxelCommand place_command;
-                place_command.type = VoxelCommandType::PlaceSelectedBlock;
-                if (facade.enqueue_command(session, place_command) != VoxelBridgeStatus::Ok)
+                const auto place_command = runtime_adapter.capture_edit_command(
+                    VoxelCommandType::PlaceSelectedBlock, hotbar.selected_block());
+                if (place_command.has_value() &&
+                    facade.enqueue_command(session, *place_command) != VoxelBridgeStatus::Ok)
                 {
                     // Queue rejection is a deliberate no-op: no direct World mutation follows.
                 }

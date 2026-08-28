@@ -25,13 +25,22 @@ public:
     bool allow_edits() const noexcept;
     bool strict_placement() const noexcept;
 
+    // Captures only scalar evidence for a currently live edit target. For a
+    // place command, requested_block is the hotbar value that must match the
+    // adapter selection when the FIFO command eventually executes.
+    std::optional<VoxelCommand> capture_edit_command(
+        VoxelCommandType type,
+        BlockState requested_block = BlockState::Air) const;
     VoxelCommandResult apply(const VoxelCommand& command);
 
 private:
-    VoxelCommandResult break_current_target();
-    VoxelCommandResult place_selected_block();
+    VoxelCommandResult break_current_target(const VoxelCommand& command);
+    VoxelCommandResult place_selected_block(const VoxelCommand& command);
     VoxelCommandResult set_selected_block(std::uint16_t serialized_block);
     VoxelCommandResult set_rule_flag(VoxelRuleFlag flag, bool enabled);
+    bool edit_target_matches(const VoxelEditPrecondition& precondition) const;
+    static bool edit_precondition_is_well_formed(const VoxelEditPrecondition& precondition,
+                                                 bool requires_previous_empty) noexcept;
 
     World& m_world;
     PlayerController& m_player;

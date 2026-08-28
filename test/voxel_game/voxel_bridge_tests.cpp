@@ -43,6 +43,23 @@ VoxelCommand command(VoxelCommandType type)
 {
     VoxelCommand value;
     value.type = type;
+    if (type == VoxelCommandType::BreakCurrentTarget || type == VoxelCommandType::PlaceSelectedBlock)
+    {
+        value.edit.target_x = 3;
+        value.edit.target_y = 4;
+        value.edit.target_z = 5;
+        value.edit.expected_target_block = 2;
+        value.edit.has_target = true;
+    }
+    if (type == VoxelCommandType::PlaceSelectedBlock)
+    {
+        value.edit.previous_x = 3;
+        value.edit.previous_y = 3;
+        value.edit.previous_z = 5;
+        value.edit.expected_previous_block = 0;
+        value.edit.has_previous_empty = true;
+        value.selected_block = 2;
+    }
     return value;
 }
 
@@ -366,6 +383,14 @@ void test_strict_rejections_and_exception_recovery()
             "unknown action enum must be strictly rejected");
     require(facade.last_status(session) == VoxelBridgeStatus::InvalidInput,
             "invalid action must update observable last status");
+    VoxelCommand missing_edit_snapshot;
+    missing_edit_snapshot.type = VoxelCommandType::BreakCurrentTarget;
+    require(facade.enqueue_command(session, missing_edit_snapshot) == VoxelBridgeStatus::InvalidInput,
+            "edit command without an immutable target snapshot must reject before adapter invocation");
+    VoxelCommand invalid_place_snapshot = command(VoxelCommandType::PlaceSelectedBlock);
+    invalid_place_snapshot.edit.expected_previous_block = 2;
+    require(facade.enqueue_command(session, invalid_place_snapshot) == VoxelBridgeStatus::InvalidInput,
+            "place snapshot with a non-Air expected previous state must reject before adapter invocation");
     require(facade.enqueue_command(session, command(VoxelCommandType::BreakCurrentTarget)) == VoxelBridgeStatus::Ok,
             "valid command must remain queueable after rejected input");
     const auto drain = facade.drain_fixed_tick(session, 1);
