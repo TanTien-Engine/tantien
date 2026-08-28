@@ -36,6 +36,8 @@ public:
     bool pressed(int key) const;
     bool released(int key) const;
     bool mouse_button_held(int button) const;
+    bool mouse_button_pressed(int button) const;
+    bool mouse_button_released(int button) const;
 
 private:
     void update_button(std::unordered_set<int>& held_buttons,

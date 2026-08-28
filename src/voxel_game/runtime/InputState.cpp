@@ -92,6 +92,16 @@ bool InputState::mouse_button_held(int button) const
     return m_held_mouse_buttons.find(button) != m_held_mouse_buttons.end();
 }
 
+bool InputState::mouse_button_pressed(int button) const
+{
+    return m_pressed_mouse_buttons.find(button) != m_pressed_mouse_buttons.end();
+}
+
+bool InputState::mouse_button_released(int button) const
+{
+    return m_released_mouse_buttons.find(button) != m_released_mouse_buttons.end();
+}
+
 void InputState::update_button(std::unordered_set<int>& held_buttons,
                                std::unordered_set<int>& pressed_buttons,
                                std::unordered_set<int>& released_buttons,

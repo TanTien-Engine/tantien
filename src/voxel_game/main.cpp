@@ -2,8 +2,8 @@
 #include "voxel_game/runtime/FpsCamera.h"
 #include "voxel_game/runtime/FrameClock.h"
 #include "voxel_game/runtime/InputState.h"
-#include "voxel_game/voxel/Section.h"
-#include "voxel_game/voxel/VisibleFaceMesher.h"
+#include "voxel_game/voxel/VoxelRaycast.h"
+#include "voxel_game/voxel/World.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -19,11 +19,13 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace
 {
 
+using tt::voxel_game::BlockCoord;
 using tt::voxel_game::BlockState;
 using tt::voxel_game::ButtonAction;
 using tt::voxel_game::FpsCamera;
@@ -32,9 +34,13 @@ using tt::voxel_game::FixedStepAccumulator;
 using tt::voxel_game::InputState;
 using tt::voxel_game::OpaqueMesh;
 using tt::voxel_game::Section;
+using tt::voxel_game::SectionCoord;
+using tt::voxel_game::SectionCoordHash;
 using tt::voxel_game::VoxelGpuMesh;
+using tt::voxel_game::World;
 
 constexpr float DegreesToRadians = 0.01745329251994329577F;
+constexpr double EditReach = 8.0;
 
 struct Mat4
 {
@@ -61,16 +67,12 @@ InputState* input_for(GLFWwindow* window)
 
 void apply_cursor_mode(GLFWwindow* window, const InputState& input)
 {
-    glfwSetInputMode(window,
-                     GLFW_CURSOR,
+    glfwSetInputMode(window, GLFW_CURSOR,
                      input.mouse_captured() ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-    if (input.mouse_captured() && glfwRawMouseMotionSupported())
+    if (glfwRawMouseMotionSupported())
     {
-        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
-    else if (glfwRawMouseMotionSupported())
-    {
-        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION,
+                         input.mouse_captured() ? GLFW_TRUE : GLFW_FALSE);
     }
 }
 
@@ -111,7 +113,6 @@ bool initialize_unirender(std::shared_ptr<ur::Device>& device,
         std::cerr << "failed to create OpenGL UniRender device" << std::endl;
         return false;
     }
-
     device->Init();
     context = std::make_shared<ur::opengl::Context>(*device);
     if (!context)
@@ -122,33 +123,46 @@ bool initialize_unirender(std::shared_ptr<ur::Device>& device,
     return true;
 }
 
-Section make_demo_section()
+World make_playable_world()
+{
+    World world;
+    for (int z = -8; z <= 17; ++z)
+    {
+        for (int x = -10; x <= 25; ++x)
+        {
+            world.set({x, 0, z}, BlockState::Grass);
+        }
+    }
+    for (int z = 3; z <= 8; ++z)
+    {
+        for (int x = 3; x <= 9; ++x)
+        {
+            world.set({x, 1, z}, BlockState::Stone);
+        }
+    }
+    for (int y = 1; y <= 4; ++y)
+    {
+        world.set({-1, y, 4}, BlockState::Clay);
+        world.set({0, y, 4}, BlockState::Clay);
+        world.set({15, y, 1}, BlockState::Stone);
+        world.set({16, y, 1}, BlockState::Stone);
+    }
+    return world;
+}
+
+World make_smoke_world()
+{
+    World world;
+    world.set({15, 1, 0}, BlockState::Stone);
+    world.set({16, 1, 0}, BlockState::Stone);
+    return world;
+}
+
+OpaqueMesh make_selection_mesh()
 {
     Section section;
-    for (int z = 1; z < 15; ++z)
-    {
-        for (int x = 1; x < 15; ++x)
-        {
-            section.set({x, 0, z}, BlockState::Grass);
-        }
-    }
-    for (int z = 4; z < 12; ++z)
-    {
-        for (int x = 3; x < 11; ++x)
-        {
-            section.set({x, 1, z}, BlockState::Stone);
-        }
-    }
-    for (int z = 6; z < 10; ++z)
-    {
-        for (int x = 5; x < 9; ++x)
-        {
-            section.set({x, 2, z}, BlockState::Clay);
-        }
-    }
-    section.set({7, 1, 7}, BlockState::Air);
-    section.set({7, 2, 7}, BlockState::Air);
-    return section;
+    section.set({0, 0, 0}, BlockState::Clay);
+    return tt::voxel_game::mesh_opaque_visible_faces(section);
 }
 
 bool shader_log(GLuint shader, std::string& error)
@@ -159,7 +173,6 @@ bool shader_log(GLuint shader, std::string& error)
     {
         return true;
     }
-
     char log[1024]{};
     glGetShaderInfoLog(shader, static_cast<GLsizei>(sizeof(log)), nullptr, log);
     error = log;
@@ -174,11 +187,12 @@ bool create_program(GLuint& program, std::string& error)
         layout(location = 1) in vec3 a_normal;
         layout(location = 2) in vec4 a_color;
         uniform mat4 u_mvp;
+        uniform mat4 u_model;
         out vec3 v_normal;
         out vec4 v_color;
         void main()
         {
-            gl_Position = u_mvp * vec4(a_position, 1.0);
+            gl_Position = u_mvp * u_model * vec4(a_position, 1.0);
             v_normal = a_normal;
             v_color = a_color;
         }
@@ -195,7 +209,6 @@ bool create_program(GLuint& program, std::string& error)
             out_color = vec4(v_color.rgb * brightness, v_color.a);
         }
     )";
-
     const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     const GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(vertex_shader, 1, &VertexSource, nullptr);
@@ -206,7 +219,6 @@ bool create_program(GLuint& program, std::string& error)
         glDeleteShader(fragment_shader);
         return false;
     }
-
     glShaderSource(fragment_shader, 1, &FragmentSource, nullptr);
     glCompileShader(fragment_shader);
     if (!shader_log(fragment_shader, error))
@@ -215,21 +227,18 @@ bool create_program(GLuint& program, std::string& error)
         glDeleteShader(fragment_shader);
         return false;
     }
-
     program = glCreateProgram();
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
-
     GLint linked = GL_FALSE;
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (linked == GL_TRUE)
     {
         return true;
     }
-
     char log[1024]{};
     glGetProgramInfoLog(program, static_cast<GLsizei>(sizeof(log)), nullptr, log);
     error = log;
@@ -247,11 +256,9 @@ std::array<float, 3> normalize(std::array<float, 3> value)
 std::array<float, 3> cross(const std::array<float, 3>& left,
                            const std::array<float, 3>& right)
 {
-    return {
-        left[1] * right[2] - left[2] * right[1],
-        left[2] * right[0] - left[0] * right[2],
-        left[0] * right[1] - left[1] * right[0],
-    };
+    return {left[1] * right[2] - left[2] * right[1],
+            left[2] * right[0] - left[0] * right[2],
+            left[0] * right[1] - left[1] * right[0]};
 }
 
 float dot(const std::array<float, 3>& left, const std::array<float, 3>& right)
@@ -309,43 +316,107 @@ Mat4 multiply(const Mat4& left, const Mat4& right)
     return result;
 }
 
+Mat4 translation(BlockCoord coordinate)
+{
+    Mat4 result;
+    result.values[0] = 1.0F;
+    result.values[5] = 1.0F;
+    result.values[10] = 1.0F;
+    result.values[15] = 1.0F;
+    result.values[12] = static_cast<float>(coordinate.x);
+    result.values[13] = static_cast<float>(coordinate.y);
+    result.values[14] = static_cast<float>(coordinate.z);
+    return result;
+}
+
+BlockCoord section_origin(SectionCoord coordinate)
+{
+    return {coordinate.x * Section::Size,
+            coordinate.y * Section::Size,
+            coordinate.z * Section::Size};
+}
+
 bool smoke_framebuffer_has_voxel_pixels(int width, int height)
 {
     if (width <= 0 || height <= 0)
     {
         return false;
     }
-
-    const std::size_t pixel_count = static_cast<std::size_t>(width) *
-                                    static_cast<std::size_t>(height);
+    const std::size_t pixel_count = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
     std::vector<unsigned char> colors(pixel_count * 4);
     std::vector<float> depths(pixel_count);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, colors.data());
     glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depths.data());
-
-    constexpr int ClearRed = 20;
-    constexpr int ClearGreen = 31;
-    constexpr int ClearBlue = 46;
     bool has_non_clear_color = false;
     bool has_depth_written = false;
     for (std::size_t pixel = 0; pixel < pixel_count; ++pixel)
     {
-        const std::size_t color_offset = pixel * 4;
-        const int red = colors[color_offset];
-        const int green = colors[color_offset + 1];
-        const int blue = colors[color_offset + 2];
-        if (std::abs(red - ClearRed) > 1 ||
-            std::abs(green - ClearGreen) > 1 ||
-            std::abs(blue - ClearBlue) > 1)
+        const std::size_t offset = pixel * 4;
+        if (std::abs(colors[offset] - 20) > 1 || std::abs(colors[offset + 1] - 31) > 1 ||
+            std::abs(colors[offset + 2] - 46) > 1)
         {
             has_non_clear_color = true;
         }
-        if (depths[pixel] < 0.99999F)
-        {
-            has_depth_written = true;
-        }
+        has_depth_written = has_depth_written || depths[pixel] < 0.99999F;
     }
     return has_non_clear_color && has_depth_written;
+}
+
+using GpuMeshes = std::unordered_map<SectionCoord, VoxelGpuMesh, SectionCoordHash>;
+
+bool upload_rebuilt_meshes(const World& world, const std::vector<SectionCoord>& rebuilt,
+                           const ur::Device& device, GpuMeshes& gpu_meshes, std::string& error)
+{
+    for (const SectionCoord coordinate : rebuilt)
+    {
+        const OpaqueMesh* mesh = world.find_mesh(coordinate);
+        if (mesh == nullptr || !gpu_meshes[coordinate].upload(device, *mesh, error))
+        {
+            error = mesh == nullptr ? "world rebuilt a missing section mesh" : error;
+            return false;
+        }
+    }
+    return true;
+}
+
+bool run_smoke_world_edits(World& world, std::vector<SectionCoord>& initial_rebuilt)
+{
+    initial_rebuilt = world.rebuild_dirty_meshes();
+    const SectionCoord left{0, 0, 0};
+    const SectionCoord right{1, 0, 0};
+    if (initial_rebuilt.size() != 2 || world.find_mesh(left)->face_count != 5 ||
+        world.find_mesh(right)->face_count != 5)
+    {
+        return false;
+    }
+    const auto hit = tt::voxel_game::raycast_voxels(world, {15.5, 1.5, -2.0}, {0.0, 0.0, 1.0}, EditReach);
+    if (!hit || hit->block.x != 15 || hit->block.y != 1 || hit->block.z != 0 ||
+        !hit->has_previous_empty || hit->previous_empty.z != -1)
+    {
+        return false;
+    }
+    world.set(hit->block, BlockState::Air);
+    const std::vector<SectionCoord> after_break = world.rebuild_dirty_meshes();
+    if (after_break.size() != 2 || world.find_mesh(left)->face_count != 0 ||
+        world.find_mesh(right)->face_count != 6 || world.mesh_revision(left) != 2 ||
+        world.mesh_revision(right) != 2)
+    {
+        return false;
+    }
+    world.set(hit->previous_empty, BlockState::Stone);
+    const std::vector<SectionCoord> after_place = world.rebuild_dirty_meshes();
+    const SectionCoord placed{0, 0, -1};
+    if (after_place.size() != 2 || world.find_mesh(placed)->face_count != 6 ||
+        world.find_mesh(left)->face_count != 0 || world.find_mesh(right)->face_count != 6 ||
+        world.mesh_revision(left) != 3 || world.mesh_revision(right) != 2)
+    {
+        return false;
+    }
+    std::cout << "smoke world: sections=" << world.section_count()
+              << " initial_faces=10 after_break_faces=6 after_place_faces=12 revisions="
+              << world.mesh_revision(left) << "," << world.mesh_revision(right) << ","
+              << world.mesh_revision(placed) << std::endl;
+    return true;
 }
 
 int run(bool smoke)
@@ -355,7 +426,6 @@ int run(bool smoke)
         std::cerr << "failed to initialize GLFW" << std::endl;
         return 1;
     }
-
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -363,15 +433,13 @@ int run(bool smoke)
     {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
-
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Voxel Game M1", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Voxel Game M2", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cerr << "failed to create GLFW window" << std::endl;
         glfwTerminate();
         return 1;
     }
-
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     if (gl3wInit() != 0)
@@ -381,7 +449,6 @@ int run(bool smoke)
         glfwTerminate();
         return 1;
     }
-
     std::shared_ptr<ur::Device> device;
     std::shared_ptr<ur::Context> context;
     if (!initialize_unirender(device, context))
@@ -390,37 +457,61 @@ int run(bool smoke)
         glfwTerminate();
         return 1;
     }
-
     const auto mesh_start = std::chrono::steady_clock::now();
-    const OpaqueMesh cpu_mesh = tt::voxel_game::mesh_opaque_visible_faces(make_demo_section());
+    World world = smoke ? make_smoke_world() : make_playable_world();
+    std::vector<SectionCoord> rebuilt;
+    if (smoke)
+    {
+        if (!run_smoke_world_edits(world, rebuilt))
+        {
+            std::cerr << "smoke world edit assertions failed" << std::endl;
+            context.reset();
+            device.reset();
+            glfwDestroyWindow(window);
+            glfwTerminate();
+            return 1;
+        }
+        rebuilt = {{0, 0, -1}, {0, 0, 0}, {1, 0, 0}};
+    }
+    else
+    {
+        rebuilt = world.rebuild_dirty_meshes();
+    }
     const double mesh_milliseconds = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - mesh_start).count();
-    std::cout << "voxel mesh: faces=" << cpu_mesh.face_count
-              << " vertices=" << cpu_mesh.vertices.size()
-              << " indices=" << cpu_mesh.indices.size()
-              << " cpu_mesh_ms=" << mesh_milliseconds << std::endl;
-
-    while (glGetError() != GL_NO_ERROR)
+    std::size_t total_faces = 0;
+    for (const SectionCoord coordinate : rebuilt)
     {
+        total_faces += world.find_mesh(coordinate)->face_count;
     }
-    VoxelGpuMesh gpu_mesh;
+    std::cout << "voxel world: sections=" << world.section_count() << " rebuilt=" << rebuilt.size()
+              << " faces=" << total_faces << " cpu_mesh_ms=" << mesh_milliseconds << std::endl;
+    GpuMeshes gpu_meshes;
     std::string error;
-    if (!gpu_mesh.upload(*device, cpu_mesh, error))
+    if (!upload_rebuilt_meshes(world, rebuilt, *device, gpu_meshes, error))
     {
         std::cerr << "failed to upload voxel mesh: " << error << std::endl;
-        gpu_mesh.reset();
         context.reset();
         device.reset();
         glfwDestroyWindow(window);
         glfwTerminate();
         return 1;
     }
-
+    VoxelGpuMesh selection_mesh;
+    if (!selection_mesh.upload(*device, make_selection_mesh(), error))
+    {
+        std::cerr << "failed to upload selection mesh: " << error << std::endl;
+        context.reset();
+        device.reset();
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
     GLuint program = 0;
     if (!create_program(program, error))
     {
         std::cerr << "failed to create voxel shader: " << error << std::endl;
-        gpu_mesh.reset();
+        selection_mesh.reset();
         context.reset();
         device.reset();
         glfwDestroyWindow(window);
@@ -428,34 +519,34 @@ int run(bool smoke)
         return 1;
     }
     const GLint mvp_location = glGetUniformLocation(program, "u_mvp");
-    if (mvp_location < 0)
+    const GLint model_location = glGetUniformLocation(program, "u_model");
+    if (mvp_location < 0 || model_location < 0)
     {
-        std::cerr << "voxel shader has no u_mvp uniform" << std::endl;
+        std::cerr << "voxel shader is missing a transform uniform" << std::endl;
         glDeleteProgram(program);
-        gpu_mesh.reset();
+        selection_mesh.reset();
         context.reset();
         device.reset();
         glfwDestroyWindow(window);
         glfwTerminate();
         return 1;
     }
-
     InputState input;
     FpsCamera camera;
+    if (smoke)
+    {
+        camera.set_position({15.5F, 4.5F, 8.0F});
+    }
     glfwSetWindowUserPointer(window, &input);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
-    input.set_mouse_captured(true);
-    apply_cursor_mode(window, input);
-
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
-
     FrameClock frame_clock;
     FixedStepAccumulator fixed_tick;
     std::size_t rendered_frames = 0;
@@ -464,29 +555,65 @@ int run(bool smoke)
     while (!glfwWindowShouldClose(window))
     {
         input.begin_frame();
+        const bool was_mouse_captured = input.mouse_captured();
         glfwPollEvents();
-
         const double frame_delta_seconds = frame_clock.sample();
-        fixed_tick.advance(frame_delta_seconds, [](double)
-        {
-            // M1 keeps M0's simulation schedule; gameplay arrives in M2.
-        });
+        fixed_tick.advance(frame_delta_seconds, [](double) {});
         camera.update(input, frame_delta_seconds);
-
+        const auto selection = tt::voxel_game::raycast_voxels(
+            world, {camera.position()[0], camera.position()[1], camera.position()[2]},
+            {camera.forward()[0], camera.forward()[1], camera.forward()[2]}, EditReach);
+        if (!smoke && was_mouse_captured && selection)
+        {
+            bool edited = false;
+            if (input.mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT))
+            {
+                edited = world.set(selection->block, BlockState::Air);
+            }
+            else if (input.mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT) && selection->has_previous_empty)
+            {
+                edited = world.set(selection->previous_empty, BlockState::Stone);
+            }
+            if (edited)
+            {
+                const std::vector<SectionCoord> changed = world.rebuild_dirty_meshes();
+                if (!upload_rebuilt_meshes(world, changed, *device, gpu_meshes, error))
+                {
+                    std::cerr << "failed to upload edited voxel mesh: " << error << std::endl;
+                    draw_failed = true;
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                }
+            }
+        }
         int width = 0;
         int height = 0;
         glfwGetFramebufferSize(window, &width, &height);
         context->SetViewport(0, 0, width, height);
         glClearColor(0.08F, 0.12F, 0.18F, 1.0F);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        const float aspect_ratio = static_cast<float>(width) /
-                                   static_cast<float>(height > 0 ? height : 1);
+        const float aspect_ratio = static_cast<float>(width) / static_cast<float>(height > 0 ? height : 1);
         const Mat4 mvp = multiply(perspective(65.0F, aspect_ratio, 0.1F, 100.0F),
                                   look_at(camera.position(), camera.forward()));
         glUseProgram(program);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp.values.data());
-        gpu_mesh.draw();
+        for (const auto& pair : gpu_meshes)
+        {
+            const Mat4 model = translation(section_origin(pair.first));
+            glUniformMatrix4fv(model_location, 1, GL_FALSE, model.values.data());
+            pair.second.draw();
+        }
+        if (selection)
+        {
+            const Mat4 model = translation(selection->block);
+            glUniformMatrix4fv(model_location, 1, GL_FALSE, model.values.data());
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glLineWidth(2.0F);
+            selection_mesh.draw();
+            glLineWidth(1.0F);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glEnable(GL_CULL_FACE);
+        }
         if (smoke && rendered_frames == 2)
         {
             smoke_pixels_verified = smoke_framebuffer_has_voxel_pixels(width, height);
@@ -503,7 +630,6 @@ int run(bool smoke)
             draw_failed = true;
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
-
         glfwSwapBuffers(window);
         ++rendered_frames;
         if (smoke && rendered_frames >= 3)
@@ -511,9 +637,9 @@ int run(bool smoke)
             glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
     }
-
     glDeleteProgram(program);
-    gpu_mesh.reset();
+    selection_mesh.reset();
+    gpu_meshes.clear();
     context.reset();
     device.reset();
     glfwDestroyWindow(window);

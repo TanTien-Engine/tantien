@@ -16,7 +16,9 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
         "src/voxel_game/runtime/InputState.cpp"
         "src/voxel_game/runtime/FpsCamera.cpp"
         "src/voxel_game/voxel/Section.cpp"
-        "src/voxel_game/voxel/VisibleFaceMesher.cpp")
+        "src/voxel_game/voxel/VisibleFaceMesher.cpp"
+        "src/voxel_game/voxel/VoxelRaycast.cpp"
+        "src/voxel_game/voxel/World.cpp")
     target_include_directories(voxel_runtime PUBLIC src)
     target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 
@@ -788,7 +790,9 @@ add_library(voxel_runtime STATIC
     "src/voxel_game/runtime/InputState.cpp"
     "src/voxel_game/runtime/FpsCamera.cpp"
     "src/voxel_game/voxel/Section.cpp"
-    "src/voxel_game/voxel/VisibleFaceMesher.cpp")
+    "src/voxel_game/voxel/VisibleFaceMesher.cpp"
+    "src/voxel_game/voxel/VoxelRaycast.cpp"
+    "src/voxel_game/voxel/World.cpp")
 target_include_directories(voxel_runtime PUBLIC src)
 target_compile_features(voxel_runtime PUBLIC cxx_std_17)
 

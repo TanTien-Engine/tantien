@@ -3,7 +3,10 @@
 #include "voxel_game/runtime/InputState.h"
 #include "voxel_game/voxel/Section.h"
 #include "voxel_game/voxel/VisibleFaceMesher.h"
+#include "voxel_game/voxel/VoxelRaycast.h"
+#include "voxel_game/voxel/World.h"
 
+#include <array>
 #include <cmath>
 #include <exception>
 #include <iostream>
@@ -83,6 +86,19 @@ void test_input_transitions()
 
     input.on_key(tt::voxel_game::InputState::EscapeKey, tt::voxel_game::ButtonAction::Press);
     require(!input.mouse_captured(), "Escape releases mouse capture");
+
+    input.begin_frame();
+    input.on_mouse_button(0, tt::voxel_game::ButtonAction::Press);
+    require(input.mouse_button_held(0), "mouse held state starts on press");
+    require(input.mouse_button_pressed(0), "mouse pressed state lasts current frame");
+    input.on_mouse_button(0, tt::voxel_game::ButtonAction::Repeat);
+    require(input.mouse_button_pressed(0), "mouse repeat retains first press edge");
+    input.begin_frame();
+    require(input.mouse_button_held(0), "mouse held state persists across frames");
+    require(!input.mouse_button_pressed(0), "mouse press edge expires next frame");
+    input.on_mouse_button(0, tt::voxel_game::ButtonAction::Release);
+    require(!input.mouse_button_held(0), "mouse release clears held state");
+    require(input.mouse_button_released(0), "mouse release edge lasts current frame");
 }
 
 void require_mesh_shape(const tt::voxel_game::OpaqueMesh& mesh,
@@ -228,6 +244,85 @@ void test_neighbor_lookup_boundary()
     require_positive_triangle_winding(boundary_mesh);
 }
 
+bool equal_coordinate(tt::voxel_game::BlockCoord actual,
+                      tt::voxel_game::BlockCoord expected)
+{
+    return actual.x == expected.x && actual.y == expected.y && actual.z == expected.z;
+}
+
+void test_world_coordinates_and_dirty_meshes()
+{
+    using tt::voxel_game::BlockState;
+    using tt::voxel_game::SectionCoord;
+    using tt::voxel_game::World;
+    using tt::voxel_game::locate_world_block;
+
+    const auto negative = locate_world_block({-1, -16, -17});
+    require(negative.section == SectionCoord{-1, -1, -2}, "negative floor section coordinates");
+    require(equal_coordinate(negative.local, {15, 0, 15}), "negative local coordinates use nonnegative modulo");
+
+    World world;
+    require(world.get({-1, 0, 0}) == BlockState::Air, "missing world section reads as air");
+    require(world.set({15, 0, 0}, BlockState::Stone), "world set creates first section");
+    require(world.set({16, 0, 0}, BlockState::Stone), "world set creates neighbor section");
+    require(world.section_count() == 2, "cross-boundary writes load two sections");
+    const auto initial = world.rebuild_dirty_meshes();
+    require(initial.size() == 2, "both new sections build once");
+    const SectionCoord left{0, 0, 0};
+    const SectionCoord right{1, 0, 0};
+    require(world.find_mesh(left)->face_count == 5 && world.find_mesh(right)->face_count == 5,
+            "cross-section neighbors cull their shared face");
+    require(!world.set({15, 0, 0}, BlockState::Stone), "idempotent world set does not dirty meshes");
+    require(world.rebuild_dirty_meshes().empty(), "idempotent world set rebuilds nothing");
+
+    require(world.set({15, 0, 0}, BlockState::Air), "boundary deletion changes world");
+    require(world.section_dirty(left) && world.section_dirty(right), "boundary edit dirties loaded face neighbor");
+    const auto rebuilt = world.rebuild_dirty_meshes();
+    require(rebuilt.size() == 2, "boundary edit rebuilds exactly both affected sections");
+    require(world.find_mesh(left)->face_count == 0 && world.find_mesh(right)->face_count == 6,
+            "boundary deletion reveals neighbor face");
+    require(world.mesh_revision(left) == 2 && world.mesh_revision(right) == 2,
+            "only dirty sections advance mesh revisions");
+}
+
+void test_voxel_raycast()
+{
+    using tt::voxel_game::BlockState;
+    using tt::voxel_game::World;
+    using tt::voxel_game::raycast_voxels;
+
+    World world;
+    world.set({-1, 0, 0}, BlockState::Stone);
+    const auto negative_hit = raycast_voxels(world, {2.5, 0.5, 0.5}, {-2.0, 0.0, 0.0}, 3.0);
+    require(negative_hit.has_value(), "negative direction ray finds solid block");
+    require(equal_coordinate(negative_hit->block, {-1, 0, 0}), "negative direction block coordinate");
+    require(equal_coordinate(negative_hit->entered_face_normal, {1, 0, 0}), "negative direction entered face normal");
+    require(equal_coordinate(negative_hit->previous_empty, {0, 0, 0}), "ray reports placement cell");
+    require_near(negative_hit->distance, 2.5, "ray normalizes direction before distance reporting");
+
+    World axis_world;
+    axis_world.set({0, 0, 0}, BlockState::Stone);
+    const auto axis_hit = raycast_voxels(axis_world, {0.5, 0.5, -2.0}, {0.0, 0.0, 3.0}, 2.0);
+    require(axis_hit.has_value(), "axis-aligned ray handles zero components");
+    require_near(axis_hit->distance, 2.0, "maximum distance hit is inclusive");
+    require(!raycast_voxels(axis_world, {0.5, 0.5, -2.0}, {0.0, 0.0, 1.0}, 1.999),
+            "ray past maximum distance misses");
+    const auto start_hit = raycast_voxels(axis_world, {0.5, 0.5, 0.5}, {0.0, 1.0, 0.0}, 8.0);
+    require(start_hit.has_value() && !start_hit->has_previous_empty && start_hit->distance == 0.0,
+            "starting in solid block is a distance-zero hit without placement cell");
+    require(!raycast_voxels(axis_world, {NAN, 0.0, 0.0}, {1.0, 0.0, 0.0}, 1.0),
+            "nonfinite ray origin is rejected");
+    require(!raycast_voxels(axis_world, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 1.0),
+            "zero direction is rejected");
+
+    World tie_world;
+    tie_world.set({1, 0, 0}, BlockState::Stone);
+    tie_world.set({0, 1, 0}, BlockState::Stone);
+    const auto tie_hit = raycast_voxels(tie_world, {0.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, 8.0);
+    require(tie_hit.has_value() && equal_coordinate(tie_hit->block, {1, 0, 0}),
+            "edge crossing uses documented X-before-Y tie priority");
+}
+
 void test_fps_camera_actions()
 {
     using tt::voxel_game::ButtonAction;
@@ -262,6 +357,8 @@ int main()
         test_section_coordinates();
         test_visible_face_mesher();
         test_neighbor_lookup_boundary();
+        test_world_coordinates_and_dirty_meshes();
+        test_voxel_raycast();
         test_fps_camera_actions();
         std::cout << "voxel_runtime_tests: PASS" << std::endl;
         return 0;

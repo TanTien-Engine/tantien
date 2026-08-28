@@ -36,6 +36,10 @@ bool byte_count(std::size_t element_count, std::size_t element_size, int& result
 bool VoxelGpuMesh::upload(const ur::Device& device, const OpaqueMesh& mesh, std::string& error)
 {
     reset();
+    if (mesh.vertices.empty() && mesh.indices.empty())
+    {
+        return true;
+    }
     int vertex_bytes = 0;
     int index_bytes = 0;
     if (!byte_count(mesh.vertices.size(), sizeof(VoxelVertex), vertex_bytes) ||
