@@ -1,13 +1,13 @@
 # 体素游戏冲刺会话报告（2026-08-29 ~ 08-30，ZCode 会话）——修订版
 
-> 本文件为**历史交付记录 + 截至 voxel 9aefa74 的权威状态**（按统筹 2026-08-30 修正意见修订；此前版本中的"17 项全绿/crash-safe/两行接线/零测试"等表述不准确，已在本版逐条修正并保留修正对照）。
+> 本文件为**历史交付记录 + 截至 voxel f015443 的权威状态**（按统筹 2026-08-30 修正意见修订；此前版本中的"17 项全绿/crash-safe/两行接线/零测试"等表述不准确，已在本版逐条修正并保留修正对照）。
 
 ## 一、权威状态快照
 
-- **voxel 子仓库**：origin/main = `9aefa7423135352c051d9e885996ee0cc9d28ee5`（Add robust region persistence），远端干净克隆 MSVC `/W4 /permissive- /WX` 构建通过，CTest **16/16**。Light、Frustum、Inventory/Crafting、DayNight、GreedyMesher、RegionStore 均已提交。
-- **"17 项全绿"的口径**：仅适用于额外包含 NPC AI 草稿的本地脏工作树；远端权威口径为上述干净克隆 **16/16**。
+- **voxel 子仓库**：origin/main = `f015443ad33fe838a724c806bca1f22e17d9ea31`（Add deterministic NPC behavior），远端干净克隆 MSVC `/W4 /permissive- /WX` 构建通过，CTest **17/17**。Light、Frustum、Inventory/Crafting、DayNight、GreedyMesher、RegionStore、NPC CPU 行为内核均已提交。
+- **"17 项全绿"的当前口径**：NPC 批次已由协调者独立复审并在远端干净克隆复证，现为权威结果；该批次尚未接入 main、facade 或 VES。
 - **vessel 子仓库**：HEAD `86b05c0`，父仓 gitlink 仍为 **`0f59584`**。`src/vm.c` 含未提交的 foreign 实例方法修复，**未完成权威验证、未推送**（详见第四节）。
-- **未提交（待协调者处置）**：ai/（NPC）、ves/（GameClock 绑定层）、npc_behavior_tests，以及 CMake 中对应的 NPC 目标/CTest 块。
+- **未提交（待协调者处置）**：ves/（GameClock 绑定层）及其测试/生成物；NPC 的 main/facade/VES 运行时接线仍待后续门禁。
 
 ## 二、历史交付记录（含现状修正）
 
@@ -34,7 +34,7 @@
 
 ### 6. 物品栏 + 合成 — 已提交（83c3ce9，含后续会话六项终审修复）
 
-### 7. NPC AI `ai/` + 昼夜 `runtime/DayNightCycle.h` — DayNight **已提交**（b066754，含溢出安全返修）；NPC **未提交**
+### 7. NPC AI `ai/` + 昼夜 `runtime/DayNightCycle.h` — DayNight **已提交**（b066754，含溢出安全返修）；NPC CPU 行为内核 **已提交**（f015443，尚未接入运行时）
 
 ### 8. VES 绑定层 `ves/`（GameClock）— 未提交，**接线未完成**（见第五节）
 
@@ -42,7 +42,7 @@
 
 | 指正 | 原报告措辞 | 修正 |
 |---|---|---|
-| 权威 = 9aefa74，干净克隆 16/16 | "ctest 17/17 全绿" | 17/17 仅为额外含 NPC 草稿的脏树本地口径 |
+| 权威 = f015443，干净克隆 17/17 | "ctest 17/17 全绿" | 该数字此前仅为含 NPC 草稿的脏树口径；NPC 提交后已由远端干净克隆复证 |
 | relight_sections 已改安全回退 | "单环重算（含正确性论证）" | 交付时口径，现状以子仓库为准 |
 | RegionStore 有四项阻塞 | "崩溃安全/crash-safe" | 撤回；返修历史+现契约如实记录 |
 | vessel 修复未提交未权威验证，gitlink=0f59584 | "修复完整落盘收官" | 落盘≠验收；状态见第四节 |
@@ -68,6 +68,7 @@
 
 1. ✅ RegionStore 返修（9aefa74；远端干净克隆 16/16，见第二节 4）。
 2. ✅ 本报告修订（当前文件）。
-3. **[等待门禁]** vessel vm.c 所有者冻结后，为**现有 Catch2 套件**补 foreign 实例方法回归（不碰 vm.c）。最少覆盖：无参/带参 receiver 槽位、返回值与栈平衡、构造/静态调用负向回归、Release 配置、`ves_free_vm()`。
-4. **[等待门禁]** vessel 修复提交、推送、父仓 gitlink 更新后：加固 GameClock（参数转换+句柄校验+完整接线）；之后才扩展 Inventory/Crafting/NPC 绑定。
-5. **冻结**：Cutout/Translucent、音频、biome、M0 指针锁定——不扩范围、不进共享生产渲染区。
+3. ✅ NPC CPU 行为内核与回归（f015443；远端干净克隆 17/17，尚未接入 main/facade/VES）。
+4. **[等待门禁]** vessel vm.c 所有者冻结后，为**现有 Catch2 套件**补 foreign 实例方法回归（不碰 vm.c）。最少覆盖：无参/带参 receiver 槽位、返回值与栈平衡、构造/静态调用负向回归、Release 配置、`ves_free_vm()`。
+5. **[等待门禁]** vessel 修复提交、推送、父仓 gitlink 更新后：加固 GameClock（参数转换+句柄校验+完整接线）；之后才扩展 Inventory/Crafting/NPC 绑定。
+6. **冻结**：Cutout/Translucent、音频、biome、M0 指针锁定——不扩范围、不进共享生产渲染区。
