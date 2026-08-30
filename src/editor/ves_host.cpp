@@ -48,6 +48,8 @@
 
 #include "voxel_game/ves/wrap_GameClock.h"
 #include "voxel_game/ves/gameclock.ves.inc"
+#include "voxel_game/ves/wrap_InventoryCrafting.h"
+#include "voxel_game/ves/inventory_crafting.ves.inc"
 
 #include "cax/brepkit_c/wrap_BrepKit.h"
 #include "cax/brepkit_c/brepkit.ves.inc"
@@ -138,6 +140,9 @@ const ModuleEntry MODULE_REGISTRY[] = {
     { "graph",      graphModuleSource,      tt::GraphBindClass,            tt::GraphBindMethod },
     { "gameclock",  gameclockModuleSource,  tt::voxel_game::GameClockBindClass,
                                                tt::voxel_game::GameClockBindMethod },
+    { "inventory_crafting", inventoryCraftingModuleSource,
+                            tt::voxel_game::InventoryCraftingBindClass,
+                            tt::voxel_game::InventoryCraftingBindMethod },
     { "brepkit",    brepkitModuleSource,    brepkit::BrepKitBindClass,     brepkit::BrepKitBindMethod },
     { "brepgraph",  brepgraphModuleSource,  brepgraph::BrepGraphBindClass, brepgraph::BrepGraphBindMethod },
     { "brepdb",     brepdbModuleSource,     brepdb::BrepDBBindClass,       brepdb::BrepDBBindMethod },

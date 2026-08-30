@@ -839,6 +839,22 @@ if(TARGET voxel_ves)
             set_tests_properties(ves_gameclock_host_tests PROPERTIES
                 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
                 TIMEOUT 45)
+
+            if(WIN32)
+                add_test(NAME ves_inventory_crafting_host_tests
+                    COMMAND "${CMAKE_COMMAND}" -E env
+                        "VES_TEST_EXE=$<TARGET_FILE:ves_test>"
+                        powershell.exe -NoProfile -ExecutionPolicy Bypass
+                        -File "${CMAKE_SOURCE_DIR}/test/ves/run.ps1"
+                        test_inventory_crafting_host)
+            else()
+                add_test(NAME ves_inventory_crafting_host_tests
+                    COMMAND $<TARGET_FILE:ves_test>
+                        test_inventory_crafting_host)
+            endif()
+            set_tests_properties(ves_inventory_crafting_host_tests PROPERTIES
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                TIMEOUT 45)
         endif()
     endif()
 endif()
