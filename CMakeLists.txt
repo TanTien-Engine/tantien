@@ -16,6 +16,7 @@ if(TT_BUILD_VOXEL_RUNTIME_ONLY)
     set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
     set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
     set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_VES_BINDINGS OFF CACHE BOOL "" FORCE)
     add_subdirectory(thirdparty/voxel)
     return()
 endif()
@@ -787,6 +788,12 @@ set(VOXEL_TANTIEN_ASSET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH
 set(VOXEL_BUILD_UNIRENDER_BACKEND OFF CACHE BOOL "" FORCE)
 set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
 set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
+if(TARGET vessel)
+    set(VOXEL_VESSEL_TARGET vessel CACHE STRING "" FORCE)
+    set(VOXEL_BUILD_VES_BINDINGS ON CACHE BOOL "" FORCE)
+else()
+    set(VOXEL_BUILD_VES_BINDINGS OFF CACHE BOOL "" FORCE)
+endif()
 
 if(TT_BUILD_VOXEL_GAME AND TARGET tantien::voxel_render_stack AND TARGET glfw)
     set(VOXEL_BUILD_UNIRENDER_BACKEND ON CACHE BOOL "" FORCE)
@@ -810,6 +817,31 @@ else()
 endif()
 
 add_subdirectory(thirdparty/voxel)
+
+if(TARGET voxel_ves)
+    if(TARGET editor)
+        target_link_libraries(editor voxel_ves)
+    endif()
+    if(TARGET ves_test)
+        target_link_libraries(ves_test voxel_ves)
+        if(BUILD_TESTING)
+            if(WIN32)
+                add_test(NAME ves_gameclock_host_tests
+                    COMMAND "${CMAKE_COMMAND}" -E env
+                        "VES_TEST_EXE=$<TARGET_FILE:ves_test>"
+                        powershell.exe -NoProfile -ExecutionPolicy Bypass
+                        -File "${CMAKE_SOURCE_DIR}/test/ves/run.ps1"
+                        test_gameclock_host)
+            else()
+                add_test(NAME ves_gameclock_host_tests
+                    COMMAND $<TARGET_FILE:ves_test> test_gameclock_host)
+            endif()
+            set_tests_properties(ves_gameclock_host_tests PROPERTIES
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                TIMEOUT 45)
+        endif()
+    endif()
+endif()
 
 if(TARGET voxel_game)
     set_target_properties(voxel_game PROPERTIES

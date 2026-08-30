@@ -46,6 +46,9 @@
 #include "modules/graph/wrap_Graph.h"
 #include "modules/graph/graph.ves.inc"
 
+#include "voxel_game/ves/wrap_GameClock.h"
+#include "voxel_game/ves/gameclock.ves.inc"
+
 #include "cax/brepkit_c/wrap_BrepKit.h"
 #include "cax/brepkit_c/brepkit.ves.inc"
 #include "cax/brepgraph_c/script/wrap_BrepGraph.h"
@@ -100,9 +103,9 @@ const char* file_search(const char* module, const char* dir)
 // read_module_complete, bind_foreign_class and bind_foreign_method used to keep
 // four hand-written copies of this list, and they drifted (stale entries in the
 // don't-free list leaked every file-loaded source). Register new modules HERE
-// and nowhere else. Entry order = the old binder chain order: bind_foreign_class
-// takes the FIRST binder that claims a class name, so order is load-bearing if
-// two modules ever expose the same class name.
+// and nowhere else. Foreign binders are selected by their exact module name,
+// matching Vessel's callback contract and allowing different modules to use
+// the same class name without an order-dependent collision.
 typedef void (*BindClassFn)(const char*, VesselForeignClassMethods*);
 typedef VesselForeignMethodFn (*BindMethodFn)(const char*);
 
@@ -133,6 +136,8 @@ const ModuleEntry MODULE_REGISTRY[] = {
     { "om",         omModuleSource,         tt::OmBindClass,               tt::OmBindMethod },
     { "regen",      regenModuleSource,      tt::RegenBindClass,            tt::RegenBindMethod },
     { "graph",      graphModuleSource,      tt::GraphBindClass,            tt::GraphBindMethod },
+    { "gameclock",  gameclockModuleSource,  tt::voxel_game::GameClockBindClass,
+                                               tt::voxel_game::GameClockBindMethod },
     { "brepkit",    brepkitModuleSource,    brepkit::BrepKitBindClass,     brepkit::BrepKitBindMethod },
     { "brepgraph",  brepgraphModuleSource,  brepgraph::BrepGraphBindClass, brepgraph::BrepGraphBindMethod },
     { "brepdb",     brepdbModuleSource,     brepdb::BrepDBBindClass,       brepdb::BrepDBBindMethod },
@@ -199,7 +204,7 @@ VesselLoadModuleResult read_module(const char* module)
         }
     }
 
-    VesselLoadModuleResult result;
+    VesselLoadModuleResult result{};
     result.source = source;
     result.on_complete = read_module_complete;
     return result;
@@ -207,7 +212,7 @@ VesselLoadModuleResult read_module(const char* module)
 
 VesselExpandModulesResult expand_modules(const char* path)
 {
-    VesselExpandModulesResult ret;
+    VesselExpandModulesResult ret{};
     ret.num = 0;
     ret.modules = nullptr;
 
@@ -264,17 +269,10 @@ VesselForeignClassMethods bind_foreign_class(const char* module, const char* cla
 {
     VesselForeignClassMethods methods = { NULL, NULL };
 
-    for (auto& m : MODULE_REGISTRY)
-    {
-        if (!m.bind_class) {
-            continue;
-        }
-        m.bind_class(className, &methods);
-        if (methods.allocate != NULL) {
-            return methods;
-        }
+    const ModuleEntry* entry = module != nullptr ? find_module(module) : nullptr;
+    if (entry != nullptr && entry->bind_class != nullptr) {
+        entry->bind_class(className, &methods);
     }
-
     return methods;
 }
 
@@ -285,18 +283,10 @@ VesselForeignMethodFn bind_foreign_method(const char* module, const char* classN
     char fullName[256];
     snprintf(fullName, sizeof(fullName), "%s%s.%s", isStatic ? "static " : "", className, signature);
 
-    for (auto& m : MODULE_REGISTRY)
-    {
-        if (!m.bind_method) {
-            continue;
-        }
-        VesselForeignMethodFn method = m.bind_method(fullName);
-        if (method != NULL) {
-            return method;
-        }
-    }
-
-    return NULL;
+    const ModuleEntry* entry = module != nullptr ? find_module(module) : nullptr;
+    return entry != nullptr && entry->bind_method != nullptr
+        ? entry->bind_method(fullName)
+        : NULL;
 }
 
 void write(const char* text)
@@ -306,6 +296,8 @@ void write(const char* text)
 
 void configure(VesselConfiguration* cfg)
 {
+    *cfg = VesselConfiguration{};
+
     cfg->load_module_fn = read_module;
     cfg->expand_modules_fn = expand_modules;
     cfg->bind_foreign_class_fn = bind_foreign_class;

@@ -2,6 +2,7 @@
 #
 #   pwsh test/ves/run.ps1                 # run all drivers
 #   pwsh test/ves/run.ps1 test_topo_sort  # run specific driver(s)
+#   VES_TEST_EXE=<path> ...               # test a non-default build artifact
 #
 # Must run from the repo root (the .ves loader resolves imports via relative
 # paths like src/script/ and test/ves/). Puts the OCCT + 3rdparty runtime DLLs
@@ -12,8 +13,13 @@ $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
 
-$exe = Join-Path $repo "out\build\Release\ves_test.exe"
-if (-not (Test-Path $exe)) {
+$defaultExe = Join-Path $repo "out\build\Release\ves_test.exe"
+$exe = if ([string]::IsNullOrWhiteSpace($env:VES_TEST_EXE)) {
+    $defaultExe
+} else {
+    $env:VES_TEST_EXE
+}
+if (-not (Test-Path -LiteralPath $exe)) {
     Write-Error "ves_test.exe not found at $exe — build the ves_test target first:`n  cmake --build out/build --config Release --target ves_test"
 }
 
@@ -31,7 +37,7 @@ if (Test-Path $dllDir) {
     $env:PATH = "$occt;$tbb;$tp\jemalloc-vc14-64\bin;$tp\freetype-2.13.3-x64\bin;$tp\freeimage-3.18.0-x64\bin;$env:PATH"
 }
 
-$drivers = if ($args.Count -gt 0) { $args } else { @("test_topo_sort", "test_reachability", "test_tree_build") }
+[string[]]$drivers = if ($args.Count -gt 0) { $args } else { @("test_topo_sort", "test_reachability", "test_tree_build") }
 
 & $exe @drivers
 exit $LASTEXITCODE

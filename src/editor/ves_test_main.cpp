@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     ves_init_vm();
 
-    VesselConfiguration cfg;
+    VesselConfiguration cfg{};
     tt_ves_host::configure(&cfg);           // module loader + foreign binders + stdout write
     ves_set_config(&cfg);
 
