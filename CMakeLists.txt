@@ -803,7 +803,7 @@ elseif(TT_BUILD_VOXEL_GAME)
         "TT_BUILD_VOXEL_GAME requested but voxel render/GLFW providers are missing")
 endif()
 
-if(TT_BUILD_HOST_HUD_TESTS AND WIN32 AND
+if((TT_BUILD_VOXEL_GAME OR TT_BUILD_HOST_HUD_TESTS) AND WIN32 AND
    TARGET tantien::voxel_hud_support AND TARGET tantien::voxel_render_stack)
     set(VOXEL_BUILD_TANTIEN_HUD ON CACHE BOOL "" FORCE)
 endif()
