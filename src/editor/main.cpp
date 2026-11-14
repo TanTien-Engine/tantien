@@ -77,8 +77,11 @@ bool CloseHandle(void*) { return true; }
 #include <chrono>
 #include <filesystem>
 #include <string>
+#include <cstdlib>
 
 #include <assert.h>
+
+#include "SdfPreview.h"  // GPU voxel/SDF interactive-preview prototype (env-gated)
 
 namespace
 {
@@ -888,6 +891,41 @@ int main(int argc, char* argv[])
 
         ves_pushstring("draw()");
         ves_call(0, 0);
+
+#ifndef __APPLE__
+        // ---- GPU voxel/SDF interactive-preview prototype (Phase 0) ----
+        // Pure additive, display-only, env-gated. Loads a committed B-rep body
+        // from a STEP file (CAX_PREVIEW_SHAPE), voxelizes it once into an SDF,
+        // then raymarches a CSG preview (body cut by an animated tool) over the
+        // framebuffer every frame, logging one-time voxelize + per-frame ms.
+        // Never feeds the modeling graph / topo-naming. See SdfPreview.{h,cpp}.
+        if (std::getenv("CAX_GPU_PREVIEW"))
+        {
+            static tt::SdfPreview* s_prev = nullptr;
+            static bool s_prev_failed = false;
+            static int  s_prev_frame  = 0;
+            if (!s_prev && !s_prev_failed)
+            {
+                const char* shape = std::getenv("CAX_PREVIEW_SHAPE");
+                int res = 128;
+                if (const char* r = std::getenv("CAX_PREVIEW_RES")) res = atoi(r);
+                s_prev = new tt::SdfPreview();
+                bool ok = false;
+                if (shape && shape[0]) ok = s_prev->BuildFromStep(shape, res);
+                else printf("[sdfprev] set CAX_PREVIEW_SHAPE=<path to ascii .step> to build\n");
+                if (!ok) { s_prev_failed = true; delete s_prev; s_prev = nullptr; }
+            }
+            if (s_prev && s_prev->IsReady())
+            {
+                int fw = 0, fh = 0; glfwGetFramebufferSize(window, &fw, &fh);
+                s_prev->Render(fw, fh, (float)s_prev_frame);
+                if (s_prev_frame == 90 && std::getenv("CAX_PREVIEW_DUMP")) {
+                    tt::SdfPreview::DumpBMP(std::getenv("CAX_PREVIEW_DUMP"), 0, 0, fw, fh);
+                }
+                ++s_prev_frame;
+            }
+        }
+#endif
 
 #ifdef __APPLE__
         // Metal present: EndFrame() presents the drawable + commits the command buffer

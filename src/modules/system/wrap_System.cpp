@@ -24,6 +24,17 @@ void w_System_get_clipboard_text()
     }
 }
 
+void w_System_set_title()
+{
+    const char* title = ves_tostring(1);
+    tt::System::Instance()->SetTitle(title);
+}
+
+void w_System_request_redraw()
+{
+    tt::System::Instance()->RequestRedraw();
+}
+
 }
 
 namespace tt
@@ -33,6 +44,8 @@ VesselForeignMethodFn SystemBindMethod(const char* signature)
 {
     if (strcmp(signature, "static System.set_clipboard_text(_)") == 0) return w_System_set_clipboard_text;
     if (strcmp(signature, "static System.get_clipboard_text()") == 0) return w_System_get_clipboard_text;
+    if (strcmp(signature, "static System.set_title(_)") == 0) return w_System_set_title;
+    if (strcmp(signature, "static System.request_redraw()") == 0) return w_System_request_redraw;
 
     return NULL;
 }

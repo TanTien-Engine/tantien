@@ -304,6 +304,8 @@ thirdparty/wrapper/include
 
 set(EDITOR_FILES
     "src/editor/main.cpp"
+    # GPU voxel/SDF interactive-preview prototype (Phase 0, env-gated by CAX_GPU_PREVIEW).
+    "src/editor/SdfPreview.cpp"
 )
 if(APPLE)
     # Obj-C++ helper to bridge the GLFW window to an NSView for the Metal surface.
@@ -502,6 +504,9 @@ if(WIN32)
     if(DEFINED OCCT_LIB_DIR)
         target_link_directories(editor PRIVATE "${OCCT_LIB_DIR}")
     endif()
+    # SdfPreview.cpp (editor target) uses OCCT directly; on Windows the OCCT
+    # include dir is otherwise only added to the cax lib, not the editor exe.
+    target_include_directories(editor PRIVATE ${OpenCASCADE_INCLUDE_DIR})
 else()
     # macOS/Homebrew: single lib + include dir from the OCCT config (no per-config split)
     target_link_directories(editor PRIVATE ${OpenCASCADE_LIBRARY_DIR})
