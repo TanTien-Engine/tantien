@@ -101,6 +101,9 @@ bool PanelKit::Wheel(float x, float y, float dx, float dy)
 		return m_scrollbar_drag_id != 0;
 	}
 	// Topmost (most recently begun) scroll area under the pointer wins.
+	// An area whose content does NOT overflow must NOT consume the wheel:
+	// the step falls through to the canvas (zoom), exactly like hovering
+	// bare canvas.
 	for (int i = static_cast<int>(m_scroll_stack.size()) - 1; i >= 0; --i)
 	{
 		Scroll& s = m_scroll_stack[i];
@@ -109,6 +112,9 @@ bool PanelKit::Wheel(float x, float y, float dx, float dy)
 		}
 		const float view_h = s.viewport.h;
 		const float max_off = s.content_h > view_h ? s.content_h - view_h : 0.0f;
+		if (max_off <= 0.0f) {
+			continue;
+		}
 		float next = s.offset - dy * 24.0f;
 		if (next < 0.0f) {
 			next = 0.0f;
