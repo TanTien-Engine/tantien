@@ -302,6 +302,23 @@ class ReviewProbe
 		this.check(ed2["ok"] == false and ed2["error"].contains("not supported"),
 			"unsupported formal parameter type is reported, not mapped")
 
+		// ---- feature STEP shapes (real OCCT rebuild from doc payload) ----
+		// the red 3D overlay for a selected feature = what THAT step built:
+		// the boss's pad solid / the cut's hole tool. Sketches have none.
+		var pad = wb2.feature_step_shape(2, "")
+		this.check(pad != nil, "boss step shape rebuilt from the document")
+		var pv = ShapeTools.solid_volume(pad)
+		// the probe EDITED the thickness to 12 two checks above: the step
+		// shape reflects the CURRENT document (100 x 40 x 12 = 48000)
+		this.check(pv > 47000 and pv < 49000, "pad solid reflects the edited document (~48000, got %(pv))")
+		var hole = wb2.feature_step_shape(4, "")
+		this.check(hole != nil, "cut step shape (hole tool) rebuilt")
+		var hv = ShapeTools.solid_volume(hole)
+		// through-all tool sweeps the body diag both ways: covers the hole
+		this.check(hv > 400 and hv < 2000000, "hole tool sweeps the body (got %(hv))")
+		var skstep = wb2.feature_step_shape(1, "")
+		this.check(skstep == nil, "sketch reports no step shape (nil, not guessed)")
+
 		System.print("review workbench probe done: %(this.fail) failure(s)")
 		return this.fail
 	}
