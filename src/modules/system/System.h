@@ -22,6 +22,12 @@ public:
 	// Window title (e.g. an async load's "feature N/M" progress). No-op
 	// until SetWindow ran.
 	void SetWindowTitle(const char* title) const;
+	void SetWindowSize(int w, int h) const;
+	// Script requests a resize; the HOST applies it outside any VM frame
+	// (glfwSetWindowSize from inside a script frame re-enters the VM through
+	// the GLFW sizechanged callback with an unresolved receiver slot).
+	void RequestWindowSize(int w, int h);
+	bool ConsumePendingResize(int* w, int* h);
 
 	// Render-on-demand hook: the editor's main loop only draws when
 	// something requested a redraw (input, window refresh). A script-side
@@ -35,6 +41,9 @@ private:
 	GLFWwindow* m_window = nullptr;
 
 	std::function<void()> m_redraw_requester;
+
+	int m_pending_w = 0;
+	int m_pending_h = 0;
 
 	TT_SINGLETON_DECLARATION(System)
 

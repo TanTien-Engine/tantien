@@ -578,6 +578,29 @@ int main(int argc, char* argv[])
         process_input(window);
         glfwPollEvents();
 
+        // Script-requested window resizes apply here: OUTSIDE any VM frame
+        // (glfwSetWindowSize raises the sizechanged callback synchronously,
+        // which must not re-enter a live script stack).
+        {
+            int pw = 0, ph = 0;
+            if (tt::System::Instance()->ConsumePendingResize(&pw, &ph) && window) {
+                // Move the window first when the requested size would clamp
+                // against the work area edge (a clamped size breaks the
+                // script's layout assumptions).
+                GLFWmonitor* mon = glfwGetPrimaryMonitor();
+                if (mon) {
+                    int mx, my, mw, mh;
+                    glfwGetMonitorWorkarea(mon, &mx, &my, &mw, &mh);
+                    int wx, wy;
+                    glfwGetWindowPos(window, &wx, &wy);
+                    if (wx + pw > mx + mw) { wx = mx + mw - pw > mx ? mx + mw - pw : mx; }
+                    if (wy + ph > my + mh) { wy = my + mh - ph > my ? my + mh - ph : my; }
+                    glfwSetWindowPos(window, wx, wy);
+                }
+                glfwSetWindowSize(window, pw, ph);
+            }
+        }
+
         // update() is cheap and must run every frame (scene/GUI/tickers advance and
         // it is where input-driven dirties are set); only the expensive draw()+present
         // is gated by render-on-demand.

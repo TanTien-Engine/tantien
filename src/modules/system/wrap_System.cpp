@@ -24,6 +24,13 @@ void w_System_get_clipboard_text()
     }
 }
 
+void w_System_set_size()
+{
+    const int w = static_cast<int>(ves_tonumber(1));
+    const int h = static_cast<int>(ves_tonumber(2));
+    tt::System::Instance()->RequestWindowSize(w, h);
+}
+
 void w_System_set_title()
 {
     const char* text = ves_tostring(1);
@@ -49,6 +56,7 @@ VesselForeignMethodFn SystemBindMethod(const char* signature)
     if (strcmp(signature, "static System.set_clipboard_text(_)") == 0) return w_System_set_clipboard_text;
     if (strcmp(signature, "static System.get_clipboard_text()") == 0) return w_System_get_clipboard_text;
     if (strcmp(signature, "static System.set_title(_)") == 0) return w_System_set_title;
+    if (strcmp(signature, "static System.set_size(_,_)") == 0) return w_System_set_size;
     if (strcmp(signature, "static System.request_redraw()") == 0) return w_System_request_redraw;
 
     return NULL;

@@ -18,7 +18,11 @@ GUI::GUI()
 	gtxt_label_style st;
 	tt::GTxt::InitLabelStype(st);
 
-	st.width = 300;
+	// Single-line labels: a capped width makes long texts wrap into a
+	// second line inside widgets sized for ONE line (they then overlap the
+	// next row -- the immediate-mode layout has no multi-line slots). Keep
+	// every label short instead of relying on wrapping.
+	st.width = 100000;
 	st.gs.font_size = 18;
 	st.align_v = VA_CENTER;
 	egui::Callback::Funs cb;
