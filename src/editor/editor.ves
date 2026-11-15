@@ -1003,11 +1003,29 @@ import \"editor\" for _editor
 			return
 		}
 
+		// Refuse cleanly: a missing/unreadable file previously reached
+		// loadfromstring with a nil read() and died on "header + nil".
+		if (!Filesystem.is_file_exists(this.filepath)) {
+			System.print("[editor] cannot open file: " + this.filepath)
+			this.filepath = ""
+			return
+		}
+
 		Filesystem.set_asset_base_dir(Filesystem.get_file_dir(this.filepath))
 
 		var file = IO.open(this.filepath, "r")
-		this.loadfromstring(file.read())
-		IO.close(file)
+		var str = ""
+		if (file) {
+			str = file.read()
+			IO.close(file)
+		}
+		if (str == "") {
+			System.print("[editor] empty or unreadable file: " + this.filepath)
+			this.filepath = ""
+			return
+		}
+
+		this.loadfromstring(str)
 	}
 
 	load_from_subgraph(subgraph)
