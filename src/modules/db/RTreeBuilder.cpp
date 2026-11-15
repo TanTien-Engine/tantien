@@ -43,8 +43,15 @@ void RTreeBuilder::FromModeling(spatialdb::RTree& rtree, const char* filepath)
     }
 
     if (!ret) {
-        exit(1);
+        // Don't kill the whole app from a library call on a bad/missing OBJ;
+        // log and leave the tree unchanged so the caller can recover.
+        std::cerr << "RTreeBuilder::FromModeling failed to load " << filepath << std::endl;
+        return;
     }
+
+	// Unique id per inserted record; sharing id 0 made later id-based delete/lookup
+	// unable to tell records apart.
+	spatialdb::id_type next_id = 0;
 
 	for (auto& shape : shapes)
 	{
@@ -90,11 +97,17 @@ void RTreeBuilder::FromModeling(spatialdb::RTree& rtree, const char* filepath)
 			faces.push_back(face);
 		}
 
+		// A shape with no points leaves `aabb` at its default inverted/infinite
+		// state, which poisons the R-tree node bounds (every query hits it).
+		if (points.empty()) {
+			continue;
+		}
+
 		uint8_t* data = nullptr;
 		uint32_t length = 0;
 		BrepSerialize::BRepToByteArray(points, faces, &data, length);
 
-		spatialdb::id_type id = 0;
+		spatialdb::id_type id = next_id++;
 
 		spatialdb::Region aabb;
 		for (auto& p : points)

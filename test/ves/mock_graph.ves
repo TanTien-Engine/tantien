@@ -1,0 +1,94 @@
+// Mock, duck-typed blueprint graph for exercising the REAL Blueprint algorithms
+// (topo_sort / get_precursor_nodes / get_successor_nodes) and Tree.build without
+// constructing live editor nodes (which need graphics/GL). The algorithms only
+// read a handful of fields off nodes/pins/conns; these mocks provide exactly
+// those, and nothing else.
+//
+// Field shapes the algorithms read:
+//   node.imports  -> [pin],  node.exports -> [pin],  node.sort_idx (topo_sort writes it)
+//   pin.stop_port_pass (bool),  pin.conns -> [conn]
+//   conn.from (port), conn.to (port)
+//   port.node, port.slot_idx, port.stop_port_pass
+
+class MockPort
+{
+	init()
+	{
+		this.node            = nil
+		this.slot_idx        = 0
+		this.stop_port_pass  = false
+	}
+}
+
+class MockPin
+{
+	init()
+	{
+		this.stop_port_pass = false
+		this.conns          = []
+	}
+}
+
+class MockConn
+{
+	init()
+	{
+		this.from = nil
+		this.to   = nil
+	}
+}
+
+class MockNode
+{
+	init()
+	{
+		this.name     = ""
+		this.imports  = []
+		this.exports  = []
+		this.sort_idx = -1
+	}
+}
+
+// Builder: nodes + directed producer->consumer edges, wiring BOTH the consumer's
+// import pin (for topo_sort / precursor) and the producer's export pin (for
+// successor). Returns the created nodes; edges are added with connect().
+class Graph
+{
+	init()
+	{
+		this.nodes = []
+	}
+
+	node(name)
+	{
+		var n = MockNode()
+		n.name = name
+		this.nodes.add(n)
+		return n
+	}
+
+	// Wire producer -> consumer: producer feeds one of consumer's imports.
+	connect(producer, consumer)
+	{
+		var ep = MockPin()
+		producer.exports.add(ep)
+		var ip = MockPin()
+		consumer.imports.add(ip)
+
+		var conn = MockConn()
+
+		var from_port = MockPort()
+		from_port.node     = producer
+		from_port.slot_idx = producer.exports.count - 1
+		conn.from = from_port
+
+		var to_port = MockPort()
+		to_port.node     = consumer
+		to_port.slot_idx = consumer.imports.count - 1
+		conn.to = to_port
+
+		ep.conns.add(conn)
+		ip.conns.add(conn)
+		return conn
+	}
+}

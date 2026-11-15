@@ -5,23 +5,34 @@
 #include <SM_Rect.h>
 #include <unirender/typedef.h>
 
+#include <memory>
+
 namespace ur { class Device; class Context; class ShaderProgram; class VertexArray; }
 namespace dtex { class PixelBuffer; class TextureBuffer; class TexRenderer; }
 
 namespace tt
 {
 
+struct DTexFlushResult
+{
+    bool success = true;
+    bool had_work = false;
+};
+
 class DTex
 {
 public:
-    void Init(const ur::Device& dev);
+    bool Init(const ur::Device& dev);
 	void InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)());
+
+    bool ready() const { return m_inited; }
+    bool OnOwnerContext() const;
 
 	// cache GameObj
 	void LoadSymStart();
-	void LoadSymbol(uint64_t sym_id, const ur::TexturePtr& tex, const sm::irect& region,
+	bool LoadSymbol(uint64_t sym_id, const ur::TexturePtr& tex, const sm::irect& region,
 		int padding = 0, int extrude = 0, int src_extrude = 0);
-	void LoadSymFinish(ur::Context& ctx);
+	bool LoadSymFinish(ur::Context& ctx);
 	const float* QuerySymbol(uint64_t sym_id, ur::TexturePtr& texture, int& block_id) const;
 
 	// cache glyph
@@ -32,12 +43,14 @@ public:
 	
 	void Clear();
 
-	bool Flush(ur::Context& ctx);
+	DTexFlushResult Flush(ur::Context& ctx);
 
 	void DebugDraw(ur::Context& ctx) const;
 
 private:
 	bool m_inited = false;
+    const ur::Device* m_device = nullptr;
+    void* m_gl_context = nullptr;
 
     std::unique_ptr<dtex::TextureBuffer> m_texture_buffer;
 	bool m_c2_enable = true;

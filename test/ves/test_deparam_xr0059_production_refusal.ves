@@ -1,0 +1,36 @@
+// Production admission regression for the hash-bound xr0059 final STEP.
+// Its mixed analytic middle component is invalid as submitted; a later repair
+// must never turn that fact into an editable or exact-preservation delivery
+// unless the original finite boundary itself can be certified.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-35146/阀杆.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        var inverse = DeparamSolid()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        Blueprint.connect(deserialize, "shape", inverse, "shape")
+        var history = Blueprint.calc_output_value(inverse, "history")
+        var status_value = Blueprint.calc_output_value(inverse, "status")
+        var status = status_value ? status_value.value : nil
+        t.truthy(history == nil,
+            "invalid xr0059 input does not emit a recoverable history graph")
+        t.eq(status ? status["confidence"] : nil, "rejected",
+            "production confidence rejects the invalid submitted component")
+        t.eq(status ? status["delivery_decision"] : nil, "REFUSE_INVALID_BREP",
+            "production policy refuses xr0059 instead of delivering a repaired look-alike")
+        t.truthy(status and status["component_validity_issue_count"] >= 1,
+            "refusal carries the component-level validity evidence")
+        return t.report("deparam_xr0059_production_refusal")
+    }
+}

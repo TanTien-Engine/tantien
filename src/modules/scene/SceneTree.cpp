@@ -83,7 +83,9 @@ private:
         }
 
         std::vector<Vertex> vertices;
-        std::vector<unsigned short> indices;
+        // 32-bit indices: a leaf's aggregated polytopes can exceed 65535 verts,
+        // which silently wrapped a 16-bit index and produced garbage geometry.
+        std::vector<uint32_t> indices;
 
         size_t start_idx = 0;
         for (int i = 0, n = src.GetChildrenCount(); i < n; ++i)
@@ -92,7 +94,10 @@ private:
             uint8_t* data = nullptr;
             src.GetChildData(i, len, &data);
 
-            auto poly = tt::BrepSerialize::BRepFromByteArray(data);
+            auto poly = tt::BrepSerialize::BRepFromByteArray(data, len);
+            if (!poly) {
+                continue;
+            }
             Triangulate(poly, start_idx, vertices, indices);
 
             start_idx += poly->Points().size();
@@ -102,7 +107,7 @@ private:
     }
 
     static void Triangulate(const std::shared_ptr<pm3::Polytope>& poly, size_t start_idx,
-        std::vector<Vertex>& vertices, std::vector<unsigned short>& indices)
+        std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
     {
         auto& points = poly->Points();
         for (auto& p : points)
@@ -119,21 +124,21 @@ private:
             if (f->border.size() == 3 && f->holes.empty())
             {
                 for (auto idx : f->border) {
-                    indices.push_back(static_cast<unsigned short>(start_idx + idx));
+                    indices.push_back(static_cast<uint32_t>(start_idx + idx));
                 }
             }
             else
             {
                 auto tris_idx = model::BrushBuilder::Triangulation(points, f->border, f->holes);
                 for (auto& idx : tris_idx) {
-                    indices.push_back(static_cast<unsigned short>(start_idx + idx));
+                    indices.push_back(static_cast<uint32_t>(start_idx + idx));
                 }
             }
         }
     }
 
-    static std::shared_ptr<ur::VertexArray> 
-        CreateVAO(const std::vector<Vertex>& vertices, const std::vector<unsigned short>& indices)
+    static std::shared_ptr<ur::VertexArray>
+        CreateVAO(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
         auto dev = tt::Render::Instance()->Device();
 
@@ -159,11 +164,11 @@ private:
         va->SetVertexBuffer(vbuf);
 
         auto ibuf = dev->CreateIndexBuffer(ur::BufferUsageHint::StaticDraw, 0);
-        int ibuf_sz = static_cast<int>(sizeof(unsigned short) * indices.size());
+        int ibuf_sz = static_cast<int>(sizeof(uint32_t) * indices.size());
         ibuf->SetCount(static_cast<int>(indices.size()));
         ibuf->Reserve(ibuf_sz);
         ibuf->ReadFromMemory(indices.data(), ibuf_sz, 0);
-        ibuf->SetDataType(ur::IndexBufferDataType::UnsignedShort);
+        ibuf->SetDataType(ur::IndexBufferDataType::UnsignedInt);
         va->SetIndexBuffer(ibuf);
 
         std::vector<std::shared_ptr<ur::VertexInputAttribute>> vbuf_attrs;

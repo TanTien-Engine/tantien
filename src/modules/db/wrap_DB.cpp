@@ -89,6 +89,9 @@ void w_RTree_load_from_file()
 {
     auto rtree = ((wrapper::Proxy<spatialdb::RTree>*)ves_toforeign(0))->obj;
     auto filepath = ves_tostring(1);
+    if (!filepath) {
+        return;
+    }
 
     tt::RTreeBuilder::FromModeling(*rtree, filepath);
 }
@@ -163,10 +166,12 @@ void w_RTree_query()
         uint8_t* data = nullptr;
         item->GetData(len, &data);
 
-        auto poly = tt::BrepSerialize::BRepFromByteArray(data);
+        auto poly = tt::BrepSerialize::BRepFromByteArray(data, len);
         delete[] data;
 
-        polys.push_back(poly);
+        if (poly) {
+            polys.push_back(poly);
+        }
     }
 
     wrapper::return_foreign_list(polys, "geometry", "Polytope");
@@ -224,10 +229,16 @@ void w_RTree_query_with_time()
 
     double tmin = ves_tonumber(2);
     double tmax = ves_tonumber(3);
+    (void)tmin;
+    (void)tmax;
 
+    // NOTE: the underlying spatialdb index is 3D (Region is double[DIMENSION],
+    // DIMENSION == 3). Writing a 4th coordinate (the [3] time slot) overran the
+    // array, and Point's constructor drops the 4th value anyway, so the time
+    // bounds were never honoured. The out-of-bounds writes are removed; this
+    // query degrades to a pure 3D spatial intersection. Re-add real time
+    // filtering only after the index is made 4D.
     spatialdb::Region r = key->r;
-    const_cast<double&>(r.GetLow()[3]) = tmin;
-    const_cast<double&>(r.GetHigh()[3]) = tmax;
 
     auto visitor = std::make_unique<spatialdb::ObjVisitor>();
     rtree->IntersectsWithQuery(r, *visitor);
@@ -241,10 +252,12 @@ void w_RTree_query_with_time()
         uint8_t* data = nullptr;
         item->GetData(len, &data);
 
-        auto poly = tt::BrepSerialize::BRepFromByteArray(data);
+        auto poly = tt::BrepSerialize::BRepFromByteArray(data, len);
         delete[] data;
 
-        polys.push_back(poly);
+        if (poly) {
+            polys.push_back(poly);
+        }
     }
 
     wrapper::return_foreign_list(polys, "geometry", "Polytope");

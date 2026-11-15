@@ -29,6 +29,12 @@ class Output is Node
 
 	on_pin_dirty(pin, type, msg)
 	{
+		// parent_node is only assigned by Subgraph.add_node (at scene sync); a
+		// freshly added Output inside the subgraph editor has none yet, and
+		// Blueprint.connect fires on_pin_dirty on it immediately.
+		if (!this.parent_node) {
+			return
+		}
 		var p = Blueprint.query_pin(this.parent_node.exports, this.parent_pin_idx)
 		if (p) {
 			Blueprint.send_pin_dirty(p, type, msg)

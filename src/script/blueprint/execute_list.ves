@@ -85,12 +85,20 @@ class ExecuteList
 	{
 		var list = []
 
+		// Guard against a port cycle in a malformed graph (A -> B -> A): without
+		// it the walk back along the port chain never terminates and hangs the editor.
+		var visited = Set.new()
+
 		var node = root
 		while (node)
 		{
+			if (!visited.add(node)) {
+				break
+			}
+
 			list.add(node)
 
-			var prev = nil			
+			var prev = nil
 			if (!node.imports.isEmpty and node.imports[0].type == VAR_TYPE_PORT) {
 				prev = Blueprint.get_input_node(node, 0)
 			}

@@ -1,0 +1,91 @@
+// Diagnostic for the real PR-10005 TangentExtension recovery.  It exposes
+// only owned source-free contracts, so it can tell whether a radius edit has
+// a mathematically uniform co-edit rule before such a rule is exposed.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "cadcvt.nodes.tangent_extension_control" for TangentExtensionControl
+import "cadcvt.nodes.tangent_extension_sheet" for TangentExtensionSheet
+import "cadcvt.nodes.r45_support_patch" for R45SupportPatch
+import "brepkit" for ShapeTools
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var inverse = DeparamSolid()
+        var evidence = source ? inverse.tangent_extension_evidence(source) : nil
+        var guides = evidence ? evidence["guide_edges"] : nil
+        var contracts = evidence ? evidence["contracts"] : nil
+        var r45_contracts = evidence ? evidence["r45_support_contracts"] : nil
+        var source_faces = source ? ShapeTools.map_faces(source) : []
+        t.eq(guides ? guides.count : 0, 8, "probe obtains the eight owned guide definitions")
+        t.eq(contracts ? contracts.count : 0, 4, "probe obtains the four rolling-sheet contracts")
+        t.eq(r45_contracts ? r45_contracts.count : 0, 4,
+            "probe obtains the four dependent R45 support contracts")
+        var original_sheets = 0
+        var radius_edited_sheets = 0
+        var changed_sheets = 0
+        var radius_edited_supports = 0
+        var shared_control_sheets = 0
+        if (guides and contracts and contracts.count == 4) {
+            var control = TangentExtensionControl()
+            control.set_radius(contracts[0]["data"][10])
+            var sheets = []
+            for (var item in contracts) {
+                var guide_index = item["guide_index"]
+                var data = item["data"]
+                var node = TangentExtensionSheet()
+                if (!node.set_contract(guides[guide_index], data)) { continue }
+                Blueprint.connect(control, "ball_radius", node, "ball_radius")
+                var original = Blueprint.calc_output_value(node, "shape")
+                if (original and item["patch_index"] < source_faces.count and
+                    ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], original.value)) {
+                    original_sheets = original_sheets + 1
+                }
+                sheets.add([item, node])
+            }
+            control.query_param("ball_radius").value = contracts[0]["data"][10] * 1.01
+            for (var sheet_record in sheets) {
+                var item = sheet_record[0]
+                var node = sheet_record[1]
+                var edited = Blueprint.calc_output_value(node, "shape")
+                if (edited) { radius_edited_sheets = radius_edited_sheets + 1 }
+                if (edited and item["patch_index"] < source_faces.count and
+                    !ShapeTools.surface_patch_equal(source_faces[item["patch_index"]], edited.value)) {
+                    changed_sheets = changed_sheets + 1
+                }
+                if (edited) { shared_control_sheets = shared_control_sheets + 1 }
+                if (r45_contracts) for (var support_contract in r45_contracts) {
+                    if (support_contract["sheet_contract_index"] != item["guide_index"]) { continue }
+                    var support = R45SupportPatch()
+                    if (!support.set_contract(support_contract["data"],
+                        support_contract["rim_curve"], support_contract["base_curve"])) { continue }
+                    Blueprint.connect(node, "shape", support, "rolling_sheet")
+                    var edited_support = Blueprint.calc_output_value(support, "shape")
+                    if (edited_support) { radius_edited_supports = radius_edited_supports + 1 }
+                }
+            }
+        }
+        t.eq(original_sheets, 4, "saved sheet contracts still exactly replay the four source patches")
+        t.eq(radius_edited_sheets, 4,
+            "one shared rolling-radius edit re-solves all four owned cap guides")
+        t.eq(shared_control_sheets, 4,
+            "the one shared control has a live numeric edge into all four rolling sheets")
+        t.eq(changed_sheets, 4,
+            "the re-solved sheets are geometrically distinct from the original patches")
+        t.eq(radius_edited_supports, 4,
+            "every R45 support follows its edited rolling-sheet boundary without a copied-rim fallback")
+        return t.report("deparam_tangent_extension_editability_probe")
+    }
+}

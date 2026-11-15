@@ -26,13 +26,17 @@ void w_System_get_clipboard_text()
 
 void w_System_set_title()
 {
-    const char* title = ves_tostring(1);
-    tt::System::Instance()->SetTitle(title);
+    const char* text = ves_tostring(1);
+    if (text) {
+        tt::System::Instance()->SetWindowTitle(text);
+    }
+    ves_set_nil(0);
 }
 
 void w_System_request_redraw()
 {
     tt::System::Instance()->RequestRedraw();
+    ves_set_nil(0);
 }
 
 }

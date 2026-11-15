@@ -1,5 +1,15 @@
 #include "modules/graphics/DTex.h"
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 #include <unirender/Device.h>
 #include <unirender/Context.h>
 #include <unirender/IndexBuffer.h>
@@ -19,6 +29,15 @@ namespace
 
 const ur::Device* UR_DEV = nullptr;
 std::shared_ptr<ur::Context> UR_CTX = nullptr;
+
+void* current_dtex_gl_context()
+{
+#ifdef _WIN32
+    return static_cast<void*>(wglGetCurrentContext());
+#else
+    return nullptr;
+#endif
+}
 
 const char* vs = R"(
 #version 330 core
@@ -63,13 +82,29 @@ void DTex::InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)(
 {
 }
 
-void DTex::Init(const ur::Device& dev)
+bool DTex::OnOwnerContext() const
 {
+    if (!m_inited || m_gl_context == nullptr)
+    {
+        return false;
+    }
+    return current_dtex_gl_context() == m_gl_context;
+}
+
+bool DTex::Init(const ur::Device& dev)
+{
+    void* gl = current_dtex_gl_context();
+    if (gl == nullptr)
+    {
+        return false;
+    }
     if (m_inited) {
-        return;
+        return m_device == &dev && m_gl_context == gl;
     }
 
     UR_DEV = &dev;
+    m_device = &dev;
+    m_gl_context = gl;
 
     m_glyph_buffer = std::make_unique<dtex::PixelBuffer>(*UR_DEV, 1024, 512);
     m_texture_buffer = std::make_unique<dtex::TextureBuffer>(*UR_DEV, 1024, 1024);
@@ -114,32 +149,42 @@ void DTex::Init(const ur::Device& dev)
     vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
 
     m_inited = true;
+    return true;
 }
 
 void DTex::LoadSymStart()
 {
+    if (!m_inited || !m_texture_buffer) {
+        return;
+    }
     m_texture_buffer->LoadStart();
 }
 
-void DTex::LoadSymbol(uint64_t sym_id, const ur::TexturePtr& tex, const sm::irect& region,
+bool DTex::LoadSymbol(uint64_t sym_id, const ur::TexturePtr& tex, const sm::irect& region,
 	                  int padding, int extrude, int src_extrude)
 {
+    if (!m_inited || !m_texture_buffer) {
+        return false;
+    }
 	dtex::Rect r;
 	r.xmin = region.xmin;
 	r.ymin = region.ymin;
 	r.xmax = region.xmax;
 	r.ymax = region.ymax;
-    m_texture_buffer->Load(tex, r, sym_id, padding, extrude, src_extrude);
+    return m_texture_buffer->Load(tex, r, sym_id, padding, extrude, src_extrude);
 }
 
-void DTex::LoadSymFinish(ur::Context& ctx)
+bool DTex::LoadSymFinish(ur::Context& ctx)
 {
-    m_texture_buffer->LoadFinish(ctx, *m_tex_renderer);
+    if (!m_inited || !m_texture_buffer || !m_tex_renderer) {
+        return false;
+    }
+    return m_texture_buffer->LoadFinish(ctx, *m_tex_renderer);
 }
 
 const float* DTex::QuerySymbol(uint64_t sym_id, ur::TexturePtr& texture, int& block_id) const
 {
-	if (!m_c2_enable) {
+	if (!m_inited || !m_c2_enable || !m_texture_buffer) {
 		return nullptr;
 	}
 
@@ -159,21 +204,33 @@ const float* DTex::QuerySymbol(uint64_t sym_id, ur::TexturePtr& texture, int& bl
 
 void DTex::LoadGlyph(ur::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key)
 {
+    if (!m_inited || !m_glyph_buffer || !UR_DEV) {
+        return;
+    }
 	m_glyph_buffer->Load(*UR_DEV, ctx, bitmap, width, height, key);
 }
 
 bool DTex::QueryGlyph(uint64_t key, float* texcoords, ur::TexturePtr& texture) const
 {
+    if (!m_inited || !m_glyph_buffer) {
+        return false;
+    }
 	return m_glyph_buffer->QueryAndInsert(key, texcoords, texture);
 }
 
 bool DTex::ExistGlyph(uint64_t key) const
 {
+    if (!m_inited || !m_glyph_buffer) {
+        return false;
+    }
 	return m_glyph_buffer->Exist(key);
 }
 
 ur::TexturePtr DTex::GetGlyphFirstPageTex() const
 {
+    if (!m_inited || !m_glyph_buffer) {
+        return nullptr;
+    }
     return m_glyph_buffer->GetFirstPageTex();
 }
 
@@ -181,9 +238,16 @@ void DTex::Clear()
 {
 }
 
-bool DTex::Flush(ur::Context& ctx)
+DTexFlushResult DTex::Flush(ur::Context& ctx)
 {
-	return m_glyph_buffer->Flush(ctx, *m_texture_buffer, *m_tex_renderer);
+    if (!m_inited || !m_glyph_buffer || !m_texture_buffer || !m_tex_renderer) {
+        return { false, false };
+    }
+    const auto flushed = m_glyph_buffer->Flush(ctx, *m_texture_buffer, *m_tex_renderer);
+    DTexFlushResult result;
+    result.success = flushed.success;
+    result.had_work = flushed.had_work;
+    return result;
 }
 
 void DTex::DebugDraw(ur::Context& ctx) const

@@ -64,6 +64,9 @@ void w_Painter_add_line()
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     auto pos2 = wrapper::list_to_array<float>(2);
+    if (pos2.size() < 4) {
+        return;
+    }
     auto x0 = pos2[0];
     auto y0 = pos2[1];
     auto x1 = pos2[2];
@@ -87,6 +90,9 @@ void w_Painter_add_rect()
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     auto xywh = wrapper::list_to_array<float>(2);
+    if (xywh.size() < 4) {
+        return;
+    }
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -113,6 +119,9 @@ void w_Painter_add_rect_filled()
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     auto xywh = wrapper::list_to_array<float>(2);
+    if (xywh.size() < 4) {
+        return;
+    }
     auto x = xywh[0];
     auto y = xywh[1];
     auto w = xywh[2];
@@ -138,8 +147,7 @@ void w_Painter_add_capsule_filled()
     auto mat = (sm::mat4*)ves_toforeign(1);
 
     auto rect = wrapper::list_to_array<float>(2);
-    GD_ASSERT(rect.size() == 4, "error number");
-    if (rect[2] <= 0 || rect[3] <= 0) {
+    if (rect.size() < 4 || rect[2] <= 0 || rect[3] <= 0) {
         return;
     }
 
@@ -444,6 +452,9 @@ void w_Graphics_draw_painter_regional()
 {
     auto pt = ((wrapper::Proxy<tess::Painter>*)ves_toforeign(1))->obj;
     auto region = wrapper::list_to_array<float>(2);
+    if (region.size() < 4) {
+        return;
+    }
 
     float x = region[0];
     float y = region[1];

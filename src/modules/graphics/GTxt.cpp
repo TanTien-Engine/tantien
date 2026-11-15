@@ -1,4 +1,5 @@
 #include "modules/graphics/GTxt.h"
+#include "modules/graphics/GtxtCore.h"
 #include "modules/graphics/Graphics.h"
 #include "modules/graphics/DTex.h"
 #include "modules/graphics/LoadingList.h"
@@ -13,8 +14,6 @@
 
 namespace
 {
-
-const ur::Device* UR_DEV = nullptr;
 
 /************************************************************************/
 /* render                                                               */
@@ -140,10 +139,21 @@ has_rotated_gradient_color(const gtxt_glyph_color& col)
 
 int NEXT_GLPHY_ID = 0;
 
-static const int GLPHY_HASH_CAP = 197;
-std::vector<std::pair<gtxt_glyph_style, int>> GLYPH_HASH[GLPHY_HASH_CAP];
+// line_x participates in the glyph's rendered bitmap for rotated-gradient text,
+// so it must be part of the cache identity. It used to be hashed but NOT
+// compared, so two styles differing only in line_x that landed in the same
+// bucket shared one (wrong) id -> stale gradient phase from the atlas.
+struct GlyphStyleEntry
+{
+	gtxt_glyph_style style;
+	float line_x = 0;
+	int   id = -1; // -1 = invalid (empty GLYPH_LAST before the first query)
+};
 
-std::pair<gtxt_glyph_style, int> GLYPH_LAST;
+static const int GLPHY_HASH_CAP = 197;
+std::vector<GlyphStyleEntry> GLYPH_HASH[GLPHY_HASH_CAP];
+
+GlyphStyleEntry GLYPH_LAST;
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v)
@@ -196,25 +206,29 @@ bool glyph_style_eq(const gtxt_glyph_style& s0, const gtxt_glyph_style& s1)
 
 int gen_glyph_style_id(const gtxt_glyph_style& style, float line_x)
 {
-	if (glyph_style_eq(style, GLYPH_LAST.first)) {
-		return GLYPH_LAST.second;
+	if (GLYPH_LAST.id >= 0 && GLYPH_LAST.line_x == line_x &&
+		glyph_style_eq(style, GLYPH_LAST.style)) {
+		return GLYPH_LAST.id;
 	}
 
-	int hash = hash_glyph_style(style, line_x) % GLPHY_HASH_CAP;
+	size_t hash = hash_glyph_style(style, line_x) % GLPHY_HASH_CAP;
 	auto& list = GLYPH_HASH[hash];
-	for (int i = 0, n = list.size(); i < n; ++i) {
-		if (glyph_style_eq(list[i].first, style)) {
+	for (size_t i = 0, n = list.size(); i < n; ++i) {
+		if (list[i].line_x == line_x && glyph_style_eq(list[i].style, style)) {
 			GLYPH_LAST = list[i];
-			return list[i].second;
+			return list[i].id;
 		}
 	}
 
 	int id = NEXT_GLPHY_ID++;
 
-	list.push_back(std::make_pair(style, id));
+	GlyphStyleEntry entry;
+	entry.style = style;
+	entry.line_x = line_x;
+	entry.id = id;
+	list.push_back(entry);
 
-	GLYPH_LAST.first = style;
-	GLYPH_LAST.second = id;
+	GLYPH_LAST = entry;
 
 	return id;
 }
@@ -330,6 +344,7 @@ namespace tt
 
 TT_SINGLETON_DEFINITION(GTxt)
 
+bool GTxt::m_ready = false;
 int GTxt::m_cap_bitmap = 50;
 int GTxt::m_cap_layout = 500;
 
@@ -339,20 +354,30 @@ GTxt::GTxt()
 
 void GTxt::Init(const ur::Device& dev)
 {
-    UR_DEV = &dev;
+    (void)dev;
 
-    gtxt_label_cb_init(draw_glyph);
-
-    gtxt_ft_create();
-
-    gtxt_glyph_create(m_cap_bitmap, m_cap_layout, nullptr, get_uf_layout);
+    if (!GtxtCore::Ensure()) {
+        return;
+    }
+    GtxtCore::SetProcessLabelCallback(draw_glyph);
 
     gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
+    m_ready = true;
 }
 
-void GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
+bool GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_style& style, const sm::Matrix2D& mat,
 	            uint32_t mul, uint32_t add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
+	if (!GtxtCore::OnOwnerThread()) {
+		return false;
+	}
+	if (!GtxtCore::ready()) {
+		return false;
+	}
+	if (!m_ready) {
+		return false;
+	}
+
 	render_params rp;
 	rp.mt  = &mat;
 	rp.mul = mul;
@@ -366,6 +391,7 @@ void GTxt::Draw(ur::Context& ctx, const std::string& text, const gtxt_label_styl
 	} else {
 		gtxt_label_draw(text.c_str(), &style, (void*)&rp);
 	}
+	return true;
 }
 
 sm::vec2 GTxt::CalcLabelSize(const std::string& text, const gtxt_label_style& style)
@@ -402,15 +428,13 @@ void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fon
 	}
 }
 
-void GTxt::LoadFont(const std::string& name, const std::string& filepath)
+bool GTxt::LoadFont(const std::string& name, const std::string& filepath)
 {
-	auto itr = m_fonts.find(name);
-	if (itr != m_fonts.end()) {
-		return;
+	if (GtxtCore::AddFont(name.c_str(), filepath.c_str()) < 0) {
+		return false;
 	}
-
-	gtxt_ft_add_font(name.c_str(), filepath.c_str());
 	m_fonts.insert(name);
+	return true;
 }
 
 void GTxt::LoadUserFont(const std::string& name, const std::string& filepath)

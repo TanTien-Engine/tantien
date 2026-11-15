@@ -32,16 +32,11 @@ const char* System::GetClipboardText() const
 	return m_window ? glfwGetClipboardString(m_window) : nullptr;
 }
 
-void System::SetTitle(const char* title) const
+void System::SetWindowTitle(const char* title) const
 {
-	if (m_window) {
+	if (m_window && title) {
 		glfwSetWindowTitle(m_window, title);
 	}
-}
-
-void System::RequestRedraw() const
-{
-	// no-op: see header comment.
 }
 
 }

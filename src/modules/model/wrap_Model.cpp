@@ -106,7 +106,9 @@ void w_glTF_allocate()
     auto model = std::make_shared<model::gltf::Model>();
 
     const char* filepath = ves_tostring(1);
-    if (tt::Filesystem::IsExists(filepath)) {
+    if (!filepath) {
+        // still create the (empty) foreign below so the receiver is valid
+    } else if (tt::Filesystem::IsExists(filepath)) {
         model::GltfLoader::Load(*dev, *model, filepath);
     } else {
         std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;

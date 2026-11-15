@@ -17,7 +17,16 @@ class Blueprint
 		var out_nodes = []
 		for (var i = 0; i < nodes.count; i = i + 1) {
 			out_nodes.add([])
-		}	
+		}
+
+		// Index each node so the edge loop below can resolve conn.from.node to its
+		// position in O(1) instead of scanning all nodes per edge (was O(N^2*E),
+		// which hung the editor on large parts). Output is identical to the old
+		// scan: in_deg / out_nodes get exactly the same values.
+		for (var i = 0; i < nodes.count; i = i + 1) {
+			nodes[i].sort_idx = i
+		}
+
 		for (var i = 0; i < nodes.count; i = i + 1)
 		{
 			for (var pin in nodes[i].imports)
@@ -28,14 +37,13 @@ class Blueprint
 					{
 						if (!conn.from.stop_port_pass)
 						{
-							for (var j = 0; j < nodes.count; j = j + 1)
-							{
-								if (nodes[j] == conn.from.node) {
-									in_deg[i] = in_deg[i] + 1
-									out_nodes[j].add(i)
-									// todo break
-									// break;
-								}
+							// The == check rejects a stale sort_idx left by a node
+							// that isn't part of THIS set (so out-of-set producers
+							// are ignored, exactly as the old scan did).
+							var j = conn.from.node.sort_idx
+							if (j >= 0 and j < nodes.count and nodes[j] == conn.from.node) {
+								in_deg[i] = in_deg[i] + 1
+								out_nodes[j].add(i)
 							}
 						}
 					}
@@ -66,6 +74,20 @@ class Blueprint
 			}
 		}
 
+		// Nodes on a connection cycle never reach in-degree 0, so Kahn's loop
+		// silently DROPPED them -- and savetofile/copy iterate this list, so a
+		// cyclic graph saved with those nodes' connections missing (data loss
+		// discovered only on reload). Append the remnants in input order: the
+		// order within a cycle is arbitrary anyway, but nothing is lost.
+		if (ret.count < nodes.count)
+		{
+			for (var i = 0; i < nodes.count; i = i + 1) {
+				if (in_deg[i] > 0) {
+					ret.add(nodes[i])
+				}
+			}
+		}
+
 		return ret
 	}
 
@@ -79,7 +101,14 @@ class Blueprint
 			var n = buf[buf.count - 1]
 			buf.removeAt(buf.count - 1)
 
-			nodes.add(n)
+			// Skip already-visited nodes. Set.add returns false when the value
+			// is already present; without this guard a node reachable by many
+			// paths (a running-body cache feeding hundreds of edge selectors in
+			// a decompiled history) is re-expanded once PER PATH -> exponential
+			// blow-up that hangs the editor on large dressup-heavy graphs.
+			if (!nodes.add(n)) {
+				continue
+			}
 			for (var pin in n.imports) {
 				if (!pin.stop_port_pass) {
 					for (var conn in pin.conns) {
@@ -103,7 +132,12 @@ class Blueprint
 			var n = buf[buf.count - 1]
 			buf.removeAt(buf.count - 1)
 
-			nodes.add(n)
+			// Visited-guard (see get_precursor_nodes): skip re-expanding a node
+			// reached by many paths, else a high-fan-out graph blows up
+			// exponentially.
+			if (!nodes.add(n)) {
+				continue
+			}
 			for (var pin in n.exports) {
 				if (!pin.stop_port_pass) {
 					for (var conn in pin.conns) {
@@ -145,6 +179,13 @@ class Blueprint
 
 		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
 		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
+
+		// Render cache: a connect changes the source's owned wire and BOTH pins'
+		// fill (outline<->filled, pin.conns.isEmpty). Set render_dirty directly
+		// here so it can't be bypassed by a node whose on_pin_dirty override drops
+		// the super call (Subgraph/Input/Output/ForEach/Function/Print/ListAdd).
+		conn.from.node.render_dirty = true
+		conn.to.node.render_dirty = true
 
 		return conn
 	}
@@ -193,6 +234,12 @@ class Blueprint
 		PIN_DIRTY_TIMESTAMP = PIN_DIRTY_TIMESTAMP + 1
 		conn.from.node.on_pin_dirty(conn.from, DIRTY_CONNECTION, nil)
 		conn.to.node.on_pin_dirty(conn.to, DIRTY_CONNECTION, nil)
+
+		// Render cache: a disconnect drops the source's owned wire and empties the
+		// input pin (filled->outline). Bypass-proof against on_pin_dirty overrides
+		// that drop super (see connect()).
+		conn.from.node.render_dirty = true
+		conn.to.node.render_dirty = true
 	}
 
 	static get_input_pin(curr_node, input_slot)

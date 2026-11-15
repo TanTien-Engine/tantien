@@ -1,0 +1,42 @@
+import "harness" for Test
+import "inventory_crafting" for Inventory, Crafting
+
+// Parent-host integration smoke. The child mini-host owns exhaustive wire,
+// lifetime, and rejection coverage; this driver proves Tantien's real
+// MODULE_REGISTRY serves the embedded module source and both foreign binders.
+class Main
+{
+	static run()
+	{
+		var t = Test()
+		var inventory = Inventory.create(3)
+
+		t.truthy(inventory != nil, "host registry creates an Inventory")
+		t.eq(inventory.size(), 3, "host dispatches Inventory.size")
+
+		var added = inventory.add(2, 70)
+		t.eq(added[0], 0, "host dispatches Inventory.add status")
+		t.eq(added[1], 70, "host dispatches Inventory.add amount")
+		t.eq(inventory.slot(0)[1], 64, "host preserves first-stack capacity")
+		t.eq(inventory.slot(1)[1], 6, "host spills into the next slot")
+
+		var pattern = [2, 0, 0, 0, 0, 0, 0, 0, 0]
+		var grid = [
+			[2, 1], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0]
+		]
+		var crafted = Crafting.craft([[pattern, false, [3, 2]]], [], grid)
+		t.eq(crafted[0], true, "host dispatches Crafting.craft")
+		t.eq(crafted[1][0], 3, "host returns the crafted block state")
+		t.eq(crafted[1][1], 2, "host returns the crafted count")
+		t.eq(crafted[2][0][0], 0, "host returns the consumed grid")
+
+		t.truthy(Inventory.create(1025) == nil,
+			"host preserves strict slot-count rejection")
+		t.truthy(Crafting.craft([], [], [[0, 0]]) == nil,
+			"host preserves strict crafting-grid rejection")
+
+		return t.report("inventory crafting host integration")
+	}
+}

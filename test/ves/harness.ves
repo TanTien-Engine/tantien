@@ -1,0 +1,65 @@
+// Minimal .ves assert framework for the headless ves_test harness.
+//
+// A driver's `Main.run()` creates a Test, makes assertions, and returns
+// `t.failures` (0 == all passed). The C++ harness turns that into an exit code.
+
+class Test
+{
+	init()
+	{
+		this.failures = 0
+		this.checks   = 0
+	}
+
+	eq(actual, expect, msg)
+	{
+		this.checks = this.checks + 1
+		if (actual != expect) {
+			this.failures = this.failures + 1
+			System.print("  FAIL: %(msg) -- expected %(expect), got %(actual)")
+		}
+	}
+
+	truthy(cond, msg)
+	{
+		this.checks = this.checks + 1
+		if (!cond) {
+			this.failures = this.failures + 1
+			System.print("  FAIL: %(msg)")
+		}
+	}
+
+	falsy(cond, msg)
+	{
+		this.truthy(!cond, msg)
+	}
+
+	// Index of `item` (by identity/equality) in `list`, or -1.
+	static index_of(list, item)
+	{
+		for (var i = 0; i < list.count; i = i + 1) {
+			if (list[i] == item) {
+				return i
+			}
+		}
+		return -1
+	}
+
+	// Assert `a` appears strictly before `b` in `list` (topo-order check).
+	before(list, a, b, msg)
+	{
+		var ia = Test.index_of(list, a)
+		var ib = Test.index_of(list, b)
+		this.checks = this.checks + 1
+		if (ia < 0 or ib < 0 or ia >= ib) {
+			this.failures = this.failures + 1
+			System.print("  FAIL: %(msg) -- index(a)=%(ia), index(b)=%(ib)")
+		}
+	}
+
+	report(name)
+	{
+		System.print("  %(name): %(this.checks) checks, %(this.failures) failure(s)")
+		return this.failures
+	}
+}

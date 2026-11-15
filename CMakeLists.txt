@@ -4,9 +4,41 @@ if(NOT CMAKE_POLICY_VERSION_MINIMUM)
     set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 endif()
 
+option(TT_BUILD_VOXEL_RUNTIME_ONLY
+       "Configure only the pure voxel runtime tests without the engine dependency graph" OFF)
+
+if(TT_BUILD_VOXEL_RUNTIME_ONLY)
+    project(tantien_voxel_runtime LANGUAGES CXX)
+    include(CTest)
+    set(VOXEL_BUILD_TESTS ON CACHE BOOL
+        "Build the dependency-free voxel test suite" FORCE)
+    set(VOXEL_BUILD_UNIRENDER_BACKEND OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS OFF CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_VES_BINDINGS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(thirdparty/voxel)
+    return()
+endif()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeLocal.cmake" OPTIONAL)
 
+option(TT_DISABLE_CAX_TESTS
+       "Skip CAX's optional Catch2 subproject when configuring non-CAX targets" OFF)
+if(TT_DISABLE_CAX_TESTS)
+    set(CAX_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+endif()
+
 project(tantien)
+
+include(CTest)
+
+option(TT_BUILD_CAX "Build the CAX integration target" ON)
+option(TT_BUILD_EDITOR "Build the CAD editor executable" ON)
+option(TT_BUILD_VOXEL_GAME "Build the standalone voxel game runtime host" ON)
+option(TT_BUILD_VOXEL_RUNTIME_TESTS "Build the voxel runtime unit tests" ON)
+option(TT_BUILD_HOST_HUD_TESTS
+       "Build Windows host HUD/GTxt/DTex tests (GLFW/OpenGL; off by default)" OFF)
 
 # macOS: ad-hoc sign every product at LINK time. ld64 automatically adds an
 # ad-hoc signature to arm64 output UNLESS Xcode injects -no_adhoc_codesign,
@@ -109,6 +141,8 @@ set(modules__graphics
     "src/modules/graphics/graphics.ves.inc"
     "src/modules/graphics/GTxt.cpp"
     "src/modules/graphics/GTxt.h"
+    "src/modules/graphics/GtxtCore.cpp"
+    "src/modules/graphics/GtxtCore.h"
     "src/modules/graphics/LoadingList.cpp"
     "src/modules/graphics/LoadingList.h"
     "src/modules/graphics/RenderBuffer.h"
@@ -306,6 +340,7 @@ set(EDITOR_FILES
     "src/editor/main.cpp"
     # GPU voxel/SDF interactive-preview prototype (Phase 0, env-gated by CAX_GPU_PREVIEW).
     "src/editor/SdfPreview.cpp"
+    "src/editor/ves_host.cpp"   # module registry + loader, shared with ves_test
 )
 if(APPLE)
     # Obj-C++ helper to bridge the GLFW window to an NSView for the Metal surface.
@@ -430,36 +465,49 @@ if(APPLE)
     tt_prefetch("https://registry.khronos.org/OpenGL/api/GL/glcorearb.h"  "${_gl3w_inc}/GL/glcorearb.h")
     tt_prefetch("https://registry.khronos.org/EGL/api/KHR/khrplatform.h" "${_gl3w_inc}/KHR/khrplatform.h")
 endif()
+# Topologically ordered: each lib's in-tree dependencies are add_subdirectory'd
+# BEFORE it, so its `if(TARGET dep)` checks succeed and it links the in-tree
+# target (picking up that target's PUBLIC include dirs) instead of falling back
+# to an uninitialized nested external/<dep> submodule. Edited so the tree builds
+# without a full `--recursive` submodule checkout. A few libs still hardcode
+# nested externals unconditionally (unirender→external/Vulkan-Headers,
+# model→external/tinygltf, cax→thirdparty/{eigen,nurbs,...}); those submodules
+# are initialized separately.
+# Leaf libs (no in-tree deps) first.
 add_subdirectory(thirdparty/gl3w)
 add_subdirectory(thirdparty/sm)
-add_subdirectory(thirdparty/unirender)
 add_subdirectory(thirdparty/vessel)
 add_subdirectory(thirdparty/shadertrans)
-add_subdirectory(thirdparty/guard)
-add_subdirectory(thirdparty/tessellation)
-add_subdirectory(thirdparty/polymesh3)
-add_subdirectory(thirdparty/geoshape)
-add_subdirectory(thirdparty/halfedge)
-add_subdirectory(thirdparty/dtex)
-add_subdirectory(thirdparty/model)
-add_subdirectory(thirdparty/easygui)
-add_subdirectory(thirdparty/gtxt)
-add_subdirectory(thirdparty/gimg)
-add_subdirectory(thirdparty/primitive)
 add_subdirectory(thirdparty/texpack)
 add_subdirectory(thirdparty/ds)
 add_subdirectory(thirdparty/fs)
 add_subdirectory(thirdparty/logger)
-add_subdirectory(thirdparty/freetype)
-#add_subdirectory(thirdparty/uniphysics)
 add_subdirectory(thirdparty/easyvm)
-add_subdirectory(thirdparty/brepvm)
 add_subdirectory(thirdparty/spatialdb)
+add_subdirectory(thirdparty/freetype)
+# Depend only on the leaves above.
+add_subdirectory(thirdparty/primitive)
+add_subdirectory(thirdparty/halfedge)
+add_subdirectory(thirdparty/guard)
+add_subdirectory(thirdparty/unirender)
+add_subdirectory(thirdparty/gimg)
+add_subdirectory(thirdparty/gtxt)
 add_subdirectory(thirdparty/objcomp)
-add_subdirectory(thirdparty/brepom)
-add_subdirectory(thirdparty/graph)
+# Higher-level consumers.
+add_subdirectory(thirdparty/geoshape)
+add_subdirectory(thirdparty/polymesh3)
+add_subdirectory(thirdparty/tessellation)
+add_subdirectory(thirdparty/dtex)
 add_subdirectory(thirdparty/wrapper)
-add_subdirectory(thirdparty/cax)
+add_subdirectory(thirdparty/easygui)
+add_subdirectory(thirdparty/graph)
+add_subdirectory(thirdparty/brepvm)
+add_subdirectory(thirdparty/brepom)
+add_subdirectory(thirdparty/model)
+#add_subdirectory(thirdparty/uniphysics)
+if(TT_BUILD_CAX)
+    add_subdirectory(thirdparty/cax)
+endif()
 
 # Both render backends include SPIRV-Cross headers directly: the Vulkan backend for
 # SPIR-V reflection (<spirv_cross.hpp>) and the Metal backend for SPIR-V -> MSL
@@ -475,16 +523,21 @@ target_include_directories(unirender PRIVATE
 # again -- used to profile the editor's own first-party code (no PDB in Release).
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 
+if(TT_BUILD_EDITOR)
 add_executable(editor ${EDITOR_FILES})
 
 # Per-machine SDK locations come from CMakeLocal.cmake (gitignored).
 # Required variables (see CMakeLocal.cmake.example for the full list):
 #   FBX_SDK_DIR, FBX_LIB_DIR, OCCT_DIR, OCCT_LIB_DIR,
 #   VULKAN_LIBRARY, DXC_LIBRARY
-# FBX is Windows-only (stubbed on macOS — no SDK there).
-if(WIN32)
+# FBX is optional: USE_FBX_SDK (defined by thirdparty/model, default ON on
+# Windows / OFF on macOS) gates it. Set USE_FBX_SDK=OFF — e.g. in
+# CMakeLocal.cmake — to build without the Autodesk FBX SDK: the FBX loader is
+# compiled out (-DNO_FBX) and assimp still handles .fbx meshes (only FBX
+# blendshape import is unavailable). FBX_SDK_DIR is only required when enabled.
+if(WIN32 AND USE_FBX_SDK)
     if(NOT DEFINED FBX_SDK_DIR)
-        message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example.")
+        message(FATAL_ERROR "FBX_SDK_DIR is not set. Define it in CMakeLocal.cmake — see CMakeLocal.cmake.example. Or set USE_FBX_SDK=OFF to build without FBX.")
     endif()
     if(NOT DEFINED FBX_LIB_DIR)
         set(FBX_LIB_DIR "${FBX_SDK_DIR}/lib/vs2022/x64")
@@ -545,23 +598,19 @@ if(WIN32)
         Vulkan::Vulkan)
 
     # Optional per-machine SDKs (FBX, DXC) — only linked if the file actually exists.
-    if(DEFINED DXC_LIBRARY AND DXC_LIBRARY)
-        if(EXISTS "${DXC_LIBRARY}")
-            target_link_libraries(editor "${DXC_LIBRARY}")
-        else()
-            message(WARNING "Optional SDK lib not found, skipping link: ${DXC_LIBRARY}")
-        endif()
+    # /FORCE:MULTIPLE below means missing symbols won't be fatal, but unresolved
+    # externals still surface at runtime if the corresponding feature is used.
+    set(_opt_libs "${DXC_LIBRARY}")
+    if(USE_FBX_SDK)
+        list(APPEND _opt_libs
+            "${FBX_LIB_DIR}/libfbxsdk-md.lib"
+            "${FBX_LIB_DIR}/libxml2-md.lib")
     endif()
-
-    # FBX SDK: debug/ and release/ subdirs hold the same filenames linked against
-    # different CRT flavors (MDd vs MD). Pick the right subdir via generator expression.
-    foreach(_fbx_name IN ITEMS libfbxsdk-md.lib libxml2-md.lib)
-        set(_fbx_d "${FBX_LIB_DIR}/debug/${_fbx_name}")
-        set(_fbx_r "${FBX_LIB_DIR}/release/${_fbx_name}")
-        if(EXISTS "${_fbx_d}" OR EXISTS "${_fbx_r}")
-            target_link_libraries(editor "$<IF:$<CONFIG:Debug>,${_fbx_d},${_fbx_r}>")
-        else()
-            message(WARNING "FBX SDK lib not found under ${FBX_LIB_DIR}/debug or .../release, skipping: ${_fbx_name}")
+    foreach(_opt_lib IN LISTS _opt_libs)
+        if(_opt_lib AND EXISTS "${_opt_lib}")
+            target_link_libraries(editor "${_opt_lib}")
+        elseif(_opt_lib)
+            message(WARNING "Optional SDK lib not found, skipping link: ${_opt_lib}")
         endif()
     endforeach()
 
@@ -659,3 +708,172 @@ if(WIN32)
             "\"SPIR-V CodeGen not available\" when HLSL→SPIR-V is exercised.")
     endif()
 endif()
+
+endif()
+
+# ----------------------------------------------------------------------------
+# ves_test: headless .ves test harness
+#
+# Same first-party + foundation + OCCT/SPIRV link set as `editor` (it links
+# tantien/cax, which reference those symbols), but with no GLFW window / GL
+# context: it just runs a .ves driver and returns a pass/fail exit code. Shares
+# src/editor/ves_host.cpp with the editor for the module registry + loader.
+# The link set is mirrored from the editor target above; the vars it reuses
+# (OpenCASCADE_LIBRARIES, _opt_libs, VULKAN_LOADER_LIB) are already computed.
+# ----------------------------------------------------------------------------
+option(TT_BUILD_VES_TEST "Build the headless .ves test harness (ves_test)" ON)
+if(TT_BUILD_VES_TEST AND TT_BUILD_CAX AND TT_BUILD_EDITOR)
+    add_executable(ves_test
+        "src/editor/ves_test_main.cpp"
+        "src/editor/ves_host.cpp")
+
+    target_include_directories(ves_test PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
+
+    if(WIN32)
+        if(DEFINED OCCT_LIB_DIR)
+            target_link_directories(ves_test PRIVATE "${OCCT_LIB_DIR}")
+        endif()
+    else()
+        target_link_directories(ves_test PRIVATE ${OpenCASCADE_LIBRARY_DIR})
+        target_include_directories(ves_test PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+    endif()
+
+    target_link_libraries(ves_test
+        tantien cax
+        glfw gl3w sm vessel unirender guard tessellation polymesh3 geoshape halfedge
+        dtex model easygui gtxt gimg primitive texpack ds fs logger easyvm brepvm
+        spatialdb objcomp brepom graph wrapper freetype
+        shadertrans
+        spirv-cross-core spirv-cross-glsl spirv-cross-util
+        glslang SPIRV
+        SpvGenTwoCommon SpvGenTwoLib
+        tinyobjloader assimp OGDF
+        ${OpenCASCADE_LIBRARIES}
+    )
+
+    if(WIN32)
+        target_link_libraries(ves_test
+            SPIRV-Tools SPIRV-Tools-link SPIRV-Tools-opt
+            ZLIB::ZLIB PNG::PNG JPEG::JPEG TIFF::TIFF
+            Vulkan::Vulkan)
+        # Reuse the optional FBX/DXC libs computed for the editor target above.
+        foreach(_opt_lib IN LISTS _opt_libs)
+            if(_opt_lib AND EXISTS "${_opt_lib}")
+                target_link_libraries(ves_test "${_opt_lib}")
+            endif()
+        endforeach()
+        target_link_options(ves_test PRIVATE "/FORCE:MULTIPLE")
+    elseif(APPLE)
+        target_link_libraries(ves_test SPIRV-Tools-static SPIRV-Tools-opt SPIRV-Tools-link)
+        target_link_libraries(ves_test spirv-cross-msl)
+        target_link_directories(ves_test PRIVATE /opt/homebrew/lib)
+        target_link_libraries(ves_test png turbojpeg tiff z)
+        target_link_libraries(ves_test
+            "-framework Metal" "-framework Foundation" "-framework QuartzCore"
+            "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework CoreFoundation")
+        if(VULKAN_LOADER_LIB)
+            target_link_libraries(ves_test ${VULKAN_LOADER_LIB})
+        endif()
+    endif()
+
+    # The loader resolves .ves imports via paths relative to CWD (src/script/,
+    # test/ves/, ...), so run from the repo root. Pin the VS debug CWD + a
+    # default driver so F5 works.
+    set_target_properties(ves_test PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        VS_DEBUGGER_COMMAND_ARGUMENTS "test_topo_sort test_reachability test_tree_build")
+endif()
+
+# ----------------------------------------------------------------------------
+# voxel_game: consume thirdparty/voxel frontend/render providers.
+#
+# Provider targets must exist before add_subdirectory(voxel) so the submodule
+# can link tantien::voxel_render_stack / tantien::voxel_hud_support instead of
+# the parent compiling VoxelGpuMesh.cpp and main.cpp by hand.
+# ----------------------------------------------------------------------------
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/VoxelProviders.cmake")
+
+set(VOXEL_BUILD_TESTS ${TT_BUILD_VOXEL_RUNTIME_TESTS} CACHE BOOL
+    "Build the dependency-free voxel test suite" FORCE)
+set(VOXEL_TANTIEN_ASSET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH
+    "Tantien source root containing assets/fonts" FORCE)
+set(VOXEL_BUILD_UNIRENDER_BACKEND OFF CACHE BOOL "" FORCE)
+set(VOXEL_BUILD_FRONTEND OFF CACHE BOOL "" FORCE)
+set(VOXEL_BUILD_TANTIEN_HUD OFF CACHE BOOL "" FORCE)
+if(TARGET vessel)
+    set(VOXEL_VESSEL_TARGET vessel CACHE STRING "" FORCE)
+    set(VOXEL_BUILD_VES_BINDINGS ON CACHE BOOL "" FORCE)
+else()
+    set(VOXEL_BUILD_VES_BINDINGS OFF CACHE BOOL "" FORCE)
+endif()
+
+if(TT_BUILD_VOXEL_GAME AND TARGET tantien::voxel_render_stack AND TARGET glfw)
+    set(VOXEL_BUILD_UNIRENDER_BACKEND ON CACHE BOOL "" FORCE)
+    set(VOXEL_BUILD_FRONTEND ON CACHE BOOL "" FORCE)
+elseif(TT_BUILD_VOXEL_GAME)
+    message(WARNING
+        "TT_BUILD_VOXEL_GAME requested but voxel render/GLFW providers are missing")
+endif()
+
+if((TT_BUILD_VOXEL_GAME OR TT_BUILD_HOST_HUD_TESTS) AND WIN32 AND
+   TARGET tantien::voxel_hud_support AND TARGET tantien::voxel_render_stack)
+    set(VOXEL_BUILD_TANTIEN_HUD ON CACHE BOOL "" FORCE)
+endif()
+
+if(TT_BUILD_HOST_HUD_TESTS AND BUILD_TESTING AND WIN32 AND
+   TARGET tantien::voxel_hud_support AND TARGET tantien::voxel_render_stack AND
+   TARGET glfw)
+    set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS ON CACHE BOOL "" FORCE)
+else()
+    set(VOXEL_BUILD_TANTIEN_INTEGRATION_TESTS OFF CACHE BOOL "" FORCE)
+endif()
+
+add_subdirectory(thirdparty/voxel)
+
+if(TARGET voxel_ves)
+    if(TARGET editor)
+        target_link_libraries(editor voxel_ves)
+    endif()
+    if(TARGET ves_test)
+        target_link_libraries(ves_test voxel_ves)
+        if(BUILD_TESTING)
+            if(WIN32)
+                add_test(NAME ves_gameclock_host_tests
+                    COMMAND "${CMAKE_COMMAND}" -E env
+                        "VES_TEST_EXE=$<TARGET_FILE:ves_test>"
+                        powershell.exe -NoProfile -ExecutionPolicy Bypass
+                        -File "${CMAKE_SOURCE_DIR}/test/ves/run.ps1"
+                        test_gameclock_host)
+            else()
+                add_test(NAME ves_gameclock_host_tests
+                    COMMAND $<TARGET_FILE:ves_test> test_gameclock_host)
+            endif()
+            set_tests_properties(ves_gameclock_host_tests PROPERTIES
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                TIMEOUT 45)
+
+            if(WIN32)
+                add_test(NAME ves_inventory_crafting_host_tests
+                    COMMAND "${CMAKE_COMMAND}" -E env
+                        "VES_TEST_EXE=$<TARGET_FILE:ves_test>"
+                        powershell.exe -NoProfile -ExecutionPolicy Bypass
+                        -File "${CMAKE_SOURCE_DIR}/test/ves/run.ps1"
+                        test_inventory_crafting_host)
+            else()
+                add_test(NAME ves_inventory_crafting_host_tests
+                    COMMAND $<TARGET_FILE:ves_test>
+                        test_inventory_crafting_host)
+            endif()
+            set_tests_properties(ves_inventory_crafting_host_tests PROPERTIES
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                TIMEOUT 45)
+        endif()
+    endif()
+endif()
+
+if(TARGET voxel_game)
+    set_target_properties(voxel_game PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+endif()
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/HostHudTests.cmake")

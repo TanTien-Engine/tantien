@@ -1,0 +1,75 @@
+// Runtime-verify Blueprint.topo_sort (blueprint/blueprint.ves).
+//
+// The code-review fix: connection cycles used to make Kahn's loop silently DROP
+// every node on the cycle (they never reach in-degree 0), and savetofile/copy
+// iterate that list -- so a cyclic graph was saved with those nodes' connections
+// missing (data loss found only on reload). The fix appends the cycle remnants.
+// test_cycle pins that: nothing may be dropped.
+
+import "harness" for Test
+import "mock_graph" for Graph
+import "blueprint.blueprint" for Blueprint
+
+class Main
+{
+	static run()
+	{
+		var t = Test()
+		Main.test_chain(t)
+		Main.test_diamond(t)
+		Main.test_cycle(t)
+		return t.report("topo_sort")
+	}
+
+	static test_chain(t)
+	{
+		// A -> B -> C
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+
+		var out = Blueprint.topo_sort(g.nodes)
+		t.eq(out.count, 3, "chain: all nodes present")
+		t.before(out, a, b, "chain: A before B")
+		t.before(out, b, c, "chain: B before C")
+	}
+
+	static test_diamond(t)
+	{
+		// A -> B, A -> C, B -> D, C -> D
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		var d = g.node("D")
+		g.connect(a, b)
+		g.connect(a, c)
+		g.connect(b, d)
+		g.connect(c, d)
+
+		var out = Blueprint.topo_sort(g.nodes)
+		t.eq(out.count, 4, "diamond: all nodes present")
+		t.before(out, a, b, "diamond: A before B")
+		t.before(out, a, c, "diamond: A before C")
+		t.before(out, b, d, "diamond: B before D")
+		t.before(out, c, d, "diamond: C before D")
+	}
+
+	static test_cycle(t)
+	{
+		// A -> B -> C -> A. Pre-fix, all three were dropped (data loss).
+		var g = Graph()
+		var a = g.node("A")
+		var b = g.node("B")
+		var c = g.node("C")
+		g.connect(a, b)
+		g.connect(b, c)
+		g.connect(c, a)
+
+		var out = Blueprint.topo_sort(g.nodes)
+		t.eq(out.count, 3, "cycle: no nodes dropped (remnants appended)")
+	}
+}

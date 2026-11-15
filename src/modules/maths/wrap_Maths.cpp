@@ -545,6 +545,10 @@ void w_Maths_get_line_intersect_line()
 {
     auto l0 = wrapper::list_to_vec2_array(1);
     auto l1 = wrapper::list_to_vec2_array(2);
+    if (l0.size() < 2 || l1.size() < 2) {
+        ves_set_nil(0);
+        return;
+    }
 
     bool is_seg = ves_toboolean(3);
 

@@ -16,6 +16,13 @@ class Connecting
 	update()
 	{
 		this.update_curve()
+
+		// This wire is DRAWN by its source node (NodeRender iterates node.exports),
+		// so any curve recompute -- a moved endpoint, connect/disconnect, or a
+		// hidden pass-through following its producer -- invalidates that node's
+		// cached wire Painter. This is the single catch-all for wire-geometry
+		// staleness; the per-event hooks in Node cover panel/pins.
+		this.from.node.render_dirty = true
 	}
 
 	update_curve()

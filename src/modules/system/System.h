@@ -2,6 +2,7 @@
 
 #include "core/macro.h"
 
+#include <functional>
 #include <string>
 
 struct GLFWwindow;
@@ -18,15 +19,22 @@ public:
 	void SetClipboardText(const char* text) const;
 	const char* GetClipboardText() const;
 
-	void SetTitle(const char* title) const;
-	// Editor's main loop currently polls unconditionally (no WaitEvents-based
-	// render-on-demand yet), so every frame already redraws. Kept as a no-op
-	// entry point so .ves callers (e.g. cadcvt's async LoadZw) have a stable
-	// hook to pump once the loop grows an idle/wait path.
-	void RequestRedraw() const;
+	// Window title (e.g. an async load's "feature N/M" progress). No-op
+	// until SetWindow ran.
+	void SetWindowTitle(const char* title) const;
+
+	// Render-on-demand hook: the editor's main loop only draws when
+	// something requested a redraw (input, window refresh). A script-side
+	// poller -- e.g. LoadZw returning nil while its worker converts --
+	// calls RequestRedraw() so the next frame re-pulls it; the host app
+	// installs the actual requester (editor main.cpp's request_redraw).
+	void SetRedrawRequester(std::function<void()> fn) { m_redraw_requester = std::move(fn); }
+	void RequestRedraw() const { if (m_redraw_requester) { m_redraw_requester(); } }
 
 private:
 	GLFWwindow* m_window = nullptr;
+
+	std::function<void()> m_redraw_requester;
 
 	TT_SINGLETON_DECLARATION(System)
 

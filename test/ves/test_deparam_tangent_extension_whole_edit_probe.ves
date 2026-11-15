@@ -1,0 +1,103 @@
+// A whole-body edit probe for PR-10005.  It is intentionally stricter than
+// per-face edit tests: changed rolling and R5 radii are useful only if all
+// reconstructed semantic faces still sew with the retained exact envelope.
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools, TopoAlgo
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static native_face(patch)
+    {
+        return patch and patch.count > 6 and patch[6] != "" ?
+            TopoAlgo.exact_face_brep_text(patch[6]) : nil
+    }
+
+    static changed(data, index, factor)
+    {
+        var result = []
+        for (var item in data) { result.add(item) }
+        result[index] = result[index] * factor
+        return result
+    }
+
+    static build(source, evidence, rolling_factor, r5_factor)
+    {
+        var faces = ShapeTools.map_faces(source)
+        var exact = ShapeTools.exact_face_patches(source)
+        var guides = evidence["guide_edges"]
+        var sheets = evidence["contracts"]
+        var bands = evidence["face_fillet_contracts"]
+        var supports = evidence["r45_support_contracts"]
+        if (!exact or exact.count != faces.count or !guides or !sheets or
+            !bands or !supports) { return nil }
+        var replacements = []
+        for (var i in 0 .. faces.count) { replacements.add(Main.native_face(exact[i])) }
+        var live_sheets = []
+        for (var contract in sheets) {
+            var data = Main.changed(contract["data"], 10, rolling_factor)
+            var sheet = TopoAlgo.tangent_extension_sheet(
+                guides[contract["guide_index"]], data)
+            if (!sheet) { return nil }
+            replacements[contract["patch_index"]] = sheet
+            live_sheets.add([contract["guide_index"], sheet])
+        }
+        for (var contract in bands) {
+            var band = TopoAlgo.face_fillet_band(
+                Main.changed(contract["data"], 6, r5_factor))
+            if (!band) { return nil }
+            replacements[contract["patch_index"]] = band
+        }
+        for (var contract in supports) {
+            var sheet = nil
+            for (var item in live_sheets) {
+                if (item[0] == contract["sheet_contract_index"]) { sheet = item[1] }
+            }
+            var support = sheet ? TopoAlgo.r45_support_from_sheet(
+                contract["data"], sheet, contract["base_curve"]) : nil
+            if (!support) { return nil }
+            replacements[contract["support_face_index"]] = support
+        }
+        var cap = TopoAlgo.planar_face_from_nurbs_texts(guides)
+        if (!cap) { return nil }
+        replacements[evidence["cap_face_index"]] = cap
+        return TopoAlgo.sew_faces_to_solid(replacements)
+    }
+
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var inverse = DeparamSolid()
+        var evidence = source ? inverse.tangent_extension_evidence(source) : nil
+        var baseline = source and evidence ? Main.build(source, evidence, 1.0, 1.0) : nil
+        var rolling_edit = source and evidence ? Main.build(source, evidence, 1.01, 1.0) : nil
+        var r5_edit = source and evidence ? Main.build(source, evidence, 1.0, 1.01) : nil
+        var coupled_edit = source and evidence ? Main.build(source, evidence, 1.01, 1.01) : nil
+        System.print("tangent_whole_edit baseline=%(baseline != nil and ShapeTools.is_valid(baseline)) " +
+            "rolling=%(rolling_edit != nil and ShapeTools.is_valid(rolling_edit)) " +
+            "r5=%(r5_edit != nil and ShapeTools.is_valid(r5_edit)) " +
+            "coupled=%(coupled_edit != nil and ShapeTools.is_valid(coupled_edit))")
+        t.truthy(source != nil and ShapeTools.is_valid(source),
+            "imports the valid PR-10005 terminal body")
+        t.truthy(evidence != nil, "extracts the PR-10005 semantic contracts")
+        t.truthy(baseline != nil and ShapeTools.is_valid(baseline),
+            "the unedited mixed semantic/exact graph sews to a valid body")
+        t.truthy(rolling_edit == nil or !ShapeTools.is_valid(rolling_edit),
+            "a rolling-radius-only edit is not misrepresented as a valid full-solid edit")
+        t.truthy(r5_edit == nil or !ShapeTools.is_valid(r5_edit),
+            "an R5-only edit is not misrepresented as a valid full-solid edit")
+        t.truthy(coupled_edit == nil or !ShapeTools.is_valid(coupled_edit),
+            "coupled radii still require an unimplemented cross-face solve")
+        return t.report("deparam_tangent_extension_whole_edit_probe")
+    }
+}

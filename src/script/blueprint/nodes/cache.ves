@@ -51,4 +51,15 @@ class Cache is Node
 	{
 		this.val = nil
 	}
+
+	// Pre-load the memo with an already-computed value, so the first pull
+	// returns it instead of evaluating the (expensive) input chain. Used by
+	// RebuildHistory to seed each decompiled op with the geometry the import
+	// already built, turning the post-rebuild re-eval into a cache hit. Any
+	// upstream param edit still fires on_pin_dirty -> clear_cache, so editing
+	// recomputes normally.
+	seed(v)
+	{
+		this.val = v
+	}
 }

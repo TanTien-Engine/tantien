@@ -10,63 +10,18 @@
 // symbol here (BOOL=bool, HANDLE=void* per dxc/WinAdapter.h). Never exercised on macOS.
 bool CloseHandle(void*) { return true; }
 #endif
-#include "modules/render/wrap_Render.h"
-#include "modules/render/render.ves.inc"
+// The .ves module registry + loader/binders now live in ves_host.{h,cpp},
+// shared with the headless ves_test harness. Only the runtime headers the
+// editor itself calls into remain here.
+#include "ves_host.h"
 #ifdef __APPLE__
 #include "modules/render/Render.h"  // Render::Instance()->Context() for the Metal present
 #include <unirender/Context.h>
 #endif
-#include "modules/graphics/wrap_Graphics.h"
-#include "modules/graphics/graphics.ves.inc"
-#include "modules/maths/wrap_Maths.h"
-#include "modules/maths/Maths.ves.inc"
-#include "modules/geometry/wrap_Geometry.h"
-#include "modules/geometry/Geometry.ves.inc"
-#include "modules/gui/wrap_GUI.h"
-#include "modules/gui/gui.ves.inc"
-#include "modules/image/wrap_Image.h"
-#include "modules/image/image.ves.inc"
-#include "modules/filesystem/wrap_Filesystem.h"
-#include "modules/filesystem/filesystem.ves.inc"
-#include "modules/model/wrap_Model.h"
-#include "modules/model/model.ves.inc"
-#include "modules/system/System.h"
-#include "modules/system/wrap_System.h"
-#include "modules/system/system.ves.inc"
-#include "modules/shader/wrap_Shader.h"
-#include "modules/shader/shader.ves.inc"
-//#include "modules/physics/wrap_Physics.h"
-//#include "modules/physics/physics.ves.inc"
-#include "modules/io/wrap_Keyboard.h"
-#include "modules/io/Keyboard.h"
-#include "modules/io/keyboard.ves.inc"
-#include "modules/scene/wrap_Scene.h"
-#include "modules/scene/scene.ves.inc"
-#include "modules/vm/wrap_VM.h"
-#include "modules/vm/VM.ves.inc"
-#include "modules/db/wrap_DB.h"
-#include "modules/db/DB.ves.inc"
-#include "modules/om/wrap_OM.h"
-#include "modules/om/OM.ves.inc"
-#include "modules/regen/wrap_Regen.h"
-#include "modules/regen/regen.ves.inc"
-#include "modules/graph/wrap_Graph.h"
-#include "modules/graph/graph.ves.inc"
-
-#include "cax/brepkit_c/wrap_BrepKit.h"
-#include "cax/brepkit_c/brepkit.ves.inc"
-#include "cax/brepgraph_c/script/wrap_BrepGraph.h"
-#include "cax/brepgraph_c/script/brepgraph.ves.inc"
-#include "cax/brepgraph_c/BrepGraph.h"
-#include "cax/brepdb_c/wrap_BrepDB.h"
-#include "cax/brepdb_c/brepdb.ves.inc"
-#include "cax/brepdb_c/BrepDBInit.h"
-#include "cax/deepbrep_c/wrap_DeepBrep.h"
-#include "cax/deepbrep_c/deepbrep.ves.inc"
-#include "cax/cadcvt_c/cadcvt.ves.inc"
-#include "cax/sketchlib/wrap_SketchLib.h"
-#include "cax/sketchlib/sketchlib.ves.inc"
-#include "cax/cadcvt_c/wrap_CadCvt.h"
+#include "modules/system/System.h"      // tt::System::Instance() singleton
+#include "modules/io/Keyboard.h"        // tt::Keyboard::RegisterCallback
+#include "cax/brepgraph_c/BrepGraph.h"  // brepgraph::init_cb()
+#include "cax/brepdb_c/BrepDBInit.h"    // brepdb::init_cb()
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -88,8 +43,6 @@ namespace
 
 bool error = false;
 
-std::vector<std::string> search_paths;
-
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
     error = true;
     std::cout << "[OpenGL Error](" << type << ") " << message << std::endl;
@@ -99,383 +52,19 @@ void error_callback(int error, const char *msg) {
     std::cerr << "GLWT error " << error << ": " << msg << std::endl;
 }
 
-void write(const char* text)
-{
-    printf("%s", text);
-}
-
-const char* file_search(const char* module, const char* dir)
-{
-    const char* ret = nullptr;
-
-    std::string path = module;
-    for (auto& c : path) {
-        if (c == '.') {
-            c = '/';
-        }
-    }
-    path.insert(0, dir);
-    path.append(".ves");
-    std::ifstream fin(path.c_str());
-    if (!fin.fail()) {
-        std::string str((std::istreambuf_iterator<char>(fin)),
-            std::istreambuf_iterator<char>());
-        ret = _strdup(str.c_str());
-    }
-    fin.close();
-
-    return ret;
-}
-
-void read_module_complete(const char* module, VesselLoadModuleResult result)
-{
-    if (!result.source) {
-        return;
-    }
-
-    if (!strcmp(module, "render") == 0 &&
-        !strcmp(module, "graphics") == 0 &&
-        !strcmp(module, "maths") == 0 &&
-        !strcmp(module, "geometry") == 0 &&
-        !strcmp(module, "gui") == 0 &&
-        !strcmp(module, "image") == 0 &&
-        !strcmp(module, "filesystem") == 0 &&
-        !strcmp(module, "model") == 0 &&
-        !strcmp(module, "system") == 0 &&
-        !strcmp(module, "shader") == 0 &&
-        //!strcmp(module, "physics") == 0 &&
-        !strcmp(module, "keyboard") == 0 &&
-        !strcmp(module, "scene") == 0 &&
-        !strcmp(module, "vm") == 0 &&
-        !strcmp(module, "db") == 0 &&
-        !strcmp(module, "om") == 0 &&
-        !strcmp(module, "regen") == 0 &&
-        !strcmp(module, "graph") == 0 &&
-        !strcmp(module, "archgen") == 0 &&
-        !strcmp(module, "citygen") == 0 &&
-        !strcmp(module, "globegen") == 0 &&
-        !strcmp(module, "pathtracer") == 0 &&
-        !strcmp(module, "sketchlib") == 0 &&
-        !strcmp(module, "nurbslib") == 0 &&
-        !strcmp(module, "brepkit") == 0 &&
-        !strcmp(module, "brepgraph") == 0 &&
-        !strcmp(module, "brepir") == 0 &&
-        !strcmp(module, "brepdb") == 0 &&
-        !strcmp(module, "deepbrep") == 0 &&
-        !strcmp(module, "cadcvt") == 0 &&
-        !strcmp(module, "loggraph") == 0 &&
-        !strcmp(module, "codegraph") == 0) {
-        free((void*)result.source);
-        result.source = NULL;
-    }
-}
-
-VesselLoadModuleResult read_module(const char* module)
-{
-    const char* source = nullptr;
-    if (strcmp(module, "render") == 0) {
-        source = renderModuleSource;
-    } else if (strcmp(module, "graphics") == 0) {
-        source = graphicsModuleSource;
-    } else if (strcmp(module, "maths") == 0) {
-        source = mathsModuleSource;
-    } else if (strcmp(module, "geometry") == 0) {
-        source = geometryModuleSource;
-    } else if (strcmp(module, "gui") == 0) {
-        source = guiModuleSource;
-    } else if (strcmp(module, "image") == 0) {
-        source = imageModuleSource;
-    } else if (strcmp(module, "filesystem") == 0) {
-        source = filesystemModuleSource;
-    } else if (strcmp(module, "model") == 0) {
-        source = modelModuleSource;
-    } else if (strcmp(module, "system") == 0) {
-        source = systemModuleSource;
-    } else if (strcmp(module, "shader") == 0) {
-        source = shaderModuleSource;
-    //} else if (strcmp(module, "physics") == 0) {
-    //    source = physicsModuleSource;
-    } else if (strcmp(module, "keyboard") == 0) {
-        source = keyboardModuleSource;
-    } else if (strcmp(module, "scene") == 0) {
-        source = sceneModuleSource;
-    } else if (strcmp(module, "vm") == 0) {
-        source = vmModuleSource;
-    } else if (strcmp(module, "db") == 0) {
-        source = dbModuleSource;
-    } else if (strcmp(module, "om") == 0) {
-        source = omModuleSource;
-    } else if (strcmp(module, "regen") == 0) {
-        source = regenModuleSource;
-    } else if (strcmp(module, "graph") == 0) {
-        source = graphModuleSource;
-    } else if (strcmp(module, "brepkit") == 0) {
-        source = brepkitModuleSource;
-    } else if (strcmp(module, "brepgraph") == 0) {
-        source = brepgraphModuleSource;
-    } else if (strcmp(module, "brepdb") == 0) {
-        source = brepdbModuleSource;
-    } else if (strcmp(module, "deepbrep") == 0) {
-        source = deepbrepModuleSource;
-    }  else if (strcmp(module, "cadcvt") == 0) {
-        source = cadcvtModuleSource;
-    } else if (strcmp(module, "sketchlib") == 0) {
-        source = sketchlibModuleSource;
-    }
-
-    else {
-        source = file_search(module, "src/script/");
-        if (!source) {
-            source = file_search(module, "src/modules/");
-        }
-        if (!source) {
-            source = file_search(module, "src/");
-        }
-        if (!source) {
-            for (auto& path : search_paths) {
-                source = file_search(module, path.c_str());
-                if (source) {
-                    break;
-                }
-            }
-        }
-    }
-
-    VesselLoadModuleResult result;
-    result.source = source;
-    result.on_complete = read_module_complete;
-    return result;
-}
-
-void expand_modules_complete(VesselExpandModulesResult result)
-{
-    for (int i = 0; i < result.num; ++i) {
-        free((char*)result.modules[i]);
-    }
-    free((char**)result.modules);
-}
-
-VesselExpandModulesResult expand_modules(const char* path)
-{
-    VesselExpandModulesResult ret;
-    ret.num = 0;
-    ret.modules = nullptr;
-
-    std::string relative = path;
-    auto pos = relative.find_first_of('*');
-    if (pos == std::string::npos) {
-        return ret;
-    }
-    relative = relative.substr(0, pos);
-    for (auto& c : relative) {
-        if (c == '.') {
-            c = '/';
-        }
-    }
-    std::string absolute;
-    if (std::filesystem::is_directory("src/script/" + relative)) {
-        absolute = "src/script/" + relative;
-    }
-
-    if (absolute.empty()) 
-    {
-        for (auto& dir : search_paths) {
-            if (std::filesystem::is_directory(dir + relative)) {
-                absolute = dir + relative;
-                break;
-            }
-        }
-    }
-
-    if (absolute.empty()) {
-        return ret;
-    }
-
-    std::vector<std::string> paths;
-    for (auto& p : std::filesystem::recursive_directory_iterator(absolute)) 
-    {
-        auto filename = p.path().filename().string();
-        if (filename.size() > 4 && strncmp(&filename[filename.size() - 4], ".ves", 4) == 0) {
-            paths.push_back(filename.substr(0, filename.size() - 4));
-        }
-    }
-
-    ret.num = (int)paths.size();
-    ret.modules = (const char**)malloc(sizeof(const char*) * ret.num);
-    for (int i = 0; i < ret.num; ++i) {
-        ret.modules[i] = _strdup(paths[i].c_str());
-    }
-    ret.on_complete = expand_modules_complete;
-
-    return ret;
-}
-
-VesselForeignClassMethods bind_foreign_class(const char* module, const char* className)
-{
-    VesselForeignClassMethods methods = { NULL, NULL };
-
-    tt::RenderBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GraphicsBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::MathsBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GeometryBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GUIBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ImageBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::FilesystemBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ModelBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::SystemBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::ShaderBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    //tt::PhysicsBindClass(className, &methods);
-    //if (methods.allocate != NULL) return methods;
-
-    tt::KeyboardBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::SceneBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::VmBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::DbBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::OmBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::RegenBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    tt::GraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepkit::BrepKitBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepgraph::BrepGraphBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    brepdb::BrepDBBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    deepbrep::DeepBrepBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    cadcvt::CadCvtBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    sketchlib::SketchLibBindClass(className, &methods);
-    if (methods.allocate != NULL) return methods;
-
-    return methods;
-}
-
-VesselForeignMethodFn bind_foreign_method(const char* module, const char* className, bool isStatic, const char* signature)
-{
-    // For convenience, concatenate all of the method qualifiers into a single
-    // signature string.
-    char fullName[256];
-    fullName[0] = '\0';
-    if (isStatic) strcat(fullName, "static ");
-    strcat(fullName, className);
-    strcat(fullName, ".");
-    strcat(fullName, signature);
-
-    VesselForeignMethodFn method = NULL;
-
-    method = tt::RenderBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GraphicsBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::MathsBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GeometryBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GUIBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ImageBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::FilesystemBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ModelBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::SystemBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::ShaderBindMethod(fullName);
-    if (method != NULL) return method;
-
-    //method = tt::PhysicsBindMethod(fullName);
-    //if (method != NULL) return method;
-
-    method = tt::KeyboardBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::SceneBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::VmBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::DbBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::OmBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::RegenBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = tt::GraphBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepkit::BrepKitBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepgraph::BrepGraphBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = brepdb::BrepDBBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = deepbrep::DeepBrepBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = cadcvt::CadCvtBindMethod(fullName);
-    if (method != NULL) return method;
-
-    method = sketchlib::SketchLibBindMethod(fullName);
-    if (method != NULL) return method;
-
-    return NULL;
-}
+// --- render-on-demand ---
+// The main loop skips draw()+present on idle frames to cut idle CPU/GPU. Any
+// real input (detected in process_input + the GLFW callbacks below) requests a
+// short BURST of redraws: >=2 refills BOTH double buffers (we render straight to
+// the default framebuffer and swap, so one redraw fills only one buffer) and
+// lets the immediate-mode GUI settle before going idle. Starts >0 so the
+// startup/load frames draw. NOTE: purely data-driven animation with no input (a
+// GlobalTicker or a Time node wired into the graph -- absent from the CAD
+// graphs) would need an explicit request_redraw() hook; add one if such a graph
+// is ever loaded.
+const int REDRAW_BURST = 3;
+int g_redraw_frames = 8;
+void request_redraw() { if (g_redraw_frames < REDRAW_BURST) { g_redraw_frames = REDRAW_BURST; } }
 
 void call_sizechanged(int w, int h)
 {
@@ -487,11 +76,14 @@ void call_sizechanged(int w, int h)
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
+    request_redraw();
     call_sizechanged(width, height);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    request_redraw();
+
     double x, y;
     glfwGetCursorPos(window, &x, &y);
 
@@ -519,6 +111,8 @@ void call_keyreleased(const char* str)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    request_redraw();
+
     const bool ctrl_pressed =
         glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS;
@@ -555,8 +149,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mouse_press_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    request_redraw();
+
     // double click
-    if (action == GLFW_RELEASE) 
+    if (action == GLFW_RELEASE)
     {
         static auto before = std::chrono::system_clock::now();
         auto now = std::chrono::system_clock::now();
@@ -581,6 +177,8 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
     if (count == 0) {
         return;
     }
+
+    request_redraw();
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
@@ -660,36 +258,59 @@ MouseStatus mouse_status = MouseStatus::Default;
 
 void process_input(GLFWwindow *window)
 {
+    bool active = false;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         call_keypressed("w");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         call_keypressed("s");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         call_keypressed("a");
+        active = true;
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         call_keypressed("d");
+        active = true;
     }
 
     double x, y;
     glfwGetCursorPos(window, &x, &y);
+
+    // Real cursor movement is activity. process_input synthesizes a mousemoved
+    // every frame even when the cursor is still, so compare against the last pos
+    // rather than treating "the callback ran" as a change.
+    static double last_x = 0, last_y = 0;
+    static bool have_last = false;
+    if (!have_last || x != last_x || y != last_y) {
+        active = true;
+    }
+    last_x = x;
+    last_y = y;
+    have_last = true;
+
     switch (mouse_status)
     {
     case MouseStatus::Default:
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
             mouse_status = MouseStatus::LeftPressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Left));
+            active = true;
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
             mouse_status = MouseStatus::RightPressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Right));
+            active = true;
         } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
             mouse_status = MouseStatus::MiddlePressed;
             call_mousepressed(x, y, static_cast<int>(MouseButton::Middle));
+            active = true;
         } else {
             call_mousemoved(x, y, static_cast<int>(MouseButton::None));
         }
         break;
     case MouseStatus::LeftPressed:
+        active = true;   // dragging or releasing is activity
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Left));
@@ -698,6 +319,7 @@ void process_input(GLFWwindow *window)
         }
         break;
     case MouseStatus::RightPressed:
+        active = true;
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Right));
@@ -706,6 +328,7 @@ void process_input(GLFWwindow *window)
         }
         break;
     case MouseStatus::MiddlePressed:
+        active = true;
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE) {
             mouse_status = MouseStatus::Default;
             call_mousereleased(x, y, static_cast<int>(MouseButton::Middle));
@@ -715,6 +338,10 @@ void process_input(GLFWwindow *window)
         break;
     default:
         assert(0);
+    }
+
+    if (active) {
+        request_redraw();
     }
 }
 
@@ -799,6 +426,10 @@ int main(int argc, char* argv[])
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_press_callback);
     glfwSetDropCallback(window, drop_callback);
+    // Render-on-demand: OS-driven repaint (uncover/restore, window move with no
+    // resize, RDP/odd-driver surface loss) carries no input event, so request a
+    // redraw burst here too. Cheap insurance; DWM already survives most occlusion.
+    glfwSetWindowRefreshCallback(window, [](GLFWwindow*){ request_redraw(); });
 
 #ifndef __APPLE__ // gl3w loads OpenGL entry points; the macOS build uses Metal
     if(gl3wInit()) {
@@ -832,15 +463,14 @@ int main(int argc, char* argv[])
     ves_init_vm();
 
     tt::System::Instance()->SetWindow(window);
+    // Let script-side pollers (e.g. LoadZw converting on a worker thread)
+    // keep the render-on-demand loop pumping while they wait.
+    tt::System::Instance()->SetRedrawRequester([]() { request_redraw(); });
 
     tt_enable_dtex();
 
-    VesselConfiguration cfg;
-    cfg.load_module_fn = read_module;
-    cfg.expand_modules_fn = expand_modules;
-    cfg.bind_foreign_class_fn = bind_foreign_class;
-    cfg.bind_foreign_method_fn = bind_foreign_method;
-    cfg.write_fn = write;
+    VesselConfiguration cfg{};
+    tt_ves_host::configure(&cfg);  // module loader + foreign binders + stdout write
     ves_set_config(&cfg);
 
     std::string editor_path = argv[1];
@@ -849,14 +479,14 @@ int main(int argc, char* argv[])
         auto filepath = std::filesystem::path(editor_path);
 
         auto dir = filepath.parent_path();
-        search_paths.push_back(dir.string() + "/");
+        tt_ves_host::search_paths.push_back(dir.string() + "/");
 
         auto file = filepath.stem().string();
         auto cls_name = file;
         cls_name[0] = std::toupper(cls_name[0]);
 
         char code[255];
-        sprintf(code, "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
+        snprintf(code, sizeof(code), "import \"%s\" for %s\nvar _editor = %s()", file.c_str(), cls_name.c_str(), cls_name.c_str());
 
         ves_interpret("editor", code);
     }
@@ -866,7 +496,7 @@ int main(int argc, char* argv[])
         cls_name[0] = std::toupper(cls_name[0]);
 
         char code[255];
-        sprintf(code, "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
+        snprintf(code, sizeof(code), "import \"editor.%s\" for %s\nvar _editor = %s()", argv[1], cls_name.c_str(), cls_name.c_str());
         ves_interpret("editor", code);
     }
 
@@ -882,15 +512,35 @@ int main(int argc, char* argv[])
         ves_call(1, 0);
     }
 
+    // render-on-demand frame stats (probe): prints drawn vs skipped frames + the
+    // last draw's wall time every ~2s so the idle skipping and the per-draw cost
+    // are measurable. Idle should show skipped >> drawn; a draw shows the ms we save.
+    double stat_t0 = glfwGetTime();
+    int stat_drawn = 0;
+    int stat_skipped = 0;
+    double stat_last_draw_ms = 0.0;
+
     while(!glfwWindowShouldClose(window))
     {
+        // process_input + the GLFW callbacks raise g_redraw_frames on real input.
+        // Poll first so a callback-driven event counts toward THIS frame's decision.
         process_input(window);
+        glfwPollEvents();
 
+        // update() is cheap and must run every frame (scene/GUI/tickers advance and
+        // it is where input-driven dirties are set); only the expensive draw()+present
+        // is gated by render-on-demand.
         ves_pushstring("update()");
         ves_call(0, 0);
 
-        ves_pushstring("draw()");
-        ves_call(0, 0);
+        if (g_redraw_frames > 0)
+        {
+            --g_redraw_frames;
+
+            double draw_t0 = glfwGetTime();
+
+            ves_pushstring("draw()");
+            ves_call(0, 0);
 
 #ifndef __APPLE__
         // ---- GPU voxel/SDF interactive-preview prototype (Phase 0) ----
@@ -928,13 +578,30 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef __APPLE__
-        // Metal present: EndFrame() presents the drawable + commits the command buffer
-        // (the GL path's glfwSwapBuffers has no equivalent without a GL context).
-        if (auto ctx = tt::Render::Instance()->Context()) { ctx->Flush(); }
+            // Metal present: EndFrame() presents the drawable + commits the command buffer
+            // (the GL path's glfwSwapBuffers has no equivalent without a GL context).
+            if (auto ctx = tt::Render::Instance()->Context()) { ctx->Flush(); }
 #else
-        glfwSwapBuffers(window);
+            glfwSwapBuffers(window);
 #endif
-        glfwPollEvents();
+            stat_last_draw_ms = (glfwGetTime() - draw_t0) * 1000.0;
+            ++stat_drawn;
+        }
+        else
+        {
+            ++stat_skipped;
+        }
+
+        double stat_now = glfwGetTime();
+        if (stat_now - stat_t0 >= 2.0)
+        {
+            std::cout << "[render-on-demand] drew " << stat_drawn << " skipped " << stat_skipped
+                      << " in " << (stat_now - stat_t0) << "s, last draw " << stat_last_draw_ms << "ms"
+                      << std::endl;
+            stat_drawn = 0;
+            stat_skipped = 0;
+            stat_t0 = stat_now;
+        }
 
         //show_fps(window);
         limit_fps(60);

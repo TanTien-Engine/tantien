@@ -1,0 +1,81 @@
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "brepkit" for ShapeTools, TopoAlgo
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+
+class Main
+{
+    static fillet_for(contracts, guide_index)
+    {
+        for (var contract in contracts) {
+            var index = contract["patch_index"] - 6
+            if (index >= 8) { index = index - 8 }
+            if (index == guide_index) { return contract["data"] }
+        }
+        return nil
+    }
+
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        var input = Blueprint.calc_output_value(deserialize, "shape")
+        var source = input ? input.value : nil
+        var evidence = source ? DeparamSolid().tangent_extension_evidence(source) : nil
+        var linked_fillet_count = 0
+        var support_contact_count = 0
+		var support_rim_anchor_count = 0
+        if (evidence and evidence["face_fillet_contracts"]) {
+            for (var contract in evidence["face_fillet_contracts"])
+                if (contract["cap_guide_index"] != nil) { linked_fillet_count = linked_fillet_count + 1 }
+        }
+        if (evidence and evidence["r45_support_contracts"]) {
+            for (var contract in evidence["r45_support_contracts"])
+                if (contract["r5_contacts"] and contract["r5_contacts"].count == 2) {
+                    support_contact_count = support_contact_count + 1
+                }
+			for (var contract in evidence["r45_support_contracts"])
+				if (contract["rim_endpoints"] and contract["rim_endpoints"].count == 6) {
+					support_rim_anchor_count = support_rim_anchor_count + 1
+				}
+        }
+        t.eq(linked_fillet_count, 4,
+            "each R5 band owns exactly one semantic cap-loop boundary")
+        t.eq(support_contact_count, 4,
+            "each R45 support declares its two exact adjacent R5 contacts")
+		t.eq(support_rim_anchor_count, 4,
+			"each R45 support persists its two source-free rim endpoint anchors")
+        var live = evidence ? evidence["guide_edges"] : nil
+        if (live) {
+            var guides = []
+            for (var guide in live) { guides.add(guide) }
+            for (var contract in evidence["contracts"]) {
+                var data = []
+                for (var value in contract["data"]) { data.add(value) }
+                data.add(contract["data"][10])
+                data[10] = data[10] * 1.01
+                var gi = contract["guide_index"]
+                var first = Main.fillet_for(evidence["face_fillet_contracts"], gi == 0 ? 7 : gi - 1)
+                var second = Main.fillet_for(evidence["face_fillet_contracts"], gi == 7 ? 0 : gi + 1)
+                var sheet = first and second ? TopoAlgo.tangent_extension_sheet_trimmed(
+                    guides[gi], data, first, second) : nil
+                var guide = sheet ? TopoAlgo.tangent_extension_cap_guide(sheet) : nil
+                if (guide) {
+                    guides[gi] = guide
+                }
+            }
+            var cap = TopoAlgo.planar_face_from_nurbs_texts(guides)
+            t.truthy(cap != nil and ShapeTools.is_valid(cap),
+                "trimmed live sheets close the edited cap against fixed R5 contacts")
+        } else {
+            t.truthy(false, "extracts PR-10005 contracts")
+        }
+        return t.report("deparam_tangent_extension_trimmed_cap_probe")
+    }
+}

@@ -1,0 +1,26 @@
+import "harness" for Test
+import "gameclock" for GameClock
+
+// Parent-host integration smoke. Unlike the voxel mini-host coverage, this
+// driver is loaded by src/editor/ves_host.cpp and therefore proves Tantien's
+// real MODULE_REGISTRY routes both the gameclock source and its foreign
+// class/method callbacks to voxel_ves.
+class Main
+{
+	static run()
+	{
+		var t = Test()
+		var clock = GameClock.create(8)
+
+		t.truthy(clock != nil, "host registry creates a GameClock")
+		t.eq(clock.ticks(), 0, "new clock starts at tick zero")
+		t.eq(clock.advance(2), true, "host dispatches instance mutation")
+		t.eq(clock.ticks(), 2, "host dispatches instance getter")
+		t.eq(clock.time_of_day(), 0.25, "quarter-period phase is exact")
+		t.eq(clock.daylight_factor(), 1, "quarter-period daylight is exact")
+		t.eq(clock.is_day(), true, "quarter-period is day")
+		t.truthy(GameClock.create(0) == nil, "host preserves strict argument rejection")
+
+		return t.report("gameclock host integration")
+	}
+}

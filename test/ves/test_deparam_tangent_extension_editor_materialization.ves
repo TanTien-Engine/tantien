@@ -1,0 +1,135 @@
+import "harness" for Test
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "editor.node_cache" for NODE_CACHE
+
+class MockSceneStack
+{
+    init()
+    {
+        this.bp_dirty = false
+        this.nodes = []
+    }
+
+    top() { return this }
+}
+
+class MockEditor
+{
+    init()
+    {
+        this.nodes = []
+        this.scene_stack = MockSceneStack()
+    }
+
+    add_node(node, x, y) { this.nodes.add(node) }
+}
+
+class Main
+{
+    static run()
+    {
+        var t = Test()
+        var importer = ImportStep()
+        importer.query_param("filename").value =
+            "F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+        var deserialize = Deserialize()
+        var inverse = DeparamSolid()
+        Blueprint.connect(importer, "world", deserialize, "world")
+        Blueprint.connect(deserialize, "shape", inverse, "shape")
+        var history = Blueprint.calc_output_value(inverse, "history")
+		var status = Blueprint.calc_output_value(inverse, "status")
+        var editor = MockEditor()
+        NODE_CACHE.set_editor(editor)
+        inverse.query_param("generate_history").value = true
+        inverse.on_param_dirty()
+        var envelope = 0
+        var transitions = 0
+		var guides = 0
+		var verified_sheets = 0
+		var semantic_caps = 0
+		var face_fillet_bands = 0
+		var r45_supports = 0
+		var rolling_controls = 0
+		var face_fillet_controls = 0
+        for (var node in editor.nodes) {
+            if (node.title == "FaceFillet/TangentExtension envelope (exact preservation)") {
+                envelope = envelope + 1
+            }
+			if (node.title == "TangentExtension transition patch 11 -- locally co-editable guide/sheet contract" or
+				node.title == "TangentExtension transition patch 13 -- locally co-editable guide/sheet contract" or
+				node.title == "TangentExtension transition patch 15 -- locally co-editable guide/sheet contract" or
+				node.title == "TangentExtension transition patch 17 -- locally co-editable guide/sheet contract") {
+				transitions = transitions + 1
+			}
+			if (node.title == "TangentExtension cap -- source-free reconstruction contract") {
+				semantic_caps = semantic_caps + 1
+			}
+			if (node.title == "FaceFillet R5 patch 10 -- locally editable constant-radius band" or
+				node.title == "FaceFillet R5 patch 12 -- locally editable constant-radius band" or
+				node.title == "FaceFillet R5 patch 14 -- locally editable constant-radius band" or
+				node.title == "FaceFillet R5 patch 16 -- locally editable constant-radius band") {
+				face_fillet_bands = face_fillet_bands + 1
+			}
+			if (node.title == "R45 support patch 6 -- linked rolling-sheet local co-edit contract" or
+				node.title == "R45 support patch 7 -- linked rolling-sheet local co-edit contract" or
+				node.title == "R45 support patch 8 -- linked rolling-sheet local co-edit contract" or
+				node.title == "R45 support patch 9 -- linked rolling-sheet local co-edit contract") {
+				r45_supports = r45_supports + 1
+			}
+			if (node.title == "TangentExtension rolling radius -- shared local co-edit control") {
+				rolling_controls = rolling_controls + 1
+			}
+			if (node.title == "FaceFillet R5 radius -- shared local co-edit control") {
+				face_fillet_controls = face_fillet_controls + 1
+			}
+			if (node.title == "TangentExtension guide edge 1 -- evidence" or
+				node.title == "TangentExtension guide edge 2 -- evidence" or
+				node.title == "TangentExtension guide edge 3 -- evidence" or
+				node.title == "TangentExtension guide edge 4 -- evidence" or
+				node.title == "TangentExtension guide edge 5 -- evidence" or
+				node.title == "TangentExtension guide edge 6 -- evidence" or
+				node.title == "TangentExtension guide edge 7 -- evidence" or
+				node.title == "TangentExtension guide edge 8 -- evidence") {
+				guides = guides + 1
+			}
+        }
+        t.truthy(history != nil and history.value["editable_history"] == false,
+            "specialized exact graph remains correctly non-editable until the constructor is proven")
+		t.eq(history.value["program"]["r45_support_contracts"] ?
+			history.value["program"]["r45_support_contracts"].count : 0, 4,
+			"history carries four boundary-assisted R45 cylinder/plane/curve contracts")
+		t.eq(status.value["semantic_coverage"], "partial_semantic_exact_preservation",
+			"status labels the mixed semantic/exact graph without claiming full history")
+		t.eq(status.value["confidence"], "exact_preservation",
+			"production confidence records an exact-preservation proof, not an inferred author history")
+		t.eq(status.value["delivery_decision"], "DELIVER_EXACT_PRESERVATION",
+			"production policy delivers this exact graph as preservation rather than an editable solid")
+		t.eq(status.value["semantic_face_count"], 13,
+			"status counts four rolling sheets, four R5 bands, four R45 supports, and the semantic cap")
+		t.eq(status.value["exact_preservation_face_count"], 10,
+			"status keeps only the remaining closure and base faces explicitly exact-preserved")
+		t.eq(status.value["verified_live_editable_face_count"], 4,
+			"status distinguishes the four locally editable R5 bands from static semantic contracts")
+		t.eq(status.value["r45_support_contract_count"], 4,
+			"status identifies the four persisted R45 support contracts behind the downgrade")
+		t.eq(status.value["r45_rolling_sheet_dependency_count"], 4,
+			"status distinguishes four explicit rolling-sheet-to-R45 graph dependencies from static support data")
+		t.eq(status.value["recovery_gap"], "R45_SUPPORT_SEMANTIC_EDIT_PENDING",
+			"status separates verified R45 solid sewing from still-unproved cross-face support edits")
+        t.eq(envelope, 1, "editor materializes one named TangentExtension envelope")
+		t.eq(transitions, 4, "editor wires all four named TangentExtension sheets into the final solid")
+		t.eq(semantic_caps, 1, "editor wires the source-free NURBS planar cap into the final solid")
+		t.eq(face_fillet_bands, 4, "editor wires all four verified R5 FaceFillet bands into the final solid")
+		t.eq(r45_supports, 4, "editor materializes all four R45 supports with their rolling-sheet dependency")
+		t.eq(rolling_controls, 1, "editor materializes one shared TangentExtension rolling-radius control")
+		t.eq(face_fillet_controls, 1, "editor materializes one shared R5 FaceFillet radius control")
+		t.eq(guides, 8, "editor shows all eight measured TangentExtension guide edges as evidence")
+		t.eq(verified_sheets, 0,
+			"editor does not leave duplicate unassembled TangentExtension sheet nodes")
+        t.truthy(editor.scene_stack.bp_dirty, "materializing the semantic exact graph marks the blueprint dirty")
+        return t.report("deparam_tangent_extension_editor_materialization")
+    }
+}

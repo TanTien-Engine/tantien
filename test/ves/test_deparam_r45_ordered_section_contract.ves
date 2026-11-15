@@ -1,0 +1,221 @@
+// This probe deliberately reconstructs both operands from the persisted
+// R45/TangentExtension contracts.  It never uses the imported R45 carrier,
+// trim wire, or pcurve to form the candidate section boundary.  Its expected
+// result is fail-closed: the current kernel section is not a unique trim.
+import "harness" for Test
+import "math" for Math
+import "blueprint.blueprint" for Blueprint
+import "brepdb.nodes.import_step" for ImportStep
+import "brepdb.nodes.deserialize" for Deserialize
+import "deepbrep.nodes.deparam_solid" for DeparamSolid
+import "cadcvt.nodes.r45_support_patch" for R45SupportPatch
+import "cadcvt.nodes.tangent_extension_sheet" for TangentExtensionSheet
+import "brepkit" for ShapeTools, TopoAlgo
+
+class Main
+{
+	static dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] }
+
+	static cross(a, b)
+	{
+		return [
+			a[1] * b[2] - a[2] * b[1],
+			a[2] * b[0] - a[0] * b[2],
+			a[0] * b[1] - a[1] * b[0],
+		]
+	}
+
+	static radial_from_tangent(data, offset)
+	{
+		var origin = [data[0], data[1], data[2]]
+		var point = [data[offset], data[offset + 1], data[offset + 2]]
+		var normal = [data[offset + 3], data[offset + 4], data[offset + 5]]
+		var signed_distance = Main.dot([
+			origin[0] - point[0], origin[1] - point[1], origin[2] - point[2]], normal)
+		if (Math.abs(Math.abs(signed_distance) - data[6]) > 0.001) { return nil }
+		return signed_distance < 0 ? normal : [-normal[0], -normal[1], -normal[2]]
+	}
+
+	static cylinder_sector(data, rolling_sheet)
+	{
+		// Contract layout: axis origin/dir/r, then two tangent planes and base.
+		var axis = [data[3], data[4], data[5]]
+		var x0 = Main.radial_from_tangent(data, 7)
+		var x1 = Main.radial_from_tangent(data, 13)
+		if (!x0 or !x1) { return nil }
+		var raw_angle = Math.atan2(Main.dot(axis, Main.cross(x0, x1)), Main.dot(x0, x1))
+		if (raw_angle < 0) { raw_angle = raw_angle + 6.283185307179586 }
+		var angle = Main.sector_angle(data)
+		// The R45 part is the smaller angular sector.  Swap the frame when the
+		// raw order follows its complement.
+		if (raw_angle > 3.141592653589793) {
+			var tmp = x0
+			x0 = x1
+			x1 = tmp
+		}
+		if (!angle) { return nil }
+		var bounds = rolling_sheet ? ShapeTools.aabb(rolling_sheet) : nil
+		if (!bounds) { return nil }
+		var base_point = [data[19], data[20], data[21]]
+		var base_v = Main.dot([
+			base_point[0] - data[0], base_point[1] - data[1], base_point[2] - data[2]], axis)
+		var low = base_v
+		var high = base_v
+		for (var xi in [bounds[0], bounds[3]]) for (var yi in [bounds[1], bounds[4]])
+			for (var zi in [bounds[2], bounds[5]]) {
+				var v = Main.dot([xi - data[0], yi - data[1], zi - data[2]], axis)
+				if (v < low) { low = v }
+				if (v > high) { high = v }
+			}
+		if (high - low < 0.001) { return nil }
+		// The carrier extent comes only from the constructed sheet and the base
+		// datum. It cannot import an upper support trim from the target face.
+		return TopoAlgo.analytic_patch([1,
+			data[0], data[1], data[2], x0[0], x0[1], x0[2], axis[0], axis[1], axis[2],
+			data[6], 0, angle, low - 0.001, high + 0.001])
+	}
+
+	static sector_angle(data)
+	{
+		var axis = [data[3], data[4], data[5]]
+		var x0 = Main.radial_from_tangent(data, 7)
+		var x1 = Main.radial_from_tangent(data, 13)
+		if (!x0 or !x1) { return nil }
+		var angle = Math.atan2(Main.dot(axis, Main.cross(x0, x1)), Main.dot(x0, x1))
+		if (angle < 0) { angle = angle + 6.283185307179586 }
+		if (angle > 3.141592653589793) { angle = 6.283185307179586 - angle }
+		return angle > 0.001 and angle < 3.141592653589793 ? angle : nil
+	}
+
+	static run()
+	{
+		var t = Test()
+		var importer = ImportStep()
+		importer.query_param("filename").value =
+			"F:/data/zw3d/jirashares/PR/PR-10005/面圆角失败（切线无法延申）.Z3PRT.cax.step"
+		var deserialize = Deserialize()
+		Blueprint.connect(importer, "world", deserialize, "world")
+		var input = Blueprint.calc_output_value(deserialize, "shape")
+		var source = input ? input.value : nil
+		var inverse = DeparamSolid()
+		var evidence = source ? inverse.tangent_extension_evidence(source) : nil
+		var r45 = evidence ? evidence["r45_support_contracts"] : nil
+		var sheets = evidence ? evidence["contracts"] : nil
+		var guides = evidence ? evidence["guide_edges"] : nil
+		var source_faces = source ? ShapeTools.map_faces(source) : []
+		t.eq(r45 ? r45.count : 0, 4, "imports four persisted boundary-assisted R45 contracts")
+		if (!r45 or !sheets or !guides) {
+			return t.report("deparam_r45_ordered_section_contract")
+		}
+		var candidates = 0
+		var raw_fragmented = 0
+		var ambiguous = 0
+		var underlying_multicurve = 0
+		var explicit_rims = 0
+		var rebuildable_rims = 0
+		var explicit_bases = 0
+		var rebuildable_bases = 0
+		var rebuilt_supports = 0
+		var equal_supports = 0
+		var linked_supports = 0
+		var equal_linked_supports = 0
+		var node_supports = 0
+		var linked_node_supports = 0
+		for (var contract in r45) {
+			var rim = contract["rim_curve"]
+			var base = contract["base_curve"]
+			var rim_wire = rim ? TopoAlgo.nurbs_wire_from_text(rim) : nil
+			var base_wire = base ? TopoAlgo.nurbs_wire_from_text(base) : nil
+			var support = rim and base ? TopoAlgo.r45_support_from_rim(contract["data"], rim, base) : nil
+			var node = R45SupportPatch()
+			var node_set = node.set_contract(contract["data"], rim, base)
+			var node_value = node_set ? Blueprint.calc_output_value(node, "shape") : nil
+			var node_support = node_value ? node_value.value : nil
+			var support_index = contract["support_face_index"]
+			if (rim) { explicit_rims = explicit_rims + 1 }
+			if (base) { explicit_bases = explicit_bases + 1 }
+			if (rim_wire and ShapeTools.map_edges(rim_wire).count == 1) {
+					rebuildable_rims = rebuildable_rims + 1
+			}
+			if (base_wire and ShapeTools.map_edges(base_wire).count == 1) {
+				rebuildable_bases = rebuildable_bases + 1
+			}
+			if (support) { rebuilt_supports = rebuilt_supports + 1 }
+			if (support and support_index < source_faces.count and
+				ShapeTools.surface_patch_equal(source_faces[support_index], support)) {
+				equal_supports = equal_supports + 1
+			}
+			if (node_support and support_index < source_faces.count and
+				ShapeTools.surface_patch_equal(source_faces[support_index], node_support)) {
+				node_supports = node_supports + 1
+			}
+			var sheet_data = nil
+			for (var item in sheets) if (item["guide_index"] == contract["sheet_contract_index"]) {
+				sheet_data = item["data"]
+			}
+			var sheet = sheet_data ?
+				TopoAlgo.tangent_extension_sheet(guides[contract["sheet_contract_index"]], sheet_data) : nil
+			var linked_support = sheet ? TopoAlgo.r45_support_from_sheet(
+				contract["data"], sheet, base) : nil
+			var sheet_node = TangentExtensionSheet()
+			var sheet_node_set = sheet_data ? sheet_node.set_contract(
+				guides[contract["sheet_contract_index"]], sheet_data) : false
+			var linked_node = R45SupportPatch()
+			var linked_node_set = linked_node.set_contract(contract["data"], rim, base)
+			if (sheet_node_set and linked_node_set) {
+				Blueprint.connect(sheet_node, "shape", linked_node, "rolling_sheet")
+			}
+			var linked_node_value = sheet_node_set and linked_node_set ?
+				Blueprint.calc_output_value(linked_node, "shape") : nil
+			var linked_node_support = linked_node_value ? linked_node_value.value : nil
+			if (linked_support) { linked_supports = linked_supports + 1 }
+			if (linked_support and support_index < source_faces.count and
+				ShapeTools.surface_patch_equal(source_faces[support_index], linked_support)) {
+				equal_linked_supports = equal_linked_supports + 1
+			}
+			if (linked_node_support and support_index < source_faces.count and
+				ShapeTools.surface_patch_equal(source_faces[support_index], linked_node_support)) {
+				linked_node_supports = linked_node_supports + 1
+			}
+			var sector = Main.cylinder_sector(contract["data"], sheet)
+			var fragments = sector and sheet ? ShapeTools.section_pcurves_on_face(sector, sheet) : nil
+			var angle = Main.sector_angle(contract["data"])
+			var lowest_chain = sector and sheet and angle ?
+				ShapeTools.lowest_section_pcurve_chain_between_u(sector, sheet, 0, angle) : nil
+			var underlying_count = sector and sheet ?
+				ShapeTools.underlying_surface_intersection_count(sector, sheet) : -1
+			if (sector and sheet) { candidates = candidates + 1 }
+			if (fragments and fragments.count > 1) { raw_fragmented = raw_fragmented + 1 }
+			if (!lowest_chain) { ambiguous = ambiguous + 1 }
+			if (underlying_count > 1) { underlying_multicurve = underlying_multicurve + 1 }
+		}
+		t.eq(candidates, 4, "builds all four cylinder sectors and rolling sheets only from contracts")
+		t.eq(raw_fragmented, 4,
+			"every reconstructed R45/sheet section exposes fragmented kernel output")
+		t.eq(ambiguous, 4,
+			"refuses all ambiguous chains even under the base-adjacent lowest-path rule")
+		t.eq(underlying_multicurve, 4,
+			"proves every underlying cylinder/rolling-surface pair is multi-curve before face trims")
+		t.eq(explicit_rims, 4,
+			"persists four unambiguous boundary-assisted R45/rolling-sheet NURBS curves")
+		t.eq(rebuildable_rims, 4,
+			"each persisted R45 rim is an independent editable one-edge NURBS wire")
+		t.eq(explicit_bases, 4,
+			"persists four base-adjacent R45 NURBS trim curves")
+		t.eq(rebuildable_bases, 4,
+			"each persisted R45 base trim is an independent editable one-edge NURBS wire")
+		t.eq(rebuilt_supports, 4,
+			"builds all four boundary-assisted R45 support faces from copied rims and contracts")
+		t.eq(equal_supports, 4,
+			"every boundary-assisted R45 support face passes the strict finite-patch gate")
+		t.eq(linked_supports, 4,
+			"each R45 support can select one finite rim from its reconstructed rolling-sheet input")
+		t.eq(equal_linked_supports, 4,
+			"the selected rolling-sheet dependency reproduces every original finite R45 support")
+		t.eq(linked_node_supports, 4,
+			"R45SupportPatch consumes the connected rolling-sheet node rather than its copied rim fallback")
+		t.eq(node_supports, 4,
+			"the persisted R45SupportPatch node evaluates all four saved contracts exactly")
+		return t.report("deparam_r45_boundary_assisted_support_contract")
+	}
+}

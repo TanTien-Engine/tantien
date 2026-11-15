@@ -7,82 +7,128 @@ import "blueprint.blackboard" for BLACKBOARD
 
 class NodeRender
 {
+	// The canvas used to rebuild every node's Painters from scratch each frame:
+	// Painter.init() per panel + per pin + per node for wires, plus a Vector2 per
+	// pin (calc_pin_pos). With a big graph fully on screen that is thousands of
+	// foreign (GC-tracked) allocations per frame -> the memory/GC sawtooth.
+	//
+	// Instead, build each node's Painters + text commands ONCE into a per-node
+	// cache and only REPLAY them every frame; rebuild solely when the node's
+	// visuals actually change. The Painters hold WORLD-space vertices and the
+	// camera is applied as a GPU view uniform at draw time, so pan/zoom need NO
+	// rebuild -- only a node move / select / edit / connection change, or a cross
+	// of the scale<2 LOD band. Invalidation is signalled by Node.render_dirty
+	// (set in Node.update move-branch / on_selected / on_param_dirty /
+	// on_pin_dirty / layout, and in Connecting.update for wire-curve recomputes).
 	static draw_node(node)
 	{
-		if (node.visible) {
-			this.draw_node_panel(node)
+		var lod = BLACKBOARD.editor_cam.scale < 2
+		if (node.render_dirty or node.render_lod != lod or node.cache_painters == nil) {
+			this.build_cache(node, lod)
+			node.render_dirty = false
+			node.render_lod = lod
+			node.render_times = node.render_times + 1
 		}
-
-		if (BLACKBOARD.editor_cam.scale < 2) {
-			if (node.visible) {
-				this.draw_node_pins(node)
-			}
-			// Draw outgoing wires even for a hidden node: a connection is only
-			// ever drawn by its SOURCE node, so a parked Cache wrapper must still
-			// emit its cache -> consumer wire (its incoming wire is suppressed by
-			// is_conn_visible) -- otherwise the consumer reads as disconnected.
-			this.draw_node_conns(node)
-		}
+		this.replay_cache(node)
 	}
 
-	static draw_node_panel(node)
+	// Rebuild node.cache_painters (tess::Painters to draw_painter) and
+	// node.cache_texts ([str, x, y, scale, textbox] tuples to draw_text). Mirrors
+	// the old immediate draw_node_panel/_pins/_conns, but appends into the cache
+	// instead of drawing -- so a static node pays nothing per frame. Painter draw
+	// order is preserved (panel -> pins -> wires, wires on top of pin circles);
+	// the cached texts replay last (title/pin names end up on top of this node's
+	// own wires, which is harmless and slightly more legible).
+	static build_cache(node, lod)
 	{
-		var pt = Painter.init()
+		var painters = []
+		var texts = []
 
-		var hw = node.style.width * 0.5
-		var hh = node.style.height * 0.5
-		pt.add_rect_filled(nil, [node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], node.style.color)
-
-		Graphics.draw_painter(pt)
-
-		if (BLACKBOARD.editor_cam.scale < 2) {
-//			Graphics.draw_text(node.get_title() + "[%(node.calc_times)]", node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
-			Graphics.draw_text(node.get_title(), node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE)
-		}
-	}
-
-	static draw_node_pins(node)
-	{
-		for (var pin in node.imports)
+		if (node.visible)
 		{
-			if (this.is_pin_visible(pin)) {
-				var p_pos = NodeLayout.calc_pin_pos(pin)
-				this.draw_pin(p_pos.x, p_pos.y, pin)
+			var hw = node.style.width * 0.5
+			var hh = node.style.height * 0.5
+
+			var panel = Painter.init()
+			panel.add_rect_filled(nil, [node.pos.x - hw, node.pos.y - hh, node.style.width, node.style.height], node.style.color)
+			painters.add(panel)
+
+			if (lod) {
+				texts.add([node.get_title(), node.pos.x, node.pos.y + hh - TITLE_HEIGHT * 0.5, 0.7, TB_TITLE])
 			}
 		}
-		for (var pin in node.exports)
+
+		if (lod)
 		{
-			if (this.is_pin_visible(pin)) {
-				var p_pos = NodeLayout.calc_pin_pos(pin)
-				this.draw_pin(p_pos.x, p_pos.y, pin)
-			}
-		}
-	}
-
-	static draw_node_conns(node)
-	{
-		var pt = Painter.init()
-
-		for (var o in node.exports) {
-			for (var c in o.conns) {
-				if (this.is_conn_visible(c)) {
-					this.draw_conn(pt, c)
+			// Pins: a single shared Painter for all of this node's pin circles
+			// (was one Painter per pin). Pin names go to the text list.
+			if (node.visible)
+			{
+				var pins = Painter.init()
+				var has_pin = false
+				for (var pin in node.imports)
+				{
+					if (this.is_pin_visible(pin)) {
+						var p_pos = NodeLayout.calc_pin_pos(pin)
+						this.build_pin(pins, texts, p_pos.x, p_pos.y, pin)
+						has_pin = true
+					}
+				}
+				for (var pin in node.exports)
+				{
+					if (this.is_pin_visible(pin)) {
+						var p_pos = NodeLayout.calc_pin_pos(pin)
+						this.build_pin(pins, texts, p_pos.x, p_pos.y, pin)
+						has_pin = true
+					}
+				}
+				if (has_pin) {
+					painters.add(pins)
 				}
 			}
+
+			// Outgoing wires -- drawn even for a hidden source node: a connection is
+			// only ever drawn by its SOURCE node, so a parked Cache wrapper must still
+			// emit its cache -> consumer wire (its incoming wire is suppressed by
+			// is_conn_visible) -- otherwise the consumer reads as disconnected.
+			var conns = Painter.init()
+			var has_conn = false
+			for (var o in node.exports)
+			{
+				for (var c in o.conns)
+				{
+					if (this.is_conn_visible(c)) {
+						this.draw_conn(conns, c)
+						has_conn = true
+					}
+				}
+			}
+			if (has_conn) {
+				painters.add(conns)
+			}
 		}
 
-		Graphics.draw_painter(pt)
+		node.cache_painters = painters
+		node.cache_texts = texts
 	}
 
-	static draw_pin(x, y, pin)
+	static replay_cache(node)
 	{
-		var pt = Painter.init()
+		for (var pt in node.cache_painters) {
+			Graphics.draw_painter(pt)
+		}
+		for (var t in node.cache_texts) {
+			Graphics.draw_text(t[0], t[1], t[2], t[3], t[4])
+		}
+	}
+
+	static build_pin(pt, texts, x, y, pin)
+	{
 		if (pin.conns.isEmpty) {
-			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)		
+			pt.add_circle(nil, x, y, PIN_RADIUS, pin.color, 1.0, 12)
 		} else {
 			pt.add_circle_filled(nil, x, y, PIN_RADIUS, pin.color, 12)
 		}
-		Graphics.draw_painter(pt)
 
 		var dx = 0
 		var tb
@@ -91,10 +137,10 @@ class NodeRender
 			tb = TB_LEFT
 		} else {
 			dx = -PIN_TEXT_OFFSET
-			tb = TB_RIGHT		
+			tb = TB_RIGHT
 		}
 
-		Graphics.draw_text(pin.name, x + dx, y, 0.5, tb)
+		texts.add([pin.name, x + dx, y, 0.5, tb])
 	}
 
 	static draw_conn(pt, conn)

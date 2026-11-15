@@ -16,6 +16,7 @@
 
 #include <string>
 #include <algorithm>
+#include <cstdlib> // free() for gimg_import()'s malloc'd buffers
 
 namespace
 {
@@ -54,6 +55,7 @@ void w_ImageData_allocate()
         uint8_t* pixels = nullptr;
 
         const char* filepath = ves_tostring(1);
+        bool from_malloc = false;
         if (strcmp(filepath, "SCREEN_CAPTURE") == 0)
         {
             static const int TEX_SZ = 512;
@@ -65,18 +67,21 @@ void w_ImageData_allocate()
         }
         else
         {
+            // gimg_import() returns malloc()'d memory; flag it so finalize free()s it.
             if (tt::Filesystem::IsExists(filepath)) {
                 pixels = gimg_import(filepath, &width, &height, &format);
             } else {
                 std::string path = tt::Filesystem::Instance()->GetAssetBaseDir() + "/" + filepath;
                 pixels = gimg_import(path.c_str(), &width, &height, &format);
             }
+            from_malloc = true;
         }
 
         img->pixels = pixels;
         img->width  = width;
         img->height = height;
         img->format = format;
+        img->pixels_malloc = from_malloc;
     }
     else if (ves_type(1) == VES_TYPE_FOREIGN)
     {
@@ -102,6 +107,10 @@ void w_ImageData_allocate()
         img->width  = (int)ves_tonumber(1);
         img->height = (int)ves_tonumber(2);
         const char* format = ves_tostring(3);
+        if (!format || img->width <= 0 || img->height <= 0) {
+            GD_REPORT_ASSERT("bad args.");
+            return;
+        }
         if (strcmp(format, "rgb") == 0) {
             img->format = GPF_RGB;
         } else if (strcmp(format, "rgba") == 0) {
@@ -113,8 +122,13 @@ void w_ImageData_allocate()
             return;
         }
 
-        const int channels = get_format_channels(img->format);
-        const int size = img->width * img->height * channels;
+        // Bytes per pixel, not channel count: R16 is one channel but two bytes,
+        // so sizing by channels under-allocated r16f buffers by half.
+        int bpp = get_format_channels(img->format);
+        if (img->format == GPF_R16) {
+            bpp *= 2;
+        }
+        const size_t size = static_cast<size_t>(img->width) * img->height * bpp;
         img->pixels = new uint8_t[size];
         memset(img->pixels, 0, size);
     }
@@ -123,7 +137,11 @@ void w_ImageData_allocate()
 int w_ImageData_finalize(void* data)
 {
     tt::ImageData* img = static_cast<tt::ImageData*>(data);
-    delete[] img->pixels;
+    if (img->pixels_malloc) {
+        free(img->pixels);
+    } else {
+        delete[] img->pixels;
+    }
     return sizeof(tt::ImageData);
 }
 
@@ -144,12 +162,14 @@ void w_ImageData_to_rgb565()
     tt::ImageData* img = (tt::ImageData*)ves_toforeign(0);
 
     const int channels = get_format_channels(img->format);
+    // 565 needs 3 colour channels; for single-channel (R8/R16) sources replicate
+    // the one channel into r/g/b instead of reading past the pixel (OOB read).
     uint8_t* pixels = new uint8_t[img->width * img->height * 2];
     for (int i = 0, n = img->width * img->height; i < n; ++i)
     {
         uint8_t r = img->pixels[i * channels];
-        uint8_t g = img->pixels[i * channels + 1];
-        uint8_t b = img->pixels[i * channels + 2];
+        uint8_t g = channels >= 2 ? img->pixels[i * channels + 1] : r;
+        uint8_t b = channels >= 3 ? img->pixels[i * channels + 2] : r;
         uint16_t _r = uint16_t(r / 255.0f * 31) << 11;
         uint16_t _g = uint16_t(g / 255.0f * 63) << 5;
         uint16_t _b = uint16_t(b / 255.0f * 31);
@@ -157,8 +177,13 @@ void w_ImageData_to_rgb565()
         memcpy(&pixels[i * 2], &rgb, 2);
     }
 
-    delete[] img->pixels;
+    if (img->pixels_malloc) {
+        free(img->pixels);
+    } else {
+        delete[] img->pixels;
+    }
     img->pixels = pixels;
+    img->pixels_malloc = false;
     img->format = GPF_RGB565;
 }
 

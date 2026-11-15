@@ -56,6 +56,10 @@ private:
 
     void CopyVertexBuffer(const sm::mat4& mat, const tess::Painter::Buffer& src);
 
+    // Flush the accumulated batch before appending `pt` would push m_buf past
+    // the 16-bit index limit (MAX_VERTEX_NUM). See SpriteRenderer.cpp.
+    void FlushIfPainterOverflows(ur::Context& ctx, const tess::Painter& pt);
+
 private:
     std::shared_ptr<ur::ShaderProgram> m_shader = nullptr;
 

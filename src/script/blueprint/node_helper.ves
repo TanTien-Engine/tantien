@@ -47,11 +47,17 @@ class NodeHelper
 			return
 		}
 
-		for (var i in 0..args.count - 1) 
+		// Empty-list guard: `0..-1` iterates DOWNWARD (Vessel range) and would
+		// index args[0] on an empty list. (The count-1 bound itself is kept:
+		// the last reflected argu is the function's return slot, not an input.)
+		if (!args.isEmpty)
 		{
-			var v = args[i]
-			var pin_type = this.type_var_to_pin(v["type"])
-			node.imports.add(Pin(node, v["name"], pin_type))
+			for (var i in 0..args.count - 1)
+			{
+				var v = args[i]
+				var pin_type = this.type_var_to_pin(v["type"])
+				node.imports.add(Pin(node, v["name"], pin_type))
+			}
 		}
 
 		// uniforms

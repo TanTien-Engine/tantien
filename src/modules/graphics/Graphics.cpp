@@ -90,10 +90,11 @@ void Graphics::Flush()
 
     if (m_use_dtex)
     {
-        DTex::Instance()->Flush(*ctx);
-        LoadingList::Instance()->Flush(*ctx);
-
-        RelocatePaletteUV();
+        const DTexFlushResult dtex = DTex::Instance()->Flush(*ctx);
+        const DTexFlushResult loading = LoadingList::Instance()->Flush(*ctx);
+        if (dtex.success && loading.success) {
+            RelocatePaletteUV();
+        }
     }
 }
 
@@ -101,7 +102,10 @@ void Graphics::EnableDTex(bool enable)
 { 
     if (enable) {
         auto dev = tt::Render::Instance()->Device();
-        DTex::Instance()->Init(*dev);
+        if (!dev || !DTex::Instance()->Init(*dev)) {
+            m_use_dtex = false;
+            return;
+        }
     }
     m_use_dtex = enable; 
 }
