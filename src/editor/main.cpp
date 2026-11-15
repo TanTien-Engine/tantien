@@ -109,6 +109,16 @@ void call_keyreleased(const char* str)
     ves_call(1, 0);
 }
 
+// Text-entry path: printables + navigation reach the script as `keytyped(_)`.
+// The editor routes them into the focused panel text field (gui PanelKit)
+// and IGNORES them otherwise, so existing graphs never see these events.
+void call_keytyped(const char* str)
+{
+    ves_pushstring(str);
+    ves_pushstring("keytyped(_)");
+    ves_call(1, 0);
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     request_redraw();
@@ -140,6 +150,46 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     } else if (key == GLFW_KEY_PRINT_SCREEN && action == GLFW_PRESS) {
         ves_pushstring("print_screen()");
         ves_call(0, 0);
+    } else if (!ctrl_pressed &&
+               (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        // Text-entry forwarding for panel fields (editor routes into the
+        // focused field via GUI.key_input; unmatched keys are ignored there).
+        const bool shift = (mods & GLFW_MOD_SHIFT) != 0;
+        if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
+            std::string str;
+            str.push_back(static_cast<char>((shift ? 'A' : 'a') + (key - GLFW_KEY_A)));
+            call_keytyped(str.c_str());
+        } else if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+            std::string str;
+            str.push_back(static_cast<char>('0' + (key - GLFW_KEY_0)));
+            call_keytyped(str.c_str());
+        } else if (key == GLFW_KEY_MINUS) {
+            call_keytyped("-");
+        } else if (key == GLFW_KEY_EQUAL) {
+            call_keytyped("=");
+        } else if (key == GLFW_KEY_PERIOD) {
+            call_keytyped(".");
+        } else if (key == GLFW_KEY_COMMA) {
+            call_keytyped(",");
+        } else if (key == GLFW_KEY_SLASH) {
+            call_keytyped("/");
+        } else if (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) {
+            call_keytyped("enter");
+        } else if (key == GLFW_KEY_BACKSPACE) {
+            call_keytyped("backspace");
+        } else if (key == GLFW_KEY_LEFT) {
+            call_keytyped("left");
+        } else if (key == GLFW_KEY_RIGHT) {
+            call_keytyped("right");
+        } else if (key == GLFW_KEY_UP) {
+            call_keytyped("up");
+        } else if (key == GLFW_KEY_DOWN) {
+            call_keytyped("down");
+        } else if (key == GLFW_KEY_HOME) {
+            call_keytyped("home");
+        } else if (key == GLFW_KEY_END) {
+            call_keytyped("end");
+        }
     } else if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z && action == GLFW_RELEASE) {
         std::string str;
         str.push_back('a' + (key - GLFW_KEY_A));

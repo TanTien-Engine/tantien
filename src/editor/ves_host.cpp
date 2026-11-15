@@ -73,6 +73,11 @@
 #include "modules/tasks/wrap_Tasks.h"
 #include "modules/tasks/tasks.ves.inc"
 
+// review: the re-parameterization review-workbench domain service
+// (ReviewSession over AgentSession; candidates/decisions/adopt/undo).
+#include "cax/cadapp_c/review/wrap_Review.h"
+#include "cax/cadapp_c/review/review.ves.inc"
+
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -160,6 +165,7 @@ const ModuleEntry MODULE_REGISTRY[] = {
     { "sketchlib",  sketchlibModuleSource,  sketchlib::SketchLibBindClass, sketchlib::SketchLibBindMethod },
     { "cadapp",     cadappModuleSource,     cadapp::CadAppBindClass,       cadapp::CadAppBindMethod },
     { "tasks",      tasksModuleSource,      tt::TasksBindClass,            tt::TasksBindMethod },
+    { "review",     reviewModuleSource,     cadapp::ReviewBindClass,       cadapp::ReviewBindMethod },
 };
 
 const ModuleEntry* find_module(const char* module)

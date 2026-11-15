@@ -1,0 +1,317 @@
+// Headless acceptance probe for the re-parameterization REVIEW WORKBENCH
+// domain service (cadapp_c/review/ReviewSession + the "review" module).
+//
+// Everything here runs through the REAL CAD kernel paths: the input plate is
+// a real AgentSession program (boss + 4 through-hole cuts) saved as .brep,
+// candidate proposals are real isolated replays, validation is a real
+// Boolean mutual-containment check, adoption round-trips the candidate
+// program through Save/Open with a pre-adoption checkpoint for undo.
+//
+// Covers the handover acceptance rows that are testable headlessly:
+//   import without recognition   (facts measured, no fabricated history)
+//   propose + strict validation  (both candidates replay + pass vs input)
+//   adopt gate order             (no direction -> refuse; no receipt -> refuse)
+//   choose direction             (review revision advances, formal untouched)
+//   length-test behavior compare (fixed margins vs fixed pitch at length 130)
+//   stale gates                  (old candidate cannot adopt after a choice)
+//   duplicate request ids        (original reply echoed, no second commit)
+//   undo adopt                   (checkpoint restore, monotonic revision)
+//   save / reopen                (program + review context restored)
+//
+// NOT covered here (needs the editor / python): 3D panels, node canvas
+// linkage, UV189 / voxel subprocess runs.
+
+import "cadapp" for CadSession
+import "brepkit" for ShapeTools
+import "review" for ReviewWorkbench
+import "tasks" for Tasks, Json
+import "filesystem" for Filesystem
+
+// Probe body lives on an instance so helpers can use this.*; Main stays
+// static per the ves_test protocol.
+class ReviewProbe
+{
+	init()
+	{
+		this.fail = 0
+	}
+
+	check(cond, label)
+	{
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	// Real four-hole plate program: 100 x 40 x 10 plate, holes d8 at
+	// x = {15, 85} (end margins 15), y = {14, 26}. Saved as native .brep.
+	build_input(dir)
+	{
+		var s = CadSession.create()
+		s.new_program("probe-new")
+
+		var plate = {
+			"request_id": "probe-plate", "base_revision": 1,
+			"pox": 0, "poy": 0, "poz": 0,
+			"pnx": 0, "pny": 0, "pnz": 1,
+			"pxx": 1, "pxy": 0, "pxz": 0,
+			"profile": 0,
+			"x0": 0, "y0": 0, "x1": 100, "y1": 40,
+			"cx": 0, "cy": 0, "r": 0,
+			"is_cut": false, "base_id": 0,
+			"dx": 0, "dy": 0, "dz": 1,
+			"dist": 10,
+			"through_all": false, "flip": false
+		}
+		// add_extrude replies are JSON strings (the cadapp binding contract):
+		// parse before reading fields, and chain base_revision from the
+		// parsed revision.
+		var r = Json.parse(s.add_extrude(plate))
+		if (!r["ok"] or !r["committed"]) {
+			System.print("[FAIL] input plate build: %(r)")
+			this.fail = this.fail + 1
+			return nil
+		}
+
+		var holes = [ [15, 14], [85, 14], [15, 26], [85, 26] ]
+		var i = 1
+		// CHAIN cuts onto the previous cut's output: an unchained cut leaves
+		// its own cumulative result alive in the compound (4x volume).
+		var cut_base = 2
+		for (var h in holes) {
+			var cut = {
+				"request_id": "probe-hole-%(i)", "base_revision": r["revision"],
+				"pox": 0, "poy": 0, "poz": 0,
+				"pnx": 0, "pny": 0, "pnz": 1,
+				"pxx": 1, "pxy": 0, "pxz": 0,
+				"profile": 1,
+				"x0": 0, "y0": 0, "x1": 0, "y1": 0,
+				"cx": h[0], "cy": h[1], "r": 4,
+				"is_cut": true, "base_id": cut_base,
+				"dx": 0, "dy": 0, "dz": 1,
+				"dist": 10,
+				"through_all": true, "flip": false
+			}
+			r = Json.parse(s.add_extrude(cut))
+			cut_base = r["result"]["feature_id"]
+			if (!r["ok"] or !r["committed"]) {
+				System.print("[FAIL] input hole %(i): %(r)")
+				this.fail = this.fail + 1
+				return nil
+			}
+			i = i + 1
+		}
+
+		var path = dir + "/input.brep"
+		if (!ShapeTools.save_brep(s.shape(), path)) {
+			System.print("[FAIL] save_brep of input")
+			this.fail = this.fail + 1
+			return nil
+		}
+		return path
+	}
+
+	find_cand(state, relation)
+	{
+		for (var c in state["candidates"]) {
+			if (c["relation"] == relation) {
+				return c
+			}
+		}
+		return nil
+	}
+
+	run()
+	{
+		var dir = "outputs/review_workbench_probe"
+		Tasks.mkdir_p(dir)
+
+		var input_path = this.build_input(dir)
+		if (!input_path) {
+			return this.fail
+		}
+
+		// ---- import without recognition ---------------------------------
+		var wb = ReviewWorkbench.create()
+		var imp = Json.parse(wb.import_input(input_path))
+		this.check(imp != nil and imp["ok"] == true, "import_input ok")
+		var st = Json.parse(wb.state_json())
+		var input = st["input"]
+		this.check(input["layout_detected"] == true, "input layout detected as 4-hole plate")
+		this.check(input["length"] - 100 < 0.001 and 100 - input["length"] < 0.001,
+			"measured length 100")
+		this.check(input["hole_diameter"] == 8, "measured hole diameter 8")
+		this.check(st["candidates"].count == 0, "no candidates before create_run (no fabricated history)")
+
+		// ---- propose + strict validation --------------------------------
+		var run = Json.parse(wb.create_run("run-1", "geometry", 0))
+		this.check(run["ok"] == true, "create_run(geometry) ok")
+		this.check(run["result"] != nil and run["result"]["candidates"].count == 2, "two layout candidates proposed")
+		st = Json.parse(wb.state_json())
+		var m0 = this.find_cand(st, "FIXED_END_MARGINS")
+		var p0 = this.find_cand(st, "FIXED_PITCH_CENTERED")
+		this.check(m0 != nil and p0 != nil, "both relations present")
+		this.check(m0["replay_ok"] == true and p0["replay_ok"] == true, "both candidates replayed for real")
+		this.check(m0["validation"]["run"] == true and m0["validation"]["pass"] == true, "fixed-margins validation pass (real boolean)")
+		this.check(p0["validation"]["run"] == true and p0["validation"]["pass"] == true, "fixed-pitch validation pass (real boolean)")
+		this.check(m0["validation"]["vol_input"] == p0["validation"]["vol_input"], "same input volume on both receipts")
+
+		// ---- adopt gate order: direction first --------------------------
+		var doc_rev_before = st["document_revision"]
+		var early = Json.parse(wb.adopt_candidate("adopt-early", m0["id"]))
+		this.check(early["ok"] == false and early["result"] != nil and early["result"]["gate"] == "direction",
+			"adopt without a chosen direction is refused")
+
+		// ---- choose direction: intent only ------------------------------
+		var choose = Json.parse(wb.choose_direction("choose-1", "longitudinal-layout", "fixed-margins"))
+		this.check(choose["ok"] == true, "choose_direction ok")
+		this.check(choose["result"]["review_revision"] == 2, "review revision advanced to 2")
+		this.check(choose["result"]["formal_document_revision"] == doc_rev_before,
+			"formal document untouched by the direction choice")
+		st = Json.parse(wb.state_json())
+		this.check(st["decisions"][0]["open"] == false and st["decisions"][0]["selected"] == "fixed-margins",
+			"decision records the user choice + source")
+		var m1 = this.find_cand(st, "FIXED_END_MARGINS")
+		var p1 = this.find_cand(st, "FIXED_PITCH_CENTERED")
+		this.check(m1 != nil and m1["stale"] == false, "chosen candidate regenerated fresh")
+		this.check(p1 != nil and p1["stale"] == false and p1["title"].contains("reference"),
+			"alternative kept as clearly-labeled reference")
+
+		// ---- length test: same delta, different behavior ----------------
+		var tm = Json.parse(wb.regenerate_candidate("len-m", m1["id"], 130))
+		this.check(tm["ok"] == true and tm["result"]["test_replay_ok"] == true, "fixed-margins candidate regenerates at length 130")
+				var d = tm["result"]["test_col0_x"] - 15
+		this.check(d < 0.001 and d > -0.001, "fixed margins: left column stays at 15")
+				d = tm["result"]["test_col1_x"] - 115
+		this.check(d < 0.001 and d > -0.001, "fixed margins: right column at 130-15=115")
+
+		var tp = Json.parse(wb.regenerate_candidate("len-p", p1["id"], 130))
+		this.check(tp["ok"] == true and tp["result"]["test_replay_ok"] == true, "fixed-pitch candidate regenerates at length 130")
+				d = tp["result"]["test_col0_x"] - 30
+		this.check(d < 0.001 and d > -0.001, "fixed pitch centered: left column at (130-70)/2=30")
+				d = tp["result"]["test_col1_x"] - 100
+		this.check(d < 0.001 and d > -0.001, "fixed pitch centered: right column at (130+70)/2=100")
+		this.check(tm["result"]["test_col1_x"] != tp["result"]["test_col1_x"],
+			"same length delta produces DIFFERENT hole positions per relation")
+
+		// after a length test the receipt no longer describes the body:
+		st = Json.parse(wb.state_json())
+		var m2 = this.find_cand(st, "FIXED_END_MARGINS")
+		this.check(m2["validation"]["run"] == false,
+			"length test invalidates the validation receipt (shown NOT RUN)")
+
+		// ---- stale gate: a choice invalidates candidates ----------------
+		var choose2 = Json.parse(wb.choose_direction("choose-2", "longitudinal-layout", "fixed-pitch"))
+		this.check(choose2["ok"] == true, "switching direction is allowed")
+		st = Json.parse(wb.state_json())
+		var m3 = this.find_cand(st, "FIXED_END_MARGINS")
+		var p3 = this.find_cand(st, "FIXED_PITCH_CENTERED")
+		this.check(p3 != nil and p3["stale"] == false and p3["title"].contains("chosen"),
+			"newly chosen candidate is fresh")
+		var mismatch_adopt = Json.parse(wb.adopt_candidate("adopt-mismatch", m3["id"]))
+		this.check(mismatch_adopt["ok"] == false and mismatch_adopt["result"]["gate"] == "direction-mismatch",
+			"candidate of the non-chosen relation cannot adopt (direction gate)")
+
+		// undo_direction leaves the candidates stale: they no longer answer
+		// any open context and cannot adopt.
+		Json.parse(wb.undo_direction("undo-dir-2"))
+		st = Json.parse(wb.state_json())
+		var p3b = this.find_cand(st, "FIXED_PITCH_CENTERED")
+		var stale_adopt = Json.parse(wb.adopt_candidate("adopt-stale", p3b["id"]))
+		this.check(stale_adopt["ok"] == false and stale_adopt["result"]["gate"] == "stale",
+			"candidate after undo_direction cannot adopt (stale gate)")
+
+		// ---- undo direction (undo-dir-2 above) --------------------------
+		this.check(st["decisions"][0]["open"] == true and st["decisions"][0]["selected"] == "",
+			"decision fully reopened by the undo")
+		this.check(st["document_revision"] == doc_rev_before,
+			"undo_direction still did not touch the formal document")
+
+		// ---- fresh run + adopt the chosen candidate ---------------------
+		var run2 = Json.parse(wb.create_run("run-2", "geometry", 0))
+		this.check(run2["ok"] == true, "fresh run after undo")
+		Json.parse(wb.choose_direction("choose-3", "longitudinal-layout", "fixed-margins"))
+		st = Json.parse(wb.state_json())
+		var mc = this.find_cand(st, "FIXED_END_MARGINS")
+		var adopt = Json.parse(wb.adopt_candidate("adopt-1", mc["id"]))
+		this.check(adopt["ok"] == true, "adopting the validated chosen candidate commits")
+		this.check(adopt["result"] != nil and adopt["result"]["document_revision"] >= 1,
+			"formal document revision advanced")
+		var st2 = Json.parse(wb.state_json())
+		this.check(st2["formal_open"] == true, "formal document open after adoption")
+
+		// ---- duplicate request id: echo, no second commit ---------------
+		var rev_after_adopt = adopt["result"]["document_revision"]
+		var dup = Json.parse(wb.adopt_candidate("adopt-1", mc["id"]))
+		this.check(dup["ok"] == true and dup["duplicate"] == true, "duplicate request echoes the original reply")
+		var st3 = Json.parse(wb.state_json())
+		this.check(st3["document_revision"] == rev_after_adopt, "duplicate did not commit twice")
+
+		// mismatched payload under a seen id is rejected
+		var mismatch = Json.parse(wb.create_run("run-1", "voxel", 0))
+		this.check(mismatch["ok"] == false and mismatch["error"].contains("mismatch"),
+			"same request id with different payload is rejected")
+
+		// ---- undo adopt --------------------------------------------------
+		var ua = Json.parse(wb.undo_adopt("undo-adopt"))
+		this.check(ua["ok"] == true, "undo_adopt restores the pre-adoption checkpoint")
+		var st4 = Json.parse(wb.state_json())
+		this.check(st4["document_revision"] > rev_after_adopt, "restore advances the revision (no number rewinds)")
+		var ua2 = Json.parse(wb.undo_adopt("undo-adopt-2"))
+		this.check(ua2["ok"] == false, "second undo_adopt refuses (nothing left to undo)")
+
+		// ---- re-adopt + save + reopen -----------------------------------
+		var run3 = Json.parse(wb.create_run("run-3", "geometry", 0))
+		this.check(run3["ok"] == true, "fresh run for the persistence leg")
+		Json.parse(wb.choose_direction("choose-4", "longitudinal-layout", "fixed-margins"))
+		st = Json.parse(wb.state_json())
+		var mc2 = this.find_cand(st, "FIXED_END_MARGINS")
+		var adopt2 = Json.parse(wb.adopt_candidate("adopt-2", mc2["id"]))
+		this.check(adopt2["ok"] == true, "re-adoption after undo works")
+
+		var save = Json.parse(wb.save_document("save-1", dir))
+		this.check(save["ok"] == true, "save_document writes program + review context")
+		this.check(Filesystem.is_file_exists(dir + "/program.caxprog"), "program.caxprog exists")
+		this.check(Filesystem.is_file_exists(dir + "/review_context.json"), "review_context.json exists")
+
+		// reopen through a FRESH service (the real reopen path)
+		var wb2 = ReviewWorkbench.create()
+		var open = Json.parse(wb2.open_document("open-1", dir))
+		this.check(open["ok"] == true, "open_document restores the formal program")
+		var st5 = Json.parse(wb2.state_json())
+		this.check(st5["formal_open"] == true, "reopened formal session is open")
+		this.check(st5["decisions"].count == 1 and st5["decisions"][0]["selected"] == "fixed-margins",
+			"reopened review context keeps the user direction")
+		this.check(st5["candidates"].count == 0, "candidates are proposals: not restored as state (honest)")
+		var summary = Json.parse(wb2.formal_summary())
+		this.check(summary != nil and summary["features"] != nil and summary["features"].count >= 5,
+			"reopened program keeps the full history (plate + 4 cuts)")
+
+		// supported formal-edit passthrough (thickness) after reopen; the
+		// old value must match the measured thickness EXACTLY (the patch's
+		// optimistic old-value check is honest about float drift).
+		var th = st5["input"]["thickness"]
+		var ed = Json.parse(wb2.edit_formal_param("edit-th", 2, 0, 0, th, 12))
+		this.check(ed["ok"] == true, "supported formal parameter edit commits (extrude_distance)")
+
+		// unsupported vocabulary is refused, not guessed
+		var ed2 = Json.parse(wb2.edit_formal_param("edit-bad", 2, 2, 0, 0, 45))
+		this.check(ed2["ok"] == false and ed2["error"].contains("not supported"),
+			"unsupported formal parameter type is reported, not mapped")
+
+		System.print("review workbench probe done: %(this.fail) failure(s)")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		var probe = ReviewProbe()
+		return probe.run()
+	}
+}

@@ -31,6 +31,9 @@ bool CloseHandle(void*) { return true; }
 
 int main(int argc, char* argv[])
 {
+    // Unbuffered stdout: a driver that segfaults mid-run keeps its earlier
+    // [OK]/[FAIL] lines visible instead of losing them with the buffer.
+    setvbuf(stdout, nullptr, _IONBF, 0);
     if (argc < 2) {
         std::fprintf(stderr, "usage: ves_test <driver-name> [<driver-name> ...]\n"
                              "  drivers resolve to test/ves/<name>.ves; run from the repo root\n");

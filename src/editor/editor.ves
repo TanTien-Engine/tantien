@@ -65,6 +65,11 @@ class Editor
 
 		this.right_press_pos = nil
 
+		// PanelKit capture: the mouse button currently owning a canvas
+		// gesture (press landed on open canvas), else nil. See the mouse*
+		// dispatch below.
+		this.canvas_press_btn = nil
+
 //		this.filepath = "samples/vmgraph/if.ves"
 //		this.filepath = "../yingzao/10_dougong/zztest.ves"
 //		this.filepath = "../yingzao/20_foguangsi/shan_mian.ves"
@@ -199,6 +204,11 @@ class Editor
 
 	draw()
 	{
+		// Reset the PanelKit hit-rect list ONCE per drawn frame: both gui
+		// contexts (gui_top panels + gui_nodes node-param widgets) record
+		// into the same list, which the input dispatch reads between frames.
+		GUI.frame_begin()
+
 		this.draw_preview()
 
 		if (!this.editor_mode) 
@@ -252,7 +262,14 @@ class Editor
 
 	keypressed(key)
 	{
-		this.editop.on_key_pressed(key)		
+		// A focused panel text field owns the keyboard: it consumes the
+		// editor-level named keys (space/escape/delete) before any canvas
+		// operator sees them.
+		if (GUI.wants_keyboard() and GUI.key_input(key)) {
+			return
+		}
+
+		this.editop.on_key_pressed(key)
 
 		if (key == "delete") 
 		{
@@ -303,6 +320,16 @@ class Editor
 		}
 	}
 
+	// Text-entry path (printables + navigation) forwarded by the host ONLY
+	// for the panel text fields; the canvas operators never see these keys,
+	// so existing graphs keep their old keypressed/keyreleased behaviour.
+	keytyped(key)
+	{
+		if (GUI.wants_keyboard()) {
+			GUI.key_input(key)
+		}
+	}
+
 	mousemoved(x, y, btn)
 	{
 		GUI.mouse_input(this.gui_top, btn, MOUSE_MOVE, x, y, 0, 0, 1)
@@ -323,7 +350,9 @@ class Editor
 		GUI.mouse_input(this.gui_top, btn, MOUSE_DRAG, x, y, 0, 0, 1)
 		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DRAG, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
-		if (!this.is_gui_active()) {
+		// A captured canvas drag keeps receiving drags across panel rects;
+		// otherwise GUI-owned pointers stay GUI-owned.
+		if (this.canvas_press_btn == btn or !this.is_gui_active()) {
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
 
@@ -336,7 +365,7 @@ class Editor
 	}
 
 	mousepressed(x, y, btn)
-	{		
+	{
 		GUI.mouse_input(this.gui_top, btn, MOUSE_DOWN, x, y, 0, 0, 1)
 		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DOWN, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
@@ -344,8 +373,14 @@ class Editor
 			this.right_press_pos = Vector2(x, y)
 		}
 
+		// Canvas capture: a press that lands on the canvas (not on any GUI
+		// widget/panel) owns the gesture until release, even if the pointer
+		// later crosses a panel; a press on the GUI never reaches the canvas.
 		if (!this.is_gui_active()) {
+			this.canvas_press_btn = btn
 			this.editop.on_mouse_pressed(x, y, btn)
+		} else {
+			this.canvas_press_btn = nil
 		}
 
 		if (this.editor_mode and !this.node_editor_mode)
@@ -370,16 +405,19 @@ class Editor
 		if (btn == MOUSE_RIGHT and this.right_press_pos and this.right_press_pos.x == x and this.right_press_pos.y == y) {
 			this.right_press_pos = nil
 			if (!this.editor_mode) {
-				this.popup_pos = Vector2(x, y)			
+				this.popup_pos = Vector2(x, y)
 			}
 		} else if (btn == MOUSE_LEFT) {
 			this.popup_pos = nil
 			this.prev_pin = nil
 		}
 
-		if (!this.is_gui_active()) {
-			this.editop.on_mouse_released(x, y, btn)
-		}
+		// Releases ALWAYS reach the operator stack: it must reset its current
+		// op even when the pointer ended over a panel, otherwise a canvas
+		// drag that crossed a panel would leave a stuck operator. Harmless
+		// when no canvas op is active.
+		this.canvas_press_btn = nil
+		this.editop.on_mouse_released(x, y, btn)
 
 		if (this.editor_mode and !this.node_editor_mode)
 		{
@@ -395,6 +433,10 @@ class Editor
 
 	mouseclicked(x, y, btn)
 	{
+		if (this.is_gui_active()) {
+			return
+		}
+
 		this.editop.on_mouse_clicked(x, y, btn)
 
 		this.enter_subgraph()
@@ -402,6 +444,12 @@ class Editor
 
 	mousescrolled(x, y, dx, dy)
 	{
+		// Panel scroll areas consume the wheel first; only wheel steps over
+		// the open canvas zoom / pan the camera.
+		if (GUI.wheel_input(x, y, dx, dy)) {
+			return
+		}
+
 		this.editop.on_mouse_scrolled(x, y, dx, dy)
 	}
 
@@ -834,7 +882,10 @@ class Editor
 
 	is_gui_active()
 	{
-		return this.popup_pos != nil
+		// The node-add popup OR any PanelKit capture (widget/panel under the
+		// pointer, focused text field, open menu, egui drag lock) keeps the
+		// canvas operators out of the gesture.
+		return this.popup_pos != nil or GUI.input_blocked()
 	}
 
 	add_node(bp_node, x, y)

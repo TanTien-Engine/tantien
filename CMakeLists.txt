@@ -158,6 +158,8 @@ source_group("modules\\graphics" FILES ${modules__graphics})
 set(modules__gui
     "src/modules/gui/GUI.cpp"
     "src/modules/gui/GUI.h"
+    "src/modules/gui/PanelKit.cpp"
+    "src/modules/gui/PanelKit.h"
     "src/modules/gui/gui.ves.inc"
     "src/modules/gui/wrap_GUI.cpp"
     "src/modules/gui/wrap_GUI.h"
@@ -310,9 +312,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE 
+target_include_directories(${PROJECT_NAME} PRIVATE
 src
 thirdparty
+thirdparty/cax/thirdparty/nlohmann/single_include
 thirdparty/sm
 thirdparty/unirender/include
 thirdparty/gtxt
