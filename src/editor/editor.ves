@@ -444,8 +444,6 @@ class Editor
 
 	mousescrolled(x, y, dx, dy)
 	{
-		// Panel scroll areas consume the wheel first; then a 3D center
-		// gesture (model zoom); only the remaining steps reach the canvas.
 		// Panel scroll areas consume the wheel first; only wheel steps over
 		// the open canvas zoom / pan the camera.
 		if (GUI.wheel_input(x, y, dx, dy)) {
