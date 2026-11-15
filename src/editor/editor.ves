@@ -351,11 +351,7 @@ class Editor
 		GUI.mouse_input(this.gui_nodes, btn, MOUSE_DRAG, x, y, -this.camera.pos.x, -this.camera.pos.y, 1.0/this.camera.scale)
 
 		// A captured canvas drag keeps receiving drags across panel rects;
-		// otherwise GUI-owned pointers stay GUI-owned. A consumed center
-		// gesture (3D orbit) outranks both.
-		if (this.on_center_gesture(x, y, btn, "drag")) {
-			return
-		}
+		// otherwise GUI-owned pointers stay GUI-owned.
 		if (this.canvas_press_btn == btn or !this.is_gui_active()) {
 			this.editop.on_mouse_dragged(x, y, btn)
 		}
@@ -380,7 +376,7 @@ class Editor
 		// Canvas capture: a press that lands on the canvas (not on any GUI
 		// widget/panel) owns the gesture until release, even if the pointer
 		// later crosses a panel; a press on the GUI never reaches the canvas.
-		if (!this.is_gui_active() and !this.on_center_gesture(x, y, btn, "press")) {
+		if (!this.is_gui_active()) {
 			this.canvas_press_btn = btn
 			this.editop.on_mouse_pressed(x, y, btn)
 		} else {
@@ -421,7 +417,6 @@ class Editor
 		// drag that crossed a panel would leave a stuck operator. Harmless
 		// when no canvas op is active.
 		this.canvas_press_btn = nil
-		this.on_center_gesture(x, y, btn, "release")
 		this.editop.on_mouse_released(x, y, btn)
 
 		if (this.editor_mode and !this.node_editor_mode)
@@ -451,10 +446,9 @@ class Editor
 	{
 		// Panel scroll areas consume the wheel first; then a 3D center
 		// gesture (model zoom); only the remaining steps reach the canvas.
+		// Panel scroll areas consume the wheel first; only wheel steps over
+		// the open canvas zoom / pan the camera.
 		if (GUI.wheel_input(x, y, dx, dy)) {
-			return
-		}
-		if (this.on_center_gesture(x, y, 0, "wheel")) {
 			return
 		}
 
@@ -886,15 +880,6 @@ class Editor
 			this.popup_nodes.add(node)
 			this.popup_name2node[node.get_class().name] = node()
 		}
-	}
-
-	// Center-region gesture hook (workbench 3D view). Default: not consumed.
-	// x/y are raw window points; kind is "press"/"drag"/"release"/"wheel".
-	// Return true when the gesture was consumed (the canvas operators must
-	// not see it).
-	on_center_gesture(x, y, btn, kind)
-	{
-		return false
 	}
 
 	is_gui_active()
