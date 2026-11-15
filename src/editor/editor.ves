@@ -445,9 +445,13 @@ class Editor
 	{
 		var bp_node = node.components["bp"]
 
+		// pos is the CENTER of the panel rect (see NodeRender.draw_node), so
+		// cull on the whole rect: reject only when it lies fully outside the
+		// view region. Testing pos alone drops edge nodes still partly visible.
 		var pos = bp_node.pos
-
-		if (pos.x < region[0] or pos.x > region[2] or pos.y < region[1] or pos.y > region[3]) {
+		var hw = bp_node.style.width * 0.5
+		var hh = bp_node.style.height * 0.5
+		if (pos.x + hw < region[0] or pos.x - hw > region[2] or pos.y + hh < region[1] or pos.y - hh > region[3]) {
 			return
 		}
 
@@ -467,7 +471,10 @@ class Editor
 
 		var pos = bp_node.pos
 
-		if (pos.x < region[0] or pos.x > region[2] or pos.y < region[1] or pos.y > region[3]) {
+		// same rect-vs-region overlap test as draw_node
+		var hw = bp_node.style.width * 0.5
+		var hh = bp_node.style.height * 0.5
+		if (pos.x + hw < region[0] or pos.x - hw > region[2] or pos.y + hh < region[1] or pos.y - hh > region[3]) {
 			return false
 		}
 
