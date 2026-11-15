@@ -1,0 +1,152 @@
+// Headless probe for the BuildFeatureGraph click chain (run via ves_test).
+//
+// BuildFeatureGraph.do_build early-returns (only visible as a stdout log when
+// the editor is launched from a terminal) when its upstream PredictFeatureGraph
+// yields nil. This driver exercises exactly that chain without the GUI:
+//
+//   PrimMaker.cone -> FeatureRecognizer.init("model.bin") -> predict_feature_graph
+//
+// and prints which stage comes up empty, so "clicking build does nothing"
+// can be pinned to the recognizer stage vs the node-spawning stage.
+
+import "brepkit" for PrimMaker
+import "deepbrep" for FeatureRecognizer
+import "editor.node_cache" for NODE_CACHE
+import "blueprint.node" for Node
+import "blueprint.pin" for Pin
+import "blueprint.variant" for Variant
+import "brepkit.variant" for VAR_TOPO_SHAPE
+import "deepbrep.nodes.predict_feature_graph" for PredictFeatureGraph
+import "deepbrep.nodes.build_feature_graph" for BuildFeatureGraph
+import "blueprint.blueprint" for Blueprint
+
+// Stand-in for the demo's Cone node: the real Cone pulls GlobalConfig /
+// calc-graph machinery that the headless harness does not bind; the editor
+// does. Only calc_value("shape") matters to the chain under test.
+class ShapeSource is Node
+{
+	init()
+	{
+		super.init()
+		this.imports = []
+		this.exports = [Pin(this, "shape", VAR_TOPO_SHAPE)]
+		this.layout()
+		this.shape = PrimMaker.cone(1.0, 0.5, 1.0, 1)
+	}
+
+	calc_value(idx)
+	{
+		return Variant(VAR_TOPO_SHAPE, this.shape)
+	}
+}
+
+// Minimal stand-in for the parts of Editor that BuildFeatureGraph.do_build
+// touches: NODE_CACHE.editor.add_node + editor.scene_stack.bp_dirty.
+class FakeScene
+{
+	init() { this.nodes = [] }
+	add(n) { this.nodes.add(n) }
+}
+
+class FakeSceneStack
+{
+	init()
+	{
+		this.scene = FakeScene()
+		this.bp_dirty = false
+	}
+	top() { return this.scene }
+}
+
+class FakeEditor
+{
+	init() { this.scene_stack = FakeSceneStack() }
+	add_node(bp_node, x, y)
+	{
+		this.scene_stack.scene.nodes.add(bp_node)
+		bp_node.on_scene_add(this)
+		return bp_node
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		var failures = 0
+
+		// 1. primitive: the same shape feature_graph_demo.ves feeds in
+		var cone = PrimMaker.cone(1.0, 0.5, 1.0, 1)
+		if (!cone) {
+			System.print("[FAIL] PrimMaker.cone returned nil")
+			return 1
+		}
+		System.print("[OK] cone built")
+
+		// 2. recognizer load: relative path resolves against the process CWD
+		//    (repo root when running ves_test, same convention as the demo).
+		var rec = FeatureRecognizer.init("model.bin")
+		var loaded = rec.is_loaded()
+		System.print("recognizer is_loaded: %(loaded)")
+		if (!loaded) {
+			System.print("[FAIL] model.bin did not load (wrong CWD or corrupt checkpoint)")
+			return 1
+		}
+
+		// 3. predict: what PredictFeatureGraph.calc_value hands to BuildFeatureGraph
+		var g = rec.predict_feature_graph(cone)
+		if (!g) {
+			System.print("[FAIL] predict_feature_graph returned nil")
+			return 1
+		}
+		System.print("instances : %(g[0].count)  %(g[0])")
+		System.print("node_types: %(g[1].count)  %(g[1])")
+		System.print("edges     : %(g[2].count / 2)  %(g[2])")
+
+		// The BuildFeatureGraph gate: n = node_types.count must be > 0, else
+		// do_build logs "empty feature graph" and spawns nothing.
+		if (g[1].count == 0) {
+			System.print("[FAIL] empty feature graph -- BuildFeatureGraph would no-op here")
+			failures = failures + 1
+		} else {
+			System.print("[OK] feature graph non-empty -- BuildFeatureGraph would spawn %(g[1].count) node(s)")
+		}
+
+		// 4. the node-layer build itself: same wiring as feature_graph_demo.ves,
+		//    then toggle `build` and fire on_param_dirty -- exactly what the
+		//    editor's draw_node_gui does when the checkbox is ticked. GUI input
+		//    is NOT covered; everything downstream of it is.
+		var editor = FakeEditor()
+		NODE_CACHE.set_editor(editor)
+
+		var cone_n = ShapeSource()
+		var pfg = PredictFeatureGraph()
+		var bfg = BuildFeatureGraph()
+		bfg.query_param("origin_x").value = -300.0
+		bfg.query_param("origin_y").value = 560.0
+
+		Blueprint.connect(cone_n, "shape", pfg, "shape")
+		Blueprint.connect(cone_n, "shape", bfg, "shape")
+		Blueprint.connect(pfg, "instances", bfg, "instances")
+		Blueprint.connect(pfg, "node_types", bfg, "node_types")
+		Blueprint.connect(pfg, "edges", bfg, "edges")
+
+		bfg.query_param("build").value = true
+		bfg.on_param_dirty()
+
+		var spawned = editor.scene_stack.scene.nodes.count
+		System.print("spawned feature nodes: %(spawned)  (bp_dirty=%(editor.scene_stack.bp_dirty))")
+		for (var fn in editor.scene_stack.scene.nodes) {
+			var inst_id = fn.query_param("inst_id").value
+			System.print("  node: %(fn.title)  inst_id=%(inst_id)")
+		}
+		if (spawned != g[1].count) {
+			System.print("[FAIL] expected %(g[1].count) spawned node(s), got %(spawned)")
+			failures = failures + 1
+		} else {
+			System.print("[OK] do_build spawned all feature nodes")
+		}
+
+		return failures
+	}
+}

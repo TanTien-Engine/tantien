@@ -23,6 +23,12 @@
 #include <cstdio>
 #include <string>
 
+// shadertrans's DXC WinAdapter (CHandle::~CHandle) references CloseHandle; the
+// DXC adapter is never exercised on macOS, but the symbols must resolve to
+// link. Same stub as src/editor/main.cpp (BOOL=bool, HANDLE=void* per
+// dxc/WinAdapter.h).
+bool CloseHandle(void*) { return true; }
+
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
@@ -36,6 +42,7 @@ int main(int argc, char* argv[])
     VesselConfiguration cfg{};
     tt_ves_host::configure(&cfg);           // module loader + foreign binders + stdout write
     ves_set_config(&cfg);
+    tt_ves_host::prime_lazy_import_classes();
 
     // Resolve driver + harness modules out of test/ves/ (after the src/ tree).
     tt_ves_host::search_paths.push_back("test/ves/");

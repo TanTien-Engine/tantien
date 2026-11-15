@@ -472,6 +472,7 @@ int main(int argc, char* argv[])
     VesselConfiguration cfg{};
     tt_ves_host::configure(&cfg);  // module loader + foreign binders + stdout write
     ves_set_config(&cfg);
+    tt_ves_host::prime_lazy_import_classes();
 
     std::string editor_path = argv[1];
     if (std::filesystem::is_regular_file(editor_path))

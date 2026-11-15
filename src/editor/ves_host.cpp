@@ -63,6 +63,15 @@
 #include "cax/cadcvt_c/wrap_CadCvt.h"
 #include "cax/sketchlib/wrap_SketchLib.h"
 #include "cax/sketchlib/sketchlib.ves.inc"
+// cadapp: the DocumentIR edit-session bindings (AgentSession facade). The
+// wrap_*.cpp + cadapp.ves.inc pair was authored complete but never registered
+// in this host, so scripts importing "cadapp" failed to resolve; the
+// deparameterization UI adapter drives documents through it.
+#include "cax/cadapp_c/bind/wrap_CadApp.h"
+#include "cax/cadapp_c/bind/cadapp.ves.inc"
+
+#include "modules/tasks/wrap_Tasks.h"
+#include "modules/tasks/tasks.ves.inc"
 
 #include <cstdio>
 #include <cstring>
@@ -149,6 +158,8 @@ const ModuleEntry MODULE_REGISTRY[] = {
     { "deepbrep",   deepbrepModuleSource,   deepbrep::DeepBrepBindClass,   deepbrep::DeepBrepBindMethod },
     { "cadcvt",     cadcvtModuleSource,     cadcvt::CadCvtBindClass,       cadcvt::CadCvtBindMethod },
     { "sketchlib",  sketchlibModuleSource,  sketchlib::SketchLibBindClass, sketchlib::SketchLibBindMethod },
+    { "cadapp",     cadappModuleSource,     cadapp::CadAppBindClass,       cadapp::CadAppBindMethod },
+    { "tasks",      tasksModuleSource,      tt::TasksBindClass,            tt::TasksBindMethod },
 };
 
 const ModuleEntry* find_module(const char* module)
@@ -313,6 +324,32 @@ void configure(VesselConfiguration* cfg)
     cfg->bind_foreign_class_fn = bind_foreign_class;
     cfg->bind_foreign_method_fn = bind_foreign_method;
     cfg->write_fn = write;
+}
+
+void prime_lazy_import_classes()
+{
+    // One real OP_IMPORT per line executes each module body, so the foreign
+    // class variables materialize in vm.modules and every later
+    // ves_import_class(module, class) inside the wrappers hits the loaded
+    // fast path. The import guard (vessel e325e39) keeps a missing module
+    // from crashing the host; a failed prime just leaves that wrapper's lazy
+    // path broken exactly as before, reported at its call site.
+    const char* boot =
+        "import \"brepgraph\" for TopoNaming\n"
+        "import \"brepgraph\" for HistGraph\n"
+        "import \"brepgraph\" for CalcGraph\n"
+        "import \"brepgraph\" for TopoGraph\n"
+        "import \"brepdb\" for VersionTree\n"
+        "import \"brepkit\" for TopoShape\n"
+        "import \"graph\" for Graph\n"
+        "import \"render\" for VertexArray\n"
+        "import \"cadapp\" for CadSession\n";
+    VesselInterpretResult r = ves_interpret("ves_host$lazy_import_prime", boot);
+    if (r != VES_INTERPRET_OK) {
+        std::printf("[ves_host] lazy-import prime failed (%s) -- wrapper "
+                    "calls needing those classes will report their own errors\n",
+                    r == VES_INTERPRET_COMPILE_ERROR ? "compile" : "runtime");
+    }
 }
 
 } // namespace tt_ves_host

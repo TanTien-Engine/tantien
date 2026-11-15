@@ -258,6 +258,13 @@ set(modules__system
 )
 source_group("modules\\system" FILES ${modules__system})
 
+set(modules__tasks
+    "src/modules/tasks/tasks.ves.inc"
+    "src/modules/tasks/wrap_Tasks.cpp"
+    "src/modules/tasks/wrap_Tasks.h"
+)
+source_group("modules\\tasks" FILES ${modules__tasks})
+
 set(modules__vm
     "src/modules/vm/vm.ves.inc"
     "src/modules/vm/wrap_VM.cpp"
@@ -288,6 +295,7 @@ set(ALL_FILES
     ${modules__scene}
     ${modules__shader}
     ${modules__system}
+    ${modules__tasks}
     ${modules__vm}
 )
 
@@ -726,6 +734,11 @@ if(TT_BUILD_VES_TEST AND TT_BUILD_CAX AND TT_BUILD_EDITOR)
     add_executable(ves_test
         "src/editor/ves_test_main.cpp"
         "src/editor/ves_host.cpp")
+    if(APPLE)
+        # tantien's Metal Render backend references these GLFW->NSView bridge
+        # symbols (same helper the editor target links, see EDITOR_FILES).
+        target_sources(ves_test PRIVATE "src/editor/metal_view_mac.mm")
+    endif()
 
     target_include_directories(ves_test PRIVATE src include thirdparty thirdparty/sm thirdparty/vessel/src/include thirdparty/gl/include)
 

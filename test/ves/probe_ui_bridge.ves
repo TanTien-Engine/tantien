@@ -1,0 +1,215 @@
+// Headless probe for the deparameterization UI adapter's native plumbing:
+//   Json.parse round trip
+//   Tasks.spawn / poll / kill_tree against a real child process
+//   Tasks.mkdir_p / sha256 / now_ms
+//   TopoAlgo.read_step / write_step round trip (demo STEP via PrimMaker)
+//   CadSession stale-revision rejection + duplicate request_id envelope
+//
+// These are REAL kernel/process paths (a real child process, a real
+// AgentSession) -- not fixtures.
+
+import "tasks" for Tasks, Json
+import "brepkit" for PrimMaker, TopoAlgo
+import "cadapp" for CadSession
+import "filesystem" for Filesystem
+import "io" for IO
+
+class Main
+{
+	static run()
+	{
+		var failures = 0
+
+		// ---- Json.parse -----------------------------------------------------
+		var doc = Json.parse("{\"a\": 1, \"b\": [true, null, \"x\"], \"c\": {\"d\": 2.5}}")
+		if (!doc or doc["a"] != 1 or doc["b"].count != 3 or doc["c"]["d"] != 2.5) {
+			System.print("[FAIL] Json.parse basic document")
+			failures = failures + 1
+		} else {
+			System.print("[OK] Json.parse maps/lists/scalars")
+		}
+		if (Json.parse("{broken") != nil) {
+			System.print("[FAIL] Json.parse must return nil on unparseable text")
+			failures = failures + 1
+		}
+
+		// ---- Tasks.mkdir_p / sha256 / now_ms --------------------------------
+		var dir = "outputs/ui_bridge_probe"
+		Tasks.mkdir_p(dir)
+		var path = dir + "/probe.txt"
+		var f = IO.open(path, "w")
+		f.write("cax ui bridge probe")
+		IO.close(f)
+		var h1 = Tasks.sha256(path)
+		var h2 = Tasks.sha256(path)
+		if (!h1 or h1 != h2 or h1.count != 64) {
+			System.print("[FAIL] sha256 missing/unstable: %(h1)")
+			failures = failures + 1
+		} else {
+			System.print("[OK] sha256 %(h1)")
+		}
+		var t0 = Tasks.now_ms()
+		if (t0 < 1600000000000.0) {
+			System.print("[FAIL] now_ms not epoch ms: %(t0)")
+			failures = failures + 1
+		}
+
+		// ---- Tasks.spawn / poll / kill_tree ---------------------------------
+		var log = dir + "/sleep.log"
+		var pid = Tasks.spawn(["/bin/sleep", "30"], log, nil)
+		if (pid <= 0) {
+			System.print("[FAIL] spawn returned %(pid)")
+			failures = failures + 1
+		} else {
+			var st = Tasks.poll(pid)
+			if (st[0] != true) {
+				System.print("[FAIL] sleep should be alive right after spawn: %(st)")
+				failures = failures + 1
+			}
+			// graceful window first, then hard kill
+			Tasks.kill_tree(pid, 15)
+			Tasks.kill_tree(pid, 9)
+			var t_deadline = Tasks.now_ms() + 3000.0
+			var gone = false
+			while (Tasks.now_ms() < t_deadline) {
+				st = Tasks.poll(pid)
+				if (st[0] == false) {
+					gone = true
+					break
+				}
+			}
+			if (!gone) {
+				System.print("[FAIL] child did not retire after kill_tree: %(st)")
+				failures = failures + 1
+			} else {
+				var ecode = st[1]
+				System.print("[OK] kill_tree retired the process group (exit %(ecode))")
+			}
+		}
+
+		// ---- spawn exit code + log capture ----------------------------------
+		var log2 = dir + "/echo.log"
+		var pid2 = Tasks.spawn(["/bin/sh", "-c", "echo bridge_ok; exit 7"], log2, nil)
+		var code = -2
+		var spins = 0
+		while (spins < 200000) {
+			var st2 = Tasks.poll(pid2)
+			if (st2[0] == false) {
+				code = st2[1]
+				break
+			}
+			spins = spins + 1
+		}
+		if (code != 7) {
+			System.print("[FAIL] child exit code: expected 7, got %(code)")
+			failures = failures + 1
+		} else {
+			System.print("[OK] exit code observed (%(code))")
+		}
+		var g = IO.open(log2, "r")
+		var text = g.read()
+		IO.close(g)
+		if (!text or !text.contains("bridge_ok")) {
+			System.print("[FAIL] log capture missing echo output")
+			failures = failures + 1
+		} else {
+			System.print("[OK] child stdout captured in run log")
+		}
+
+		// ---- TopoAlgo STEP round trip ----------------------------------------
+		var cone = PrimMaker.box(2.0, 2.0, 2.0, 1)
+		var step_path = dir + "/probe_box.step"
+		if (!TopoAlgo.write_step(cone, step_path)) {
+			System.print("[FAIL] write_step refused")
+			failures = failures + 1
+		} else {
+			var back = TopoAlgo.read_step(step_path)
+			if (!back) {
+				System.print("[FAIL] read_step returned nil on our own STEP")
+				failures = failures + 1
+			} else {
+				System.print("[OK] STEP write/read round trip")
+			}
+		}
+		var bad = TopoAlgo.read_step(dir + "/definitely_missing.step")
+		if (bad) {
+			System.print("[FAIL] read_step must return nil for a missing file")
+			failures = failures + 1
+		}
+
+		// ---- CadSession envelope: stale revision + duplicate request --------
+		var s = CadSession.create()
+		var r1 = Json.parse(s.new_program("req-new"))
+		if (!r1 or r1["ok"] != true) {
+			System.print("[FAIL] new_program rejected: %(r1)")
+			failures = failures + 1
+		} else {
+			var rev = s.revision()
+			var spec = {
+				"request_id" : "req-extrude-1",
+				"base_revision" : rev,
+				"profile" : 1,
+				"pox" : 0.0, "poy" : 0.0, "poz" : 0.0,
+				"pnx" : 0.0, "pny" : 0.0, "pnz" : 1.0,
+				"pxx" : 1.0, "pxy" : 0.0, "pxz" : 0.0,
+				"cx" : 0.0, "cy" : 0.0, "r" : 5.0,
+				"dx" : 0.0, "dy" : 0.0, "dz" : 1.0,
+				"dist" : 10.0
+			}
+			var r2 = Json.parse(s.add_extrude(spec))
+			if (!r2 or r2["ok"] != true or !r2["committed"]) {
+				System.print("[FAIL] add_extrude rejected: %(r2)")
+				failures = failures + 1
+			} else {
+				// stale base_revision must hard-reject
+				var r3 = Json.parse(s.checkpoint("req-stale", rev))
+				if (r3["ok"] != false or r3["committed"] != false) {
+					System.print("[FAIL] stale revision accepted: %(r3)")
+					failures = failures + 1
+				} else {
+					var err = r3["error"]
+					System.print("[OK] stale base_revision rejected: %(err)")
+				}
+				// duplicate request_id returns the original receipt, no re-exec:
+				// same revision + same result payload (the counter may still
+				// advance; the contract is about the reply, not the counter).
+				var r4 = Json.parse(s.add_extrude(spec))
+				if (r4["duplicate"] != true or r4["ok"] != true or r4["revision"] != r2["revision"]) {
+					System.print("[FAIL] duplicate handling: %(r4)")
+					failures = failures + 1
+				} else {
+					System.print("[OK] duplicate request_id returns original receipt")
+				}
+				// save + reopen equivalence: compare the geometry / program
+				// identity digests (revision counters may legitimately reset).
+				var save_path = dir + "/probe_doc.cax.json"
+				var r5 = Json.parse(s.save_program("req-save", save_path))
+				if (!r5 or r5["ok"] != true) {
+					System.print("[FAIL] save_program: %(r5)")
+					failures = failures + 1
+				} else {
+					var s2 = CadSession.create()
+					var r6 = Json.parse(s2.open_program("req-open", save_path))
+					if (!r6 or r6["ok"] != true) {
+						System.print("[FAIL] open_program: %(r6)")
+						failures = failures + 1
+					} else {
+						var ga = Json.parse(s.graph_export())
+						var gb = Json.parse(s2.graph_export())
+						var da = ga["brep_sha256"]
+						var db = gb["brep_sha256"]
+						if (da != db) {
+							System.print("[FAIL] reopen brep digest %(da) != %(db)")
+							failures = failures + 1
+						} else {
+							System.print("[OK] save + reopen keeps geometry identity (%(da))")
+						}
+					}
+				}
+			}
+		}
+
+		System.print("ui_bridge probe failures: %(failures)")
+		return failures
+	}
+}

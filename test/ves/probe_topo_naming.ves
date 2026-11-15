@@ -1,0 +1,29 @@
+// Probe: which link in the TopoNaming chain is broken?
+//   1. does module "brepgraph" compile at all (import the class directly)
+//   2. does ves_import_class's lazy lookup inside the wrapper find the class
+//   3. does the returned object carry the foreign class (method callable)
+
+import "brepgraph" for TopoNaming
+import "brepkit" for GlobalConfig
+
+class Main
+{
+	static run()
+	{
+		var failures = 0
+
+		System.print("brepgraph module imported OK, TopoNaming class: %(TopoNaming)")
+
+		var tn = GlobalConfig.get_topo_naming()
+		System.print("topo_naming: %(tn)")
+		if (!tn) {
+			System.print("[FAIL] get_topo_naming returned nil")
+			failures = failures + 1
+		} else {
+			var id = tn.get_next_op_id()
+			System.print("next_op_id: %(id)")
+		}
+
+		return failures
+	}
+}

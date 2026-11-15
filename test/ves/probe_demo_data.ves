@@ -1,0 +1,19 @@
+// Generates the deparameterization workspace's DEMO input: a plain block
+// STEP. Clearly a demo artifact (DEMO_DATA marker in the directory README) --
+// it exercises the pipeline, it is not a benchmark input.
+
+import "brepkit" for PrimMaker, TopoAlgo
+import "tasks" for Tasks
+
+class Main
+{
+	static run()
+	{
+		var dir = "thirdparty/cax/test/deparam/demo_data"
+		Tasks.mkdir_p(dir)
+		var block = PrimMaker.box(60.0, 40.0, 12.0, 1)
+		var ok = TopoAlgo.write_step(block, dir + "/demo_block.step")
+		System.print("demo_block.step written: %(ok)")
+		return ok ? 0 : 1
+	}
+}

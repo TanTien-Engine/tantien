@@ -1,0 +1,251 @@
+// Headless probe for the deparameterization UI adapter layers.
+//
+// Covers (without python / without the editor GUI):
+//   runs.ves      - receipt reading + candidate views + phase normalization
+//                   against FIXTURE receipts (clearly marked demo data), and
+//                   the real cancel path via a spawned child (sleep)
+//   document.ves  - real CadSession chain: new -> extrude -> adopt(save/open)
+//                   -> parameter rows derived -> propose(preview) -> commit,
+//                   propose -> cancel(restores), save + reopen digest check
+//
+// The fixture receipts under outputs/deparam_ui_probe_fixture/ are DEMO data
+// written by this probe itself; they are never presented as CAD results.
+
+import "tasks" for Tasks, Json
+import "filesystem" for Filesystem
+import "io" for IO
+import "brepkit" for PrimMaker, TopoAlgo
+import "cadapp" for CadSession
+import "deparam.runs" for RunState, DEPARAM_RUNS
+import "deparam.document" for DEPARAM_DOC
+import "deparam.capabilities" for DEPARAM_CAPS
+
+class Main
+{
+	static write_fixture(dir)
+	{
+		Tasks.mkdir_p(dir)
+		var f = IO.open(dir + "/METHOD.json", "w")
+		f.write("{")
+		f.write("\"status\": \"DELIVERED\",")
+		f.write("\"route\": \"AUTOMATIC_COMPLETE_FEATURE_GRAPH_SEARCH\",")
+		f.write("\"original_solids\": 1,")
+		f.write("\"auxiliary_recovery\": \"NONE_PRESENT\",")
+		f.write("\"input_scope\": \"material_solids\",")
+		f.write("\"native_build\": \"NOT_RUN\",")
+		f.write("\"persisted_native_edits\": \"NOT_RUN\",")
+		f.write("\"design_intent\": null,")
+		f.write("\"program\": \"%(dir)/program.json\",")
+		f.write("\"output_step\": \"%(dir)/output.step\",")
+		f.write("\"feature_graph\": \"%(dir)/feature_graph.json\",")
+		f.write("\"candidates\": [")
+		f.write("{\"program\": \"%(dir)/program.json\", \"output\": \"%(dir)/output.step\",")
+		f.write("\"feature_graph\": \"%(dir)/feature_graph.json\", \"verification\": \"%(dir)/verify.json\"},")
+		f.write("{\"program\": \"%(dir)/program_b.json\", \"output\": \"%(dir)/output_b.step\",")
+		f.write("\"feature_graph\": \"%(dir)/feature_graph_b.json\", \"verification\": \"%(dir)/verify_b.json\"}")
+		f.write("]}")
+		IO.close(f)
+		// the artifacts themselves stay absent: reads must treat that as
+		// "not yet available", never crash
+	}
+
+	static run()
+	{
+		var failures = 0
+
+		// ---- runs: fixture receipt -> view ----------------------------------
+		var dir = "outputs/deparam_ui_probe_fixture"
+		this.write_fixture(dir)
+
+		var cfg = { "route" : "auto", "input" : "no_such.step", "scope" : "material_solids", "seconds" : 10 }
+		var run = RunState(cfg)
+		run.output_dir = dir
+		run.log_path = dir + "/run.log"
+		DEPARAM_RUNS.read_receipt(run)
+
+		if (run.raw_backend_status != "DELIVERED") {
+			System.print("[FAIL] fixture status: %(run.raw_backend_status)")
+			failures = failures + 1
+		}
+		if (run.candidates.count != 2) {
+			System.print("[FAIL] fixture candidates: %(run.candidates.count)")
+			failures = failures + 1
+		} else {
+			var c0 = run.candidates[0]
+			if (c0["candidate_id"] == "" or c0["candidate_id"] == nil) {
+				System.print("[FAIL] candidate id empty")
+				failures = failures + 1
+			} else {
+				System.print("[OK] fixture run view: status DELIVERED, 2 candidates, ids %(c0["candidate_id"])/...")
+			}
+		}
+		var v = run.view()
+		if (v["execution"]["ui_phase"] != "CANDIDATES_AVAILABLE") {
+			System.print("[FAIL] phase after candidates: %(v["execution"]["ui_phase"])")
+			failures = failures + 1
+		}
+		var nb = run.method["native_build"]
+		if (nb != "NOT_RUN") {
+			System.print("[FAIL] native_build must stay NOT_RUN, got %(nb)")
+			failures = failures + 1
+		}
+
+		// ---- runs: real cancel path on a spawned child ----------------------
+		var caps_ok = true
+		// capabilities probe is not needed for the cancel path; spawn directly
+		var sleep_dir = "outputs/deparam_ui_probe_cancel"
+		Tasks.mkdir_p(sleep_dir)
+		var pid = Tasks.spawn(["/bin/sleep", "60"], sleep_dir + "/sleep.log", nil)
+		if (pid <= 0) {
+			System.print("[FAIL] cancel-probe spawn failed")
+			failures = failures + 1
+		} else {
+			DEPARAM_RUNS.cancel(run)  // no pid: must be a safe no-op
+			var st = Tasks.poll(pid)
+			if (st[0] != true) {
+				System.print("[FAIL] sleep should be alive before cancel")
+				failures = failures + 1
+			}
+			Tasks.kill_tree(pid, 15)
+			var deadline = Tasks.now_ms() + 3000.0
+			var gone = false
+			while (Tasks.now_ms() < deadline) {
+				st = Tasks.poll(pid)
+				if (st[0] == false) {
+					gone = true
+					break
+				}
+			}
+			if (!gone) {
+				System.print("[FAIL] cancel-probe child did not retire")
+				failures = failures + 1
+			} else {
+				System.print("[OK] cancel path retires the spawned worker")
+			}
+		}
+
+		// ---- document: real CadSession chain --------------------------------
+		var demo_dir = "outputs/deparam_ui_probe_doc"
+		Tasks.mkdir_p(demo_dir)
+
+		var s = CadSession.create()
+		DEPARAM_DOC.session = s
+		var r = Json.parse(s.new_program("probe-new"))
+		if (!r or r["ok"] != true) {
+			System.print("[FAIL] new_program: %(r)")
+			failures = failures + 1
+			return failures
+		}
+		var rev = s.revision()
+		var spec = {
+			"request_id" : "probe-ext", "base_revision" : rev,
+			"profile" : 1,
+			"pox" : 0.0, "poy" : 0.0, "poz" : 0.0,
+			"pnx" : 0.0, "pny" : 0.0, "pnz" : 1.0,
+			"pxx" : 1.0, "pxy" : 0.0, "pxz" : 0.0,
+			"cx" : 0.0, "cy" : 0.0, "r" : 5.0,
+			"dx" : 0.0, "dy" : 0.0, "dz" : 1.0, "dist" : 12.0
+		}
+		var re = Json.parse(s.add_extrude(spec))
+		if (!re or re["ok"] != true) {
+			System.print("[FAIL] add_extrude: %(re)")
+			failures = failures + 1
+			return failures
+		}
+
+		// parameter rows derived from the REAL summary
+		var doc = DEPARAM_DOC.read()
+		var rows = doc["parameters"]
+		var found_dist = nil
+		var found_radius = nil
+		for (var p in rows) {
+			if (p["name"] == "extrude_distance") { found_dist = p }
+			if (p["name"] == "sketch_circle_radius") { found_radius = p }
+		}
+		if (!found_dist or !found_radius) {
+			System.print("[FAIL] parameter rows missing dist/radius (%(rows.count) rows):")
+			for (var p in rows) {
+				var nm = p["name"]
+				var fid = p["feature_id"]
+				var gid = p["geo_id"]
+				System.print("  row: %(nm) feature=%(fid) geo=%(gid) value=%(p["value"])")
+			}
+			failures = failures + 1
+			return failures
+		}
+		if (found_dist["value"] != 12.0 or found_radius["value"] != 5.0) {
+			System.print("[FAIL] parameter values dist=%(found_dist["value"]) radius=%(found_radius["value"])")
+			failures = failures + 1
+		} else {
+			System.print("[OK] parameter panel rows: extrude_distance=12mm, circle_radius=5mm")
+		}
+
+		// propose (preview) + commit: distance 12 -> 15
+		var rp = DEPARAM_DOC.propose_param(found_dist, 15.0)
+		if (!rp["ok"]) {
+			System.print("[FAIL] propose failed: %(rp["error"])")
+			failures = failures + 1
+		} else {
+			var doc2 = DEPARAM_DOC.read()
+			var still = nil
+			for (var p in doc2["parameters"]) {
+				if (p["name"] == "extrude_distance") { still = p }
+			}
+			if (still["value"] != 15.0) {
+				System.print("[FAIL] preview did not apply: %(still["value"])")
+				failures = failures + 1
+			}
+			var rc = DEPARAM_DOC.commit_pending()
+			if (!rc["ok"]) {
+				System.print("[FAIL] commit failed")
+				failures = failures + 1
+			} else {
+				System.print("[OK] propose + commit: extrude_distance 12 -> 15")
+			}
+		}
+
+		// propose + CANCEL: value must come back
+		var rp2 = DEPARAM_DOC.propose_param(found_dist, 20.0)
+		if (!rp2["ok"]) {
+			System.print("[FAIL] second propose failed: %(rp2["error"])")
+			failures = failures + 1
+		} else {
+			var rc2 = DEPARAM_DOC.cancel_pending()
+			var doc3 = DEPARAM_DOC.read()
+			var back = nil
+			for (var p in doc3["parameters"]) {
+				if (p["name"] == "extrude_distance") { back = p }
+			}
+			if (!rc2["ok"] or back["value"] != 15.0) {
+				System.print("[FAIL] cancel did not restore: %(back["value"])")
+				failures = failures + 1
+			} else {
+				System.print("[OK] propose + cancel restores the committed value (15)")
+			}
+		}
+
+		// save + reopen check
+		var save_path = demo_dir + "/probe_doc.cax.json"
+		var rs = DEPARAM_DOC.save(save_path)
+		if (!rs["ok"] or rs["reopen_check"]["status"] != "PASS") {
+			System.print("[FAIL] save/reopen check: %(rs)")
+			failures = failures + 1
+		} else {
+			System.print("[OK] save + reopen verification PASS")
+		}
+
+		// save with a pending edit must be refused
+		var rp3 = DEPARAM_DOC.propose_param(found_dist, 18.0)
+		var rs2 = DEPARAM_DOC.save(demo_dir + "/probe_doc2.cax.json")
+		if (rp3["ok"] and (!rs2 or rs2["ok"] != false)) {
+			System.print("[FAIL] save must refuse while an edit is pending")
+			failures = failures + 1
+		} else {
+			System.print("[OK] save refused while a pending edit exists")
+			DEPARAM_DOC.cancel_pending()
+		}
+
+		System.print("deparam adapter probe failures: %(failures)")
+		return failures
+	}
+}

@@ -35,4 +35,14 @@ void write(const char* text);
 // Callers may overwrite cfg.write_fn afterward if they want to capture output.
 void configure(VesselConfiguration* cfg);
 
+// Runs one bootstrap module that imports every module whose classes are
+// fetched lazily inside foreign wrappers via ves_import_class (brepkit's
+// GlobalConfig.get_topo_naming -> brepgraph.TopoNaming etc.). ves_import_class
+// only works against an ALREADY-EXECUTED module: on a fresh VM it casts the
+// not-yet-run module closure to an ObjModule, finds nothing, and hands back a
+// classless foreign object whose first method call raises
+// "Unknown type, no class_obj" (cone.calc_value died exactly this way on mac).
+// Call once after ves_set_config, before any scene loads.
+void prime_lazy_import_classes();
+
 } // namespace tt_ves_host
