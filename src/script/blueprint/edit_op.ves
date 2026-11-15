@@ -65,7 +65,9 @@ class EditOP
 	{
 		if (btn == 1) {
 			this.curr_op = this.node_sel_op
-		} else if (btn == 2) {
+		} else if (btn == 2 or btn == 3) {
+			// right OR middle drag pans (CAD convention; the host forwards
+			// middle as btn 3)
 			this.curr_op = this.cam_trans_op
 		}
 
