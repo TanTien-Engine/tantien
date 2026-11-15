@@ -199,6 +199,11 @@ VesselLoadModuleResult read_module(const char* module)
         if (!source) {
             source = file_search(module, "src/");
         }
+        // cax submodule node modules (brepkit.nodes.*, deepbrep.nodes.*,
+        // cadcvt.nodes.*, ...) live under thirdparty/cax/<family>/nodes/.
+        if (!source) {
+            source = file_search(module, "thirdparty/cax/");
+        }
         if (!source) {
             for (auto& path : search_paths) {
                 source = file_search(module, path.c_str());

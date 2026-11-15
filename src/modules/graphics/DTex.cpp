@@ -30,10 +30,18 @@ namespace
 const ur::Device* UR_DEV = nullptr;
 std::shared_ptr<ur::Context> UR_CTX = nullptr;
 
+// macOS runs Metal (GLFW_NO_API), so there is no GL context to hand out. The
+// return value is only used as an ownership sentinel in DTex::Init /
+// OnOwnerContext -- all real rendering goes through ur::Device -- so a stable
+// non-null token is enough to let DTex come up on the Metal build.
+char dtex_metal_context_token = 0;
+
 void* current_dtex_gl_context()
 {
 #ifdef _WIN32
     return static_cast<void*>(wglGetCurrentContext());
+#elif defined(__APPLE__)
+    return static_cast<void*>(&dtex_metal_context_token);
 #else
     return nullptr;
 #endif
