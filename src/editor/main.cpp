@@ -77,6 +77,13 @@ void call_sizechanged(int w, int h)
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
     request_redraw();
+    // The Metal drawable size is PINNED at context creation (Context.mm sets
+    // layer.drawableSize once, which disables its auto-tracking); without
+    // this call the backing store stays at the launch size and the layer
+    // scales the old frame up to the new window -- content looks zoomed in,
+    // cropped at the bottom/right, and pointer mapping drifts.
+    tt::Render::Instance()->Context()->Resize(static_cast<uint32_t>(width),
+                                              static_cast<uint32_t>(height));
     call_sizechanged(width, height);
 }
 
