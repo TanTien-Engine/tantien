@@ -1,0 +1,133 @@
+// Headless probe for the review CANVAS-NODE redesign (review.reviewnodes):
+//   ReviewFeature carries the previewed body through the chain
+//     (shape in -> shape out; chain head seeded by the UI),
+//   identity (feature_id / kind) is a read-only text projection
+//     (gui=false params - NO slider widgets on constants),
+//   Blueprint.connect replaces an input pin's single wire,
+//   ReviewShape is off the workbench popup list (the editor keeps hidden
+//     instances only as plumbing).
+//
+// Dummy number payloads stand in for TopoShape handles: these checks pin
+// the PASS-THROUGH / seed / dedupe semantics, not geometry.
+
+import "review.reviewnodes" for ReviewFeature, ReviewFacePick, ReviewShape, REVIEW_NODES
+import "blueprint.blueprint" for Blueprint
+// compile-check the editor script too (class definition only, no instance,
+// so this stays windowless)
+import "revieweditor" for Revieweditor
+
+// Probe body lives on an instance so helpers can use this.*; Main stays
+// static per the ves_test protocol.
+class NodeProbe
+{
+	init()
+	{
+		this.fail = 0
+	}
+
+	check(cond, label)
+	{
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	run_checks()
+	{
+		var node = ReviewFeature()
+
+		// interface: build chain + body pass-through, nothing else
+		this.check(node.imports.count == 2, "imports: after + shape")
+		this.check(node.exports.count == 2, "exports: next + shape")
+		this.check(node.imports[1].name == "shape" and node.exports[1].name == "shape", "body pins are named shape")
+
+		// identity is read-only: gui=false params (draw_gui draws text rows)
+		var pid = node.query_param("feature_id")
+		var pk = node.query_param("kind")
+		this.check(pid != nil and pid.gui == false, "feature_id param gui=false (no slider)")
+		this.check(pk != nil and pk.gui == false, "kind param gui=false")
+
+		// head with nothing seeded and no wire -> nil
+		this.check(node.calc_value(1) == nil, "no seed, no wire -> nil shape")
+
+		// UI seeds the head; dummy payloads stand in for TopoShape handles
+		node.set_base_shape(42, "input-")
+		var v1 = node.calc_value(1)
+		this.check(v1 != nil and v1.value == 42, "head seed reaches the shape output")
+
+		// change-token dedupe: identical token must NOT re-seed
+		node.set_base_shape(43, "input-")
+		var v2 = node.calc_value(1)
+		this.check(v2 != nil and v2.value == 42, "identical token skips re-seed (no per-frame dirty)")
+		node.set_base_shape(43, "formal-")
+		var v3 = node.calc_value(1)
+		this.check(v3 != nil and v3.value == 43, "new token re-seeds")
+
+		// chain: the next node pulls the body through its shape wire
+		var n2 = ReviewFeature()
+		this.check(n2.calc_value(1) == nil, "unwired follower -> nil shape")
+		Blueprint.connect(node, "shape", n2, "shape")
+		var v4 = n2.calc_value(1)
+		this.check(v4 != nil and v4.value == 43, "body passes through the chain wire")
+
+		// identity text projection
+		n2.set_feature(4, "CutExtrude", "Hole")
+		this.check(n2.query_param("feature_id").value == 4, "set_feature stores feature_id")
+		this.check(n2.title == "F4 Hole", "title = F<id> <name>")
+		this.check(n2.kind_text() == "切除", "kind CutExtrude -> 切除")
+		n2.set_feature(2, "Sketch", "Profile")
+		this.check(n2.kind_text() == "草图", "kind Sketch -> 草图")
+
+		// connect() replaces an input pin's single wire: re-source the
+		// follower and the OLD wire is gone
+		var n3 = ReviewFeature()
+		Blueprint.connect(n3, "shape", n2, "shape")
+		this.check(n2.imports[1].conns.count == 1, "input pin keeps exactly ONE wire")
+		this.check(n2.calc_value(1) == nil, "rerouted source wins (n3 unseeded -> nil)")
+		n3.set_base_shape(99, "input-")
+		var v7 = n2.calc_value(1)
+		this.check(v7 != nil and v7.value == 99, "rerouted source feeds the follower")
+
+		// hidden plumbing slots are plain ReviewShape push-slots
+		var slot = ReviewShape()
+		this.check(slot.calc_value(0) == nil, "shape slot empty -> nil")
+		slot.set_shape(5, "t")
+		var v8 = slot.calc_value(0)
+		this.check(v8 != nil and v8.value == 5, "shape slot holds the pushed body")
+		slot.set_shape(5, "t")
+		var v9 = slot.calc_value(0)
+		this.check(v9 != nil and v9.value == 5, "identical slot token skips re-push")
+
+		// ReviewFacePick: same read-only identity treatment
+		var pick = ReviewFacePick()
+		var pfid = pick.query_param("feature_id")
+		this.check(pfid != nil and pfid.gui == false, "FacePick feature_id gui=false")
+		this.check(pick.calc_value(0) == nil, "FacePick: no ids -> nil faces")
+
+		// ReviewShape is OFF the workbench popup list (canvas shows feature
+		// nodes only; hidden slots are plumbing)
+		var found = false
+		for (var cls in REVIEW_NODES)
+		{
+			if (cls.name == "ReviewShape") {
+				found = true
+			}
+		}
+		this.check(!found, "ReviewShape off REVIEW_NODES (popup list)")
+
+		System.print("review nodes probe done: %(this.fail) failure(s)")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		var probe = NodeProbe()
+		return probe.run_checks()
+	}
+}
