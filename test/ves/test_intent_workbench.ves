@@ -36,14 +36,15 @@ class IntentProbe
 	}
 
 	// The typed create patch (plate 100x60x8 with parameter + sketch +
-	// extrude): hand-built JSON, request_id and base_revision spliced in.
-	create_response_json(request_id, base_revision)
+	// extrude): hand-built JSON, request_id / document_id / base_revision
+	// spliced in from the HOST-issued context.
+	create_response_json(request_id, document_id, base_revision, base_review_revision)
 	{
 		var s = "{\"schema\":\"cax.intent-patch.v1\""
 		s = s + ",\"request_id\":\"%(request_id)\""
-		s = s + ",\"document_id\":\"intent_doc\""
+		s = s + ",\"document_id\":\"%(document_id)\""
 		s = s + ",\"base_revision\":%(base_revision)"
-		s = s + ",\"base_review_revision\":0"
+		s = s + ",\"base_review_revision\":%(base_review_revision)"
 		s = s + ",\"summary\":\"probe create\""
 		s = s + ",\"action\":\"propose\""
 		s = s + ",\"operations\":["
@@ -74,8 +75,15 @@ class IntentProbe
 		this.check(caps != nil and caps.count == 64, "capability hash is sha256-shaped")
 
 		// Typed create proposal -> adopt (the exact path a model takes).
+		// C1 protocol: BeginRequest issues the trusted context first; the
+		// response repeats the revisions the HOST issued.
+		var begin = Json.parse(wb.begin_request("probe-create"))
+		this.check(begin["ok"], "trusted request context issued")
+		revision = begin["result"]["base_revision"]
+		var document_id = begin["result"]["document_id"]
 		var propose = Json.parse(wb.propose("probe-create",
-			this.create_response_json("probe-create", revision)))
+			this.create_response_json("probe-create", document_id, revision,
+			begin["result"]["base_review_revision"])))
 		if (!propose["ok"]) {
 			System.print("propose reply: %(propose)")
 		}
@@ -105,9 +113,10 @@ class IntentProbe
 		var resp3 = Json.parse(wb.respond("probe-unsup", "p_length 改大一点"))
 		this.check(resp3["result"]["action"] == "unsupported", "unrecognized form unsupported")
 
-		// Stale gate: a proposal from an old revision cannot adopt.
+		// Stale gate: a proposal against a context from an old revision
+		// (or one whose response repeats a stale revision) cannot adopt.
 		var stale = Json.parse(wb.propose("probe-stale",
-			this.create_response_json("probe-stale", revision)))
+			this.create_response_json("probe-stale", document_id, revision, 0)))
 		this.check(stale["ok"] == false, "stale base_revision rejected")
 
 		// Duplicate request id with a DIFFERENT payload is rejected (the
