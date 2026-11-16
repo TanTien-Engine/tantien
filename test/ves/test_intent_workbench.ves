@@ -1,0 +1,165 @@
+// Headless acceptance probe for the INTENT-GRAPH workbench domain service
+// (cadapp_c/intent/IntentSession + the "intent" module).
+//
+// Runs the model-free product loop through the REAL kernel paths: a typed
+// create patch proposes on an isolated candidate document with a strict
+// replay, adoption swaps the candidate in through one enveloped revision
+// advance, the template responder maps known instruction forms, and
+// undo/save/reopen round-trip the whole state.
+//
+// The response JSON is built by string concatenation (the tasks Json
+// module only parses); every reply is parsed before reading fields per
+// the binding contract.
+//
+// NOT covered here (needs the editor / a model): 3D panels, node canvas
+// linkage, 7B inference.
+
+import "intent" for IntentWorkbench
+import "tasks" for Json
+import "filesystem" for Filesystem
+
+class IntentProbe
+{
+	init()
+	{
+		this.fail = 0
+	}
+
+	check(cond, label)
+	{
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	// The typed create patch (plate 100x60x8 with parameter + sketch +
+	// extrude): hand-built JSON, request_id and base_revision spliced in.
+	create_response_json(request_id, base_revision)
+	{
+		var s = "{\"schema\":\"cax.intent-patch.v1\""
+		s = s + ",\"request_id\":\"%(request_id)\""
+		s = s + ",\"document_id\":\"intent_doc\""
+		s = s + ",\"base_revision\":%(base_revision)"
+		s = s + ",\"base_review_revision\":0"
+		s = s + ",\"summary\":\"probe create\""
+		s = s + ",\"action\":\"propose\""
+		s = s + ",\"operations\":["
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"p_length\",\"op\":\"Parameter\",\"inputs\":{},\"params\":{\"value\":{\"kind\":\"literal\",\"value\":\"100\",\"unit\":\"mm\"}}}},"
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"p_width\",\"op\":\"Parameter\",\"inputs\":{},\"params\":{\"value\":{\"kind\":\"literal\",\"value\":\"60\",\"unit\":\"mm\"}}}},"
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"p_thickness\",\"op\":\"Parameter\",\"inputs\":{},\"params\":{\"value\":{\"kind\":\"literal\",\"value\":\"8\",\"unit\":\"mm\"}}}},"
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"world_xy\",\"op\":\"WorldXY\",\"inputs\":{},\"params\":{}}},"
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"plate_sk\",\"op\":\"SketchRectangle\",\"inputs\":{\"plane\":{\"kind\":\"ref\",\"node\":\"world_xy\",\"port\":\"plane\"}},\"params\":{\"length\":{\"kind\":\"ref\",\"node\":\"p_length\",\"port\":\"value\"},\"width\":{\"kind\":\"ref\",\"node\":\"p_width\",\"port\":\"value\"}}}},"
+		s = s + "{\"op\":\"AddNode\",\"node\":{\"id\":\"plate\",\"op\":\"Extrude\",\"inputs\":{\"profile\":{\"kind\":\"ref\",\"node\":\"plate_sk\",\"port\":\"profile\"}},\"params\":{\"distance\":{\"kind\":\"ref\",\"node\":\"p_thickness\",\"port\":\"value\"},\"through\":{\"kind\":\"literal\",\"value\":\"0\",\"unit\":\"scalar\"}}}},"
+		s = s + "{\"op\":\"SetOutputs\",\"expected\":[],\"value\":[{\"kind\":\"ref\",\"node\":\"plate\",\"port\":\"body\"}]}"
+		s = s + "]}"
+		return s
+	}
+
+	run()
+	{
+		var wb = IntentWorkbench.create()
+		var newr = Json.parse(wb.new_program("probe-new"))
+		this.check(newr["ok"], "blank intent session opens")
+		var revision = newr["revision"]
+		this.check(revision >= 1, "blank session revision monotonic")
+
+		// Blank projection: empty graph + capability hash.
+		var proj = Json.parse(wb.project_graph())
+		this.check(proj["ok"], "blank projection succeeds")
+		this.check(proj["result"]["graph"]["nodes"].count == 0, "blank graph has no nodes")
+		var caps = proj["result"]["capabilities_sha256"]
+		this.check(caps != nil and caps.count == 64, "capability hash is sha256-shaped")
+
+		// Typed create proposal -> adopt (the exact path a model takes).
+		var propose = Json.parse(wb.propose("probe-create",
+			this.create_response_json("probe-create", revision)))
+		if (!propose["ok"]) {
+			System.print("propose reply: %(propose)")
+		}
+		this.check(propose["ok"], "typed create proposal accepted")
+		this.check(propose["result"]["action"] == "propose", "propose branch returned")
+		var cand_id = propose["result"]["candidate_id"]
+		var cand = Json.parse(wb.candidate_json(cand_id))
+		this.check(cand["result"]["replay_ok"], "isolated candidate replay PASS")
+		var adopt = Json.parse(wb.adopt("probe-adopt", cand_id))
+		this.check(adopt["ok"], "candidate adopted")
+		var after = Json.parse(wb.project_graph())
+		this.check(after["result"]["graph"]["nodes"].count == 6, "adopted graph shows 6 nodes")
+		this.check(after["result"]["revision"] == revision + 1, "adoption advanced exactly one revision")
+
+		// Template responder: the known form proposes through the same path.
+		var resp = Json.parse(wb.respond("probe-resp", "p_thickness 改为 12 毫米"))
+		this.check(resp["ok"], "template responder accepted the known form")
+		this.check(resp["result"]["action"] == "propose", "template propose branch")
+		var resp_adopt = Json.parse(wb.adopt("probe-resp-adopt", resp["result"]["candidate_id"]))
+		this.check(resp_adopt["ok"], "template candidate adopted")
+
+		// Two parameters named -> clarify.
+		var resp2 = Json.parse(wb.respond("probe-clarify", "p_length p_width 改为 150 毫米"))
+		this.check(resp2["result"]["action"] == "clarify", "ambiguous template clarifies")
+
+		// No number -> unsupported.
+		var resp3 = Json.parse(wb.respond("probe-unsup", "p_length 改大一点"))
+		this.check(resp3["result"]["action"] == "unsupported", "unrecognized form unsupported")
+
+		// Stale gate: a proposal from an old revision cannot adopt.
+		var stale = Json.parse(wb.propose("probe-stale",
+			this.create_response_json("probe-stale", revision)))
+		this.check(stale["ok"] == false, "stale base_revision rejected")
+
+		// Duplicate request id with a DIFFERENT payload is rejected (the
+		// id/payload mismatch gate); the responder embeds the current
+		// revision, so the echoed payload differs after adoption.
+		var again = Json.parse(wb.respond("probe-resp", "p_thickness 改为 12 毫米"))
+		this.check(again["ok"] == false, "reused id with different payload rejected")
+
+		// Checkpoint/restore across an adopt: revision advances monotonically.
+		var state_now = Json.parse(wb.state_json())
+		var cp = Json.parse(wb.checkpoint("probe-cp", state_now["result"]["revision"]))
+		this.check(cp["ok"], "checkpoint taken")
+		var cp_id = cp["result"]["checkpoint_id"]
+		var resp4 = Json.parse(wb.respond("probe-resp4", "p_thickness 改为 20 毫米"))
+		var adopt4 = Json.parse(wb.adopt("probe-resp4-adopt", resp4["result"]["candidate_id"]))
+		this.check(adopt4["ok"], "second template adopt ok")
+		var restore = Json.parse(wb.restore("probe-restore",
+			adopt4["result"]["revision"], cp_id))
+		if (!restore["ok"]) {
+			System.print("restore reply: %(restore)  cp_id=%(cp_id)")
+		}
+		this.check(restore["ok"], "restore to checkpoint")
+		var restored_state = Json.parse(wb.state_json())
+		this.check(restored_state["result"]["revision"] >= adopt4["result"]["revision"],
+			"restore advances to a NEW revision")
+
+		// Save / reopen round trip: parameter nodes survive in the projection.
+		var path = "temp_intent_probe_program.bin"
+		var saved = Json.parse(wb.save_program("probe-save", path))
+		this.check(saved["ok"], "program saved")
+		var wb2 = IntentWorkbench.create()
+		var opened = Json.parse(wb2.open_program("probe-open", path))
+		this.check(opened["ok"], "program reopened in a fresh session")
+		var reopened = Json.parse(wb2.project_graph())
+		this.check(reopened["result"]["graph"]["nodes"].count == 6, "reopened graph has 6 nodes")
+		var has_params = false
+		for (var n in reopened["result"]["graph"]["nodes"]) {
+			if (n["id"] == "p_length") { has_params = true }
+		}
+		this.check(has_params, "reopened projection keeps the parameter nodes")
+		Filesystem.remove_file(path)
+
+		System.print("intent workbench probe done: %(this.fail) failure(s)")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		var probe = IntentProbe()
+		return probe.run()
+	}
+}

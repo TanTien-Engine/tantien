@@ -78,6 +78,12 @@
 #include "cax/cadapp_c/review/wrap_Review.h"
 #include "cax/cadapp_c/review/review.ves.inc"
 
+// intent: the intent-graph review session (typed graph proposals ->
+// isolated candidates -> adopt/undo) over the same node-domain
+// authority; hosts the language-driven CAD editing workbench.
+#include "cax/cadapp_c/bind/wrap_Intent.h"
+#include "cax/cadapp_c/bind/intent.ves.inc"
+
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -166,6 +172,7 @@ const ModuleEntry MODULE_REGISTRY[] = {
     { "cadapp",     cadappModuleSource,     cadapp::CadAppBindClass,       cadapp::CadAppBindMethod },
     { "tasks",      tasksModuleSource,      tt::TasksBindClass,            tt::TasksBindMethod },
     { "review",     reviewModuleSource,     cadapp::ReviewBindClass,       cadapp::ReviewBindMethod },
+    { "intent",     intentModuleSource,     cadapp::IntentBindClass,       cadapp::IntentBindMethod },
 };
 
 const ModuleEntry* find_module(const char* module)
