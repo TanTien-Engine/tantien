@@ -1,0 +1,140 @@
+// Headless probe: the REVIEW workbench now imports the REAL RecoverStep
+// delivery (CAX_AUTOMATIC_RECOVERY_GRAPH_V1 wrapping compact-prismatic
+// components) through the full binding chain:
+//   import_external_candidate -> AgentSession.OpenProgram
+//     -> ImportProgramJson -> RecoveryGraph lowering -> numeric V4 import.
+// The handoff doc's known-boundary item 1 said this refused honestly; it
+// must now DELIVER a candidate that replays to a body.
+//
+// Uses the real delivered sample on disk (outputs/review_routes/smoke/)
+// plus handcrafted cases for the remap and refusal paths.
+
+import "review" for ReviewWorkbench
+import "tasks" for Tasks, Json
+import "filesystem" for Filesystem
+import "io" for IO
+
+// Probe body lives on an instance so helpers can use this.*; Main stays
+// static per the ves_test protocol.
+class RecoveryProbe
+{
+	init()
+	{
+		this.fail = 0
+	}
+
+	check(cond, label)
+	{
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	// Real four-hole-plate delivery from the 20261116 smoke run.
+	real_smoke_sample()
+	{
+		var path = "thirdparty/cax/outputs/review_routes/smoke/program.json"
+		if (!Filesystem.is_file_exists(path)) {
+			System.print("[SKIP] no smoke sample at %(path)")
+			return
+		}
+		var wb = ReviewWorkbench.create()
+		var reply = Json.parse(wb.import_external_candidate("probe-smoke", path, "smoke run", "recovery"))
+		this.check(reply["ok"] == true, "smoke delivery imports (was: honest refusal)")
+		if (reply["ok"] != true) {
+			System.print("       error: %(reply["error"])")
+			return
+		}
+		var cid = reply["result"]["candidate"]
+		this.check(cid != "", "candidate id returned: %(cid)")
+
+		var st = Json.parse(wb.state_json())
+		var found = false
+		var replay_ok = false
+		for (var c in st["candidates"])
+		{
+			if (c["id"] == cid)
+			{
+				found = true
+				replay_ok = c["replay_ok"]
+			}
+		}
+		this.check(found, "candidate appears in state_json")
+		this.check(replay_ok == true, "candidate REPLAYS TO A BODY (replay_ok)")
+
+		var shape = wb.candidate_shape(cid)
+		this.check(shape != nil, "candidate shape available for the 3D channel")
+
+		var sum = Json.parse(wb.candidate_summary(cid))
+		this.check(sum["features"].count == 2, "summary: sketch + extrude features (%(sum["features"].count))")
+	}
+
+	// Two components with COLLIDING local ids: concatenation must remap.
+	two_components()
+	{
+		var path = "/tmp/rv_recovery_two.json"
+		var f = IO.open(path, "w")
+		f.write("{\"schema\":\"CAX_AUTOMATIC_RECOVERY_GRAPH_V1\",\"length_unit\":\"mm\",\"components\":[")
+		f.write("{\"id\":0,\"program\":{\"schema\":\"CAX_COMPACT_PRISMATIC_FEATURES_V1\",\"length_unit\":\"mm\",\"document\":{\"features\":[")
+		f.write("{\"id\":1,\"kind\":\"sketch\",\"plane\":{\"origin\":[0,0,0],\"normal\":[0,0,1],\"x_dir\":[1,0,0]},\"loops\":[{\"role\":\"outer\",\"geoms\":[{\"type\":\"circle\",\"center\":[0,0],\"radius\":10,\"sweep\":-6.283185307179586}]}]},")
+		f.write("{\"id\":2,\"kind\":\"extrude\",\"profile_id\":1,\"subkind\":\"boss\",\"depth\":5.0,\"flip\":false,\"inputs\":[]}]}}},")
+		f.write("{\"id\":1,\"program\":{\"schema\":\"CAX_COMPACT_PRISMATIC_FEATURES_V1\",\"length_unit\":\"mm\",\"document\":{\"features\":[")
+		f.write("{\"id\":1,\"kind\":\"sketch\",\"plane\":{\"origin\":[0,0,20],\"normal\":[0,0,1],\"x_dir\":[1,0,0]},\"loops\":[{\"role\":\"outer\",\"geoms\":[{\"type\":\"circle\",\"center\":[0,0],\"radius\":4,\"sweep\":-6.283185307179586}]}]},")
+		f.write("{\"id\":2,\"kind\":\"extrude\",\"profile_id\":1,\"subkind\":\"boss\",\"depth\":30.0,\"flip\":false,\"inputs\":[]}]}}}")
+		f.write("]}")
+		IO.close(f)
+
+		var wb = ReviewWorkbench.create()
+		var reply = Json.parse(wb.import_external_candidate("probe-two", path, "two components", "recovery"))
+		this.check(reply["ok"] == true, "two-component graph imports")
+		if (reply["ok"] == true)
+		{
+			var cid = reply["result"]["candidate"]
+			var sum = Json.parse(wb.candidate_summary(cid))
+			this.check(sum["features"].count == 4, "components concatenate to 4 features")
+			this.check(sum["features"][3]["type"] == "BossExtrude", "second component's extrude present")
+		}
+		else
+		{
+			System.print("       error: %(reply["error"])")
+		}
+	}
+
+	// Foreign component shapes stay refused, verbatim.
+	refusals()
+	{
+		var path = "/tmp/rv_recovery_bad.json"
+		var f = IO.open(path, "w")
+		f.write("{\"schema\":\"CAX_AUTOMATIC_RECOVERY_GRAPH_V1\",\"length_unit\":\"mm\",\"components\":[{\"id\":0,\"program\":{\"schema\":\"CAX_FUTURE_GRAMMAR_V7\",\"length_unit\":\"mm\",\"document\":{\"features\":[]}}}]}")
+		IO.close(f)
+
+		var wb = ReviewWorkbench.create()
+		var reply = Json.parse(wb.import_external_candidate("probe-bad", path, "bad grammar", "recovery"))
+		this.check(reply["ok"] == false, "unknown component schema refused")
+		this.check(reply["error"].contains("CAX_FUTURE_GRAMMAR_V7"), "refusal names the schema verbatim")
+
+		var st = Json.parse(wb.state_json())
+		this.check(st["candidates"].count == 0, "refused import adds no candidate")
+	}
+
+	run()
+	{
+		this.real_smoke_sample()
+		this.two_components()
+		this.refusals()
+		System.print("recovery import probe done: %(this.fail) failure(s)")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		var probe = RecoveryProbe()
+		return probe.run()
+	}
+}
