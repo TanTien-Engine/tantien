@@ -101,6 +101,23 @@ class NodeProbe
 		var v9 = slot.calc_value(0)
 		this.check(v9 != nil and v9.value == 5, "identical slot token skips re-push")
 
+		// nil->nil under the SAME token must dedupe too: a sketch's step
+		// body is nil, and re-pushing nil per frame sustained the
+		// selectable per-frame fire loop (observable via the pin's dirty
+		// timestamp not advancing)
+		slot.set_shape(nil, "t2")
+		var stamp_before = slot.exports[0].dirty_timestamp
+		slot.set_shape(nil, "t2")
+		this.check(slot.exports[0].dirty_timestamp == stamp_before, "nil->nil same token skips propagate")
+		slot.set_shape(6, "t2")
+		this.check(slot.exports[0].dirty_timestamp > stamp_before, "nil->body under same token propagates")
+
+		var head = ReviewFeature()
+		head.set_base_shape(nil, "h")
+		var stamp_h = head.exports[1].dirty_timestamp
+		head.set_base_shape(nil, "h")
+		this.check(head.exports[1].dirty_timestamp == stamp_h, "head nil->nil same token skips propagate")
+
 		// ReviewFacePick: same read-only identity treatment
 		var pick = ReviewFacePick()
 		var pfid = pick.query_param("feature_id")

@@ -362,9 +362,16 @@ void w_GUI_selectable()
 
 	bool ret = val;
 
-	egui::selectable(tt::GUI::Instance()->NextUID(), label, &ret, x, y, length, *ctx, true);
+	// egui::selectable's return value is "the value CHANGED this frame"
+	// (a click on any row, including the already-selected one) - that is
+	// the click semantics callers want. Pushing `ret` (the VALUE) instead
+	// made every already-selected row return true EVERY frame, so its
+	// handler re-fired per frame (selection reverting, per-frame
+	// renderbuffer rebuilds, egui input starvation - the stuck-click
+	// family of bugs).
+	bool changed = egui::selectable(tt::GUI::Instance()->NextUID(), label, &ret, x, y, length, *ctx, true);
 
-	ves_set_boolean(0, ret);
+	ves_set_boolean(0, changed);
 }
 
 void w_GUI_combo()
