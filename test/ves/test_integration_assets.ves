@@ -75,6 +75,13 @@ class Probe
 		}
 		var run = runner.start("geometry", conv_path, 90, nil)
 		this.check(run != nil, "RecoverStep started on the CONVERTED step")
+		if (run != nil) {
+			var st0 = Json.parse(wb.state_json())
+			runner.runs[run]["context_revision"] = st0["document_revision"]
+			runner.runs[run]["context_review_revision"] = st0["review_revision"]
+			runner.runs[run]["context_input_path"] = conv_path
+			runner.runs[run]["input_sha256"] = Tasks.sha256(conv_path)
+		}
 		var done = this.wait_run(runner, run, 180000)
 		this.check(done != nil and done["status"] == "DELIVERED",
 			"converted-input recovery DELIVERED (got %(done == nil ? "TIMEOUT" : done["status"]))")
@@ -98,6 +105,13 @@ class Probe
 		var imported2 = wb2.import_input(asset_dir + "/l_bracket.step")
 		this.check(imported2, "l bracket imported")
 		var run2 = runner.start("geometry", asset_dir + "/l_bracket.step", 90, nil)
+		if (run2 != nil) {
+			var st2 = Json.parse(wb2.state_json())
+			runner.runs[run2]["context_revision"] = st2["document_revision"]
+			runner.runs[run2]["context_review_revision"] = st2["review_revision"]
+			runner.runs[run2]["context_input_path"] = asset_dir + "/l_bracket.step"
+			runner.runs[run2]["input_sha256"] = Tasks.sha256(asset_dir + "/l_bracket.step")
+		}
 		var done2 = this.wait_run(runner, run2, 180000)
 		this.check(done2 != nil, "l bracket recovery reached a terminal state")
 		if (done2 != nil) {
