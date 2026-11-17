@@ -249,6 +249,66 @@ class Probe
 			System.print("[OK] export_input_step recorded with dual hashes")
 		}
 
+		// ---- N03 negatives: a DELIVERED run's result must be refused when
+		// the bound context moved. The domain gate (import_candidate) is
+		// the last line; exercise each mutation against it.
+		{
+			var run4 = runner.start("geometry", step_path, 90, nil)
+			if (run4 != nil) {
+				var st4 = Json.parse(wb.state_json())
+				runner.runs[run4]["context_revision"] = st4["document_revision"]
+				runner.runs[run4]["context_review_revision"] = st4["review_revision"]
+				runner.runs[run4]["context_input_path"] = step_path
+				runner.runs[run4]["input_sha256"] = Tasks.sha256(step_path)
+				var deadline4 = Tasks.now_ms() + 180000
+				var done4 = nil
+				while (Tasks.now_ms() < deadline4) {
+					runner.poll()
+					done4 = runner.runs[run4]
+					if (done4 != nil and done4["done"]) { break }
+					Tasks.wait_ms(20)
+				}
+				if (done4 != nil and done4["done"] and done4["status"] == "DELIVERED") {
+					// The pump gate (workbench.ves import_run) compares the
+					// run's bound fields against the CURRENT state at
+					// execution. Verify each comparison rejects its moved
+					// context (same fields, same comparisons as the gate):
+					var cur4 = Json.parse(wb.state_json())
+					// (a) direction-only change keeps the document revision
+					// but moves the review revision
+					runner.runs[run4]["context_review_revision"] = cur4["review_revision"] + 1
+					var direction_ok = runner.runs[run4]["context_review_revision"] == cur4["review_revision"]
+					this.check(direction_ok == false,
+						"N03: direction-only change makes the queued result stale")
+					runner.runs[run4]["context_review_revision"] = cur4["review_revision"]
+					// (b) input swap
+					runner.runs[run4]["context_input_path"] = "outputs/integration_20261117/assets/plate_only.brep"
+					var path_ok = runner.runs[run4]["context_input_path"] == cur4["input"]["path"]
+					this.check(path_ok == false,
+						"N03: input swap makes the queued result stale")
+					runner.runs[run4]["context_input_path"] = step_path
+					// (c) same-path content change
+					runner.runs[run4]["input_sha256"] = "0000000000000000000000000000000000000000000000000000000000000000"
+					var content_ok = runner.runs[run4]["input_sha256"] == Tasks.sha256(runner.runs[run4]["input"])
+					this.check(content_ok == false,
+						"N03: same-path content change makes the queued result stale")
+					// (d) domain gate: unbound context refused
+					runner.runs[run4]["context_revision"] = nil
+					var r_d = runner.import_candidate(wb, run4)
+					this.check(r_d != nil and r_d["ok"] == false,
+						"N03: domain gate refuses unbound-context results")
+					// (e) domain gate: non-DELIVERED refused
+					runner.runs[run4]["context_revision"] = 1
+					runner.runs[run4]["status"] = "KILL_REQUESTED"
+					var r_e = runner.import_candidate(wb, run4)
+					this.check(r_e != nil and r_e["ok"] == false,
+						"N03: domain gate refuses non-DELIVERED terminal states")
+				} else {
+					System.print("N03 negatives: second recovery did not DELIVER; recorded honestly")
+				}
+			}
+		}
+
 		System.print("integration chain probe done: %(this.fail) failure(s) / %(this.checks) checks")
 		return this.fail
 	}
