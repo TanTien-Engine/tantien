@@ -80,7 +80,7 @@ class Probe
 
 		// review StateJson is a BARE object (no {ok,result} envelope)
 		var state_before = Json.parse(wb.state_json())["document_revision"]
-		var run_id = runner.start("geometry", step_path, 90)
+		var run_id = runner.start("geometry", step_path, 90, nil)
 		this.check(run_id != nil, "RecoverStep subprocess started (%(run_id))")
 
 		// A17: the window/event loop stays responsive while the recovery

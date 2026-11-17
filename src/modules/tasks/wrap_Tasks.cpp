@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <chrono>
 #include <thread>
+#include <unordered_map>
 
 // JSON for the adapter views (header-only, vendored inside the cax submodule;
 // the editor target adds thirdparty/cax/thirdparty/nlohmann/single_include).
@@ -65,10 +66,62 @@ void w_Tasks_spawn()
     const char* cwd      = ves_type(3) == VES_TYPE_STRING ? ves_tostring(3) : nullptr;
 
 #ifdef _WIN32
-    // Windows: not wired in this delivery; the UI adapter reports the module
-    // as unavailable there until a job-object backend lands.
-    (void)log_path; (void)cwd;
-    ves_set_number(0, 0);
+    // Windows backend (F08): each spawn gets its OWN job object so
+    // kill_tree terminates the whole tree; stdout+stderr go to the per-run
+    // log exactly like the POSIX branch. The pid doubles as the table key.
+    {
+        std::string command;
+        for (const auto& part : storage) command += """ + part + "" ";
+        STARTUPINFOA si{};
+        si.cb = sizeof(si);
+        PROCESS_INFORMATION pi{};
+        // log redirection: open the log handle for the child
+        HANDLE log_handle = INVALID_HANDLE_VALUE;
+        SECURITY_ATTRIBUTES sa{};
+        sa.nLength = sizeof(sa);
+        sa.bInheritHandle = TRUE;
+        if (log_path && log_path[0] != '\0')
+        {
+            log_handle = CreateFileA(log_path, FILE_APPEND_DATA, FILE_SHARE_READ,
+                                     &sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+                                     nullptr);
+        }
+        if (log_handle != INVALID_HANDLE_VALUE)
+        {
+            si.dwFlags = STARTF_USESTDHANDLES;
+            si.hStdOutput = log_handle;
+            si.hStdError = log_handle;
+            si.hStdInput = nullptr;
+        }
+        std::vector<char> cmdline(command.begin(), command.end());
+        cmdline.push_back('\0');
+        BOOL created = CreateProcessA(
+            nullptr, cmdline.data(), nullptr, nullptr,
+            log_handle != INVALID_HANDLE_VALUE ? TRUE : FALSE,
+            CREATE_SUSPENDED | CREATE_NEW_PROCESS_GROUP, nullptr, cwd,
+            &si, &pi);
+        if (log_handle != INVALID_HANDLE_VALUE) CloseHandle(log_handle);
+        if (!created)
+        {
+            ves_set_number(0, 0);
+            return;
+        }
+        HANDLE job = CreateJobObjectA(nullptr, nullptr);
+        if (job)
+        {
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION limit{};
+            limit.BasicLimitInformation.LimitFlags =
+                JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+            SetInformationJobObject(job, JobObjectExtendedLimitInformation,
+                                    &limit, sizeof(limit));
+            AssignProcessToJobObject(job, pi.hProcess);
+        }
+        ResumeThread(pi.hThread);
+        CloseHandle(pi.hThread);
+        const DWORD pid = pi.dwProcessId;
+        g_win_processes[pid] = {pi.hProcess, job};
+        ves_set_number(0, static_cast<double>(pid));
+    }
 #else
     fflush(stdout);
     fflush(stderr);
@@ -120,7 +173,31 @@ void w_Tasks_poll()
     else
     {
 #ifdef _WIN32
-        alive = false; code = -1;
+        {
+            auto it = g_win_processes.find(static_cast<DWORD>(pid));
+            if (it != g_win_processes.end())
+            {
+                DWORD exit_code = 0;
+                if (WaitForSingleObject(it->second.process, 0) ==
+                    WAIT_OBJECT_0)
+                {
+                    GetExitCodeProcess(it->second.process, &exit_code);
+                    code = static_cast<int>(exit_code);
+                    alive = false;
+                    if (it->second.job) CloseHandle(it->second.job);
+                    CloseHandle(it->second.process);
+                    g_win_processes.erase(it);
+                }
+                else
+                {
+                    alive = true;
+                }
+            }
+            else
+            {
+                alive = false; code = -1; // already reaped
+            }
+        }
 #else
         int status = 0;
         pid_t r = waitpid(pid, &status, WNOHANG);
@@ -158,8 +235,21 @@ void w_Tasks_kill_tree()
     const int pid = static_cast<int>(ves_tonumber(1));
     const int sig = static_cast<int>(ves_tonumber(2));
 #ifdef _WIN32
-    (void)pid; (void)sig;
-    ves_set_boolean(0, false);
+    {
+        auto it = g_win_processes.find(static_cast<DWORD>(pid));
+        if (it == g_win_processes.end())
+        {
+            ves_set_boolean(0, false);
+            return;
+        }
+        // TerminateJobObject reaches the whole tree (F08: kill owns ONLY
+        // this run's job; other sessions are untouched).
+        BOOL ok = it->second.job
+            ? TerminateJobObject(it->second.job, 1)
+            : TerminateProcess(it->second.process, 1);
+        ves_set_boolean(0, ok != FALSE);
+    }
+    return;
 #else
     // pid 0 would signal the CALLER'S OWN process group (kill(0, sig)); only
     // the negative-group form created by spawn() is ever legal here.
@@ -369,6 +459,18 @@ void w_Json_parse()
 
 namespace tt
 {
+
+#ifdef _WIN32
+namespace
+{
+struct WinProcess
+{
+    HANDLE process = nullptr;
+    HANDLE job = nullptr;
+};
+std::unordered_map<DWORD, WinProcess> g_win_processes;
+}
+#endif
 
 VesselForeignMethodFn TasksBindMethod(const char* signature)
 {

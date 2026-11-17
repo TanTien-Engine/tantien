@@ -73,7 +73,7 @@ class Probe
 			waited = waited + 20
 			runner.poll()
 		}
-		var run = runner.start("geometry", conv_path, 90)
+		var run = runner.start("geometry", conv_path, 90, nil)
 		this.check(run != nil, "RecoverStep started on the CONVERTED step")
 		var done = this.wait_run(runner, run, 180000)
 		this.check(done != nil and done["status"] == "DELIVERED",
@@ -97,7 +97,7 @@ class Probe
 		var wb2 = ReviewWorkbench.create()
 		var imported2 = wb2.import_input(asset_dir + "/l_bracket.step")
 		this.check(imported2, "l bracket imported")
-		var run2 = runner.start("geometry", asset_dir + "/l_bracket.step", 90)
+		var run2 = runner.start("geometry", asset_dir + "/l_bracket.step", 90, nil)
 		var done2 = this.wait_run(runner, run2, 180000)
 		this.check(done2 != nil, "l bracket recovery reached a terminal state")
 		if (done2 != nil) {
