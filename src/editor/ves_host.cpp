@@ -228,6 +228,13 @@ VesselLoadModuleResult read_module(const char* module)
         if (!source) {
             source = file_search(module, "thirdparty/cax/");
         }
+        // The review/integration workbench popup palettes (brepkitnodes,
+        // brepgraphnodes, brepdbnodes, deepbrepnodes) live in the cax
+        // vessel experiments directory; without this entry the review
+        // editor family cannot resolve its own palettes.
+        if (!source) {
+            source = file_search(module, "thirdparty/cax/experiments/vessel/");
+        }
         if (!source) {
             for (auto& path : search_paths) {
                 source = file_search(module, path.c_str());

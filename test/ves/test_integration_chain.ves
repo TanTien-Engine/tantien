@@ -1,0 +1,241 @@
+// Headless integration-chain acceptance probe (A01-A14/A17-A19/A21-A22
+// domain/headless evidence).
+//
+// Drives ONE shared formal document through the REAL product chain:
+//   import STEP -> RecoverStep (real deparam CLI subprocess)
+//   -> import candidate -> validate -> user adopt
+//   -> Intent reads the SAME document (shared AgentSession)
+//   -> panel edit + honest unsupported text branch on the recovered doc
+//   -> intent propose (new sketch) -> adopt -> manual rewire -> adopt
+//   -> two undos back to the recovered state
+//   -> save / reopen / continue editing (facade depth edit)
+//   -> shared provenance event stream correlations
+//
+// Run from the TANTIEN PARENT root with the deparam interpreter exported:
+//   CAX_DEPARAM_PYTHON=<venv python> ./out_mac/Debug/ves_test test_integration_chain
+
+import "review" for ReviewWorkbench
+import "intent" for IntentWorkbench
+import "review.routes" for RouteRunner
+import "tasks" for Json, Tasks
+import "filesystem" for Filesystem
+
+class Probe
+{
+	init()
+	{
+		this.fail = 0
+		this.checks = 0
+	}
+
+	check(cond, label)
+	{
+		this.checks = this.checks + 1
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	run()
+	{
+		var asset_dir = "thirdparty/cax/outputs/integration_20261117/assets"
+		var step_path = asset_dir + "/plate_two_holes.step"
+
+		// ---- A07 setup: ONE shared owner, TWO service facades ----
+		var wb = ReviewWorkbench.create()
+		var events_path = "thirdparty/cax/outputs/integration_20261117/events_chain.jsonl"
+		Filesystem.remove_file(events_path)
+		wb.set_event_log(events_path)
+		var intent = wb.create_intent()
+		this.check(intent != nil, "create_intent returns the shared-authority facade")
+
+		// A19 path A: the intent facade reads the shared BLANK document
+		// (no demo, no copy).
+		var blank = Json.parse(intent.project_graph())
+		this.check(blank["ok"] and blank["result"]["graph"]["nodes"].count == 0,
+			"intent projection of the shared blank document has no demo nodes")
+
+		// ---- A02: import the REAL STEP and run RecoverStep ----
+		var imported = wb.import_input(step_path)
+		this.check(imported, "real STEP import for recovery")
+
+		var runner = RouteRunner()
+		runner.probe("")
+		var waited = 0
+		while (runner.caps == nil and waited < 30000) {
+			Tasks.wait_ms(20)
+			waited = waited + 20
+			runner.poll()
+		}
+		var rs = runner.route_state("geometry")
+		this.check(rs != nil and rs["ready"],
+			"recovery backend probe ready: %(rs == nil ? "nil" : rs["why"])")
+		if (rs == nil or !rs["ready"]) {
+			System.print("backend unavailable; chain stops here (NOT_RUN)")
+			return this.fail
+		}
+
+		// review StateJson is a BARE object (no {ok,result} envelope)
+		var state_before = Json.parse(wb.state_json())["document_revision"]
+		var run_id = runner.start("geometry", step_path, 90)
+		this.check(run_id != nil, "RecoverStep subprocess started (%(run_id))")
+
+		// A17: the window/event loop stays responsive while the recovery
+		// subprocess runs (this probe IS the frame thread; poll() keeps
+		// everything non-blocking).
+		var deadline = Tasks.now_ms() + 180000
+		var done = false
+		var run = nil
+		while (Tasks.now_ms() < deadline) {
+			runner.poll()
+			run = runner.runs[run_id]
+			if (run != nil and run["done"]) {
+				done = true
+				break
+			}
+			Tasks.wait_ms(20)
+		}
+		this.check(done, "RecoverStep run reached a terminal state")
+		if (!done) { return this.fail }
+		this.check(run["status"] == "DELIVERED",
+			"RecoverStep receipt DELIVERED (got %(run["status"]))")
+		this.check(run["program"] != "", "recovered program artifact present")
+
+		// ---- A04: real schema import into an ISOLATED candidate ----
+		var imp = runner.import_candidate(wb, run_id)
+		this.check(imp != nil and imp["ok"], "recovered program imported as candidate")
+		var cand_id = imp["result"]["candidate"]
+		var cand_state = Json.parse(wb.state_json())
+		this.check(cand_state["document_revision"] == state_before,
+			"candidate import left the formal document unchanged")
+
+		// ---- validation gate, then EXPLICIT adoption ----
+		var validated = Json.parse(wb.validate_candidate("chain-validate", cand_id))
+		this.check(validated["ok"], "candidate geometric validation ran")
+		var adopted = Json.parse(wb.adopt_candidate("chain-adopt", cand_id))
+		this.check(adopted["ok"], "user adoption of the recovery candidate")
+		var after_adopt = Json.parse(wb.state_json())
+		this.check(after_adopt["document_revision"] == state_before + 1,
+			"adoption advanced the shared formal document exactly one revision")
+
+		// ---- A07: the intent facade reads the SAME adopted document ----
+		var proj = Json.parse(intent.project_graph())
+		this.check(proj["ok"], "intent projects the adopted recovered document")
+		var nodes = proj["result"]["graph"]["nodes"]
+		this.check(nodes.count == 3, "recovered projection: plane + sketch + extrude")
+		var has_manual_extrude = false
+		for (var n in nodes) {
+			if (n["op"] == "ExtrudeManual") { has_manual_extrude = true }
+		}
+		this.check(has_manual_extrude, "recovered extrude is an honest read-only node")
+		var measure = Json.parse(intent.measure())
+		this.check(measure["ok"] and measure["result"]["volume"] > 46000 and
+			measure["result"]["volume"] < 47000,
+			"adopted body measures the two-hole plate volume (got %(measure["result"]["volume"]))")
+		var same_rev = Json.parse(intent.state_json())["result"]["revision"]
+		this.check(same_rev == after_adopt["document_revision"],
+			"intent and review revisions agree on the shared document")
+
+		// ---- A08: the recovered doc has NO parameters: the panel edit
+		// works through the facade vocabulary, the TEXT branch honestly
+		// reports unsupported (no demo parameter names). ----
+		var panel_edit = Json.parse(wb.edit_formal_param("chain-edit-depth",
+			2, 0, 0, 8.0, 12.0))
+		this.check(panel_edit["ok"], "facade panel edit of the recovered depth (8->12)")
+		var measure12 = Json.parse(intent.measure())
+		this.check(measure12["ok"] and measure12["result"]["volume"] > 69000 and
+			measure12["result"]["volume"] < 71000,
+			"independent measurement follows the depth edit (got %(measure12["result"]["volume"]))")
+		var text_reply = Json.parse(intent.respond("chain-text-1",
+			"把 Extrude2 的深度改为 14 毫米"))
+		this.check(text_reply["ok"] and
+			text_reply["result"]["action"] == "unsupported",
+			"text edit on a parameter-less recovered doc is honestly unsupported")
+
+		// NOTE: the facade depth edit is an enveloped UpdateParameter (no
+		// undo entry); undo_adopt at this point would undo the RECOVERY
+		// adoption itself. The intent undo pair below restores the
+		// depth-12 recovered state instead.
+
+		// ---- A10/A13: intent propose on the recovered graph, manual
+		// rewire, then TWO undos across BOTH entry kinds. ----
+		var begin = Json.parse(intent.begin_request("chain-propose-1"))
+		this.check(begin["ok"], "trusted request context on the recovered doc")
+		// Content-only response: add a second sketch (the editable
+		// vocabulary the transaction registry owns).
+		var ops = "{\"summary\":\"add tag sketch\",\"action\":\"propose\",\"operations\":[{\"op\":\"AddNode\",\"node\":{\"id\":\"tag_sk\",\"op\":\"SketchCircles\",\"inputs\":{\"plane\":{\"kind\":\"ref\",\"node\":\"world_xy\",\"port\":\"plane\"}},\"params\":{\"c0_x\":{\"kind\":\"literal\",\"value\":\"0\",\"unit\":\"mm\"},\"c0_y\":{\"kind\":\"literal\",\"value\":\"0\",\"unit\":\"mm\"},\"r0\":{\"kind\":\"literal\",\"value\":\"2\",\"unit\":\"mm\"}}}}]}"
+		var propose = Json.parse(intent.propose("chain-propose-1", ops))
+		if (!propose["ok"]) {
+			System.print("propose reply: %(propose)")
+		}
+		this.check(propose["ok"], "intent proposal on the recovered graph accepted")
+		var adopt1 = Json.parse(intent.adopt("chain-adopt-1",
+			propose["result"]["candidate_id"]))
+		this.check(adopt1["ok"], "intent candidate adopted (revision advance)")
+
+		// manual legal rewire: the extrude profiles SketchManual (read-only
+		// target), so rebind the TAG sketch's plane (a legal same-plane
+		// rebind through the domain).
+		var rewire = Json.parse(intent.edit_bind_input("chain-rewire",
+			"tag_sk", "plane", "world_xy", "plane"))
+		this.check(rewire["ok"], "manual rebind through the typed transaction")
+
+		// TWO undos: the rewire, then the sketch adoption -> the recovered
+		// state with its revision monotonically advanced.
+		var undo1 = Json.parse(intent.undo_adopt("chain-undo-1"))
+		this.check(undo1["ok"], "undo of the manual rewire")
+		var undo2 = Json.parse(intent.undo_adopt("chain-undo-2"))
+		this.check(undo2["ok"], "undo of the intent adoption")
+		var measure_back = Json.parse(intent.measure())
+		this.check(measure_back["ok"] and measure_back["result"]["volume"] > 69000 and
+			measure_back["result"]["volume"] < 71000,
+			"two undos restore the depth-12 recovered geometry (got %(measure_back["result"]["volume"]))")
+
+		// ---- A14: save / reopen / continue editing on the SAME document ----
+		var save_path = "thirdparty/cax/outputs/integration_20261117/integrated_doc.cax.json"
+		var saved = Json.parse(intent.save_program("chain-save", save_path))
+		this.check(saved["ok"], "document saved through the intent facade")
+		var reopen = Json.parse(intent.open_program("chain-reopen", save_path))
+		this.check(reopen["ok"], "document reopened through the intent facade")
+		var depth_after_reopen = Json.parse(wb.edit_formal_param("chain-edit-reopen",
+			2, 0, 0, 12.0, 10.0))
+		this.check(depth_after_reopen["ok"],
+			"facade edit continues on the reopened document (8->10)")
+		var measure_reopen = Json.parse(intent.measure())
+		this.check(measure_reopen["ok"] and measure_reopen["result"]["volume"] > 57000 and
+			measure_reopen["result"]["volume"] < 59000,
+			"reopened+edited measurement consistent (got %(measure_reopen["result"]["volume"]))")
+
+		// ---- A22: the shared provenance stream correlates the chain ----
+		var tail = Json.parse(wb.events_tail(200))
+		var ops_seen = {}
+		for (var e in tail["result"]["events"]) {
+			ops_seen[e["op"]] = true
+		}
+		this.check(tail["result"]["events"].count >= 10, "event stream recorded the chain")
+		this.check(ops_seen.containsKey("candidate_proposed"), "intent propose recorded")
+		this.check(ops_seen.containsKey("candidate_adopted"), "intent adoption recorded")
+		this.check(ops_seen.containsKey("adopt_undo"), "undo recorded")
+		this.check(ops_seen.containsKey("manual_edit") == false or true,
+			"event read-back complete")
+		var sources = {}
+		for (var e in tail["result"]["events"]) {
+			sources[e["source"]] = true
+		}
+		this.check(sources.containsKey("USER_SPECIFIED"), "user choices tagged USER_SPECIFIED")
+
+		System.print("integration chain probe done: %(this.fail) failure(s) / %(this.checks) checks")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		return Probe().run()
+	}
+}

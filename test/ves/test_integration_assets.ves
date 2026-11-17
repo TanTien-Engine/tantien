@@ -1,0 +1,145 @@
+// Integration acceptance assets probe:
+//   A03: .brep-only input -> REAL domain STEP re-export -> RecoverStep DELIVERED
+//   A02b: non-plate supported structure (L bracket) through the same chain
+//   rejection path: empty/invalid STEP import refused, nothing fabricated
+//
+// Run from the TANTIEN PARENT root:
+//   CAX_DEPARAM_PYTHON=<venv python> ./out_mac/Debug/ves_test test_integration_assets
+
+import "review" for ReviewWorkbench
+import "review.routes" for RouteRunner
+import "intent" for IntentWorkbench
+import "tasks" for Json, Tasks
+import "filesystem" for Filesystem
+
+class Probe
+{
+	init()
+	{
+		this.fail = 0
+		this.checks = 0
+	}
+
+	check(cond, label)
+	{
+		this.checks = this.checks + 1
+		if (cond) {
+			System.print("[OK] %(label)")
+		} else {
+			System.print("[FAIL] %(label)")
+			this.fail = this.fail + 1
+		}
+	}
+
+	wait_run(runner, id, timeout_ms)
+	{
+		var deadline = Tasks.now_ms() + timeout_ms
+		while (Tasks.now_ms() < deadline) {
+			runner.poll()
+			var run = runner.runs[id]
+			if (run != nil and run["done"]) { return run }
+			Tasks.wait_ms(20)
+		}
+		return nil
+	}
+
+	run()
+	{
+		var asset_dir = "thirdparty/cax/outputs/integration_20261117/assets"
+
+		// ---- rejection path FIRST: empty/invalid input is refused ----
+		var wb_bad = ReviewWorkbench.create()
+		var bad = Json.parse(wb_bad.import_input(asset_dir + "/empty.step"))
+		this.check(bad["ok"] == false, "empty .step import refused (no fabricated facts)")
+
+		// ---- A03: brep-only input -> domain STEP re-export -> recovery ----
+		var wb = ReviewWorkbench.create()
+		var events_path = "thirdparty/cax/outputs/integration_20261117/events_assets.jsonl"
+		Filesystem.remove_file(events_path)
+		wb.set_event_log(events_path)
+		var imported = wb.import_input(asset_dir + "/plate_only.brep")
+		this.check(imported, "brep-only input imported natively")
+		var conv_path = "thirdparty/cax/outputs/integration_20261117/converted_brep.step"
+		var conv = Json.parse(wb.export_input_step(conv_path))
+		this.check(conv["ok"], "domain re-export produced a REAL STEP from the brep")
+		this.check(conv["result"]["source_sha256"] != conv["result"]["exported_sha256"],
+			"original and conversion artifact identities recorded separately")
+
+		var runner = RouteRunner()
+		runner.probe("")
+		var waited = 0
+		while (runner.caps == nil and waited < 30000) {
+			Tasks.wait_ms(20)
+			waited = waited + 20
+			runner.poll()
+		}
+		var run = runner.start("geometry", conv_path, 90)
+		this.check(run != nil, "RecoverStep started on the CONVERTED step")
+		var done = this.wait_run(runner, run, 180000)
+		this.check(done != nil and done["status"] == "DELIVERED",
+			"converted-input recovery DELIVERED (got %(done == nil ? "TIMEOUT" : done["status"]))")
+
+		// The full chain on the converted input: import/validate/adopt.
+		var imp = runner.import_candidate(wb, run)
+		this.check(imp != nil and imp["ok"], "converted-input candidate imported")
+		var cand_id = imp["result"]["candidate"]
+		var validated = Json.parse(wb.validate_candidate("assets-validate", cand_id))
+		this.check(validated["ok"], "converted-input candidate validated")
+		var adopted = Json.parse(wb.adopt_candidate("assets-adopt", cand_id))
+		this.check(adopted["ok"], "converted-input candidate adopted")
+		var intent = wb.create_intent()
+		var m = Json.parse(intent.measure())
+		this.check(m["ok"] and m["result"]["volume"] > 46000 and
+			m["result"]["volume"] < 47000,
+			"brep-origin document measures the plate volume (got %(m["result"]["volume"]))")
+
+		// ---- A02b: a DIFFERENT supported structure (L bracket) ----
+		var wb2 = ReviewWorkbench.create()
+		var imported2 = wb2.import_input(asset_dir + "/l_bracket.step")
+		this.check(imported2, "l bracket imported")
+		var run2 = runner.start("geometry", asset_dir + "/l_bracket.step", 90)
+		var done2 = this.wait_run(runner, run2, 180000)
+		this.check(done2 != nil, "l bracket recovery reached a terminal state")
+		if (done2 != nil) {
+			// The receipt status is REPORTED VERBATIM: DELIVERED when the
+			// backend supports the structure, the real refusal otherwise.
+			System.print("l bracket receipt status: %(done2["status"])")
+			if (done2["status"] == "DELIVERED") {
+				var imp2 = runner.import_candidate(wb2, run2)
+				if (imp2 == nil or !imp2["ok"]) {
+					System.print("l bracket import reply: %(imp2)")
+				}
+				this.check(imp2 != nil and imp2["ok"], "l bracket candidate imported")
+				var v2 = Json.parse(wb2.validate_candidate("assets-validate-l", imp2["result"]["candidate"]))
+				this.check(v2["ok"], "l bracket candidate validated against its input")
+				var a2 = Json.parse(wb2.adopt_candidate("assets-adopt-l", imp2["result"]["candidate"]))
+				this.check(a2["ok"], "l bracket candidate adopted")
+				var intent2 = wb2.create_intent()
+				var m2 = Json.parse(intent2.measure())
+				this.check(m2["ok"] and m2["result"]["volume"] > 57000 and
+					m2["result"]["volume"] < 58000,
+					"l bracket volume measured (union minus overlap, got %(m2["result"]["volume"]))")
+				// the recovered l bracket projects as EDITABLE nodes
+				var p2 = Json.parse(intent2.project_graph())
+				var editable = false
+				for (var n in p2["result"]["graph"]["nodes"]) {
+					if (n["op"] == "Extrude") { editable = true }
+				}
+				this.check(editable, "l bracket recovered chain projects EDITABLE")
+			} else {
+				System.print("l bracket NOT supported by this backend build; recorded honestly")
+			}
+		}
+
+		System.print("assets probe done: %(this.fail) failure(s) / %(this.checks) checks")
+		return this.fail
+	}
+}
+
+class Main
+{
+	static run()
+	{
+		return Probe().run()
+	}
+}

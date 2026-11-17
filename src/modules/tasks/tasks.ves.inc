@@ -28,6 +28,7 @@ foreign class Tasks
 	// Lowercase hex digest of the file at path, or nil when unreadable.
 	foreign static sha256(path)
 	foreign static now_ms()
+	foreign static wait_ms(ms)
 }
 
 foreign class Json

@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <chrono>
+#include <thread>
 
 // JSON for the adapter views (header-only, vendored inside the cax submodule;
 // the editor target adds thirdparty/cax/thirdparty/nlohmann/single_include).
@@ -300,6 +301,18 @@ void w_Tasks_now_ms()
     ves_set_number(0, ms);
 }
 
+// Frame-cadence wait for headless probes (ves_test): parks the caller
+// WITHOUT spinning, so a polling probe behaves like the editor's frame
+// loop instead of a busy loop. Editor code never needs this (frames are
+// paced by the event loop).
+void w_Tasks_wait_ms()
+{
+    const int ms = static_cast<int>(ves_tonumber(1));
+    if (ms <= 0 || ms > 5000) { ves_set_number(0, 0); return; }
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+    ves_set_number(0, ms);
+}
+
 // ----------------------------------------------------------------- json ---
 
 void push_json(const nlohmann::json& j)
@@ -365,6 +378,7 @@ VesselForeignMethodFn TasksBindMethod(const char* signature)
     if (strcmp(signature, "static Tasks.mkdir_p(_)") == 0) return w_Tasks_mkdir_p;
     if (strcmp(signature, "static Tasks.sha256(_)") == 0) return w_Tasks_sha256;
     if (strcmp(signature, "static Tasks.now_ms()") == 0) return w_Tasks_now_ms;
+    if (strcmp(signature, "static Tasks.wait_ms(_)") == 0) return w_Tasks_wait_ms;
     if (strcmp(signature, "static Json.parse(_)") == 0) return w_Json_parse;
     return NULL;
 }
