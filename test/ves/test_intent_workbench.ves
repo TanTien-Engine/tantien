@@ -15,6 +15,7 @@
 // linkage, 7B inference.
 
 import "intent" for IntentWorkbench
+import "intent.workbench" for IntentWorkbenchUI
 import "tasks" for Json
 import "filesystem" for Filesystem
 
@@ -61,6 +62,11 @@ class IntentProbe
 
 	run()
 	{
+		// Compiling this module IS the syntax gate for the workbench UI
+		// class (a Vessel module fails on first RUNTIME use of an
+		// undefined name, not at import -- so the window run also
+		// exercises draw/update below through the real editor).
+		this.check(IntentWorkbenchUI != nil, "workbench UI module compiles")
 		var wb = IntentWorkbench.create()
 		var newr = Json.parse(wb.new_program("probe-new"))
 		this.check(newr["ok"], "blank intent session opens")
@@ -143,6 +149,78 @@ class IntentProbe
 		this.check(restored_state["result"]["revision"] >= adopt4["result"]["revision"],
 			"restore advances to a NEW revision")
 
+		// ---- R3 manual canvas edits through the SAME transaction path ----
+		// Shared selection: unknown nodes refuse, projected nodes carry
+		// into state + BeginRequest, and selection never moves a revision.
+		var sel_bad = Json.parse(wb.select_node("nope"))
+		this.check(sel_bad["ok"] == false, "selection of unknown node refuses")
+		var sel_ok = Json.parse(wb.select_node("p_thickness"))
+		this.check(sel_ok["ok"], "selection of a projected node succeeds")
+		var state_sel = Json.parse(wb.state_json())
+		this.check(state_sel["result"]["selected_node"] == "p_thickness",
+			"state carries the domain selection")
+		var begin_sel = Json.parse(wb.begin_request("probe-sel-begin"))
+		this.check(begin_sel["result"]["selected_node"] == "p_thickness",
+			"BeginRequest carries the selection as context")
+		this.check(begin_sel["result"]["base_revision"] == state_sel["result"]["revision"],
+			"selection did not move the document revision")
+
+		// Parameter edit: wrong unit refuses BEFORE staging; right unit
+		// commits as one propose+adopt; undo restores.
+		var unit_bad = Json.parse(wb.edit_set_parameter("probe-edit-unit",
+			"p_thickness", 12, "rad"))
+		this.check(unit_bad["ok"] == false, "parameter edit with wrong unit refuses")
+		var edit = Json.parse(wb.edit_set_parameter("probe-edit", "p_thickness", 12, "mm"))
+		this.check(edit["ok"], "manual parameter edit commits")
+		var after_edit = Json.parse(wb.project_graph())
+		this.check(after_edit["result"]["revision"] == state_sel["result"]["revision"] + 1,
+			"manual edit advanced exactly one revision")
+		var undo_edit = Json.parse(wb.undo_adopt("probe-edit-undo"))
+		this.check(undo_edit["ok"], "manual edit is undoable via UndoAdopt")
+
+		// Rewire: the sketch plane binding follows the domain call, with
+		// the expected precondition read from the authoritative projection.
+		var rewire = Json.parse(wb.edit_bind_input("probe-rewire", "plate_sk",
+			"plane", "world_xy", "plane"))
+		this.check(rewire["ok"], "rebind to the same frame commits (no-op rewire)")
+		var proj_rw = Json.parse(wb.project_graph())
+		var rewire_ok = false
+		for (var n in proj_rw["result"]["graph"]["nodes"]) {
+			if (n["id"] == "plate_sk" and n["inputs"]["plane"]["node"] == "world_xy") {
+				rewire_ok = true
+			}
+		}
+		this.check(rewire_ok, "projection reflects the rewire")
+		var rewire_bad = Json.parse(wb.edit_bind_input("probe-rewire-bad",
+			"nope", "plane", "world_xy", "plane"))
+		this.check(rewire_bad["ok"] == false, "rewire of unknown node refuses")
+
+		// Independent CAD measurement (the R2 judge): real replayed body.
+		var measure = Json.parse(wb.measure())
+		this.check(measure["ok"], "measurement of the formal body succeeds")
+		this.check(measure["result"]["volume"] > 1000, "measured volume is real")
+		this.check(measure["result"]["cylinders"].count == 0,
+			"plate-only body has no cylinders")
+
+		// Worker transport composition: host-built request + registry.
+		var reqw = Json.parse(wb.write_worker_request(
+			"outputs/intent_probe/req.json", "probe-worker-req",
+			"p_thickness 改为 12 毫米"))
+		this.check(reqw["ok"], "worker request composed by the host")
+		var regw = Json.parse(wb.write_registry_file("outputs/intent_probe/registry.json"))
+		this.check(regw["ok"], "registry written for the worker")
+		var req_text = wb.read_text("outputs/intent_probe/req.json")
+		this.check(req_text != nil and req_text.contains("p_thickness 改为 12 毫米"),
+			"request file carries the instruction")
+		this.check(req_text.contains("world_xy") == true, "request file carries the projected graph")
+		var req_json = Json.parse(req_text)
+		this.check(req_json["graph"]["nodes"].count == 6, "worker request graph is the full projection")
+		this.check(req_json["selection"].count == 1, "worker request carries the selection")
+		var reg_text = wb.read_text("outputs/intent_probe/registry.json")
+		this.check(reg_text != nil and reg_text.contains("SketchCircles"), "registry file has the ops")
+		var absent = wb.read_text("outputs/intent_probe/definitely_absent.json")
+		this.check(absent == nil, "absent file reads as nil (never fabricated)")
+
 		// Save / reopen round trip: parameter nodes survive in the projection.
 		var path = "temp_intent_probe_program.bin"
 		var saved = Json.parse(wb.save_program("probe-save", path))
@@ -157,6 +235,21 @@ class IntentProbe
 			if (n["id"] == "p_length") { has_params = true }
 		}
 		this.check(has_params, "reopened projection keeps the parameter nodes")
+
+		// Reopen-continue-edit: a manual edit on the REOPENED document
+		// commits under the regenerated identity (C1), and an independent
+		// measurement follows the edit (CAD judge on the reopened body).
+		var reopened_edit = Json.parse(wb2.edit_set_parameter("probe-reopen-edit",
+			"p_thickness", 20, "mm"))
+		this.check(reopened_edit["ok"], "manual edit commits on the reopened document")
+		var reopened_measure = Json.parse(wb2.measure())
+		this.check(reopened_measure["ok"] and reopened_measure["result"]["volume"] > 0,
+			"reopened body measures after the edit")
+		// The saved document carries p_thickness=16 (the thickness
+		// adoption survived the later undo); after the 20 mm edit the
+		// measured volume MUST be the exact prism volume 100*60*20.
+		this.check(reopened_measure["result"]["volume"] == 100.0 * 60.0 * 20.0,
+			"reopened measurement matches the edited parameter exactly")
 		Filesystem.remove_file(path)
 
 		System.print("intent workbench probe done: %(this.fail) failure(s)")
