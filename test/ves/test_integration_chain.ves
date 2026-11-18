@@ -254,15 +254,12 @@ class Probe
 		// the bound context moved. The domain gate (import_candidate) is
 		// the last line; exercise each mutation against it.
 		{
-			var run4 = runner.start("geometry", step_path, 90, nil)
+			// O05 r2: the SAME production start path (start_bound) binds
+			// the full context -- original input path + content hash
+			// included -- so the import gate's content branch is real.
+			var run4 = runner.start_bound(wb, "geometry", step_path,
+				step_path, 90, nil)
 			if (run4 != nil) {
-				var st4 = Json.parse(wb.state_json())
-				runner.runs[run4]["context_revision"] = st4["document_revision"]
-				runner.runs[run4]["context_review_revision"] = st4["review_revision"]
-				runner.runs[run4]["context_input_path"] = step_path
-				runner.runs[run4]["context_input_sha256"] =
-					Tasks.sha256(step_path)
-				runner.runs[run4]["input_sha256"] = Tasks.sha256(step_path)
 				var deadline4 = Tasks.now_ms() + 180000
 				var done4 = nil
 				while (Tasks.now_ms() < deadline4) {
