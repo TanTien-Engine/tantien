@@ -11,6 +11,7 @@ import "review.routes" for RouteRunner
 import "intent" for IntentWorkbench
 import "tasks" for Json, Tasks
 import "filesystem" for Filesystem
+import "io" for IO
 
 class Probe
 {
@@ -73,18 +74,42 @@ class Probe
 			waited = waited + 20
 			runner.poll()
 		}
-		var run = runner.start("geometry", conv_path, 90, nil)
+		// O05 r2: the SAME production start path (start_bound -- the one
+		// workbench.start_recover_step uses) binds the ORIGINAL brep as
+		// the review identity and the converted STEP as the worker input.
+		var brep_path = asset_dir + "/plate_only.brep"
+		var run = runner.start_bound(wb, "geometry", brep_path, conv_path,
+			90, nil)
 		this.check(run != nil, "RecoverStep started on the CONVERTED step")
-		if (run != nil) {
-			var st0 = Json.parse(wb.state_json())
-			runner.runs[run]["context_revision"] = st0["document_revision"]
-			runner.runs[run]["context_review_revision"] = st0["review_revision"]
-			runner.runs[run]["context_input_path"] = asset_dir + "/plate_only.brep"
-			runner.runs[run]["context_input_sha256"] = Tasks.sha256(asset_dir + "/plate_only.brep")
-		}
+		this.check(run != nil and runner.runs[run]["context_input_path"] == brep_path and
+			runner.runs[run]["worker_input_path"] == conv_path and
+			runner.runs[run]["context_input_sha256"] != nil,
+			"start_bound binds original + worker input identities")
 		var done = this.wait_run(runner, run, 180000)
 		this.check(done != nil and done["status"] == "DELIVERED",
 			"converted-input recovery DELIVERED (got %(done == nil ? "TIMEOUT" : done["status"]))")
+
+		// O05 r2 negative: mutating the ORIGINAL brep content under the
+		// same path must make the public gate refuse the queued result.
+		var orig_bytes_ok = true
+		var mutated_reply = nil
+		if (done != nil and done["status"] == "DELIVERED") {
+			var f = IO.open(brep_path, "r")
+			var original_content = f.read()
+			f.close()
+			var g = IO.open(brep_path, "w")
+			g.write(original_content + "\n// probe content mutation\n")
+			g.close()
+			mutated_reply = runner.import_candidate(wb, run)
+			orig_bytes_ok = (mutated_reply != nil and
+				mutated_reply["ok"] == false and
+				mutated_reply["error"].contains("input content"))
+			var h = IO.open(brep_path, "w")
+			h.write(original_content)
+			h.close()
+		}
+		this.check(done != nil and done["status"] != "DELIVERED" or orig_bytes_ok,
+			"gate refuses the queued result after original-content mutation")
 
 		// The full chain on the converted input: import/validate/adopt.
 		var imp = runner.import_candidate(wb, run)
@@ -104,14 +129,10 @@ class Probe
 		var wb2 = ReviewWorkbench.create()
 		var imported2 = wb2.import_input(asset_dir + "/l_bracket.step")
 		this.check(imported2, "l bracket imported")
-		var run2 = runner.start("geometry", asset_dir + "/l_bracket.step", 90, nil)
-		if (run2 != nil) {
-			var st2 = Json.parse(wb2.state_json())
-			runner.runs[run2]["context_revision"] = st2["document_revision"]
-			runner.runs[run2]["context_review_revision"] = st2["review_revision"]
-			runner.runs[run2]["context_input_path"] = asset_dir + "/l_bracket.step"
-			runner.runs[run2]["context_input_sha256"] = Tasks.sha256(asset_dir + "/l_bracket.step")
-		}
+		// O05 r2: the same production start path binds the context
+		var run2 = runner.start_bound(wb2, "geometry",
+			asset_dir + "/l_bracket.step", asset_dir + "/l_bracket.step",
+			90, nil)
 		var done2 = this.wait_run(runner, run2, 180000)
 		this.check(done2 != nil, "l bracket recovery reached a terminal state")
 		if (done2 != nil) {
