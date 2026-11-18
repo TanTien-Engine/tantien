@@ -19,9 +19,26 @@ import "intent" for IntentWorkbench
 import "review.routes" for RouteRunner
 import "tasks" for Json, Tasks
 import "filesystem" for Filesystem
+import "cadapp" for CadSession
 
 class Probe
 {
+	// Acceptance output root: default keeps the historical directory, an
+	// explicit CAX_INTEGRATION_ROOT redirects a fresh acceptance run.
+	static integration_root()
+	{
+		var root = CadSession.env("CAX_INTEGRATION_ROOT")
+		if (root == nil) { root = "thirdparty/cax/outputs/integration_20261117" }
+		return root
+	}
+
+	// Child processes run with cwd = cax root: strip the repo prefix when
+	// the root uses the host-relative form (absolute overrides pass through).
+	static child_root(root)
+	{
+		return root.replace("thirdparty/cax/", "")
+	}
+
 	init()
 	{
 		this.fail = 0
@@ -41,12 +58,13 @@ class Probe
 
 	run()
 	{
-		var asset_dir = "thirdparty/cax/outputs/integration_20261117/assets"
+		var root = Probe.integration_root()
+		var asset_dir = root + "/assets"
 		var step_path = asset_dir + "/plate_two_holes.step"
 
 		// ---- A07 setup: ONE shared owner, TWO service facades ----
 		var wb = ReviewWorkbench.create()
-		var events_path = "thirdparty/cax/outputs/integration_20261117/events_chain.jsonl"
+		var events_path = root + "/events_chain.jsonl"
 		Filesystem.remove_file(events_path)
 		wb.set_event_log(events_path)
 		var intent = wb.create_intent()
@@ -63,8 +81,8 @@ class Probe
 		this.check(imported, "real STEP import for recovery")
 
 		var runner = RouteRunner()
-		runner.out_root = "thirdparty/cax/outputs/integration_20261117/routes"
-		runner.out_root_child = "outputs/integration_20261117/routes"
+		runner.out_root = root + "/routes"
+		runner.out_root_child = Probe.child_root(root) + "/routes"
 		runner.probe("")
 		var waited = 0
 		while (runner.caps == nil and waited < 30000) {
@@ -197,7 +215,7 @@ class Probe
 			"two undos restore the depth-12 recovered geometry (got %(measure_back["result"]["volume"]))")
 
 		// ---- A14: save / reopen / continue editing on the SAME document ----
-		var save_path = "thirdparty/cax/outputs/integration_20261117/integrated_doc.cax.json"
+		var save_path = root + "/integrated_doc.cax.json"
 		var saved = Json.parse(intent.save_program("chain-save", save_path))
 		this.check(saved["ok"], "document saved through the intent facade")
 		var reopen = Json.parse(intent.open_program("chain-reopen", save_path))

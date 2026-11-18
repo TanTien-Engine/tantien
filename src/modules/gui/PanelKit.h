@@ -110,6 +110,10 @@ public:
 	void ScrollViewport(float* x, float* y, float* w, float* h) const;
 	// Scroll the active area (wheel inside nested clip / programmatic).
 	void ScrollBy(float dy);
+	// Programmatic locate: set the stored offset of ONE scroll section by
+	// id (clamped at the next ScrollBegin against that section's real
+	// content height). Lets a UI scroll a target row into view.
+	void ScrollSet(uint32_t id, float offset);
 	// Track press/drag on a scrollbar for the active viewport; returns the
 	// new offset. bar_x/bar_w describe the drawn track column.
 	float ScrollbarDrag(uint32_t id, float bar_x, float bar_w);

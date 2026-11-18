@@ -88,6 +88,9 @@ foreign class GUI
 	// wheel_input, NOT here.
 	foreign static scroll_begin(ctx, id, x, y, w, h, content_h)
 	foreign static scroll_end(ctx)
+	// Programmatic locate: set the stored offset of one scroll section (the
+	// upper bound clamps at that section's next scroll_begin).
+	foreign static scroll_set(ctx, id, offset)
 	foreign static scroll_viewport(ctx)
 	foreign static scrollbar(ctx, id, bar_w, content_h)
 	foreign static scrollbar_release()

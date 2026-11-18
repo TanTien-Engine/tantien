@@ -11,9 +11,26 @@ import "review.routes" for RouteRunner
 import "intent" for IntentWorkbench
 import "tasks" for Json, Tasks
 import "filesystem" for Filesystem
+import "cadapp" for CadSession
 
 class Probe
 {
+	// Acceptance output root: default keeps the historical directory, an
+	// explicit CAX_INTEGRATION_ROOT redirects a fresh acceptance run.
+	static integration_root()
+	{
+		var root = CadSession.env("CAX_INTEGRATION_ROOT")
+		if (root == nil) { root = "thirdparty/cax/outputs/integration_20261117" }
+		return root
+	}
+
+	// Child processes run with cwd = cax root: strip the repo prefix when
+	// the root uses the host-relative form (absolute overrides pass through).
+	static child_root(root)
+	{
+		return root.replace("thirdparty/cax/", "")
+	}
+
 	init()
 	{
 		this.fail = 0
@@ -60,7 +77,8 @@ class Probe
 
 	run()
 	{
-		var asset_dir = "thirdparty/cax/outputs/integration_20261117/assets"
+		var root = Probe.integration_root()
+		var asset_dir = root + "/assets"
 
 		// ---- rejection path FIRST: empty/invalid input is refused ----
 		var wb_bad = ReviewWorkbench.create()
@@ -69,20 +87,20 @@ class Probe
 
 		// ---- A03: brep-only input -> domain STEP re-export -> recovery ----
 		var wb = ReviewWorkbench.create()
-		var events_path = "thirdparty/cax/outputs/integration_20261117/events_assets.jsonl"
+		var events_path = root + "/events_assets.jsonl"
 		Filesystem.remove_file(events_path)
 		wb.set_event_log(events_path)
 		var imported = wb.import_input(asset_dir + "/plate_only.brep")
 		this.check(imported, "brep-only input imported natively")
-		var conv_path = "thirdparty/cax/outputs/integration_20261117/converted_brep.step"
+		var conv_path = root + "/converted_brep.step"
 		var conv = Json.parse(wb.export_input_step(conv_path))
 		this.check(conv["ok"], "domain re-export produced a REAL STEP from the brep")
 		this.check(conv["result"]["source_sha256"] != conv["result"]["exported_sha256"],
 			"original and conversion artifact identities recorded separately")
 
 		var runner = RouteRunner()
-		runner.out_root = "thirdparty/cax/outputs/integration_20261117/routes"
-		runner.out_root_child = "outputs/integration_20261117/routes"
+		runner.out_root = root + "/routes"
+		runner.out_root_child = Probe.child_root(root) + "/routes"
 		runner.probe("")
 		var waited = 0
 		while (runner.caps == nil and waited < 30000) {

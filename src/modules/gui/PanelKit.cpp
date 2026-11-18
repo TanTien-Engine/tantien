@@ -298,6 +298,25 @@ void PanelKit::ScrollBy(float dy)
 	m_scroll_offset[s.id] = next;
 }
 
+void PanelKit::ScrollSet(uint32_t id, float offset)
+{
+	// Negative offsets clamp here; the upper bound is applied by the next
+	// ScrollBegin (it clamps against that section's real content height).
+	float next = offset < 0.0f ? 0.0f : offset;
+	m_scroll_offset[id] = next;
+	// Keep an ACTIVE section of the same id consistent this frame too.
+	if (!m_scroll_stack.empty() && m_scroll_stack.back().id == id)
+	{
+		Scroll& s = m_scroll_stack.back();
+		const float max_off = s.content_h > s.viewport.h ? s.content_h - s.viewport.h : 0.0f;
+		if (next > max_off) {
+			next = max_off;
+			m_scroll_offset[id] = next;
+		}
+		s.offset = next;
+	}
+}
+
 float PanelKit::ScrollbarDrag(uint32_t id, float bar_x, float bar_w)
 {
 	if (m_scroll_stack.empty()) {

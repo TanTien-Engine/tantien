@@ -570,6 +570,15 @@ void w_GUI_scroll_end()
 	tt::GUI::Instance()->kit().ScrollEnd();
 }
 
+// Programmatic locate: set the stored offset of one scroll section so the
+// UI can scroll a target row into view (feature navigation).
+void w_GUI_scroll_set()
+{
+	const uint32_t id = (uint32_t)ves_tonumber(2);
+	const float offset = (float)ves_tonumber(3);
+	tt::GUI::Instance()->kit().ScrollSet(id, offset);
+}
+
 void w_GUI_scroll_viewport()
 {
 	float x = 0, y = 0, w = 0, h = 0;
@@ -892,6 +901,7 @@ VesselForeignMethodFn GUIBindMethod(const char* signature)
 
 	if (strcmp(signature, "static GUI.scroll_begin(_,_,_,_,_,_,_)") == 0) return w_GUI_scroll_begin;
 	if (strcmp(signature, "static GUI.scroll_end(_)") == 0) return w_GUI_scroll_end;
+	if (strcmp(signature, "static GUI.scroll_set(_,_,_)") == 0) return w_GUI_scroll_set;
 	if (strcmp(signature, "static GUI.scroll_viewport(_)") == 0) return w_GUI_scroll_viewport;
 	if (strcmp(signature, "static GUI.scrollbar(_,_,_,_)") == 0) return w_GUI_scrollbar;
 	if (strcmp(signature, "static GUI.scrollbar_release()") == 0) return w_GUI_scrollbar_release;

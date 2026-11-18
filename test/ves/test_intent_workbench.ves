@@ -250,7 +250,236 @@ class IntentProbe
 		// measured volume MUST be the exact prism volume 100*60*20.
 		this.check(reopened_measure["result"]["volume"] == 100.0 * 60.0 * 20.0,
 			"reopened measurement matches the edited parameter exactly")
+
+		// ================= F-NAV / F-EDIT: feature navigation + panel
+		// proposals on the reopened document (plate 100x60x20, depth bound
+		// to p_thickness=20, volume 120000). =================
+		import "intent.workbench" for IntentTree
+
+		// nodes_meta rides ONE envelope level above the strict graph body.
+		var meta_proj = Json.parse(wb2.project_graph())
+		var meta = meta_proj["result"]["nodes_meta"]
+		this.check(meta != nil and meta.count > 0, "projection carries nodes_meta")
+		this.check(meta["plate"]["kind"] == "feature" and meta["plate"]["editable"] == true and
+			meta["plate"]["feature_id"] > 0,
+			"extrude node maps to an editable feature id")
+		this.check(meta["plate_sk"]["kind"] == "feature" and meta["plate_sk"]["editable"] == true,
+			"rect sketch node maps to an editable feature")
+		this.check(meta["world_xy"]["kind"] == "frame" and meta["world_xy"]["editable"] == false and
+			meta["world_xy"]["read_only_reason"].count > 0,
+			"frame node is honestly read-only with a reason")
+		this.check(meta["p_length"]["kind"] == "parameter" and
+			meta["p_length"]["editable"] == true and meta["p_length"]["unit"] == "mm",
+			"parameter node maps with its unit")
+		var body_strict = true
+		for (var n in meta_proj["result"]["graph"]["nodes"]) {
+			if (n["feature_id"] != nil or n["editable"] != nil) {
+				body_strict = false
+			}
+		}
+		this.check(body_strict, "graph BODY stays the strict training contract (no meta keys)")
+
+		// Pure mapping: sections, drivers, users over the REAL projection.
+		var secs = IntentTree.sections(meta_proj["result"]["graph"], meta)
+		this.check(secs["features"].count == 2, "level-1 features: sketch + extrude")
+		this.check(secs["parameters"].count == 3, "parameter rows: three drivers")
+		this.check(secs["frames"].count == 1, "frame rows: world fixture")
+		var users_thick = IntentTree.users_of(meta_proj["result"]["graph"], "p_thickness")
+		this.check(users_thick.contains("plate_sk") == false and users_thick.contains("plate"),
+			"p_thickness users resolve to the extrude")
+		var plate_node = nil
+		for (var n in meta_proj["result"]["graph"]["nodes"]) {
+			if (n["id"] == "plate") {
+				plate_node = n
+			}
+		}
+		var drivers_plate = IntentTree.drivers_of(plate_node)
+		this.check(drivers_plate.contains("plate_sk") and drivers_plate.contains("p_thickness"),
+			"extrude drivers resolve to profile + thickness")
+		var pl = IntentTree.params_list(plate_node)
+		this.check(pl.count == 2 and pl[0]["name"] == "distance" and pl[0]["kind"] == "ref",
+			"extrude dims list the distance binding and through flag")
+
+		// Two same-display-name features (two SketchRectangle sketches) and
+		// one shared parameter: each row must hit its OWN stable node id.
+		var begin_boss = Json.parse(wb2.begin_request("fnav-begin-boss"))
+		this.check(begin_boss["ok"], "trusted context for the second sketch")
+		var boss_patch = "{\"schema\":\"cax.intent-patch.v1\""
+		boss_patch = boss_patch + ",\"request_id\":\"fnav-begin-boss\""
+		boss_patch = boss_patch + ",\"document_id\":\"%(begin_boss["result"]["document_id"])\""
+		boss_patch = boss_patch + ",\"base_revision\":%(begin_boss["result"]["base_revision"])"
+		boss_patch = boss_patch + ",\"base_review_revision\":%(begin_boss["result"]["base_review_revision"])"
+		boss_patch = boss_patch + ",\"summary\":\"probe second sketch\""
+		boss_patch = boss_patch + ",\"action\":\"propose\""
+		boss_patch = boss_patch + ",\"operations\":["
+		boss_patch = boss_patch + "{\"op\":\"AddNode\",\"node\":{\"id\":\"hole_sk\",\"op\":\"SketchRectangle\",\"inputs\":{\"plane\":{\"kind\":\"ref\",\"node\":\"world_xy\",\"port\":\"plane\"}},\"params\":{\"length\":{\"kind\":\"literal\",\"value\":\"40\",\"unit\":\"mm\"},\"width\":{\"kind\":\"literal\",\"value\":\"30\",\"unit\":\"mm\"}}}},"
+		boss_patch = boss_patch + "{\"op\":\"AddNode\",\"node\":{\"id\":\"hole\",\"op\":\"CutExtrude\",\"inputs\":{\"profile\":{\"kind\":\"ref\",\"node\":\"hole_sk\",\"port\":\"profile\"},\"base\":{\"kind\":\"ref\",\"node\":\"plate\",\"port\":\"body\"}},\"params\":{\"distance\":{\"kind\":\"ref\",\"node\":\"p_thickness\",\"port\":\"value\"},\"through\":{\"kind\":\"literal\",\"value\":\"0\",\"unit\":\"scalar\"}}}},"
+		boss_patch = boss_patch + "{\"op\":\"SetOutputs\",\"expected\":[{\"kind\":\"ref\",\"node\":\"plate\",\"port\":\"body\"}],\"value\":[{\"kind\":\"ref\",\"node\":\"hole\",\"port\":\"body\"}]}"
+		boss_patch = boss_patch + "]}"
+		var boss_prop = Json.parse(wb2.propose("fnav-begin-boss", boss_patch))
+		if (boss_prop["ok"] != true) {
+			System.print("boss propose reply: %(boss_prop)")
+		}
+		this.check(boss_prop["ok"], "second sketch + cut propose accepted")
+		var boss_adopt = Json.parse(wb2.adopt("fnav-adopt-boss",
+			boss_prop["result"]["candidate_id"]))
+		this.check(boss_adopt["ok"], "second sketch + cut adopted")
+		var after_boss = Json.parse(wb2.project_graph())
+		var meta_boss = after_boss["result"]["nodes_meta"]
+		this.check(meta_boss["hole_sk"]["kind"] == "feature" and
+			meta_boss["hole_sk"]["feature_id"] != meta_boss["plate_sk"]["feature_id"],
+			"two same-op sketches carry DISTINCT stable feature ids")
+		// Click-through: selecting each row's id hits exactly that node.
+		var sel_a = Json.parse(wb2.select_node("plate_sk"))
+		var sel_b = Json.parse(wb2.select_node("hole_sk"))
+		this.check(sel_a["ok"] and sel_b["ok"] and
+			Json.parse(wb2.state_json())["result"]["selected_node"] == "hole_sk",
+			"clicking each same-name row selects ITS stable node id")
+		var secs2 = IntentTree.sections(after_boss["result"]["graph"], meta_boss)
+		this.check(secs2["features"].count == 4, "feature tree grew with the second sketch + cut")
+		// Shared driver: the cut depth binds the SAME p_thickness the plate
+		// depth binds.
+		var users2 = IntentTree.users_of(after_boss["result"]["graph"], "p_thickness")
+		this.check(users2.contains("plate") and users2.contains("hole"),
+			"one driver referenced by MULTIPLE features")
+		var v_cut = Json.parse(wb2.measure())
+		this.check(v_cut["ok"] and v_cut["result"]["volume"] == 120000.0 - 40.0 * 30.0 * 20.0,
+			"blind cut through the shared driver measures exactly (got %(v_cut["result"]["volume"]))")
+
+		// F-EDIT negatives: unknown node / frame / wrong unit refuse BEFORE
+		// staging anything.
+		var fp_bad1 = Json.parse(wb2.propose_feature_param("fep-bad1", "nope", "distance", 12, "mm"))
+		this.check(fp_bad1["ok"] == false, "feature proposal on unknown node refuses")
+		var fp_bad2 = Json.parse(wb2.propose_feature_param("fep-bad2", "world_xy", "plane", 12, "mm"))
+		this.check(fp_bad2["ok"] == false, "feature proposal on a frame refuses")
+		var fp_bad3 = Json.parse(wb2.propose_feature_param("fep-bad3", "plate", "distance", 12, "rad"))
+		this.check(fp_bad3["ok"] == false, "feature proposal with mismatched unit refuses")
+		var rev_before_fp = Json.parse(wb2.state_json())["result"]["revision"]
+		var cand_before_fp = Json.parse(wb2.state_json())["result"]["candidates"].count
+
+		// F-EDIT positive: the panel proposal STAGES a candidate (no adopt)
+		// through the same SetExpression transaction a text proposal takes.
+		var fp = Json.parse(wb2.propose_feature_param("fep-1", "plate", "distance", 24, "mm"))
+		this.check(fp["ok"], "panel proposal of plate.distance = 24 mm stages")
+		var fp_cand = fp["result"]["candidate_id"]
+		var st_fp = Json.parse(wb2.state_json())
+		this.check(st_fp["result"]["revision"] == rev_before_fp,
+			"staging did NOT move the formal document")
+		this.check(st_fp["result"]["candidates"].count == cand_before_fp + 1,
+			"staged candidate is in the review list")
+		var fp_detail = Json.parse(wb2.candidate_json(fp_cand))
+		this.check(fp_detail["ok"] and fp_detail["result"]["replay_ok"],
+			"staged panel candidate replays clean")
+		var fp_shape = wb2.candidate_shape(fp_cand)
+		this.check(fp_shape != nil, "staged panel candidate has an isolated preview shape")
+
+		// Preview + adopt: only the selected target changes (the cut keeps
+		// following p_thickness), exactly one revision advance.
+		var fp_adopt = Json.parse(wb2.adopt("fep-adopt", fp_cand))
+		this.check(fp_adopt["ok"], "panel candidate adopted")
+		var v_fp = Json.parse(wb2.measure())
+		this.check(v_fp["ok"] and v_fp["result"]["volume"] == 100.0 * 60.0 * 24.0 - 40.0 * 30.0 * 20.0,
+			"adopted depth edit measures exactly (got %(v_fp["result"]["volume"]))")
+		var after_fp = Json.parse(wb2.project_graph())
+		var plate_fp = nil
+		for (var n in after_fp["result"]["graph"]["nodes"]) {
+			if (n["id"] == "plate") {
+				plate_fp = n
+			}
+		}
+		var d_after = IntentTree.drivers_of(plate_fp)
+		this.check(d_after.contains("p_thickness") == false,
+			"adopted literal override REPLACES the shared driver binding")
+		// Undo restores the original dimension AND the driver binding.
+		var fp_undo = Json.parse(wb2.undo_adopt("fep-undo"))
+		this.check(fp_undo["ok"], "panel adoption undo restores")
+		var v_undo = Json.parse(wb2.measure())
+		this.check(v_undo["ok"] and v_undo["result"]["volume"] == 120000.0 - 40.0 * 30.0 * 20.0,
+			"undo restores the exact original volume (got %(v_undo["result"]["volume"]))")
+		var after_undo = Json.parse(wb2.project_graph())
+		var plate_undo = nil
+		for (var n in after_undo["result"]["graph"]["nodes"]) {
+			if (n["id"] == "plate") {
+				plate_undo = n
+			}
+		}
+		var d_undo = IntentTree.drivers_of(plate_undo)
+		this.check(d_undo.contains("p_thickness"),
+			"undo restores the shared driver binding")
+
+		// Refresh/mode stability: selection survives projection refreshes
+		// (domain state, not view state).
+		Json.parse(wb2.select_node("hole"))
+		var st_sel = Json.parse(wb2.state_json())
+		this.check(st_sel["result"]["selected_node"] == "hole", "selection set on the cut feature")
+		Json.parse(wb2.project_graph())
+		this.check(Json.parse(wb2.state_json())["result"]["selected_node"] == "hole",
+			"selection survives a projection refresh")
+
+		// Save / reopen / driver re-link: BOTH bound features follow the
+		// shared driver after a fresh session opens the saved document.
+		var path2 = "temp_intent_probe_fnav.bin"
+		var saved2 = Json.parse(wb2.save_program("fnav-save", path2))
+		this.check(saved2["ok"], "feature-edited document saved")
+		var wb3 = IntentWorkbench.create()
+		var opened3 = Json.parse(wb3.open_program("fnav-open", path2))
+		this.check(opened3["ok"], "feature-edited document reopened")
+		var st_open = Json.parse(wb3.state_json())
+		this.check(st_open["result"]["selected_node"] == nil or
+			st_open["result"]["selected_node"] == "",
+			"reopened document does NOT reuse the previous selection")
+		var thick_edit = Json.parse(wb3.edit_set_parameter("fnav-thick", "p_thickness", 30, "mm"))
+		this.check(thick_edit["ok"], "driver edit commits on the reopened document")
+		var v_re = Json.parse(wb3.measure())
+		this.check(v_re["ok"] and v_re["result"]["volume"] == 100.0 * 60.0 * 30.0 - 40.0 * 30.0 * 30.0,
+			"BOTH features follow the shared driver after reopen (got %(v_re["result"]["volume"]))")
+		// New document on the SAME session: selection must not leak across
+		// the document replacement.
+		Json.parse(wb3.select_node("hole"))
+		Json.parse(wb3.new_program("fnav-new"))
+		var st_new = Json.parse(wb3.state_json())
+		this.check(st_new["result"]["selected_node"] == nil or
+			st_new["result"]["selected_node"] == "",
+			"new document clears the previous selection")
+
+		// F07 clarify closure: two feasible targets -> choose -> the SAME
+		// instruction re-proposes scoped to the CHOSEN parameter.
+		Json.parse(wb3.open_program("fnav-open2", path2))
+		var cl = Json.parse(wb3.respond("f07-clarify", "p_length p_width 改为 150 毫米"))
+		this.check(cl["ok"] and cl["result"]["action"] == "clarify",
+			"two feasible targets clarify")
+		var qid = cl["result"]["questions"][0]["id"]
+		var chosen = ""
+		for (var opt in cl["result"]["questions"][0]["options"]) {
+			if (opt["id"] == "p_width") {
+				chosen = opt["id"]
+			}
+		}
+		this.check(chosen == "p_width", "both targets are offered as choices")
+		var dir = Json.parse(wb3.choose_direction("f07-choose", qid, chosen))
+		this.check(dir["ok"], "user picks ONE target")
+		var resp_scoped = Json.parse(wb3.respond("f07-resp", "p_length p_width 改为 150 毫米"))
+		this.check(resp_scoped["ok"] and resp_scoped["result"]["action"] == "propose",
+			"the chosen target generates the candidate")
+		var cl_adopt = Json.parse(wb3.adopt("f07-adopt", resp_scoped["result"]["candidate_id"]))
+		this.check(cl_adopt["ok"], "scoped candidate adopted")
+		var after_cl = Json.parse(wb3.project_graph())
+		var width_now = ""
+		var length_now = ""
+		for (var n in after_cl["result"]["graph"]["nodes"]) {
+			if (n["id"] == "p_width") {
+				width_now = "%(n["params"]["value"]["value"])"
+			}
+			if (n["id"] == "p_length") {
+				length_now = "%(n["params"]["value"]["value"])"
+			}
+		}
+		this.check(width_now.contains("150") and length_now.contains("100") and
+			width_now != length_now,
+			"only the CHOSEN driver moved (p_width=150, p_length untouched)")
+
 		Filesystem.remove_file(path)
+		Filesystem.remove_file(path2)
 
 		System.print("intent workbench probe done: %(this.fail) failure(s)")
 		return this.fail
