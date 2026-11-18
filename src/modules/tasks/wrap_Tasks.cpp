@@ -17,7 +17,9 @@
 // the editor target adds thirdparty/cax/thirdparty/nlohmann/single_include).
 #include <nlohmann/json.hpp>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -32,6 +34,16 @@ namespace
 // pid -> exit code, recorded when poll() first observes the exit so later
 // polls keep answering instead of failing on an already-reaped pid.
 std::map<int, int> g_task_exits;
+
+#ifdef _WIN32
+struct WinProcess
+{
+    HANDLE process = nullptr;
+    HANDLE job = nullptr;
+};
+std::unordered_map<DWORD, WinProcess> g_win_processes;
+#endif
+
 
 void push_int_list(const std::vector<int>& v)
 {
@@ -71,7 +83,31 @@ void w_Tasks_spawn()
     // log exactly like the POSIX branch. The pid doubles as the table key.
     {
         std::string command;
-        for (const auto& part : storage) command += """ + part + "" ";
+        for (const auto& part : storage)
+        {
+            command += '"';
+            size_t backslashes = 0;
+            for (char ch : part)
+            {
+                if (ch == '\\')
+                {
+                    ++backslashes;
+                    continue;
+                }
+                if (ch == '"')
+                {
+                    command.append(backslashes * 2 + 1, '\\');
+                }
+                else
+                {
+                    command.append(backslashes, '\\');
+                }
+                backslashes = 0;
+                command += ch;
+            }
+            command.append(backslashes * 2, '\\');
+            command += "\" ";
+        }
         STARTUPINFOA si{};
         si.cb = sizeof(si);
         PROCESS_INFORMATION pi{};
@@ -460,17 +496,6 @@ void w_Json_parse()
 namespace tt
 {
 
-#ifdef _WIN32
-namespace
-{
-struct WinProcess
-{
-    HANDLE process = nullptr;
-    HANDLE job = nullptr;
-};
-std::unordered_map<DWORD, WinProcess> g_win_processes;
-}
-#endif
 
 VesselForeignMethodFn TasksBindMethod(const char* signature)
 {
