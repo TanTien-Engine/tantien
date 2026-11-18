@@ -79,8 +79,8 @@ class Probe
 			var st0 = Json.parse(wb.state_json())
 			runner.runs[run]["context_revision"] = st0["document_revision"]
 			runner.runs[run]["context_review_revision"] = st0["review_revision"]
-			runner.runs[run]["context_input_path"] = conv_path
-			runner.runs[run]["input_sha256"] = Tasks.sha256(conv_path)
+			runner.runs[run]["context_input_path"] = asset_dir + "/plate_only.brep"
+			runner.runs[run]["context_input_sha256"] = Tasks.sha256(asset_dir + "/plate_only.brep")
 		}
 		var done = this.wait_run(runner, run, 180000)
 		this.check(done != nil and done["status"] == "DELIVERED",
@@ -110,7 +110,7 @@ class Probe
 			runner.runs[run2]["context_revision"] = st2["document_revision"]
 			runner.runs[run2]["context_review_revision"] = st2["review_revision"]
 			runner.runs[run2]["context_input_path"] = asset_dir + "/l_bracket.step"
-			runner.runs[run2]["input_sha256"] = Tasks.sha256(asset_dir + "/l_bracket.step")
+			runner.runs[run2]["context_input_sha256"] = Tasks.sha256(asset_dir + "/l_bracket.step")
 		}
 		var done2 = this.wait_run(runner, run2, 180000)
 		this.check(done2 != nil, "l bracket recovery reached a terminal state")
