@@ -11,7 +11,6 @@ import "review.routes" for RouteRunner
 import "intent" for IntentWorkbench
 import "tasks" for Json, Tasks
 import "filesystem" for Filesystem
-import "io" for IO
 
 class Probe
 {
@@ -44,6 +43,21 @@ class Probe
 		return nil
 	}
 
+	run_file_action(runner, path, code)
+	{
+		var child_path = ReviewWorkbench.to_child_cwd_path(path)
+		var pid = Tasks.spawn([runner.caps["exe"], "-B", "-c", code, child_path], nil, runner.cax_root)
+		if (pid == 0) { return false }
+		var deadline = Tasks.now_ms() + 30000
+		while (Tasks.now_ms() < deadline) {
+			var state = Tasks.poll(pid)
+			if (!state[0]) { return state[1] == 0 }
+			Tasks.wait_ms(20)
+		}
+		Tasks.kill_tree(pid, 1)
+		return false
+	}
+
 	run()
 	{
 		var asset_dir = "thirdparty/cax/outputs/integration_20261117/assets"
@@ -67,6 +81,8 @@ class Probe
 			"original and conversion artifact identities recorded separately")
 
 		var runner = RouteRunner()
+		runner.out_root = "thirdparty/cax/outputs/integration_20261117/routes"
+		runner.out_root_child = "outputs/integration_20261117/routes"
 		runner.probe("")
 		var waited = 0
 		while (runner.caps == nil and waited < 30000) {
@@ -89,27 +105,6 @@ class Probe
 		this.check(done != nil and done["status"] == "DELIVERED",
 			"converted-input recovery DELIVERED (got %(done == nil ? "TIMEOUT" : done["status"]))")
 
-		// O05 r2 negative: mutating the ORIGINAL brep content under the
-		// same path must make the public gate refuse the queued result.
-		var orig_bytes_ok = true
-		var mutated_reply = nil
-		if (done != nil and done["status"] == "DELIVERED") {
-			var f = IO.open(brep_path, "r")
-			var original_content = f.read()
-			f.close()
-			var g = IO.open(brep_path, "w")
-			g.write(original_content + "\n// probe content mutation\n")
-			g.close()
-			mutated_reply = runner.import_candidate(wb, run)
-			orig_bytes_ok = (mutated_reply != nil and
-				mutated_reply["ok"] == false and
-				mutated_reply["error"].contains("input content"))
-			var h = IO.open(brep_path, "w")
-			h.write(original_content)
-			h.close()
-		}
-		this.check(done != nil and done["status"] != "DELIVERED" or orig_bytes_ok,
-			"gate refuses the queued result after original-content mutation")
 
 		// The full chain on the converted input: import/validate/adopt.
 		var imp = runner.import_candidate(wb, run)
@@ -124,6 +119,28 @@ class Probe
 		this.check(m["ok"] and m["result"]["volume"] > 46000 and
 			m["result"]["volume"] < 47000,
 			"brep-origin document measures the plate volume (got %(m["result"]["volume"]))")
+
+		// O05 r2 negative: mutating the ORIGINAL brep content under the
+		// same path must make the public gate refuse the queued result.
+		var orig_bytes_ok = true
+		var mutated_reply = nil
+		if (done != nil and done["status"] == "DELIVERED") {
+			var current = Json.parse(wb.state_json())
+			runner.runs[run]["context_revision"] = current["document_revision"]
+			runner.runs[run]["context_review_revision"] = current["review_revision"]
+			var original_sha = Tasks.sha256(brep_path)
+			var mutate_code = "import pathlib,sys; p=pathlib.Path(sys.argv[1]); b=p.with_name(p.name+'.probe-backup'); assert not b.exists(); b.write_bytes(p.read_bytes()); p.write_bytes(p.read_bytes()+b'\\nprobe mutation\\n')"
+			var restore_code = "import os,pathlib,sys; p=pathlib.Path(sys.argv[1]); b=p.with_name(p.name+'.probe-backup'); os.replace(b,p)"
+			var mutated = this.run_file_action(runner, brep_path, mutate_code)
+			if (mutated) { mutated_reply = runner.import_candidate(wb, run) }
+			var restored = this.run_file_action(runner, brep_path, restore_code)
+			orig_bytes_ok = (mutated and restored and original_sha == Tasks.sha256(brep_path) and
+				mutated_reply != nil and mutated_reply["ok"] == false and
+				mutated_reply["error"].contains("input content"))
+		}
+		this.check(done != nil and done["status"] != "DELIVERED" or orig_bytes_ok,
+			"gate refuses the queued result after original-content mutation")
+
 
 		// ---- A02b: a DIFFERENT supported structure (L bracket) ----
 		var wb2 = ReviewWorkbench.create()

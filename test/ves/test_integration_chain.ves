@@ -63,6 +63,8 @@ class Probe
 		this.check(imported, "real STEP import for recovery")
 
 		var runner = RouteRunner()
+		runner.out_root = "thirdparty/cax/outputs/integration_20261117/routes"
+		runner.out_root_child = "outputs/integration_20261117/routes"
 		runner.probe("")
 		var waited = 0
 		while (runner.caps == nil and waited < 30000) {
@@ -80,18 +82,8 @@ class Probe
 
 		// review StateJson is a BARE object (no {ok,result} envelope)
 		var state_before = Json.parse(wb.state_json())["document_revision"]
-		var run_id = runner.start("geometry", step_path, 90, nil)
+		var run_id = runner.start_bound(wb, "geometry", step_path, step_path, 90, nil)
 		this.check(run_id != nil, "RecoverStep subprocess started (%(run_id))")
-		if (run_id != nil) {
-			// N03: bind the run's start context (the workbench does the
-			// same before its auto-import gate will admit the result).
-			var st0 = Json.parse(wb.state_json())
-			runner.runs[run_id]["context_revision"] = st0["document_revision"]
-			runner.runs[run_id]["context_review_revision"] = st0["review_revision"]
-			runner.runs[run_id]["context_input_path"] = step_path
-			runner.runs[run_id]["context_input_sha256"] = Tasks.sha256(step_path)
-			runner.runs[run_id]["input_sha256"] = Tasks.sha256(step_path)
-		}
 
 		// A17: the window/event loop stays responsive while the recovery
 		// subprocess runs (this probe IS the frame thread; poll() keeps
