@@ -14,10 +14,8 @@ bool CloseHandle(void*) { return true; }
 // shared with the headless ves_test harness. Only the runtime headers the
 // editor itself calls into remain here.
 #include "ves_host.h"
-#ifdef __APPLE__
-#include "modules/render/Render.h"  // Render::Instance()->Context() for the Metal present
+#include "modules/render/Render.h"
 #include <unirender/Context.h>
-#endif
 #include "modules/system/System.h"      // tt::System::Instance() singleton
 #include "modules/io/Keyboard.h"        // tt::Keyboard::RegisterCallback
 #include "cax/brepgraph_c/BrepGraph.h"  // brepgraph::init_cb()
