@@ -73,9 +73,13 @@ class Node
 		// The canvas replays these built Painters/text every frame and only
 		// rebuilds them when render_dirty is set, killing the per-frame
 		// Painter.init() GC churn. render_dirty starts true so the first draw
-		// builds; render_lod tracks the scale<2 LOD band the cache was built for.
+		// builds; render_lod tracks the scale<2 LOD band the cache was built
+		// for; render_epoch tracks Graphics.palette_epoch() at build time --
+		// painters bake the palette white UV, so a DTex palette relocation
+		// invalidates the cache and NodeRender rebuilds once (see draw_node).
 		this.render_dirty = true
 		this.render_lod = nil
+		this.render_epoch = -1
 		this.cache_painters = nil
 		this.cache_texts = nil
 	}

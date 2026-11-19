@@ -119,7 +119,7 @@ void Graphics::RelocatePaletteUV()
 	int block_id;
 	ur::TexturePtr cached_tex = nullptr;
 	auto cached_texcoords = DTex::Instance()->QuerySymbol(uid, cached_tex, block_id);
-	if (cached_texcoords) 
+	if (cached_texcoords)
     {
         sm::rect r;
         r.xmin = cached_texcoords[0];
@@ -127,6 +127,11 @@ void Graphics::RelocatePaletteUV()
         r.xmax = cached_texcoords[2];
         r.ymax = cached_texcoords[5];
         palette->RelocateUV(cached_tex, r);
+        // the palette texture + its white UV just moved: every painter cache
+        // built before this point bakes the old white UV and now samples a
+        // wrong texel (cached panel rects / pin circles vanish). Bump the
+        // epoch so consumers (e.g. the canvas render cache) rebuild.
+        m_palette_epoch++;
     }
     else
     {

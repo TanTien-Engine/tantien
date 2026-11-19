@@ -23,6 +23,20 @@ class NodeRender
 	static draw_node(node)
 	{
 		var lod = BLACKBOARD.editor_cam.scale < 2
+
+		// The palette texture can be re-pointed into the DTex atlas at any
+		// frame (Graphics::RelocatePaletteUV, enabled in the editor's main).
+		// Painters bake the palette white UV at build time (Palette.cpp
+		// GetWhiteUV), so every cached panel rect / pin circle painted before
+		// the relocation samples a wrong texel afterwards -- node panels turn
+		// invisible until something else rebuilds the cache (e.g. crossing the
+		// lod band by zooming). Stamp the epoch per node and rebuild once.
+		var epoch = Graphics.palette_epoch()
+		if (node.render_epoch != epoch) {
+			node.render_epoch = epoch
+			node.render_dirty = true
+		}
+
 		if (node.render_dirty or node.render_lod != lod or node.cache_painters == nil) {
 			this.build_cache(node, lod)
 			node.render_dirty = false

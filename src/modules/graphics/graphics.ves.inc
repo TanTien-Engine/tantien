@@ -78,6 +78,11 @@ foreign class Graphics
 	foreign static get_width()
 	foreign static get_height()
 
+	// bumped every time the palette texture is re-pointed into the DTex atlas;
+	// cached painters bake the palette white UV at build time and must be
+	// rebuilt when this changes
+	foreign static palette_epoch()
+
 	// for debug draw
 	foreign static set_intense(intense)
 

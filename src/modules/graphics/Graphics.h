@@ -38,6 +38,12 @@ public:
 	auto GetWidth() const { return m_width; }
 	auto GetHeight() const { return m_height; }
 
+	// Incremented every time the palette texture is re-pointed into the DTex
+	// atlas (RelocatePaletteUV). Painters bake the palette white UV at build
+	// time, so a relocation silently invalidates every cached painter; consumers
+	// (e.g. the blueprint canvas render cache) watch this epoch and rebuild.
+	auto GetPaletteEpoch() const { return m_palette_epoch; }
+
 	void EnableDTex(bool enable);
 
 private:
@@ -51,6 +57,8 @@ private:
 	std::shared_ptr<SpriteRenderer> m_spr_rd = nullptr;
 
 	bool m_use_dtex = false;
+
+	int m_palette_epoch = 0;
 
 	TT_SINGLETON_DECLARATION(Graphics)
 
